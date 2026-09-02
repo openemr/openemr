@@ -595,6 +595,64 @@ class UserManagementApiTest extends TestCase
     }
 
     /**
+     * A new-user password that exceeds the maximum length is reported against `password`.
+     *
+     * AuthUtils validates the new user's password and the acting admin's credential in the
+     * same call and surfaces both through one error string, so an unmapped message defaults
+     * to `admin_password` and tells the caller their admin credential is wrong.
+     */
+    #[Test]
+    public function testPostTooLongPasswordReportsPasswordField(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_longpw_" . bin2hex(random_bytes(4));
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => str_repeat("aB3!", 25),
+            "admin_password" => $adminPass,
+            "fname" => "Long",
+            "lname" => "Password",
+            "access_group" => ["Physicians"],
+        ]);
+        self::$createdUsernames[] = $username;
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('password', $validationErrors);
+        $this->assertArrayNotHasKey('admin_password', $validationErrors);
+    }
+
+    /**
+     * A new-user password that fails the strength check is reported against `password`.
+     */
+    #[Test]
+    public function testPostWeakPasswordReportsPasswordField(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_weakpw_" . bin2hex(random_bytes(4));
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "aaaaaaaaaaaa",
+            "admin_password" => $adminPass,
+            "fname" => "Weak",
+            "lname" => "Password",
+            "access_group" => ["Physicians"],
+        ]);
+        self::$createdUsernames[] = $username;
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('password', $validationErrors);
+        $this->assertArrayNotHasKey('admin_password', $validationErrors);
+    }
+
+    /**
      * A facility_id that matches no facility is rejected.
      */
     #[Test]

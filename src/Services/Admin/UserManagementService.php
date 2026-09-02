@@ -242,6 +242,8 @@ class UserManagementService extends UserService
                 $field = match (true) {
                     $errorMsg === xl("Incorrect password!") => 'admin_password',
                     $errorMsg === xl("Password not long enough"),
+                    $errorMsg === xl("Password too long"),
+                    $errorMsg === xl("Password not strong enough"),
                     $errorMsg === xl("Empty Password Not Allowed") => 'password',
                     $errorMsg === xl("Trying to create user with existing username!") => 'username',
                     default => 'admin_password',
