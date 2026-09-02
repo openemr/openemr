@@ -1782,7 +1782,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept array\\<string, array\\<string, string\\>\\>\\.$#',
+    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept array\\<array\\<string, string\\>\\|string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',
 ];
