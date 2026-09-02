@@ -365,9 +365,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     public function getVitalsCalculatedService(): VitalsCalculatedService
     {
-        if (!isset($this->calculatedService)) {
-            $this->calculatedService = new VitalsCalculatedService();
-        }
+        $this->calculatedService ??= new VitalsCalculatedService();
         return $this->calculatedService;
     }
     /**

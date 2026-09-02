@@ -29,21 +29,17 @@ class ControllerAlerts extends BaseController
         parent::__construct();
     }
 
-    function _action_listactmgr()
+    public function _action_listactmgr()
     {
         $c = new CdrAlertManager();
-        // Instantiating object if does not exist to avoid
-        //    "creating default object from empty value" warning.
-        if (!isset($this->viewBean)) {
-            $this->viewBean = new \stdClass();
-        }
+        $this->viewBean ??= new \stdClass();
 
         $this->viewBean->rules = $c->populate();
         $this->set_view("list_actmgr.php");
     }
 
 
-    function _action_submitactmgr()
+    public function _action_submitactmgr()
     {
 
 
@@ -87,11 +83,7 @@ class ControllerAlerts extends BaseController
         // Reflect the changes to the database.
         $c = new CdrAlertManager();
         $c->update($ids, $actives_final, $passives_final, $reminders_final, $access_controls);
-        // Instantiating object if does not exist to avoid
-        //    "creating default object from empty value" warning.
-        if (!isset($this->viewBean)) {
-            $this->viewBean = new \stdClass();
-        }
+        $this->viewBean ??= new \stdClass();
 
         $this->forward("listactmgr");
     }

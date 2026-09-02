@@ -66,9 +66,7 @@ class TranslationCache
      */
     public static function set(int $langId, string $constant, string $definition): void
     {
-        if (!isset(self::$cache[$langId])) {
-            self::$cache[$langId] = [];
-        }
+        self::$cache[$langId] ??= [];
         self::$cache[$langId][$constant] = $definition;
     }
 

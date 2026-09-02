@@ -223,9 +223,7 @@ class FHIRTaskRestriction extends FHIRBackboneElement implements \JsonSerializab
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TaskRestriction xmlns="http://hl7.org/fhir"></TaskRestriction>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TaskRestriction xmlns="http://hl7.org/fhir"></TaskRestriction>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->repetitions)) {
             $this->repetitions->xmlSerialize(true, $sxe->addChild('repetitions'));

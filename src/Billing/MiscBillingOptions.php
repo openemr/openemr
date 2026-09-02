@@ -14,7 +14,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (C) 2013 OEMR
- * @copyright Copyright (C) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

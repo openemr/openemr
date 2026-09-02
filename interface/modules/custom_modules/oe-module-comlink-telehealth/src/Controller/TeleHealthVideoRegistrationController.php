@@ -59,9 +59,7 @@ class TeleHealthVideoRegistrationController
 
     public function getUserRepository()
     {
-        if (!isset($this->userRepository)) {
-            $this->userRepository = new TeleHealthUserRepository();
-        }
+        $this->userRepository ??= new TeleHealthUserRepository();
         return $this->userRepository;
     }
 

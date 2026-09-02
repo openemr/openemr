@@ -6,7 +6,7 @@
  * @package   OpenEMR Module
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,9 +15,11 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -30,14 +32,20 @@ if ($_POST) {
 }
 
 $wenoLog = new WenoLogService();
+$moduleService = new ModuleService();
+// Greenway import display staff (gwstaff*/GS:) are not Weno prescribers.
+$usersData = $moduleService->getWenoProviderUsers();
 
-$fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > ''");
-$usersData = [];
-while ($row = sqlFetchArray($fetch)) {
-    $usersData[] = $row;
-}
-
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$session->get('authUserID') ?? 0]);
+$defaultUserFacility = sqlQuery(
+    "SELECT id,username,lname,fname,weno_prov_id,facility,facility_id
+       FROM `users`
+      WHERE active = 1
+        AND `username` > ''
+        AND `username` NOT LIKE 'gwstaff%'
+        AND (`info` IS NULL OR `info` NOT LIKE 'GS:%')
+        AND id = ?",
+    [$session->get('authUserID') ?? 0]
+);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -46,11 +54,52 @@ while ($row = sqlFetchArray($list)) {
 
 if (($_POST['save'] ?? false) == 'true') {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
-        sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
-        sqlQuery(
-            "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-            ['global:weno_provider_uid', $weno_prov_id, $id, $weno_prov_id, $id]
+        $postedUid = trim(is_scalar($weno_prov_id) ? (string) $weno_prov_id : '');
+        // Never configure Greenway migration display staff as Weno providers.
+        $isGreenwayStaff = sqlQuery(
+            "SELECT id FROM users
+              WHERE id = ?
+                AND (username LIKE 'gwstaff%' OR info LIKE 'GS:%')
+              LIMIT 1",
+            [$id]
         );
+        if (!empty($isGreenwayStaff['id'])) {
+            continue;
+        }
+        $currentUser = QueryUtils::querySingleRow("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
+        $currentSetting = QueryUtils::querySingleRow(
+            "SELECT setting_value FROM user_settings WHERE setting_label = 'global:weno_provider_uid' AND setting_user = ? LIMIT 1",
+            [$id]
+        );
+
+        $currentUserUidRaw = $currentUser['weno_prov_id'] ?? '';
+        $currentSettingUidRaw = $currentSetting['setting_value'] ?? '';
+        $currentUserUid = trim(is_scalar($currentUserUidRaw) ? (string) $currentUserUidRaw : '');
+        $currentSettingUid = trim(is_scalar($currentSettingUidRaw) ? (string) $currentSettingUidRaw : '');
+        $resolvedUid = $postedUid;
+
+        if ($resolvedUid === '' && $currentUserUid !== '') {
+            $resolvedUid = $currentUserUid;
+        }
+        if ($resolvedUid === '' && $currentSettingUid !== '') {
+            $resolvedUid = $currentSettingUid;
+        }
+
+        if ($resolvedUid === '') {
+            continue;
+        }
+
+        if ($currentUserUid !== $resolvedUid) {
+            sqlStatement("UPDATE users SET weno_prov_id = ? WHERE id = ?", [$resolvedUid, $id]);
+        }
+
+        if ($currentSettingUid !== $resolvedUid) {
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO user_settings (setting_label, setting_value, setting_user) VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), setting_user = VALUES(setting_user)",
+                ['global:weno_provider_uid', $resolvedUid, $id]
+            );
+        }
     }
 
     $posted = json_encode($_POST);
@@ -105,7 +154,8 @@ if (($_POST['save'] ?? false) == 'true') {
                 </thead>
                 <tbody>
                 <?php foreach ($usersData as $user) {
-                    if (empty($user['facility'])) {
+                    $userFacility = $user['facility'] ?? null;
+                    if ($userFacility === null || $userFacility === '') {
                         $user['facility'] = xlt("Please add Users Default Facility");
                     }
                     ?>

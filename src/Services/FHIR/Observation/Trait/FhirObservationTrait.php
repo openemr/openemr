@@ -68,9 +68,7 @@ trait FhirObservationTrait
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
@@ -243,7 +241,10 @@ trait FhirObservationTrait
                     $valueCoding = new FHIRCoding();
                     $valueCoding->setSystem(new FHIRUri($system));
                     $valueCoding->setCode(new FHIRCode($code));
-                    $valueCoding->setDisplay($codeDescription ?? $this->getCodeTypesService()->lookup_code_description($value));
+                    // The CodeableConcept branch is only selected when
+                    // $codeDescription is non-empty (see $valueType above), so
+                    // there is no description to look up here.
+                    $valueCoding->setDisplay($codeDescription);
                     $valueCC->addCoding($valueCoding);
                     $observation->setValueCodeableConcept($valueCC);
                     break;
@@ -606,9 +607,7 @@ trait FhirObservationTrait
 
     public function getProvenanceService(): FhirProvenanceService
     {
-        if (!isset($this->fhirProvenanceService)) {
-            $this->fhirProvenanceService = new FhirProvenanceService();
-        }
+        $this->fhirProvenanceService ??= new FhirProvenanceService();
         return $this->fhirProvenanceService;
     }
 

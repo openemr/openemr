@@ -144,9 +144,7 @@ class FHIRParticipantRequired extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ParticipantRequired xmlns="http://hl7.org/fhir"></ParticipantRequired>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ParticipantRequired xmlns="http://hl7.org/fhir"></ParticipantRequired>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

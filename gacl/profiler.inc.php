@@ -37,7 +37,7 @@ class Profiler {
     /**
     * Initialise the timer. with the current micro time
     */
-    function __construct( $output_enabled=false, $trace_enabled=false)
+    public function __construct( $output_enabled=false, $trace_enabled=false)
     {
         $this->description = [];
         $this->startTime = [];
@@ -63,7 +63,7 @@ class Profiler {
     *   @param string $name name of the timer
     *   @param string $desc description of the timer
     */
-    function startTimer($name, $desc="" ){
+    public function startTimer($name, $desc="" ){
         $this->trace.="start   $name\n";
         $n=array_push( $this->stack, $this->cur_timer );
         $this->__suspendTimer( $this->stack[$n-1] );
@@ -81,7 +81,7 @@ class Profiler {
     *   Restart the timer that was running before this one
     *   @param string $name name of the timer
     */
-    function stopTimer($name){
+    public function stopTimer($name){
         $this->trace.="stop    $name\n";
         $this->endTime[$name] = $this->getMicroTime();
         if (!array_key_exists($name, $this->running))
@@ -96,7 +96,7 @@ class Profiler {
     *   measure the elapsed time of a timer without stoping the timer if
     *   it is still running
     */
-    function elapsedTime($name){
+    public function elapsedTime($name){
         // This shouldn't happen, but it does once.
         if (!array_key_exists($name,$this->startTime))
             return 0;
@@ -113,7 +113,7 @@ class Profiler {
     *   Measure the elapsed time since the profile class was initialised
     *
     */
-    function elapsedOverall(){
+    public function elapsedOverall(){
         $oaTime = $this->getMicroTime() - $this->initTime;
         return($oaTime);
     }//end start_time
@@ -122,7 +122,7 @@ class Profiler {
     *   print out a log of all the timers that were registered
     *
     */
-    function printTimers($enabled=false)
+    public function printTimers($enabled=false)
     {
         if($this->output_enabled||$enabled){
             $TimedTotal = 0;
@@ -164,7 +164,7 @@ class Profiler {
         }
     }
 
-    function printTrace( $enabled=false )
+    public function printTrace( $enabled=false )
     {
         if($this->trace_enabled||$enabled){
             print("<pre>");
@@ -179,7 +179,7 @@ class Profiler {
     * Get the current time as accuratly as possible
     *
     */
-    function getMicroTime(){
+    public function getMicroTime(){
         $tmp=explode(" ",microtime());
         $rt=$tmp[0]+$tmp[1];
         return $rt;
@@ -189,7 +189,7 @@ class Profiler {
     * resume  an individual timer
     *
     */
-    function __resumeTimer($name){
+    public function __resumeTimer($name){
         $this->trace.="resume  $name\n";
         $this->startTime[$name] = $this->getMicroTime();
     }
@@ -198,7 +198,7 @@ class Profiler {
     *   suspend  an individual timer
     *
     */
-    function __suspendTimer($name){
+    public function __suspendTimer($name){
         $this->trace.="suspend $name\n";
         $this->endTime[$name] = $this->getMicroTime();
         if (!array_key_exists($name, $this->running))

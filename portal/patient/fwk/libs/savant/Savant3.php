@@ -947,10 +947,7 @@ class Savant3 implements \Stringable
      */
     public function fetch($tpl = null)
     {
-        // make sure we have a template source to work with
-        if (is_null($tpl)) {
-            $tpl = $this->__config ['template'];
-        }
+        $tpl ??= $this->__config ['template'];
 
         // get a path to the compiled template script
         $result = $this->template($tpl);
@@ -1022,10 +1019,7 @@ class Savant3 implements \Stringable
      */
     protected function template($tpl = null)
     {
-        // set to default template if none specified.
-        if (is_null($tpl)) {
-            $tpl = $this->__config ['template'];
-        }
+        $tpl ??= $this->__config ['template'];
 
         // find the template source.
         $file = $this->findFile('template', $tpl);

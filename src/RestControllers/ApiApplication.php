@@ -51,9 +51,7 @@ class ApiApplication
 
     public function getDispatcher(): EventDispatcherInterface
     {
-        if (!isset($this->dispatcher)) {
-            $this->dispatcher = new EventDispatcher();
-        }
+        $this->dispatcher ??= new EventDispatcher();
         return $this->dispatcher;
     }
     public function setResponseMode(int $responseMode)

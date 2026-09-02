@@ -554,9 +554,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
@@ -573,9 +571,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     public function getPrescriptionService(): PrescriptionService
     {
-        if (!isset($this->prescriptionService)) {
-            $this->prescriptionService = new PrescriptionService();
-        }
+        $this->prescriptionService ??= new PrescriptionService();
         return $this->prescriptionService;
     }
 
@@ -589,9 +585,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function getFhirOrganizationService(): FhirOrganizationService
     {
-        if (!isset($this->fhirOrganizationService)) {
-            $this->fhirOrganizationService = new FhirOrganizationService();
-        }
+        $this->fhirOrganizationService ??= new FhirOrganizationService();
         return $this->fhirOrganizationService;
     }
 

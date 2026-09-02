@@ -292,18 +292,31 @@ done
 # wasn't seeded correctly. Same signal /api/version reads later, but
 # available immediately without needing the REST API bootstrap.
 #
+# Assertion source: ACCEPTANCE_EXPECTED_VERSION env if set, else the
+# positional VERSION arg. The env variant is set by the acceptance
+# workflow to the same value it feeds the PHPUnit version-display /
+# version-api groups — on the build_locally path this reads the
+# checkout's version.php (the actual shipped self-reported version),
+# NOT the cosmetic `--release-version` label passed to PackageAssembler
+# (99.99.99 default). VERSION as fallback keeps this script usable
+# standalone (dev-time boot without the workflow's env-plumbing) and
+# on the shipped-tarball path where label == actual anyway. See
+# openemr/openemr#13753 for the full failure trace when the two
+# diverged.
+#
 # Root creds `root/root` are the acceptance stack default
 # (`.github/docker/acceptance-package-compose.yml:MYSQL_ROOT_PASSWORD`).
 # `-sN` = silent + no column headers; direct scalar output.
 # `mariadb` (not `mysql`) — the mariadb 11.8 image ships only the
 # `mariadb` client binary; `mysql` is not on $PATH.
-echo "==> Asserting DB version matches ${VERSION}"
+EXPECTED="${ACCEPTANCE_EXPECTED_VERSION:-${VERSION}}"
+echo "==> Asserting DB version matches ${EXPECTED}"
 DB_VERSION="$(docker compose exec -T mysql \
     mariadb -uroot -proot openemr -sN \
     -e "SELECT CONCAT(v_major,'.',v_minor,'.',v_patch) FROM version" \
     2>/dev/null || echo "query-failed")"
-if [[ "${DB_VERSION}" != "${VERSION}" ]]; then
-    echo "::error::post-install DB version '${DB_VERSION}' does not match expected '${VERSION}' (see openemr/openemr#13634)" >&2
+if [[ "${DB_VERSION}" != "${EXPECTED}" ]]; then
+    echo "::error::post-install DB version '${DB_VERSION}' does not match expected '${EXPECTED}' (see openemr/openemr#13634)" >&2
     exit 1
 fi
 echo "    DB version=${DB_VERSION}"

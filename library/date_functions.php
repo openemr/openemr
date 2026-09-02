@@ -21,10 +21,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  */
 function dateformat(?int $timestamp = null, bool $with_dow = false): string
 {
-    // without an argument, display current date
-    if ($timestamp === null) {
-        $timestamp = time();
-    }
+    $timestamp ??= time();
 
     // Perf optimization: short-circuit English, see #13497/#13507
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
