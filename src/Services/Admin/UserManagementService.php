@@ -85,7 +85,7 @@ class UserManagementService extends UserService
         $enrichedData = [];
         foreach ($currentData as $record) {
             $username = $record['username'] ?? null;
-            $key = is_string($username) ? $username : '';
+            $key = is_string($username) ? self::foldUsername($username) : '';
             $record['acl_groups'] = $aclGroupsByUsername[$key] ?? [];
             $enrichedData[] = $record;
         }
@@ -376,13 +376,27 @@ class UserManagementService extends UserService
      * that helper: direct (non-recursive) ARO group memberships in the `users`
      * section, with the group *name* column as the title, sorted per user.
      *
-     * Matching is case-sensitive (BINARY), consistent with every other username lookup in
-     * the codebase. gacl_aro.value has no unique index and usernames are case-sensitive, so
-     * `Smith` and `smith` can both hold AROs; a case-insensitive match would report the union
-     * of both users' groups against each of them.
+     * Matching is case-insensitive, deliberately unlike the BINARY username lookups used
+     * against the `users` table. gacl resolves an ARO with a plain equality compare
+     * (Gacl::acl_get_groups(), GaclApi::get_object_id()), so under the install default
+     * collation `Smith` is *enforced* with `smith`'s groups; matching case-sensitively here
+     * would report none and leave the privilege view disagreeing with what is enforced.
+     * `gacl_aro` also carries UNIQUE KEY (section_value, value), so the two cannot hold
+     * separate AROs and there is no union to guard against. A plain IN() keeps that index
+     * usable, where `BINARY aro.value` is non-sargable and scans the table per list page.
+     *
+     * Keys are case-folded for the same reason: the ARO stores whichever spelling was
+     * registered, so callers must fold the `users.username` they look up with.
+     *
+     * Note the two sides use different folding rules -- the IN() binds raw usernames and is
+     * folded by the column collation, while the keying uses mb_strtolower(). They agree over
+     * the ASCII set UserValidator admits, and the collation folds at least as much as
+     * mb_strtolower() does, so the query returns a superset: a row the collation matched but
+     * mb_strtolower() would not is keyed under a fold no user matches and is simply dropped.
+     * That direction can only under-report, never attribute one user's groups to another.
      *
      * @param list<string> $usernames
-     * @return array<string, list<string>> username => sorted group titles
+     * @return array<string, list<string>> case-folded username => sorted group titles
      */
     private function fetchAclGroupTitles(array $usernames): array
     {
@@ -395,7 +409,7 @@ class UserManagementService extends UserService
                 FROM gacl_aro aro
                 INNER JOIN gacl_groups_aro_map map ON map.aro_id = aro.id
                 INNER JOIN gacl_aro_groups grp ON grp.id = map.group_id
-                WHERE aro.section_value = 'users' AND BINARY aro.value IN (" . $placeholders . ")";
+                WHERE aro.section_value = 'users' AND aro.value IN (" . $placeholders . ")";
 
         /** @var list<array<string, mixed>> $rows */
         $rows = QueryUtils::fetchRecords($sql, $usernames);
@@ -408,7 +422,7 @@ class UserManagementService extends UserService
             if (!is_string($username) || !is_string($title)) {
                 continue;
             }
-            $titlesByUsername[$username][] = $title;
+            $titlesByUsername[self::foldUsername($username)][] = $title;
         }
 
         foreach ($titlesByUsername as &$titles) {
@@ -417,6 +431,18 @@ class UserManagementService extends UserService
         unset($titles);
 
         return $titlesByUsername;
+    }
+
+    /**
+     * Case-fold a username for keying ACL lookups.
+     *
+     * gacl matches ARO values with a plain equality compare, so the case the ARO happens to
+     * be stored under need not match the `users.username` row it belongs to. Folding both
+     * sides keeps the enrichment lookup in step with what gacl actually resolves.
+     */
+    private static function foldUsername(string $username): string
+    {
+        return mb_strtolower($username, 'UTF-8');
     }
 
     /**

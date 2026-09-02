@@ -286,6 +286,56 @@ class UserManagementApiTest extends TestCase
     }
 
     /**
+     * ACL groups are reported for a user whose ARO is stored under a different case.
+     *
+     * gacl resolves an ARO with a plain equality compare, so under the install default
+     * collation an ARO stored as `SMITH` still enforces its groups for the `smith` user row.
+     * The enrichment must agree with that: a case-sensitive match reports no groups while
+     * the user is in fact granted them, which under-reports privileges in the admin view.
+     */
+    #[Test]
+    public function testGetReportsAclGroupsWhenAroCaseDiffers(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_aclcase_" . bin2hex(random_bytes(4));
+
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "PHPUnit",
+            "lname" => "AclCase",
+            "access_group" => ["Physicians"],
+        ]);
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        self::$createdUsernames[] = $username;
+
+        // Store the ARO under a different case than the users row, which is the state gacl
+        // itself tolerates: the unique key on (section_value, value) is case-insensitive, so
+        // this is an update of the same row rather than a second ARO.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE gacl_aro SET value = ? WHERE section_value = 'users' AND value = ?",
+            [strtoupper($username), $username]
+        );
+
+        try {
+            $listResponse = $this->testClient->get(self::API_ENDPOINT, ["username" => $username]);
+            $listBody = $this->decodeResponse($listResponse);
+            /** @var list<array<string, mixed>> $listData */
+            $listData = $listBody["data"] ?? [];
+            $this->assertCount(1, $listData);
+            /** @var list<string> $aclGroups */
+            $aclGroups = $listData[0]["acl_groups"] ?? [];
+            $this->assertContains("Physicians", $aclGroups);
+        } finally {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE gacl_aro SET value = ? WHERE section_value = 'users' AND value = ?",
+                [$username, strtoupper($username)]
+            );
+        }
+    }
+
+    /**
      * Optional profile fields supplied on create are persisted.
      */
     #[Test]
