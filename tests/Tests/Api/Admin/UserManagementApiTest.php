@@ -72,6 +72,27 @@ class UserManagementApiTest extends TestCase
     // ----------------------------------------------------------------
 
     /**
+     * Reads a global's effective value, falling back to the compiled default when the
+     * `globals` row is absent.
+     *
+     * The password checks these tests rely on are each gated by a global, and the gating
+     * values differ between a fresh install and a database upgraded from an older release
+     * (the upgrade-from-5.0.0 CI config has `secure_password` off). Reading the value lets a
+     * test skip where its precondition does not hold, rather than asserting a behaviour the
+     * install has deliberately turned off.
+     */
+    private function globalValue(string $name, string $default): string
+    {
+        $row = QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = ?", [$name]);
+        $value = is_array($row) ? ($row['gl_value'] ?? null) : null;
+        if (is_string($value)) {
+            return $value;
+        }
+
+        return is_int($value) ? (string) $value : $default;
+    }
+
+    /**
      * The list endpoint returns users with the admin-only fields (username, authorized, acl_groups, uuid).
      */
     #[Test]
@@ -799,6 +820,10 @@ class UserManagementApiTest extends TestCase
     #[Test]
     public function testPostTooLongPasswordReportsPasswordField(): void
     {
+        if ($this->globalValue('gbl_maximum_password_length', '72') === '0') {
+            $this->markTestSkipped('gbl_maximum_password_length is "No Maximum" on this install.');
+        }
+
         $adminPass = getenv("OE_PASS", true) ?: "pass";
         $username = "phpunit_longpw_" . bin2hex(random_bytes(4));
         $response = $this->testClient->post(self::API_ENDPOINT, [
@@ -826,6 +851,10 @@ class UserManagementApiTest extends TestCase
     #[Test]
     public function testPostWeakPasswordReportsPasswordField(): void
     {
+        if (in_array($this->globalValue('secure_password', '1'), ['', '0'], true)) {
+            $this->markTestSkipped('secure_password is disabled on this install.');
+        }
+
         $adminPass = getenv("OE_PASS", true) ?: "pass";
         $username = "phpunit_weakpw_" . bin2hex(random_bytes(4));
         $response = $this->testClient->post(self::API_ENDPOINT, [
