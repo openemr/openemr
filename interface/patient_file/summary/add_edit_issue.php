@@ -24,6 +24,7 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/cust
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -537,10 +538,10 @@ function getCodeText($code)
     // directly as well so replacement removes a medication coding even if its
     // code system was deactivated after the issue was created.
     $allMedicationCodeTypes = [];
-    $medicationCodeTypeRows = sqlStatement(
+    $medicationCodeTypeRows = QueryUtils::fetchRecords(
         "SELECT ct_key FROM code_types WHERE ct_drug = 1 OR ct_term = 1 ORDER BY ct_seq, ct_key"
     );
-    while ($medicationCodeTypeRow = sqlFetchArray($medicationCodeTypeRows)) {
+    foreach ($medicationCodeTypeRows as $medicationCodeTypeRow) {
         $allMedicationCodeTypes[] = $medicationCodeTypeRow['ct_key'];
     }
 
@@ -622,7 +623,7 @@ function getCodeText($code)
     }
 
     function parseIssueMedicationResult(row) {
-        if (!row || !row.DT_RowId || row.DT_RowId.indexOf('CID|') !== 0) {
+        if (!row || typeof row.DT_RowId !== 'string' || row.DT_RowId.indexOf('CID|') !== 0) {
             return null;
         }
 
@@ -631,6 +632,10 @@ function getCodeText($code)
             payload = JSON.parse(row.DT_RowId.substring(4));
         } catch (error) {
             console.error('Unable to parse OpenEMR code-search result', error);
+            return null;
+        }
+
+        if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
             return null;
         }
 
