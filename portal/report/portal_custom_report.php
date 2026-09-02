@@ -121,9 +121,13 @@ function postToGet($arin)
 }
 ?>
 
-<?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css?v=<?php echo $v_js_includes; ?>">
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
+<?php
+// No cache-buster on these two hrefs: they are filesystem paths, and mPDF
+// fopen()s the href verbatim, so a query string makes the open fail and the
+// stylesheet is silently dropped from the PDF.
+if ($PDF_OUTPUT) { ?>
+<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css">
+<link rel="stylesheet" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css" />
 <?php } else {?>
 <html>
 <head>
