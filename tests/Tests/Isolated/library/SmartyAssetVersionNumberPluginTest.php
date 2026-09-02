@@ -46,17 +46,59 @@ class SmartyAssetVersionNumberPluginTest extends TestCase
         $this->assertSame('a+b%26c', smarty_function_assetVersionNumber([], $smarty));
     }
 
+    public function testReturnsAnIntegerVersionAsAString(): void
+    {
+        // version.php assigns an int for a release build.
+        $GLOBALS['v_js_includes'] = 82;
+
+        $smarty = null;
+        $this->assertSame('82', smarty_function_assetVersionNumber([], $smarty));
+    }
+
     public function testFallsBackToTheCurrentTimestampWhenTheVersionIsUnset(): void
     {
         unset($GLOBALS['v_js_includes']);
 
+        $this->assertIsCurrentTimestamp();
+    }
+
+    /**
+     * interface/globals.php stores null when version.php was already included
+     * in another scope. The key is then present-but-null, so getString() would
+     * skip its default and throw instead of rendering an asset URL.
+     */
+    public function testFallsBackToTheCurrentTimestampWhenTheVersionIsNull(): void
+    {
+        $GLOBALS['v_js_includes'] = null;
+
+        $this->assertIsCurrentTimestamp();
+    }
+
+    public function testFallsBackToTheCurrentTimestampWhenTheVersionIsAnEmptyString(): void
+    {
+        $GLOBALS['v_js_includes'] = '';
+
+        $this->assertIsCurrentTimestamp();
+    }
+
+    public function testFallsBackToTheCurrentTimestampWhenTheVersionIsNotScalar(): void
+    {
+        $GLOBALS['v_js_includes'] = ['not', 'a', 'version'];
+
+        $this->assertIsCurrentTimestamp();
+    }
+
+    /**
+     * Assert the plugin returns a per-request timestamp rather than throwing or
+     * pinning every asset to one cacheable URL.
+     */
+    private function assertIsCurrentTimestamp(): void
+    {
         $before = time();
         $smarty = null;
         $version = smarty_function_assetVersionNumber([], $smarty);
         $after = time();
 
-        // A per-request value, not a constant: an unknown version must always
-        // miss the browser cache rather than pin every asset to one URL.
         $this->assertMatchesRegularExpression('/^\d+$/', $version);
         $this->assertGreaterThanOrEqual($before, (int) $version);
         $this->assertLessThanOrEqual($after, (int) $version);
