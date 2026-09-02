@@ -196,13 +196,26 @@ class UserManagementService extends UserService
             'federaldrugid' => $federaldrugid,
             'upin' => $upin,
             'npi' => $npi,
-            'taxonomy' => $taxonomy,
             'facility_id' => $facilityId,
             'billing_facility_id' => $billingFacilityId,
             'specialty' => $specialty,
             'calendar' => $calendar,
             'portal_user' => $portalUser,
         ];
+
+        // Only sent when the caller supplied it. users.taxonomy is
+        // `varchar(30) NOT NULL DEFAULT '207Q00000X'`, so writing '' for an omitted value would
+        // replace a meaningful default with a blank that flows into 837 claim generation. The
+        // legacy user admin UI always posts a taxonomy, so it never hits this.
+        //
+        // taxonomy is the only column in this list with a non-empty default to clobber, which is
+        // why it is the only one treated this way. The others are still sent unconditionally and
+        // keep writing exactly what the UI writes: the nullable varchars store '' rather than
+        // NULL, and facility_id / billing_facility_id are `int NOT NULL DEFAULT 0` where ''
+        // coerces to 0 under sql_mode = ''.
+        if ($taxonomy !== '') {
+            $userData['taxonomy'] = $taxonomy;
+        }
 
         // Reject unknown ACL group titles before any write. AclExtended::setUserAro() silently
         // ignores titles that match no group, so without this a create would report 201 while

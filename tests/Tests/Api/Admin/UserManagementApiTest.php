@@ -575,6 +575,149 @@ class UserManagementApiTest extends TestCase
     }
 
     /**
+     * A username longer than the gacl_aro.value column is rejected.
+     *
+     * users.username is varchar(255) but the ARO the create registers is varchar(150), and
+     * sql_mode = '' truncates rather than errors. Accepting a longer name would create a user
+     * whose ARO lookup never matches, silently dropping every requested ACL group.
+     */
+    #[Test]
+    public function testPostOverlongUsernameReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_" . str_repeat("a", 143);
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Overlong",
+            "lname" => "Username",
+            "access_group" => ["Physicians"],
+        ]);
+        // Registered before the assertion: if the guard regresses the user is actually created,
+        // and a failing test must not strand it in the shared database.
+        self::$createdUsernames[] = $username;
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('username', $validationErrors);
+    }
+
+    /**
+     * Name parts that are individually valid but too long combined are rejected.
+     *
+     * setUserAro() registers "fname [mname] lname" as gacl_aro.name, and add_object() refuses a
+     * name of 255 or more, so without this bound the create would return 201 for a user with no
+     * ARO and therefore none of its requested ACL groups.
+     */
+    #[Test]
+    public function testPostOverlongCombinedNameReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_name_" . bin2hex(random_bytes(4));
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => str_repeat("a", 130),
+            "lname" => str_repeat("b", 130),
+            "access_group" => ["Physicians"],
+        ]);
+        self::$createdUsernames[] = $username;
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('lname', $validationErrors);
+    }
+
+    /**
+     * A name at the combined bound is still accepted and its ACL group is registered.
+     */
+    #[Test]
+    public function testPostNameAtCombinedBoundSucceeds(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_name2_" . bin2hex(random_bytes(4));
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => str_repeat("a", 126),
+            "lname" => str_repeat("b", 127),
+            "access_group" => ["Physicians"],
+        ]);
+        self::$createdUsernames[] = $username;
+
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+
+        // The ARO was actually registered, so the requested group comes back.
+        $listBody = $this->decodeResponse($this->testClient->get(self::API_ENDPOINT, ["username" => $username]));
+        /** @var list<array<string, mixed>> $listData */
+        $listData = $listBody["data"] ?? [];
+        $this->assertCount(1, $listData);
+        /** @var list<string> $aclGroups */
+        $aclGroups = $listData[0]["acl_groups"] ?? [];
+        $this->assertContains("Physicians", $aclGroups);
+    }
+
+    /**
+     * Omitting taxonomy leaves the column default in place rather than blanking it.
+     */
+    #[Test]
+    public function testPostWithoutTaxonomyKeepsColumnDefault(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_tax_" . bin2hex(random_bytes(4));
+
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "No",
+            "lname" => "Taxonomy",
+            "access_group" => ["Physicians"],
+        ]);
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        self::$createdUsernames[] = $username;
+
+        $row = QueryUtils::querySingleRow("SELECT taxonomy FROM users WHERE username = ?", [$username]);
+        $this->assertIsArray($row);
+        $this->assertSame('207Q00000X', $row['taxonomy']);
+    }
+
+    /**
+     * A supplied taxonomy is persisted rather than being replaced by the column default.
+     */
+    #[Test]
+    public function testPostWithTaxonomyPersistsSuppliedValue(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_tax2_" . bin2hex(random_bytes(4));
+
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "With",
+            "lname" => "Taxonomy",
+            "taxonomy" => "208D00000X",
+            "access_group" => ["Physicians"],
+        ]);
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        self::$createdUsernames[] = $username;
+
+        $row = QueryUtils::querySingleRow("SELECT taxonomy FROM users WHERE username = ?", [$username]);
+        $this->assertIsArray($row);
+        $this->assertSame('208D00000X', $row['taxonomy']);
+    }
+
+    /**
      * A username containing disallowed characters is rejected.
      */
     #[Test]
