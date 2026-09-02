@@ -40,10 +40,13 @@ function updateApptTime(marker, index, y, date, provider) {
 function displayApptTime(evt) {
     let marker = $(this).find("a.apptMarker");
     if (marker.length == 0) {
+        // Do not add class "event" — that class is bound to EditEvent dblclick
+        // and would intercept double-clicks meant for IN/OUT/LUNCH blocks.
         style = "style='height:" + tsHeight + ";'";
-        $(this).find("div.calendar_day").append("<a class='apptMarker event event_appointment'" + style + "></a>");
+        $(this).find("div.calendar_day").append("<a class='apptMarker event_appointment'" + style + "></a>");
         marker = $(this).find("a.apptMarker");
-        marker.css("z-index", 1);
+        // Stay under real schedule events (OUT/LUNCH/appointments) so they remain clickable.
+        marker.css("z-index", 0);
     }
     y = evt.pageY - $(this).offset().top;
     rem = y % tsHeightNum;
@@ -57,6 +60,26 @@ function displayApptTime(evt) {
             return;
         }
     }
+
+    // If the cursor is over a real calendar event (IN label, OUT, LUNCH,
+    // appointment), hide the create-slot marker so click/dblclick reach it.
+    // Temporarily disable marker hit-testing so elementFromPoint sees below.
+    marker.css("pointer-events", "none");
+    let under = document.elementFromPoint(evt.clientX, evt.clientY);
+    marker.css("pointer-events", "");
+    let $under = $(under);
+    let $realEvent = $under.closest("div.event").not(".apptMarker");
+    if ($realEvent.length) {
+        // IN body fill is pointer-events:none; only the in_start label is editable.
+        // Over bare IN fill, keep the marker so empty office hours stay creatable.
+        if ($realEvent.hasClass("event_in") && !$realEvent.hasClass("in_start") && !$under.closest(".in_start").length) {
+            // fall through — show marker for new appointment in open IN hours
+        } else {
+            marker.hide();
+            return;
+        }
+    }
+
     marker.css("top", y);
     date = $(this).attr("date");
     updateApptTime(marker, index, y, date, $(this).attr("provider"));
