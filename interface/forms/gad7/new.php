@@ -17,6 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
@@ -34,7 +35,7 @@ var changes_made = false;
 </script>
 
 <SCRIPT
-  src="<?php echo $rootdir;?>/forms/gad7/gad7_javasrc.js">
+  src="<?php echo $rootdir;?>/forms/gad7/gad7_javasrc.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
  </script>
 
  <script>

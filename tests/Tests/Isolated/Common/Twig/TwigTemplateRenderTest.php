@@ -34,10 +34,20 @@ class TwigTemplateRenderTest extends TestCase
 {
     private static ?Environment $twig = null;
 
+    /**
+     * Stand-in for the release value version.php assigns to v_js_includes.
+     *
+     * Pinned so fixtures render a stable cache-buster: a template that drops
+     * `?v={{ assetVersion|attr_url }}` shows up as a fixture diff rather than
+     * rendering an empty `?v=` that asserts nothing.
+     */
+    private const ASSET_VERSION = 82;
+
     protected function setUp(): void
     {
         $GLOBALS['fileroot'] ??= self::fileroot();
         $GLOBALS['date_display_format'] ??= 0;
+        $GLOBALS['v_js_includes'] = self::ASSET_VERSION;
         // Bypass database-dependent translation lookups so xl() returns the
         // original string and xlt()/xla() apply only escaping.
         $GLOBALS['disable_translation'] = true;
@@ -542,6 +552,7 @@ class TwigTemplateRenderTest extends TestCase
 
         $GLOBALS['fileroot'] ??= self::fileroot();
         $GLOBALS['date_display_format'] ??= 0;
+        $GLOBALS['v_js_includes'] = self::ASSET_VERSION;
         $GLOBALS['disable_translation'] = true;
 
         // Also load interface/ so encounter form templates resolve under the same
