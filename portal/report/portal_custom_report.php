@@ -121,9 +121,13 @@ function postToGet($arin)
 }
 ?>
 
-<?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css?v=<?php echo $v_js_includes; ?>">
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
+<?php
+// $webserver_root is a filesystem path, not a URL. mPDF fopen()s these hrefs
+// verbatim, so a trailing ?v=... query string makes the path not exist on
+// disk and the stylesheet is silently dropped from the PDF. Do not add one.
+if ($PDF_OUTPUT) { ?>
+<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css">
+<link rel="stylesheet" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css" />
 <?php } else {?>
 <html>
 <head>
