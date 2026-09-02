@@ -21,7 +21,7 @@ namespace OpenEMR\Common\Command;
 use Document;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\IGlobalsAware;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
+use OpenEMR\Services\Traits\GlobalInterfaceTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
