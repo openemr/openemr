@@ -335,7 +335,7 @@ class InstModuleTable
      * @param string $cols -- This field is unused! TODO: remove this field
      * @return InstModule
      */
-    function getRegistryEntry($id, $cols = "")
+    public function getRegistryEntry($id, $cols = "")
     {
         $sql = "SELECT mod_directory, sql_version, acl_version,type FROM modules WHERE mod_id = ?";
         $results = QueryUtils::fetchRecords($sql, [$id]);

@@ -214,9 +214,7 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceDefinitionMaterial xmlns="http://hl7.org/fhir"></DeviceDefinitionMaterial>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceDefinitionMaterial xmlns="http://hl7.org/fhir"></DeviceDefinitionMaterial>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->substance)) {
             $this->substance->xmlSerialize(true, $sxe->addChild('substance'));

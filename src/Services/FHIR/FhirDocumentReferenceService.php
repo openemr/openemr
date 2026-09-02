@@ -127,7 +127,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
         $profileSets = [
             $this->getProfileForVersions(self::US_CORE_PROFILE, $this->getSupportedVersions())

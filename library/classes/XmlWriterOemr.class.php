@@ -13,17 +13,17 @@ class XmlWriterOemr
 {
     public $xml;
     public $stack = [];
-    function __construct(public $indent = '  ')
+    public function __construct(public $indent = '  ')
     {
         $this->xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
     }
-    function _indent()
+    public function _indent()
     {
         for ($i = 0, $j = count($this->stack); $i < $j; $i++) {
             $this->xml .= $this->indent;
         }
     }
-    function push($element, $attributes = [])
+    public function push($element, $attributes = [])
     {
         $this->_indent();
         $this->xml .= '<' . $element;
@@ -34,7 +34,7 @@ class XmlWriterOemr
         $this->xml .= ">\n";
         $this->stack[] = htmlspecialchars((string) $element);
     }
-    function element($element, $content, $attributes = [])
+    public function element($element, $content, $attributes = [])
     {
         $this->_indent();
         $this->xml .= '<' . $element;
@@ -44,7 +44,7 @@ class XmlWriterOemr
 
         $this->xml .= '>' . htmlspecialchars((string) $content) . '</' . htmlspecialchars((string) $element) . '>' . "\n";
     }
-    function emptyelement($element, $attributes = [])
+    public function emptyelement($element, $attributes = [])
     {
         $this->_indent();
         $this->xml .= '<' . htmlspecialchars((string) $element);
@@ -54,13 +54,13 @@ class XmlWriterOemr
 
         $this->xml .= " />\n";
     }
-    function pop()
+    public function pop()
     {
         $element = array_pop($this->stack);
         $this->_indent();
         $this->xml .= "</" . htmlspecialchars((string) $element) . ">" . "\n";
     }
-    function getXml()
+    public function getXml()
     {
         return $this->xml;
     }

@@ -59,15 +59,37 @@ final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
     private const ABOUT_URL = '/interface/main/about_page.php';
 
     /**
-     * Login as admin, GET the About page directly, assert the version
-     * displayed in `.version-info strong` matches
-     * `ACCEPTANCE_EXPECTED_VERSION`.
+     * Login as admin, GET the About page directly, assert the X.Y.Z
+     * prefix of the version displayed in `.version-info strong`
+     * matches `ACCEPTANCE_EXPECTED_VERSION`.
      *
      * Direct navigation (not via the user-menu "About OpenEMR" click)
      * because the goal is to validate the version-render pipe, not the
      * menu wiring — the menu wiring is already covered by
      * `GgUserMenuLinksAcceptanceTest::testUserMenuLink` for the
      * 'About OpenEMR user menu link' data-provider row.
+     *
+     * X.Y.Z prefix comparison, not full displayed string: the About
+     * page renders `SoftwareVersion::__toString()`, which returns
+     * `$full = "{base}[{tag}][.{realpatch}]"` per
+     * SoftwareVersion::__construct's match block. On a shipped
+     * tarball release-prep sets `$v_tag=''` + `$v_realpatch=0`, so
+     * `$full == $base` and comparing the whole string works. On the
+     * build_locally acceptance path (openemr/openemr#13753),
+     * version.php in the checkout is mid-cycle (e.g. `-dev` tagged on
+     * master) so the About page renders `8.4.0-dev` while the DB
+     * `version` table only holds `8.4.0` (schema has no v_tag column;
+     * `boot-package.sh`'s check queries
+     * `CONCAT(v_major,'.',v_minor,'.',v_patch)`) and `/api/version`
+     * likewise returns X.Y.Z as three separate JSON fields.
+     * Keeping `ACCEPTANCE_EXPECTED_VERSION` at X.Y.Z shape (uniform
+     * with the DB + API assertions) means the About page's displayed
+     * value needs its suffix stripped before comparison — the X.Y.Z
+     * prefix is what the file-version pipe (version.php →
+     * OEGlobalsBag → VersionService → SoftwareVersion → About page)
+     * is really carrying across, and that's what this test validates
+     * end-to-end. See openemr/openemr#13786 test-plan for the failure
+     * trace when the suffix wasn't stripped.
      */
     public function testAboutPageShowsExpectedVersion(): void
     {
@@ -94,12 +116,27 @@ final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
         // observed page title + URL in the assertion diagnostic —
         // better signal than a silent version-check bypass.
         $element = $client->findElement(WebDriverBy::cssSelector('.version-info strong'));
-        $actual = trim($element->getText());
+        $displayed = trim($element->getText());
+
+        // Extract the leading X.Y.Z prefix (see docstring). Fail loud
+        // if the displayed value doesn't start with an X.Y.Z shape at
+        // all — that means the version-render pipe is broken in a way
+        // beyond a mere v_tag/realpatch suffix, and the assertSame
+        // below would produce a less-useful diagnostic.
+        if (preg_match('/^\d+\.\d+\.\d+/', $displayed, $match) !== 1) {
+            self::fail(
+                "About page displayed version '{$displayed}' does not start with an X.Y.Z prefix. "
+                . 'The version-render pipe is broken beyond a v_tag/realpatch suffix — check '
+                . 'templates/core/about.html.twig + SoftwareVersion::__toString() + version.php '
+                . 'in the artifact.',
+            );
+        }
+        $actual = $match[0];
 
         self::assertSame(
             $expected,
             $actual,
-            "About page displayed version '{$actual}' does not match expected '{$expected}'. "
+            "About page displayed version '{$displayed}' (X.Y.Z prefix '{$actual}') does not match expected '{$expected}'. "
             . 'Landing URL: ' . $client->getCurrentURL() . '. '
             . 'Title: ' . $client->getTitle() . '. '
             . 'This most likely means the artifact ships a version.php that does not match '

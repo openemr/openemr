@@ -32,7 +32,7 @@ class MyMailer extends PHPMailer
     public $Port;
     public $CharSet;
 
-    function __construct($throwExceptions = false)
+    public function __construct($throwExceptions = false)
     {
         // make sure we initiate our constructor here...
         parent::__construct($throwExceptions);
@@ -180,7 +180,7 @@ class MyMailer extends PHPMailer
     /**
      * @return void
      */
-    function emailMethod(): void
+    public function emailMethod(): void
     {
         // OpenEMR is hardcoded to UTF-8 (see interface/globals.php). Set it
         // explicitly rather than reading the legacy $HTML_CHARSET global,

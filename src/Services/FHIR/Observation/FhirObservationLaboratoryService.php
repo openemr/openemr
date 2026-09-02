@@ -68,9 +68,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
     public function getProcedureService(): ProcedureService
     {
-        if (!isset($this->service)) {
-            $this->service = new ProcedureService();
-        }
+        $this->service ??= new ProcedureService();
         return $this->service;
     }
 

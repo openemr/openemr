@@ -77,9 +77,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // for one itself.
 $request = CurrentRequest::get();
 
-if (!isset($pid)) {
-    $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
-}
+$pid ??= $session->get('pid') ?? $_GET['pid'] ?? null;
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.

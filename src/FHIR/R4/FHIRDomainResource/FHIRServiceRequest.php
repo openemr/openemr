@@ -1474,9 +1474,7 @@ class FHIRServiceRequest extends FHIRDomainResource implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ServiceRequest xmlns="http://hl7.org/fhir"></ServiceRequest>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ServiceRequest xmlns="http://hl7.org/fhir"></ServiceRequest>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

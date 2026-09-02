@@ -75,7 +75,7 @@ class Gacl {
      * Constructor
      * @param array<string, mixed>|null $options An array of options to override the class defaults
      */
-    function __construct($options = NULL) {
+    public function __construct($options = NULL) {
         $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix'];
 
         //Values supplied in $options array overwrite those in the config file.
@@ -141,7 +141,7 @@ class Gacl {
     * @param string $text THe text to output
     * @return bool Always returns true
     */
-    function debug_text($text): bool {
+    public function debug_text($text): bool {
 
         if ($this->_debug) {
             echo "$text<br />\n";
@@ -155,7 +155,7 @@ class Gacl {
     * @param string $function_name The name of the function calling this method
     * @return string Returns an error message
     */
-    function debug_db($function_name = '') {
+    public function debug_db($function_name = '') {
         if ($function_name != '') {
             $function_name .= ' (): ';
         }
@@ -180,7 +180,7 @@ class Gacl {
     * @param int $root_axo_group The group id of the AXO (optional)
     * @return bool true if the check succeeds, false if not.
     */
-    function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
+    public function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
         $acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
 
         return $acl_result['allow'];
@@ -200,7 +200,7 @@ class Gacl {
     * @param int $root_axo_group The group id of the AXO (optional)
     * @return string The return value of the ACL
     */
-    function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
+    public function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
         $acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
 
         return $acl_result['return_value'];
@@ -213,7 +213,7 @@ class Gacl {
     * @param array $aro_array An named array of arrays, each element in the format aro_section_value=>array(aro_value1,aro_value1,...)
     * @return mixed The same data format as inputted.
      */
-    function acl_check_array($aco_section_value, $aco_value, $aro_array) {
+    public function acl_check_array($aco_section_value, $aco_value, $aro_array) {
         /*
             Input Array:
                 Section => array(Value, Value, Value),
@@ -258,7 +258,7 @@ class Gacl {
         * @param bool $return_all Option to return all applicable ACL's rather than just one. (optional) (Added by OpenEMR)
     * @return array Returns as much information as possible about the ACL so other functions can trim it down and omit unwanted data.
     */
-    function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL, $return_all=FALSE) {
+    public function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL, $return_all=FALSE) {
 
         $retarr = FALSE;
 
@@ -491,7 +491,7 @@ class Gacl {
     * @param int $root_group The group id of the group to start at (optional)
     * @param string $group_type The type of group, either ARO or AXO (optional)
     */
-    function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
+    public function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
         switch(strtolower(is_scalar($group_type) ? (string) $group_type : '')) {
             case 'axo':

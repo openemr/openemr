@@ -92,16 +92,14 @@ class ClientAdminController
 
     public function getExternalCDRController(): RouteController
     {
-        if (!isset($this->externalCDRController)) {
-            $this->externalCDRController = new RouteController(
-                $this->session,
-                $this->clientRepo,
-                $this->logger ?? ServiceContainer::getLogger(),
-                $this->getTwig(),
-                $this->actionUrlBuilder,
-                new DecisionSupportInterventionService()
-            );
-        }
+        $this->externalCDRController ??= new RouteController(
+            $this->session,
+            $this->clientRepo,
+            $this->logger ?? ServiceContainer::getLogger(),
+            $this->getTwig(),
+            $this->actionUrlBuilder,
+            new DecisionSupportInterventionService()
+        );
         return $this->externalCDRController;
     }
 
@@ -311,9 +309,7 @@ class ClientAdminController
 
     private function getAccessTokenRepository(): AccessTokenRepository
     {
-        if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $this->session);
-        }
+        $this->accessTokenRepository ??= new AccessTokenRepository(new ServerConfig(), $this->session);
         return $this->accessTokenRepository;
     }
 

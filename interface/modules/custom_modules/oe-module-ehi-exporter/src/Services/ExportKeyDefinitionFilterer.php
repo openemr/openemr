@@ -190,9 +190,7 @@ class ExportKeyDefinitionFilterer
     {
         $keys = [];
         if ($key->localTable == 'lists') {
-            if (!isset($this->issueTypes)) {
-                $this->issueTypes = QueryUtils::fetchTableColumn("select type from issue_types", 'type');
-            }
+            $this->issueTypes ??= QueryUtils::fetchTableColumn("select type from issue_types", 'type');
 
             if (!empty($this->issueTypes)) {
                 foreach ($this->issueTypes as $type) {

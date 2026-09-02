@@ -89,9 +89,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
 
         for ($iter = $index; $row = sqlFetchArray($rez); $iter++) {
             $pid = $row['pid'];
-            if (!isset($reportDataByPid[$pid])) {
-                $reportDataByPid[$pid] = [];
-            }
+            $reportDataByPid[$pid] ??= [];
             $reportDataByPid[$pid][] = $iter;// need to keep the indexes so we can populate patients later
             $hydratedRecord = ['patient' => $pid, 'numerator' => [], 'denominator' => []];
             $ruleId = $row['rule_id'] ?? null;

@@ -199,9 +199,7 @@ class GitHubApi
                 if (str_starts_with($pr['author'], 'app/')) {
                     $pr['author'] = substr($pr['author'], 4) . '[bot]';
                 }
-                if (!isset($seen[$pr['number']])) {
-                    $seen[$pr['number']] = $pr;
-                }
+                $seen[$pr['number']] ??= $pr;
             }
         }
 

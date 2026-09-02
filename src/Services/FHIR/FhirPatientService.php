@@ -169,9 +169,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
 
@@ -537,9 +535,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if ($option_id === null) {
             return null;
         }
-        if (!isset($this->cachedListOptions[$list_id])) {
-            $this->cachedListOptions[$list_id] = [];
-        }
+        $this->cachedListOptions[$list_id] ??= [];
         if (!isset($this->cachedListOptions[$list_id][$option_id])) {
             $options = $this->getListService()->getOptionsByListName($list_id);
             foreach ($options as $option) {
@@ -990,9 +986,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 

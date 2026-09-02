@@ -20,7 +20,7 @@ class TabsWrapper
 {
     public $tabs = [];
 
-    function __construct(public $tabsid = 'tabs')
+    public function __construct(public $tabsid = 'tabs')
     {
     }
 

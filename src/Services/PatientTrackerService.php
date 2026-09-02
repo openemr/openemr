@@ -180,9 +180,7 @@ class PatientTrackerService extends BaseService
         }
 
         $datetime = date("Y-m-d H:i:s");
-        if (is_null($room)) {
-            $room = '';
-        }
+        $room ??= '';
 
         #Check to see if there is an entry in the patient_tracker table.
         $tracker = sqlQuery("SELECT id, apptdate, appttime, eid, pid, original_user, encounter, lastseq," .

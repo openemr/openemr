@@ -176,15 +176,9 @@ if (!empty($GLOBALS['http_ca_cert']) && !$GLOBALS['http_verify_ssl']) {
     );
 }
 
-// Unless specified explicitly, apply Auth functions
-if (!isset($ignoreAuth)) {
-    $ignoreAuth = false;
-}
+$ignoreAuth ??= false;
 
-// Same for onsite
-if (!isset($ignoreAuth_onsite_portal)) {
-    $ignoreAuth_onsite_portal = false;
-}
+$ignoreAuth_onsite_portal ??= false;
 
 // Collect the apache server document root (and convert to windows slashes, if needed)
 $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);

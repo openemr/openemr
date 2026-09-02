@@ -989,9 +989,7 @@ class PatientService extends BaseService
 
     private function getPatientSuffixKeys()
     {
-        if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
-        }
+        $this->patientSuffixKeys ??= [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
         return $this->patientSuffixKeys;
     }
 
