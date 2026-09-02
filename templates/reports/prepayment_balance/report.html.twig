@@ -1,0 +1,221 @@
+<html>
+
+<head>
+    <title>{{ 'Prepayment Balances'|xlt }}</title>
+
+    {{ setupHeader(['datetime-picker', 'report-helper']) }}
+
+    <script>
+        // Re-run the report when the edit_payment dialog closes so that fully
+        // applied sessions drop off the list immediately.
+        function refreshReport() {
+            $("#form_refresh").attr("value", "true");
+            $("#theform").submit();
+        }
+
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+
+            // Open sessions in a dialog rather than navigating away from the
+            // report, matching the pattern in billing/search_payments.php.
+            $(document).on('click', '.medium_modal', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dlgopen('', '', 'modal-full', 800, '', '', {
+                    buttons: [
+                        {text: {{ 'Close'|xlj }}, close: true, style: 'default btn-sm'}
+                    ],
+                    sizeHeight: '',
+                    onClosed: 'refreshReport',
+                    type: 'iframe',
+                    url: $(this).attr('href')
+                });
+            });
+
+            {{ jqueryDateTimePicker('.datepicker', false, false, true) }};
+        });
+
+        // Opens the chart in the main frame. This leaves the report, and the
+        // filters are POST-only, so coming back lands on the empty form --
+        // same trade-off as collections_report.php and encounters_report.php.
+        function toPatient(newpid) {
+            top.restoreSession();
+            const params = new URLSearchParams({set_pid: newpid});
+            top.RTop.location = {{ webroot|js_escape }}
+                + "/interface/patient_file/summary/demographics.php?" + params;
+        }
+
+        function setpatient(pid, lname, fname, dob) {
+            document.forms[0].elements['form_patient'].value = pid;
+            document.forms[0].elements['form_patient_name'].value = lname + ', ' + fname;
+        }
+
+        function sel_patient() {
+            dlgopen('../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
+        }
+
+        function clear_patient() {
+            document.forms[0].elements['form_patient'].value = '';
+            document.forms[0].elements['form_patient_name'].value = '';
+        }
+    </script>
+
+    <style>
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+                margin-top: 0px;
+            }
+        }
+
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="body_top">
+
+<!-- Required for the popup date selectors -->
+<div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
+
+<span class='title'>{{ 'Prepayment Balances'|xlt }}</span>
+
+<div id="report_parameters_daterange">{{ formFromDate|shortDate|text }} &nbsp; {{ 'to{{Range}}'|xlt }} &nbsp; {{ formToDate|shortDate|text }}
+</div>
+
+<form method='post' name='theform' id='theform' action='prepayment_balance_report.php' onsubmit='return top.restoreSession()'>
+{{ csrfToken('default', 'csrf_token_form') }}
+
+<div id="report_parameters">
+
+<table>
+    <tr>
+        <td>
+        <div class='float-left'>
+
+        <table class='text'>
+            <tr>
+                <td class='col-form-label'>{{ 'Check Date From'|xlt }}:</td>
+                <td><input type='text' name='form_from_date' id='form_from_date' class='datepicker form-control' size='10' value='{{ formFromDate|shortDate|attr }}' /></td>
+                <td class='col-form-label'>{{ 'To{{Range}}'|xlt }}:</td>
+                <td><input type='text' name='form_to_date' id='form_to_date' class='datepicker form-control' size='10' value='{{ formToDate|shortDate|attr }}' /></td>
+            </tr>
+            <tr>
+                <td class='col-form-label'>{{ 'Patient'|xlt }}:</td>
+                <td>
+                    <input type='text' size='20' name='form_patient_name' id='form_patient_name' class='form-control' style='cursor: pointer;' value='{{ formPatientName|attr }}' onclick='sel_patient()' readonly title='{{ 'Click to select patient'|xla }}' />
+                    <input type='hidden' name='form_patient' id='form_patient' value='{{ formPatient|attr }}' />
+                    <a href='#' onclick='clear_patient(); return false;'>{{ 'Clear'|xlt }}</a>
+                </td>
+                <td class='col-form-label'>{{ 'Parked in Global only'|xlt }}:</td>
+                <td>
+                    <input type='checkbox' name='form_parked_only' id='form_parked_only' value='1'{% if formParkedOnly %} checked{% endif %} />
+                </td>
+            </tr>
+        </table>
+
+        </div>
+
+        </td>
+        <td class='h-100'>
+        <table class='w-100 h-100' style='border-left: 1px solid;'>
+            <tr>
+                <td>
+                    <div class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                                {{ 'Submit'|xlt }}
+                            </a>
+                            {% if isRefresh %}
+                                <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
+                                    {{ 'Print'|xlt }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+</table>
+
+</div>
+<!-- end of search parameters -->
+{% if isRefresh %}
+<div id="report_results">
+<table class='table'>
+
+    <thead class='thead-light'>
+        <tr>
+            <th>{{ 'Patient'|xlt }}</th>
+            <th>{{ 'PID'|xlt }}</th>
+            <th>{{ 'Session'|xlt }}</th>
+            <th>{{ 'Reference'|xlt }}</th>
+            <th>{{ 'Check Date'|xlt }}</th>
+            <th class="text-right">{{ 'Days Open'|xlt }}</th>
+            <th class="text-right">{{ 'Received'|xlt }}</th>
+            <th class="text-right">{{ 'Applied'|xlt }}</th>
+            <th class="text-right">{{ 'In Global'|xlt }}</th>
+            <th class="text-right">{{ 'Unapplied'|xlt }}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for balance in balances %}
+        <tr>
+            <td class="detail">&nbsp;
+                <a href="#" onclick="toPatient({{ balance.patientId|attr_js }}); return false;" title="{{ 'Open patient chart'|xla }}">
+                    {{ balance.patientName|text }}
+                </a>
+            </td>
+            <td class="detail">&nbsp;{{ balance.patientId|text }}</td>
+            <td class="detail">&nbsp;
+                <a class="medium_modal" href='../billing/edit_payment.php?payment_id={{ balance.sessionId|attr_url }}'>
+                    {{ balance.sessionId|text }}
+                </a>
+            </td>
+            <td class="detail">&nbsp;{{ balance.reference|text }}</td>
+            <td class="detail">&nbsp;{% if balance.checkDate is null %}&nbsp;{% else %}{{ balance.checkDate|shortDate|text }}{% endif %}</td>
+            <td class="detail text-right">{{ balance.daysOpen|text }}</td>
+            <td class="detail text-right">{{ balance.received|money|text }}</td>
+            <td class="detail text-right">{{ balance.applied|money|text }}</td>
+            <td class="detail text-right">{{ balance.inGlobal|money|text }}</td>
+            <td class="detail text-right">{{ balance.unapplied|money|text }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr class='font-weight-bold'>
+            <td class="detail" colspan="6">&nbsp;{{ 'Totals'|xlt }}</td>
+            <td class="detail text-right">{{ totals.received|money|text }}</td>
+            <td class="detail text-right">{{ totals.applied|money|text }}</td>
+            <td class="detail text-right">{{ totals.inGlobal|money|text }}</td>
+            <td class="detail text-right">{{ totals.unapplied|money|text }}</td>
+        </tr>
+    </tfoot>
+</table>
+</div>
+<!-- end of search results -->
+{% else %}
+<div class='text'>{{ 'Click Submit to list all open prepayments with an unapplied balance. Date and patient filters are optional.'|xlt }}
+</div>
+{% endif %}
+<input type='hidden' name='form_refresh' id='form_refresh' value='' /></form>
+
+</body>
+
+</html>
