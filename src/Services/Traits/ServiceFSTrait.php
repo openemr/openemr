@@ -1,7 +1,7 @@
 <?php
 /**
  * =======================================
- * OpenEMR FS Trait
+ * OpenEMR Service FS Trait
  * =======================================
  * Trait to abstract away the pushd/popd filesystem behavior to support walking into a directory structure on a given class.
  *
@@ -14,11 +14,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Console\Command\Traits;
+namespace OpenEMR\Services\Traits;
 
 use RuntimeException;
 
-trait CommandLineFSTrait
+trait ServiceFSTrait
 {
     protected array $cwd = [];
 
