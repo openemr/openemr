@@ -809,11 +809,43 @@ if ($acl_version < $upgrade_acl) {
     $acl_version = $upgrade_acl;
 }
 
+// Upgrade for acl_version 14
+$upgrade_acl = 14;
+if ($acl_version < $upgrade_acl) {
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
+
+    //Collect the ACL ID numbers.
+    echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+
+    //Add new object Sections
+    echo "<BR/><B>Adding new object sections</B><BR/>";
+
+    //Add new Objects
+    echo "<BR/><B>Adding new objects</B><BR/>";
+    // Deliberately not granted to any group here. Superusers already reach the merge tools through
+    // the admin/super short circuit in AclMain::aclCheckCore(); this object exists so an
+    // administrator can delegate merging without handing out admin/super.
+    AclExtended::addObjectAcl('patients', 'Patients', 'merge', 'Merge Duplicate Patients (write optional)');
+
+    //Update already existing Objects
+    echo "<BR/><B>Upgrading objects</B><BR/>";
+
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
+    // (will also place in the appropriate group and CREATE a new group if needed)
+    echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+    //Update the ACLs
+    echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+    //DONE with upgrading to this version
+    $acl_version = $upgrade_acl;
+}
+
 
 
 /* This is a template for a new revision, when needed
-// Upgrade for acl_version 14
-$upgrade_acl = 14;
+// Upgrade for acl_version 15
+$upgrade_acl = 15;
 if ($acl_version < $upgrade_acl) {
     echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 

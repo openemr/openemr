@@ -2922,6 +2922,13 @@ $GLOBALS_METADATA = [
     //
     'Miscellaneous' => [
 
+        'duplicate_patient_rescore_on_load' => [
+            xl('Recompute Duplicate Scores On Every Report Load'),
+            'bool',                           // data type
+            '1',                              // default = true, matching long-standing behavior
+            xl('The Duplicate Patient Management report rescores every patient each time it loads. That keeps it accurate after a bulk import, but is slow on large installs. Turn this off where scores are already kept current when demographics change; the Recalculate Scores button still runs a full pass on demand.')
+        ],
+
         'enable_database_connection_pooling' => [
             xl('Enable Database Connection Pooling'),
             'bool',                           // data type

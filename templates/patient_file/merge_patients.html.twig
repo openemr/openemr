@@ -1,0 +1,137 @@
+{#
+  Merge Patients page. Rendered by OpenEMR\Controllers\Interface\PatientFile\MergePatientsController.
+
+  Two states: the chart-picker form, and the report of a merge that has run. A merge replaces the
+  form entirely, matching the legacy page, because re-running it against the now-deleted source
+  chart makes no sense.
+#}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ 'Merge Patients'|xlt }}</title>
+    {{ setupHeader() }}
+
+    <script>
+
+        var el_pt_name;
+        var el_pt_id;
+
+        // Callback target for the find-patient popup.
+        function setpatient(pid, lname, fname, dob) {
+            el_pt_name.value = lname + ', ' + fname + ' (' + pid + ')';
+            el_pt_id.value = pid;
+        }
+
+        // Opens the find-patient popup, remembering which pair of fields it should fill in.
+        function sel_patient(ename, epid) {
+            el_pt_name = ename;
+            el_pt_id = epid;
+            dlgopen('../main/calendar/find_patient_popup.php', '_blank', 600, 400);
+        }
+
+        // The chart fields are readonly, so clicking them is the only way to reach the picker.
+        // Enter and Space give a keyboard user the same route.
+        function sel_patient_key(event, ename, epid) {
+            if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+                event.preventDefault();
+                sel_patient(ename, epid);
+            }
+        }
+
+    </script>
+
+</head>
+
+<body class="body_top">
+    <div class="container">
+        <h2>{{ 'Merge Patients'|xlt }}</h2>
+
+        {% if mergeResult is not null %}
+
+            <div class="jumbotron jumbotron-fluid m-0 p-0 px-2">
+                {% for step in mergeResult.steps %}
+                    <div>{{ step|text }}</div>
+                {% endfor %}
+                {% if not mergeResult.successful %}
+                    <div class="text-danger font-weight-bold">{{ mergeResult.errorMessage|text }}</div>
+                {% endif %}
+            </div>
+
+            <br />&nbsp;<br />
+            <input type="button" class="btn btn-primary" value="{{ 'Go to Duplicate Manager'|xla }}"
+                onclick="window.location = 'manage_dup_patients.php'" />
+
+        {% else %}
+
+            <form method='post' action='merge_patients.php?pid1={{ pid1|attr_url }}&amp;pid2={{ pid2|attr_url }}'>
+                <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                <div class="table-responsive">
+                    <table class="table w-100">
+                        <tr>
+                            <td>
+                                {{ 'Target Patient'|xlt }}
+                            </td>
+                            <td>
+                                <input type='text' class='form-control' size='30' name='form_target_patient'
+                                    value='{{ targetLabel|attr }}'
+                                    onclick='sel_patient(this, this.form.form_target_pid)'
+                                    onkeydown='sel_patient_key(event, this, this.form.form_target_pid)'
+                                    role='button' tabindex='0'
+                                    title='{{ 'Click or press Enter to select patient'|xla }}' readonly />
+                                <input type='hidden' name='form_target_pid' value='{{ targetPid|attr }}' />
+                            </td>
+                            <td>
+                                {{ 'This is the main chart that is to receive the merged data.'|xlt }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {{ 'Source Patient'|xlt }}
+                            </td>
+                            <td>
+                                <input type='text' class='form-control' size='30' name='form_source_patient'
+                                    value='{{ sourceLabel|attr }}'
+                                    onclick='sel_patient(this, this.form.form_source_pid)'
+                                    onkeydown='sel_patient_key(event, this, this.form.form_source_pid)'
+                                    role='button' tabindex='0'
+                                    title='{{ 'Click or press Enter to select patient'|xla }}' readonly />
+                                <input type='hidden' name='form_source_pid' value='{{ sourcePid|attr }}' />
+                            </td>
+                            <td>
+                                {{ 'This is the chart that is to be merged into the main chart and then deleted.'|xlt }}
+                            </td>
+                        </tr>
+                    </table>
+                    {#
+                      Both buttons submit the same merge. Whether encounters are deduplicated is
+                      decided by the service from the data -- it looks for an anonymous encounter on
+                      either chart -- not by which button was pressed.
+                    -#}
+                    <span><button type='submit' class="btn btn-primary" name='form_submit'
+                            value='merge'>{{ 'Merge'|xla }}</button></span>
+                    <span><button type='submit' class="btn btn-primary" name='form_submit'
+                            value='dedupe'>{{ 'Merge with Encounter Deduplication'|xla }}</button></span>
+                </div>
+            </form>
+            <div class="jumbotron p-2 m-0 mt-2">
+                <p class="font-weight-bold">{{ 'Be careful with this feature. Back up your database and documents before using it!'|xlt }}</p>
+                {% if dryRun %}
+                    <p>{{ 'This will be a "dry run" with no physical data updates.'|xlt }}</p>
+                {% endif %}
+
+                <p>{{ 'This will merge two patient charts into one.  It is useful when a patient has been duplicated by mistake.  If that happens often, fix your office procedures - do not run this routinely!'|xlt }}</p>
+
+                <p>{{ 'The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.'|xlt }}</p>
+
+                <p>{{ 'The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.'|xlt }}</p>
+
+                {% if requireIdentityMatch %}
+                    <p>{{ 'The merge will not run unless SSN and DOB for the two charts are identical. DOBs cannot be empty.'|xlt }}</p>
+                {% endif %}
+            </div>
+
+        {% endif %}
+    </div>
+</body>
+</html>
