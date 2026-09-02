@@ -30,7 +30,6 @@ namespace OpenEMR\Console\Command\Codes;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use OpenEMR\Console\Command\Traits\CommandLineFSTrait;
 
 #[AsCommand(
     name: 'codes:import',
@@ -38,7 +37,6 @@ use OpenEMR\Console\Command\Traits\CommandLineFSTrait;
 )]
 class ImportCommand extends Command
 {
-    use CommandLineFSTrait;
     public function __construct(private readonly string $path = '/var/www/localhost/htdocs/openemr/contrib')
     {
         parent::__construct();
