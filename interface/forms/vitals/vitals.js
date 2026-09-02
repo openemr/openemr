@@ -129,9 +129,12 @@ function parseUsWeightValue(value) {
             return false;
         }
 
-        // Rebuild the canonical total-inch height before validation so a submit
-        // cannot persist stale data if helper values changed without an input event.
-        syncHeightTotalFromHelper();
+        // Rebuild the canonical total-inch height only after the helper UI has
+        // initialized, so a missing dependency cannot clear an existing height.
+        const helperWrapper = document.getElementById('height_input_usa_feet_inches');
+        if (helperWrapper && !helperWrapper.hidden) {
+            syncHeightTotalFromHelper();
+        }
 
         let inputs = vitalsForm.querySelectorAll('input[data-min]');
         let hasErrors = false;
@@ -562,7 +565,7 @@ function calculateBMI() {
     }
     var height = parseFloat(heightNode.value);
     var weight = parseUsWeightValue(weightNode.value);
-    if(isNaN(height) || height == 0 || isNaN(weight) || weight == 0) {
+    if (isNaN(height) || height <= 0 || isNaN(weight) || weight <= 0) {
         bmiNode.value = "";
     }
     else if((height == parseFloat(height)) && (weight == parseFloat(weight))) {
