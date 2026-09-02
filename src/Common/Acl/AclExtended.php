@@ -1126,11 +1126,11 @@ class AclExtended
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $username = $session->get('authUser');
         }
-        if (!is_string($username)) {
-            $username = '';
-        }
-        if (array_key_exists($username, self::$userPermissionsCache)) {
-            return self::$userPermissionsCache[$username];
+        // Cache only when $username is a string so we never memoize under a
+        // coerced key. Non-string usernames fall through to the original path.
+        $cacheKey = is_string($username) ? $username : null;
+        if ($cacheKey !== null && array_key_exists($cacheKey, self::$userPermissionsCache)) {
+            return self::$userPermissionsCache[$cacheKey];
         }
         $gacl = self::collectGaclApiObject();
         $perms = [];
@@ -1140,7 +1140,9 @@ class AclExtended
                 self::getGroupPermissions($group_name, $perms);
             }
         }
-        self::$userPermissionsCache[$username] = $perms;
+        if ($cacheKey !== null) {
+            self::$userPermissionsCache[$cacheKey] = $perms;
+        }
         return $perms;
     }
 

@@ -169,16 +169,16 @@ class AclMain
         if (! $user) {
             $user = $session->get('authUser') ?? '';
         }
-        if (!is_string($user)) {
-            $user = '';
-        }
 
         // Fast path: only the raw ('admin', 'super') probe is memoized. The
         // general aclCheckCore result is NOT cached because $return_value's
-        // array form makes the full cache key unsafe to reason about.
+        // array form makes the full cache key unsafe to reason about. Cache
+        // only when $user is a string so we never coerce a non-string
+        // principal into the anonymous key.
         $isSuperuserProbe = $section === 'admin' && $value === 'super' && $return_value === '';
-        if ($isSuperuserProbe && array_key_exists($user, self::$superuserCache)) {
-            return self::$superuserCache[$user];
+        $cacheKey = ($isSuperuserProbe && is_string($user)) ? $user : null;
+        if ($cacheKey !== null && array_key_exists($cacheKey, self::$superuserCache)) {
+            return self::$superuserCache[$cacheKey];
         }
 
         // Superuser always gets access to everything.
@@ -191,8 +191,8 @@ class AclMain
         $gacl_object = self::collectGaclObject();
         $acl_results = $gacl_object->acl_query($section, $value, 'users', $user, null, null, null, null, null, true);
         if (empty($acl_results)) {
-            if ($isSuperuserProbe) {
-                self::$superuserCache[$user] = false;
+            if ($cacheKey !== null) {
+                self::$superuserCache[$cacheKey] = false;
             }
             return false; //deny access
         }
@@ -200,8 +200,8 @@ class AclMain
         $deny = false; //flag
         foreach ($acl_results as $acl_result) {
             if (empty($acl_result['acl_id'])) {
-                if ($isSuperuserProbe) {
-                    self::$superuserCache[$user] = false;
+                if ($cacheKey !== null) {
+                    self::$superuserCache[$cacheKey] = false;
                 }
                 return false; //deny access, since this happens if no pertinent ACL's are returned
             }
@@ -249,8 +249,8 @@ class AclMain
         // Now decide whether user has access
         // (Note a denial takes precedence)
         $result = !$deny && $access;
-        if ($isSuperuserProbe) {
-            self::$superuserCache[$user] = $result;
+        if ($cacheKey !== null) {
+            self::$superuserCache[$cacheKey] = $result;
         }
         return $result;
     }
