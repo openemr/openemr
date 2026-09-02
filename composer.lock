@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21948e6e57747cd4f81b955d60e2ee64",
+    "content-hash": "32dd13651e1b674e0b86c1b59ff1fac5",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1978,16 +1978,16 @@
         },
         {
             "name": "firehed/container",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Firehed/container.git",
-                "reference": "7d170d89a399e896ec1821f236b0e0b552855ee4"
+                "reference": "3ed338968c65d76f358d172221ab5033cba62657"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Firehed/container/zipball/7d170d89a399e896ec1821f236b0e0b552855ee4",
-                "reference": "7d170d89a399e896ec1821f236b0e0b552855ee4",
+                "url": "https://api.github.com/repos/Firehed/container/zipball/3ed338968c65d76f358d172221ab5033cba62657",
+                "reference": "3ed338968c65d76f358d172221ab5033cba62657",
                 "shasum": ""
             },
             "require": {
@@ -2039,9 +2039,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Firehed/container/issues",
-                "source": "https://github.com/Firehed/container/tree/1.1.0"
+                "source": "https://github.com/Firehed/container/tree/1.2.0"
             },
-            "time": "2026-06-10T00:00:27+00:00"
+            "time": "2026-09-02T15:43:27+00:00"
         },
         {
             "name": "firehed/dbal-logger",
