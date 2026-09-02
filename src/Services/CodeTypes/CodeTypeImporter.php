@@ -41,46 +41,49 @@ class CodeTypeImporter
             # Copy to temp
             echo " [ $type ]  Copying file =>  $file  !\n";
             if (!temp_copy($file, $type)) {
-                error_log("Failed to copy $file of type $type");
-                return;
+                $this->import_cleanup($type);
+                throw new CodeImportException("Failed to copy $file of type $type");
             }
 
             # Unpack
             echo " [ $type ]  Uncompressing file => $file!\n";
             if (!temp_unarchive($file, $type)) {
-                error_log("Failed to unzip $file of type $type");
-                return;
+                $this->import_cleanup($type);
+                throw new CodeImportException("Failed to unzip $file of type $type");
             }
 
             # Import data
             echo " [ $type ]  Importing file =>  $file  !... \n";
-            if ($importFunction($type)) {
-                echo "SUCCESS\n";
-            } else {
-                error_log("Failed to import SNOMED !\n");
+            if (!$importFunction($type)) {
+                echo "FAILURE!\n";
+                $this->import_cleanup($type);
+                throw new CodeImportException("Failed to import SNOMED !\n");
             }
+            echo "SUCCESS!\n";
 
-            # Cleanup
-            echo " [ $type ] Cleaning up import for file =>  $file  !\n";
-            temp_dir_cleanup($type);
+            $this->import_cleanup($type);
         }
     }
 
     public function import_snomed(string $path): bool {
         // TODO: Consider including auto detection in OpenEMR at a later date.
         try {
-            if (!snomedRF2_import()) throw new RuntimeException("Failed to import SNOMED with format => snomedRF2\n");
+            if (!snomedRF2_import()) throw new CodeImportException("Failed to import SNOMED with format => snomedRF2\n");
             return true;
         } catch (Throwable $e) {
             try {
-                error_log("\t$e");
-                if(!snomed_import(true)) throw new RuntimeException("Failed to import SNOMED with format => US Extension\n");
+                if(!snomed_import(true)) throw new CodeImportException("Failed to import SNOMED with format => US Extension\n");
                 return true;
             } catch (Throwable $e) {
-                error_log("\t$e");
                 return snomed_import();
             }
         }
+    }
+
+    public function import_cleanup(string $type): bool {
+        # Cleanup
+        echo " [ $type ] Cleaning up import tmp directory!\n";
+        temp_dir_cleanup($type);
     }
 
     public function import($path): void {
@@ -95,21 +98,36 @@ class CodeTypeImporter
                 continue;
             }
 
-            # Go into directory
-            echo "Entering directory => $dir \n";
-            $this->pushd($dir);
-
             // Specialty CODE import cases; defaults to the valueset_import function and attempts to import assuming that
             // format!
-            match ($dir) {
-                "icd9" => $this->import_dir("ICD9", function ($type) {icd_import($type);}),
-                "icd10" => $this->import_dir("ICD10", function ($type) {icd_import($type);}),
-                "rxnorm" => $this->import_dir("RXNORM", function () {rxnorm_import(false);}),
-                "snomed" => $this->import_dir("SNOMED", function ($file) {$this->import_snomed($file);}),
-                "cqm", "cqm_valueset" => $this->import_dir("CQM_VALUESET", function ($type) {valueset_import($type);}),
-                default => $this->import_dir("VALUESET", function ($type) {valueset_import($type);}),
-            };
+            try {
+                # Go into directory
+                echo "Entering directory => $dir \n";
+                $this->pushd($dir);
 
+                match ($dir) {
+                    "icd9" => $this->import_dir("ICD9", function ($type) {
+                        icd_import($type);
+                    }),
+                    "icd10" => $this->import_dir("ICD10", function ($type) {
+                        icd_import($type);
+                    }),
+                    "rxnorm" => $this->import_dir("RXNORM", function () {
+                        rxnorm_import(false);
+                    }),
+                    "snomed" => $this->import_dir("SNOMED", function ($file) {
+                        $this->import_snomed($file);
+                    }),
+                    "cqm", "cqm_valueset" => $this->import_dir("CQM_VALUESET", function ($type) {
+                        valueset_import($type);
+                    }),
+                    default => $this->import_dir("VALUESET", function ($type) {
+                        valueset_import($type);
+                    }),
+                };
+            } catch (Throwable $e) {
+                error_log("Failed to import directory => $dir => reason: " . $e->getMessage());
+            }
             # Restore parent path for the next iteration
             echo "Exiting directory => $dir\n";
             $this->popd();
