@@ -4417,7 +4417,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         menu_overhaul_bottom($pid, $encounter);
     }
     ?>
-  <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js"></script>
+  <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
   <script>
         function openNewForm(sel, label) {
             top.restoreSession();
@@ -4544,10 +4544,10 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
         var base = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>';
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
       <div class="text-center" style="margin-top: 10px;">
         <span class="fa fa-file-alt" id="PANEL_TEXT" name="PANEL_TEXT"></span>

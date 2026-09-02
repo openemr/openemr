@@ -42,7 +42,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
     <script src="<?php echo $web_root; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $web_root; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
 
-    <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+    <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
         $LAB.script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js")
         .script("<?php echo $assets_static_relative; ?>/moment/moment.js")

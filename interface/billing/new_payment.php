@@ -437,7 +437,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         <div class="clearfix">.</div>
     </div><!-- end of container div -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-<script src = '<?php echo OEGlobalsBag::getInstance()->getString('webroot');?>/library/js/oeUI/oeFileUploads.js'></script>
+<script src = '<?php echo OEGlobalsBag::getInstance()->getString('webroot');?>/library/js/oeUI/oeFileUploads.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>'></script>
 <script>
 $(function () {
     $('select').removeClass('class1 text');

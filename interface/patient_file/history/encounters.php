@@ -204,7 +204,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 <!-- Not sure why we don't want this ui to be B.S responsive. -->
 <?php Header::setupHeader(['no_textformat']); ?>
 
-<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajtooltip.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajtooltip.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
 

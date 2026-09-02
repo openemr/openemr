@@ -59,7 +59,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     </script>
     <?php $qno = 0; ?>
 
-    <script src="<?php echo $rootdir; ?>/forms/phq9/phq9_javasrc.js"></script>
+    <script src="<?php echo $rootdir; ?>/forms/phq9/phq9_javasrc.js?v=<?php echo attr_url(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
     <script>
         // stuff that uses embedded php must go here, not in the include javascript file -
