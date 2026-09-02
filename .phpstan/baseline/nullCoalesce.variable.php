@@ -719,7 +719,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
+    'path' => __DIR__ . '/../../src/Services/Qrda/Helpers/Cat1View.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$flatArray on left side of \\?\\? always exists and is not nullable\\.$#',

@@ -22,8 +22,11 @@ trait MappedServiceCategoryTrait
 
     public function getServiceForCategory(TokenSearchField $category, $defaultCategory): FhirServiceBase
     {
-        // let the field parse our category
-        $values = $category->getValues() ?? [new TokenSearchValue($defaultCategory)];
+        // let the field parse our category; fall back to the caller-supplied default when the field carries no values
+        $values = $category->getValues();
+        if ($values === []) {
+            $values = [new TokenSearchValue($defaultCategory)];
+        }
         foreach ($values as $value) {
             // we only search the first one
             $parsedCategory = $value->getCode();
