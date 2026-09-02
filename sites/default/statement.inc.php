@@ -60,6 +60,37 @@ function make_statement($stmt)
 }
 
 /**
+ * Billing-facility mailing address, or physical address if mailing is empty.
+ *
+ * @param array|false $row facility row
+ * @return array{0:string,1:string}
+ */
+function statement_facility_remit_addr($row)
+{
+    if (!is_array($row)) {
+        return ['', ''];
+    }
+
+    $mailStreet = trim((string) ($row['mail_street'] ?? ''));
+    $mailStreet2 = trim((string) ($row['mail_street2'] ?? ''));
+    $mailCity = trim((string) ($row['mail_city'] ?? ''));
+    $mailState = trim((string) ($row['mail_state'] ?? ''));
+    $mailZip = trim((string) ($row['mail_zip'] ?? ''));
+    if ($mailStreet !== '' || $mailStreet2 !== '' || $mailCity !== '' || $mailZip !== '') {
+        $street = $mailStreet;
+        if ($mailStreet2 !== '') {
+            $street = $street === '' ? $mailStreet2 : ($street . "\n" . $mailStreet2);
+        }
+        return [$street, $mailCity . ', ' . $mailState . ', ' . $mailZip];
+    }
+
+    return [
+        trim((string) ($row['street'] ?? '')),
+        ($row['city'] ?? '') . ', ' . ($row['state'] ?? '') . ', ' . ($row['postal_code'] ?? ''),
+    ];
+}
+
+/**
  * This prints a header for documents.  Keeps the brand uniform...
  *  @param string $pid patient_id
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
@@ -150,9 +181,8 @@ function create_HTML_statement($stmt)
 // Billing location modified by Daniel Pflieger at Growlingflea Software
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
-    $remit_name = "{$row['name']}";
-    $remit_addr = "{$row['street']}";
-    $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
+    $remit_name = $row['name'] ?? '';
+    [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
 
     $env = new StatementEnvelope();
     $windowed = $env->isWindowed();
@@ -652,9 +682,8 @@ function create_statement($stmt)
     // Billing location modified by Daniel Pflieger at Growlingflea Software
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
-    $remit_name = "{$row['name']}";
-    $remit_addr = "{$row['street']}";
-    $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
+    $remit_name = $row['name'] ?? '';
+    [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
 
 
     // Contacts
@@ -975,8 +1004,7 @@ function osp_create_HTML_statement($stmt)
     $billing_contact = "{$row['attn']}";
     $billing_phone = "{$row['phone']}";
     $remit_name = $clinic_name;
-    $remit_addr = $clinic_addr;
-    $remit_csz = $clinic_csz;
+    [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
 
     $env = new StatementEnvelope();
     ob_start();
