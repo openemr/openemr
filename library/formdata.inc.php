@@ -223,7 +223,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
                     error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                     die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
-                } else if ($throw_exception_if_no_match) {
+                } elseif ($throw_exception_if_no_match) {
                     throw new SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
                 } else {
                     // Return first token since no match
@@ -239,7 +239,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                 // Contains illegal character and $die_if_no_match is set, so die() and send error messages to screen and log
                 error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                 die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
-            } else if ($throw_exception_if_no_match) {
+            } elseif ($throw_exception_if_no_match) {
                 throw new SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
             } else {
                 // Contains all legal characters, so return the legal string

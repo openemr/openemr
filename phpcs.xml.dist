@@ -43,6 +43,17 @@
   </rule>
   -->
 
+  <!-- The keyword elseif SHOULD be used instead of else if.
+      PSR2's sniff reports this as a warning, and warning-severity is 0
+      above, so promote it to an error. Note Squiz's identically-named
+      sniff enforces the opposite (ELSE IF over ELSEIF) — do not use it.
+  -->
+  <rule ref="PSR2.ControlStructures.ElseIfDeclaration">
+    <severity>5</severity>
+    <type>error</type>
+  </rule>
+  <rule ref="Squiz.ControlStructures.ControlSignature"/>
+
   <!-- Use statement rules -->
   <rule ref="PSR12.Files.FileHeader" />
   <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />

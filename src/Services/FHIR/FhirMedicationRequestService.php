@@ -288,7 +288,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $fhirTiming = new OpenEMRFHIRTiming();
             $fhirTiming->setCode($intervalConcept);
             $dosage->setTiming($fhirTiming);
-        } else if (!empty($dataRecord['interval_notes'])) {
+        } elseif (!empty($dataRecord['interval_notes'])) {
             // if we have notes but no corresponding code, just set the text
             $intervalConcept = new FHIRCodeableConcept();
             $intervalConcept->setText($dataRecord['interval_notes']);
@@ -419,8 +419,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 $this->getSystemLogger()->error("No primary organization found for reported field population in MedicationRequest FHIR resource");
                 // as a fallback we will set reported to true
                 $medRequestResource->setReportedBoolean('0' === ($dataRecord['is_primary_record'] ?? '1'));
-            }
-            else {
+            } else {
                 $medRequestResource->setReportedReference($primaryBusinessEntity);
             }
         }
@@ -469,7 +468,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (!empty($dataRecord['drugcode'])) {
             $rxnormCode = UtilsService::createCodeableConcept($dataRecord['drugcode'], FhirCodeSystemConstants::RXNORM);
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
-        } else if (!empty($dataRecord['drug'])) {
+        } elseif (!empty($dataRecord['drug'])) {
             $textOnlyCode = new FHIRCodeableConcept();
             $textOnlyCode->setText($dataRecord['drug']);
             $medRequestResource->setMedicationCodeableConcept($textOnlyCode);

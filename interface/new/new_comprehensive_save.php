@@ -67,7 +67,7 @@ while ($frow = sqlFetchArray($fres)) {
     // TODO: why is this a different conditional than demographics_save.php...
     if ($data_type == 54) { // address list
         $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
-    } else if (isset($_POST["form_$field_id"]) || $field_id == "pubpid") {
+    } elseif (isset($_POST["form_$field_id"]) || $field_id == "pubpid") {
         $value = get_layout_form_value($frow);
         $newdata[$tblname][$colname] = $value;
     }
