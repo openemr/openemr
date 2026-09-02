@@ -117,11 +117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function prevSetting\\(\\) has invalid return type Prior\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
