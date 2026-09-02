@@ -7,6 +7,34 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/**
+ * Parse a USA weight value, including the supported pounds#ounces format.
+ * Reject partial numbers so validation and BMI calculation use the same value.
+ *
+ * @param {string} value
+ * @returns {number}
+ */
+function parseUsWeightValue(value) {
+    const trimmedValue = String(value).trim();
+    const signedNumberPattern = /^-?(?:\d+(?:\.\d*)?|\.\d+)$/;
+    const unsignedNumberPattern = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
+
+    if (trimmedValue.indexOf("#") < 0) {
+        return signedNumberPattern.test(trimmedValue) ? Number(trimmedValue) : NaN;
+    }
+
+    const parts = trimmedValue.split("#").map((part) => part.trim());
+    if (
+        parts.length !== 2 ||
+        !unsignedNumberPattern.test(parts[0]) ||
+        !unsignedNumberPattern.test(parts[1])
+    ) {
+        return NaN;
+    }
+
+    return Number(parts[0]) + Number(parts[1]) / 16;
+}
+
 (function(window, oeUI) {
 
     let translations = {};
@@ -31,15 +59,9 @@
             return { valid: true, warning: false };
         }
 
-        // Special case: weight USA input allows # separator (lbs/oz format e.g. "5#4")
-        if (element.id === 'weight_input_usa' && value.indexOf('#') >= 0) {
-            let parts = value.split('#');
-            let pounds = parseFloat(parts[0]) || 0;
-            let ounces = parseFloat(parts[1]) || 0;
-            value = String(pounds + ounces / 16);
-        }
-
-        let numValue = parseFloat(value);
+        let numValue = element.id === 'weight_input_usa'
+            ? parseUsWeightValue(value)
+            : parseFloat(value);
 
         if (isNaN(numValue)) {
             element.classList.add('error');
@@ -217,7 +239,6 @@
             inchesInput.value = '';
             return;
         }
-
         total = Math.round(total * 100) / 100;
         let feet = Math.floor(total / 12);
         let inches = Math.round((total - (feet * 12)) * 100) / 100;
@@ -539,14 +560,7 @@ function calculateBMI() {
         return;
     }
     var height = parseFloat(heightNode.value);
-    var weightValue = weightNode.value;
-    var weight = parseFloat(weightValue);
-    var hashLocation = weightValue.indexOf("#");
-    if (hashLocation >= 0) {
-        var pounds = parseFloat(weightValue.substr(0, hashLocation));
-        var ounces = parseFloat(weightValue.substr(hashLocation + 1));
-        weight = (!isNaN(pounds) && !isNaN(ounces)) ? pounds + ounces / 16 : NaN;
-    }
+    var weight = parseUsWeightValue(weightNode.value);
     if(isNaN(height) || height == 0 || isNaN(weight) || weight == 0) {
         bmiNode.value = "";
     }
