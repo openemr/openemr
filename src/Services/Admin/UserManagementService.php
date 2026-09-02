@@ -314,8 +314,8 @@ class UserManagementService extends UserService
         // GaclApi, which holds its own ADODB connection, so its rows were never covered by the
         // rollback above: a failure in the audit step or the commit left gacl_aro and
         // gacl_groups_aro_map rows behind, keyed to a username whose users row had just been
-        // rolled away. setUserAro() then *edits* a matching ARO rather than creating one, so the
-        // next create of that username would silently inherit the stale grants.
+        // rolled away. setUserAro() reuses a matching ARO rather than creating one, so those rows
+        // outlive every user they were meant to describe.
         //
         // Running it after the commit cannot produce that state. The failure mode instead becomes
         // a user that exists with missing or partial ACL groups, which is visible in the user
