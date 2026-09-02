@@ -122,17 +122,21 @@ function postToGet($arin)
 ?>
 
 <?php
+echo "<html>\n<head>\n";
+
 // $webserver_root is a filesystem path, not a URL. mPDF fopen()s these hrefs
 // verbatim, so a trailing ?v=... query string makes the path not exist on
 // disk and the stylesheet is silently dropped from the PDF. Do not add one.
-if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css">
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css" />
-<?php } else {?>
-<html>
-<head>
-
-<?php } ?>
+if ($PDF_OUTPUT) {
+    $pdfStylesheets = [
+        '/interface/themes/style_pdf.css',
+        '/library/ESign/css/esign_report.css',
+    ];
+    foreach ($pdfStylesheets as $pdfStylesheet) {
+        printf('<link rel="stylesheet" href="%s%s" />' . "\n", attr($webserver_root), attr($pdfStylesheet));
+    }
+}
+?>
 
 <?php // do not show stuff from report.php in forms that is encapsulated
       // by div of navigateLink class. Specifically used for CAMOS, but
