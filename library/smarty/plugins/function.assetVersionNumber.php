@@ -32,6 +32,12 @@ use OpenEMR\Core\OEGlobalsBag;
  */
 function smarty_function_assetVersionNumber($params, &$smarty): string
 {
-    // Fall back to 1 so a missing version still produces a usable URL.
-    return attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes', '1'));
+    // Fall back to the current timestamp when the version global is missing. A
+    // constant fallback would be cached by the browser indefinitely, so a stale
+    // asset would survive until the global came back AND its value changed. A
+    // per-request value guarantees a cache miss instead, which is the safe way
+    // for a cache buster to fail.
+    $version = OEGlobalsBag::getInstance()->getString('v_js_includes', (string) time());
+
+    return attr_url($version);
 }
