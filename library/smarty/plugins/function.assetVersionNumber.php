@@ -4,7 +4,6 @@
  * Smarty plugin
  * @package Smarty
  * @subpackage plugins
- * xl() version for smarty templates
  *
  * Copyright (C) 2007 Christian Navalici
  * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -15,27 +14,24 @@
  * of the License, or (at your option) any later version.
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
- * Smarty {xl} function plugin
+ * Smarty {assetVersionNumber} function plugin.
  *
  * Type:     function<br />
  * Name:     assetVersionNumber<br />
- * Purpose:  Return the version number to be used in a script or style asset include ie script?v={jsVersionNumber}<br />
+ * Purpose:  Return the version number to be used in a script or style asset include ie script?v={assetVersionNumber}<br />
  *
  * Examples:
  *
- * {jsVersionNumber}
+ * {assetVersionNumber}
  *
  * @param array $params
-
-use OpenEMR\Core\OEGlobalsBag;
-
  * @param mixed $smarty
  */
-
-
-function smarty_function_assetVersionNumber($params, &$smarty): void
+function smarty_function_assetVersionNumber($params, &$smarty): string
 {
-    echo OEGlobalsBag::getInstance()->get('v_js_includes') ?? 1; // if for some reason we don't have a version we just return one
+    // Fall back to 1 so a missing version still produces a usable URL.
+    return attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes', '1'));
 }
