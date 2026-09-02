@@ -523,6 +523,58 @@ class UserManagementApiTest extends TestCase
     }
 
     /**
+     * A username that differs from an existing one only by case is rejected.
+     *
+     * The ARO namespace a create writes into is case-insensitive, so admitting `SMITH`
+     * alongside an existing `smith` would let AclExtended::setUserAro() resolve the existing
+     * user's ARO and replace its group memberships -- an update of another account's ACL from
+     * a create-only endpoint. The legacy user admin UI refuses the same create.
+     */
+    #[Test]
+    public function testPostCaseVariantUsernameReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_case_" . bin2hex(random_bytes(4));
+
+        $created = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Case",
+            "lname" => "Original",
+            "access_group" => ["Physicians"],
+        ]);
+        $this->assertEquals(Response::HTTP_CREATED, $created->getStatusCode());
+        self::$createdUsernames[] = $username;
+
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => strtoupper($username),
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Case",
+            "lname" => "Variant",
+            "access_group" => ["Administrators"],
+        ]);
+        self::$createdUsernames[] = strtoupper($username);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('username', $validationErrors);
+
+        // The original user's ACL memberships are untouched.
+        $listBody = $this->decodeResponse($this->testClient->get(self::API_ENDPOINT, ["username" => $username]));
+        /** @var list<array<string, mixed>> $listData */
+        $listData = $listBody["data"] ?? [];
+        $this->assertCount(1, $listData);
+        /** @var list<string> $aclGroups */
+        $aclGroups = $listData[0]["acl_groups"] ?? [];
+        $this->assertSame(["Physicians"], $aclGroups);
+    }
+
+    /**
      * A username containing disallowed characters is rejected.
      */
     #[Test]

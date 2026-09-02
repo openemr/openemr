@@ -149,8 +149,17 @@ class UserManagementService extends UserService
         $accessGroup = $data['access_group'] ?? [];
         $groupname = trim(self::strVal($data['groupname'] ?? 'Default'));
 
-        // Check username uniqueness
-        $existing = QueryUtils::querySingleRow("SELECT username FROM users WHERE BINARY username = ?", [$username]);
+        // Deliberately NOT a BINARY match, unlike the statements below that target the row this
+        // request inserts. The ARO namespace this create will write into is case-insensitive:
+        // GaclApi::get_object_id() and Gacl::acl_get_groups() both compare gacl_aro.value with a
+        // plain equality compare, and gacl_aro carries UNIQUE KEY (section_value, value). A
+        // case-sensitive check here therefore admits `SMITH` alongside an existing `smith`, and
+        // AclExtended::setUserAro() then resolves `smith`'s ARO, renames it, drops every group
+        // association it holds and installs the ones this request asked for -- rewriting a
+        // different account's ACL memberships from a create-only endpoint. The legacy UI
+        // (interface/usergroup/usergroup_admin.php) matches case-insensitively for the same
+        // reason; this keeps the API's contract identical to it.
+        $existing = QueryUtils::querySingleRow("SELECT username FROM users WHERE username = ?", [$username]);
         if (is_array($existing) && isset($existing['username']) && $existing['username'] !== '') {
             $processingResult->setValidationMessages(['username' => ['Username already exists']]);
             return $processingResult;
