@@ -18,7 +18,6 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -29,15 +28,13 @@ if (!AclMain::aclCheckCore('patients', 'appt')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Birthday Alert", xl("Birthday Alert"));
 }
 
-// Deep-linked popup: bootstrap session pid from the request and drive every
-// downstream reference (including the AJAX turnoff call) from session pid.
+// Popup is opened from the main patient-birthday alert with the pid embedded
+// in the URL. Keep the value request-local: never call setpid() from a GET
+// handler (would change active patient without a form-token round-trip). The
+// AJAX turnoff below re-sends pid in a form-token-protected POST that the
+// turnoff handler validates against the session.
 $rawRequestPid = $_GET['pid'] ?? null;
-$requestPid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
-$sessionPid = $session->get('pid');
-if ($requestPid > 0 && ($sessionPid === null || $sessionPid === '' || $sessionPid === 0 || $sessionPid === '0')) {
-    setpid($requestPid);
-}
-$pid = PatientSessionUtil::getPid();
+$pid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
 if ($pid <= 0) {
     echo "<p>" . xlt('Missing PID.') . "</p>";
     exit;

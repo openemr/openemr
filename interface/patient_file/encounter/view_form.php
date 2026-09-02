@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
@@ -48,10 +49,9 @@ if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
 // Mirror load_form.php: drive pid/encounter from the session and confirm any
 // requested form id belongs to the session's opened patient. The prior code
 // let $_GET['pid'] / $_GET['encounter'] override session context directly.
-$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-$formId = is_int($formIdInput) && $formIdInput > 0 ? $formIdInput : 0;
-$formnameInput = filter_input(INPUT_GET, 'formname', FILTER_UNSAFE_RAW);
-$formDir = is_string($formnameInput) ? $formnameInput : '';
+$requestQuery = CurrentRequest::get()->query;
+$formId = max(0, $requestQuery->getInt('id'));
+$formDir = $requestQuery->getString('formname');
 
 $sessionPid = PatientSessionUtil::getPid();
 $sensitivityEncounterId = EncounterSessionUtil::getEncounter();

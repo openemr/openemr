@@ -76,7 +76,8 @@ if ($_POST['function'] == 'request_assessment') {
     echo Easipro::collectResults($_POST['assessmentOID']);
 } elseif ($_POST['function'] == 'record_result') {
     // Record result of assessment -- UPDATE pro_assessments scoped to pid+assessment_oid.
-    if (!$ignoreAuth && !AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
+    // Requires write access; addonly is insert-only and does not authorize the UPDATE this branch performs.
+    if (!$ignoreAuth && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
         AccessDeniedHelper::deny("ACL check failed for patients/med: Easipro record_result");
     }
     if ($pid <= 0) {

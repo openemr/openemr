@@ -60,8 +60,8 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 // time this window is opened, then read pid from the session for every query.
 $rawRequestPid = $_GET['pid'] ?? null;
 $requestPid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
-$sessionPid = $session->get('pid');
-if ($requestPid > 0 && ($sessionPid === null || $sessionPid === '' || $sessionPid === 0 || $sessionPid === '0')) {
+$sessionPid = PatientSessionUtil::getPid();
+if ($requestPid > 0 && $sessionPid <= 0) {
     setpid($requestPid);
 }
 $pid = PatientSessionUtil::getPid();

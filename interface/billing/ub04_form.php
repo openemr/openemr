@@ -17,7 +17,6 @@ require_once("./ub04_dispose.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\PatientSessionUtil;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -38,11 +37,10 @@ if ($isAuthorized === 1) {
     // Deep-linked patient-context page: mirror the demographics.php set_pid
     // pattern so a fresh browser tab establishes patient context via session
     // before any query below references $pid.
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $rawRequestPid = $_REQUEST['pid'] ?? null;
     $requestPid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
-    $sessionPid = $session->get('pid');
-    if ($requestPid > 0 && ($sessionPid === null || $sessionPid === '' || $sessionPid === 0 || $sessionPid === '0')) {
+    $sessionPid = PatientSessionUtil::getPid();
+    if ($requestPid > 0 && $sessionPid <= 0) {
         setpid($requestPid);
     }
     $pid = PatientSessionUtil::getPid();

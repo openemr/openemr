@@ -898,15 +898,17 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             // Scope the tracker lookup to the session pid; the previous
             // $_POST['pid'] read is redundant with the patient context that
             // already drives every other query in this file.
-            $tracker = sqlFetchArray(sqlStatement($sql, [$pid, $Vdate]));
-            sqlStatement("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?", [($tracker['lastseq'] + 1), $tracker['id']]);
-            #Add a tracker item.
-            $sql = "INSERT INTO `patient_tracker_element` " .
-                "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
-                "VALUES (?,NOW(),?,?,?,?)";
-            sqlStatement($sql, [$tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)]);
-            $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
-            sqlStatement($sql, [$_POST['new_status'], $tracker['eid']]);
+            $tracker = QueryUtils::querySingleRow($sql, [$pid, $Vdate]);
+            if ($tracker !== false) {
+                sqlStatement("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?", [($tracker['lastseq'] + 1), $tracker['id']]);
+                #Add a tracker item.
+                $sql = "INSERT INTO `patient_tracker_element` " .
+                    "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
+                    "VALUES (?,NOW(),?,?,?,?)";
+                sqlStatement($sql, [$tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)]);
+                $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
+                sqlStatement($sql, [$_POST['new_status'], $tracker['eid']]);
+            }
             echo "saved";
             exit;
         }

@@ -84,9 +84,9 @@ $query = "select  *,form_encounter.date as encounter_date
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $data = sqlQuery($query, [$_REQUEST['encounter'] ?? '', $pid]);
-    $data['ODMPDD'] = $data['ODPDMeasured'];
-    $data['OSMPDD'] = $data['OSPDMeasured'];
+    $data = QueryUtils::querySingleRow($query, [$_REQUEST['encounter'] ?? '', $pid]) ?: [];
+    $data['ODMPDD'] = $data['ODPDMeasured'] ?? null;
+    $data['OSMPDD'] = $data['OSPDMeasured'] ?? null;
     $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
     @extract($data);
 
@@ -161,14 +161,17 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
     exit;
 } elseif (($_REQUEST['mode'] ?? '') == "remove") {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $query = "DELETE FROM form_eye_mag_dispense where id=?";
-    sqlStatement($query, [$_REQUEST['delete_id']]);
+    // Scope the dispense mutation to the session patient so the request-supplied
+    // delete_id cannot reach dispense rows outside the opened chart.
+    $query = "DELETE FROM form_eye_mag_dispense where id=? AND pid=?";
+    sqlStatement($query, [$_REQUEST['delete_id'], $pid]);
     echo xlt('Prescription successfully removed.');
     exit;
 } elseif ($_REQUEST['RXTYPE'] ?? '') {  //store any changed fields
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
-    sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id']]);
+    // Scope the dispense mutation to the session patient (see remove branch above).
+    $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=? AND pid=?";
+    sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id'], $pid]);
     exit;
 }
 
