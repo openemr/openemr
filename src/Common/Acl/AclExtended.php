@@ -38,6 +38,14 @@ class AclExtended
      */
     private static array $userPermissionsCache = [];
 
+    // Any membership or ACL change can affect any cached user result and the
+    // superuser probe cached in AclMain, so drop both on any mutation.
+    private static function resetAclCaches(): void
+    {
+        self::$userPermissionsCache = [];
+        AclMain::clearSuperuserCache();
+    }
+
     // Collect the stored GaclApi object (create it if it doesn't yet exist)
     //  Sharing one object will prevent opening a database connection for every call to GaclApi.
     private static function collectGaclApiObject()
@@ -332,6 +340,7 @@ class AclExtended
                 break;
             }
         }
+        self::resetAclCaches();
         return true;
     }
 
@@ -412,6 +421,7 @@ class AclExtended
                 $note
             );
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -435,6 +445,7 @@ class AclExtended
             $group_id = $gacl->get_group_id(null, $acl_title, 'ARO');
             $gacl->del_group($group_id, true, 'ARO');
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -454,6 +465,7 @@ class AclExtended
             $aco_name = $aco_data[0][1];
             $gacl->append_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -490,6 +502,7 @@ class AclExtended
             $aco_name = $aco_data[0][1];
             $gacl->shift_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -1032,6 +1045,7 @@ class AclExtended
                 break;
         }
 
+        self::resetAclCaches();
         return;
     }
 
@@ -1069,6 +1083,7 @@ class AclExtended
                 break;
         }
 
+        self::resetAclCaches();
         return;
     }
 
