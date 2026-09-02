@@ -16,6 +16,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
 
@@ -38,6 +39,13 @@ function ub04_dispose(): void
             if ($pid <= 0 || $encounter <= 0) {
                 exit();
             }
+            // Submitted pid must match the opened patient in session; reject
+            // any submission targeting a different patient than the one whose
+            // chart is currently active.
+            $sessionPid = PatientSessionUtil::getPid();
+            if ($sessionPid <= 0 || $pid !== $sessionPid) {
+                AccessDeniedHelper::deny("UB04 edit_save pid does not match session pid");
+            }
             $ub04id = json_decode((string) $ub04id, true);
             saveTemplate($encounter, $pid, $ub04id, $action);
             exit();
@@ -55,6 +63,10 @@ function ub04_dispose(): void
             if ($pid <= 0 || $encounter <= 0) {
                 exit("done");
             }
+            $sessionPid = PatientSessionUtil::getPid();
+            if ($sessionPid <= 0 || $pid !== $sessionPid) {
+                AccessDeniedHelper::deny("UB04 batch_save pid does not match session pid");
+            }
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
@@ -64,6 +76,10 @@ function ub04_dispose(): void
             $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
             if ($pid <= 0 || $encounter <= 0) {
                 exit();
+            }
+            $sessionPid = PatientSessionUtil::getPid();
+            if ($sessionPid <= 0 || $pid !== $sessionPid) {
+                AccessDeniedHelper::deny("UB04 reset_claim pid does not match session pid");
             }
             // clear claim first otherwise get ub04 returns current version.
             //
