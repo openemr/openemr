@@ -3362,11 +3362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method SetFetchMode\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
