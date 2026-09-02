@@ -58,21 +58,21 @@ class ImportCommand extends Command
     public function import_dir(string $type, $importFunction): void {
         foreach (glob("*.zip") as $file) {
             # Copy to temp
-            echo " [" . $type . "] Copying file => " . $file  . "!\n";
+            echo " [ $type ]  Copying file =>  $file  !\n";
             if (!temp_copy($file, $type)) {
-                error_log("Failed to copy " . $file . " of type " . $type);
+                error_log("Failed to copy $file of type $type");
                 return;
             }
 
             # Unpack
-            echo " [" . $type . "] Uncompressing file => " . $file  . "!\n";
+            echo " [ $type ]  Uncompressing file => $file!\n";
             if (!temp_unarchive($file, $type)) {
-                error_log("Failed to unzip " . $file . " of type " . $type);
+                error_log("Failed to unzip $file of type $type");
                 return;
             }
 
             # Import data
-            echo " [" . $type . "] Importing file => " . $file  . "!... \n";
+            echo " [ $type ]  Importing file =>  $file  !... \n";
             if ($importFunction($type)) {
                 echo "SUCCESS\n";
             } else {
@@ -80,7 +80,7 @@ class ImportCommand extends Command
             }
 
             # Cleanup
-            echo " [" . $type . "] Cleaning up import for file => " . $file  . "!\n";
+            echo " [ $type ] Cleaning up import for file =>  $file  !\n";
             temp_dir_cleanup($type);
         }
     }
@@ -108,14 +108,14 @@ class ImportCommand extends Command
 
         # Scan directory
         $dirs = scandir('./');
-        echo "Available directories => ". $dirs . "\n";
+        echo "Available directories =>  $dirs \n";
         foreach ($dirs as $dir) {
             if ($dir == "." || $dir == "..") {
                 continue;
             }
 
             # Go into directory
-            echo "Entering directory => ". $dir . "\n";
+            echo "Entering directory => $dir \n";
             $this->pushd($dir);
 
             // Specialty CODE import cases; defaults to the valueset_import function and attempts to import assuming that
