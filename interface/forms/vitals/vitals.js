@@ -239,6 +239,7 @@ function parseUsWeightValue(value) {
             inchesInput.value = '';
             return;
         }
+
         total = Math.round(total * 100) / 100;
         let feet = Math.floor(total / 12);
         let inches = Math.round((total - (feet * 12)) * 100) / 100;
