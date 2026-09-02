@@ -29,20 +29,18 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-
-
 // kick out if patient not authenticated
-if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
-    $pid = $session->get('pid');
-    $user = $session->get('sessionUser');
-} else {
-    //landing page definition -- where to go if something goes wrong
+if (empty($session->get('pid')) || empty($session->get('patient_portal_onsite_two'))) {
+    // landing page definition -- where to go if something goes wrong
     $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit;
 }
+
+$pid = $session->get('pid');
+$user = $session->get('sessionUser');
 
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
@@ -119,9 +117,7 @@ function postToGet($arin)
 
     return $getstring;
 }
-?>
 
-<?php
 echo "<html>\n<head>\n";
 
 // $webserver_root is a filesystem path, not a URL. mPDF fopen()s these hrefs
@@ -136,15 +132,13 @@ if ($PDF_OUTPUT) {
         printf('<link rel="stylesheet" href="%s%s" />' . "\n", attr($webserver_root), attr($pdfStylesheet));
     }
 }
+
+// do not show stuff from report.php in forms that is encapsulated
+// by div of navigateLink class. Specifically used for CAMOS, but
+// can also be used by other forms that require output in the
+// encounter listings output, but not in the custom report.
 ?>
-
-<?php // do not show stuff from report.php in forms that is encapsulated
-      // by div of navigateLink class. Specifically used for CAMOS, but
-      // can also be used by other forms that require output in the
-      // encounter listings output, but not in the custom report. ?>
-
 <style>
-
 .h3,
 h3 {
     font-size: 20px;
