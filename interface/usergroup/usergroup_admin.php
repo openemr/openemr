@@ -11,12 +11,14 @@
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Robert DOwn <robertdown@live.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,6 +29,8 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
@@ -246,6 +250,20 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                 error_log(errorLogEscape($authUtilsUpdatePassword->getErrorMessage()));
                 $alertmsg .= $authUtilsUpdatePassword->getErrorMessage();
             }
+        }
+
+        // Update the forced-password-change flag in users_secure. This runs after
+        // the admin password reset above, because AuthUtils::updatePassword()
+        // clears the flag; doing it in the other order would silently discard a
+        // tick made in the same submission. Skipped for LDAP users, whose
+        // passwords do not live in users_secure.
+        $targetUsername = is_array($user_data) ? ($user_data['username'] ?? null) : null;
+        if (is_string($targetUsername) && $targetUsername !== '' && !AuthUtils::useActiveDirectory($targetUsername)) {
+            $postParams = CurrentRequest::get()->request;
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE `users_secure` SET `force_new_password` = ? WHERE `id` = ?',
+                [$postParams->has('force_new_password') ? 1 : 0, $postParams->getInt('id')]
+            );
         }
 
         $tqvar  = (!empty($_POST["authorized"])) ? 1 : 0;

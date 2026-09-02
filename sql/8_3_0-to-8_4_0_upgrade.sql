@@ -158,3 +158,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfNotRow2D list_options list_id care_plan_engagement_category option_id closed
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('care_plan_engagement_category','closed','Closed',60,0,0,'','','',0,0,1,'',1);
 #EndIf
+
+#IfMissingColumn users_secure force_new_password
+ALTER TABLE `users_secure` ADD COLUMN `force_new_password` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'When 1, the user must change their password at next login' AFTER `auto_block_emailed`;
+#EndIf
