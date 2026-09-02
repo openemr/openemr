@@ -547,7 +547,7 @@ function getCodeText($code)
 
     $medicationCodeTypes = array_values(array_filter(
         $allMedicationCodeTypes,
-        static fn ($codeType) => !empty($allCodeTypes[$codeType]['active'])
+        static fn ($codeType): bool => !empty($allCodeTypes[$codeType]['active'])
     ));
 
     if (
@@ -556,7 +556,7 @@ function getCodeText($code)
     ) {
         $medicationCodeTypes = array_values(array_filter(
             $medicationCodeTypes,
-            static fn ($codeType) => $codeType !== 'RXCUI'
+            static fn ($codeType): bool => $codeType !== 'RXCUI'
         ));
         array_unshift($medicationCodeTypes, 'RXCUI');
     }
@@ -579,19 +579,19 @@ function getCodeText($code)
             $medicationCodeTypes,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
-    ?>;
+        ?>;
     const allMedicationCodeTypes = <?php
         echo json_encode(
             $allMedicationCodeTypes,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
-    ?>;
+        ?>;
     const allSelectableCodeTypes = <?php
         echo json_encode(
             $allSelectableCodeTypes,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
-    ?>;
+        ?>;
 
     let issueMedicationSearchTimer = null;
     let issueMedicationSearchRequest = null;
@@ -1456,7 +1456,7 @@ function getCodeText($code)
                                 </div>
                             </div>
                             <div class="row">
-                                <!-- Verification Status For Medication Allergy -->
+                                <!-- Verification Status for Medication Allergy -->
                                 <div class="form-group col-sm-12 col-md-4" id='row_verification'>
                                     <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
                                     <?php
