@@ -30,6 +30,14 @@ class AclExtended
     // Holds the static GaclApi object
     private static $gaclApiObject;
 
+    /**
+     * Per-request memo of getUserPermissions() results, keyed by username.
+     * Mutation paths must call clearUserPermissionsCache() before re-checking.
+     *
+     * @var array<string, array<mixed>>
+     */
+    private static array $userPermissionsCache = [];
+
     // Collect the stored GaclApi object (create it if it doesn't yet exist)
     //  Sharing one object will prevent opening a database connection for every call to GaclApi.
     private static function collectGaclApiObject()
@@ -1103,6 +1111,12 @@ class AclExtended
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $username = $session->get('authUser');
         }
+        if (!is_string($username)) {
+            $username = '';
+        }
+        if (array_key_exists($username, self::$userPermissionsCache)) {
+            return self::$userPermissionsCache[$username];
+        }
         $gacl = self::collectGaclApiObject();
         $perms = [];
         $username_acl_groups = self::aclGetGroupTitles($username); // array of roles for the user
@@ -1111,7 +1125,13 @@ class AclExtended
                 self::getGroupPermissions($group_name, $perms);
             }
         }
+        self::$userPermissionsCache[$username] = $perms;
         return $perms;
+    }
+
+    public static function clearUserPermissionsCache(): void
+    {
+        self::$userPermissionsCache = [];
     }
 
     /**
