@@ -15,12 +15,33 @@
 /*picture free taken from https://pixabay.com/en/balloons-party-celebration-floating-154949*/
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!AclMain::aclCheckCore('patients', 'appt')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Birthday Alert", xl("Birthday Alert"));
+}
+
+// Deep-linked popup: bootstrap session pid from the request and drive every
+// downstream reference (including the AJAX turnoff call) from session pid.
+$rawRequestPid = $_GET['pid'] ?? null;
+$requestPid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
+$sessionPid = $session->get('pid');
+if ($requestPid > 0 && ($sessionPid === null || $sessionPid === '' || $sessionPid === 0 || $sessionPid === '0')) {
+    setpid($requestPid);
+}
+$pid = PatientSessionUtil::getPid();
+if ($pid <= 0) {
+    echo "<p>" . xlt('Missing PID.') . "</p>";
+    exit;
+}
 ?>
 
 <html>
@@ -46,8 +67,12 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     <?php if (OEGlobalsBag::getInstance()->getBoolean('patient_birthday_alert_manual_off')) { ?>
         $("#turnOff").change(function () {
     <?php } ?>
-            var pid = <?php echo js_escape($_GET['pid'])?>;
-            var user_id = <?php echo js_escape($_GET['user_id'])?>;
+            var pid = <?php echo js_escape((string) $pid)?>;
+            <?php
+            $rawUserId = $_GET['user_id'] ?? null;
+            $userId = is_scalar($rawUserId) ? (int) $rawUserId : 0;
+            ?>
+            var user_id = <?php echo js_escape((string) $userId)?>;
             var value = $("#turnOff").prop('checked');
             var csrf_token_form = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             var data =  {

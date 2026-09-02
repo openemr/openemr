@@ -34,6 +34,8 @@ require_once(__DIR__ . "/../../globals.php");
 use Mpdf\Mpdf;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -58,6 +60,10 @@ require_once($srcdir . "/report.inc.php");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid');
 
+if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Eye Form Save", xl("Eye Form"));
+}
+
 // Captured here, at the top, because the form-save paths below rewrite $_POST
 // and $_REQUEST in place as they normalize fields. Reading the request through
 // this object gets the values the browser actually sent.
@@ -65,13 +71,10 @@ $request = Request::createFromGlobals();
 
 $returnurl = 'encounter_top.php';
 
-if (isset($_REQUEST['id'])) {
-    $id = $_REQUEST['id'];
-}
-
-if (!($id ?? '')) {
-    $id = $_REQUEST['pid'] ?? '';
-}
+// The form/dispense row id is a distinct value from pid; falling back to pid
+// when id is missing was a latent bug -- $id is only ever used with
+// formUpdate() below, which expects a form row id. Read only $_REQUEST['id'].
+$id = $_REQUEST['id'] ?? '';
 
 $encounter = $_REQUEST['encounter'] ?? '';
 
@@ -892,7 +895,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $Vdate = $Vdated->format('Y-m-d');
             //get eid
             $sql = "select * from patient_tracker where  `pid` = ? and `apptdate`=?";
-            $tracker = sqlFetchArray(sqlStatement($sql, [$_POST['pid'], $Vdate]));
+            // Scope the tracker lookup to the session pid; the previous
+            // $_POST['pid'] read is redundant with the patient context that
+            // already drives every other query in this file.
+            $tracker = sqlFetchArray(sqlStatement($sql, [$pid, $Vdate]));
             sqlStatement("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?", [($tracker['lastseq'] + 1), $tracker['id']]);
             #Add a tracker item.
             $sql = "INSERT INTO `patient_tracker_element` " .

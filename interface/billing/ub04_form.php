@@ -14,6 +14,13 @@
 
 require_once("./ub04_dispose.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
 global $isAuthorized;
 $isAuthorized = $isAuthorized === true ? 1 : 0;
@@ -23,23 +30,35 @@ $ub04id ??= '';
 if ($isAuthorized === 1) {
     $imgurl = "../../../../public/images";
 } else {
+    if (!AclMain::aclCheckCore('acct', 'bill')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: UB04 Claims Form", xl("UB04 Claims Form"));
+    }
     ub04_dispose();
-    $pid = $_REQUEST['pid'] ?: '0';
-    $encounter = $_REQUEST['enc'] ?: '0';
+
+    // Deep-linked patient-context page: mirror the demographics.php set_pid
+    // pattern so a fresh browser tab establishes patient context via session
+    // before any query below references $pid.
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $rawRequestPid = $_REQUEST['pid'] ?? null;
+    $requestPid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
+    $sessionPid = $session->get('pid');
+    if ($requestPid > 0 && ($sessionPid === null || $sessionPid === '' || $sessionPid === 0 || $sessionPid === '0')) {
+        setpid($requestPid);
+    }
+    $pid = PatientSessionUtil::getPid();
+    $rawEncounter = $_REQUEST['enc'] ?? null;
+    $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
     $action = $_REQUEST['action'] ?? false ?: false;
     $payerid = $_REQUEST['id'] ?? '0' ?: '0';
     $imgurl = \OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getImagesRelative();
     if ($action == 'payer_defaults') {
         $ub04id = get_payer_defaults($payerid);
-    } elseif ($pid && $encounter) {
+    } elseif ($pid > 0 && $encounter > 0) {
         $ub04id = json_encode(get_ub04_array($pid, $encounter));
     } else {
         exit(xlt("Sorry! Not Authorized."));
     }
 }
-
-use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 <!DOCTYPE html >

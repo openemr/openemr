@@ -13,6 +13,8 @@
 require_once(__DIR__ . "/../../../interface/globals.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -20,6 +22,10 @@ use OpenEMR\Services\Storage\CacheDirectory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Labs Ajax", xl("Labs"));
+}
 
 function orderDate($order)
 {
@@ -65,7 +71,11 @@ if ($action === 'code_detail') {
 
 if ($action === 'print_labels') {
     $client = $_GET['acctid'];
-    $pid = $_GET['pid'];
+    $rawPid = $_GET['pid'] ?? null;
+    $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
+    if ($pid <= 0) {
+        exit;
+    }
     $order = $_GET['order'];
     $specimen = [];
     $specimens = explode(";", (string) $_GET['specimen']);
@@ -73,8 +83,9 @@ if ($action === 'print_labels') {
     $order_date = orderDate($order);
     $dob = $_GET['dob'];
     $count = 1;
-    if ($_GET['count']) {
-        $count = (int)$_GET['count'];
+    $rawCount = $_GET['count'] ?? null;
+    if (is_scalar($rawCount) && $rawCount) {
+        $count = (int)$rawCount;
     }
 
     $pdf = new mPDF([

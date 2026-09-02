@@ -14,6 +14,8 @@ require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
 
@@ -21,28 +23,48 @@ function ub04_dispose(): void
 {
     $dispose = ($_POST['handler'] ?? null) ? $_POST['handler'] : ($_GET['handler'] ?? null);
     if ($dispose) {
+        // All UB04 dispose actions mutate billing state or emit claim data;
+        // scope every branch to the acct/bill write role.
+        if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: UB04 Dispose", xl("UB04 Claim"));
+        }
         if ($dispose == "edit_save") {
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
-            $pid = $_POST['pid'] ?? $_GET['pid'];
-            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
-            $action = $_REQUEST['action'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'] ?? '';
+            $rawPid = $_POST['pid'] ?? $_GET['pid'] ?? null;
+            $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
+            $rawEncounter = $_POST['encounter'] ?? $_GET['encounter'] ?? null;
+            $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
+            $action = $_REQUEST['action'] ?? '';
+            if ($pid <= 0 || $encounter <= 0) {
+                exit();
+            }
             $ub04id = json_decode((string) $ub04id, true);
             saveTemplate($encounter, $pid, $ub04id, $action);
             exit();
         } elseif ($dispose == "payer_save") {
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
-            $payerid = $_POST['payerid'] ?? $_GET['payerid'];
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'] ?? '';
+            $payerid = $_POST['payerid'] ?? $_GET['payerid'] ?? '';
             savePayerTemplate($payerid, $ub04id);
             exit("done");
         } elseif ($dispose == "batch_save") {
-            $pid = $_POST['pid'] ?? $_GET['pid'];
-            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'];
+            $rawPid = $_POST['pid'] ?? $_GET['pid'] ?? null;
+            $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
+            $rawEncounter = $_POST['encounter'] ?? $_GET['encounter'] ?? null;
+            $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
+            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'] ?? '';
+            if ($pid <= 0 || $encounter <= 0) {
+                exit("done");
+            }
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
-            $pid = $_POST['pid'] ?? $_GET['pid'];
-            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
+            $rawPid = $_POST['pid'] ?? $_GET['pid'] ?? null;
+            $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
+            $rawEncounter = $_POST['encounter'] ?? $_GET['encounter'] ?? null;
+            $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
+            if ($pid <= 0 || $encounter <= 0) {
+                exit();
+            }
             // clear claim first otherwise get ub04 returns current version.
             //
             $flg = exist_ub04_claim($pid, $encounter, true);
