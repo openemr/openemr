@@ -16,7 +16,9 @@ require_once("./ub04_dispose.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -225,6 +227,7 @@ var ub04id = new Array();
 payerid = <?php echo js_escape($payerid ?? ''); ?>;
 pid = <?php echo js_escape($pid);?>;
 encounter = <?php echo js_escape($encounter);?>;
+var ub04CsrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession()));?>;
 isTemplate = <?php echo $isAuthorized; ?>;
 ub04id = <?php echo $ub04id;?>
 
@@ -350,8 +353,29 @@ function disposeSave(action)
         }
     });
     ub04idSave = JSON.stringify(ub04id);
-    var qstr = param({ handler: 'edit_save',pid:pid,encounter:encounter,action:action,ub04id:ub04idSave });
-    location.href='ub04_submit.php?'+qstr;
+    // ub04_submit.php now dispatches only on POST + form-token; build a
+    // hidden form and submit it so the browser navigates to the endpoint
+    // with the state-changing payload in the request body.
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'ub04_submit.php';
+    var fields = {
+        handler: 'edit_save',
+        pid: pid,
+        encounter: encounter,
+        action: action,
+        ub04id: ub04idSave,
+        csrf_token_form: ub04CsrfToken
+    };
+    Object.keys(fields).forEach(function(name) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = fields[name];
+        form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
 }
 
 function postClaim(action)
@@ -425,9 +449,9 @@ function resetClaim(){
         return false;
     }
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: 'ub04_submit.php',
-        data: {handler:'reset_claim',pid:pid,encounter:encounter},
+        data: {handler:'reset_claim',pid:pid,encounter:encounter,csrf_token_form:ub04CsrfToken},
         dataType: 'json',
         success: function( rtn ) {
           ub04id = rtn;

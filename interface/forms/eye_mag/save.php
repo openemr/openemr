@@ -32,6 +32,7 @@ $form_folder = "eye_mag";
 require_once(__DIR__ . "/../../globals.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -65,9 +66,17 @@ $pid = $session->get('pid');
 // this object gets the values the browser actually sent.
 $request = Request::createFromGlobals();
 
+// Whitelist the mode before any downstream branch (lock flow, ACL check,
+// mutation dispatch) runs. An unknown mode does not have a valid dispatch
+// target and must not enter the pre-dispatch flow -- reject early.
+$requestMode = $request->request->get('mode', $request->query->get('mode', ''));
+$allowedModes = ['new', 'update', 'retrieve', 'show_PDF'];
+if (!in_array($requestMode, $allowedModes, true)) {
+    AccessDeniedHelper::denyWithTemplate("Unsupported mode for Eye Form Save", xl("Eye Form"));
+}
+
 // Update-mode mutations require write access; addonly is insert-only and only
 // applies to the new-mode path that creates a new form row.
-$requestMode = $request->request->get('mode', $request->query->get('mode', ''));
 $requiredAccess = $requestMode === 'update' ? 'write' : ['write', 'addonly'];
 if (!AclMain::aclCheckCore('patients', 'med', '', $requiredAccess)) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Eye Form Save", xl("Eye Form"));
@@ -918,7 +927,11 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     QueryUtils::sqlStatementThrowException($sql, [$_POST['new_status'], $tracker['eid']]);
                 }
             } catch (\OpenEMR\Common\Database\SqlQueryException $e) {
-                HelpfulDie("Failed to update patient tracker", $e->getMessage());
+                ServiceContainer::getLogger()->error(
+                    'eye_mag save: patient_tracker update failed',
+                    ['exception' => $e]
+                );
+                HelpfulDie("Failed to update patient tracker");
             }
             echo "saved";
             exit;

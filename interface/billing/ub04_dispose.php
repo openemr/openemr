@@ -16,26 +16,45 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
 
+/**
+ * Dispatch a UB04 handler action based on the `handler` request parameter.
+ *
+ * Called from `ub04_form.php` (page render) and `ub04_submit.php` (AJAX
+ * endpoint). Returns early when no `handler` is present; otherwise gates on
+ * the `acct/bill` write role, validates the form token, requires the
+ * submitted pid to match the session patient (for pid-scoped handlers), and
+ * dispatches to one of:
+ *   - `edit_save`   -> saveTemplate() for the pid/encounter
+ *   - `payer_save`  -> savePayerTemplate() for a payer id (no pid context)
+ *   - `batch_save`  -> saveTemplate() in batch mode
+ *   - `reset_claim` -> BillingUtilities::updateClaim() clearing the claim
+ * Every dispatched branch terminates the request with exit(); the function
+ * returns void only when `handler` is absent.
+ */
 function ub04_dispose(): void
 {
-    $dispose = ($_POST['handler'] ?? null) ? $_POST['handler'] : ($_GET['handler'] ?? null);
+    // State-changing handlers must arrive via POST -- GET dispatch would be
+    // reachable by cross-site navigation.
+    $dispose = $_POST['handler'] ?? null;
     if ($dispose) {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         // All UB04 dispose actions mutate billing state or emit claim data;
         // scope every branch to the acct/bill write role.
         if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
             AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: UB04 Dispose", xl("UB04 Claim"));
         }
         if ($dispose == "edit_save") {
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'] ?? '';
-            $rawPid = $_POST['pid'] ?? $_GET['pid'] ?? null;
+            $ub04id = $_POST['ub04id'] ?? '';
+            $rawPid = $_POST['pid'] ?? null;
             $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
-            $rawEncounter = $_POST['encounter'] ?? $_GET['encounter'] ?? null;
+            $rawEncounter = $_POST['encounter'] ?? null;
             $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
-            $action = $_REQUEST['action'] ?? '';
+            $action = $_POST['action'] ?? '';
             if ($pid <= 0 || $encounter <= 0) {
                 exit();
             }
@@ -46,21 +65,31 @@ function ub04_dispose(): void
             if ($sessionPid <= 0 || $pid !== $sessionPid) {
                 AccessDeniedHelper::deny("UB04 edit_save pid does not match session pid");
             }
-            $ub04id = json_decode((string) $ub04id, true);
-            saveTemplate($encounter, $pid, $ub04id, $action);
+            $decoded = is_string($ub04id) && $ub04id !== '' ? json_decode($ub04id, true) : null;
+            if (!is_array($decoded)) {
+                exit();
+            }
+            saveTemplate($encounter, $pid, $decoded, $action);
             exit();
         } elseif ($dispose == "payer_save") {
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'] ?? '';
-            $payerid = $_POST['payerid'] ?? $_GET['payerid'] ?? '';
+            $ub04id = $_POST['ub04id'] ?? '';
+            $rawPayerid = $_POST['payerid'] ?? null;
+            $payerid = is_scalar($rawPayerid) ? (int)$rawPayerid : 0;
+            if (!is_string($ub04id) || $ub04id === '' || $payerid <= 0) {
+                exit("done");
+            }
             savePayerTemplate($payerid, $ub04id);
             exit("done");
         } elseif ($dispose == "batch_save") {
-            $rawPid = $_POST['pid'] ?? $_GET['pid'] ?? null;
+            $rawPid = $_POST['pid'] ?? null;
             $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
-            $rawEncounter = $_POST['encounter'] ?? $_GET['encounter'] ?? null;
+            $rawEncounter = $_POST['encounter'] ?? null;
             $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
-            $ub04id = $_POST['ub04id'] ?? $_GET['ub04id'] ?? '';
+            $ub04id = $_POST['ub04id'] ?? '';
             if ($pid <= 0 || $encounter <= 0) {
+                exit("done");
+            }
+            if (!is_string($ub04id) || $ub04id === '') {
                 exit("done");
             }
             $sessionPid = PatientSessionUtil::getPid();
@@ -70,9 +99,9 @@ function ub04_dispose(): void
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
-            $rawPid = $_POST['pid'] ?? $_GET['pid'] ?? null;
+            $rawPid = $_POST['pid'] ?? null;
             $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
-            $rawEncounter = $_POST['encounter'] ?? $_GET['encounter'] ?? null;
+            $rawEncounter = $_POST['encounter'] ?? null;
             $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
             if ($pid <= 0 || $encounter <= 0) {
                 exit();
