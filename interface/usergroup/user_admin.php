@@ -61,7 +61,7 @@ $iter = $result[0];
 
 <?php Header::setupHeader(['common','opener', 'erx']); ?>
 
-<script src="checkpwd_validation.js"></script>
+<script src="checkpwd_validation.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->

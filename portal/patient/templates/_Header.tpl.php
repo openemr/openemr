@@ -37,7 +37,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
         <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
         <meta name="description" content="Patient Portal" />
         <meta name="author" content="Form | sjpadgett@gmail.com" />
-        <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+        <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
         <script>
             $LAB.script("<?php echo $assets_static_relative; ?>/moment/moment.js")
                 .script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js").wait()

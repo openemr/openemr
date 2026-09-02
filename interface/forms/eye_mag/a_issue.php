@@ -550,7 +550,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
 
     <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener', 'dialog'  ]); ?>
 
-    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/forms/<?php echo $form_folder; ?>/css/style.css">
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
 

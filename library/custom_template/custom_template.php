@@ -88,7 +88,7 @@ if ($isNN) {
 }
     Header::setupHeader(['common', 'opener', 'select2', 'ckeditor', $ckeditorConfig]);
 ?>
-<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
     // note these variables are set on backend server side, leaving comment for server side readers

@@ -312,7 +312,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     ?>
 
     <?php Header::setupHeader(['no_dialog', 'no_jquery', 'fontawesome']); ?>
-    <link rel="stylesheet" href="../../forms/eye_mag/css/report.css">
+    <link rel="stylesheet" href="../../forms/eye_mag/css/report.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
     <style>
         <?php if ($PDF_OUTPUT) { ?>
         .mot {

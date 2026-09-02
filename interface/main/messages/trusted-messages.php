@@ -70,7 +70,7 @@ $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail
 
     echo "<title>" .  xlt('Messages, Reminders, Recalls') . "</title>";
     ?>
-    <script src="js/trusted-messages.js" type="text/javascript"></script>
+    <script src="js/trusted-messages.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/javascript"></script>
 </head>
 <body class='body_top'>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">

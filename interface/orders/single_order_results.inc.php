@@ -409,7 +409,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 <?php } ?>
 
     <?php if ($input_form) { ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/textformat.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/textformat.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <?php } // end if input form
     ?>
 

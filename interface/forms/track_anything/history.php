@@ -85,7 +85,7 @@ echo "<html><head>";
 <title><?php echo xlt('Tracker')?></title>
 
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
 
 <script>
 //-------------- checkboxes checked checker --------------------

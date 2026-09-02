@@ -87,8 +87,8 @@ if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
     <script>
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/report.js"></script>
-    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/style.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/report.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
 <?php } ?>
 
 <?php
@@ -122,7 +122,7 @@ if (!empty($_GET['attachid'])) {
 // If google sign-in enable then add scripts.
 if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id'))) { ?>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/gSignIn.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/gSignIn.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <?php } ?>
 
 <script>

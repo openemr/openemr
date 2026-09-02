@@ -45,7 +45,7 @@ CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 if ($session->has('billencounter')) {
     $pid = $session->get('billpid');
     $encounter = $session->get('billencounter');
-    echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
+    echo "<script src='" . $webroot . "/interface/main/tabs/js/include_opener.js?v=" . attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')) . "'></script>";
 }
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));

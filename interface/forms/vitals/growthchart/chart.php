@@ -323,8 +323,8 @@ function cssHeader(): void
     ?>
     <html>
     <head>
-    <link rel="stylesheet" title="page1" href="page1.css">
-    <link rel="stylesheet" title="page2" href="page2.css">
+    <link rel="stylesheet" title="page1" href="page1.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
+    <link rel="stylesheet" title="page2" href="page2.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
     <style>
         html {
             padding: 0;
