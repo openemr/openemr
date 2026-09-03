@@ -42,7 +42,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
             // appearing in the same Customized Medical History Report.
             // Instead, silently skip this restricted form and let the report
             // continue rendering the remaining items.
-            if (!empty(OEGlobalsBag::getInstance()->get('patient_portal_onsite_two'))) {
+            if (OEGlobalsBag::getInstance()->get('patient_portal_onsite_two') !== null) {
                 return;
             }
 
