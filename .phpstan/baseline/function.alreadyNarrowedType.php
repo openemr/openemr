@@ -22,6 +22,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/object_search.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-array will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\<int\\<0, max\\>, mixed\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -75,6 +80,16 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with null will always evaluate to true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<bool\\|string\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_scalar\\(\\) with bool\\|string will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with non\\-empty\\-list\\<string\\> will always evaluate to true\\.$#',
@@ -284,7 +299,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-list\\<string\\> will always evaluate to true\\.$#',
@@ -472,7 +487,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/PatientValidatorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: mixed will always evaluate to true\\.$#',
+    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: array will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/InvoiceSummaryTest.php',
 ];

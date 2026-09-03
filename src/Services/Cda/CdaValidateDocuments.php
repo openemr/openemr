@@ -48,10 +48,9 @@ class CdaValidateDocuments
     /**
      * @param $document
      * @param $type
-     * @return array|bool|null
      * @throws Exception
      */
-    public function validateDocument($document, $type)
+    public function validateDocument($document, $type): array
     {
         // always validate schema XSD
         $xsd = $this->validateXmlXsd($document, $type);
@@ -68,9 +67,8 @@ class CdaValidateDocuments
 
     /**
      * @param $xml
-     * @return array|mixed
      */
-    public function ettValidateCcda($xml)
+    public function ettValidateCcda($xml): array
     {
         try {
             $result = $this->ettValidateDocumentRequest($xml);

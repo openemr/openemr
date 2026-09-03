@@ -107,7 +107,7 @@ class xmltoarray_parser_htmlfix
      * @param int $i The index value
      * @return array The child
      */
-    public function _struct_to_array($values, &$i)
+    public function _struct_to_array($values, &$i): array
     {
         $child = [];
         if (isset($values[$i]['value'])) {

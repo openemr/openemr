@@ -90,7 +90,9 @@ if (isset($_GET['set_pid'])) {
     setpid($_GET['set_pid']);
     $ptService = new PatientService();
     $newPatient = $ptService->findByPid($pid);
-    $ptService->touchRecentPatientList($newPatient);
+    if ($newPatient !== null) {
+        $ptService->touchRecentPatientList($newPatient);
+    }
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];
         SessionUtil::setSession('encounter', $encounter);
@@ -170,7 +172,7 @@ function print_as_money($money)
 }
 
 // get an array from Photos category
-function pic_array($pid, $picture_directory)
+function pic_array($pid, $picture_directory): array
 {
     $pics = [];
     $sql_query = "select documents.id from documents join categories_to_documents " .

@@ -145,7 +145,7 @@ class PatientAccessOnsiteService
         ];
     }
 
-    public function sendCredentialsEmail($pid, $pwd, $username, $loginUsername, $emailDirect)
+    public function sendCredentialsEmail($pid, $pwd, $username, $loginUsername, $emailDirect): array
     {
         // Create the message
         $fhirServerConfig = new ServerConfig();

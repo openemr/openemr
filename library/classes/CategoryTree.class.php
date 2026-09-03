@@ -26,7 +26,10 @@ class CategoryTree extends Tree
         return xl_document_category($name);
     }
 
-    public function _get_categories_array($patient_id, $user = '')
+    /**
+     * @return non-empty-array[]
+     */
+    public function _get_categories_array($patient_id, $user = ''): array
     {
         $categories = [];
         $sqlArray = [];

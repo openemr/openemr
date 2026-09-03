@@ -26,7 +26,7 @@ class JsonWebKeyParser
         $this->setEncryptionKey($oaEncryptionKey);
     }
 
-    public function parseRefreshToken($rawToken)
+    public function parseRefreshToken($rawToken): array
     {
         if (empty($rawToken)) {
             throw new \InvalidArgumentException("Token cannot be empty");
@@ -50,7 +50,7 @@ class JsonWebKeyParser
         return $result;
     }
 
-    public function parseAccessToken($rawToken)
+    public function parseAccessToken($rawToken): array
     {
         if (empty($rawToken)) {
             throw new \InvalidArgumentException("Token cannot be empty");

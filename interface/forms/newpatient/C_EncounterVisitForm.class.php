@@ -111,7 +111,10 @@ class C_EncounterVisitForm
 
 
 // Get providers list
-    public function getProvidersForTemplate(UserService $userService, $encounter)
+    /**
+     * @return array{id: mixed, name: non-falsy-string, selected: bool}[]
+     */
+    public function getProvidersForTemplate(UserService $userService, $encounter): array
     {
         $users = $userService->getActiveUsers();
         $provider_id = (int)$encounter['provider_id'];
@@ -167,7 +170,10 @@ class C_EncounterVisitForm
     }
 
 // START AI GENERATED CODE
-    public function getBillingFacilityForTemplate(FacilityService $facilityService, $default_bill_fac = null)
+    /**
+     * @return array{id: mixed, name: mixed, selected: bool}[]
+     */
+    public function getBillingFacilityForTemplate(FacilityService $facilityService, $default_bill_fac = null): array
     {
         // Determine default billing facility
         if (empty($default_bill_fac)) {
@@ -199,10 +205,11 @@ class C_EncounterVisitForm
         return $billingFacilities;
     }
 // END AI GENERATED CODE
-
-
-// Get visit categories
-    public function getVisitCategoriesForTemplate($viewmode, $encounter, $default_visit_category)
+    // Get visit categories
+    /**
+     * @return array{id: mixed, name: mixed, selected: bool}[]
+     */
+    public function getVisitCategoriesForTemplate($viewmode, $encounter, $default_visit_category): array
     {
         $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
                  FROM openemr_postcalendar_categories
@@ -247,7 +254,7 @@ class C_EncounterVisitForm
     }
 
 // Get sensitivity options
-    public function getSensitivitiesForTemplate($encounter)
+    public function getSensitivitiesForTemplate($encounter): array
     {
         $viewmode = $this->viewmode;
 
@@ -282,7 +289,10 @@ class C_EncounterVisitForm
     }
 
 // Get issues for linking
-    public function getIssuesForTemplate($pid, $viewmode, $encounter_id, $selectedIssue = null)
+    /**
+     * @return array{id: mixed, type: mixed, title: mixed, date: mixed, selected: bool}[]
+     */
+    public function getIssuesForTemplate($pid, $viewmode, $encounter_id, $selectedIssue = null): array
     {
 
         $issues = [];
@@ -339,7 +349,7 @@ class C_EncounterVisitForm
         return $encounter_type_option;
     }
 
-    public function getInCollectionOptionsForTemplate($encounter = null)
+    public function getInCollectionOptionsForTemplate($encounter = null): array
     {
         $options = [
             ['value' => '0', 'title' => xl('No')],
@@ -355,7 +365,7 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    public function getDischargeDispositionsForTemplate($encounter = null)
+    public function getDischargeDispositionsForTemplate($encounter = null): array
     {
         $dispositions = [];
 
@@ -368,7 +378,7 @@ class C_EncounterVisitForm
 
         // Get list of discharge dispositions
         $dischargeService = new ListService();
-        $dispositionList = $dischargeService->getOptionsByListName('discharge-disposition') ?? [];
+        $dispositionList = $dischargeService->getOptionsByListName('discharge-disposition');
 
         foreach ($dispositionList as $disposition) {
             $dispositions[] = [
@@ -382,7 +392,7 @@ class C_EncounterVisitForm
         return $dispositions;
     }
 
-    public function getTherapyGroupCategoriesForTemplate()
+    public function getTherapyGroupCategoriesForTemplate(): array
     {
         $categories = [];
         $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
@@ -398,7 +408,7 @@ class C_EncounterVisitForm
         return $categories;
     }
 
-    public function getGroupDataForTemplate($encounter = null)
+    public function getGroupDataForTemplate($encounter = null): array
     {
         $groupData = [
             'name' => '',
@@ -429,7 +439,10 @@ class C_EncounterVisitForm
         return $groupData;
     }
 
-    public function getPosOptionsForTemplate($facilityPosCode = null)
+    /**
+     * @return array{code: mixed, title: mixed, selected: bool}[]
+     */
+    public function getPosOptionsForTemplate($facilityPosCode = null): array
     {
         $pc = new \POSRef();
         $options = [];
@@ -444,7 +457,7 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    public function getDuplicateEncounterRecords($viewmode, $pid)
+    public function getDuplicateEncounterRecords($viewmode, $pid): array
     {
         $duplicate = ['isDuplicate' => false];
         if (!$viewmode) {

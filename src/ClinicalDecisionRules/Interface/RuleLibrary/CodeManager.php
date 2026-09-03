@@ -39,8 +39,9 @@ class CodeManager
     /**
      * Returns an array of Code
      * @param string $searchTerm
+     * @return \OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Code[]
      */
-    public function search($searchTerm)
+    public function search($searchTerm): array
     {
         $stmt = sqlStatement(
             self::SQL_SELECT . " " . self::SQL_WHERE_SEARCH,

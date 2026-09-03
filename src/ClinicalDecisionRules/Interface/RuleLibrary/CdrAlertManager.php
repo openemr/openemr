@@ -39,7 +39,10 @@ class CdrAlertManager
     }
 
 
-    public function populate()
+    /**
+     * @return \OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrResults[]
+     */
+    public function populate(): array
     {
         $cdra = [];
 

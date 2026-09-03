@@ -20,7 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class CommonPlugin extends AbstractPlugin
 {
-    protected $listenerObject;
+    protected Listener $listenerObject;
 
     public function __construct()
     {
@@ -118,41 +118,6 @@ class CommonPlugin extends AbstractPlugin
         $detail_query .= ';';
         QueryUtils::sqlStatementThrowException($detail_query, $detail_query_array);
         return $audit_master_id;
-    }
-
-    public function getList($list_id, $selected = '', $opt = '')
-    {
-        $this->listenerObject = new Listener();
-        $res = QueryUtils::fetchRecords("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", [$list_id]);
-        $i = 0;
-        $rows = [];
-        if ($opt == 'search') {
-            $rows[$i] = [
-                'value' => 'all',
-                'label' => $this->listenerObject->z_xlt('All'),
-                'selected' => true,
-            ];
-            $i++;
-        } elseif ($opt == '') {
-            $rows[$i] = [
-                'value' => '',
-                'label' => $this->listenerObject->z_xlt('Unassigned'),
-                'disabled' => false
-            ];
-            $i++;
-        }
-
-        foreach ($res as $row) {
-            $sel = $row['option_id'] == $selected;
-            $rows[$i] = [
-                'value' => htmlspecialchars((string) $row['option_id'], ENT_QUOTES),
-                'label' => $this->listenerObject->z_xlt($row['title']),
-                'selected' => $sel,
-            ];
-            $i++;
-        }
-
-        return $rows;
     }
 
     /*

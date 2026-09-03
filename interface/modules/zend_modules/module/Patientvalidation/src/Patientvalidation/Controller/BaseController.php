@@ -103,9 +103,9 @@ class BaseController extends AbstractActionController
         return (array)$this->getRequest()->getQuery() ;
     }
     /**
-     * @return post params as array
+     * Post params as array
      */
-    protected function getPostParamsArray()
+    protected function getPostParamsArray(): array
     {
         $putParams = [];
         parse_str((string) $this->getRequest()->getContent(), $putParams);

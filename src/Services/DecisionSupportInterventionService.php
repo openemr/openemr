@@ -192,7 +192,7 @@ class DecisionSupportInterventionService extends BaseService
      * @param $dsiServiceId
      * @return array
      */
-    private function getAttributes($listId, ?string $dsiServiceId)
+    private function getAttributes($listId, ?string $dsiServiceId): array
     {
         if (empty($dsiServiceId)) {
             $query =  "SELECT "

@@ -814,7 +814,7 @@ function postcalendar_userapi_buildView($args)
  *  @params int value -1 == hidden ; 0 == queued ; 1 == approved
  *  @return array $events[][]
  */
-function &postcalendar_userapi_pcQueryEventsFA($args)
+function &postcalendar_userapi_pcQueryEventsFA($args): array
 {
 
     $end = '0000-00-00';
@@ -1052,7 +1052,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
  *  @params int value -1 == hidden ; 0 == queued ; 1 == approved
  *  @return array $events[][]
  */
-function &postcalendar_userapi_pcQueryEvents($args)
+function &postcalendar_userapi_pcQueryEvents($args): array
 {
     $end = '0000-00-00';
     extract($args);

@@ -92,7 +92,7 @@ class GlobalConfig
         return $this->globalsArray[$settingKey] ?? null;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
             self::CONFIG_OPTION_ENVIRONMENT => [

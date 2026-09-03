@@ -31,7 +31,7 @@ function getErxSoapPath()
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path_soap');
 }
 
-function getErxCredentials()
+function getErxCredentials(): array
 {
     $cred = [];
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_partner_name');
@@ -594,7 +594,7 @@ function MidlevelPrescriber($doc, $r): void
     $r->appendChild($b);
 }
 
-function Patient($doc, $r, $pid)
+function Patient($doc, $r, $pid): array
 {
     global $msg,$warning_msg,$dem_check;
     $patient_data = sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?", [$pid]);
@@ -793,7 +793,7 @@ function OutsidePrescription($doc, $r, $pid, $prescid): void
     }
 }
 
-function PatientMedication($doc, $r, $pid, $med_limit)
+function PatientMedication($doc, $r, $pid, $med_limit): array
 {
     global $msg;
     $active = '';
@@ -854,7 +854,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     return $uploaded_med_arr;
 }
 
-function PatientFreeformAllergy($doc, $r, $pid)
+function PatientFreeformAllergy($doc, $r, $pid): array
 {
     $res = sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1

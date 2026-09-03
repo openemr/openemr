@@ -390,7 +390,7 @@ function postcalendar_userapi_getmonthname($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildMonthSelect($args)
+function postcalendar_userapi_buildMonthSelect($args): array
 {
     extract($args);
     unset($args);
@@ -420,7 +420,7 @@ function postcalendar_userapi_buildMonthSelect($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildDaySelect($args)
+function postcalendar_userapi_buildDaySelect($args): array
 {
     extract($args);
     unset($args);
@@ -449,8 +449,9 @@ function postcalendar_userapi_buildDaySelect($args)
 
 /**
  *  Returns an array of form data for FormSelectMultiple
+ * @return array{id: numeric-string, selected: bool, name: string}[]
  */
-function postcalendar_userapi_buildYearSelect($args)
+function postcalendar_userapi_buildYearSelect($args): array
 {
     extract($args);
     unset($args);
@@ -481,7 +482,10 @@ function postcalendar_userapi_buildYearSelect($args)
     return $output;
 }
 
-function &postcalendar_userapi_getCategories()
+/**
+ * @return array{dailylimit: mixed}[]|array{id: mixed, name: mixed, constantid: mixed, color: mixed, desc: mixed, value_cat_type: mixed, active: mixed, sequence: mixed, event_repeat: mixed, event_repeat_freq: mixed, event_repeat_freq_type: mixed, event_repeat_on_num: mixed, event_repeat_on_day: mixed, event_repeat_on_freq: mixed, event_recurrspec: mixed, event_duration: mixed, event_durationh: int, event_durationm: (float | int<-59, 59>), end_date_flag: mixed, end_date_type: mixed, end_date_freq: mixed, end_all_day: mixed, aco: mixed, dailylimit?: mixed}[]
+ */
+function &postcalendar_userapi_getCategories(): array
 {
     $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -558,7 +562,7 @@ function &postcalendar_userapi_getTopics()
     return $data;
 }
 
-function findFirstAvailable($period)
+function findFirstAvailable($period): array
 {
     //print_r($period);
 
@@ -579,7 +583,10 @@ function findFirstAvailable($period)
     return $available_times;
 }
 
-function findFirstInDay($day, $date)
+/**
+ * @return array{startTime: mixed, endTime: (float | int)}[]
+ */
+function findFirstInDay($day, $date): array
 {
     $stack = [];
     $lastcat = 3;

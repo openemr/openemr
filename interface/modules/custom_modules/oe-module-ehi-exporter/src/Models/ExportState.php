@@ -144,7 +144,7 @@ class ExportState
         }
     }
 
-    public function getKeyDataForTable(ExportTableDefinition $tableDefinition)
+    public function getKeyDataForTable(ExportTableDefinition $tableDefinition): array
     {
         $keyData = [
             'tables' => []

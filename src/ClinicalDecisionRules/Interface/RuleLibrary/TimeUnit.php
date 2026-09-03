@@ -8,8 +8,6 @@
 // of the License, or (at your option) any later version.
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
-
 /**
  * todo docs
  * enums
@@ -28,7 +26,7 @@ class TimeUnit
     /**
      *
      * @param string $value
-     * @return ReminderIntervalType
+     * @return ?TimeUnit
      */
     public static function from($code)
     {
@@ -42,7 +40,10 @@ class TimeUnit
         return array_values($map);
     }
 
-    private static function map()
+    /**
+     * @return array<string, TimeUnit>
+     */
+    private static function map(): array
     {
         $map = [
             'minute' => new TimeUnit('minute', xl('Minutes')),

@@ -99,6 +99,9 @@ if ($formid) {
 
 $patientService = new PatientService();
 $patient = $patientService->findByPid($session->get('pid'));
+if ($patient === null) {
+    throw new \RuntimeException('Patient not found for the current session pid.');
+}
 $listService = new ListService();
 $resultCategories = $listService->getOptionsByListName('Observation_Types');
 $twig = new TwigContainer(dirname(__DIR__), OEGlobalsBag::getInstance()->getKernel());
@@ -125,7 +128,7 @@ $viewArgs = [
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory
     ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'api')
-    ,'resultCategories' => $resultCategories ?? []
+    ,'resultCategories' => $resultCategories
 ];
 $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/new.php',

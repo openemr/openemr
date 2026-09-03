@@ -45,7 +45,10 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return "lifestyle.php";
     }
 
-    public function getOptions()
+    /**
+     * @return array{id: mixed, label: mixed}[]
+     */
+    public function getOptions(): array
     {
         $stmt = sqlStatement(
             "SELECT lo.field_id, lo.title FROM layout_options AS lo, layout_group_properties AS lp "

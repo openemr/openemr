@@ -1132,7 +1132,7 @@ class FPDF
         return ['w'=>$a[0], 'h'=>$a[1], 'cs'=>$colspace, 'bpc'=>$bpc, 'f'=>'DCTDecode', 'data'=>$data];
     }
 
-    protected function _parsepng($file)
+    protected function _parsepng($file): array
     {
     // Extract info from a PNG file
         $f = fopen($file,'rb');
@@ -1143,7 +1143,7 @@ class FPDF
         return $info;
     }
 
-    protected function _parsepngstream($f, $file)
+    protected function _parsepngstream($f, $file): array
     {
     // Check signature
         if ($this->_readstream($f,8)!=chr(137).'PNG'.chr(13).chr(10).chr(26).chr(10))
@@ -1275,7 +1275,7 @@ class FPDF
         return $a['i'];
     }
 
-    protected function _parsegif($file)
+    protected function _parsegif($file): array
     {
     // Extract info from a GIF file (via PNG conversion)
         if (!function_exists('imagepng'))

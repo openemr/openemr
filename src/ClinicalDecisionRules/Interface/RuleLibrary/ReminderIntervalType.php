@@ -36,7 +36,10 @@ class ReminderIntervalType
         return array_values($map);
     }
 
-    private static function map()
+    /**
+     * @return array<string, ReminderIntervalType>
+     */
+    private static function map(): array
     {
         $map = [
             'clinical' => new ReminderIntervalType('clinical', xl('Clinical')),

@@ -136,7 +136,7 @@ $form_encounter_layout = [
     ],
 ];
 
-function feSearchSort($search = '', $column = 0, $reverse = false)
+function feSearchSort($search = '', $column = 0, $reverse = false): array
 {
     global $form_encounter_layout;
     $arr = [];

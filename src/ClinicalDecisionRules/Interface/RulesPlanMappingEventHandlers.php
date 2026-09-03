@@ -30,7 +30,10 @@ namespace OpenEMR\ClinicalDecisionRules\Interface;
 
 class RulesPlanMappingEventHandlers
 {
-    public static function getNonCQMPlans()
+    /**
+     * @return array{plan_id: mixed, plan_pid: mixed, plan_title: mixed}[]
+     */
+    public static function getNonCQMPlans(): array
     {
         $plans = [];
 
@@ -55,7 +58,7 @@ class RulesPlanMappingEventHandlers
         return $plans;
     }
 
-    public static function getRulesInPlan($plan_id)
+    public static function getRulesInPlan($plan_id): array
     {
         $rules = [];
 
@@ -72,7 +75,7 @@ class RulesPlanMappingEventHandlers
         return $rules;
     }
 
-    public static function getRulesNotInPlan($plan_id)
+    public static function getRulesNotInPlan($plan_id): array
     {
         $rules = [];
 

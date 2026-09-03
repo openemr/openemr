@@ -25,7 +25,10 @@ class MeasureService
         ];
     }
 
-    public static function fetchMeasureOptions()
+    /**
+     * @return string[]
+     */
+    public static function fetchMeasureOptions(): array
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
@@ -61,7 +64,7 @@ class MeasureService
         ];
     }
 
-    public static function fetchAllMeasuresArray($measures = [])
+    public static function fetchAllMeasuresArray($measures = []): array
     {
         $measureObjects = [];
         foreach ($measures as $measure) {

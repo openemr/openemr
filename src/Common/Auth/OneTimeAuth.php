@@ -307,6 +307,9 @@ class OneTimeAuth
 
         $patientService = new PatientService();
         $patient = $patientService->findByPid($auth['pid']);
+        if ($patient === null) {
+            throw new OneTimeAuthException(xlt("Patient not found. Contact administrator."));
+        }
 
         // preserve session for target use
         $this->session->set('pid', $auth['pid']);

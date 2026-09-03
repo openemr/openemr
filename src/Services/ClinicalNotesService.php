@@ -364,7 +364,10 @@ class ClinicalNotesService extends BaseService
         return $this->getListAsSelectList($options);
     }
 
-    private function getListAsSelectList($optionsList)
+    /**
+     * @return array{value: mixed, code: mixed, title: mixed, xlTitle: mixed, selected: bool}[]
+     */
+    private function getListAsSelectList($optionsList): array
     {
         if (empty($optionsList)) {
             return [];

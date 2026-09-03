@@ -42,7 +42,7 @@ use OpenEMR\Billing\SLEOB;
 //
 class InvoiceSummary
 {
-    public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false)
+    public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false): array
     {
         $codes = [];
         $keysuff1 = 1000;

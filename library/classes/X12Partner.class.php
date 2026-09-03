@@ -75,7 +75,10 @@ class X12Partner extends ORDataObject
         }
     }
 
-    public function x12_partner_factory()
+    /**
+     * @return \X12Partner[]
+     */
+    public function x12_partner_factory(): array
     {
         $partners = [];
         $x = new X12Partner();

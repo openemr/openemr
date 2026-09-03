@@ -137,6 +137,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'id\' might not exist on array\\{dailylimit\\: mixed\\}\\|array\\{id\\: mixed, name\\: mixed, constantid\\: mixed, color\\: mixed, desc\\: mixed, value_cat_type\\: mixed, active\\: mixed, sequence\\: mixed, \\.\\.\\.\\}\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'name\' might not exist on array\\{dailylimit\\: mixed\\}\\|array\\{id\\: mixed, name\\: mixed, constantid\\: mixed, color\\: mixed, desc\\: mixed, value_cat_type\\: mixed, active\\: mixed, sequence\\: mixed, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{1\\: non\\-falsy\\-string\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
@@ -170,6 +180,16 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'height\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/indexrx.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'doc_type\' might not exist on array\\{doc_id\\: mixed, doc_type\\?\\: \'CCD\'\\|\'CCDA\'\\|\'CCR\'\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'doc_type\' might not exist on array\\{doc_id\\: mixed, doc_type\\?\\: \'CCD\'\\|\'CCDA\'\\|\'CCR\'\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'care_plan\' might not exist on array\\{\\}\\|array\\{care_plan\\?\\: array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, text\\: mixed, code\\: mixed, description\\: mixed, plan_type\\: mixed\\}\\>\\}\\.$#',
@@ -232,7 +252,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<array\\>\\>, entry_identification_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\>\\}\\.$#',
+    'message' => '#^Offset \'doc_type\' might not exist on array\\{doc_id\\: mixed, doc_type\\?\\: \'CCD\'\\|\'CCDA\'\\|\'CCR\'\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<string, non\\-empty\\-array\\<int\\<1, max\\>, array\\<string, mixed\\>\\>\\>, entry_identification_array\\: non\\-empty\\-array\\<string, non\\-empty\\-array\\<int\\<1, max\\>, int\\<1, max\\>\\>\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];

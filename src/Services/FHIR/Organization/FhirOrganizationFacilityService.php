@@ -242,7 +242,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      * @param  array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // we use get class to get the sub class type.

@@ -571,7 +571,7 @@ class PatientService extends BaseService
         return $processingResult;
     }
 
-    private function hydratePatientAdditionalAddressInformation(&$record)
+    private function hydratePatientAdditionalAddressInformation(&$record): array
     {
         $address = [
             'id' => $record['contact_address_address_id'] ?? null
@@ -593,7 +593,7 @@ class PatientService extends BaseService
         return $address;
     }
 
-    private function hydratedPatientInitialAddressInformation(&$patient)
+    private function hydratedPatientInitialAddressInformation(&$patient): array
     {
         // we need to setup our initial address from the patient records if we have one
         $address = [
@@ -643,12 +643,12 @@ class PatientService extends BaseService
      * Given a pid, find the patient record
      *
      * @param int $pid
-     * @return PatientDataRow
+     * @return PatientDataRow|null
      */
-    public function findByPid($pid)
+    public function findByPid($pid): ?array
     {
         $table = PatientService::TABLE_NAME;
-        /** @var PatientDataRow $patientRow */
+        /** @var PatientDataRow|null $patientRow */
         $patientRow = self::selectHelper("SELECT * FROM `$table`", [
             'where' => 'WHERE pid = ?',
             'limit' => 1,
@@ -925,7 +925,7 @@ class PatientService extends BaseService
         return compact('age', 'age_in_months', 'ageinYMD');
     }
 
-    public function getProviderIDsForPatientPids(array $patientPids)
+    public function getProviderIDsForPatientPids(array $patientPids): array
     {
         // get integer only filtered pids for sql safety
         $pids = array_map(intval(...), $patientPids);
@@ -943,7 +943,7 @@ class PatientService extends BaseService
         return $mappedPids;
     }
 
-    public function getProviderIDsForPatientUuids(array $patientUuids)
+    public function getProviderIDsForPatientUuids(array $patientUuids): array
     {
         // get integer only filtered pids for sql safety
         $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";

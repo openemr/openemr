@@ -706,7 +706,7 @@ class InstallerController extends AbstractActionController
     /**
      * @return array
      */
-    public function UpgradeModuleSQL(int $modId)
+    public function UpgradeModuleSQL(int $modId): array
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $modType = $Module->type;

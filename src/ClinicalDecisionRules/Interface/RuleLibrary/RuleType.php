@@ -43,7 +43,10 @@ class RuleType
         return array_keys($map);
     }
 
-    private static function map()
+    /**
+     * @return array<string, RuleType>
+     */
+    private static function map(): array
     {
         $map = [
             self::ActiveAlert => new RuleType(self::ActiveAlert, xl('Active Alert')),

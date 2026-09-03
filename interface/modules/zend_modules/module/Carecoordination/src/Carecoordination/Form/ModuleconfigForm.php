@@ -256,7 +256,7 @@ class ModuleconfigForm extends Form
     *
     * @return array
     */
-    public function getUsers()
+    public function getUsers(): array
     {
         $users = ['0' => ''];
         $res = QueryUtils::fetchRecords("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE authorized=1 AND active='1' ");
@@ -267,7 +267,7 @@ class ModuleconfigForm extends Form
         return $users;
     }
 
-    public function getFacilities()
+    public function getFacilities(): array
     {
         $users = ['0' => ''];
         $res = QueryUtils::fetchRecords("SELECT `id`,`name` FROM `facility`");
@@ -278,7 +278,7 @@ class ModuleconfigForm extends Form
         return $users;
     }
 
-    public function getProviders()
+    public function getProviders(): array
     {
         $users = ['0' => ''];
         $res = QueryUtils::fetchRecords("SELECT id, fname, lname FROM users WHERE authorized=1 AND active ='1'");
@@ -289,7 +289,7 @@ class ModuleconfigForm extends Form
         return $users;
     }
 
-    public function getUsersList()
+    public function getUsersList(): array
     {
         $users = ['0' => ''];
         $res = QueryUtils::fetchRecords("SELECT id, fname, lname FROM users WHERE active ='1' AND `username` IS NOT NULL AND `password` IS NOT NULL");

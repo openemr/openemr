@@ -1005,7 +1005,10 @@ class BarcodeDatamatrix
 
         return $n;
     }
-    private static function encodeDataCodeWordsASCII($text)
+    /**
+     * @return int[]
+     */
+    private static function encodeDataCodeWordsASCII($text): array
     {
         $dataCodeWords = [];
         $n = 0;
@@ -1042,7 +1045,7 @@ class BarcodeDatamatrix
             $tab[$i] = (129 + $r) % 254;
         }
     }
-    private static function calculSolFactorTable($solomonCWCount)
+    private static function calculSolFactorTable($solomonCWCount): array
     {
  // CALCULATE THE REED SOLOMON FACTORS
         $g = array_fill(0, $solomonCWCount + 1, 1);
@@ -1089,7 +1092,7 @@ class BarcodeDatamatrix
 
         return $dataTab;
     }
-    private static function getBits($entier)
+    private static function getBits($entier): array
     {
  // Transform integer to tab of bits
         $bits = [];
@@ -1223,7 +1226,7 @@ class BarcodeDatamatrix
             $assigned[$row][$col] = 1;
         }
     }
-    private static function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW)
+    private static function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW): array
     {
  // Add the finder pattern
         $totalRowsCW = ($rowsRegionCW + 2) * $rowsRegion;
@@ -1259,7 +1262,7 @@ class BarcodeDatamatrix
 
         return $datamatrixTemp;
     }
-    public static function getDigit($text, $rectangular)
+    public static function getDigit($text, $rectangular): array
     {
         $dataCodeWords = self::encodeDataCodeWordsASCII($text); // Code the text in the ASCII mode
         $dataCWCount = count($dataCodeWords);

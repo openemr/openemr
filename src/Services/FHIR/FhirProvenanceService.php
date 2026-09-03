@@ -383,7 +383,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param $key string the key to parse
      * @return array The broken up key parts.
      */
-    public function splitSurrogateKeyIntoParts($key)
+    public function splitSurrogateKeyIntoParts($key): array
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
         if (str_contains((string) $key, self::SURROGATE_KEY_SEPARATOR_V1)) {
@@ -474,7 +474,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return null;
     }
 
-    private function filterSupportedSearchParams(array $fhirSearchParameters)
+    private function filterSupportedSearchParams(array $fhirSearchParameters): array
     {
         $supportedParams = [];
         if (isset($fhirSearchParameters['_lastUpdated'])) {

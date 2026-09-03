@@ -1159,7 +1159,7 @@ class Events extends Base
         return false;
     }
 
-    public function calculateEvents($event, $start_date, $stop_date)
+    public function calculateEvents($event, $start_date, $stop_date): array
     {
 
           ///////////////////////////////////////////////////////////////////////
@@ -1405,7 +1405,10 @@ class Events extends Base
         return $age;
     }
 
-    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = '')
+    /**
+     * @return string[]
+     */
+    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = ''): array
     {
         $start = date('Y-m-d', strtotime($interval . $start_days . ' day'));
         $end = date('Y-m-d', strtotime($interval . $end_days . ' day'));
@@ -2132,7 +2135,7 @@ class Display extends Base
         $content = ob_get_clean();
         echo $content;
     }
-    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = '')
+    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = ''): array
     {
         $recalls = [];
 
@@ -2504,7 +2507,7 @@ class Display extends Base
         }
         return false;
     }
-    public function possibleModalities($appt)
+    public function possibleModalities($appt): array
     {
         $pat = [];
         $sqlQuery = "SELECT * FROM medex_icons";

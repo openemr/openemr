@@ -349,7 +349,7 @@ class Rule
         return true;
     }
 
-    public function getRuleTypeLabels()
+    public function getRuleTypeLabels(): array
     {
         $labels = [];
         foreach ($this->ruleTypes as $ruleType) {

@@ -295,7 +295,7 @@ class InsuranceCompanyService extends BaseService
         return $this->types;
     }
 
-    public function getInsuranceTypes()
+    public function getInsuranceTypes(): array
     {
         $types = [];
         $type = sqlStatement("SELECT `type` FROM `insurance_type_codes`");
@@ -316,7 +316,7 @@ class InsuranceCompanyService extends BaseService
         return $this->claim_types;
     }
 
-    public function getInsuranceClaimTypes()
+    public function getInsuranceClaimTypes(): array
     {
         $claim_types = [];
         $claim_type = sqlStatement("SELECT `claim_type` FROM `insurance_type_codes`");
@@ -337,7 +337,7 @@ class InsuranceCompanyService extends BaseService
         return $this->cqm_sops;
     }
 
-    public function getInsuranceCqmSop()
+    public function getInsuranceCqmSop(): array
     {
         $cqm_sop = sqlStatement(
             "SELECT distinct code, description FROM `valueset` WHERE `valueset` = '2.16.840.1.114222.4.11.3591';"

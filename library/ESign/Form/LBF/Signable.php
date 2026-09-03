@@ -29,7 +29,7 @@ class Form_LBF_Signable extends Form_Signable implements SignableIF
      *
      * @see \ESign\SignableIF::getData()
      */
-    public function getData()
+    public function getData(): array
     {
         // First we have to get the form_id from the forms tagle because that's our key to the lbf_data table
         $statement = "SELECT form_id FROM forms WHERE id = ?";

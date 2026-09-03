@@ -110,7 +110,7 @@ class GlobalSetting
     ) {
     }
 
-    public function format()
+    public function format(): array
     {
         $result = [
             $this->label,

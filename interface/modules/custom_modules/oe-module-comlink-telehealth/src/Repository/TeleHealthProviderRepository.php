@@ -40,7 +40,7 @@ class TeleHealthProviderRepository
         return false;
     }
 
-    public function getEnabledProviders()
+    public function getEnabledProviders(): array
     {
         $providers =  [];
         // if we auto provision we need to grab our entire provider array

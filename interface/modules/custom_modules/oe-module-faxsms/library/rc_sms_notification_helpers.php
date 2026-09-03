@@ -114,9 +114,6 @@ if (!function_exists('faxsms_getAlertPatientData')) {
         $check_date = date("Y-m-d", mktime($adj_date, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y")));
 
         $events = fetchEvents($check_date, $check_date, $where, 'u.lname,pc_startTime,p.lname');
-        if (!is_array($events)) {
-            return [];
-        }
 
         // For recurring events, the events-table dedup columns
         // (pc_sendalertsms/pc_sendalertemail) live on the base event row shared

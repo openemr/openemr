@@ -248,7 +248,10 @@ class Pharmacy extends ORDataObject
         });
     }
 
-    public function utility_pharmacy_array()
+    /**
+     * @return array<string, non-falsy-string>
+     */
+    public function utility_pharmacy_array(): array
     {
         $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
@@ -266,7 +269,10 @@ class Pharmacy extends ORDataObject
         return ($pharmacy_array);
     }
 
-    public function pharmacies_factory()
+    /**
+     * @return \Pharmacy[]
+     */
+    public function pharmacies_factory(): array
     {
         $p = new Pharmacy();
         $pharmacies = [];

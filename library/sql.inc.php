@@ -349,7 +349,7 @@ function sqlInsertClean_audit($statement, $binds = false): void
 * @param   string  $table sql table
 * @return  array
 */
-function sqlListFields($table)
+function sqlListFields($table): array
 {
     return QueryUtils::listTableFields($table);
 }

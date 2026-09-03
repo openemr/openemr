@@ -34,9 +34,8 @@ $need_head = true;
  *
  * @var string $pid Patient ID
  * @var string $type Issue Type
- * @return mixed
  */
-function getListData($pid, $type)
+function getListData($pid, $type): array
 {
     if ($type == "medication") {
         $sqlArr = [
@@ -102,7 +101,7 @@ function getListData($pid, $type)
     return $list;
 }
 
-function getPrescriptions($pid)
+function getPrescriptions($pid): array
 {
     $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
     $res = sqlStatement($sql, [$pid]);

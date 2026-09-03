@@ -15,7 +15,7 @@ use OpenEMR\Services\HolidayService;
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
 //
-function getUserFacilities($uID, $orderby = 'id', $inventory = false)
+function getUserFacilities($uID, $orderby = 'id', $inventory = false): array
 {
     $restrict = $inventory ? OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') : OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
     if ($restrict) {
@@ -51,7 +51,7 @@ function getUserFacilities($uID, $orderby = 'id', $inventory = false)
 }
 
 // Returns an array of warehouse IDs for the given user and facility.
-function getUserFacWH($uID, $fID)
+function getUserFacWH($uID, $fID): array
 {
     $res = sqlStatement(
         "SELECT warehouse_id FROM users_facility WHERE tablename = ? " .
