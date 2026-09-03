@@ -18,7 +18,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 $form_folder = "eye_mag";
 ?>

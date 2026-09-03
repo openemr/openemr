@@ -179,6 +179,7 @@
         ],
         "files": [
             "library/amc.php",
+            "library/api.inc.php",
             "library/calendar.inc.php",
             "library/csv_like_join.php",
             "library/date_functions.php",

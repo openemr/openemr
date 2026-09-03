@@ -13,7 +13,6 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc.php");
 require_once("content_parser.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

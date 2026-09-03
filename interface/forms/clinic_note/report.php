@@ -15,8 +15,6 @@
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../../globals.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-
 function clinic_note_report($pid, $encounter, $cols, $id): void
 {
     $cols = 1; // force always 1 column

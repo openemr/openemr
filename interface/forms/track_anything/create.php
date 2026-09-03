@@ -25,8 +25,6 @@ $web_root = OEGlobalsBag::getInstance()->getWebRoot();
 $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 
-require_once("$srcdir/api.inc.php");
-
 formHeader("Form: Track anything");
 
 

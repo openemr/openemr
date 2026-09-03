@@ -15,8 +15,6 @@
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-
 function clinical_instructions_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
