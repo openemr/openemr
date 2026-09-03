@@ -1942,7 +1942,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, list\\<mixed\\> given\\.$#',
+    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, list given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
 ];
@@ -19803,6 +19803,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, string\\|false given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ajax/upload.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
@@ -59247,7 +59252,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$patientUuidsToExport of method OpenEMR\\\\FHIR\\\\Export\\\\ExportJob\\:\\:setPatientUuidsToExport\\(\\) expects array\\<string\\>\\|null, array\\<mixed\\> given\\.$#',
+    'message' => '#^Parameter \\#1 \\$patientUuidsToExport of method OpenEMR\\\\FHIR\\\\Export\\\\ExportJob\\:\\:setPatientUuidsToExport\\(\\) expects array\\<string\\>\\|null, array given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
 ];
@@ -70262,7 +70267,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$arrays of function array_diff expects an array of values castable to string, list\\<mixed\\> given\\.$#',
+    'message' => '#^Parameter \\#2 \\$arrays of function array_diff expects an array of values castable to string, list given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
 ];
