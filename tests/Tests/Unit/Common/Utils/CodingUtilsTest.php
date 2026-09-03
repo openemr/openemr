@@ -24,6 +24,7 @@ class CodingUtilsTest extends TestCase
 
     /**
      * @return array<string, array{mixed, mixed, bool}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function activeCheckboxProvider(): array
     {
