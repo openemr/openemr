@@ -27,6 +27,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PaymentProcessing\PortalPaymentInput;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
@@ -120,9 +121,7 @@ if ($request->isMethod('POST')) {
 }
 
 $radioTypeInput = $request->request->getString('radio_type_of_payment');
-$radio_type_of_payment = in_array($radioTypeInput, ['pre_payment', 'copay', 'invoice_balance', 'cash'], true)
-    ? $radioTypeInput
-    : '';
+$radio_type_of_payment = PortalPaymentInput::normalizePaymentType($radioTypeInput);
 $formSave = $request->request->getString('form_save');
 
 // If the Save button was clicked...
@@ -346,12 +345,8 @@ if ($formSave !== '') {
 $receiptRequested = $request->query->getBoolean('receipt');
 $receiptTime = '';
 if ($receiptRequested) {
-    $receiptTime = $request->query->getString('time');
-    $receiptDateTime = preg_match('/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/D', $receiptTime) === 1
-        ? DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $receiptTime)
-        : false;
-    if ($receiptDateTime === false || $receiptDateTime->format('Y-m-d H:i:s') !== $receiptTime) {
-        $receiptTime = '';
+    $receiptTime = PortalPaymentInput::normalizeReceiptTime($request->query->getString('time'));
+    if ($receiptTime === '') {
         $receiptRequested = false;
     }
 }
