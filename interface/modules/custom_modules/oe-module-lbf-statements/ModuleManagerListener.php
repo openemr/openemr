@@ -21,13 +21,16 @@ class ModuleManagerListener extends AbstractModuleActionListener
         parent::__construct();
     }
 
+    /** @var list<string> */
+    private const ACTIONS = ['install', 'enable', 'disable', 'unregister'];
+
     /**
      * @param mixed  $methodName
      * @param mixed  $modId
      */
     public function moduleManagerAction($methodName, $modId, string $currentActionStatus = 'Success'): string
     {
-        if (is_string($methodName) && method_exists(self::class, $methodName)) {
+        if (is_string($methodName) && in_array($methodName, self::ACTIONS, true)) {
             $result = self::$methodName($modId, $currentActionStatus);
             return is_string($result) ? $result : $currentActionStatus;
         }
