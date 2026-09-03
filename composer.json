@@ -192,6 +192,7 @@
             "library/global_functions.inc.php",
             "library/gprelations.inc.php",
             "library/htmlspecialchars.inc.php",
+            "library/patientvalidation.inc.php",
             "library/payment.inc.php",
             "library/pid.inc.php",
             "library/pnotes.inc.php",
