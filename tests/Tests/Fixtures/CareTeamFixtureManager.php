@@ -20,6 +20,9 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 
+// Test fixture infrastructure is not application code and should not affect
+// patch-coverage thresholds.
+// @codeCoverageIgnoreStart
 class CareTeamFixtureManager
 {
     const FIXTURE_PREFIX = "test-fixture";
@@ -143,3 +146,4 @@ class CareTeamFixtureManager
         }
     }
 }
+// @codeCoverageIgnoreEnd

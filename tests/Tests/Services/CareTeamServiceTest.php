@@ -26,6 +26,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+// The services test suite runs outside the coverage-producing CI job. Exclude
+// this test harness itself so Codecov measures application code, not test code.
+// @codeCoverageIgnoreStart
 class CareTeamServiceTest extends TestCase
 {
     private CareTeamService $service;
@@ -932,3 +935,4 @@ class CareTeamServiceTest extends TestCase
         }
     }
 }
+// @codeCoverageIgnoreEnd
