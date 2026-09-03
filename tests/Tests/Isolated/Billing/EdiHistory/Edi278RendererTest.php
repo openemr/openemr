@@ -50,7 +50,7 @@ namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
         {
             $sv2 = array_fill(0, 21, '');
             $sv2[0] = 'SV2';
-            $sv2[1] = '0300';
+            $sv2[1] = '0300:CODE:MOD1:MOD2';
             $sv2[2] = '125';
             $sv2[3] = 'MJ';
             $sv2[20] = '7';
@@ -61,6 +61,11 @@ namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
                     'HL*1**SS*0',
                     implode('*', $sv2),
                 ],
+                [
+                    'BHT*0007*13*SV2-LOOKUP*20260102',
+                    'HL*2**SS*0',
+                    'MSG*SECOND-SV2-TRANSACTION-RENDERED',
+                ],
             ]);
 
             $html = \edih_278_transaction_html($x12, 'SV2-LOOKUP');
@@ -68,6 +73,7 @@ namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
             self::assertIsString($html);
             self::assertStringContainsString('Minutes', $html);
             self::assertStringContainsString('Nursing Facility (NF)', $html);
+            self::assertStringContainsString('SECOND-SV2-TRANSACTION-RENDERED', $html);
         }
     }
 
