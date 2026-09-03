@@ -33,7 +33,7 @@ class SuperbillDateRangeTest extends TestCase
     public function productionQueryUsesAnIndexFriendlyInclusiveEndDate(): void
     {
         $queryPattern = <<<'REGEX'
-            /\$res_query\s*=\s*
+            /\$resQuery\s*=\s*
             "select\s+\*\s+from\s+forms\s+where\s*"\s*\.\s*
             "form_name\s*=\s*'New\s+Patient\s+Encounter'\s+and\s*"\s*\.\s*
             .*?;
@@ -49,6 +49,8 @@ class SuperbillDateRangeTest extends TestCase
             $queryConstruction
         );
         self::assertDoesNotMatchRegularExpression('/DATE\s*\(\s*date\s*\)/i', $queryConstruction);
+        self::assertStringContainsString('QueryUtils::fetchRecords($resQuery, $sqlBindArray)', $this->reportSource);
+        self::assertStringNotContainsString('sqlStatement($resQuery', $this->reportSource);
 
         $sourceAfterQuery = substr($this->reportSource, $queryOffset + strlen($queryConstruction));
         self::assertMatchesRegularExpression(
