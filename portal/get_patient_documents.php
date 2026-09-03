@@ -21,6 +21,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -58,7 +59,7 @@ $sql = "SELECT d.url, d.id, d.mimetype, d.`name`
 /**
  * @Global $pid Patient id setup during verify_session.php
  */
-$fres = sqlStatement($sql, [$pid]);
+$files = QueryUtils::fetchRecords($sql, [$pid]);
 
 $categorySql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
         WHERE `categories_to_documents`.`category_id` = `categories`.`id`
@@ -66,17 +67,19 @@ $categorySql = "SELECT name, lft, rght FROM `categories`, `categories_to_documen
 $categoryPathSql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
 
 $documents = [];
-while ($file = sqlFetchArray($fres)) {
+foreach ($files as $file) {
     // Find the document category (already confirmed to be patients|docs above)
-    $catres = sqlStatement($categorySql, [$file['id']]);
-    $cat = sqlFetchArray($catres);
+    $cat = QueryUtils::querySingleRow($categorySql, [$file['id']]);
+    if ($cat === false) {
+        continue;
+    }
 
     // Find the tree of the document's category
-    $pathres = sqlStatement($categoryPathSql, [$cat['lft'], $cat['rght']]);
+    $parents = QueryUtils::fetchRecords($categoryPathSql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $displayPath = "";
-    while ($parent = sqlFetchArray($pathres)) {
+    foreach ($parents as $parent) {
         $displayPath .= $parent['name'] . "/";
     }
 

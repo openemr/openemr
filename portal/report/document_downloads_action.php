@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -55,19 +56,22 @@ foreach ($documentIds as $documentId) {
     // belong to any restricted category.  Using NOT EXISTS with aco_spec check
     // ensures the portal cannot serve high-sensitivity or admin-only content
     // even when document IDs are submitted directly (bypass of the listing UI).
-    $file = sqlQuery($documentSql, [$documentId]);
+    $file = QueryUtils::querySingleRow($documentSql, [$documentId]);
     if ($file === false || $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
     // Find the document category (confirmed to be patients|docs above)
-    $cat = sqlQuery($categorySql, [$file['id']]);
+    $cat = QueryUtils::querySingleRow($categorySql, [$file['id']]);
+    if ($cat === false) {
+        die(xlt("Invalid document category."));
+    }
 
     // Find the tree of the document's category
-    $pathres = sqlStatement($categoryPathSql, [$cat['lft'], $cat['rght']]);
+    $parents = QueryUtils::fetchRecords($categoryPathSql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $path = "";
-    while ($parent = sqlFetchArray($pathres)) {
+    foreach ($parents as $parent) {
         $path .= convert_safe_file_dir_name($parent['name']) . "/";
     }
 
