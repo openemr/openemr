@@ -194,6 +194,7 @@
             "library/gprelations.inc.php",
             "library/htmlspecialchars.inc.php",
             "library/immunization_helper.php",
+            "library/lab.inc.php",
             "library/patientvalidation.inc.php",
             "library/payment.inc.php",
             "library/pid.inc.php",

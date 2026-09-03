@@ -24,7 +24,6 @@ $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc.php");
 
 formHeader("Form:Lab Requisition");
 
