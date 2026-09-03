@@ -14,7 +14,6 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 
 use function OpenEMR\Forms\PhysicalExam\physical_exam_lines;
 use function OpenEMR\Forms\PhysicalExam\scalar_string;

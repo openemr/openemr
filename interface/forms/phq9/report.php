@@ -14,7 +14,6 @@
 
 use OpenEMR\BC\Utilities;
 
-
 function phq9_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;

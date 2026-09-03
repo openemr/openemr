@@ -11,7 +11,6 @@
 
 /* include globals.php, required. */
 
-use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
 

@@ -12,8 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\OEGlobalsBag;
-
 require_once(__DIR__ . '/../../globals.php');
 function track_anything_report($pid, $encounter, $cols, $id): void
 {

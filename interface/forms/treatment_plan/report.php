@@ -13,7 +13,6 @@
  */
 
 use OpenEMR\BC\Utilities;
-use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
 function treatment_plan_report($pid, $encounter, $cols, $id): void
