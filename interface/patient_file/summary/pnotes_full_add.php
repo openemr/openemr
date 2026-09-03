@@ -24,6 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientService;
 
 
 if (!empty($_GET['set_pid'])) {
@@ -65,9 +66,7 @@ $form_inactive = $_REQUEST['form_inactive'] ?? null;
 $noteid = $_REQUEST['noteid'] ?? null;
 $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1) : 1;
 
-if (!isset($offset)) {
-    $offset = 0;
-}
+$offset ??= 0;
 
 // if (!isset($active)) $active = "all";
 
@@ -359,7 +358,7 @@ function submitform(attr) {
 if (!empty($_GET['set_pid'])) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
- parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name, null, " . ((new PatientService())->hasPictureForPid($patient_id) ? 'true' : 'false'); ?>);
     <?php
 }
 

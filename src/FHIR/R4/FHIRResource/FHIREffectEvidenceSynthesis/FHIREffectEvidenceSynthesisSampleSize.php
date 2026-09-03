@@ -214,9 +214,7 @@ class FHIREffectEvidenceSynthesisSampleSize extends FHIRBackboneElement implemen
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisSampleSize xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisSampleSize>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EffectEvidenceSynthesisSampleSize xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisSampleSize>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

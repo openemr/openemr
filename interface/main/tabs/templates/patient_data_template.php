@@ -47,6 +47,9 @@ switch ($search_any_type) {
 }
 
 ?>
+<script>
+    var patient_picture_default_url = <?php echo json_encode(OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . '/patient-picture-default.png'); ?>;
+</script>
 <script type="text/html" id="patient-data-template">
     <div class="d-lg-inline-flex w-100">
         <div class="flex-fill">

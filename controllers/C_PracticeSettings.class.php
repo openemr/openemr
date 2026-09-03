@@ -18,7 +18,7 @@ class C_PracticeSettings extends Controller
 {
     public $direction;
 
-    function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
@@ -27,14 +27,14 @@ class C_PracticeSettings extends Controller
         $this->direction = (OEGlobalsBag::getInstance()->get('_SESSION')['language_direction'] == 'rtl') ? 'right' : 'left';
     }
 
-    function default_action($display = ""): string
+    public function default_action($display = ""): string
     {
         $this->assign("display", $display);
         $this->assign("direction", $this->direction);
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "practice_settings/" . $this->template_mod . "_list.html");
     }
 
-    function pharmacy_action($arg)
+    public function pharmacy_action($arg)
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -46,7 +46,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function insurance_company_action($arg)
+    public function insurance_company_action($arg)
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -58,7 +58,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function insurance_numbers_action($arg)
+    public function insurance_numbers_action($arg)
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -70,7 +70,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function document_action($arg)
+    public function document_action($arg)
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -82,7 +82,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function document_category_action($arg)
+    public function document_category_action($arg)
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -94,7 +94,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function x12_partner_action($arg)
+    public function x12_partner_action($arg)
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -107,7 +107,7 @@ class C_PracticeSettings extends Controller
     }
 
 
-    function hl7_action($arg)
+    public function hl7_action($arg)
     {
         $c = new Controller();
         $fga = func_get_args();

@@ -22,9 +22,7 @@ class SkipAuthorizationStrategy implements IAuthorizationStrategy
 
     public function getUserService(): UserService
     {
-        if (!isset($this->userService)) {
-            $this->userService = new UserService();
-        }
+        $this->userService ??= new UserService();
         return $this->userService;
     }
 

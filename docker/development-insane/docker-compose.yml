@@ -8,49 +8,41 @@
 #   1. go to contrib/util/docker directory
 #   2. docker compose up -d
 #   3. Choose one of any of the following links:
-#        http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
 #        http://localhost:8084 (with Alpine 3.22 (Apache and PHP 8.2))
 #        http://localhost:8085 (with Alpine 3.23 (Apache and PHP 8.3))
 #        http://localhost:8086 (with Alpine 3.23 (Apache and PHP 8.4))
 #        http://localhost:8087 (with Alpine 3.23 (Apache and PHP 8.5))
 #        http://localhost:8088 (with Alpine Edge (Apache and now PHP 8.5))
-#        http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
 #        http://localhost:8094 (with Alpine 3.22 (Apache and PHP 8.2) with redis)
 #        http://localhost:8095 (with Alpine 3.23 (Apache and PHP 8.3) with redis)
 #        http://localhost:8096 (with Alpine 3.23 (Apache and PHP 8.4) with redis)
 #        http://localhost:8097 (with Alpine 3.23 (Apache and PHP 8.5) with redis)
 #        http://localhost:8098 (with Alpine Edge (Apache and now PHP 8.5) with redis)
-#        http://localhost:8103 (with Nginx and PHP-FPM 8.1)
 #        http://localhost:8104 (with Nginx and PHP-FPM 8.2)
 #        http://localhost:8105 (with Nginx and PHP-FPM 8.3)
 #        http://localhost:8106 (with Nginx and PHP-FPM 8.4)
 #        http://localhost:8107 (with Nginx and PHP-FPM 8.5)
 #        http://localhost:8108 (with Nginx and PHP-FPM 8.6)
-#        http://localhost:8153 (with Nginx and PHP-FPM 8.1 with redis)
 #        http://localhost:8154 (with Nginx and PHP-FPM 8.2 with redis)
 #        http://localhost:8155 (with Nginx and PHP-FPM 8.3 with redis)
 #        http://localhost:8156 (with Nginx and PHP-FPM 8.4 with redis)
 #        http://localhost:8157 (with Nginx and PHP-FPM 8.5 with redis)
 #        http://localhost:8158 (with Nginx and PHP-FPM 8.6 with redis)
-#        https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
 #        https://localhost:9084 with SSL and Alpine 3.22 (with Apache and PHP 8.2)
 #        https://localhost:9085 with SSL and Alpine 3.23 (with Apache and PHP 8.3)
 #        https://localhost:9086 with SSL and Alpine 3.23 (with Apache and PHP 8.4)
 #        https://localhost:9087 with SSL and Alpine 3.23 (with Apache and PHP 8.5)
 #        https://localhost:9088 with SSL and Alpine Edge (with Apache and now PHP 8.5)
-#        https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
 #        https://localhost:9094 with SSL and Alpine 3.22 (with Apache and PHP 8.2 with redis)
 #        https://localhost:9095 with SSL and Alpine 3.23 (with Apache and PHP 8.3 with redis)
 #        https://localhost:9096 with SSL and Alpine 3.23 (with Apache and PHP 8.4 with redis)
 #        https://localhost:9097 with SSL and Alpine 3.23 (with Apache and PHP 8.5 with redis)
 #        https://localhost:9098 with SSL and Alpine Edge (with Apache and now PHP 8.5 with redis)
-#        https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
 #        https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
 #        https://localhost:9105 with SSL (with Nginx and PHP-FPM 8.3)
 #        https://localhost:9106 with SSL (with Nginx and PHP-FPM 8.4)
 #        https://localhost:9107 with SSL (with Nginx and PHP-FPM 8.5)
 #        https://localhost:9108 with SSL (with Nginx and PHP-FPM 8.6)
-#        https://localhost:9153 with SSL (with Nginx and PHP-FPM 8.1 with redis)
 #        https://localhost:9154 with SSL (with Nginx and PHP-FPM 8.2 with redis)
 #        https://localhost:9155 with SSL (with Nginx and PHP-FPM 8.3 with redis)
 #        https://localhost:9156 with SSL (with Nginx and PHP-FPM 8.4 with redis)
@@ -59,7 +51,7 @@
 
 #
 #    On the main setup input screen:
-#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' (have both mariadb/mysql dockers ready to go make testing either one easy; mysql is version 9.7; mysql-old is version 8.4; mariadb is version 11.8; mariadb-ssl is version 11.8 with support for ssl; mariadb-old is version 11.4; mariadb-very-old is version 10.11)
+#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' (have both mariadb/mysql dockers ready to go make testing either one easy; mysql is version 9.7; mysql-old is version 8.4; mariadb is version 12.3; mariadb-ssl is version 12.3 with support for ssl; mariadb-old is version 11.8; mariadb-very-old is version 11.4; mariadb-very-very-old is version 10.11)
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
@@ -68,38 +60,6 @@
 #    Can see databases via http://localhost:8200
 #
 services:
-  openemr-8-1:
-    restart: always
-    image: openemr/openemr:flex-3.17@sha256:e8e5f7b748a1ff017d6339fa82db800dedd688fa3cb5b548b721afd08a6c4ed5
-    ports:
-    - 8083:80
-    - 9083:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      HOST_UID: "${HOST_UID:-1000}"
-      HOST_GID: "${HOST_GID:-1000}"
-      DEBUG_COLORS: 'true'
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: yes
-      EMPTY: yes
-    healthcheck:
-      test:
-      - CMD
-      - /usr/bin/curl
-      - --fail
-      - --insecure
-      - --location
-      - --show-error
-      - --silent
-      - https://localhost/meta/health/readyz
-      interval: 1m
-      retries: 3
-      start_interval: 10s
-      start_period: 3m
-      timeout: 5s
   openemr-8-2:
     restart: always
     image: openemr/openemr:flex-3.22-php-8.2@sha256:ae4d1b9373b3588011f8f955116529f5ef551509e028612af7a777cd081548f5
@@ -300,39 +260,6 @@ services:
       start_interval: 10s
       start_period: 3m
       timeout: 5s
-  openemr-8-1-redis:
-    restart: always
-    image: openemr/openemr:flex-3.17@sha256:e8e5f7b748a1ff017d6339fa82db800dedd688fa3cb5b548b721afd08a6c4ed5
-    ports:
-    - 8093:80
-    - 9093:443
-    volumes:
-    - ../..:/var/www/localhost/htdocs/openemr
-    environment:
-      HOST_UID: "${HOST_UID:-1000}"
-      HOST_GID: "${HOST_GID:-1000}"
-      DEBUG_COLORS: 'true'
-      TERM: xterm-256color
-      COLORTERM: truecolor
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-      FORCE_NO_BUILD_MODE: yes
-      REDIS_SERVER: redis
-      EMPTY: yes
-    healthcheck:
-      test:
-      - CMD
-      - /usr/bin/curl
-      - --fail
-      - --insecure
-      - --location
-      - --show-error
-      - --silent
-      - https://localhost/meta/health/readyz
-      interval: 1m
-      retries: 3
-      start_interval: 10s
-      start_period: 3m
-      timeout: 5s
   openemr-8-2-redis:
     restart: always
     image: openemr/openemr:flex-3.22-php-8.2@sha256:ae4d1b9373b3588011f8f955116529f5ef551509e028612af7a777cd081548f5
@@ -500,7 +427,7 @@ services:
       timeout: 5s
   mariadb:
     restart: always
-    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
     command: [mariadbd, --character-set-server=utf8mb4]
     ports:
     - 8210:3306
@@ -520,7 +447,7 @@ services:
       retries: 3
   mariadb-ssl:
     restart: always
-    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
     command: [mariadbd, --character-set-server=utf8mb4, --ssl-ca=/etc/ssl/ca.pem, --ssl_cert=/etc/ssl/server-cert.pem, --ssl_key=/etc/ssl/server-key.pem]
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
@@ -542,7 +469,7 @@ services:
       retries: 3
   mariadb-old:
     restart: always
-    image: mariadb:11.4.10@sha256:3b4dfcc32247eb07adbebec0793afae2a8eafa6860ec523ee56af4d3dec42f7f
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
     command: [mariadbd, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -560,7 +487,25 @@ services:
       retries: 3
   mariadb-very-old:
     restart: always
-    image: mariadb:10.11.18@sha256:8020e05c4c498d06c87f0a1db010eb79bd6f8fb30e9b763d4690c34ce1e61008
+    image: mariadb:11.4.10@sha256:3b4dfcc32247eb07adbebec0793afae2a8eafa6860ec523ee56af4d3dec42f7f
+    command: [mariadbd, --character-set-server=utf8mb4]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  mariadb-very-very-old:
+    restart: always
+    image: mariadb:10.11.19@sha256:ce66c7be32a03aabe7241d0a10993a2db827ef652a35d25727d92a832ac8ef73
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -610,14 +555,14 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:6db6e0bc9959eb00395f5d927cc786cb63530a265663950ecb9faf5955419c37
+    image: phpmyadmin:5.2.3@sha256:3a8a8d6b5289091f959ba0293f21163b3a2fc5741991a53de70b3497fe8d31db
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mysql,mysql-old,mariadb-ssl
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mariadb-ssl
   couchdb:
     restart: always
-    image: couchdb:3.5.2@sha256:b80216f643e99d31df318c740dbc556ac08b56444030ed1d5e6d7b0d4e625213
+    image: couchdb:3.5.2@sha256:9ea24cbd76522fe845d1c32c7fd1dcfc8a3ba73dcc4817d62f8a7f7f1dfaffe3
     ports:
     - 5984:5984
     - 6984:6984
@@ -640,8 +585,6 @@ services:
     restart: always
     image: openemr/dev-nginx:latest@sha256:cd70ec94ddce2956b6acbc5f873c6bbfffda5129cc5fbf6f3f76979ae7afdb80
     ports:
-    - 8103:83
-    - 9103:443
     - 8104:84
     - 9104:444
     - 8105:85
@@ -652,8 +595,6 @@ services:
     - 9107:447
     - 8108:88
     - 9108:448
-    - 8153:93
-    - 9153:453
     - 8154:94
     - 9154:454
     - 8155:95
@@ -670,117 +611,99 @@ services:
     - ../library/dockers/dev-nginx/dummy-cert:/etc/nginx/dummy-cert:ro
     - ../library/dockers/dev-nginx/dummy-key:/etc/nginx/dummy-key:ro
     depends_on:
-    - dev-php-fpm-8-1
     - dev-php-fpm-8-2
     - dev-php-fpm-8-3
     - dev-php-fpm-8-4
     - dev-php-fpm-8-5
     - dev-php-fpm-8-6
-    - dev-php-fpm-8-1-redis
     - dev-php-fpm-8-2-redis
     - dev-php-fpm-8-3-redis
     - dev-php-fpm-8-4-redis
     - dev-php-fpm-8-5-redis
     - dev-php-fpm-8-6-redis
-  dev-php-fpm-8-1:
-    restart: always
-    image: openemr/dev-php-fpm:8.1@sha256:709e5e304aa98805e8147396cfd44b903da3abbf8bf35c96623afff60cc49174
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-1/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-2:
     restart: always
-    image: openemr/dev-php-fpm:8.2@sha256:d6bee11e5cf7074b8381e8ce94de030927b746d9c809bff4f5d3671bc352d910
+    image: openemr/dev-php-fpm:8.2@sha256:963a93d86b7b5c141ae86f4117ddae31dfac3cd61eeec13d7fd5b51e433d09c0
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-2/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-2/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-3:
     restart: always
-    image: openemr/dev-php-fpm:8.3@sha256:56600d3ca7e56b7deadb068d5b50b0748fe8dee725288b223a21d4d8868e7dfe
+    image: openemr/dev-php-fpm:8.3@sha256:6561af06042c827aa39e112005ad833b0a1dfcd883c154a4cb2f15860d277605
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-3/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-3/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-4:
     restart: always
-    image: openemr/dev-php-fpm:8.4@sha256:7fb08bad532b13d2c58f71b76e853f7d63f136bffb5bb9a63df854cc563504ac
+    image: openemr/dev-php-fpm:8.4@sha256:7b02789e4c33d83c771c1e5b51c90b8b024f7c34c4c2a5066652bf7c64df3b64
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-4/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-4/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-5:
     restart: always
-    image: openemr/dev-php-fpm:8.5@sha256:968b5b9e533d4f2ac0d8e6d04fcf77b1f69f2e2af45afaca257d9bb91e617c4a
+    image: openemr/dev-php-fpm:8.5@sha256:3df69c67ffe9e6d67f1280a100f09aed32936709d43c9ecc704b8f96b04af060
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-5/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-5/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-6:
     restart: always
-    image: openemr/dev-php-fpm:8.6@sha256:9e4f031189e8ef89be1a7b61ee391a966fa5abab6aeca14aa5b0d1f566785746
+    image: openemr/dev-php-fpm:8.6@sha256:e151594dde8afef804d9b6d81ee5d43d36129a06089df99fd4b1f5ccab21b104
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-6/php.ini:/usr/local/etc/php/php.ini:ro
-    environment:
-      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
-  dev-php-fpm-8-1-redis:
-    restart: always
-    image: openemr/dev-php-fpm:8.1-redis@sha256:cee0e48931f3ee37f63e01b37879c1a95eabc0ad595aa37602a3275915373092
-    volumes:
-    - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-6/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-2-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.2-redis@sha256:65cf0987a30b5c4c95d8e00342a446973fc1a367ad895b93b0855dafde67314d
+    image: openemr/dev-php-fpm:8.2@sha256:963a93d86b7b5c141ae86f4117ddae31dfac3cd61eeec13d7fd5b51e433d09c0
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-2/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-3-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.3-redis@sha256:4e4055b3eda5b83d67a85d8ac14569308c1571acdbf3d956726e350aab547db1
+    image: openemr/dev-php-fpm:8.3@sha256:6561af06042c827aa39e112005ad833b0a1dfcd883c154a4cb2f15860d277605
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-3/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-4-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.4-redis@sha256:27463ef7f2b46e8934c6861c13c7a6bfb87f084bb795b3eaae01585a31dbbfec
+    image: openemr/dev-php-fpm:8.4@sha256:7b02789e4c33d83c771c1e5b51c90b8b024f7c34c4c2a5066652bf7c64df3b64
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-4-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-4/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-5-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.5-redis@sha256:2f2125f6686dce453f9bf842cf7258d8c2de5ec6ba14fbe2d9c6f879f62cfbe5
+    image: openemr/dev-php-fpm:8.5@sha256:3df69c67ffe9e6d67f1280a100f09aed32936709d43c9ecc704b8f96b04af060
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-5-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-5/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-6-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.6-redis@sha256:966b65ae17998018561ae28ada7668d50ef1fcf545d8caf8bf8032250dc09f69
+    image: openemr/dev-php-fpm:8.6@sha256:e151594dde8afef804d9b6d81ee5d43d36129a06089df99fd4b1f5ccab21b104
     volumes:
     - ../..:/usr/share/nginx/html/openemr
-    - ../library/dockers/dev-php-fpm-8-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
+    - ../library/dockers/dev-php-fpm-8-6/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
     restart: always
-    image: redis:8.10.1@sha256:691577adaf11927f4bb8871d40a5dd69a5c300d4453b742e8f6383c3e6e8d2e1
+    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
   openldap:
     restart: always
     image: openemr/dev-ldap:insane@sha256:24b023a969e3a2e43bfab56e22474a036553c3d69687f8e0f9d8da968ed744a7

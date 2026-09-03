@@ -159,7 +159,7 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function SetCredential($key,$value)
+    public Function SetCredential($key,$value)
     {
         $this->credentials[$key]=$value;
     }
@@ -213,7 +213,7 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function GetCredentials(&$credentials,$defaults,&$interactions)
+    public Function GetCredentials(&$credentials,$defaults,&$interactions)
     {
         Reset($credentials);
         $end=(GetType($key=Key($credentials))!="string");
@@ -298,7 +298,7 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function Start($mechanisms, &$message, &$interactions)
+    public Function Start($mechanisms, &$message, &$interactions)
     {
         if(strlen((string) $this->error))
             return(SASL_FAIL);
@@ -397,7 +397,7 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function Step($response, &$message, &$interactions)
+    public Function Step($response, &$message, &$interactions)
     {
         if(strlen((string) $this->error))
             return(SASL_FAIL);

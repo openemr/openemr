@@ -562,6 +562,82 @@ from the checked-out ref. Using the workflow's `to_version` value
 keeps the artifact filename aligned with what `boot-package.sh`'s
 `<version>` arg + scratch-dir naming expects downstream.
 
+**`TO_VERSION` (label) vs `EXPECTED_VERSION` (actual) split**
+(openemr/openemr#13753): downstream of the label-is-cosmetic
+principle above, the version-display / version-api acceptance
+groups compare the running artifact's self-reported version
+against `ACCEPTANCE_EXPECTED_VERSION`. That env var is populated
+from `detect-mode.outputs.expected_version` (not `to_version`)
+precisely because on `build_locally=true` the two diverge — label
+stays `99.99.99` (cosmetic; drives filenames) while
+`expected_version` reads the checkout's `version.php` (what
+`sql_upgrade.php` actually writes to the DB `version` table). On
+the shipped-tarball path the two are equal (label = actual) because
+the release process bumps `version.php` in the checkout tree to the
+release version BEFORE packaging — so the tarball ships with
+`version.php` already equal to its download-URL label. The equality
+comes from the release-prep flow, NOT from `PackageAssembler` baking
+`--release-version` into anything (see the paragraph above; the
+assembler ships `version.php` as-is from the checked-out ref). On
+build_locally there is no release-prep pass, so `version.php` stays
+at whatever the checkout has (e.g. `8.4.0`) while the label defaults
+to the synthetic `99.99.99` — hence the divergence. Coupling the
+assertion to `TO_VERSION` — the pattern that #13635 originally
+shipped, and #13753 later corrected — made the acceptance groups
+un-passable on `build_locally=true`. Do not re-couple.
+
+**Follow-up fix (openemr/openemr#13786)**: #13761 covered the six
+workflow-level `ACCEPTANCE_EXPECTED_VERSION` sites (the PHPUnit
+version-display / version-api groups) but missed the two identical
+shell-level DB assertions in `boot-package.sh` and `upgrade-package.sh`,
+which compared `DB_VERSION` against their positional `VERSION` /
+`TO_VERSION` args (i.e. the cosmetic label). Same divergence, same
+symptom (`post-install DB version '8.4.0' does not match expected
+'99.99.99'`), same failure mode as before the label-vs-actual split
+was recognized. Follow-up makes both shell guards read
+`ACCEPTANCE_EXPECTED_VERSION` env if set (falling back to the
+positional arg for dev-time standalone runs), and promotes
+`ACCEPTANCE_EXPECTED_VERSION` from per-step assignments to a job-level
+env so both the PHPUnit consumers and the shell scripts see the same
+value automatically. Discovered by a `workflow_dispatch -f
+build_locally=true` smoke test against master post-#13761 merge —
+that PR's own CI hadn't exercised the build_locally path because
+#13761 didn't touch `tools/release/**`.
+
+**Second follow-up (openemr/openemr#13790)** discovered by re-running
+the same smoke test after #13786 landed: the About page displays
+`SoftwareVersion::__toString()` which returns
+`"{base}[{tag}][.{realpatch}]"`, so on master (with `$v_tag='-dev'`)
+it renders `8.4.0-dev` while the DB `version` table only holds `8.4.0`
+(schema has no v_tag column). `ACCEPTANCE_EXPECTED_VERSION` intentionally
+stays at X.Y.Z shape (uniform with the DB + `/api/version` assertions,
+both of which return X.Y.Z), and `VersionDisplayAcceptanceTest` was
+updated to compare against the X.Y.Z prefix of the About page's
+displayed value — dropping the mid-cycle suffix. On shipped tarballs
+release-prep sets `$v_tag=''` + `$v_realpatch=0`, so the strip is a
+no-op there; the divergence only shows up on `build_locally=true`
+against a dev-tagged checkout.
+
+**Third follow-up (openemr/openemr#13791)** cleaned up a related
+ergonomic bug in the same code path: the workflow's `to_version`
+`workflow_dispatch` input had been `required: true` with
+`default: '8.2.0'`. On a manual dispatch with `-f build_locally=true`
+but no `-f to_version=`, the input default (`8.2.0`) still overrode
+`emit_to_version`'s build_locally branch (which would otherwise
+resolve to `99.99.99`, matching the auto-fire path). The stale
+default also drove downgrade failures when the derived `from_version`
+was >= `8.2.0` (e.g., `8.3.0` on master → 4 of 8 acceptance jobs
+tripped `upgrade-package.sh`'s ordering guard for reasons unrelated
+to what the operator was actually testing). The `workflow_call`
+variant of the same input already had the correct shape
+(`required: false`, `default: ''`); the two triggers had diverged
+and `workflow_dispatch` never got updated. Matched `workflow_call`'s
+shape — `emit_to_version`'s `[[ -n "${DISPATCH_TO_VERSION}" ]]`
+guard already handled empty, so no shell script or downstream
+changes needed. Explicit `-f to_version=X.Y.Z` still wins over the
+empty default. Answer to "why isn't `to_version` required?" for
+future readers.
+
 Exit criterion (met): end-to-end `build_locally=true` demo on a
 real runner produced 6/6 green — `detect-mode`, `build-tarball`
 (PackageAssembler produced tarball from PR HEAD), `fresh-install`,

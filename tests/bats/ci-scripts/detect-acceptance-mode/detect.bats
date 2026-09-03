@@ -16,6 +16,9 @@
 #   - push/pull_request with no relevant change
 #   - emit_to_version's X.Y.Z validation
 #   - DISPATCH_TO_VERSION overriding the PR-title preferred value
+#   - emit_expected_version + read_tree_version (openemr/openemr#13753):
+#     build_locally=true reads version.php; build_locally=false mirrors
+#     to_version; missing/malformed version.php fails loud
 #
 # What's NOT covered
 #   - actual GitHub Actions expression rendering — the tests set the
@@ -49,6 +52,8 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=8.2.1"* ]]
+    # build_locally=true: expected_version reads version.php (seeded 8.4.99).
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "workflow_call gate half-set (only tarball) -> exit 1 with both-or-neither error" {
@@ -101,6 +106,9 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=8.2.1"* ]]
+    # build_locally=true: expected_version reads version.php (seeded 8.4.99).
+    # Independent of the PR-title-parsed to_version.
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "release-prep branch on pull_request without parseable title -> to_version=99.99.99" {
@@ -117,6 +125,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "release-prep branch on push event -> build_locally=true, to_version resolved" {
@@ -130,6 +139,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 # --- workflow_dispatch ---
@@ -145,6 +155,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "workflow_dispatch with DISPATCH_BUILD_LOCALLY=false + DISPATCH_TO_VERSION=8.2.5 -> honors both" {
@@ -158,6 +169,9 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.5"* ]]
+    # build_locally=false: expected_version mirrors to_version
+    # (label=actual on shipped-tarball path).
+    [[ "${emitted}" == *"expected_version=8.2.5"* ]]
 }
 
 # --- non-push/pull_request fallback ---
@@ -171,6 +185,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 # --- branch-creation event (BASE=000...) ---
@@ -187,6 +202,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 # --- diff-based detection ---
@@ -204,6 +220,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "git diff failure surfaces loudly with ::error:: (not silently masked by grep)" {
@@ -242,6 +259,7 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=false"* ]]
     [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 @test "pull_request with build.xml change -> build_locally=true" {
@@ -256,6 +274,7 @@ teardown() {
     local emitted
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 @test "pull_request with .gitattributes change -> build_locally=true" {
@@ -270,6 +289,7 @@ teardown() {
     local emitted
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
 }
 
 # --- emit_to_version validator ---
@@ -301,6 +321,91 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"to_version=8.3.0"* ]]
     [[ "${emitted}" != *"to_version=8.2.1"* ]]
+    # build_locally=true: expected_version tracks the checkout's
+    # version.php (seeded 8.4.99), independent of the label choice.
+    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
+}
+
+# --- emit_expected_version + read_tree_version (openemr/openemr#13753) ---
+#
+# The build_locally acceptance path historically used `TO_VERSION` as
+# the expected value for the post-install / post-upgrade version-display
+# and version-api acceptance groups. But `TO_VERSION` on that path is a
+# cosmetic 99.99.99 label — PackageAssembler does not bake it into the
+# packaged codebase, so the DB `version` table (populated by
+# sql_upgrade.php from what's actually in version.php) can never equal
+# the label. Assertions therefore couldn't pass. `expected_version` is
+# read from the checkout's version.php on build_locally=true, so the
+# assertions have a chance of matching.
+
+@test "read_tree_version reads seeded version.php (build_locally=true, dispatch)" {
+    # Override the setup default (8.4.99) to prove the value flows
+    # from the file, not a constant baked into the script.
+    seed_version_php 9 1 2
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="true"
+    export DISPATCH_TO_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=99.99.99"* ]]
+    [[ "${emitted}" == *"expected_version=9.1.2"* ]]
+    [[ "${output}" == *"resolved expected_version=9.1.2"* ]]
+}
+
+@test "read_tree_version: missing version.php -> exit 1 (build_locally path)" {
+    # Simulate a checkout where version.php is somehow absent — the
+    # script must fail loud rather than emit an empty or bogus
+    # expected_version.
+    rm -f version.php
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="true"
+    export DISPATCH_TO_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::read_tree_version: cannot read version.php"* ]]
+    # Must NOT have emitted expected_version.
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" != *"expected_version="* ]]
+}
+
+@test "read_tree_version: missing \$v_patch line -> exit 1 (build_locally path)" {
+    # Malformed version.php: has $v_major and $v_minor but not $v_patch.
+    # Must fail loud, not emit a partial value.
+    cat > version.php <<'PHP'
+<?php
+$v_major = '8';
+$v_minor = '4';
+PHP
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="true"
+    export DISPATCH_TO_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::read_tree_version: failed to parse"* ]]
+    [[ "${output}" == *"patch=''"* ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" != *"expected_version="* ]]
+}
+
+@test "read_tree_version NOT called on build_locally=false (missing version.php ok)" {
+    # Build_locally=false path must not require version.php — the
+    # expected_version mirrors to_version, which is either the
+    # shipped-version default or a dispatch input. Removing
+    # version.php then running a build_locally=false path must not
+    # trip read_tree_version.
+    rm -f version.php
+    export EVENT_NAME="schedule"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"build_locally=false"* ]]
+    [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.2.0"* ]]
 }
 
 # --- from_version derivation from sql/*-to-*_upgrade.sql (openemr/openemr#13573) ---

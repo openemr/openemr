@@ -96,7 +96,7 @@ class FeeSheet
 
     public $ALLOW_COPAYS = false;
 
-    function __construct($pid = 0, $encounter = 0)
+    public function __construct($pid = 0, $encounter = 0)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (empty($pid)) {

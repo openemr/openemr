@@ -30,7 +30,7 @@ class Provider extends ORDataObject
         /**
          * Constructor sets all Prescription attributes to their default value
          */
-    function __construct(public $id = "")
+    public function __construct(public $id = "")
     {
         $this->federal_drug_id = "";
         $this->_table = "users";
@@ -42,7 +42,7 @@ class Provider extends ORDataObject
         }
     }
 
-    function populate()
+    public function populate()
     {
         $res = sqlQuery("SELECT fname,lname,federaldrugid, specialty, npi, state_license_number FROM users where id ='" . add_escape_custom($this->id) . "'");
 
@@ -59,7 +59,7 @@ class Provider extends ORDataObject
         $this->insurance_numbers = $ins->insurance_numbers_factory($this->id);
     }
 
-    function utility_provider_array()
+    public function utility_provider_array()
     {
         $provider_array = [];
         $records = QueryUtils::fetchRecords("Select id,fname,lname  from users where authorized = 1");
@@ -70,7 +70,7 @@ class Provider extends ORDataObject
         return $provider_array;
     }
 
-    function providers_factory($sort = "ORDER BY lname,fname")
+    public function providers_factory($sort = "ORDER BY lname,fname")
     {
         $psa = [];
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;
@@ -83,58 +83,58 @@ class Provider extends ORDataObject
         return $psa;
     }
 
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
-    function get_name_display()
+    public function get_name_display()
     {
         return $this->fname . " " . $this->lname;
     }
 
-    function get_specialty()
+    public function get_specialty()
     {
         return $this->specialty;
     }
 
-    function get_provider_number_default()
+    public function get_provider_number_default()
     {
         if (!empty($this->insurance_numbers)) {
             return $this->insurance_numbers[0]->get_provider_number();
         }
     }
 
-    function get_rendering_provider_number_default()
+    public function get_rendering_provider_number_default()
     {
         if (!empty($this->insurance_numbers)) {
             return $this->insurance_numbers[0]->get_rendering_provider_number();
         }
     }
 
-    function get_insurance_numbers()
+    public function get_insurance_numbers()
     {
         return $this->insurance_numbers;
     }
 
-    function get_insurance_numbers_default()
+    public function get_insurance_numbers_default()
     {
         return ($this->insurance_numbers[0] ?? null);
     }
 
-    function get_group_number_default()
+    public function get_group_number_default()
     {
         if (!empty($this->insurance_numbers)) {
             return $this->insurance_numbers[0]->get_group_number();
         }
     }
 
-    function get_npi()
+    public function get_npi()
     {
         return $this->npi;
     }
 
-    function get_state_license_number()
+    public function get_state_license_number()
     {
         return $this->state_license_number;
     }

@@ -269,9 +269,7 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PlanDefinitionTarget xmlns="http://hl7.org/fhir"></PlanDefinitionTarget>');
-        }
+        $sxe ??= new \SimpleXMLElement('<PlanDefinitionTarget xmlns="http://hl7.org/fhir"></PlanDefinitionTarget>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->measure)) {
             $this->measure->xmlSerialize(true, $sxe->addChild('measure'));

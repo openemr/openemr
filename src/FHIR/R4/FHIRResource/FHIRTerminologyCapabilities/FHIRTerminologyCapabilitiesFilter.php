@@ -191,9 +191,7 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesFilter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesFilter>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TerminologyCapabilitiesFilter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesFilter>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

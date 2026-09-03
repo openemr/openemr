@@ -201,16 +201,14 @@ class AuthorizationController implements LoggerAwareInterface
 
     private function getSmartAuthController(): SMARTAuthorizationController
     {
-        if (!isset($this->smartAuthController)) {
-            $this->smartAuthController = new SMARTAuthorizationController(
-                $this->session,
-                $this->kernel,
-                $this->authBaseFullUrl,
-                $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
-                __DIR__ . "/../../oauth2/",
-                $this->getTwig()
-            );
-        }
+        $this->smartAuthController ??= new SMARTAuthorizationController(
+            $this->session,
+            $this->kernel,
+            $this->authBaseFullUrl,
+            $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
+            __DIR__ . "/../../oauth2/",
+            $this->getTwig()
+        );
         return $this->smartAuthController;
     }
 
@@ -1051,9 +1049,7 @@ class AuthorizationController implements LoggerAwareInterface
 
     public function getServerConfig(): ServerConfig
     {
-        if (!isset($this->serverConfig)) {
-            $this->serverConfig = new ServerConfig();
-        }
+        $this->serverConfig ??= new ServerConfig();
         return $this->serverConfig;
     }
 

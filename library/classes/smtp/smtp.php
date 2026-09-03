@@ -46,7 +46,7 @@ class smtp_class
 
     /* Private methods - DO NOT CALL */
 
-    Function Tokenize($string,$separator="")
+    public Function Tokenize($string,$separator="")
     {
         if(!strcmp((string) $separator,""))
         {
@@ -70,7 +70,7 @@ class smtp_class
         }
     }
 
-    Function OutputDebug($message)
+    public Function OutputDebug($message)
     {
         $message.="\n";
         if($this->html_debug)
@@ -79,7 +79,7 @@ class smtp_class
         flush();
     }
 
-    Function SetDataAccessError($error)
+    public Function SetDataAccessError($error)
     {
         $this->error=$error;
         if(function_exists("socket_get_status"))
@@ -95,7 +95,7 @@ class smtp_class
         }
     }
 
-    Function GetLine()
+    public Function GetLine()
     {
         for($line="";;)
         {
@@ -123,7 +123,7 @@ class smtp_class
         }
     }
 
-    Function PutLine($line)
+    public Function PutLine($line)
     {
         if($this->debug)
             $this->OutputDebug("C $line");
@@ -135,7 +135,7 @@ class smtp_class
         return(1);
     }
 
-    Function PutData(&$data)
+    public Function PutData(&$data)
     {
         if(strlen((string) $data))
         {
@@ -150,7 +150,7 @@ class smtp_class
         return(1);
     }
 
-    Function VerifyResultLines($code,&$responses)
+    public Function VerifyResultLines($code,&$responses)
     {
         $responses=[];
         Unset($this->result_code);
@@ -192,7 +192,7 @@ class smtp_class
         return(-1);
     }
 
-    Function FlushRecipients()
+    public Function FlushRecipients()
     {
         if($this->pending_sender)
         {
@@ -208,7 +208,7 @@ class smtp_class
         return(1);
     }
 
-    Function ConnectToHost($domain, $port, $resolve_message)
+    public Function ConnectToHost($domain, $port, $resolve_message)
     {
         if($this->ssl)
         {
@@ -248,7 +248,7 @@ class smtp_class
         };
     }
 
-    Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism)
+    public Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism)
     {
         $authenticated=0;
         if(!function_exists("class_exists")
@@ -350,7 +350,7 @@ class smtp_class
 
     /* Public methods */
 
-    Function Connect($domain="")
+    public Function Connect($domain="")
     {
         if(strcmp((string) $this->state,"Disconnected"))
         {
@@ -589,7 +589,7 @@ class smtp_class
         return($success);
     }
 
-    Function MailFrom($sender)
+    public Function MailFrom($sender)
     {
         if($this->direct_delivery)
         {
@@ -627,7 +627,7 @@ class smtp_class
         return(1);
     }
 
-    Function SetRecipient($recipient)
+    public Function SetRecipient($recipient)
     {
         if($this->direct_delivery)
         {
@@ -693,7 +693,7 @@ class smtp_class
         return(1);
     }
 
-    Function StartData()
+    public Function StartData()
     {
         if(strcmp((string) $this->state,"RecipientSet"))
         {
@@ -714,7 +714,7 @@ class smtp_class
         return(1);
     }
 
-    Function PrepareData(&$data,&$output,$preg=1)
+    public Function PrepareData(&$data,&$output,$preg=1)
     {
         if($preg
         && function_exists("preg_replace"))
@@ -723,7 +723,7 @@ class smtp_class
             $output=preg_replace("#(^|\n)\\.#m","\\1..",(string) preg_replace("#\r([^\n]|\$)#m","\r\n\\1",(string) preg_replace("#(^|[^\r])\n#m","\\1\r\n",(string) preg_replace("#\n\n|\r\r#m","\r\n\r\n",(string) $data))));
     }
 
-    Function SendData($data)
+    public Function SendData($data)
     {
         if(strcmp((string) $this->state,"SendingData"))
         {
@@ -734,7 +734,7 @@ class smtp_class
         return($this->PutData($data));
     }
 
-    Function EndSendingData()
+    public Function EndSendingData()
     {
         if(strcmp((string) $this->state,"SendingData"))
         {
@@ -749,7 +749,7 @@ class smtp_class
         return(1);
     }
 
-    Function ResetConnection()
+    public Function ResetConnection()
     {
         switch($this->state)
         {
@@ -770,7 +770,7 @@ class smtp_class
         return(1);
     }
 
-    Function Disconnect($quit=1)
+    public Function Disconnect($quit=1)
     {
         if(!strcmp((string) $this->state,"Disconnected"))
         {
@@ -795,7 +795,7 @@ class smtp_class
         return(1);
     }
 
-    Function SendMessage($sender,$recipients,$headers,$body)
+    public Function SendMessage($sender,$recipients,$headers,$body)
     {
         if(($success=$this->Connect()))
         {

@@ -592,9 +592,7 @@ if (!empty($_POST['form_refresh'])) {
     // Set all unset fields if the search option is set to copy (inherit), point to the source
     if (isset($search_options[$srch_option]["copy"])) {
         foreach ($search_options[$search_options[$srch_option]["copy"]] as $srch_copy_key => $srch_copy_item) {
-            if (!isset($search_options[$srch_option][$srch_copy_key])) {
-                $search_options[$srch_option][$srch_copy_key] = $srch_copy_item;
-            }
+            $search_options[$srch_option][$srch_copy_key] ??= $srch_copy_item;
         }
     }
     $srch_option_pointer = $search_options[$srch_option]["copy"] ?? $srch_option;

@@ -458,9 +458,7 @@ function getFormData(string $start_date, string $end_date, string $lname, string
         /** @var array{form_id: int, form_name: ?string, pid: int, date: string, datekey: string, lname: string, fname: string, pubpid: string, dob: string, enc: int, reason: ?string} $results1 */
         $datekey = $results1['datekey'];
         $pidEnc = $results1['pid'] . '_' . $results1['enc'];
-        if (!isset($dates[$datekey])) {
-            $dates[$datekey] = [];
-        }
+        $dates[$datekey] ??= [];
 
         if (!isset($dates[$datekey][$pidEnc])) {
             $dates[$datekey][$pidEnc] = [];
@@ -530,9 +528,7 @@ function getFormData(string $start_date, string $end_date, string $lname, string
                         'date' => $results2['date']];
                     array_push($dates[$datekey][$pidEnc]['calories'], $values);
                 } else {
-                    if (!isset($dates[$datekey][$pidEnc]['other'][$results2['category']])) {
-                        $dates[$datekey][$pidEnc]['other'][$results2['category']] = [];
-                    }
+                    $dates[$datekey][$pidEnc]['other'][$results2['category']] ??= [];
 
                     array_push(
                         $dates[$datekey][$pidEnc]['other'][$results2['category']],
