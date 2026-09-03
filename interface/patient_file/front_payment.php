@@ -23,7 +23,6 @@ $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActi
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/encounter_events.inc.php");

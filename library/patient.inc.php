@@ -31,8 +31,6 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-require_once(__DIR__ . "/dupscore.inc.php");
-
 global $facilityService;
 $facilityService = new FacilityService();
 

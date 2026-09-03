@@ -14,7 +14,6 @@ require_once(__DIR__ . "/../../interface/globals.php");
  * @global string $srcdir defined in globals
  */
 $srcdir ??= ''; // should fatally fail but passes phpstan
-require_once("$srcdir/api.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;

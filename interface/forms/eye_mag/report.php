@@ -32,9 +32,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(__DIR__ . "/../../../library/api.inc.php");
 require_once(__DIR__ . "/../../../library/lists.inc.php");
-require_once(__DIR__ . "/../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../library/patient.inc.php");
 require_once(__DIR__ . "/../../../controllers/C_Document.class.php");
 

@@ -21,7 +21,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('rootdir');
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 require_once($srcdir . "/lists.inc.php");
-require_once($srcdir . "/forms.inc.php");
 require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;

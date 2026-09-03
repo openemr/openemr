@@ -38,7 +38,6 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/patient.inc.php');
-require_once($srcDir . '/forms.inc.php');
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = !empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1');
