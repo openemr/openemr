@@ -75,8 +75,12 @@ class AdminController
             if ($csrfOk) {
                 $action = $this->stringParam($request, 'action');
                 if ($action === 'paragraph' && $formId !== '') {
-                    $catalog->saveParagraphField($formId, $this->stringParam($request, 'paragraph_field_id'));
-                    $message = xl('Paragraph field saved.');
+                    try {
+                        $catalog->saveParagraphField($formId, $this->stringParam($request, 'paragraph_field_id'));
+                        $message = xl('Paragraph field saved.');
+                    } catch (\InvalidArgumentException) {
+                        $error = xl('Choose a textarea on this layout.');
+                    }
                 } elseif ($action === 'toggle') {
                     $rid = Values::asInt($this->stringParam($request, 'rule_id'));
                     $enabled = Values::asInt($this->stringParam($request, 'enabled')) === 1;
