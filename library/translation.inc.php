@@ -97,6 +97,7 @@ if (!(function_exists('xlCleanup'))) {
      * and apostrophes are also converted to backticks. Shared by both the
      * translated and the disable_translation paths of xl().
      */
+    #[NoDiscard]
     function xlCleanup(string $string): string
     {
         if (OEGlobalsBag::getInstance()->getBoolean('translate_no_safe_apostrophe')) {
