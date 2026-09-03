@@ -7,10 +7,27 @@ const assert = require('node:assert/strict');
 const { after, before, describe, it } = require('node:test');
 
 const FS = String.fromCharCode(28);
-const SERVICE_PORT = 6661;
 const SERVICE_HOST = '127.0.0.1';
 
 let serviceProcess;
+let servicePort;
+
+function findAvailablePort() {
+    return new Promise((resolve, reject) => {
+        const socket = net.createServer();
+        socket.on('error', reject);
+        socket.listen(0, SERVICE_HOST, () => {
+            const address = socket.address();
+            socket.close(error => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(address.port);
+            });
+        });
+    });
+}
 
 function connectAndSend(xml) {
     return new Promise((resolve, reject) => {
@@ -20,7 +37,7 @@ function connectAndSend(xml) {
             client.destroy();
             reject(new Error('Connection timed out'));
         }, 10000);
-        client.connect(SERVICE_PORT, SERVICE_HOST, () => {
+        client.connect(servicePort, SERVICE_HOST, () => {
             client.write(xml + FS);
         });
         client.on('data', chunk => {
@@ -45,7 +62,7 @@ function waitForService(retries = 30) {
             return;
         }
         const client = new net.Socket();
-        client.connect(SERVICE_PORT, SERVICE_HOST, () => {
+        client.connect(servicePort, SERVICE_HOST, () => {
             client.end();
             resolve();
         });
@@ -56,8 +73,9 @@ function waitForService(retries = 30) {
 }
 
 before(async () => {
+    servicePort = await findAvailablePort();
     serviceProcess = spawn('node', [path.join(__dirname, 'serveccda.js')], {
-        env: { ...process.env, CCDA_SERVICE_HOST: SERVICE_HOST, CCDA_SERVICE_PORT: String(SERVICE_PORT) },
+        env: { ...process.env, CCDA_SERVICE_HOST: SERVICE_HOST, CCDA_SERVICE_PORT: String(servicePort) },
         stdio: 'ignore',
         detached: true,
     });
@@ -90,9 +108,8 @@ describe('serveccda error handling', () => {
         assert.match(secondResponse, /^ERROR:/);
     });
 
-    it('returns a response (not a crash) for empty CCDA', async () => {
-        const emptyXml = '<CCDA></CCDA>';
-        const response = await connectAndSend(emptyXml);
-        assert.ok(response);
+    it('returns an error response for an empty frame', async () => {
+        const response = await connectAndSend('');
+        assert.match(response, /^ERROR:/);
     });
 });

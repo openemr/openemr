@@ -32,7 +32,6 @@ const {
 } = require("./utils/demographics/populate-demographics");
 const {populateProvider} = require("./utils/providers/providers");
 
-let conn = "";
 let oidFacility = "";
 let all = "";
 let npiProvider = "";
@@ -3622,14 +3621,18 @@ function generateUnstructured(pd) {
 }
 
 function processConnection(connection) {
-    conn = connection; // make it global
-    let remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
-    conn.setEncoding('utf8');
+    let remoteAddress = connection.remoteAddress + ':' + connection.remotePort;
+    connection.setEncoding('utf8');
     //console.log('server remote address ', remoteAddress);
     let xml_complete = "";
 
     async function eventData(xml) {
         let xml_complete = xml.toString();
+        if (!xml_complete.match(/^<CCDA/g) || !xml_complete.match(/<\/CCDA>$/g)) {
+            connection.write("ERROR: Invalid CCDA payload" + String.fromCharCode(28) + "\r\r");
+            connection.end();
+            return;
+        }
         // ensure we have an array start and end
         if (xml_complete.match(/^<CCDA/g) && xml_complete.match(/<\/CCDA>$/g)) {
             let doc = "";
@@ -3685,14 +3688,14 @@ function processConnection(connection) {
                 let numChunks = Math.ceil(doc.length / 1024);
                 for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
                     chunk = doc.substring(o, o + 1024);
-                    conn.write(chunk);
+                    connection.write(chunk);
                 }
-                conn.write(String.fromCharCode(28) + "\r\r" + "");
-                conn.end();
+                connection.write(String.fromCharCode(28) + "\r\r" + "");
+                connection.end();
             } catch (error) {
                 console.error("XML parsing/generation error:", error);
-                conn.write("ERROR: " + error.message + String.fromCharCode(28) + "\r\r");
-                conn.end();
+                connection.write("ERROR: " + error.message + String.fromCharCode(28) + "\r\r");
+                connection.end();
             }
         }
     }
@@ -3704,35 +3707,37 @@ function processConnection(connection) {
     function eventErrorConn(err) {
         console.log('Connection %s error: %s', remoteAddress, err.message);
         console.log(err.stack);
-        conn.destroy();
+        connection.destroy();
     }
 
 // Connection Events //
     // CCM will send one File Separator characters to mark end of array.
     let received = new DataStack(String.fromCharCode(28));
-    conn.on("data", data => {
+    connection.on("data", data => {
         received.push(data);
         while (!received.endOfCcda() && data.length > 0) {
             data = "";
             eventData(received.returnData()).catch(err => {
                 console.error("Unhandled error in eventData:", err);
                 try {
-                    conn.write("ERROR: " + err.message + String.fromCharCode(28) + "\r\r");
-                    conn.end();
+                    connection.write("ERROR: " + err.message + String.fromCharCode(28) + "\r\r");
+                    connection.end();
                 } catch (_) {
-                    conn.destroy();
+                    connection.destroy();
                 }
             });
         }
     });
 
-    conn.once('close', eventCloseConn);
-    conn.on('error', eventErrorConn);
+    connection.once('close', eventCloseConn);
+    connection.on('error', eventErrorConn);
 }
 
 function setUp(server) {
     server.on('connection', processConnection);
-    server.listen(6661, '127.0.0.1', function () { // never change port!
+    const servicePort = Number.parseInt(process.env.CCDA_SERVICE_PORT || '6661', 10);
+    const serviceHost = process.env.CCDA_SERVICE_HOST || '127.0.0.1';
+    server.listen(servicePort, serviceHost, function () {
         //console.log('server listening to ', server.address());
     });
 }
