@@ -23,6 +23,7 @@ class PatientSelectPrintTest extends TestCase
         yield 'ordinary CDR drilldown' => ['cdr_report', 0, false];
         yield 'explicit entire-list print' => ['cdr_report', 1, true];
         yield 'non-CDR patient selector' => ['', null, false];
+        yield 'non-CDR selector with enabled print mode' => ['', 1, false];
     }
 
     #[DataProvider('printModeProvider')]
