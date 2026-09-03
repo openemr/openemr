@@ -564,9 +564,6 @@ function &postcalendar_userapi_getTopics()
     return $data;
 }
 
-/**
- * @return non-empty-list[]
- */
 function findFirstAvailable($period): array
 {
     //print_r($period);
