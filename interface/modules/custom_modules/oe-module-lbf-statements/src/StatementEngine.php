@@ -234,9 +234,7 @@ class StatementEngine
         ]);
         $replaced = preg_replace_callback(
             '/\{([A-Za-z0-9_-]+)\}/',
-            static function (array $m) use ($values): string {
-                return $values[$m[1]] ?? $m[0];
-            },
+            static fn (array $m): string => $values[$m[1]] ?? $m[0],
             $out
         );
         return is_string($replaced) ? $replaced : $out;

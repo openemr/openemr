@@ -10,6 +10,8 @@
  * @license   GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\LbfStatements;
 
 use OpenEMR\Core\ModulesClassLoader;

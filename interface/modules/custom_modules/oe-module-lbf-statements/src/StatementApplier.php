@@ -29,9 +29,7 @@ class StatementApplier
         ?string $paragraphOverride = null
     ): array {
         Identifiers::assertFieldId($paragraphField);
-        $paragraph = $paragraphOverride !== null
-            ? $paragraphOverride
-            : StatementParagraph::fromActions($actions);
+        $paragraph = $paragraphOverride ?? StatementParagraph::fromActions($actions);
         $existing = $current[$paragraphField] ?? '';
         $out = $current;
         if ($mode === 'overwrite') {
@@ -55,9 +53,41 @@ class StatementApplier
         if ($existing === '') {
             return $add;
         }
-        if (str_contains($existing, $add)) {
+        if ($this->alreadyHasSentences($existing, $add)) {
             return $existing;
         }
         return rtrim($existing) . ' ' . $add;
+    }
+
+    private function alreadyHasSentences(string $existing, string $add): bool
+    {
+        $want = $this->sentenceTokens($add);
+        if ($want === []) {
+            return false;
+        }
+        $have = $this->sentenceTokens($existing);
+        foreach ($want as $sentence) {
+            if (!in_array($sentence, $have, true)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function sentenceTokens(string $text): array
+    {
+        $parts = preg_split('/(?<=[.!?])\s+/u', trim($text)) ?: [];
+        $out = [];
+        foreach ($parts as $part) {
+            $norm = strtolower(trim($part, " \t\n\r\0\x0B.!?"));
+            $norm = preg_replace('/\s+/u', ' ', $norm) ?? $norm;
+            if ($norm !== '') {
+                $out[] = $norm;
+            }
+        }
+        return $out;
     }
 }
