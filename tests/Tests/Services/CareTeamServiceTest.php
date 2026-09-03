@@ -17,17 +17,20 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Tests\Fixtures\CareTeamFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CareTeamServiceTest extends TestCase
 {
     private CareTeamService $service;
     private CareTeamFixtureManager $fixtureManager;
+    private SessionInterface $session;
 
     /** @var array<mixed> */
     private array $backupSession = [];
@@ -57,7 +60,8 @@ class CareTeamServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->backupSession = $_SESSION ?? [];
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->backupSession = $this->session->all();
         $this->service = new CareTeamService();
         $this->fixtureManager = new CareTeamFixtureManager();
         $deps = $this->fixtureManager->installDependencies();
@@ -77,14 +81,13 @@ class CareTeamServiceTest extends TestCase
         // @phpstan-ignore cast.int
         $this->testSecondProviderId = (int) $secondProvider['id'];
 
-        // saveCareTeam reads $_SESSION['authUserID'] via SessionWrapperFactory
-        $_SESSION['authUserID'] = 1;
+        $this->session->set('authUserID', 1);
     }
 
     protected function tearDown(): void
     {
         $this->fixtureManager->removeFixtures();
-        $_SESSION = $this->backupSession;
+        $this->session->replace($this->backupSession);
     }
 
     // =========================================================================
