@@ -37,11 +37,7 @@ readonly class CodeTypeImporter
 {
     use ServiceFSTrait;
 
-    public function __construct(
-        private EntityManagerInterface $em,
-        private LoggerInterface $logger,
-    ) {
-    }
+    public function __construct() { }
 
     public function import_dir(string $type, $importFunction): void {
         foreach (glob("*.zip") as $file) {

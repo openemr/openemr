@@ -59,7 +59,7 @@ class CodeImportCommand extends Command
             return 1;
         }
 
-        $importer = OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(CodeTypeImporter::class);
+        $importer = new CodeTypeImporter();
         $path = $input->getOption('dir');
         if (strlen($path)) {
             $importer->import(realpath($path));
