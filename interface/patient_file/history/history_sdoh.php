@@ -19,6 +19,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\SDOH\HistorySdohService;
@@ -30,6 +31,13 @@ $is_new = isset($_GET['new']) ? (int)$_GET['new'] : 0;
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH form');
+}
+
+// Deep-linked page: seed session pid so the wrapping chart header and menu
+// render with patient context. Local $pid is already sourced from the URL
+// and drives every query below; the setpid() here is for the parent frame.
+if ($pid > 0 && PatientSessionUtil::getPid() <= 0) {
+    setpid($pid);
 }
 
 $csrf = CsrfUtils::collectCsrfToken(session: $session);

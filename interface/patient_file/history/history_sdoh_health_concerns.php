@@ -30,6 +30,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientIssuesService;
@@ -49,6 +50,12 @@ if (!$pid || !$sdoh_id) {
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH health concerns');
+}
+
+// Deep-linked page: seed session pid so the wrapping chart header and menu
+// render with patient context (local $pid drives every query below).
+if (PatientSessionUtil::getPid() <= 0) {
+    setpid($pid);
 }
 
 $sdohService = new HistorySdohService();

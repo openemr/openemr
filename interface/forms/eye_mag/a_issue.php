@@ -25,6 +25,7 @@ TODO: Code cleanup */
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -43,7 +44,15 @@ require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_function
 
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = (int) ($_REQUEST['pid'] ?? $session->get('pid', 0));
+$rawRequestPid = $_REQUEST['pid'] ?? null;
+$requestPid = is_scalar($rawRequestPid) ? (int) $rawRequestPid : 0;
+// Deep-linked page: seed session pid so the wrapping chart header and menu
+// render with patient context. Falls back to the current session pid when
+// the request omits pid (in-encounter navigation).
+if ($requestPid > 0 && PatientSessionUtil::getPid() <= 0) {
+    setpid($requestPid);
+}
+$pid = $requestPid > 0 ? $requestPid : PatientSessionUtil::getPid();
 $info_msg = "";
 
 // $ISSUE_TYPES and $ISSUE_CLASSIFICATIONS are populated by lists.inc.php

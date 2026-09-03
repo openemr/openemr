@@ -24,6 +24,7 @@ require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -33,6 +34,12 @@ if (!$pid) {
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH list');
+}
+
+// Deep-linked page: seed session pid so the wrapping chart header and menu
+// render with patient context (local $pid drives the list query below).
+if (PatientSessionUtil::getPid() <= 0) {
+    setpid($pid);
 }
 
 // Pull rows newest first
