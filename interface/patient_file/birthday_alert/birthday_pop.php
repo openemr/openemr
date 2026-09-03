@@ -32,8 +32,10 @@ if (!AclMain::aclCheckCore('patients', 'appt')) {
 // Popup is opened from the main patient-birthday alert with the pid embedded
 // in the URL. Keep the value request-local: never call setpid() from a GET
 // handler (would change active patient without a form-token round-trip). The
-// AJAX turnoff below re-sends pid in a form-token-protected POST that the
-// turnoff handler validates against the session.
+// AJAX turnoff below re-sends pid in a form-token-protected POST; the turnoff
+// handler (library/ajax/turnoff_birthday_alert.php) validates the token but
+// does not currently compare the submitted pid against the session pid --
+// tightening that comparison is a separate improvement outside this refactor.
 $query = CurrentRequest::get()->query;
 $pid = $query->getInt('pid');
 if ($pid <= 0) {
