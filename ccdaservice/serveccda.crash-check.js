@@ -76,18 +76,15 @@ after(() => {
 
 describe('serveccda error handling', () => {
     it('returns an error response for XML with missing patient data', async () => {
-        // Valid XML wrapper but missing required <patient> element
         const malformedXml = '<CCDA><doc_type>ccd</doc_type></CCDA>';
         const response = await connectAndSend(malformedXml);
         assert.match(response, /^ERROR:/);
     });
 
     it('stays alive after receiving malformed input', async () => {
-        // Send malformed input first
         const malformedXml = '<CCDA><doc_type>ccd</doc_type></CCDA>';
         await connectAndSend(malformedXml);
 
-        // Verify service is still accepting connections
         const secondResponse = await connectAndSend(malformedXml);
         assert.match(secondResponse, /^ERROR:/);
     });
@@ -95,8 +92,6 @@ describe('serveccda error handling', () => {
     it('returns a response (not a crash) for empty CCDA', async () => {
         const emptyXml = '<CCDA></CCDA>';
         const response = await connectAndSend(emptyXml);
-        // Empty CCDA produces a minimal XML header — the important thing
-        // is the service doesn't crash.
         assert.ok(response);
     });
 });
