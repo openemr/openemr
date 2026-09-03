@@ -164,12 +164,7 @@ if ($formSave !== '') {
 
     $formUpay = $request->request->all('form_upay');
     if ($formUpay !== [] && $radio_type_of_payment !== 'pre_payment') {
-        foreach ($formUpay as $enc => $payment) {
-            $amount = ValidationUtils::parsePositiveAmount($payment);
-            if ($amount === null) {
-                continue;
-            }
-
+        foreach (PortalPaymentInput::normalizePositivePayments($formUpay) as $enc => $amount) {
             $zero_enc = $enc;
 
             //----------------------------------------------------------------------------------------------------
@@ -180,9 +175,7 @@ if ($formSave !== '') {
                 [$form_pid, $enc]
             );
             if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                $Codetype = is_string($RowSearch['code_type'] ?? null) ? $RowSearch['code_type'] : '';
-                $Code = is_string($RowSearch['code'] ?? null) ? $RowSearch['code'] : '';
-                $Modifier = is_string($RowSearch['modifier'] ?? null) ? $RowSearch['modifier'] : '';
+                [$Codetype, $Code, $Modifier] = PortalPaymentInput::normalizeBillingCodeRow($RowSearch);
             } else {
                 $Codetype = '';
                 $Code = '';
@@ -269,9 +262,7 @@ if ($formSave !== '') {
                     [$form_pid, $enc]
                 );
                 while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                    $Codetype = is_string($RowSearch['code_type'] ?? null) ? $RowSearch['code_type'] : '';
-                    $Code = is_string($RowSearch['code'] ?? null) ? $RowSearch['code'] : '';
-                    $Modifier = is_string($RowSearch['modifier'] ?? null) ? $RowSearch['modifier'] : '';
+                    [$Codetype, $Code, $Modifier] = PortalPaymentInput::normalizeBillingCodeRow($RowSearch);
                     $Fee = $RowSearch['fee'];
 
                     $resMoneyGot = sqlStatement(
@@ -342,14 +333,10 @@ if ($formSave !== '') {
 }//if ($formSave)
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
-$receiptRequested = $request->query->getBoolean('receipt');
-$receiptTime = '';
-if ($receiptRequested) {
-    $receiptTime = PortalPaymentInput::normalizeReceiptTime($request->query->getString('time'));
-    if ($receiptTime === '') {
-        $receiptRequested = false;
-    }
-}
+[$receiptRequested, $receiptTime] = PortalPaymentInput::normalizeReceiptRequest(
+    $request->query->getBoolean('receipt'),
+    $request->query->getString('time')
+);
 if ($alertmsg === '' && ($formSave !== '' || $receiptRequested)) {
     if ($receiptRequested) {
         $form_pid = $pid;

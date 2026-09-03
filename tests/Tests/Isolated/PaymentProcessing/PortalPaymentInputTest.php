@@ -44,6 +44,42 @@ final class PortalPaymentInputTest extends TestCase
     }
 
     #[Test]
+    public function itNormalizesPositivePayments(): void
+    {
+        self::assertSame(
+            [42 => 15.5, 'encounter-7' => 2.0],
+            PortalPaymentInput::normalizePositivePayments([
+                42 => '15.50',
+                'zero' => 0,
+                'negative' => -3,
+                'invalid' => 'ten',
+                'encounter-7' => 2,
+            ])
+        );
+    }
+
+    #[Test]
+    public function itNormalizesBillingCodeRows(): void
+    {
+        self::assertSame(
+            ['CPT4', '99213', '25'],
+            PortalPaymentInput::normalizeBillingCodeRow([
+                'code_type' => 'CPT4',
+                'code' => '99213',
+                'modifier' => '25',
+            ])
+        );
+        self::assertSame(
+            ['', '', ''],
+            PortalPaymentInput::normalizeBillingCodeRow([
+                'code_type' => null,
+                'code' => 99213,
+                'modifier' => [],
+            ])
+        );
+    }
+
+    #[Test]
     #[DataProvider('receiptTimeProvider')]
     public function itNormalizesReceiptTimes(string $input, string $expected): void
     {
@@ -65,5 +101,16 @@ final class PortalPaymentInputTest extends TestCase
             'wrong shape' => ['2026-4-14 12:00:00', ''],
             'empty timestamp' => ['', ''],
         ];
+    }
+
+    #[Test]
+    public function itNormalizesReceiptRequests(): void
+    {
+        self::assertSame(
+            [true, '2024-02-29 23:59:59'],
+            PortalPaymentInput::normalizeReceiptRequest(true, '2024-02-29 23:59:59')
+        );
+        self::assertSame([false, ''], PortalPaymentInput::normalizeReceiptRequest(true, '2023-02-29 12:00:00'));
+        self::assertSame([false, ''], PortalPaymentInput::normalizeReceiptRequest(false, '2024-02-29 23:59:59'));
     }
 }
