@@ -17,6 +17,7 @@
 require_once('../../globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Calendar\PatientFinderView;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -110,7 +111,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
       }
     </style>
 
-    <script src="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot()); ?>/library/js/calendar-patient-finder.js"></script>
+    <script src="<?php echo attr(PatientFinderView::scriptUrl(OEGlobalsBag::getInstance()->getWebRoot())); ?>"></script>
 </head>
 <body class="body_top">
     <div class="table-responsive-sm">
@@ -152,16 +153,14 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
             <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo xlt('No records found. Please expand your search criteria.'); ?>
                 <br />
                 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
-                <a class="noresult" href="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot()); ?>/interface/new/new.php"
-                    <?php
-                    if (
-                        isset($_GET['pflag']) ||
-                        !AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])
-                    ) {
-                        ?> style="display: none;"
-                        <?php
-                    }
-                    ?> >
+                <?php
+                $canAddPatient = static fn(): bool => AclMain::aclCheckCore(
+                    'patients',
+                    'demo',
+                    '',
+                    ['write', 'addonly']
+                ); ?>
+                <a class="noresult" href="<?php echo attr(PatientFinderView::addPatientUrl(OEGlobalsBag::getInstance()->getWebRoot())); ?>"<?php echo PatientFinderView::addPatientVisibilityStyle(isset($_GET['pflag']), $canAddPatient); ?> >
                     <?php echo xlt('Click Here to add a new patient.'); ?>
                 </a>
             </div>
