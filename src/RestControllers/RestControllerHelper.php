@@ -556,7 +556,7 @@ class RestControllerHelper
     {
         if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload) || is_bool($payload)) {
             $response = new JsonResponse($payload);
-        } else if ($payload instanceof \Stringable || is_string($payload)) {
+        } elseif ($payload instanceof \Stringable || is_string($payload)) {
             $response = new Response((string)$payload, Response::HTTP_OK, ['Content-Type' => 'text/html']);
         } else {
             throw new \TypeError(sprintf(

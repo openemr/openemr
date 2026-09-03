@@ -151,15 +151,15 @@ class FHIRSearchFieldFactory
 
         if ($type == SearchFieldType::TOKEN) {
             return $this->createTokenSearchField($fieldName, $fhirSearchValues, $modifier, $isUUID);
-        } else if ($type == SearchFieldType::URI) {
+        } elseif ($type == SearchFieldType::URI) {
             throw new \BadMethodCallException("URI Search Parameter not implemented yet");
-        } else if ($type == SearchFieldType::DATE) {
+        } elseif ($type == SearchFieldType::DATE) {
             return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATE);
-        } else if ($type == SearchFieldType::DATETIME) {
+        } elseif ($type == SearchFieldType::DATETIME) {
             return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATETIME);
-        } else if ($type == SearchFieldType::NUMBER) {
+        } elseif ($type == SearchFieldType::NUMBER) {
             throw new \BadMethodCallException("Number search parameter not implemented yet");
-        } else if ($type == SearchFieldType::REFERENCE) {
+        } elseif ($type == SearchFieldType::REFERENCE) {
             return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifier, $isUUID);
         } else {
             // default is a string token

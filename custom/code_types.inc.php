@@ -703,7 +703,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                             $sql_bind_array[] = "%" . $keyword . "%";
                         }
                     }
-                } else if (!empty($code_text_col)) {
+                } elseif (!empty($code_text_col)) {
                     // do only a prefix search on small character codes
                     $query .= " AND " . $table_dot . $code_text_col . " LIKE ? ";
                     $sql_bind_array[] = $search_term . "%";

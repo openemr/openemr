@@ -246,7 +246,7 @@ class GaclApi extends Gacl {
 
             $this->debug_text("add_consolidated_acl(): Hot damn, ACL consolidated!");
             return true;
-        } elseif($acl_ids_count > 1) {
+        } elseif ($acl_ids_count > 1) {
             $this->debug_text("add_consolidated_acl(): Found more then one ACL with a single ACO. Possible conflicting ACLs.");
             return false;
         } elseif ($acl_ids_count == 0) {
@@ -439,7 +439,7 @@ class GaclApi extends Gacl {
         if (is_array($axo_array) AND count($axo_array) > 0) {
             $this->debug_text("append_acl(): Appending AXO's");
 
-            foreach($axo_array as $axo_section_value => $axo_value_array) {
+            foreach ($axo_array as $axo_section_value => $axo_value_array) {
                 foreach ($axo_value_array as $axo_value) {
                     if (!in_array($axo_value, $acl_array['axo'][$axo_section_value])) {
                         $this->debug_text("append_acl(): AXO Section Value: $axo_section_value AXO VALUE: $axo_value");
@@ -526,7 +526,7 @@ class GaclApi extends Gacl {
         if (is_array($aro_array) AND count($aro_array) > 0) {
             $this->debug_text("shift_acl(): Removing ARO's");
 
-            foreach($aro_array as $aro_section_value => $aro_value_array) {
+            foreach ($aro_array as $aro_section_value => $aro_value_array) {
                 foreach ($aro_value_array as $aro_value) {
                     $this->debug_text("shift_acl(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
 
@@ -567,7 +567,7 @@ class GaclApi extends Gacl {
         if (is_array($axo_array) AND count($axo_array) > 0) {
             $this->debug_text("shift_acl(): Removing AXO's");
 
-            foreach($axo_array as $axo_section_value => $axo_value_array) {
+            foreach ($axo_array as $axo_section_value => $axo_value_array) {
                 foreach ($axo_value_array as $axo_value) {
                     $this->debug_text("shift_acl(): AXO Section Value: $axo_section_value AXO VALUE: $axo_value");
                     $axo_key = array_search($axo_value, $acl_array['axo'][$axo_section_value]);
@@ -808,8 +808,7 @@ class GaclApi extends Gacl {
             foreach ($aro_array as $aro_section_value => $aro_value_array) {
                 $this->debug_text("is_conflicting_acl(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value_array");
 
-                if (!is_array($aro_value_array))
-                {
+                if (!is_array($aro_value_array)) {
                     $this->debug_text('is_conflicting_acl(): Invalid Format for ARO Array item. Skipping...');
                     continue;
                     // return TRUE;
@@ -951,7 +950,7 @@ class GaclApi extends Gacl {
         if ($this->get_acl($acl_id) == FALSE) {
             if ( empty($section_value) ) {
                 $section_value='system';
-                if( !$this->get_object_section_section_id(NULL, $section_value, 'ACL') ) {
+                if ( !$this->get_object_section_section_id(NULL, $section_value, 'ACL') ) {
                     // Use the acl section with the lowest order value.
                     $acl_sections_table = $this->_db_table_prefix .'acl_sections';
                     $acl_section_order_value = $this->db->GetOne("SELECT min(order_value) from $acl_sections_table");
@@ -1016,8 +1015,7 @@ class GaclApi extends Gacl {
                     $query = 'DELETE FROM '. $this->_db_table_prefix . $map .' WHERE acl_id='. $this->db->Quote($acl_id);
                     $rs = $this->db->Execute($query);
 
-                    if (!is_object($rs))
-                    {
+                    if (!is_object($rs)) {
                         $this->debug_db('add_acl');
                         $this->db->RollbackTrans();
                         return FALSE;
@@ -1057,8 +1055,7 @@ class GaclApi extends Gacl {
                     $get_object_id = $this->get_object_id($section_value, $value, $map);
                     $object_id = &$get_object_id;
 
-                    if (empty($object_id))
-                    {
+                    if (empty($object_id)) {
                         $this->debug_text('add_acl(): '. strtoupper($map) . " Object Section Value: $section_value Value: $value DOES NOT exist in the database. Skipping...");
                         $this->db->RollbackTrans();
                         return false;
@@ -1067,8 +1064,7 @@ class GaclApi extends Gacl {
                     $query  = 'INSERT INTO '. $this->_db_table_prefix . $map .'_map (acl_id,section_value,value) VALUES ('. $this->db->Quote($acl_id) .', '. $this->db->Quote($section_value) .', '. $this->db->Quote($value) .')';
                     $rs = $this->db->Execute($query);
 
-                    if (!is_object($rs))
-                    {
+                    if (!is_object($rs)) {
                         $this->debug_db('add_acl');
                         $this->db->RollbackTrans();
                         return false;
@@ -1487,7 +1483,7 @@ class GaclApi extends Gacl {
 
         $this->debug_text("get_group_data(): Group_ID: $group_id Group Type: $group_type");
 
-        switch(strtolower(trim((string) $group_type))) {
+        switch (strtolower(trim((string) $group_type))) {
             case 'axo':
                 $group_type = 'axo';
                 $table = $this->_db_table_prefix .'axo_groups';
@@ -1658,7 +1654,7 @@ class GaclApi extends Gacl {
      */
     public function add_group($value, $name, $parent_id=0, $group_type='ARO') {
 
-        switch(strtolower(trim((string) $group_type))) {
+        switch (strtolower(trim((string) $group_type))) {
             case 'axo':
                 $group_type = 'axo';
                 $table = $this->_db_table_prefix .'axo_groups';
@@ -1786,7 +1782,7 @@ class GaclApi extends Gacl {
      */
     public function get_group_objects($group_id, $group_type='ARO', $option='NO_RECURSE') {
 
-        switch(strtolower(trim((string) $group_type))) {
+        switch (strtolower(trim((string) $group_type))) {
             case 'axo':
                 $group_type = 'axo';
                 $object_table = $this->_db_table_prefix .'axo';
@@ -1861,7 +1857,7 @@ class GaclApi extends Gacl {
      */
     public function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO'): bool {
 
-        switch(strtolower(trim((string) $group_type))) {
+        switch (strtolower(trim((string) $group_type))) {
             case 'axo':
                 $group_type = 'axo';
                 $table = $this->_db_table_prefix .'groups_axo_map';
@@ -1948,7 +1944,7 @@ class GaclApi extends Gacl {
      */
     public function del_group_object($group_id, $object_section_value, $object_value, $group_type='ARO'): bool {
 
-        switch(strtolower(trim((string) $group_type))) {
+        switch (strtolower(trim((string) $group_type))) {
             case 'axo':
                 $group_type = 'axo';
                 $table = $this->_db_table_prefix .'groups_axo_map';
@@ -2003,7 +1999,7 @@ class GaclApi extends Gacl {
     public function edit_group($group_id, $value=NULL, $name=NULL, $parent_id=NULL, $group_type='ARO'): bool {
         $this->debug_text("edit_group(): ID: $group_id Name: $name Value: $value Parent ID: $parent_id Group Type: $group_type");
 
-        switch(strtolower(trim((string) $group_type))) {
+        switch (strtolower(trim((string) $group_type))) {
             case 'axo':
                 $group_type = 'axo';
                 $table = $this->_db_table_prefix .'axo_groups';
@@ -2221,7 +2217,7 @@ class GaclApi extends Gacl {
      */
     public function del_group($group_id, $reparent_children=TRUE, $group_type='ARO'): bool {
 
-        switch(strtolower(trim((string) $group_type))) {
+        switch (strtolower(trim((string) $group_type))) {
             case 'axo':
                 $group_type = 'axo';
                 $table = $this->_db_table_prefix .'axo_groups';
@@ -2464,7 +2460,7 @@ class GaclApi extends Gacl {
      */
     public function get_object($section_value = null, $return_hidden=1, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -2531,7 +2527,7 @@ class GaclApi extends Gacl {
 
     public function get_ungrouped_objects($return_hidden=1, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aro':
                    $object_type = 'aro';
                    $table = $this->_db_table_prefix .'aro';
@@ -2568,7 +2564,7 @@ class GaclApi extends Gacl {
                 return false;
         }
 
-        while(!$rs->EOF) {
+        while (!$rs->EOF) {
                 $retarr[] = $rs->fields[0];
                 $rs->MoveNext();
         }
@@ -2656,7 +2652,7 @@ class GaclApi extends Gacl {
      */
     public function get_object_data($object_id, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -2711,7 +2707,7 @@ class GaclApi extends Gacl {
      */
     public function get_object_id($section_value, $value, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -2782,7 +2778,7 @@ class GaclApi extends Gacl {
      */
     public function get_object_section_value($object_id, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -2855,7 +2851,7 @@ class GaclApi extends Gacl {
     public function get_object_groups($object_id, $object_type = 'ARO', $option = 'NO_RECURSE') {
         $this->debug_text('get_object_groups(): Object ID: '. $object_id .' Object Type: '. $object_type .' Option: '. $option);
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'axo':
                 $object_type = 'axo';
                 $group_table = $this->_db_table_prefix .'axo_groups';
@@ -2922,7 +2918,7 @@ class GaclApi extends Gacl {
      */
     public function add_object($section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -3026,7 +3022,7 @@ class GaclApi extends Gacl {
      */
     public function edit_object($object_id, $section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL): bool {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -3131,7 +3127,7 @@ class GaclApi extends Gacl {
      */
     public function del_object($object_id, $object_type=NULL, $erase=FALSE): bool {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -3345,7 +3341,7 @@ class GaclApi extends Gacl {
     public function get_object_section_section_id($name = NULL, $value = NULL, $object_type = NULL) {
         $this->debug_text("get_object_section_section_id(): Value: $value Name: $name Object Type: $object_type");
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
             case 'aro':
             case 'axo':
@@ -3424,7 +3420,7 @@ class GaclApi extends Gacl {
      */
     public function add_object_section($name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $object_sections_table = $this->_db_table_prefix .'aco_sections';
@@ -3493,7 +3489,7 @@ class GaclApi extends Gacl {
      */
     public function edit_object_section($object_section_id, $name, $value=0, $order=0, $hidden=0, $object_type=NULL): bool {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco';
@@ -3630,7 +3626,7 @@ class GaclApi extends Gacl {
      */
     public function del_object_section($object_section_id, $object_type=NULL, $erase=FALSE): bool {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $object_sections_table = $this->_db_table_prefix .'aco_sections';
@@ -3668,7 +3664,7 @@ class GaclApi extends Gacl {
         // Get all objects ids in the section
         $object_ids = $this->get_object($section_value, 1, $object_type);
 
-        if($erase) {
+        if ($erase) {
             // Delete all objects in the section and for
             // each object delete the referencing object
             // (see del_object method)
@@ -3683,7 +3679,7 @@ class GaclApi extends Gacl {
             }
         }
 
-        if($object_ids AND !$erase) {
+        if ($object_ids AND !$erase) {
             // There are objects in the section and we
             // were not asked to erase them: don't delete it
 
@@ -3726,7 +3722,7 @@ class GaclApi extends Gacl {
      */
     public function get_section_data($section_value, $object_type=NULL) {
 
-        switch(strtolower(trim((string) $object_type))) {
+        switch (strtolower(trim((string) $object_type))) {
             case 'aco':
                 $object_type = 'aco';
                 $table = $this->_db_table_prefix .'aco_sections';
@@ -3799,14 +3795,14 @@ class GaclApi extends Gacl {
             // Get all the table names and loop
             $tableNames = $this->db->MetaTables('TABLES');
             $query = [];
-            foreach ($tableNames as $value){
+            foreach ($tableNames as $value) {
                 if (in_array($value, $tablesToClear) ) {
                         $query[] = 'TRUNCATE TABLE '.$value.';';
                 }
             }
 
             // Loop the queries and return.
-            foreach ($query as $value){
+            foreach ($query as $value) {
                     $result = $this->db->Execute($value);
             }
 

@@ -78,9 +78,9 @@ class RouteController
 
         if ($mainActionChild == 'edit') {
             return $this->editAction($request);
-        } else if ($mainActionChild == 'save') {
+        } elseif ($mainActionChild == 'save') {
             return $this->saveAction($request);
-        } else if ($mainActionChild == 'cdr-info') {
+        } elseif ($mainActionChild == 'cdr-info') {
             return $this->cdrInfoAction($request);
         } else {
             return $this->notFoundAction($request);
@@ -140,7 +140,7 @@ class RouteController
         if ($status == 'success') {
             $saveMessage = xl("Save successful");
             $alertType = "success";
-        } else if (!empty($status)) { // everything else is treated as a failure
+        } elseif (!empty($status)) { // everything else is treated as a failure
             $alertType = "danger";
             $saveMessage = xl("Save failed.") . " " . xl("Check the system error logs for more information.");
         }

@@ -257,7 +257,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scope = ScopeEntity::createFromString($scope);
         if (empty($scope->getResource())) {
             return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope);
-        } else if (!empty($scope->getOperation())) {
+        } elseif (!empty($scope->getOperation())) {
             return $this->lookupDescriptionForResourceOperation($scope);
         } else {
             return $this->lookupDescriptionForSmartScope($scope);
@@ -270,7 +270,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $permissionStrings = [];
         if ($permissions->v1Read) {
             $permissionStrings[] = xl("View, search and access");
-        } else if ($permissions->v1Write) {
+        } elseif ($permissions->v1Write) {
             $permissionStrings[] = xl("Create or modify");
         }
         if ($permissions->create) {

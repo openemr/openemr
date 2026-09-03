@@ -72,8 +72,7 @@ class Profiler {
         $this->description[$name] = $desc;
         if (!array_key_exists($name,$this->count))
             $this->count[$name] = 1;
-        else
-            $this->count[$name]++;
+        else $this->count[$name]++;
     }
 
     /**
@@ -86,8 +85,7 @@ class Profiler {
         $this->endTime[$name] = $this->getMicroTime();
         if (!array_key_exists($name, $this->running))
             $this->running[$name] = $this->elapsedTime($name);
-        else
-            $this->running[$name] += $this->elapsedTime($name);
+        else $this->running[$name] += $this->elapsedTime($name);
         $this->cur_timer=array_pop($this->stack);
         $this->__resumeTimer($this->cur_timer);
     }
@@ -101,7 +99,7 @@ class Profiler {
         if (!array_key_exists($name,$this->startTime))
             return 0;
 
-        if(array_key_exists($name,$this->endTime)){
+        if (array_key_exists($name,$this->endTime)) {
             return ($this->endTime[$name] - $this->startTime[$name]);
         } else {
             $now=$this->getMicroTime();
@@ -124,7 +122,7 @@ class Profiler {
     */
     public function printTimers($enabled=false)
     {
-        if($this->output_enabled||$enabled){
+        if ($this->output_enabled||$enabled) {
             $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
@@ -166,7 +164,7 @@ class Profiler {
 
     public function printTrace( $enabled=false )
     {
-        if($this->trace_enabled||$enabled){
+        if ($this->trace_enabled||$enabled) {
             print("<pre>");
             print("Trace\n$this->trace\n\n");
             print("</pre>");
@@ -203,8 +201,7 @@ class Profiler {
         $this->endTime[$name] = $this->getMicroTime();
         if (!array_key_exists($name, $this->running))
             $this->running[$name] = $this->elapsedTime($name);
-        else
-            $this->running[$name] += $this->elapsedTime($name);
+        else $this->running[$name] += $this->elapsedTime($name);
     }
 }
 
