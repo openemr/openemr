@@ -344,13 +344,20 @@ if ($formSave !== '') {
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
 $receiptRequested = $request->query->getBoolean('receipt');
+$receiptTime = '';
+if ($receiptRequested) {
+    $receiptTime = $request->query->getString('time');
+    $receiptDateTime = preg_match('/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/D', $receiptTime) === 1
+        ? DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $receiptTime)
+        : false;
+    if ($receiptDateTime === false || $receiptDateTime->format('Y-m-d H:i:s') !== $receiptTime) {
+        $receiptTime = '';
+        $receiptRequested = false;
+    }
+}
 if ($alertmsg === '' && ($formSave !== '' || $receiptRequested)) {
     if ($receiptRequested) {
         $form_pid = $pid;
-        $receiptTime = $request->query->getString('time');
-        $receiptTime = preg_match('/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/D', $receiptTime) === 1
-            ? $receiptTime
-            : '';
         $timestamp = decorateString('....-..-.. ..:..:..', $receiptTime);
     }
 
