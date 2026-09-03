@@ -37,8 +37,6 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/encounter.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

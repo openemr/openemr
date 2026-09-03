@@ -15,8 +15,6 @@
     require_once("../../../globals.php");
 
     $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-    require_once($srcdir . "/api.inc.php");
-    require_once($srcdir . "/forms.inc.php");
     require_once($srcdir . "/patient.inc.php");
 
     $providerID = $_REQUEST['providerID'];

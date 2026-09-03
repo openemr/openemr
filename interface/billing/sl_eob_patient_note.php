@@ -15,7 +15,6 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once("../../library/forms.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

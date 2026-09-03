@@ -14,9 +14,6 @@
 
 use OpenEMR\BC\Utilities;
 
-require_once(__DIR__ . '/../../../library/api.inc.php');
-
-
 function phq9_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;

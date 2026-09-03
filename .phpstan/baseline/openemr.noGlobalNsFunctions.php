@@ -3597,46 +3597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function formDisappear may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formFetch may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formFooter may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formHeader may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formJump may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formReappear may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formSubmit may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formUpdate may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/api.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function updateAppointmentStatus may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointment_status.inc.php',
@@ -3800,31 +3760,6 @@ $ignoreErrors[] = [
     'message' => '#^Function start_X12_SFTP may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/billing_sftp_service.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function craGetTimestamps may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generateReceiptArray may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getAdjustTitle may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function receiptArrayDetailLine may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function receiptArrayPaymentLine may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function array_merge_2 may not be defined in the global namespace\\.$#',
@@ -4092,71 +4027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/custom_template/personalize.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetAllReminderCount may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function GetDueReminderCount may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function GetPortalAlertCounts may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function GetServiceOtherCounts may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function RemindersArray may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getPatName may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getReminderById may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getRemindersHTML may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function logRemindersArray may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sendReminder may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function setReminderAsProcessed may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function array_natsort may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/daysheet.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getBillsBetweendayReport may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/daysheet.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function phimail_allow_document_mimetype may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
@@ -4230,11 +4100,6 @@ $ignoreErrors[] = [
     'message' => '#^Function get_extension may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getDupScoreSQL may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dupscore.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function edih_997_code_text may not be defined in the global namespace\\.$#',
@@ -4762,21 +4627,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/email_service_run.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetchCategoryIdByEncounter may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/encounter.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fetchDateService may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/encounter.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function setencounter may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/encounter.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function InsertEvent may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
@@ -4840,61 +4690,6 @@ $ignoreErrors[] = [
     'message' => '#^Function update_event may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addForm may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function authorizeForm may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getDocumentsByEncounter may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getEncounterDateByEncounter may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getEncounters may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormByEncounter may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormIdByFormdirAndFormid may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormNameByFormdir may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormNameByFormdirAndFormid may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getProviderIdOfEncounter may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function hasFormPermission may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function gblTimeZones may not be defined in the global namespace\\.$#',
@@ -4962,11 +4757,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/group.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getImmunizationList may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/immunization_helper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function ippf_end_cell may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
@@ -5010,56 +4800,6 @@ $ignoreErrors[] = [
     'message' => '#^Function issue_ippf_gcac_save may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fetchProcedureId may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getBarId may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFacilityInfo may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLabProviders may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLabconfig may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getNPI may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getProcedureProvider may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getProceduresInfo may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getSelfPay may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function saveBarCode may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function addList may not be defined in the global namespace\\.$#',
@@ -5612,11 +5352,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient_tracker.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function checkIfPatientValidationHookIsActive may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patientvalidation.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function patient_fetch_reminders may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
@@ -5990,91 +5725,6 @@ $ignoreErrors[] = [
     'message' => '#^Function sqlStatementThrowException may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upgradeFromSqlFile may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql_upgrade_fx.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function chg_ct_external_torf1 may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function chg_ct_external_torf2 may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function drop_old_sct may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function drop_old_sct2 may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFileData may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function handle_zip_file may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function icd_import may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function rmdir_recursive may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function rxnorm_import may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function snomedRF2_import may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function snomed_import may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function temp_copy may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function temp_dir_cleanup may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function temp_unarchive may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function update_tracker_table may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function valueset_import may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function reportTelemetryTask may not be defined in the global namespace\\.$#',

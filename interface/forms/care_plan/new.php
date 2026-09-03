@@ -31,7 +31,6 @@ use OpenEMR\Services\FormService;
 $globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getSrcDir();
 
-require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once($globalsBag->getProjectDir() . '/custom/code_types.inc.php');

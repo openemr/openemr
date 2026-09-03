@@ -31,7 +31,6 @@ require_once(__DIR__ . "/../custom/code_types.inc.php");
 require_once(__DIR__ . "/../interface/drugs/drugs.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/appointment_status.inc.php");
-require_once(__DIR__ . "/forms.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;

@@ -25,8 +25,6 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;

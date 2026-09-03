@@ -17,7 +17,6 @@
  */
 
 require_once(__DIR__ . "/patient.inc.php");
-require_once(__DIR__ . "/forms.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
