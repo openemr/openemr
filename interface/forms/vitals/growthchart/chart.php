@@ -44,6 +44,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/libr
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -58,8 +59,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 // Deep-linked chart page: bootstrap session pid from the request the first
 // time this window is opened, then read pid from the session for every query.
-$rawRequestPid = $_GET['pid'] ?? null;
-$requestPid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
+$requestPid = CurrentRequest::get()->query->getInt('pid');
 $sessionPid = PatientSessionUtil::getPid();
 if ($requestPid > 0 && $sessionPid <= 0) {
     setpid($requestPid);

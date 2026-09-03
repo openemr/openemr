@@ -17,6 +17,7 @@ use OpenEMR\Billing\Claim;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
@@ -40,8 +41,9 @@ function ub04_dispose(): void
 {
     // State-changing handlers must arrive via POST -- GET dispatch would be
     // reachable by cross-site navigation.
-    $dispose = $_POST['handler'] ?? null;
-    if ($dispose) {
+    $request = CurrentRequest::get()->request;
+    $dispose = $request->getString('handler');
+    if ($dispose !== '') {
         CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         // All UB04 dispose actions mutate billing state or emit claim data;
         // scope every branch to the acct/bill write role.
@@ -49,12 +51,10 @@ function ub04_dispose(): void
             AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: UB04 Dispose", xl("UB04 Claim"));
         }
         if ($dispose == "edit_save") {
-            $ub04id = $_POST['ub04id'] ?? '';
-            $rawPid = $_POST['pid'] ?? null;
-            $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
-            $rawEncounter = $_POST['encounter'] ?? null;
-            $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
-            $action = $_POST['action'] ?? '';
+            $ub04id = $request->getString('ub04id');
+            $pid = $request->getInt('pid');
+            $encounter = $request->getInt('encounter');
+            $action = $request->getString('action');
             if ($pid <= 0 || $encounter <= 0) {
                 exit();
             }
@@ -65,31 +65,28 @@ function ub04_dispose(): void
             if ($sessionPid <= 0 || $pid !== $sessionPid) {
                 AccessDeniedHelper::deny("UB04 edit_save pid does not match session pid");
             }
-            $decoded = is_string($ub04id) && $ub04id !== '' ? json_decode($ub04id, true) : null;
+            $decoded = $ub04id !== '' ? json_decode($ub04id, true) : null;
             if (!is_array($decoded)) {
                 exit();
             }
             saveTemplate($encounter, $pid, $decoded, $action);
             exit();
         } elseif ($dispose == "payer_save") {
-            $ub04id = $_POST['ub04id'] ?? '';
-            $rawPayerid = $_POST['payerid'] ?? null;
-            $payerid = is_scalar($rawPayerid) ? (int)$rawPayerid : 0;
-            if (!is_string($ub04id) || $ub04id === '' || $payerid <= 0) {
+            $ub04id = $request->getString('ub04id');
+            $payerid = $request->getInt('payerid');
+            if ($ub04id === '' || $payerid <= 0) {
                 exit("done");
             }
             savePayerTemplate($payerid, $ub04id);
             exit("done");
         } elseif ($dispose == "batch_save") {
-            $rawPid = $_POST['pid'] ?? null;
-            $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
-            $rawEncounter = $_POST['encounter'] ?? null;
-            $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
-            $ub04id = $_POST['ub04id'] ?? '';
+            $pid = $request->getInt('pid');
+            $encounter = $request->getInt('encounter');
+            $ub04id = $request->getString('ub04id');
             if ($pid <= 0 || $encounter <= 0) {
                 exit("done");
             }
-            if (!is_string($ub04id) || $ub04id === '') {
+            if ($ub04id === '') {
                 exit("done");
             }
             $sessionPid = PatientSessionUtil::getPid();
@@ -99,10 +96,8 @@ function ub04_dispose(): void
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
-            $rawPid = $_POST['pid'] ?? null;
-            $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
-            $rawEncounter = $_POST['encounter'] ?? null;
-            $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
+            $pid = $request->getInt('pid');
+            $encounter = $request->getInt('encounter');
             if ($pid <= 0 || $encounter <= 0) {
                 exit();
             }

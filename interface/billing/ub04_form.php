@@ -17,6 +17,7 @@ require_once("./ub04_dispose.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -38,16 +39,17 @@ if ($isAuthorized === 1) {
 
     // Deep-linked patient-context page: mirror the demographics.php set_pid
     // pattern so a fresh browser tab establishes patient context via session
-    // before any query below references $pid.
-    $rawRequestPid = $_REQUEST['pid'] ?? null;
-    $requestPid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
+    // before any query below references $pid. ub04_dispose() above handles
+    // any POST branch (with handler) and exits, so this fallthrough is the
+    // render path -- pid/enc arrive via URL query.
+    $query = CurrentRequest::get()->query;
+    $requestPid = $query->getInt('pid');
     $sessionPid = PatientSessionUtil::getPid();
     if ($requestPid > 0 && $sessionPid <= 0) {
         setpid($requestPid);
     }
     $pid = PatientSessionUtil::getPid();
-    $rawEncounter = $_REQUEST['enc'] ?? null;
-    $encounter = is_scalar($rawEncounter) ? (int)$rawEncounter : 0;
+    $encounter = $query->getInt('enc');
     $action = $_REQUEST['action'] ?? false ?: false;
     $payerid = $_REQUEST['id'] ?? '0' ?: '0';
     $imgurl = \OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getImagesRelative();

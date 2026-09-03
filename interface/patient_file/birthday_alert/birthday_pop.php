@@ -18,6 +18,7 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -33,8 +34,8 @@ if (!AclMain::aclCheckCore('patients', 'appt')) {
 // handler (would change active patient without a form-token round-trip). The
 // AJAX turnoff below re-sends pid in a form-token-protected POST that the
 // turnoff handler validates against the session.
-$rawRequestPid = $_GET['pid'] ?? null;
-$pid = is_scalar($rawRequestPid) ? (int)$rawRequestPid : 0;
+$query = CurrentRequest::get()->query;
+$pid = $query->getInt('pid');
 if ($pid <= 0) {
     echo "<p>" . xlt('Missing PID.') . "</p>";
     exit;
@@ -66,8 +67,7 @@ if ($pid <= 0) {
     <?php } ?>
             var pid = <?php echo js_escape((string) $pid)?>;
             <?php
-            $rawUserId = $_GET['user_id'] ?? null;
-            $userId = is_scalar($rawUserId) ? (int) $rawUserId : 0;
+            $userId = $query->getInt('user_id');
             ?>
             var user_id = <?php echo js_escape((string) $userId)?>;
             var value = $("#turnOff").prop('checked');

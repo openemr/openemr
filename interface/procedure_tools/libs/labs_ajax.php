@@ -16,6 +16,7 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Storage\CacheDirectory;
@@ -70,9 +71,9 @@ if ($action === 'code_detail') {
 }
 
 if ($action === 'print_labels') {
+    $query = CurrentRequest::get()->query;
     $client = $_GET['acctid'];
-    $rawPid = $_GET['pid'] ?? null;
-    $pid = is_scalar($rawPid) ? (int)$rawPid : 0;
+    $pid = $query->getInt('pid');
     if ($pid <= 0) {
         exit;
     }
@@ -82,11 +83,7 @@ if ($action === 'print_labels') {
     $patient = strtoupper((string) $_GET['patient']);
     $order_date = orderDate($order);
     $dob = $_GET['dob'];
-    $count = 1;
-    $rawCount = $_GET['count'] ?? null;
-    if (is_scalar($rawCount) && $rawCount) {
-        $count = (int)$rawCount;
-    }
+    $count = $query->getInt('count') ?: 1;
 
     $pdf = new mPDF([
         'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),
