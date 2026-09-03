@@ -117,14 +117,21 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
-$radio_type_of_payment = $_POST['radio_type_of_payment'] ?? '';
+$radioTypeInput = filter_input(INPUT_POST, 'radio_type_of_payment', FILTER_UNSAFE_RAW);
+$radio_type_of_payment = is_string($radioTypeInput)
+    && in_array($radioTypeInput, ['pre_payment', 'copay', 'invoice_balance', 'cash'], true)
+    ? $radioTypeInput
+    : '';
+$formSave = filter_input(INPUT_POST, 'form_save', FILTER_UNSAFE_RAW);
 
 // If the Save button was clicked...
-if ($_POST['form_save'] ?? '') {
+if ($formSave !== null && $formSave !== false && $formSave !== '') {
     // Pin the payment to the session patient; ignore any body-supplied form_pid.
     $form_pid = $pid;
-    $form_method = trim((string) $_POST['form_method']);
-    $form_source = trim((string) $_POST['form_source']);
+    $formMethodInput = filter_input(INPUT_POST, 'form_method', FILTER_UNSAFE_RAW);
+    $formSourceInput = filter_input(INPUT_POST, 'form_source', FILTER_UNSAFE_RAW);
+    $form_method = is_string($formMethodInput) ? trim($formMethodInput) : '';
+    $form_source = is_string($formSourceInput) ? trim($formSourceInput) : '';
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
@@ -157,12 +164,18 @@ if ($_POST['form_save'] ?? '') {
         }
     }
 
-    if (isset($_POST['form_upay']) && is_array($_POST['form_upay']) && $_POST['form_upay'] !== [] && $radio_type_of_payment != 'pre_payment') {
-        foreach ($_POST['form_upay'] as $enc => $payment) {
-            if (!is_numeric($payment) || (float) $payment <= 0) {
+    $formUpay = filter_input(
+        INPUT_POST,
+        'form_upay',
+        FILTER_VALIDATE_FLOAT,
+        ['flags' => FILTER_REQUIRE_ARRAY]
+    );
+    if (is_array($formUpay) && $formUpay !== [] && $radio_type_of_payment !== 'pre_payment') {
+        foreach ($formUpay as $enc => $payment) {
+            if (!is_float($payment) || $payment <= 0) {
                 continue;
             }
-            $amount = (float) $payment;
+            $amount = $payment;
 
             $zero_enc = $enc;
 
@@ -174,9 +187,9 @@ if ($_POST['form_save'] ?? '') {
                 [$form_pid, $enc]
             );
             if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                $Codetype = $RowSearch['code_type'];
-                $Code = $RowSearch['code'];
-                $Modifier = $RowSearch['modifier'];
+                $Codetype = is_string($RowSearch['code_type'] ?? null) ? $RowSearch['code_type'] : '';
+                $Code = is_string($RowSearch['code'] ?? null) ? $RowSearch['code'] : '';
+                $Modifier = is_string($RowSearch['modifier'] ?? null) ? $RowSearch['modifier'] : '';
             } else {
                 $Codetype = '';
                 $Code = '';
@@ -263,9 +276,9 @@ if ($_POST['form_save'] ?? '') {
                     [$form_pid, $enc]
                 );
                 while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                    $Codetype = $RowSearch['code_type'];
-                    $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    $Codetype = is_string($RowSearch['code_type'] ?? null) ? $RowSearch['code_type'] : '';
+                    $Code = is_string($RowSearch['code'] ?? null) ? $RowSearch['code'] : '';
+                    $Modifier = is_string($RowSearch['modifier'] ?? null) ? $RowSearch['modifier'] : '';
                     $Fee = $RowSearch['fee'];
 
                     $resMoneyGot = sqlStatement(
@@ -332,14 +345,20 @@ if ($_POST['form_save'] ?? '') {
                 //--------------------------------------------------------------------------------------------------------------------
             }//invoice_balance
         }//foreach
-    }//if ($_POST['form_upay'])
-}//if ($_POST['form_save'])
+    }//if ($formUpay)
+}//if ($formSave)
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
-if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET, 'receipt'))) {
+if ($alertmsg === '' && ($formSave || filter_input(INPUT_GET, 'receipt'))) {
     if (filter_input(INPUT_GET, 'receipt')) {
         $form_pid = $pid;
-        $timestamp = decorateString('....-..-.. ..:..:..', filter_input(INPUT_GET, 'time') ?: '');
+        $receiptTime = filter_input(
+            INPUT_GET,
+            'time',
+            FILTER_VALIDATE_REGEXP,
+            ['options' => ['regexp' => '/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/D']]
+        );
+        $timestamp = decorateString('....-..-.. ..:..:..', is_string($receiptTime) ? $receiptTime : '');
     }
 
 // Get details for what we guess is the primary facility.
