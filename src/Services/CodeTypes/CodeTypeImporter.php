@@ -28,13 +28,20 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\CodeTypes;
 
+use Doctrine\ORM\EntityManagerInterface;
 use OpenEMR\Services\Traits\ServiceFSTrait;
-use RuntimeException;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
-class CodeTypeImporter
+readonly class CodeTypeImporter
 {
     use ServiceFSTrait;
+
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LoggerInterface $logger,
+    ) {
+    }
 
     public function import_dir(string $type, $importFunction): void {
         foreach (glob("*.zip") as $file) {
