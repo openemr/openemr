@@ -163,6 +163,10 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('In range.', $over['sum']);
             $app = $this->applier->apply(['sum' => 'old'], $actions, 'append', 'sum');
             $this->assertSame('old In range.', $app['sum']);
+            $dup = $this->applier->apply(['sum' => 'In range. Extra note.'], $actions, 'append', 'sum');
+            $this->assertSame('In range. Extra note.', $dup['sum']);
+            $partial = $this->applier->apply(['sum' => 'Something in range today.'], $actions, 'append', 'sum');
+            $this->assertSame('Something in range today. In range.', $partial['sum']);
         }
 
         /**
