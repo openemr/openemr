@@ -103,9 +103,6 @@ class PatientNameHistoryService extends BaseService
     }
 
 
-    /**
-     * @return mixed[]
-     */
     public function getPatientNameHistory($pid): array
     {
         $sql = "SELECT pid,

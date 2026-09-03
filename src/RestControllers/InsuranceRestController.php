@@ -168,7 +168,6 @@ class InsuranceRestController
 
     /**
      * Retrieves a single insurance for a patient.
-     * @return mixed[]
      */
     #[OA\Get(
         path: '/api/patient/{puuid}/insurance/{uuid}',
@@ -206,7 +205,6 @@ class InsuranceRestController
 
     /**
      * Updates an existing patient insurance policy.
-     * @return mixed[]
      */
     #[OA\Put(
         path: '/api/patient/{puuid}/insurance/{insuranceUuid}',
@@ -267,7 +265,6 @@ class InsuranceRestController
 
     /**
      * Submits a new patient insurance.
-     * @return mixed[]
      */
     #[OA\Post(
         path: '/api/patient/{puuid}/insurance',
@@ -329,7 +326,6 @@ class InsuranceRestController
 
     /**
      * Swap insurance operation.
-     * @return mixed[]
      */
     #[OA\Get(
         path: '/api/patient/{puuid}/insurance/$swap-insurance',

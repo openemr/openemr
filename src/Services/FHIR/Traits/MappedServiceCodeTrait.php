@@ -21,9 +21,6 @@ trait MappedServiceCodeTrait
     use MappedServiceTrait;
     use MappedServiceCategoryTrait;
 
-    /**
-     * @return mixed[]
-     */
     public function getServiceListForCategory(TokenSearchField $field): array
     {
         $serviceList = [];
@@ -39,9 +36,6 @@ trait MappedServiceCodeTrait
         return $serviceList;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getServiceListForCode(TokenSearchField $field): array
     {
         // TODO: @adunsulag if we want to aggregate multiple code parameters we will need to handle selecting a subset of codes

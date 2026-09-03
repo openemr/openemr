@@ -389,7 +389,6 @@ function postcalendar_userapi_getmonthname($args)
 
 /**
  *  Returns an array of form data for FormSelectMultiple
- * @return mixed[]
  */
 function postcalendar_userapi_buildMonthSelect($args): array
 {
@@ -420,7 +419,6 @@ function postcalendar_userapi_buildMonthSelect($args): array
 
 /**
  *  Returns an array of form data for FormSelectMultiple
- * @return mixed[]
  */
 function postcalendar_userapi_buildDaySelect($args): array
 {

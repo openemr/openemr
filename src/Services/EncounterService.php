@@ -625,9 +625,6 @@ class EncounterService extends BaseService
         return null;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getSoapNotes($pid, $eid): array
     {
         $sql = "  SELECT fs.*";

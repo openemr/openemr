@@ -20,9 +20,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class FormService
 {
-    /**
-     * @return mixed[]
-     */
     public function getFormByEncounter(
         $attendant_id,
         $encounter,

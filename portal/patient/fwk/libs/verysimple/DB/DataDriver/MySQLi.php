@@ -187,7 +187,6 @@ class DataDriverMySQLi implements IDataDriver
 
     /**
      * @inheritdocs
-     * @return mixed[]
      */
     public function GetTableNames($connection, $dbname, $ommitEmptyTables = false): array
     {

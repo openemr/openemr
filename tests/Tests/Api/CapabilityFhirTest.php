@@ -112,9 +112,6 @@ class CapabilityFhirTest extends TestCase
         return $result;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getExtensionList($capabilityStatementRestDefinition, $extensionUri): array
     {
         $list = [];

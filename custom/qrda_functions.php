@@ -176,9 +176,6 @@ function payerPatient($patient_id)
     return $payer;
 }
 
-/**
- * @return mixed[]
- */
 function allEncPat($patient_id, $from_date, $to_date): array
 {
     $encArr = [];
@@ -191,9 +188,6 @@ function allEncPat($patient_id, $from_date, $to_date): array
     return $encArr;
 }
 
-/**
- * @return mixed[]
- */
 function allListsPat($type, $patient_id, $from_date, $to_date): array
 {
     $diagArr = [];
@@ -206,9 +200,6 @@ function allListsPat($type, $patient_id, $from_date, $to_date): array
     return $diagArr;
 }
 
-/**
- * @return mixed[]
- */
 function allOrderMedsPat($patient_id, $from_date, $to_date): array
 {
     $medArr = [];
@@ -221,9 +212,6 @@ function allOrderMedsPat($patient_id, $from_date, $to_date): array
     return $medArr;
 }
 
-/**
- * @return mixed[]
- */
 function allActiveMedsPat($patient_id, $from_date, $to_date): array
 {
     $medArr = [];
@@ -236,9 +224,6 @@ function allActiveMedsPat($patient_id, $from_date, $to_date): array
     return $medArr;
 }
 
-/**
- * @return mixed[]
- */
 function allProcPat(?string $proc_type = null, $patient_id = null, $from_date = null, $to_date = null): array
 {
     if (!$proc_type) {
@@ -259,9 +244,6 @@ function allProcPat(?string $proc_type = null, $patient_id = null, $from_date = 
     return $procArr;
 }
 
-/**
- * @return mixed[]
- */
 function allVitalsPat($patient_id, $from_date, $to_date): array
 {
     $vitArr = [];
@@ -278,9 +260,6 @@ function allVitalsPat($patient_id, $from_date, $to_date): array
     return $vitArr;
 }
 
-/**
- * @return mixed[]
- */
 function allImmuPat($patient_id, $from_date, $to_date): array
 {
     $immArr = [];

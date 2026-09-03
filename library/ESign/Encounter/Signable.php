@@ -35,7 +35,6 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
      * from the individual form tables.
      *
      * @see \ESign\SignableIF::getData()
-     * @return mixed[]
      */
     public function getData(): array
     {

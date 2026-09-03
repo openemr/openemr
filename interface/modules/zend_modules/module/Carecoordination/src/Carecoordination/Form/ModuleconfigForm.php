@@ -267,9 +267,6 @@ class ModuleconfigForm extends Form
         return $users;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getFacilities(): array
     {
         $users = ['0' => ''];
@@ -281,9 +278,6 @@ class ModuleconfigForm extends Form
         return $users;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getProviders(): array
     {
         $users = ['0' => ''];
@@ -295,9 +289,6 @@ class ModuleconfigForm extends Form
         return $users;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getUsersList(): array
     {
         $users = ['0' => ''];

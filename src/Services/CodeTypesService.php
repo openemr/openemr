@@ -486,9 +486,6 @@ class CodeTypesService
         return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
     }
 
-    /**
-     * @return mixed[]
-     */
     public function parseCodesIntoCodeableConcepts($codes): array
     {
         if (!is_string($codes) || empty(trim($codes))) {

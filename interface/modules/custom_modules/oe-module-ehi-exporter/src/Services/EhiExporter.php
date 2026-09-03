@@ -754,9 +754,6 @@ class EhiExporter
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount): array
     {
         $tasks = [];

@@ -32,9 +32,6 @@ class POSRef
         $this->pos_ref = array_merge($this->pos_ref, $this->state_overides($state));
     }
 
-    /**
-     * @return mixed[]
-     */
     public function init_pos(): array
     {
         $pos = [];

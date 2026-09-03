@@ -1045,9 +1045,6 @@ class BarcodeDatamatrix
             $tab[$i] = (129 + $r) % 254;
         }
     }
-    /**
-     * @return mixed[]
-     */
     private static function calculSolFactorTable($solomonCWCount): array
     {
  // CALCULATE THE REED SOLOMON FACTORS
@@ -1095,9 +1092,6 @@ class BarcodeDatamatrix
 
         return $dataTab;
     }
-    /**
-     * @return mixed[]
-     */
     private static function getBits($entier): array
     {
  // Transform integer to tab of bits
@@ -1232,9 +1226,6 @@ class BarcodeDatamatrix
             $assigned[$row][$col] = 1;
         }
     }
-    /**
-     * @return mixed[]
-     */
     private static function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW): array
     {
  // Add the finder pattern
@@ -1271,9 +1262,6 @@ class BarcodeDatamatrix
 
         return $datamatrixTemp;
     }
-    /**
-     * @return mixed[]
-     */
     public static function getDigit($text, $rectangular): array
     {
         $dataCodeWords = self::encodeDataCodeWordsASCII($text); // Code the text in the ASCII mode

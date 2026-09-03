@@ -67,7 +67,6 @@ class CdaValidateDocuments
 
     /**
      * @param $xml
-     * @return mixed[]
      */
     public function ettValidateCcda($xml): array
     {

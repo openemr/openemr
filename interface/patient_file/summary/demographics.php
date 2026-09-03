@@ -172,9 +172,6 @@ function print_as_money($money)
 }
 
 // get an array from Photos category
-/**
- * @return mixed[]
- */
 function pic_array($pid, $picture_directory): array
 {
     $pics = [];

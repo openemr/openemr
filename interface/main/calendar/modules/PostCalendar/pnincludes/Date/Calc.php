@@ -1641,7 +1641,6 @@ class Date_Calc
      * XXX cache values to some global array to avoid preformace hits when called more than once.
      *
      * @returns array An array of month names
-     * @return mixed[]
      */
     public static function getMonthNames(): array
     {
@@ -1661,7 +1660,6 @@ class Date_Calc
      * XXX cache values to some global array to avoid preformace hits when called more than once.
      *
      * @returns array An array of week day names
-     * @return mixed[]
      */
     public static function getWeekDays(): array
     {

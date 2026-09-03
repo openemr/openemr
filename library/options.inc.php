@@ -4675,9 +4675,6 @@ function getLayoutTitle($list, $option)
     return xl_list_label($row['grp_title']);
 }
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
-/**
- * @return mixed[]
- */
 function getSmokeCodes(): array
 {
     $smoking_codes_arr = [];

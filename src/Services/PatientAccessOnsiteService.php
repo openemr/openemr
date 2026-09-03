@@ -145,9 +145,6 @@ class PatientAccessOnsiteService
         ];
     }
 
-    /**
-     * @return mixed[]
-     */
     public function sendCredentialsEmail($pid, $pwd, $username, $loginUsername, $emailDirect): array
     {
         // Create the message

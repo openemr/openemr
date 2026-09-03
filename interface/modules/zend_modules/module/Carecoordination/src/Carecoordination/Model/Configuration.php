@@ -257,9 +257,6 @@ class Configuration extends Form implements InputFilterAwareInterface
         return $hooks;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getUsers(): array
     {
         $users = ['0' => ''];

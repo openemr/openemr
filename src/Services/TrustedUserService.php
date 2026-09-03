@@ -25,9 +25,6 @@ class TrustedUserService
             return $isTrusted;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getTrustedUsersForClient($clientId): array
     {
         $records = QueryUtils::fetchRecords("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ?", [$clientId]);

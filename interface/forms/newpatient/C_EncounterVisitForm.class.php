@@ -254,9 +254,6 @@ class C_EncounterVisitForm
     }
 
 // Get sensitivity options
-    /**
-     * @return mixed[]
-     */
     public function getSensitivitiesForTemplate($encounter): array
     {
         $viewmode = $this->viewmode;
@@ -368,9 +365,6 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getDischargeDispositionsForTemplate($encounter = null): array
     {
         $dispositions = [];
@@ -398,9 +392,6 @@ class C_EncounterVisitForm
         return $dispositions;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getTherapyGroupCategoriesForTemplate(): array
     {
         $categories = [];
@@ -417,9 +408,6 @@ class C_EncounterVisitForm
         return $categories;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getGroupDataForTemplate($encounter = null): array
     {
         $groupData = [
@@ -469,9 +457,6 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getDuplicateEncounterRecords($viewmode, $pid): array
     {
         $duplicate = ['isDuplicate' => false];

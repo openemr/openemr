@@ -82,9 +82,6 @@ class ControllerLog extends BaseController
         return $response;
     }
 
-    /**
-     * @return mixed[]
-     */
     private function getLogRecordsFromRequest($form_begin_date, $form_end_date): array
     {
         $res = listingCDRReminderLog($form_begin_date, $form_end_date);

@@ -79,9 +79,6 @@ function getInsuranceProvider($ins_id)
     return $row['name'] ?? '';
 }
 
-/**
- * @return mixed[]
- */
 function getInsuranceProviders(): array
 {
     $returnval = [];
@@ -645,9 +642,6 @@ function getPatientNameSplit($term)
 
 // To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
-/**
- * @return mixed[]
- */
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0"): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -1500,7 +1494,6 @@ function getEffectiveInsurances($patient_id, $encdate): array
  * Get all requisition insurance companies
  *
  *
- * @return mixed[]
  */
 function getAllinsurances($pid): array
 {

@@ -724,9 +724,6 @@ class FhirOperationExportRestController
         return $operationOutcome;
     }
 
-    /**
-     * @return mixed[]
-     */
     private function getPatientUuidsForGroup($groupId): array
     {
         if ($groupId === null || $groupId === '') {

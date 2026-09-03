@@ -73,9 +73,6 @@ if (IS_DASHBOARD) {
     $dashuser = getUserIDInfo($session->get('authUserID'));
 }
 
-/**
- * @return mixed[]
- */
 function getAuthPortalUsers(): array
 {
     $resultpd = $resultusers = $resultpatients = [];

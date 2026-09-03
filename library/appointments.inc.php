@@ -103,9 +103,6 @@ function checkEvent($recurrtype, $recurrspec)
     return $eFlag;
 }
 
-/**
- * @return mixed[]
- */
 function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null): array
 {
     $sqlBindArray = [];
@@ -348,9 +345,6 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 ////////////////////// End of code inserted by epsdky
 }
 
-/**
- * @return mixed[]
- */
 function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id = null): array
 {
     $sqlBindArray = [];
@@ -373,9 +367,6 @@ function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id 
 }
 
 //Support for therapy group appointments added by shachar z.
-/**
- * @return mixed[]
- */
 function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null): array
 {
     $sqlBindArray = [];
@@ -449,9 +440,6 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
 }
 
 //Support for therapy group appointments added by shachar z.
-/**
- * @return mixed[]
- */
 function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null): array
 {
 
@@ -466,9 +454,6 @@ function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null):
     return $nextXAppts;
 }
 
-/**
- * @return mixed[]
- */
 function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1'): array
 {
 
@@ -519,9 +504,6 @@ function getSlotSize()
     return 15 * 60;
 }
 
-/**
- * @return mixed[]
- */
 function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_id = null): array
 {
     $appointments = fetchAllEvents($from_date, $to_date, $provider_id, $facility_id);
@@ -794,9 +776,6 @@ function interpretRecurrence($recurr_freq, $recurr_type)
     return $interpreted;
 }
 
-/**
- * @return mixed[]
- */
 function fetchRecurrences($pid): array
 {
     $query = "SELECT pe.pc_title, pe.pc_endDate, pe.pc_recurrtype, pe.pc_recurrspec, pc.pc_catname FROM openemr_postcalendar_events AS pe "

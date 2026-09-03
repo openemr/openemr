@@ -71,9 +71,6 @@ trait PatientExtension
     // takes a category and/or, which returns all elements of that QDM
     // category. Example: patient.get_data_elements('encounters')
     // will return all Encounter QDM data types active on the patient.
-    /**
-     * @return mixed[]
-     */
     public function get_data_elements($category = null, $status = null): array
     {
         $categoryElements = [];

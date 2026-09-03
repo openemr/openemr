@@ -58,9 +58,6 @@ class RulesPlanMappingEventHandlers
         return $plans;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getRulesInPlan($plan_id): array
     {
         $rules = [];
@@ -78,9 +75,6 @@ class RulesPlanMappingEventHandlers
         return $rules;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getRulesNotInPlan($plan_id): array
     {
         $rules = [];

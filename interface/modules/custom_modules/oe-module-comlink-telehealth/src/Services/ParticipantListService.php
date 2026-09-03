@@ -11,9 +11,6 @@ class ParticipantListService
     {
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getParticipantListWithInvitationsForAppointment($user, $session): array
     {
         $participants = $this->getParticipantListForAppointment($user, $session);

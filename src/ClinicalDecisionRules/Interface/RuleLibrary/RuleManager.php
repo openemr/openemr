@@ -408,7 +408,6 @@ class RuleManager
      * supplied sql source.
      * @param Rule $rule
      * @param RuleCriteriaFactory $factory
-     * @return mixed[]
      */
     private function gatherCriteria($rule, $stmt, $factory): array
     {
@@ -686,9 +685,6 @@ class RuleManager
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getAllowedFilterCriteriaTypes(): array
     {
         $allowed = [];

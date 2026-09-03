@@ -26,9 +26,6 @@ class JsonWebKeyParser
         $this->setEncryptionKey($oaEncryptionKey);
     }
 
-    /**
-     * @return mixed[]
-     */
     public function parseRefreshToken($rawToken): array
     {
         if (empty($rawToken)) {
@@ -53,9 +50,6 @@ class JsonWebKeyParser
         return $result;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function parseAccessToken($rawToken): array
     {
         if (empty($rawToken)) {

@@ -487,9 +487,6 @@ XML;
          */
     }
 
-    /**
-     * @return mixed[]
-     */
     private function CqmExecutionCalcExecute($patients, $measures): array
     {
         $finalResults = [];
@@ -518,9 +515,6 @@ XML;
          */
     }
 
-    /**
-     * @return mixed[]
-     */
     private function request_for($patients, Measure $measure): array
     {
 

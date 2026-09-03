@@ -88,7 +88,6 @@ class C_PatientFinder extends Controller
      *   Results of a LastName search
      *   @-param string $sql base sql query
      *   @-param string $search_string parsed for last name
-     * @return mixed[]
      */
     public function search_by_lName($sql, $search_string): array
     {
@@ -109,7 +108,6 @@ class C_PatientFinder extends Controller
      *   Results of a FirstName search
      *   @param string $sql base sql query
      *   @param string $search_string parsed for first name
-     * @return mixed[]
      */
     public function search_by_fName($sql, $search_string): array
     {
@@ -131,7 +129,6 @@ class C_PatientFinder extends Controller
      *   Results of a Full Name search
      *   @param string $sql base sql query
      *   @param string $search_string parsed for first, last and middle name
-     * @return mixed[]
      */
     public function search_by_FullName($sql, $search_string): array
     {

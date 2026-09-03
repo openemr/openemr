@@ -144,9 +144,6 @@ class PortalPatientReportController
         }
         return $issuesByType;
     }
-    /**
-     * @return mixed[]
-     */
     public function getEncounters($pid): array
     {
 

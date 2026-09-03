@@ -1234,9 +1234,6 @@ class FPDF
         return ['w'=>$a[0], 'h'=>$a[1], 'cs'=>$colspace, 'bpc'=>$bpc, 'f'=>'DCTDecode', 'data'=>$data];
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function _parsepng($file): array
     {
     // Extract info from a PNG file
@@ -1398,9 +1395,6 @@ class FPDF
         return $a['i'];
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function _parsegif($file): array
     {
     // Extract info from a GIF file (via PNG conversion)

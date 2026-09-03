@@ -300,9 +300,6 @@ abstract class AbstractAmcReport implements RsReportIF
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     private function collectObjects($patient, $object_label, $begin, $end): array
     {
 
@@ -428,9 +425,6 @@ abstract class AbstractAmcReport implements RsReportIF
         return $results;
     }
 
-    /**
-     * @return mixed[]
-     */
     private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id): array
     {
 

@@ -13,9 +13,6 @@ function getTransById($id, $cols = "*")
     return $row;
 }
 
-/**
- * @return mixed[]
- */
 function getTransByPid($pid, $cols = "*"): array
 {
     $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " from transactions where pid = ? " .

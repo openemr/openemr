@@ -220,9 +220,6 @@ class ORDataObject
         return array_flip($enum);
     }
 
-    /**
-     * @return mixed[]
-     */
     public function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id"): array
     {
         $ar = [];

@@ -53,9 +53,6 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Patient Ledger by Date", xl("Patient Ledger by Date"));
 }
 
-/**
- * @return mixed[]
- */
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = ''): array
 {
     $all = [];
@@ -113,9 +110,6 @@ function List_Look($thisData, $thisList)
     return $dispValue;
 }
 
-/**
- * @return mixed[]
- */
 function GetAllCredits($enc = '', $pat = ''): array
 {
     $all = [];

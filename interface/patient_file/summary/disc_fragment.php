@@ -25,7 +25,6 @@ CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
  * Retrieve the recent 'N' disclosures.
  * @param $pid   -  patient id.
  * @param $limit -  certain limit up to which the disclosures are to be displayed.
- * @return mixed[]
  */
 function getDisclosureByDate($pid, $limit): array
 {

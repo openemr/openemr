@@ -36,9 +36,6 @@ class UuidMapping
         ['resource' => 'Group', 'table' => 'users']
     ];
 
-    /**
-     * @return mixed[]
-     */
     public static function getMappedRecordsForTableUUID($table_uuid): array
     {
         $sql = "select `uuid`, `resource`, `table`, `target_uuid`, `created`, `resource_path` FROM `uuid_mapping` WHERE `target_uuid` = ?";
@@ -46,9 +43,6 @@ class UuidMapping
         return $records;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getMappingForUUID($uuid, $is_binary = false): array
     {
         $sql = "select * from `uuid_mapping` WHERE uuid = ?";

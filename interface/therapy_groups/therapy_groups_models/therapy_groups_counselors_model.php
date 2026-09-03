@@ -29,9 +29,6 @@ class Therapy_Groups_Counselors
 {
     const TABLE = 'therapy_groups_counselors';
 
-    /**
-     * @return mixed[]
-     */
     public function getAllCounselors(): array
     {
 
@@ -46,9 +43,6 @@ class Therapy_Groups_Counselors
         return $counselors;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getCounselors($groupId): array
     {
 
@@ -85,9 +79,6 @@ class Therapy_Groups_Counselors
         sqlStatement($sql, $condition);
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getAllCounselorsNames($groupId): array
     {
 

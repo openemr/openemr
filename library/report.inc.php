@@ -287,9 +287,6 @@ function printPatientBilling($pid): void
     }
 }
 
-/**
- * @return mixed[]
- */
 function getPatientBillingEncounter($pid, $encounter): array
 {
     $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .

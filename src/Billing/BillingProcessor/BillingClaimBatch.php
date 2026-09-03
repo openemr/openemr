@@ -186,9 +186,6 @@ class BillingClaimBatch
         return $success;
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function extractUniqueX12PartnersFromClaims($claims): array
     {
         $unique_x12_partners = [];

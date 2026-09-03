@@ -29,9 +29,6 @@ class Therapy_Groups
 {
     const TABLE = 'therapy_groups';
 
-    /**
-     * @return mixed[]
-     */
     public function getAllGroups(): array
     {
 

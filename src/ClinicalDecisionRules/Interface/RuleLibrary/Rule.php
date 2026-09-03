@@ -349,9 +349,6 @@ class Rule
         return true;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getRuleTypeLabels(): array
     {
         $labels = [];

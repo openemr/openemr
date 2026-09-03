@@ -43,9 +43,6 @@ function getGroup($gid)
 }
 
 //Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
-/**
- * @return mixed[]
- */
 function getGroupData($search_params, $result_columns, $column): array
 {
     $model = new Therapy_Groups();
@@ -54,9 +51,6 @@ function getGroupData($search_params, $result_columns, $column): array
 }
 
 //Fetches group statuses from 'groupstat' list
-/**
- * @return mixed[]
- */
 function getGroupStatuses(): array
 {
     $model = new Group_Statuses();
@@ -65,9 +59,6 @@ function getGroupStatuses(): array
 }
 
 //Fetches group attendance statuses from 'attendstat' list
-/**
- * @return mixed[]
- */
 function getGroupAttendanceStatuses(): array
 {
     $model = new Group_Statuses();
@@ -76,9 +67,6 @@ function getGroupAttendanceStatuses(): array
 }
 
 //Fetches counselors for specific group
-/**
- * @return mixed[]
- */
 function getCounselors($gid): array
 {
     $model = new Therapy_Groups_Counselors();
@@ -87,9 +75,6 @@ function getCounselors($gid): array
 }
 
 //Fetches participants of group
-/**
- * @return mixed[]
- */
 function getParticipants($gid, $onlyActive = false): array
 {
     $model = new Therapy_groups_participants();
@@ -106,9 +91,6 @@ function getTypeName($key)
 }
 
 //Fetches providers for a specific group event
-/**
- * @return mixed[]
- */
 function getProvidersOfEvent($eid): array
 {
     $model = new Users();
@@ -124,9 +106,6 @@ function getUserNameById($uid)
     return $result;
 }
 
-/**
- * @return mixed[]
- */
 function getGroupCounselorsNames($gid): array
 {
 

@@ -271,9 +271,6 @@ function getImmunizationObservationLists($k)
     }
 }
 
-/**
- * @return mixed[]
- */
 function getImmunizationObservationResults(): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();

@@ -411,9 +411,6 @@ class C_FormVitals
         return $orderedList;
     }
 
-    /**
-     * @return mixed[]
-     */
     private function get_interpretation_list_as_hash(): array
     {
         $hashList = [];

@@ -122,9 +122,6 @@ class BillingReport
     }
 
     //date must be in nice format (e.g. 2002-07-11)
-    /**
-     * @return mixed[]
-     */
     public static function getBillsBetween(
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
@@ -198,9 +195,6 @@ class BillingReport
         return $all;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getBillsListBetween(
         $code_type,
         $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user"

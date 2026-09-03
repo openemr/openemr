@@ -97,9 +97,6 @@ class EhiExportJobTask
         return !empty($this->pids);
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getJSON(): array
     {
         $data = [

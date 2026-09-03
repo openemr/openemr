@@ -295,9 +295,6 @@ class InsuranceCompanyService extends BaseService
         return $this->types;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getInsuranceTypes(): array
     {
         $types = [];
@@ -319,9 +316,6 @@ class InsuranceCompanyService extends BaseService
         return $this->claim_types;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getInsuranceClaimTypes(): array
     {
         $claim_types = [];
@@ -343,9 +337,6 @@ class InsuranceCompanyService extends BaseService
         return $this->cqm_sops;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getInsuranceCqmSop(): array
     {
         $cqm_sop = sqlStatement(

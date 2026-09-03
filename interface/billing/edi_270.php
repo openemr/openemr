@@ -199,9 +199,6 @@ if ($exclude_policy != "") {
     }
 
 // unique multidimensional array by key
-    /**
-     * @return mixed[]
-     */
     function unique_by_key($source, $key): array
     {
         $i = 0;

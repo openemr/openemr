@@ -657,9 +657,6 @@ class eRxXMLBuilder
         return $element;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getPatientFreeformHealthplans($patientId): array
     {
         $healthplans = $this->getStore()
@@ -677,9 +674,6 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getPatientFreeformAllergy($patientId): array
     {
         $allergyData = $this->getStore()
@@ -711,9 +705,6 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getPatientDiagnosis($patientId): array
     {
         $diagnosisData = $this->getStore()
@@ -795,9 +786,6 @@ class eRxXMLBuilder
         return $element;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getPatientPrescriptions($prescriptionIds): array
     {
         $elements = [];
@@ -827,9 +815,6 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getPatientMedication($patientId, $uploadActive, $count): array
     {
         $medications = $this->getStore()
@@ -855,9 +840,6 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds): array
     {
         $elements = [];

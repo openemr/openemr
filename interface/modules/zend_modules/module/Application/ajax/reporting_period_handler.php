@@ -104,7 +104,6 @@ function handleUpdateReportingPeriod()
 
 /**
  * Handle getting measures for a period
- * @return mixed[]
  */
 function handleGetMeasuresForPeriod(): array
 {

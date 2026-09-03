@@ -40,9 +40,6 @@ class ExportPersonTableDefinition extends ExportTableDefinition
         return $records;
     }
 
-    /**
-     * @return mixed[]
-     */
     private function getContactIds(): array {
         // instead of hunting down to figure where this is at, for now will just leverage
         //$this->getHashmapForKey('contact_id');

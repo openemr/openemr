@@ -32,9 +32,6 @@ class Encounter extends ClinicalType
     const ENC_INFLUENZA = 'enc_influenza';
     const ENC_OPHTHAL = 'enc_ophthal_serv';
 
-    /**
-     * @return mixed[]
-     */
     public static function getEncounterTypes(): array
     {
         $oClass = new ReflectionClass('Encounter');
@@ -60,9 +57,6 @@ class Encounter extends ClinicalType
      *  @param (CqmPatient) $patient
      *  @param $beginDate beginning of date range to search in, if specified
      *  @param $endDate end of date range to search in, if specified
-     */
-    /**
-     * @return mixed[]
      */
     public function fetchDates(RsPatient $patient, $beginDate = null, $endDate = null): array
     {

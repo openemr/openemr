@@ -47,9 +47,6 @@ class BillingViewCard extends CardModel
         return array_merge($templateVars, $billingDataVars);
     }
 
-    /**
-     * @return mixed[]
-     */
     private function setupBillingData(): array
     {
         $pid = $this->pid;

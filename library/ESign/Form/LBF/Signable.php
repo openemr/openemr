@@ -28,7 +28,6 @@ class Form_LBF_Signable extends Form_Signable implements SignableIF
      * get the lbf form key, and all the entries associates with that key
      *
      * @see \ESign\SignableIF::getData()
-     * @return mixed[]
      */
     public function getData(): array
     {

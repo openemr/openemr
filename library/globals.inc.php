@@ -165,9 +165,6 @@ $USER_SPECIFIC_GLOBALS = ['default_top_pane',
 
 // Gets array of time zones supported by PHP.
 //
-/**
- * @return mixed[]
- */
 function gblTimeZones(): array
 {
     $zones = timezone_identifiers_list();

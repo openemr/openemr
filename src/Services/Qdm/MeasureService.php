@@ -64,9 +64,6 @@ class MeasureService
         ];
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function fetchAllMeasuresArray($measures = []): array
     {
         $measureObjects = [];

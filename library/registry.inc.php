@@ -135,9 +135,6 @@ function getTherapyGroupCategories()
 // This gets an array including both standard and LBF visit form types,
 // one row per form type, sorted by category, priority, is lbf, name.
 //
-/**
- * @return mixed[]
- */
 function getFormsByCategory($state = '1', $lbfonly = false): array
 {
     global $attendant_type;

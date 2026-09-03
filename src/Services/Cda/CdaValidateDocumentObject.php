@@ -36,9 +36,6 @@ class CdaValidateDocumentObject
         return false;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getValidationErrorsForDocument(Document $document): array
     {
         $cdaValidateDocuments = new CdaValidateDocuments();

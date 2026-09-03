@@ -122,9 +122,6 @@ class ExportTableDefinition
         return $this->keyColumnsHashmap[$key] ?? [];
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getRecords(): array
     {
         $maxIterations = 500; // always have a loop safety in case the loop logic breaks, which is 500 * 25000 = 12,500,000 records

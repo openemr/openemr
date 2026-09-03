@@ -1159,9 +1159,6 @@ class Events extends Base
         return false;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function calculateEvents($event, $start_date, $stop_date): array
     {
 
@@ -2138,9 +2135,6 @@ class Display extends Base
         $content = ob_get_clean();
         echo $content;
     }
-    /**
-     * @return mixed[]
-     */
     public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = ''): array
     {
         $recalls = [];

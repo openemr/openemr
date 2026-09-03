@@ -495,7 +495,6 @@ class InstModuleTable
 
     /**
      * Function to get Active Users
-     * @return mixed[]
      */
     public function getActiveUsers(): array
     {
@@ -513,9 +512,6 @@ class InstModuleTable
         return $all;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getTabSettings($mod_id): array
     {
         $all = [];
@@ -658,9 +654,6 @@ class InstModuleTable
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     public function checkDependencyOnEnable($mod_id): array
     {
         $retArray = [];
@@ -984,9 +977,6 @@ class InstModuleTable
         return $obj;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getSetupObject($moduleDirectory): array
     {
         $className = str_replace('[module_name]', $moduleDirectory, '[module_name]\Controller\SetupController');

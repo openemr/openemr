@@ -175,9 +175,6 @@ class X12RemoteTracker extends BaseService
         return $results;
     }
 
-    /**
-     * @return mixed[]
-     */
     protected function onlyRealFields($passed_in): array
     {
         $realFields = [];
@@ -207,9 +204,6 @@ class X12RemoteTracker extends BaseService
         return $waiting ?? [];
     }
 
-    /**
-     * @return mixed[]
-     */
     public function fetchAll(): array
     {
         $all = self::selectHelper(self::SELECT, [

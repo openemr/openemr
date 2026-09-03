@@ -30,9 +30,6 @@ class AmcResult implements RsResultIF
         }
     }
 
-    /**
-     * @return mixed[]
-     */
     public function format(): array
     {
         $rowFormat = [

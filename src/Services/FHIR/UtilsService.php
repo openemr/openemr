@@ -67,9 +67,6 @@ class UtilsService
         return $canonical;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function parseCanonicalUrl(?string $url): array
     {
         $parsed_url = [
@@ -450,9 +447,6 @@ class UtilsService
         return $resource;
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function parseReference(?FHIRReference $reference): array
     {
         $parsed_reference = [

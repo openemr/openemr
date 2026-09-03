@@ -25,9 +25,6 @@ class TranslationService
         return self::getLanguageDefinitionsForLanguage($language);
     }
 
-    /**
-     * @return mixed[]
-     */
     public static function getLanguageDefinitionsForLanguage(int $languageId): array
     {
         $sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d

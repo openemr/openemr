@@ -622,9 +622,6 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     }
 }
 
-/**
- * @return mixed[]
- */
 function rules_clinic_get_providers($billing_facility, $pat_prov_rel): array
 {
     $results = [];

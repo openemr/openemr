@@ -1419,9 +1419,6 @@ class BillingUtilities
         'N885' => 'Alert: This claim was not processed in accordance with the No Surprises Act cost-sharing or out-of-network payment requirements. The payer disagrees with your determination that those requirements apply. You may contact the payer to find out why it disagrees. You may appeal this adverse determination on behalf of the patient through the payer’s internal appeals and external review processes.',
     ];
 
-    /**
-     * @return mixed[]
-     */
     public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text"): array
     {
         $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['billing']) . " from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", [$encounter, $pid]);

@@ -40,9 +40,6 @@ class TeleHealthProviderRepository
         return false;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getEnabledProviders(): array
     {
         $providers =  [];

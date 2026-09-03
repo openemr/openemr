@@ -594,9 +594,6 @@ function MidlevelPrescriber($doc, $r): void
     $r->appendChild($b);
 }
 
-/**
- * @return mixed[]
- */
 function Patient($doc, $r, $pid): array
 {
     global $msg,$warning_msg,$dem_check;
@@ -796,9 +793,6 @@ function OutsidePrescription($doc, $r, $pid, $prescid): void
     }
 }
 
-/**
- * @return mixed[]
- */
 function PatientMedication($doc, $r, $pid, $med_limit): array
 {
     global $msg;
@@ -860,9 +854,6 @@ function PatientMedication($doc, $r, $pid, $med_limit): array
     return $uploaded_med_arr;
 }
 
-/**
- * @return mixed[]
- */
 function PatientFreeformAllergy($doc, $r, $pid): array
 {
     $res = sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l

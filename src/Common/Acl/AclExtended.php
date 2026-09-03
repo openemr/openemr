@@ -44,9 +44,6 @@ class AclExtended
     // Return an array keyed on squad ACO names.
     // This is only applicable for sports team use.
     //
-    /**
-     * @return mixed[]
-     */
     public static function aclGetSquads(): array
     {
         $squads = self::aclGetSectionAcos('squads');
@@ -74,9 +71,6 @@ class AclExtended
     // Get the ACO name/value pairs for a designated section.  Each value
     // is an array (section_value, value, order_value, name, hidden).
     //
-    /**
-     * @return mixed[]
-     */
     private static function aclGetSectionAcos($section): array
     {
         $gacl = self::collectGaclApiObject();
@@ -122,9 +116,6 @@ class AclExtended
     //
     // Returns a sorted array of all available Group Titles.
     //
-    /**
-     * @return mixed[]
-     */
     public static function aclGetGroupTitleList($include_superusers = true): array
     {
         $gacl = self::collectGaclApiObject();
@@ -515,9 +506,6 @@ class AclExtended
     //
     // Function to remove an element from an array
     //
-    /**
-     * @return mixed[]
-     */
     private static function removeElement($arr, $val): array
     {
         $arr2 = [];

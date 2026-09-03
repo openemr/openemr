@@ -153,9 +153,6 @@ class X12File
      * @param bool     return segments
      * @return array   array['filetext'] and maybe ['type'] ['$delimiters'] ['segments']
      */
-    /**
-     * @return mixed[]
-     */
     private function edih_file_text($file_text, $type = false, $delimiters = false, $segments = false): array
     {
         $ret_ar = [];

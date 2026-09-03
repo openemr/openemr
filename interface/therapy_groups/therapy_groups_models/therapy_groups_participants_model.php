@@ -30,9 +30,6 @@ class Therapy_groups_participants
     const TABLE = 'therapy_groups_participants';
     const PATIENT_TABLE = 'patient_data';
 
-    /**
-     * @return mixed[]
-     */
     public function getParticipants($groupId, $onlyActive = false): array
     {
 

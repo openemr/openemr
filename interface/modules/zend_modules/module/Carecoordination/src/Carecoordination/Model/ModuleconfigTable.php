@@ -27,9 +27,6 @@ namespace Carecoordination\Model;
 
 class ModuleconfigTable
 {
-    /**
-     * @return mixed[]
-     */
     public function getUsers(): array
     {
         $users = ['0' => ''];

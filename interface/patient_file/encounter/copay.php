@@ -23,9 +23,6 @@ use OpenEMR\Core\OEGlobalsBag;
 
 // This may be more appropriate to move to the library
 // later
-/**
- * @return mixed[]
- */
 function getInsuranceCompanies($pid): array
 {
     $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? " .
