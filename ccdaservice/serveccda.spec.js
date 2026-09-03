@@ -3,6 +3,8 @@
 const net = require('net');
 const { spawn } = require('child_process');
 const path = require('path');
+const assert = require('node:assert/strict');
+const { after, before, describe, it } = require('node:test');
 
 const FS = String.fromCharCode(28);
 const SERVICE_PORT = 6661;
@@ -52,7 +54,7 @@ function waitForService(retries = 30) {
     });
 }
 
-beforeAll(async () => {
+before(async () => {
     serviceProcess = spawn('node', [path.join(__dirname, 'serveccda.js')], {
         env: { ...process.env, CCDA_SERVICE_HOST: SERVICE_HOST, CCDA_SERVICE_PORT: String(SERVICE_PORT) },
         stdio: 'ignore',
@@ -60,9 +62,9 @@ beforeAll(async () => {
     });
     serviceProcess.unref();
     await waitForService();
-}, 15000);
+}, { timeout: 15000 });
 
-afterAll(() => {
+after(() => {
     if (serviceProcess && serviceProcess.pid) {
         try {
             process.kill(-serviceProcess.pid, 'SIGTERM');
@@ -77,7 +79,7 @@ describe('serveccda error handling', () => {
         // Valid XML wrapper but missing required <patient> element
         const malformedXml = '<CCDA><doc_type>ccd</doc_type></CCDA>';
         const response = await connectAndSend(malformedXml);
-        expect(response).toMatch(/^ERROR:/);
+        assert.match(response, /^ERROR:/);
     });
 
     it('stays alive after receiving malformed input', async () => {
@@ -87,7 +89,7 @@ describe('serveccda error handling', () => {
 
         // Verify service is still accepting connections
         const secondResponse = await connectAndSend(malformedXml);
-        expect(secondResponse).toMatch(/^ERROR:/);
+        assert.match(secondResponse, /^ERROR:/);
     });
 
     it('returns a response (not a crash) for empty CCDA', async () => {
@@ -95,6 +97,6 @@ describe('serveccda error handling', () => {
         const response = await connectAndSend(emptyXml);
         // Empty CCDA produces a minimal XML header — the important thing
         // is the service doesn't crash.
-        expect(response).toBeTruthy();
+        assert.ok(response);
     });
 });
