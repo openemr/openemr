@@ -183,6 +183,7 @@
             "library/calendar.inc.php",
             "library/csv_like_join.php",
             "library/date_functions.php",
+            "library/encounter.inc.php",
             "library/formatting.inc.php",
             "library/formdata.inc.php",
             "library/forms.inc.php",
