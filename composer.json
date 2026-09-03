@@ -185,6 +185,7 @@
             "library/date_functions.php",
             "library/dated_reminder_functions.php",
             "library/daysheet.inc.php",
+            "library/dupscore.inc.php",
             "library/encounter.inc.php",
             "library/formatting.inc.php",
             "library/formdata.inc.php",
