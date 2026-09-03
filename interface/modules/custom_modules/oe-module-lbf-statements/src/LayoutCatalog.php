@@ -108,6 +108,10 @@ class LayoutCatalog
     {
         Identifiers::assertFieldId($formId);
         Identifiers::assertFieldId($fieldId);
+        $meta = $this->fieldMeta($formId);
+        if (!isset($meta[$fieldId]) || $meta[$fieldId]['data_type'] !== 3) {
+            throw new \InvalidArgumentException('Paragraph field must be a textarea on this layout.');
+        }
         QueryUtils::sqlStatementThrowException(
             "REPLACE INTO module_lbf_statement_forms (form_id, paragraph_field_id) VALUES (?, ?)",
             [$formId, $fieldId]
