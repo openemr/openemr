@@ -22,10 +22,12 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PaymentProcessing\PortalPaymentInput;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
@@ -58,6 +60,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 if (!isset($pid)) {
     throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
 }
+$request = CurrentRequest::get();
 
 if (!$isPortal) {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
@@ -80,7 +83,7 @@ $cryptoGen = ServiceContainer::getCrypto();
 $recorder = new Recorder();
 
 $appsql = new ApplicationTable();
-$recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
+$recid = $request->query->getInt('recid');
 $adminUser = '';
 $portalPatient = '';
 
@@ -113,23 +116,25 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
-if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+if ($request->isMethod('POST')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
-$radio_type_of_payment = $_POST['radio_type_of_payment'] ?? '';
+$radioTypeInput = $request->request->getString('radio_type_of_payment');
+$radio_type_of_payment = PortalPaymentInput::normalizePaymentType($radioTypeInput);
+$formSave = $request->request->getString('form_save');
 
 // If the Save button was clicked...
-if ($_POST['form_save'] ?? '') {
+if ($formSave !== '') {
     // Pin the payment to the session patient; ignore any body-supplied form_pid.
     $form_pid = $pid;
-    $form_method = trim((string) $_POST['form_method']);
-    $form_source = trim((string) $_POST['form_source']);
+    $form_method = trim($request->request->getString('form_method'));
+    $form_source = trim($request->request->getString('form_source'));
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($radio_type_of_payment == 'pre_payment') {
-        $prepayment = ValidationUtils::parsePositiveAmount(filter_input(INPUT_POST, 'form_prepayment'));
+        $prepayment = ValidationUtils::parsePositiveAmount($request->request->get('form_prepayment'));
         if ($prepayment === null) {
             $alertmsg = xl('Prepayment amount must be a positive number.');
         } else {
@@ -157,13 +162,9 @@ if ($_POST['form_save'] ?? '') {
         }
     }
 
-    if (isset($_POST['form_upay']) && is_array($_POST['form_upay']) && $_POST['form_upay'] !== [] && $radio_type_of_payment != 'pre_payment') {
-        foreach ($_POST['form_upay'] as $enc => $payment) {
-            if (!is_numeric($payment) || (float) $payment <= 0) {
-                continue;
-            }
-            $amount = (float) $payment;
-
+    $formUpay = $request->request->all('form_upay');
+    if ($formUpay !== [] && $radio_type_of_payment !== 'pre_payment') {
+        foreach (PortalPaymentInput::normalizePositivePayments($formUpay) as $enc => $amount) {
             $zero_enc = $enc;
 
             //----------------------------------------------------------------------------------------------------
@@ -174,9 +175,7 @@ if ($_POST['form_save'] ?? '') {
                 [$form_pid, $enc]
             );
             if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                $Codetype = $RowSearch['code_type'];
-                $Code = $RowSearch['code'];
-                $Modifier = $RowSearch['modifier'];
+                [$Codetype, $Code, $Modifier] = PortalPaymentInput::normalizeBillingCodeRow($RowSearch);
             } else {
                 $Codetype = '';
                 $Code = '';
@@ -263,9 +262,7 @@ if ($_POST['form_save'] ?? '') {
                     [$form_pid, $enc]
                 );
                 while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                    $Codetype = $RowSearch['code_type'];
-                    $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    [$Codetype, $Code, $Modifier] = PortalPaymentInput::normalizeBillingCodeRow($RowSearch);
                     $Fee = $RowSearch['fee'];
 
                     $resMoneyGot = sqlStatement(
@@ -332,14 +329,18 @@ if ($_POST['form_save'] ?? '') {
                 //--------------------------------------------------------------------------------------------------------------------
             }//invoice_balance
         }//foreach
-    }//if ($_POST['form_upay'])
-}//if ($_POST['form_save'])
+    }//if ($formUpay)
+}//if ($formSave)
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
-if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET, 'receipt'))) {
-    if (filter_input(INPUT_GET, 'receipt')) {
+[$receiptRequested, $receiptTime] = PortalPaymentInput::normalizeReceiptRequest(
+    $request->query->getBoolean('receipt'),
+    $request->query->getString('time')
+);
+if ($alertmsg === '' && ($formSave !== '' || $receiptRequested)) {
+    if ($receiptRequested) {
         $form_pid = $pid;
-        $timestamp = decorateString('....-..-.. ..:..:..', filter_input(INPUT_GET, 'time') ?: '');
+        $timestamp = decorateString('....-..-.. ..:..:..', $receiptTime);
     }
 
 // Get details for what we guess is the primary facility.

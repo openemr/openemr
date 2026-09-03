@@ -9,6 +9,7 @@ ignore:
 - tests/eventdispatcher/               # Example modules for documentation
 - portal/messaging/messages.php        # Entry-point script (bootstrap + render) — exercised by manual QA, not unit tests
 - portal/messaging/handle_note.php     # Entry-point script (CSRF, ACL, sendMail) — testable logic extracted to OpenEMR\Services\PortalMessagingSender
+- portal/portal_payment.php            # Entry-point script — input normalization extracted to OpenEMR\PaymentProcessing\PortalPaymentInput
 
 # Strip environment-specific path prefixes from coverage reports so Codecov
 # can match them to repository files. See https://docs.codecov.com/docs/fixing-paths

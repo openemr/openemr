@@ -1892,11 +1892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/templates/_modalFormHeader.tpl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$form_pid might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$payrow might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
