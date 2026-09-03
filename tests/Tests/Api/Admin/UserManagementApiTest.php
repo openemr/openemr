@@ -655,6 +655,53 @@ class UserManagementApiTest extends TestCase
         /** @var array<string, mixed> $validationErrors */
         $validationErrors = $body["validationErrors"] ?? [];
         $this->assertArrayHasKey('lname', $validationErrors);
+
+        // The reason must name the combination: both parts are within the per-field bound,
+        // so a bare "lname is invalid" would blame the wrong thing.
+        $lnameErrors = $validationErrors['lname'];
+        $this->assertIsArray($lnameErrors);
+        $this->assertArrayHasKey('Record::INVALID_COMBINED_NAME_LENGTH', $lnameErrors);
+        $this->assertStringContainsString(
+            'combined length of fname, mname and lname',
+            (string) json_encode($lnameErrors)
+        );
+    }
+
+    /**
+     * An address too long for users.email is rejected rather than silently truncated.
+     *
+     * Two rules independently refuse this: email() because filter_var caps a valid address at
+     * 254 bytes, and lengthBetween because the address is over the column width. Either alone
+     * would do, which is the point -- the width bound does not depend on filter_var's cap, which
+     * is undocumented and could change.
+     */
+    #[Test]
+    public function testPostOverlongEmailReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_mail_" . bin2hex(random_bytes(4));
+        // 256 bytes, so it is over both bounds rather than only the stricter one. Each domain
+        // label is within the 63-byte label limit so that length is the only thing wrong with it.
+        $email = str_repeat("u", 64) . "@" . str_repeat("d", 63) . "." . str_repeat("d", 63)
+            . "." . str_repeat("d", 59) . ".com";
+
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Overlong",
+            "lname" => "Email",
+            "email" => $email,
+            "access_group" => ["Physicians"],
+        ]);
+        self::$createdUsernames[] = $username;
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('email', $validationErrors);
     }
 
     /**

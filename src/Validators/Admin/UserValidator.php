@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Validators\Admin;
 
 use OpenEMR\Validators\BaseValidator;
+use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
 class UserValidator extends BaseValidator
@@ -60,12 +61,24 @@ class UserValidator extends BaseValidator
                         $parts[] = is_string($value) ? trim($value) : '';
 
                         // strlen(), not mb_strlen(): GaclApi::add_object() bounds bytes.
-                        return strlen(implode(' ', $parts)) < 255;
+                        $length = strlen(implode(' ', $parts));
+                        if ($length >= 255) {
+                            // Thrown, not returned false: Particle's Callback swaps this message
+                            // in for its generic "{{ name }} is invalid", which would blame lname
+                            // alone when lname is within its own bound and only the sum is over.
+                            throw new InvalidValueException(
+                                'The combined length of fname, mname and lname must be under 255 '
+                                . 'bytes; got ' . $length,
+                                'Record::INVALID_COMBINED_NAME_LENGTH'
+                            );
+                        }
+
+                        return true;
                     }
                 );
                 $context->optional('mname')->lengthBetween(0, 255);
                 $context->optional('suffix')->lengthBetween(0, 255);
-                $context->optional('email')->email();
+                $context->optional('email')->email()->lengthBetween(0, 255);
                 $context->optional('authorized')->inArray([0, 1, '0', '1']);
                 $context->optional('facility_id')->numeric();
                 $context->optional('billing_facility_id')->numeric();
