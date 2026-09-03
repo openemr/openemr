@@ -16,6 +16,7 @@
         "Installer\\Controller\\InstallerController",
         "Installer\\Model\\InstModuleTable",
         "MaviqClient",
+        "NoDiscard",
         "RestResponse",
         "iamcal\\SQLParser",
         "Omnipay\\Common\\CreditCard",
