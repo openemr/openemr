@@ -22,6 +22,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -58,6 +59,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 if (!isset($pid)) {
     throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
 }
+$request = CurrentRequest::get();
 
 if (!$isPortal) {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
@@ -80,7 +82,7 @@ $cryptoGen = ServiceContainer::getCrypto();
 $recorder = new Recorder();
 
 $appsql = new ApplicationTable();
-$recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
+$recid = $request->query->getInt('recid');
 $adminUser = '';
 $portalPatient = '';
 
@@ -113,30 +115,27 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
-if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+if ($request->isMethod('POST')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
-$radioTypeInput = filter_input(INPUT_POST, 'radio_type_of_payment', FILTER_UNSAFE_RAW);
-$radio_type_of_payment = is_string($radioTypeInput)
-    && in_array($radioTypeInput, ['pre_payment', 'copay', 'invoice_balance', 'cash'], true)
+$radioTypeInput = $request->request->getString('radio_type_of_payment');
+$radio_type_of_payment = in_array($radioTypeInput, ['pre_payment', 'copay', 'invoice_balance', 'cash'], true)
     ? $radioTypeInput
     : '';
-$formSave = filter_input(INPUT_POST, 'form_save', FILTER_UNSAFE_RAW);
+$formSave = $request->request->getString('form_save');
 
 // If the Save button was clicked...
-if ($formSave !== null && $formSave !== false && $formSave !== '') {
+if ($formSave !== '') {
     // Pin the payment to the session patient; ignore any body-supplied form_pid.
     $form_pid = $pid;
-    $formMethodInput = filter_input(INPUT_POST, 'form_method', FILTER_UNSAFE_RAW);
-    $formSourceInput = filter_input(INPUT_POST, 'form_source', FILTER_UNSAFE_RAW);
-    $form_method = is_string($formMethodInput) ? trim($formMethodInput) : '';
-    $form_source = is_string($formSourceInput) ? trim($formSourceInput) : '';
+    $form_method = trim($request->request->getString('form_method'));
+    $form_source = trim($request->request->getString('form_source'));
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($radio_type_of_payment == 'pre_payment') {
-        $prepayment = ValidationUtils::parsePositiveAmount(filter_input(INPUT_POST, 'form_prepayment'));
+        $prepayment = ValidationUtils::parsePositiveAmount($request->request->get('form_prepayment'));
         if ($prepayment === null) {
             $alertmsg = xl('Prepayment amount must be a positive number.');
         } else {
@@ -164,18 +163,13 @@ if ($formSave !== null && $formSave !== false && $formSave !== '') {
         }
     }
 
-    $formUpay = filter_input(
-        INPUT_POST,
-        'form_upay',
-        FILTER_VALIDATE_FLOAT,
-        ['flags' => FILTER_REQUIRE_ARRAY]
-    );
-    if (is_array($formUpay) && $formUpay !== [] && $radio_type_of_payment !== 'pre_payment') {
+    $formUpay = $request->request->all('form_upay');
+    if ($formUpay !== [] && $radio_type_of_payment !== 'pre_payment') {
         foreach ($formUpay as $enc => $payment) {
-            if (!is_float($payment) || $payment <= 0) {
+            $amount = ValidationUtils::parsePositiveAmount($payment);
+            if ($amount === null) {
                 continue;
             }
-            $amount = $payment;
 
             $zero_enc = $enc;
 
@@ -349,16 +343,15 @@ if ($formSave !== null && $formSave !== false && $formSave !== '') {
 }//if ($formSave)
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
-if ($alertmsg === '' && ($formSave || filter_input(INPUT_GET, 'receipt'))) {
-    if (filter_input(INPUT_GET, 'receipt')) {
+$receiptRequested = $request->query->getBoolean('receipt');
+if ($alertmsg === '' && ($formSave !== '' || $receiptRequested)) {
+    if ($receiptRequested) {
         $form_pid = $pid;
-        $receiptTime = filter_input(
-            INPUT_GET,
-            'time',
-            FILTER_VALIDATE_REGEXP,
-            ['options' => ['regexp' => '/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/D']]
-        );
-        $timestamp = decorateString('....-..-.. ..:..:..', is_string($receiptTime) ? $receiptTime : '');
+        $receiptTime = $request->query->getString('time');
+        $receiptTime = preg_match('/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/D', $receiptTime) === 1
+            ? $receiptTime
+            : '';
+        $timestamp = decorateString('....-..-.. ..:..:..', $receiptTime);
     }
 
 // Get details for what we guess is the primary facility.
