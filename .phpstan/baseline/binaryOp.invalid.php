@@ -2428,7 +2428,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 9,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
