@@ -229,8 +229,14 @@ class DocumentRestController
                 'Content-Type' => $results['mimetype'],
             ]);
             $filename = basename(str_replace('\\', '/', $results['filename']));
-            $filename = preg_replace('/[\x00-\x1F\x7F]/', '', $filename) ?: 'unknownName';
-            $fallback = preg_replace('/[^\x20-\x7E]|%/', '_', $filename) ?: 'unknownName';
+            $filename = preg_replace('/[\x00-\x1F\x7F]/', '', $filename) ?? '';
+            if ($filename === '') {
+                $filename = 'unknownName';
+            }
+            $fallback = preg_replace('/[^\x20-\x7E]|%/', '_', $filename) ?? '';
+            if ($fallback === '') {
+                $fallback = 'unknownName';
+            }
             $response->headers->set(
                 'Content-Disposition',
                 HeaderUtils::makeDisposition('attachment', $filename, $fallback)
