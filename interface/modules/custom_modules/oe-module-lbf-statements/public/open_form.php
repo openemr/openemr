@@ -15,11 +15,14 @@ declare(strict_types=1);
 namespace OpenEMR\Modules\LbfStatements;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once dirname(__DIR__, 4) . "/globals.php";
+
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
     http_response_code(401);

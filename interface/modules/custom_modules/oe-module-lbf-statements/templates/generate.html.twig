@@ -114,22 +114,22 @@
                     </thead>
                     <tbody>
                         {% for inst in instances %}
-                            {% set instUrl = postUrl ~ '?form_id=' ~ form_id ~ '&pid=' ~ pid ~ '&instance_id=' ~ inst.instance_id %}
+                            {% set instQuery = 'form_id=' ~ form_id ~ '&pid=' ~ pid ~ '&instance_id=' ~ inst.instance_id %}
                             <tr class="{% if inst.instance_id == instance_id %}lbf-stmt-current{% endif %}"
                                 {% if inst.instance_id == instance_id %}aria-current="true"{% endif %}>
                                 <td>
-                                    <a class="lbf-stmt-date" href="{{ instUrl|attr }}">
+                                    <a class="lbf-stmt-date" href="index.php?{{ instQuery|attr }}">
                                         {{ inst.date|text }}
                                         {% if inst.instance_id == instance_id %}
                                             <span class="badge badge-secondary">{{ "Current"|xlt }}</span>
                                         {% endif %}
                                     </a>
                                 </td>
-                                <td><a href="{{ instUrl|attr }}">{{ inst.encounter|text }}</a></td>
-                                <td><a href="{{ instUrl|attr }}">{{ inst.reason|text }}</a></td>
-                                <td><a href="{{ instUrl|attr }}">{{ inst.form_name|text }}</a></td>
+                                <td><a href="index.php?{{ instQuery|attr }}">{{ inst.encounter|text }}</a></td>
+                                <td><a href="index.php?{{ instQuery|attr }}">{{ inst.reason|text }}</a></td>
+                                <td><a href="index.php?{{ instQuery|attr }}">{{ inst.form_name|text }}</a></td>
                                 <td>
-                                    <a class="lbf-stmt-action" href="{{ instUrl|attr }}">
+                                    <a class="lbf-stmt-action" href="index.php?{{ instQuery|attr }}">
                                         {% if inst.instance_id == instance_id %}{{ "Current"|xlt }}{% else %}{{ "Select"|xlt }}{% endif %}
                                     </a>
                                 </td>
@@ -198,13 +198,16 @@
             </form>
 
             {% if formUrl %}
-                <a class="btn btn-outline-secondary" id="lbf-stmt-open-form" href="{{ formUrl|attr }}"
+                <a class="btn btn-outline-secondary" id="lbf-stmt-open-form"
+                   href="open_form.php?form_id={{ form_id|attr }}&amp;pid={{ pid|attr }}&amp;instance_id={{ instance_id|attr }}&amp;dest=form&amp;csrf_token_form={{ csrfTokenValue|attr }}"
                    data-fallback-url="{{ formUrl|attr }}"
                    {% if patientSetUrl %}data-tabs-url="{{ patientSetUrl|attr }}"{% endif %}
                    onclick="try { if (typeof openEncounterTab === 'function') { openEncounterTab(event); } } finally { return false; }">{{ "Open encounter"|xlt }}</a>
             {% endif %}
             {% if printUrl %}
-                <a class="btn btn-outline-secondary" id="lbf-stmt-print" href="{{ printUrl|attr }}" target="_blank"
+                <a class="btn btn-outline-secondary" id="lbf-stmt-print"
+                   href="open_form.php?form_id={{ form_id|attr }}&amp;pid={{ pid|attr }}&amp;instance_id={{ instance_id|attr }}&amp;dest=print&amp;csrf_token_form={{ csrfTokenValue|attr }}"
+                   target="_blank"
                    onclick="if (typeof top !== 'undefined' && top.restoreSession) { top.restoreSession(); }">{{ "Print"|xlt }}</a>
             {% endif %}
         {% endif %}
