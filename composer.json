@@ -201,6 +201,7 @@
             "library/registry.inc.php",
             "library/report_database.inc.php",
             "library/sanitize.inc.php",
+            "library/sql_upgrade_fx.php",
             "library/transactions.inc.php",
             "library/translation.inc.php",
             "library/user.inc.php",
