@@ -291,8 +291,7 @@ function getUsrDataCheck($provider_id)
 
 function getFacilDataChk($facility_id)
 {
-    global $facilityService;
-    return $facilityService->getById($facility_id);
+    return (new FacilityService())->getById($facility_id);
 }
 
 function patientQRDAHistory($patient_id)

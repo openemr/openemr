@@ -2359,7 +2359,7 @@ function generate_list_map($list_id, $translate = false)
 
 function generate_display_field($frow, $currvalue)
 {
-    global $ISSUE_TYPES, $facilityService;
+    global $ISSUE_TYPES;
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -2756,7 +2756,7 @@ function generate_display_field($frow, $currvalue)
             $s .= $arr[$i];
         }
     } elseif ($data_type == 35) { // facility
-        $urow = $facilityService->getById($currvalue);
+        $urow = (new FacilityService())->getById($currvalue);
         $s = htmlspecialchars($urow['name'] ?? '', ENT_NOQUOTES);
     } elseif ($data_type == 36 || $data_type == 33) { // Multi select. Supports backup lists
         $values_array = explode("|", (string) $currvalue);
@@ -4458,10 +4458,8 @@ function dropdown_facility(
     $multiple = false,
     $class = ''
 ): void {
-    global $facilityService;
-
     $have_selected = false;
-    $fres = $facilityService->getAllFacility();
+    $fres = (new FacilityService())->getAllFacility();
     $id = $name;
 
     if ($multiple) {
@@ -4644,9 +4642,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 //billing_facility function will give the dropdown list which contain billing facilities.
 function billing_facility($name, $select): void
 {
-    global $facilityService;
-
-    $fres = $facilityService->getAllBillingLocations();
+    $fres = (new FacilityService())->getAllBillingLocations();
         echo "   <select id='" . htmlspecialchars((string) $name, ENT_QUOTES) . "' class='form-control' name='" . htmlspecialchars((string) $name, ENT_QUOTES) . "'>";
     foreach ($fres as $facrow) {
             $selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;

@@ -204,7 +204,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 {
     global $form_folder;
     global $PDF_OUTPUT;
-    global $facilityService;
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
@@ -337,6 +336,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
         $pc_facility = $session->get('pc_facility');
+        $facilityService = new FacilityService();
         $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
     }
 

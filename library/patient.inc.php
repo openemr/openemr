@@ -30,9 +30,6 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-global $facilityService;
-$facilityService = new FacilityService();
-
 /**
  * Get a patient's demographic data.
  *
@@ -120,8 +117,7 @@ function getInsuranceProvidersExtra()
 //
 function getFacility($facid = 0)
 {
-    global $facilityService;
-
+    $facilityService = new FacilityService();
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $facility = null;
 
@@ -216,9 +212,7 @@ returns all facilities or just the id for the first one
 */
 function getFacilities($first = '')
 {
-    global $facilityService;
-
-    $fres = $facilityService->getAllFacility();
+    $fres = (new FacilityService())->getAllFacility();
 
     if ($first == 'first') {
         return $fres[0]['id'];
