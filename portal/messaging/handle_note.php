@@ -123,27 +123,29 @@ $rid = $_POST['recipient_id'] ?? null;
 // patient's real name (fname + lname) rather than whatever the client submitted.
 // This prevents portal_username from appearing in the message list when a
 // clinician sends a chart note to a patient (issue #11202).
-if (!empty($rid)) {
+if (is_string($rid) && $rid !== '') {
     // First try to look up as a portal patient (rid = portal_username).
-    $recipPatient = sqlQuery(
-        "SELECT CONCAT(pd.fname, ' ', pd.lname) AS full_name
+    $recipPatient = QueryUtils::querySingleRow(
+        "SELECT CONCAT_WS(' ', pd.fname, pd.lname) AS full_name
          FROM patient_data AS pd
          INNER JOIN patient_access_onsite AS pao ON pao.pid = pd.pid
          WHERE pao.portal_username = ?",
         [$rid]
     );
-    if (!empty($recipPatient['full_name'])) {
-        $rn = $recipPatient['full_name'];
+    $patientName = $recipPatient === false ? null : ($recipPatient['full_name'] ?? null);
+    if (is_string($patientName) && trim($patientName) !== '') {
+        $rn = $patientName;
     } else {
         // Fall back to EMR user lookup (rid = username) for staff-to-staff messages.
-        $recipUser = sqlQuery(
-            "SELECT CONCAT(fname, ' ', lname) AS full_name FROM users WHERE username = ?",
+        $recipUser = QueryUtils::querySingleRow(
+            "SELECT CONCAT_WS(' ', fname, lname) AS full_name FROM users WHERE username = ?",
             [$rid]
         );
-        $rn = !empty($recipUser['full_name']) ? $recipUser['full_name'] : ($_POST['recipient_name'] ?? null);
+        $userName = $recipUser === false ? null : ($recipUser['full_name'] ?? null);
+        $rn = is_string($userName) && trim($userName) !== '' ? $userName : $rid;
     }
 } else {
-    $rn = $_POST['recipient_name'] ?? null;
+    $rn = null;
 }
 $header = '';
 
