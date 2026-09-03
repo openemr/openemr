@@ -80,13 +80,14 @@ final readonly class VersionFile
             throw new \RuntimeException('Version file not found: ' . $path);
         }
 
-        $collect = static function () use ($path): array {
+        $collect = static function (string $path): array {
             require $path;
+            // Drop the parameter so only what version.php declared is returned.
             unset($path);
             return get_defined_vars();
         };
 
-        return $collect();
+        return $collect($path);
     }
 
     /**
