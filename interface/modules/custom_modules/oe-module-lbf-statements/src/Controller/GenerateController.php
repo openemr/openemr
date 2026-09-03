@@ -77,9 +77,7 @@ class GenerateController
             if ($have !== []) {
                 $formChoices = array_values(array_filter(
                     $formChoices,
-                    static function (array $layout) use ($have): bool {
-                        return in_array($layout['form_id'], $have, true);
-                    }
+                    static fn (array $layout): bool => in_array($layout['form_id'], $have, true)
                 ));
                 if ($formId !== '' && !in_array($formId, $have, true)) {
                     $formId = '';
@@ -222,11 +220,20 @@ class GenerateController
         $printUrl = '';
         $formUrl = '';
         $patientSetUrl = '';
-        if ($instanceId > 0 && $formId !== '' && $pid > 0) {
-            $openBase = $this->bootstrap->getPublicUrl() . 'open_form.php?form_id=' . rawurlencode($formId)
-                . '&pid=' . $pid . '&instance_id=' . $instanceId;
-            $formUrl = $openBase . '&dest=form';
-            $printUrl = $openBase . '&dest=print';
+        $csrfTokenValue = '';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        try {
+            $csrfTokenValue = CsrfUtils::collectCsrfToken($session);
+        } catch (\RuntimeException) {
+            $csrfTokenValue = '';
+        }
+        if ($instanceId > 0 && $formId !== '' && $pid > 0 && $csrfTokenValue !== '') {
+            $openQuery = 'form_id=' . rawurlencode($formId)
+                . '&pid=' . $pid
+                . '&instance_id=' . $instanceId
+                . '&csrf_token_form=' . rawurlencode($csrfTokenValue);
+            $formUrl = $this->bootstrap->getPublicUrl() . 'open_form.php?' . $openQuery . '&dest=form';
+            $printUrl = $this->bootstrap->getPublicUrl() . 'open_form.php?' . $openQuery . '&dest=print';
             if ($encounter > 0) {
                 $patientSetUrl = OEGlobalsBag::getInstance()->getWebRoot()
                     . '/interface/patient_file/summary/demographics.php?set_pid=' . $pid
@@ -256,6 +263,7 @@ class GenerateController
             'printUrl' => $printUrl,
             'formUrl' => $formUrl,
             'patientSetUrl' => $patientSetUrl,
+            'csrfTokenValue' => $csrfTokenValue,
             'canAdmin' => AclMain::aclCheckCore('admin', 'super'),
             'activeTab' => 'generate',
             'postUrl' => $this->bootstrap->getPublicUrl() . 'index.php',
