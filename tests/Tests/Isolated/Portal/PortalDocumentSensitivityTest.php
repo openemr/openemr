@@ -21,9 +21,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Portal;
 
+use OpenEMR\Common\Forms\LbfReportAccessGuard;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * Unit tests for portal document sensitivity filtering.
@@ -138,27 +141,22 @@ class PortalDocumentSensitivityTest extends TestCase
      * Issue #11279: AccessDeniedHelper::deny() is a `never`-returning function.
      * When called from lbf_report() during a portal report render, it terminates
      * the entire request and hides all subsequent notes.  The fix returns early
-     * instead when $GLOBALS['patient_portal_onsite_two'] is set.
+     * instead when the active session contains patient_portal_onsite_two.
      */
     #[Test]
     public function lbfReportReturnsEarlyForPortalOnSensitivityDeny(): void
     {
-        $lbfReportFile = realpath(__DIR__ . '/../../../../interface/forms/LBF/report.php');
-        $this->assertNotFalse($lbfReportFile, 'interface/forms/LBF/report.php not found');
-        $content = file_get_contents($lbfReportFile);
-        $this->assertIsString($content);
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('patient_portal_onsite_two', 1);
 
-        // The fix must include a portal-context check that returns early
-        $this->assertStringContainsString(
-            "patient_portal_onsite_two",
-            $content,
-            'lbf_report() must check patient_portal_onsite_two before calling deny()'
-        );
-        // The fix must return early, not call die()/AccessDeniedHelper::deny()
-        $this->assertMatchesRegularExpression(
-            '/patient_portal_onsite_two[^}]+return;/s',
-            $content,
-            'lbf_report() must return (not die) when portal requests a restricted form'
-        );
+        $this->assertTrue(LbfReportAccessGuard::shouldSkipRestrictedForm($session));
+    }
+
+    #[Test]
+    public function lbfReportDoesNotSkipAclDenialForCoreSession(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+
+        $this->assertFalse(LbfReportAccessGuard::shouldSkipRestrictedForm($session));
     }
 }

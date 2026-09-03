@@ -17,6 +17,8 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Forms\LbfReportAccessGuard;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // This function is invoked from printPatientForms in report.inc.php
@@ -42,7 +44,8 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
             // appearing in the same Customized Medical History Report.
             // Instead, silently skip this restricted form and let the report
             // continue rendering the remaining items.
-            if (OEGlobalsBag::getInstance()->get('patient_portal_onsite_two') !== null) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if (LbfReportAccessGuard::shouldSkipRestrictedForm($session)) {
                 return;
             }
 
