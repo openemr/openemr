@@ -17,6 +17,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Easipro\Easipro;
 
@@ -26,22 +27,21 @@ use OpenEMR\Easipro\Easipro;
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$rawSessionPid = $session->get('pid');
 $portalFlag = $session->get('patient_portal_onsite_two');
+$portalPid = PatientSessionUtil::getPid();
 if (
-    is_scalar($rawSessionPid) && (int) $rawSessionPid > 0
+    $portalPid > 0
     && is_scalar($portalFlag) && (int) $portalFlag > 0
 ) {
     // request is from patient portal
-    $pid = (int) $rawSessionPid;
+    $pid = $portalPid;
     $ignoreAuth = true;
 } else {
     // request is from openemr core
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
     $session = SessionWrapperFactory::getInstance()->getCoreSession();
-    $rawSessionPid = $session->get('pid');
-    $pid = is_scalar($rawSessionPid) ? (int) $rawSessionPid : 0;
+    $pid = PatientSessionUtil::getPid();
 }
 
 require_once(__DIR__ . "/../../interface/globals.php");
