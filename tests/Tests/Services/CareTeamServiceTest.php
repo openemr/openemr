@@ -21,13 +21,15 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Tests\Fixtures\CareTeamFixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class CareTeamServiceTest extends TestCase
 {
     private CareTeamService $service;
     private CareTeamFixtureManager $fixtureManager;
+
+    /** @var array<mixed> */
     private array $backupSession = [];
 
     /**
@@ -160,7 +162,6 @@ class CareTeamServiceTest extends TestCase
         );
 
         $this->assertNotEmpty($row);
-        $this->assertIsArray($row);
         $this->assertEquals(self::TEST_TEAM_NAME, $row['team_name']);
         $this->assertEquals('active', $row['status']);
         // @phpstan-ignore cast.int
@@ -186,7 +187,6 @@ class CareTeamServiceTest extends TestCase
 
         $this->assertIsArray($row);
         $this->assertNotEmpty($row['uuid']);
-        // @phpstan-ignore argument.type
         $uuidString = UuidRegistry::uuidToString($row['uuid']);
         $this->assertNotEmpty($uuidString);
         $this->assertMatchesRegularExpression(
@@ -465,7 +465,6 @@ class CareTeamServiceTest extends TestCase
         );
 
         $result = $this->service->getCareTeamData($this->testPid);
-        $this->assertIsArray($result);
 
         $this->assertEquals(self::TEST_TEAM_NAME, $result['team_name']);
         $this->assertEquals('active', $result['team_status']);
@@ -581,12 +580,13 @@ class CareTeamServiceTest extends TestCase
             [self::TEST_TEAM_NAME]
         );
         $this->assertIsArray($row);
-        // @phpstan-ignore argument.type
         $uuidString = UuidRegistry::uuidToString($row['uuid']);
 
         $result = $this->service->getOne($uuidString);
 
-        $this->assertCount(0, $result->getValidationMessages());
+        $validationMessages = $result->getValidationMessages();
+        $this->assertIsArray($validationMessages);
+        $this->assertCount(0, $validationMessages);
 
         $data = $result->getData();
         $this->assertIsArray($data);
@@ -602,8 +602,10 @@ class CareTeamServiceTest extends TestCase
     {
         $result = $this->service->getOne("not-a-valid-uuid");
 
-        $this->assertNotEmpty($result->getValidationMessages());
-        $this->assertArrayHasKey('uuid', $result->getValidationMessages());
+        $validationMessages = $result->getValidationMessages();
+        $this->assertIsArray($validationMessages);
+        $this->assertNotEmpty($validationMessages);
+        $this->assertArrayHasKey('uuid', $validationMessages);
         $this->assertEmpty($result->getData());
     }
 
@@ -625,7 +627,6 @@ class CareTeamServiceTest extends TestCase
             [self::TEST_TEAM_NAME]
         );
         $this->assertIsArray($teamRow);
-        // @phpstan-ignore argument.type
         $teamUuid = UuidRegistry::uuidToString($teamRow['uuid']);
 
         // Get the patient UUID
@@ -635,7 +636,6 @@ class CareTeamServiceTest extends TestCase
             [$this->testPid]
         );
         $this->assertIsArray($patientRow);
-        // @phpstan-ignore argument.type
         $patientUuid = UuidRegistry::uuidToString($patientRow['uuid']);
 
         $result = $this->service->getOne($teamUuid, $patientUuid);
@@ -671,6 +671,7 @@ class CareTeamServiceTest extends TestCase
         // Verify at least one of the results is our test team
         $found = false;
         foreach ($data as $record) {
+            $this->assertIsArray($record);
             if ($record['team_name'] === self::TEST_TEAM_NAME) {
                 $found = true;
                 break;
@@ -697,7 +698,6 @@ class CareTeamServiceTest extends TestCase
             [$this->testPid]
         );
         $this->assertIsArray($patientRow);
-        // @phpstan-ignore argument.type
         $patientUuid = UuidRegistry::uuidToString($patientRow['uuid']);
 
         $result = $this->service->getAll([], true, $patientUuid);
@@ -708,6 +708,7 @@ class CareTeamServiceTest extends TestCase
 
         // All returned records should belong to our test patient
         foreach ($data as $record) {
+            $this->assertIsArray($record);
             $this->assertEquals($patientUuid, $record['puuid']);
         }
     }
@@ -753,7 +754,6 @@ class CareTeamServiceTest extends TestCase
             [self::TEST_TEAM_NAME]
         );
         $this->assertIsArray($teamRow);
-        // @phpstan-ignore argument.type
         $teamUuid = UuidRegistry::uuidToString($teamRow['uuid']);
 
         $search = ['uuid' => new TokenSearchField('uuid', $teamUuid, true)];
@@ -806,7 +806,6 @@ class CareTeamServiceTest extends TestCase
             [self::TEST_TEAM_NAME]
         );
         $this->assertIsArray($teamRow);
-        // @phpstan-ignore argument.type
         $teamUuid = UuidRegistry::uuidToString($teamRow['uuid']);
 
         $search = ['uuid' => new TokenSearchField('uuid', $teamUuid, true)];

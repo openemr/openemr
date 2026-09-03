@@ -25,6 +25,8 @@ class CareTeamFixtureManager
     const FIXTURE_PREFIX = "test-fixture";
 
     private bool $hasInstalledDependencies = false;
+
+    /** @var array{pid: int, facility_id: int, provider_id: int}|array{} */
     private array $cachedDependencies = [];
 
     public function __construct(
@@ -41,7 +43,7 @@ class CareTeamFixtureManager
      */
     public function installDependencies(): array
     {
-        if ($this->hasInstalledDependencies) {
+        if ($this->hasInstalledDependencies && $this->cachedDependencies !== []) {
             return $this->cachedDependencies;
         }
 
