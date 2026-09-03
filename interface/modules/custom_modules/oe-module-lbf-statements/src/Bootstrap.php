@@ -62,7 +62,7 @@ class Bootstrap
         $menuItem->target = 'mod';
         $menuItem->menu_id = 'lbfstmt0';
         $menuItem->label = xl('Form statements');
-        $menuItem->url = "/interface/modules/custom_modules/" . self::MODULE_NAME . "/public/index.php";
+        $menuItem->url = $this->getPublicUrl() . 'index.php';
         $menuItem->children = [];
         $menuItem->acl_req = ["encounters", "notes"];
         $menuItem->global_req = [];

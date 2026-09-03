@@ -152,8 +152,8 @@
         setValue('source_field_id', rule.source_field_id || '');
         setValue('source_field_id_2', rule.source_field_id_2 || '');
         setValue('op', rule.op || 'band');
-        setValue('min_value', rule.min_value || '');
-        setValue('max_value', rule.max_value || '');
+        setValue('min_value', rule.min_value);
+        setValue('max_value', rule.max_value);
         setValue('min_inclusive', rule.min_inclusive === undefined ? true : Number(rule.min_inclusive) === 1);
         setValue('max_inclusive', rule.max_inclusive === undefined ? true : Number(rule.max_inclusive) === 1);
         setValue('seq', rule.seq || '0');
