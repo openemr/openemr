@@ -19,7 +19,6 @@
  */
 
 use OpenEMR\BC\Utilities;
-use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -33,23 +32,6 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 global $facilityService;
 $facilityService = new FacilityService();
-
-// These are for sports team use:
-$PLAYER_FITNESSES = [
-  xl('Full Play'),
-  xl('Full Training'),
-  xl('Restricted Training'),
-  xl('Injured Out'),
-  xl('Rehabilitation'),
-  xl('Illness'),
-  xl('International Duty')
-];
-$PLAYER_FITCOLORS = ['#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa'];
-
-// Hard-coding this array because its values and meanings are fixed by the 837p
-// standard and we don't want people messing with them.
-global $policy_types;
-$policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
 
 /**
  * Get a patient's demographic data.
