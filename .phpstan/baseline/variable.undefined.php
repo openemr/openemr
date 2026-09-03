@@ -837,11 +837,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$v_js_includes might not be defined\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$webroot might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/help_modal.php',
