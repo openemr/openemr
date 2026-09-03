@@ -365,7 +365,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         if ($type == 'patient' && !$isPatientBoundUuid) {
             // only those with access to a patient's demographic information can get their data
             return AclMain::aclCheckCore("patients", "demo",$this->getSession()->get("authUser")) !== false;
-        } else if ($type == 'user') {
+        } elseif ($type == 'user') {
             // only those with access to the user information can get address information about a user.
             return $this->hasAccessToUserLocationData();
         } else {

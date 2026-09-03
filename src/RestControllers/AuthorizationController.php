@@ -342,7 +342,7 @@ class AuthorizationController implements LoggerAwareInterface
                 if ($data->has($key)) {
                     if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
-                    } else if (in_array($key, ['dsi_source_attributes'])) {
+                    } elseif (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
                         $payload = $data->all();
@@ -1139,7 +1139,7 @@ class AuthorizationController implements LoggerAwareInterface
             // Hidden scopes
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
-            } else if (in_array($scope, $fhirRequiredSmartScopes)) {
+            } elseif (in_array($scope, $fhirRequiredSmartScopes)) {
                 $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }
         }
@@ -1357,8 +1357,7 @@ class AuthorizationController implements LoggerAwareInterface
                 ) {
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->logger->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]

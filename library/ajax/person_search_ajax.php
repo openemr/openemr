@@ -425,11 +425,11 @@ function handleCreatePerson(array $input, PersonService $personService, $contact
     // Approach 1: Data at index 0 (most common)
     if (isset($allData[0]) && is_array($allData[0]) && !empty($allData[0]['id'])) {
         $personArray = $allData[0];
-    } // Approach 2: Data is directly the array
-    elseif (is_array($allData) && !empty($allData['id'])) {
+    } elseif (is_array($allData) && !empty($allData['id'])) {
+        // Approach 2: Data is directly the array
         $personArray = $allData;
-    } // Approach 3: Check if it's a nested structure
-    elseif (isset($allData['data']) && is_array($allData['data']) && !empty($allData['data']['id'])) {
+    } elseif (isset($allData['data']) && is_array($allData['data']) && !empty($allData['data']['id'])) {
+        // Approach 3: Check if it's a nested structure
         $personArray = $allData['data'];
     }
 
