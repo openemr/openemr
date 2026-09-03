@@ -114,6 +114,8 @@ class PortalDocumentSensitivityTest extends TestCase
 
     /**
      * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function acoSpecProvider(): array
     {

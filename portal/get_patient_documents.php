@@ -60,18 +60,19 @@ $sql = "SELECT d.url, d.id, d.mimetype, d.`name`
  */
 $fres = sqlStatement($sql, [$pid]);
 
+$categorySql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
+        WHERE `categories_to_documents`.`category_id` = `categories`.`id`
+        AND `categories_to_documents`.`document_id` = ?";
+$categoryPathSql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
+
 $documents = [];
 while ($file = sqlFetchArray($fres)) {
     // Find the document category (already confirmed to be patients|docs above)
-    $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
-            WHERE `categories_to_documents`.`category_id` = `categories`.`id`
-            AND `categories_to_documents`.`document_id` = ?";
-    $catres = sqlStatement($sql, [$file['id']]);
+    $catres = sqlStatement($categorySql, [$file['id']]);
     $cat = sqlFetchArray($catres);
 
     // Find the tree of the document's category
-    $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
+    $pathres = sqlStatement($categoryPathSql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $displayPath = "";

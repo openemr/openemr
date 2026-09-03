@@ -33,36 +33,37 @@ $tmp = $globalsBag->getString('temporary_files_dir');
 $documentIds = $_POST['documents'];
 $pid = $session->get('pid');
 
+$documentSql = "SELECT d.url, d.id, d.mimetype, d.`name`, d.`foreign_id`
+        FROM `documents` AS d
+        WHERE d.`id` = ?
+          AND d.`deleted` = 0
+          AND NOT EXISTS (
+              SELECT 1
+              FROM `categories_to_documents` AS ctd
+              INNER JOIN `categories` AS c ON c.id = ctd.category_id
+              WHERE ctd.document_id = d.id
+                AND c.`aco_spec` != 'patients|docs'
+          )";
+$categorySql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
+        WHERE `categories_to_documents`.`category_id` = `categories`.`id`
+        AND `categories_to_documents`.`document_id` = ?";
+$categoryPathSql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
+
 // Process each selected document
 foreach ($documentIds as $documentId) {
     // Verify the document belongs to this patient, is not deleted, and does not
     // belong to any restricted category.  Using NOT EXISTS with aco_spec check
     // ensures the portal cannot serve high-sensitivity or admin-only content
     // even when document IDs are submitted directly (bypass of the listing UI).
-    $sql = "SELECT d.url, d.id, d.mimetype, d.`name`, d.`foreign_id`
-            FROM `documents` AS d
-            WHERE d.`id` = ?
-              AND d.`deleted` = 0
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM `categories_to_documents` AS ctd
-                  INNER JOIN `categories` AS c ON c.id = ctd.category_id
-                  WHERE ctd.document_id = d.id
-                    AND c.`aco_spec` != 'patients|docs'
-              )";
-    $file = sqlQuery($sql, [$documentId]);
-    if (empty($file) || $file['foreign_id'] != $pid) {
+    $file = sqlQuery($documentSql, [$documentId]);
+    if ($file === false || $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
     // Find the document category (confirmed to be patients|docs above)
-    $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
-            WHERE `categories_to_documents`.`category_id` = `categories`.`id`
-            AND `categories_to_documents`.`document_id` = ?";
-    $cat = sqlQuery($sql, [$file['id']]);
+    $cat = sqlQuery($categorySql, [$file['id']]);
 
     // Find the tree of the document's category
-    $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
+    $pathres = sqlStatement($categoryPathSql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $path = "";
