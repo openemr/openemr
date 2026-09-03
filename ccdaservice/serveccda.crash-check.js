@@ -28,7 +28,8 @@ function connectAndSend(xml) {
         });
         client.on('end', () => {
             clearTimeout(timeout);
-            resolve(response.replace(/\x1c\r\r$/, ''));
+            const terminator = FS + '\r\r';
+            resolve(response.endsWith(terminator) ? response.slice(0, -terminator.length) : response);
         });
         client.on('error', err => {
             clearTimeout(timeout);
