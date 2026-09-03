@@ -57,7 +57,6 @@ if (!isset($STMT_TEMP_FILE)) {
     throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
 }
 require_once($srcDir . '/api.inc.php');
-require_once($srcDir . '/forms.inc.php');
 require_once($srcDir . '/../controllers/C_Document.class.php');
 require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');

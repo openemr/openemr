@@ -45,7 +45,6 @@ global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
 require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 // get various authorization levels

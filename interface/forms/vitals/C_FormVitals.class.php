@@ -12,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;

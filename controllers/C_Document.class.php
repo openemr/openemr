@@ -14,7 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/forms.inc.php");
 require_once(__DIR__ . "/../library/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;

@@ -36,7 +36,6 @@ $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
 require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

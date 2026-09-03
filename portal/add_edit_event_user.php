@@ -48,7 +48,6 @@ global $ignoreAuth_onsite_portal;
 $srcdir = $globalsBag->getString('srcdir');
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/appointments.inc.php");
 
 // Things that might be passed by our opener.

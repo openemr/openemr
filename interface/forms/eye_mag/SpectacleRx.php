@@ -26,7 +26,6 @@ use OpenEMR\Services\FacilityService;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/api.inc.php");
-require_once($srcdir . "/forms.inc.php");
 require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/patient.inc.php");

@@ -13,7 +13,6 @@
  */
 
 require_once(__DIR__ . "/../../../library/api.inc.php");
-require_once(__DIR__ . "/../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../library/patient_tracker.inc.php");
 
 use OpenEMR\Common\Database\QueryUtils;
