@@ -36,6 +36,7 @@ if (!(function_exists('xl'))) {
      * @param literal-string $constant The text constant to translate
      * @return string The translated string
      */
+    #[NoDiscard]
     function xl($constant)
     {
         // Translation engine disabled: skip the cache/DB lookup for performance,
@@ -133,6 +134,7 @@ if (!(function_exists('xlCleanup'))) {
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
+#[NoDiscard]
 function xl_list_label($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
@@ -148,6 +150,7 @@ function xl_list_label($constant)
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
+#[NoDiscard]
 function xl_layout_label($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
@@ -163,6 +166,7 @@ function xl_layout_label($constant)
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
+#[NoDiscard]
 function xl_gacl_group($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
@@ -178,6 +182,7 @@ function xl_gacl_group($constant)
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
+#[NoDiscard]
 function xl_form_title($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
@@ -193,6 +198,7 @@ function xl_form_title($constant)
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
+#[NoDiscard]
 function xl_document_category($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
@@ -208,6 +214,7 @@ function xl_document_category($constant)
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
+#[NoDiscard]
 function xl_appt_category($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
@@ -221,6 +228,7 @@ function xl_appt_category($constant)
 // Function to return the title of a language from the id
 // @param integer (language id)
 // return string (language title)
+#[NoDiscard]
 function getLanguageTitle($val)
 {
 
@@ -245,6 +253,7 @@ function getLanguageTitle($val)
  * @return string 'ltr' 'rtl'
  * @author Amiel <amielel@matrix.co.il>
  */
+#[NoDiscard]
 function getLanguageDir($lang_id)
 {
     // validate language id
