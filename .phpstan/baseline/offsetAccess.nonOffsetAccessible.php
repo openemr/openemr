@@ -30327,11 +30327,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lists.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'\' on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/options.inc.php',
