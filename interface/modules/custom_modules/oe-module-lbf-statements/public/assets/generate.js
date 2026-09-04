@@ -2,6 +2,9 @@
     const input = document.getElementById('patient_display');
     const finderUrl = (input && input.getAttribute('data-finder-url')) || '';
 
+    /**
+     * Open the patient finder dialog.
+     */
     window.sel_patient = function () {
         if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
             top.restoreSession();
@@ -13,6 +16,10 @@
         window.open(finderUrl, 'findPatient', 'width=700,height=550,scrollbars=yes');
     };
 
+    /**
+     * Parent OpenEMR window that owns navigateTab, or null when unframed.
+     * @returns {Window|null}
+     */
     function tabsWindow() {
         try {
             if (window.top && window.top !== window && typeof window.top.navigateTab === 'function') {
@@ -26,6 +33,11 @@
 
     // Same path as Patient Finder (dynamic_finder.php): open demographics in
     // the Patient tab. demographics.php?set_encounterid= then loadFrame('enc').
+    /**
+     * Open demographics in the Patient tab of the OpenEMR shell.
+     * @param {Window} shell
+     * @param {string} url
+     */
     function openPatientTab(shell, url) {
         if (typeof shell.restoreSession === 'function') {
             shell.restoreSession();
@@ -43,6 +55,11 @@
         }
     }
 
+    /**
+     * Open the encounter in a tab when the shell is present; otherwise follow the link.
+     * @param {Event} ev
+     * @returns {boolean}
+     */
     window.openEncounterTab = function (ev) {
         if (ev) {
             if (ev.preventDefault) {
@@ -78,22 +95,40 @@
         return false;
     };
 
+    /**
+     * Selected layout form_id from the generate form.
+     * @returns {string}
+     */
     function pickFormId() {
         const el = document.getElementById('form_id');
         return el ? String(el.value || '') : '';
     }
 
+    /**
+     * Selected patient id from the generate form.
+     * @returns {string}
+     */
     function pickPid() {
         const el = document.getElementById('pid');
         return el ? String(el.value || '') : '';
     }
 
+    /**
+     * Generate-screen URL for one form instance.
+     * @param {string|number} instanceId
+     * @returns {string}
+     */
     function instanceIndexUrl(instanceId) {
         return 'index.php?form_id=' + encodeURIComponent(pickFormId())
             + '&pid=' + encodeURIComponent(pickPid())
             + '&instance_id=' + encodeURIComponent(String(instanceId || ''));
     }
 
+    /**
+     * CSRF-protected open_form.php URL for print or encounter view.
+     * @param {Element} el
+     * @returns {string}
+     */
     function openFormUrl(el) {
         if (!el) {
             return 'open_form.php';
@@ -127,6 +162,12 @@
         });
     }
 
+    /**
+     * Patient-finder callback: store pid and reload the generate screen.
+     * @param {string|number} pid
+     * @param {string} lname
+     * @param {string} fname
+     */
     window.setpatient = function (pid, lname, fname) {
         const pidEl = document.getElementById('pid');
         const form = document.getElementById('lbf-stmt-pick');

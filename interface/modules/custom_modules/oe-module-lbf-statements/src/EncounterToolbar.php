@@ -20,6 +20,9 @@ use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 
 class EncounterToolbar
 {
+    /**
+     * Add a Form statements button next to each eligible encounter LBF.
+     */
     public function onFormsListRender(EncounterFormsListRenderEvent $event): void
     {
         if (!AclMain::aclCheckCore('encounters', 'notes')) {
