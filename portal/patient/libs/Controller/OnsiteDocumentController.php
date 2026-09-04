@@ -15,7 +15,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Services\Utils\TranslationService;
 
-
 /**
  * OnsiteDocumentController is the controller class for the OnsiteDocument object.  The
  * controller is responsible for processing input from the user, reading/updating

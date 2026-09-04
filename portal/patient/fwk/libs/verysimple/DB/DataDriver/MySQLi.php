@@ -2,7 +2,6 @@
 
 /** @package verysimple::DB::DataDriver */
 
-
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Session\SessionWrapperFactory;
