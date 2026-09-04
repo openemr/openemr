@@ -177,6 +177,8 @@
         },
         "classmap": [
             "library/classes",
+            "portal/lib/appsql.class.php",
+            "portal/patient/_global_config.php",
             "portal/patient/fwk/libs/savant",
             "portal/patient/fwk/libs/verysimple",
             "portal/patient/libs"
