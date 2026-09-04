@@ -504,11 +504,14 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     <div class="card bg-light col-lg-4">
                         <div class="card-title mx-auto"><?php echo xlt('Insurance'); ?></div>
                         <?php
+                        $payer_names = [];
                         for ($i = 1; $i <= 3; ++$i) {
                             $payerid = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                             if ($payerid) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", [$payerid]);
-                                echo "$i: " . $tmp['name'] . "<br />";
+                                $name = $tmp['name'] ?? '';
+                                $payer_names[$i] = is_string($name) ? $name : '';
+                                echo text("$i: " . $payer_names[$i]) . "<br />";
                             }
                         }
                         ?>
@@ -595,12 +598,18 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             // we no longer expect any payments from that company for the claim.
                             $last_level_closed = 0 + $ferow['last_level_closed'];
                             foreach ([0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3'] as $key => $value) {
-                                if ($key && !SLEOB::arGetPayerID($patient_id, $svcdate, $key)) {
+                                if ($key && !isset($payer_names[$key])) {
                                     continue;
+                                }
+                                $label = $key ? $value : xl('None');
+                                if ($key && $payer_names[$key] !== '') {
+                                    // Keep the level prefix so it stays identifiable
+                                    // when one carrier covers more than one level.
+                                    $label .= ': ' . $payer_names[$key];
                                 }
                                 $checked = ($last_level_closed == $key) ? " checked" : "";
                                 echo "<label class='radio-inline'>";
-                                echo "<input type='radio' name='form_done' value='" . attr($key) . "'$checked />" . text($value);
+                                echo "<input type='radio' name='form_done' value='" . attr($key) . "'$checked />" . text($label);
                                 echo "</label>";
                             }
                             ?>
