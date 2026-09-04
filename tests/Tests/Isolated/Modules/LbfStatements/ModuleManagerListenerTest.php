@@ -37,7 +37,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('Success', $listener->moduleManagerAction('disable', '1', 'Success'));
             $this->assertSame('Success', $listener->moduleManagerAction('unregister', '1', 'Success'));
             $this->assertSame('Success', $listener->moduleManagerAction('getModuleNamespace', '1', 'Success'));
-            $this->assertSame('Success', $listener->moduleManagerAction(['not-a-string'], '1', 'Success'));
+            $this->assertSame('Success', $listener->moduleManagerAction('install_sql', '1', 'Success'));
             $this->assertSame('OpenEMR\\Modules\\LbfStatements\\', \ModuleManagerListener::getModuleNamespace());
         }
     }
