@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Window geometry for #9 double-window patient statements.
+ * Window geometry for patient statements mailed in a double-window envelope.
  *
- * Zeros mPDF page margins and prints the return and patient addresses in
- * the first trifold panel using table row heights (mPDF ignores position:absolute).
+ * Stock modern/plain statements are unchanged. Windowed profiles zero the
+ * mPDF page margins and print the return and patient addresses in the first
+ * trifold panel using table row heights (mPDF ignores position:absolute).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -17,13 +18,33 @@ declare(strict_types=1);
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 
 final class StatementEnvelope
 {
+    public const PROFILE_DEFAULT = 'default';
+    public const PROFILE_HASH9 = 'hash9';
+    public const PROFILE_HASH10 = 'hash10';
+
+    public function __construct(
+        private readonly string $profile
+    ) {
+    }
+
+    public static function fromGlobals(): self
+    {
+        $bag = OEGlobalsBag::getInstance();
+        $profile = $bag->getString('statement_envelope');
+        if ($profile === '') {
+            $profile = self::PROFILE_DEFAULT;
+        }
+        return new self($profile);
+    }
+
     public function isWindowed(): bool
     {
-        return true;
+        return $this->geometry() !== null;
     }
 
     /**
@@ -34,11 +55,15 @@ final class StatementEnvelope
      *   left: float,
      *   return: array{top: float, h: float, w: float, left: float},
      *   to: array{top: float, h: float, w: float, left: float}
-     * }
+     * }|null
      */
-    public function geometry(): array
+    public function geometry(): ?array
     {
-        return self::presetHash9();
+        return match ($this->profile) {
+            self::PROFILE_HASH9 => self::presetHash9(),
+            self::PROFILE_HASH10 => self::presetHash10(),
+            default => null,
+        };
     }
 
     /**
@@ -47,6 +72,9 @@ final class StatementEnvelope
     public function mpdfConfig(): array
     {
         $cfg = Config_Mpdf::getConfigMpdf();
+        if (!$this->isWindowed()) {
+            return $cfg;
+        }
         $cfg['margin_left'] = 0;
         $cfg['margin_right'] = 0;
         $cfg['margin_top'] = 0;
@@ -59,6 +87,9 @@ final class StatementEnvelope
 
     public function windowCss(): string
     {
+        if (!$this->isWindowed()) {
+            return '';
+        }
         return '<style>
 @page { sheet-size: Letter; margin: 0; }
 body { margin: 0; padding: 0; }
@@ -76,6 +107,9 @@ body { margin: 0; padding: 0; }
     public function windowHtml(string $returnName, string $returnStreet, string $returnCsz, mixed $toLines): string
     {
         $g = $this->geometry();
+        if ($g === null) {
+            return '';
+        }
         $returnLines = [$returnName];
         foreach (preg_split("/\n/", $returnStreet) ?: [] as $ln) {
             $ln = trim((string) $ln);
@@ -169,6 +203,32 @@ body { margin: 0; padding: 0; }
             toW: 4.000,
             toFromBottom: 0.500,
             envH: 3.875
+        );
+    }
+
+    /**
+     * US #10: return 1 x 3-1/2, 1/2 left, 2-1/2 from bottom; patient 1-3/8 x 4, 1/2 left, 3/4 from bottom.
+     *
+     * @return array{
+     *   page_w: float,
+     *   page_h: float,
+     *   panel: float,
+     *   left: float,
+     *   return: array{top: float, h: float, w: float, left: float},
+     *   to: array{top: float, h: float, w: float, left: float}
+     * }
+     */
+    public static function presetHash10(): array
+    {
+        return self::fromBottomOrigin(
+            left: 0.5,
+            returnH: 1.0,
+            returnW: 3.5,
+            returnFromBottom: 2.5,
+            toH: 1.375,
+            toW: 4.0,
+            toFromBottom: 0.75,
+            envH: 4.125
         );
     }
 
