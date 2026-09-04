@@ -19,32 +19,25 @@ use OpenEMR\Events\Codes\ExternalCodesCreatedEvent;
 /**
  * Lazy loader for the three code-type lookup tables that legacy code reads as
  * top-level globals ($code_types, $code_external_tables, $ct_external_options).
- * Each getter writes its result into OEGlobalsBag so `global $code_types;` and
- * `OEGlobalsBag::get('code_types')` readers continue to work; kept for
- * backwards compatibility.
+ * The `OEGlobalsBag` (which shadows $GLOBALS) is the source of truth: a getter
+ * returns the bag entry when present, otherwise builds the array, writes it
+ * into the bag, and returns it. Test code and `global $code_types;` readers
+ * both see whichever value the bag currently holds.
  */
 final class CodeTypeRegistry
 {
-    /** @var array<string, array<string, mixed>>|null */
-    private static ?array $codeTypes = null;
-
-    /** @var array<int, array<string, mixed>>|null */
-    private static ?array $codeExternalTables = null;
-
-    /** @var array<int|string, mixed>|null */
-    private static ?array $ctExternalOptions = null;
-
     /**
-     * @return array<string, array<string, mixed>>
+     * @return array<int|string, mixed>
      */
     public static function codeTypes(): array
     {
-        if (self::$codeTypes !== null) {
-            return self::$codeTypes;
+        $bag = OEGlobalsBag::getInstance();
+        $existing = $bag->get('code_types');
+        if (is_array($existing)) {
+            return $existing;
         }
 
         $codeTypes = [];
-        $bag = OEGlobalsBag::getInstance();
         $rows = QueryUtils::fetchRecords(
             "SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key"
         );
@@ -76,19 +69,20 @@ final class CodeTypeRegistry
                 $bag->set('default_search_code_type', array_key_first($codeTypes));
             }
         }
-        self::$codeTypes = $codeTypes;
         $bag->set('code_types', $codeTypes);
 
         return $codeTypes;
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return array<int|string, mixed>
      */
     public static function codeExternalTables(): array
     {
-        if (self::$codeExternalTables !== null) {
-            return self::$codeExternalTables;
+        $bag = OEGlobalsBag::getInstance();
+        $existing = $bag->get('code_external_tables');
+        if (is_array($existing)) {
+            return $existing;
         }
 
         $sctConceptJoin = fn(string $filter): array => [
@@ -124,8 +118,7 @@ final class CodeTypeRegistry
         $tables[10] = self::externalTableEntry('sct2_description', 'conceptId', 'term', 'term', ["active=1", $disorderFilter], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
         $tables[12] = self::externalTableEntry('sct2_description', 'conceptId', 'term', 'term', ["active=1", $procedureFilter], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 
-        self::$codeExternalTables = $tables;
-        OEGlobalsBag::getInstance()->set('code_external_tables', $tables);
+        $bag->set('code_external_tables', $tables);
 
         return $tables;
     }
@@ -135,8 +128,10 @@ final class CodeTypeRegistry
      */
     public static function ctExternalOptions(): array
     {
-        if (self::$ctExternalOptions !== null) {
-            return self::$ctExternalOptions;
+        $bag = OEGlobalsBag::getInstance();
+        $existing = $bag->get('ct_external_options');
+        if (is_array($existing)) {
+            return $existing;
         }
 
         $options = [
@@ -156,15 +151,14 @@ final class CodeTypeRegistry
         ];
 
         $event = new ExternalCodesCreatedEvent($options);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+        $bag->getKernel()->getEventDispatcher()->dispatch(
             $event,
             ExternalCodesCreatedEvent::EVENT_HANDLE
         );
         $updated = $event->getExternalCodeData();
         $result = is_array($updated) ? $updated : $options;
 
-        self::$ctExternalOptions = $result;
-        OEGlobalsBag::getInstance()->set('ct_external_options', $result);
+        $bag->set('ct_external_options', $result);
 
         return $result;
     }
