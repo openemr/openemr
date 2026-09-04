@@ -52,6 +52,7 @@ class C_Document extends Controller
 
     public function __construct(
         ?CryptoInterface $crypto = null,
+        bool $collectCsrfToken = true,
     ) {
         parent::__construct();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -61,7 +62,8 @@ class C_Document extends Controller
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "document&");
 
-        if (php_sapi_name() !== 'cli') {
+        // Non-form consumers may opt out; browser form requests still receive their CSRF assignment.
+        if ($collectCsrfToken && php_sapi_name() !== 'cli') {
             // skip when this is being called via command line for the ccda importing
             $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken($session));
         }

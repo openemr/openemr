@@ -59247,16 +59247,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$file of class Symfony\\\\Component\\\\HttpFoundation\\\\BinaryFileResponse constructor expects SplFileInfo\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$filename of method Symfony\\\\Component\\\\HttpFoundation\\\\BinaryFileResponse\\:\\:setContentDisposition\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, mixed given\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
