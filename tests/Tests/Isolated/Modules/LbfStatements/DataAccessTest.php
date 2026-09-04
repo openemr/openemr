@@ -31,6 +31,7 @@ namespace {
 
 namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
+    use OpenEMR\Modules\LbfStatements\BandLockException;
     use OpenEMR\Modules\LbfStatements\BandOverlapException;
     use OpenEMR\Modules\LbfStatements\InvertedBoundsException;
     use OpenEMR\Modules\LbfStatements\LayoutCatalog;
@@ -47,6 +48,10 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
         /** @var list<array{op:string,sql:string,binds:mixed}> */
         public array $calls = [];
         public int $insertId = 42;
+        public int $transactions = 0;
+        public bool $lockSucceeds = true;
+        /** @var list<array{op:string,name:string}> */
+        public array $locks = [];
 
         /**
          * @param array<int|string, mixed> $binds
@@ -96,6 +101,31 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
         {
             $this->calls[] = ['op' => 'insert', 'sql' => $sql, 'binds' => $binds];
             return $this->insertId;
+        }
+
+        /**
+         * @template T
+         * @param callable(): T $action
+         * @return T
+         */
+        public function inTransaction(callable $action): mixed
+        {
+            $this->transactions++;
+            $this->calls[] = ['op' => 'tx', 'sql' => 'inTransaction', 'binds' => []];
+            return $action();
+        }
+
+        public function acquireLock(string $name, int $timeoutSeconds = 10): bool
+        {
+            $this->calls[] = ['op' => 'lock', 'sql' => 'GET_LOCK', 'binds' => [$name, $timeoutSeconds]];
+            $this->locks[] = ['op' => 'get', 'name' => $name];
+            return $this->lockSucceeds;
+        }
+
+        public function releaseLock(string $name): void
+        {
+            $this->calls[] = ['op' => 'unlock', 'sql' => 'RELEASE_LOCK', 'binds' => [$name]];
+            $this->locks[] = ['op' => 'release', 'name' => $name];
         }
     }
 
@@ -329,6 +359,111 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'max_value' => 1,
                 'min_inclusive' => 1,
                 'max_inclusive' => 1,
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
+        }
+
+        public function testWriterRunsInsideTransaction(): void
+        {
+            $writer = new LbfWriter($this->sql);
+            $writer->write(3, ['notes' => 'hi', 'gone' => ''], ['gone' => 'old'], [
+                ['field_id' => 'notes'],
+                ['field_id' => 'gone'],
+            ]);
+            $this->assertSame(1, $this->sql->transactions);
+            $ops = array_column($this->sql->calls, 'op');
+            $this->assertSame('tx', $ops[0] ?? null);
+            $this->assertContains('exec', $ops);
+        }
+
+        public function testSaveAndEnableShareBandLockAndReleaseOnOverlap(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [];
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 1,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'statement_text' => 'In range.',
+                'enabled' => 1,
+            ]);
+            $expected = StatementRepository::bandLockName('LBFecho', 'n', '');
+            $this->assertSame(1, $this->sql->transactions);
+            $this->assertSame(
+                [['op' => 'get', 'name' => $expected], ['op' => 'release', 'name' => $expected]],
+                $this->sql->locks
+            );
+
+            $this->sql->locks = [];
+            $this->sql->queue[] = [
+                'id' => 9,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'source_field_id_2' => '',
+                'op' => 'band',
+                'min_value' => 2,
+                'max_value' => 3,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'enabled' => 0,
+            ];
+            $this->sql->queue[] = [];
+            $repo->setEnabled(9, true);
+            $this->assertSame(
+                [['op' => 'get', 'name' => $expected], ['op' => 'release', 'name' => $expected]],
+                $this->sql->locks
+            );
+
+            $this->sql->locks = [];
+            $this->sql->queue[] = [[
+                'id' => 1,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'source_field_id_2' => '',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 5,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'enabled' => 1,
+            ]];
+            try {
+                $repo->saveRule([
+                    'form_id' => 'LBFecho',
+                    'source_field_id' => 'n',
+                    'op' => 'band',
+                    'min_value' => 4,
+                    'max_value' => 9,
+                    'min_inclusive' => 1,
+                    'max_inclusive' => 1,
+                    'enabled' => 1,
+                    'statement_text' => 'X',
+                ]);
+                $this->fail('expected overlap');
+            } catch (BandOverlapException) {
+                $this->assertSame(
+                    [['op' => 'get', 'name' => $expected], ['op' => 'release', 'name' => $expected]],
+                    $this->sql->locks
+                );
+            }
+        }
+
+        public function testSaveRuleFailsWhenBandLockIsBusy(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->lockSucceeds = false;
+            $this->expectException(BandLockException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 1,
                 'enabled' => 1,
                 'statement_text' => 'X',
             ]);
