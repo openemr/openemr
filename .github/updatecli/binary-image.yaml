@@ -16,9 +16,12 @@
 # The side benefit is that `updatecli diff --config .github/updatecli/` is
 # a working local dry-run with no tokens or scm config.
 #
-# The two sources below resolve independently, because updatecli renders
-# `{{ source }}` from the raw source value and cannot see a target-level
+# The two sources below resolve independently, because a target's source
+# template renders the raw source value and cannot see a target-level
 # transformer — so the README targets need each field as its own source.
+# (Spelling that template out here would break the manifest: updatecli
+# Go-templates the whole file, comments included, so a bare source action
+# in prose fails to load with "wrong number of args".)
 # That leaves a narrow window where a release finishing publication between
 # the two calls could pair one candidate's version with another's date. The
 # workflow closes it after `apply` with `resolve-binary-forge.php --verify`,
