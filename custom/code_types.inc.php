@@ -110,13 +110,6 @@ function define_external_table(&$results, int $index, $table_name, $col_code, $c
 
 define('SNOMED_RF2_EXTERNAL_TABLE_INDEXES', [10, 11, 12]);
 
-// Prime the three lookups so callers that read `global $code_types` (etc.)
-// continue to see the same populated arrays they did before the Registry
-// extraction. Remove once every caller reads through the Registry.
-CodeTypeRegistry::codeTypes();
-CodeTypeRegistry::codeExternalTables();
-CodeTypeRegistry::ctExternalOptions();
-
 /**
  * Checks to see if using spanish snomed
  *
