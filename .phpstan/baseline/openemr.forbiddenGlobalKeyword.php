@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$qrda_file_path\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../custom/ajax_download.php',
@@ -240,11 +235,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$counter_header\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$OE_SITE_DIR\\)\\. Use dependency injection instead\\.$#',
@@ -847,7 +837,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES, \\$auth_med\\)\\. Use dependency injection instead\\.$#',
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$auth_med\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
 ];
@@ -1247,11 +1237,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$opt_line_no, \\$ISSUE_TYPE_CATEGORIES, \\$ISSUE_TYPE_STYLES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_list.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$opt_line_no, \\$ct_external_options\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
@@ -1263,7 +1248,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$opt_line_no\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
@@ -1382,11 +1367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$code_types\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
@@ -1430,11 +1410,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$attendant_type\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$bgcolor, \\$orow\\)\\. Use dependency injection instead\\.$#',
@@ -1492,11 +1467,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$cell_count, \\$CPR, \\$BS_COL_CLASS\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -1537,12 +1507,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$rootdir, \\$date_init, \\$ISSUE_TYPES, \\$code_types, \\$membership_group_number\\)\\. Use dependency injection instead\\.$#',
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$rootdir, \\$date_init, \\$code_types, \\$membership_group_number\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$rootdir, \\$date_init, \\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$rootdir, \\$date_init\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
@@ -1710,11 +1680,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$X12info\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Acl/AclMain.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$attendant_type\\)\\. Use dependency injection instead\\.$#',

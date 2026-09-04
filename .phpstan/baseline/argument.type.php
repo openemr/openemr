@@ -3913,17 +3913,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, int given\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 48,
+    'count' => 47,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
@@ -14368,7 +14368,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/problem_encounter.php',
 ];
 $ignoreErrors[] = [
@@ -14613,7 +14613,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 28,
+    'count' => 27,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
@@ -14657,7 +14657,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/report/patient_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key of function xlt expects literal\\-string, mixed given\\.$#',
+    'message' => '#^Parameter \\#1 \\$key of function xlt expects literal\\-string, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/report/patient_report.php',
 ];
@@ -14733,7 +14733,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, int given\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
 $ignoreErrors[] = [
@@ -14767,13 +14767,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, array\\<int, mixed\\> given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
 $ignoreErrors[] = [
@@ -15968,7 +15963,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$constant of function xl expects literal\\-string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$constant of function xl expects literal\\-string, string given\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
 ];
 $ignoreErrors[] = [
@@ -16003,7 +16003,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/summary/stats_full.php',
 ];
 $ignoreErrors[] = [
@@ -21943,7 +21943,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$constant of function xl expects literal\\-string, mixed given\\.$#',
-    'count' => 4,
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$constant of function xl expects literal\\-string, string given\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
 ];
 $ignoreErrors[] = [
@@ -26243,7 +26248,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
@@ -26265,11 +26270,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function preg_grep expects array, list\\<string\\>\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$ISSUE_TYPES of method OpenEMR\\\\Controllers\\\\Portal\\\\PortalPatientReportController\\:\\:getIssues\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$pid of method OpenEMR\\\\Controllers\\\\Portal\\\\PortalPatientReportController\\:\\:getIssues\\(\\) expects int, mixed given\\.$#',

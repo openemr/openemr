@@ -1312,11 +1312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/trend_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$tcode \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$field_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_save.php',

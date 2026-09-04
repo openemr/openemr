@@ -8,6 +8,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../controllers/C_InsuranceNumbers.class.php',
 ];
@@ -438,7 +443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 2,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
 ];
 $ignoreErrors[] = [
@@ -843,6 +848,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
 ];
@@ -890,6 +900,11 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Possibly invalid array key type mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Acl/AclMain.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
