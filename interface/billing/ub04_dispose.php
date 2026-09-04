@@ -92,6 +92,13 @@ function ub04_dispose(): void
             if ($ub04id === '') {
                 $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing UB04 payload.'));
             }
+            // Mirror the edit_save branch: batch_save stores $ub04id directly
+            // as submitted_claim, and get_ub04_array() later expects an array.
+            // Reject a non-array JSON value here rather than persist it.
+            $decoded = json_decode($ub04id, true);
+            if (!is_array($decoded)) {
+                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Invalid UB04 payload.'));
+            }
             $sessionPid = PatientSessionUtil::getPid();
             if ($sessionPid <= 0 || $pid !== $sessionPid) {
                 AccessDeniedHelper::deny("UB04 batch_save pid does not match session pid");
