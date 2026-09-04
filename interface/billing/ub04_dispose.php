@@ -59,7 +59,7 @@ function ub04_dispose(): void
             $encounter = $request->getInt('encounter');
             $action = $request->getString('action');
             if ($pid <= 0 || $encounter <= 0) {
-                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing pid or encounter.'));
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing pid or encounter.');
             }
             // Submitted pid must match the opened patient in session; reject
             // any submission targeting a different patient than the one whose
@@ -70,7 +70,7 @@ function ub04_dispose(): void
             }
             $decoded = $ub04id !== '' ? json_decode($ub04id, true) : null;
             if (!is_array($decoded)) {
-                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Invalid UB04 payload.'));
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Invalid UB04 payload.');
             }
             saveTemplate($encounter, $pid, $decoded, $action);
             exit();
@@ -78,7 +78,7 @@ function ub04_dispose(): void
             $ub04id = $request->getString('ub04id');
             $payerid = $request->getInt('payerid');
             if ($ub04id === '' || $payerid <= 0) {
-                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing payer payload.'));
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing payer payload.');
             }
             savePayerTemplate($payerid, $ub04id);
             exit("done");
@@ -87,17 +87,17 @@ function ub04_dispose(): void
             $encounter = $request->getInt('encounter');
             $ub04id = $request->getString('ub04id');
             if ($pid <= 0 || $encounter <= 0) {
-                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing pid or encounter.'));
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing pid or encounter.');
             }
             if ($ub04id === '') {
-                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing UB04 payload.'));
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing UB04 payload.');
             }
             // Mirror the edit_save branch: batch_save stores $ub04id directly
             // as submitted_claim, and get_ub04_array() later expects an array.
             // Reject a non-array JSON value here rather than persist it.
             $decoded = json_decode($ub04id, true);
             if (!is_array($decoded)) {
-                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Invalid UB04 payload.'));
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Invalid UB04 payload.');
             }
             $sessionPid = PatientSessionUtil::getPid();
             if ($sessionPid <= 0 || $pid !== $sessionPid) {
@@ -109,7 +109,7 @@ function ub04_dispose(): void
             $pid = $request->getInt('pid');
             $encounter = $request->getInt('encounter');
             if ($pid <= 0 || $encounter <= 0) {
-                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing pid or encounter.'));
+                $terminator->error(Response::HTTP_BAD_REQUEST, 'Missing pid or encounter.');
             }
             $sessionPid = PatientSessionUtil::getPid();
             if ($sessionPid <= 0 || $pid !== $sessionPid) {

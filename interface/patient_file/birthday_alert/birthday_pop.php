@@ -41,7 +41,7 @@ if (!AclMain::aclCheckCore('patients', 'appt')) {
 $query = CurrentRequest::get()->query;
 $pid = $query->getInt('pid');
 if ($pid <= 0) {
-    (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing PID.'));
+    (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xlt('Missing PID.'));
 }
 ?>
 

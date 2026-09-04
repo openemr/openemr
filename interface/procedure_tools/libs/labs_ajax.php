@@ -77,7 +77,7 @@ if ($action === 'print_labels') {
     $client = $_GET['acctid'];
     $pid = $query->getInt('pid');
     if ($pid <= 0) {
-        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing PID.'));
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Missing PID.');
     }
     $order = $_GET['order'];
     $specimen = [];

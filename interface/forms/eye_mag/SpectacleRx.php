@@ -56,7 +56,7 @@ $CTL_expir = "+6 months";
 // a single session-driven read so every query below scopes to the opened patient.
 $pid = PatientSessionUtil::getPid();
 if ($pid <= 0) {
-    (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing PID.'));
+    (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xlt('Missing PID.'));
 }
 $form_id = $_REQUEST['form_id'] ?? null;
 
@@ -148,7 +148,7 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
     // patient's row id would silently pull that row into the current chart.
     $updateId = CurrentRequest::get()->request->getInt('id');
     if ($updateId <= 0) {
-        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing dispense row id.'));
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Missing dispense row id.');
     }
     $ownerPid = QueryUtils::fetchSingleValue(
         'SELECT pid FROM form_eye_mag_dispense WHERE id = ? AND pid = ?',
