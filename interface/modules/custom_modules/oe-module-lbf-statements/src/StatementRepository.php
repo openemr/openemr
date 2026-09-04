@@ -96,7 +96,21 @@ class StatementRepository
         if (!in_array($op, ['band', 'ratio_lt', 'ratio_gt', 'parse_severity'], true)) {
             throw new \InvalidArgumentException('Invalid op');
         }
-        $this->assertBandDoesNotOverlap($data, $id);
+        return $this->sql->inTransaction(function () use ($data, $id): int {
+            return $this->withBandLock($data, function () use ($data, $id): int {
+                $this->assertBandDoesNotOverlap($data, $id);
+                return $this->writeRule($data, $id);
+            });
+        });
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function writeRule(array $data, ?int $id): int
+    {
+        $source2 = Values::asString($data['source_field_id_2'] ?? '');
+        $op = Values::asString($data['op'] ?? '');
         $min = Values::asFloatOrNull($data['min_value'] ?? null);
         $max = Values::asFloatOrNull($data['max_value'] ?? null);
         $matchToken = Values::asString($data['match_token'] ?? '');
@@ -135,17 +149,58 @@ class StatementRepository
 
     public function setEnabled(int $id, bool $enabled): void
     {
-        if ($enabled) {
-            $rule = $this->getRule($id);
-            if ($rule !== null) {
-                $rule['enabled'] = 1;
-                $this->assertBandDoesNotOverlap($rule, $id);
+        $this->sql->inTransaction(function () use ($id, $enabled): void {
+            if (!$enabled) {
+                $this->writeEnabled($id, false);
+                return;
             }
-        }
+            $rule = $this->getRule($id);
+            if ($rule === null) {
+                $this->writeEnabled($id, true);
+                return;
+            }
+            $rule['enabled'] = 1;
+            $this->withBandLock($rule, function () use ($rule, $id): void {
+                $this->assertBandDoesNotOverlap($rule, $id);
+                $this->writeEnabled($id, true);
+            });
+        });
+    }
+
+    private function writeEnabled(int $id, bool $enabled): void
+    {
         $this->sql->sqlStatementThrowException(
             "UPDATE module_lbf_statement_rules SET enabled = ? WHERE id = ?",
             [$enabled ? 1 : 0, $id]
         );
+    }
+
+    /**
+     * @template T
+     * @param array<string, mixed> $data
+     * @param callable(): T $action
+     * @return T
+     */
+    private function withBandLock(array $data, callable $action): mixed
+    {
+        $name = $this->bandLockName(
+            Values::asString($data['form_id'] ?? ''),
+            Values::asString($data['source_field_id'] ?? ''),
+            Values::asString($data['source_field_id_2'] ?? '')
+        );
+        if (!$this->sql->acquireLock($name, 10)) {
+            throw new BandLockException('Could not lock this field to save the rule.');
+        }
+        try {
+            return $action();
+        } finally {
+            $this->sql->releaseLock($name);
+        }
+    }
+
+    public static function bandLockName(string $formId, string $source, string $source2): string
+    {
+        return 'lbfstmt_' . md5($formId . "\0" . $source . "\0" . $source2);
     }
 
     /**
