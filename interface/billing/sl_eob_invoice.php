@@ -86,8 +86,12 @@ $info_msg = "";
             const pelement = f['form_line[' + code + '][pay]'];
             const aelement = f['form_line[' + code + '][adj]'];
             const relement = f['form_line[' + code + '][reason]'];
-            const tmp = belement.value - pelement.value;
-            aelement.value = Number(tmp).toFixed(2);
+            // The balance is rendered with FormatMoney::getBucks(), which inserts a
+            // thousands separator, so it must be parsed rather than coerced.
+            const bal = parseFloat(String(belement.value).replace(/,/g, '')) || 0;
+            const pay = parseFloat(String(pelement.value).replace(/,/g, '')) || 0;
+            const tmp = bal - pay;
+            aelement.value = tmp.toFixed(2);
             if (aelement.value && !relement.value) {
                 relement.selectedIndex = 1;
             }
