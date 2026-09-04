@@ -96,12 +96,29 @@ class StatementRepository
         if (!in_array($op, ['band', 'ratio_lt', 'ratio_gt', 'parse_severity'], true)) {
             throw new \InvalidArgumentException('Invalid op');
         }
-        return $this->sql->inTransaction(function () use ($data, $id): int {
-            return $this->withBandLock($data, function () use ($data, $id): int {
+        $lockName = null;
+        try {
+            return $this->sql->inTransaction(function () use ($data, $id, &$lockName): int {
+                if ($id !== null && $id > 0) {
+                    $this->lockRuleRow($id);
+                }
+                $lockName = static::bandLockName(
+                    Values::asString($data['form_id'] ?? ''),
+                    Values::asString($data['source_field_id'] ?? ''),
+                    Values::asString($data['source_field_id_2'] ?? '')
+                );
+                if (!$this->sql->acquireLock($lockName, 10)) {
+                    $lockName = null;
+                    throw new BandLockException('Could not lock this field to save the rule.');
+                }
                 $this->assertBandDoesNotOverlap($data, $id);
                 return $this->writeRule($data, $id);
             });
-        });
+        } finally {
+            if ($lockName !== null) {
+                $this->sql->releaseLock($lockName);
+            }
+        }
     }
 
     /**
@@ -149,22 +166,36 @@ class StatementRepository
 
     public function setEnabled(int $id, bool $enabled): void
     {
-        $this->sql->inTransaction(function () use ($id, $enabled): void {
-            if (!$enabled) {
-                $this->writeEnabled($id, false);
-                return;
-            }
-            $rule = $this->getRule($id);
-            if ($rule === null) {
-                $this->writeEnabled($id, true);
-                return;
-            }
-            $rule['enabled'] = 1;
-            $this->withBandLock($rule, function () use ($rule, $id): void {
+        $lockName = null;
+        try {
+            $this->sql->inTransaction(function () use ($id, $enabled, &$lockName): void {
+                $rule = $this->lockRuleRow($id);
+                if ($rule === null) {
+                    $this->writeEnabled($id, $enabled);
+                    return;
+                }
+                if (!$enabled) {
+                    $this->writeEnabled($id, false);
+                    return;
+                }
+                $rule['enabled'] = 1;
+                $lockName = static::bandLockName(
+                    Values::asString($rule['form_id'] ?? ''),
+                    Values::asString($rule['source_field_id'] ?? ''),
+                    Values::asString($rule['source_field_id_2'] ?? '')
+                );
+                if (!$this->sql->acquireLock($lockName, 10)) {
+                    $lockName = null;
+                    throw new BandLockException('Could not lock this field to save the rule.');
+                }
                 $this->assertBandDoesNotOverlap($rule, $id);
                 $this->writeEnabled($id, true);
             });
-        });
+        } finally {
+            if ($lockName !== null) {
+                $this->sql->releaseLock($lockName);
+            }
+        }
     }
 
     private function writeEnabled(int $id, bool $enabled): void
@@ -176,26 +207,16 @@ class StatementRepository
     }
 
     /**
-     * @template T
-     * @param array<string, mixed> $data
-     * @param callable(): T $action
-     * @return T
+     * @return array<string, mixed>|null
      */
-    private function withBandLock(array $data, callable $action): mixed
+    private function lockRuleRow(int $id): ?array
     {
-        $name = $this->bandLockName(
-            Values::asString($data['form_id'] ?? ''),
-            Values::asString($data['source_field_id'] ?? ''),
-            Values::asString($data['source_field_id_2'] ?? '')
-        );
-        if (!$this->sql->acquireLock($name, 10)) {
-            throw new BandLockException('Could not lock this field to save the rule.');
-        }
-        try {
-            return $action();
-        } finally {
-            $this->sql->releaseLock($name);
-        }
+        return Values::assocRow($this->sql->querySingleRow(
+            "SELECT id, form_id, source_field_id, source_field_id_2, op, min_value, max_value, " .
+            "min_inclusive, max_inclusive, match_token, statement_text, seq, enabled " .
+            "FROM module_lbf_statement_rules WHERE id = ? FOR UPDATE",
+            [$id]
+        ));
     }
 
     public static function bandLockName(string $formId, string $source, string $source2): string
