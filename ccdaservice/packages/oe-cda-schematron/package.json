@@ -25,10 +25,10 @@
   },
   "dependencies": {
     "@xmldom/xmldom": "0.9.12",
-    "compression": "1.8.1",
-    "cqm-execution": "4.4.3",
-    "cqm-models": "4.3.2",
-    "express": "4.22.2",
+    "compression": "^1.8.1",
+    "cqm-execution": "^4.4.3",
+    "cqm-models": "^4.3.2",
+    "express": "^4.22.2",
     "xpath": "0.0.34"
   }
 }

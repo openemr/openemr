@@ -38,6 +38,12 @@ function updateApptTime(marker, index, y, date, provider) {
 }
 
 function displayApptTime(evt) {
+    // Holidays / clinic-closed days block new appointments the same way
+    // full-column holiday overlays do on the provider schedule.
+    if ($(this).hasClass("schedule-holiday") || $(this).attr("data-holiday") === "1") {
+        $(this).find("a.apptMarker").hide();
+        return;
+    }
     let marker = $(this).find("a.apptMarker");
     if (marker.length == 0) {
         style = "style='height:" + tsHeight + ";'";
