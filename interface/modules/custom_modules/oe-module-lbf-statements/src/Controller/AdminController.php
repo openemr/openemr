@@ -23,17 +23,24 @@ use OpenEMR\Modules\LbfStatements\Bootstrap;
 use OpenEMR\Modules\LbfStatements\Identifiers;
 use OpenEMR\Modules\LbfStatements\InvertedBoundsException;
 use OpenEMR\Modules\LbfStatements\LayoutCatalog;
+use OpenEMR\Modules\LbfStatements\RuleNotFoundException;
 use OpenEMR\Modules\LbfStatements\StatementRepository;
 use OpenEMR\Modules\LbfStatements\Values;
 use Symfony\Component\HttpFoundation\Request;
 
 class AdminController
 {
+    /**
+     * @param Bootstrap $bootstrap Module Twig and public URL helper.
+     */
     public function __construct(
         private readonly Bootstrap $bootstrap
     ) {
     }
 
+    /**
+     * Render the rules editor and handle save, enable, and paragraph-field posts.
+     */
     public function run(Request $request): void
     {
         $twig = $this->bootstrap->getTwig();
@@ -49,8 +56,13 @@ class AdminController
         $repo = new StatementRepository();
         $layouts = $catalog->listLbfForms();
 
+        $message = '';
+        $error = '';
         $formId = $this->stringParam($request, 'form_id');
-        if ($formId === '') {
+        if ($formId !== '' && !Identifiers::isFieldId($formId)) {
+            $error = xl('Invalid form.');
+            $formId = '';
+        } elseif ($formId === '') {
             $withRules = $repo->formIdsWithRules();
             if ($withRules !== []) {
                 $formId = $withRules[0];
@@ -58,12 +70,6 @@ class AdminController
                 $formId = $layouts[0]['form_id'];
             }
         }
-        if ($formId !== '') {
-            Identifiers::assertFieldId($formId);
-        }
-
-        $message = '';
-        $error = '';
         $edit = null;
         $fields = $formId !== '' ? $catalog->fieldMeta($formId) : [];
 
@@ -96,6 +102,8 @@ class AdminController
                         $error = xl('This numeric range overlaps another band on the same field.');
                     } catch (BandLockException) {
                         $error = xl('Could not save the rule. Another save is in progress.');
+                    } catch (RuleNotFoundException) {
+                        $error = xl('That rule was deleted.');
                     } catch (\InvalidArgumentException) {
                         $error = xl('Could not save the rule.');
                     }
@@ -134,6 +142,8 @@ class AdminController
                         $error = xl('Could not save the rule. Another save is in progress.');
                         $edit = $data;
                         $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
+                    } catch (RuleNotFoundException) {
+                        $error = xl('That rule was deleted.');
                     } catch (\InvalidArgumentException) {
                         $error = xl('Could not save the rule.');
                         $edit = $data;
@@ -191,6 +201,9 @@ class AdminController
         ]);
     }
 
+    /**
+     * First matching POST or GET string for $key.
+     */
     private function stringParam(Request $request, string $key): string
     {
         $posted = $request->request->get($key);

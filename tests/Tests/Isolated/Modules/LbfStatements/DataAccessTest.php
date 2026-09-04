@@ -35,6 +35,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
     use OpenEMR\Modules\LbfStatements\BandOverlapException;
     use OpenEMR\Modules\LbfStatements\InvertedBoundsException;
     use OpenEMR\Modules\LbfStatements\LayoutCatalog;
+    use OpenEMR\Modules\LbfStatements\RuleNotFoundException;
     use OpenEMR\Modules\LbfStatements\LbfReader;
     use OpenEMR\Modules\LbfStatements\LbfWriter;
     use OpenEMR\Modules\LbfStatements\Queries;
@@ -115,6 +116,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             return $action();
         }
 
+        /**
+         * Record GET_LOCK in the fake and return the configured result.
+         */
         public function acquireLock(string $name, int $timeoutSeconds = 10): bool
         {
             $this->calls[] = ['op' => 'lock', 'sql' => 'GET_LOCK', 'binds' => [$name, $timeoutSeconds]];
@@ -122,6 +126,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             return $this->lockSucceeds;
         }
 
+        /**
+         * Record RELEASE_LOCK in the fake.
+         */
         public function releaseLock(string $name): void
         {
             $this->calls[] = ['op' => 'unlock', 'sql' => 'RELEASE_LOCK', 'binds' => [$name]];
@@ -133,11 +140,17 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
     {
         private FakeQueries $sql;
 
+        /**
+         * Create fixtures for this test case.
+         */
         protected function setUp(): void
         {
             $this->sql = new FakeQueries();
         }
 
+        /**
+         * List LBF layouts and skip empty field ids.
+         */
         public function testListAndFieldMeta(): void
         {
             $this->sql->queue[] = [
@@ -159,6 +172,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertArrayNotHasKey('', $meta);
         }
 
+        /**
+         * Prefer the configured field, then summary_comments.
+         */
         public function testParagraphFieldPrefersSummaryThenTextarea(): void
         {
             $catalog = new LayoutCatalog($this->sql);
@@ -172,6 +188,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('summary_comments', $catalog->paragraphField('LBFecho'));
         }
 
+        /**
+         * Reject a non-textarea destination field.
+         */
         public function testSaveParagraphFieldRejectsNonTextarea(): void
         {
             $catalog = new LayoutCatalog($this->sql);
@@ -182,6 +201,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $catalog->saveParagraphField('LBFecho', 'num');
         }
 
+        /**
+         * Persist a textarea as the paragraph field.
+         */
         public function testSaveParagraphFieldWritesTextarea(): void
         {
             $catalog = new LayoutCatalog($this->sql);
@@ -193,6 +215,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('exec', $ops[1] ?? null);
         }
 
+        /**
+         * Insert stmt_paragraph when the layout has none.
+         */
         public function testEnsureParagraphFieldInsertsWhenMissing(): void
         {
             $catalog = new LayoutCatalog($this->sql);
@@ -204,6 +229,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('stmt_paragraph', $catalog->ensureParagraphField('LBFecho'));
         }
 
+        /**
+         * Load a patient name and check encounter ownership.
+         */
         public function testReaderPatientAndOwnership(): void
         {
             $reader = new LbfReader($this->sql);
@@ -215,6 +243,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertFalse($reader->encounterOwnedBy(1, 9));
         }
 
+        /**
+         * Load encounter instances and lbf_data values.
+         */
         public function testReaderInstancesAndValues(): void
         {
             $reader = new LbfReader($this->sql);
@@ -254,6 +285,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame(['findings' => 'mild'], $reader->readValues(3));
         }
 
+        /**
+         * Insert, replace, and delete lbf_data rows.
+         */
         public function testWriterInsertUpdateDelete(): void
         {
             $writer = new LbfWriter($this->sql);
@@ -270,6 +304,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('exec', $last['op']);
         }
 
+        /**
+         * List, load, insert, and update statement rules.
+         */
         public function testRepositoryRulesAndSave(): void
         {
             $repo = new StatementRepository($this->sql);
@@ -299,7 +336,13 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ]);
             $this->assertSame(42, $id);
 
-            $this->sql->queue[] = [];
+            $this->sql->queue[] = [
+                'id' => 7,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'parse_severity',
+                'enabled' => 1,
+            ];
             $this->assertSame(7, $repo->saveRule([
                 'form_id' => 'LBFecho',
                 'source_field_id' => 'n',
@@ -318,6 +361,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('insert', $last['op']);
         }
 
+        /**
+         * Reject an enabled band that overlaps another.
+         */
         public function testRepositoryRejectsOverlap(): void
         {
             $repo = new StatementRepository($this->sql);
@@ -347,6 +393,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ]);
         }
 
+        /**
+         * Reject a band whose minimum is above its maximum.
+         */
         public function testRepositoryRejectsInvertedBounds(): void
         {
             $repo = new StatementRepository($this->sql);
@@ -364,6 +413,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ]);
         }
 
+        /**
+         * Wrap lbf_data writes in one transaction.
+         */
         public function testWriterRunsInsideTransaction(): void
         {
             $writer = new LbfWriter($this->sql);
@@ -377,6 +429,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertContains('exec', $ops);
         }
 
+        /**
+         * Hold GET_LOCK across save and enable, and release after overlap.
+         */
         public function testSaveAndEnableShareBandLockAndReleaseOnOverlap(): void
         {
             $repo = new StatementRepository($this->sql);
@@ -453,6 +508,54 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             }
         }
 
+        /**
+         * Look up the destination field without writing layout_options.
+         */
+        public function testParagraphFieldDoesNotCreateLayoutField(): void
+        {
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = null;
+            $this->sql->queue[] = [
+                ['field_id' => 'num', 'data_type' => 2, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+            ];
+            $this->assertSame('', $catalog->paragraphField('LBFecho'));
+            $ops = array_column($this->sql->calls, 'op');
+            $this->assertNotContains('exec', $ops);
+            $this->assertNotContains('insert', $ops);
+        }
+
+        /**
+         * Fail saveRule when the locked rule row is gone.
+         */
+        public function testSaveRuleRejectsMissingRow(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [];
+            $this->expectException(RuleNotFoundException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'parse_severity',
+                'match_token' => 'mild',
+                'statement_text' => 'Mild.',
+                'enabled' => 1,
+            ], 7);
+        }
+
+        /**
+         * Fail setEnabled when the locked rule row is gone.
+         */
+        public function testSetEnabledRejectsMissingRow(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [];
+            $this->expectException(RuleNotFoundException::class);
+            $repo->setEnabled(7, true);
+        }
+
+        /**
+         * Fail save when GET_LOCK is not acquired.
+         */
         public function testSaveRuleFailsWhenBandLockIsBusy(): void
         {
             $repo = new StatementRepository($this->sql);
