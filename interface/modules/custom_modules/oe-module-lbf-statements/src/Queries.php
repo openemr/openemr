@@ -50,4 +50,29 @@ class Queries
     {
         return Values::asInt(QueryUtils::sqlInsert($sql, $binds));
     }
+
+    /**
+     * @template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public function inTransaction(callable $action): mixed
+    {
+        return QueryUtils::inTransaction($action);
+    }
+
+    public function acquireLock(string $name, int $timeoutSeconds = 10): bool
+    {
+        $got = QueryUtils::fetchSingleValue(
+            "SELECT GET_LOCK(?, ?) AS acquired",
+            "acquired",
+            [$name, $timeoutSeconds]
+        );
+        return is_scalar($got) && (string) $got === "1";
+    }
+
+    public function releaseLock(string $name): void
+    {
+        QueryUtils::sqlStatementThrowException("DO RELEASE_LOCK(?)", [$name]);
+    }
 }
