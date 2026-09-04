@@ -12,7 +12,6 @@
  */
 
 require_once(__DIR__ . "/../../interface/globals.php");
-require_once(__DIR__ . "/../lists.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
