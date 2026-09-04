@@ -39,16 +39,7 @@
  * @link    https://www.open-emr.org
  */
 
-use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-
-// Prime the four lookup tables so callers that read `global $ISSUE_TYPES`
-// (etc.) continue to see the same populated arrays they did before the
-// Registry extraction. Remove once every caller reads through the Registry.
-IssueTypeRegistry::issueTypeCategories();
-IssueTypeRegistry::issueTypeStyles();
-IssueTypeRegistry::issueTypes();
-IssueTypeRegistry::issueClassifications();
 
 function getListById($id, $cols = "*")
 {
