@@ -105,6 +105,32 @@ final readonly class BinaryForgePin implements \Stringable
         return "v{$this->openemrVersion}";
     }
 
+    /** Dotted form for version_compare(), e.g. `7_0_3_4` becomes `7.0.3.4`. */
+    public function dottedVersion(): string
+    {
+        return str_replace('_', '.', $this->openemrVersion);
+    }
+
+    /**
+     * True when $candidate is a pin this one should give way to.
+     *
+     * Version dominates date. A forge re-cut of an older line can carry a
+     * build date later than the current pin's — v7_0_4 was rebuilt three
+     * times, and nothing stops a future rebuild landing after a newer line
+     * shipped — so comparing dates alone would accept it and walk the
+     * image backwards. Within one version line a later build date does win,
+     * which is how a rebuild with corrected binaries gets adopted.
+     */
+    public function isSupersededBy(self $candidate): bool
+    {
+        $versions = version_compare($candidate->dottedVersion(), $this->dottedVersion());
+        if ($versions !== 0) {
+            return $versions > 0;
+        }
+
+        return $candidate->chronologicalDate() > $this->chronologicalDate();
+    }
+
     /**
      * MMDDYYYY reordered to YYYYMMDD so plain string comparison orders
      * releases chronologically. The forge's own `created_at` cannot be

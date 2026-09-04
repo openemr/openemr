@@ -112,6 +112,94 @@ final class BinaryForgeResolverTest extends TestCase
         self::assertSame([], $openemr->existenceChecks, 'an older release should not cost an API call');
     }
 
+    /**
+     * The date-only guard let this through: a fully published v7_0_4
+     * re-cut stamped after the current v8_0_0 pin looked newer and would
+     * have been proposed as an upgrade.
+     */
+    public function testNeverDowngradesToARecutStampedAfterTheCurrentPin(): void
+    {
+        $resolved = $this->resolve(
+            [
+                self::linuxRelease('amd64', '7_0_4', '09012026'),
+                self::linuxRelease('arm64', '7_0_4', '09012026'),
+            ],
+            ['/contents/tests?ref=v7_0_4'],
+        );
+
+        self::assertSame('8_0_0/03102026', (string)$resolved);
+    }
+
+    public function testPrefersTheHigherVersionOverTheLaterBuildDate(): void
+    {
+        $resolved = $this->resolve(
+            [
+                self::linuxRelease('amd64', '8_1_0', '09012026'),
+                self::linuxRelease('arm64', '8_1_0', '09012026'),
+                self::linuxRelease('amd64', '8_3_0', '08232026'),
+                self::linuxRelease('arm64', '8_3_0', '08232026'),
+            ],
+            ['/contents/tests?ref=v8_1_0', '/contents/tests?ref=v8_3_0'],
+        );
+
+        self::assertSame('8_3_0/08232026', (string)$resolved);
+    }
+
+    public function testAdoptsALaterRebuildOfTheCurrentVersion(): void
+    {
+        $forge = new FakeGitHubApi([
+            self::linuxRelease('amd64', '8_0_0', '09012026'),
+            self::linuxRelease('arm64', '8_0_0', '09012026'),
+        ]);
+        $openemr = new FakeGitHubApi([], ['/contents/tests?ref=v8_0_0']);
+
+        $resolved = (new BinaryForgeResolver($forge, $openemr))->resolve($this->currentPin());
+
+        self::assertSame('8_0_0/09012026', (string)$resolved);
+    }
+
+    public function testIsPublishedConfirmsAPinThatIsFullyOnTheForge(): void
+    {
+        $forge = new FakeGitHubApi([
+            self::linuxRelease('amd64', '8_3_0', '08232026'),
+            self::linuxRelease('arm64', '8_3_0', '08232026'),
+        ]);
+        $openemr = new FakeGitHubApi([], ['/contents/tests?ref=v8_3_0']);
+
+        $resolver = new BinaryForgeResolver($forge, $openemr);
+
+        self::assertTrue($resolver->isPublished(new BinaryForgePin('8_3_0', '08232026', '8.5')));
+    }
+
+    /**
+     * The shape the `--verify` guard exists for: a version and a date that
+     * each came from a real release, paired into one that never existed.
+     */
+    public function testIsPublishedRejectsAPinStitchedFromTwoReleases(): void
+    {
+        $forge = new FakeGitHubApi([
+            self::linuxRelease('amd64', '8_3_0', '08232026'),
+            self::linuxRelease('arm64', '8_3_0', '08232026'),
+            self::linuxRelease('amd64', '8_4_0', '09152026'),
+            self::linuxRelease('arm64', '8_4_0', '09152026'),
+        ]);
+        $openemr = new FakeGitHubApi([], ['/contents/tests?ref=v8_3_0', '/contents/tests?ref=v8_4_0']);
+
+        $resolver = new BinaryForgeResolver($forge, $openemr);
+
+        self::assertFalse($resolver->isPublished(new BinaryForgePin('8_3_0', '09152026', '8.5')));
+    }
+
+    public function testIsPublishedRejectsAPinMissingAnArch(): void
+    {
+        $forge = new FakeGitHubApi([self::linuxRelease('amd64', '8_3_0', '08232026')]);
+        $openemr = new FakeGitHubApi([], ['/contents/tests?ref=v8_3_0']);
+
+        $resolver = new BinaryForgeResolver($forge, $openemr);
+
+        self::assertFalse($resolver->isPublished(new BinaryForgePin('8_3_0', '08232026', '8.5')));
+    }
+
     public function testIgnoresOtherPhpSelectors(): void
     {
         $php84 = new BinaryForgePin('8_3_0', '08232026', '8.4');

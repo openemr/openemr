@@ -136,6 +136,19 @@ jobs:
         MANIFEST: ${{ matrix.manifest }}
       run: updatecli pipeline apply --config ".github/updatecli/${MANIFEST}.yaml"
 
+    # Post-condition on the file updatecli just wrote. The manifest's two
+    # forge sources resolve independently, so a release finishing
+    # publication between them could in principle pair one candidate's
+    # version with another's date — a combination no resolver run ever
+    # validated. This re-reads the applied pin and refuses to open a PR
+    # unless that exact pin is fully published, which also catches a bad
+    # matcher or a hand edit rather than only the race.
+    - name: Verify the applied forge pin
+      if: matrix.manifest == 'binary-image' && github.event_name != 'pull_request' && github.event.inputs.dry-run != 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: php tools/release/bin/resolve-binary-forge.php --verify
+
     # No-op when `apply` changed nothing, so an up-to-date pin costs a
     # green run and no PR. When a PR is already open on this branch it is
     # updated in place rather than duplicated.

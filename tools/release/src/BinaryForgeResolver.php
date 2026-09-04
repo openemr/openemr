@@ -46,10 +46,10 @@ final readonly class BinaryForgeResolver
     /**
      * The newest adoptable pin, or $current when nothing newer qualifies.
      *
-     * Only candidates strictly newer than $current are considered, so the
-     * resolver can never propose a downgrade — the forge re-cuts older
-     * version lines (v7_0_4 was rebuilt three times), and those rebuilds
-     * must not drag the image backwards.
+     * Only candidates that supersede $current are considered, so the
+     * resolver can never propose a downgrade. See
+     * BinaryForgePin::isSupersededBy() for why that comparison has to lead
+     * with the version rather than the build date.
      */
     public function resolve(BinaryForgePin $current): BinaryForgePin
     {
@@ -63,12 +63,52 @@ final readonly class BinaryForgeResolver
     }
 
     /**
-     * Candidate pins newer than $current, newest first, each paired with
+     * True when $pin is fully published right now.
+     *
+     * The workflow calls this through `--verify` after updatecli has
+     * written the Dockerfile, as a post-condition on the artifact itself.
+     * resolve() proves a pin was adoptable when it ran; this proves the
+     * pin that actually landed in the file is adoptable, which also covers
+     * a bad manifest matcher or a hand edit — not just a stale resolve.
+     */
+    public function isPublished(BinaryForgePin $pin): bool
+    {
+        $entry = $this->releasesByPin($pin)[(string)$pin] ?? null;
+
+        return $entry !== null && $this->isFullyPublished($pin, $entry[1]);
+    }
+
+    /**
+     * Candidate pins that supersede $current, best first, each paired with
      * the asset names published per arch.
      *
      * @return list<array{0: BinaryForgePin, 1: array<string, list<string>>}>
      */
     private function candidates(BinaryForgePin $current): array
+    {
+        $candidates = array_values(array_filter(
+            $this->releasesByPin($current),
+            static fn(array $entry): bool => $current->isSupersededBy($entry[0]),
+        ));
+
+        usort($candidates, static function (array $a, array $b): int {
+            $versions = version_compare($b[0]->dottedVersion(), $a[0]->dottedVersion());
+
+            return $versions !== 0
+                ? $versions
+                : $b[0]->chronologicalDate() <=> $a[0]->chronologicalDate();
+        });
+
+        return $candidates;
+    }
+
+    /**
+     * Every linux forge release matching $reference's PHP selector, grouped
+     * by pin and keyed by its string form.
+     *
+     * @return array<string, array{0: BinaryForgePin, 1: array<string, list<string>>}>
+     */
+    private function releasesByPin(BinaryForgePin $reference): array
     {
         /** @var array<string, array{0: BinaryForgePin, 1: array<string, list<string>>}> $grouped */
         $grouped = [];
@@ -86,11 +126,8 @@ final readonly class BinaryForgeResolver
                 continue;
             }
 
-            $pin = new BinaryForgePin($version, $date, $current->phpVersion);
+            $pin = new BinaryForgePin($version, $date, $reference->phpVersion);
             if ($phpSelector !== $pin->phpSelector()) {
-                continue;
-            }
-            if ($pin->chronologicalDate() <= $current->chronologicalDate()) {
                 continue;
             }
 
@@ -99,14 +136,7 @@ final readonly class BinaryForgeResolver
             $grouped[$key][1][$arch] = $this->assetNames($release);
         }
 
-        $candidates = array_values($grouped);
-        usort(
-            $candidates,
-            static fn(array $a, array $b): int
-                => $b[0]->chronologicalDate() <=> $a[0]->chronologicalDate(),
-        );
-
-        return $candidates;
+        return $grouped;
     }
 
     /**

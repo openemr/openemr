@@ -68,6 +68,52 @@ final class BinaryForgePinTest extends TestCase
         self::assertGreaterThan($december2025, $march2026);
     }
 
+    public function testDottedVersionFeedsVersionCompare(): void
+    {
+        self::assertSame('7.0.3.4', (new BinaryForgePin('7_0_3_4', '12072025', '8.5'))->dottedVersion());
+    }
+
+    /**
+     * The case that matters: a re-cut of an older line carrying a build
+     * date *later* than the current pin. Comparing dates alone accepts it
+     * and walks the image backwards.
+     */
+    public function testARecutOfAnOlderLineNeverSupersedes(): void
+    {
+        $current = new BinaryForgePin('8_0_0', '03102026', '8.5');
+        $olderLineRebuiltLater = new BinaryForgePin('7_0_4', '09012026', '8.5');
+
+        self::assertFalse($current->isSupersededBy($olderLineRebuiltLater));
+    }
+
+    public function testANewerVersionSupersedesEvenWithAnEarlierBuildDate(): void
+    {
+        $current = new BinaryForgePin('8_0_0', '03102026', '8.5');
+        $newerLineBuiltEarlier = new BinaryForgePin('8_3_0', '01052026', '8.5');
+
+        self::assertTrue($current->isSupersededBy($newerLineBuiltEarlier));
+    }
+
+    public function testALaterRebuildOfTheSameVersionSupersedes(): void
+    {
+        $current = new BinaryForgePin('7_0_4', '12282025', '8.5');
+
+        self::assertTrue($current->isSupersededBy(new BinaryForgePin('7_0_4', '12292025', '8.5')));
+        self::assertFalse($current->isSupersededBy(new BinaryForgePin('7_0_4', '12262025', '8.5')));
+        self::assertFalse($current->isSupersededBy(new BinaryForgePin('7_0_4', '12282025', '8.5')));
+    }
+
+    /**
+     * A four-segment patch line sorts below the three-segment release it
+     * patches from, so `7_0_3_4` must not look newer than `7_0_4`.
+     */
+    public function testPatchLineSegmentsCompareNumericallyNotLexically(): void
+    {
+        $current = new BinaryForgePin('7_0_4', '12292025', '8.5');
+
+        self::assertFalse($current->isSupersededBy(new BinaryForgePin('7_0_3_4', '09012026', '8.5')));
+    }
+
     public function testStringFormIsTheUpdatecliWireFormat(): void
     {
         self::assertSame('8_3_0/08232026', (string)new BinaryForgePin('8_3_0', '08232026', '8.5'));

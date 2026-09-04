@@ -16,6 +16,15 @@
 # The side benefit is that `updatecli diff --config .github/updatecli/` is
 # a working local dry-run with no tokens or scm config.
 #
+# The two sources below resolve independently, because updatecli renders
+# `{{ source }}` from the raw source value and cannot see a target-level
+# transformer — so the README targets need each field as its own source.
+# That leaves a narrow window where a release finishing publication between
+# the two calls could pair one candidate's version with another's date. The
+# workflow closes it after `apply` with `resolve-binary-forge.php --verify`,
+# a post-condition on the file as written: unless that exact pin is fully
+# published, no PR is opened.
+#
 # See .github/workflows/updatecli-docker-pins.yml.
 
 name: Bump the binary Docker image to the newest published forge release

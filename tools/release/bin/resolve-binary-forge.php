@@ -59,6 +59,12 @@ use Symfony\Component\Console\SingleCommandApplication;
         'pin',
     )
     ->addOption(
+        'verify',
+        null,
+        InputOption::VALUE_NONE,
+        "Assert the Dockerfile's current pin is fully published, instead of resolving a new one",
+    )
+    ->addOption(
         'explain',
         null,
         InputOption::VALUE_NONE,
@@ -84,6 +90,20 @@ use Symfony\Component\Console\SingleCommandApplication;
                 new GitHubApi(BinaryForgeResolver::FORGE_REPO),
                 new GitHubApi(),
             );
+            // --verify is a post-condition on the Dockerfile as written,
+            // run after updatecli applies its targets. The two forge
+            // sources resolve independently, so in principle a release
+            // finishing publication between them could pair one
+            // candidate's version with another's date; this refuses to
+            // let that pair — or any other malformed pin — reach a PR.
+            if ($options->bool('verify')) {
+                if (!$resolver->isPublished($current)) {
+                    $output->writeln("<error>Pin {$current} is not fully published on the forge</error>");
+                    return 1;
+                }
+                $output->writeln((string)$current);
+                return 0;
+            }
             $resolved = $resolver->resolve($current);
         } catch (\InvalidArgumentException | \RuntimeException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
