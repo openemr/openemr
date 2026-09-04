@@ -14,7 +14,6 @@
  /////////////////////////////////////////////////////////////////////
 
  require_once("../interface/globals.php");
- require_once("../library/patient.inc.php");
 
  use OpenEMR\Core\Header;
 

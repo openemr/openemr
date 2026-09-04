@@ -33,7 +33,7 @@
 # ACCEPTANCE_ARTIFACT_URL for the test suite: http://localhost:8680
 services:
   mysql:
-    image: mariadb:11.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
     command: ['mariadbd', '--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -53,7 +53,7 @@ services:
       retries: 3
 
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:4bb05f052584c30e84e495e161dcd559659e953a5c435fea76dbe74931d571e5
+    image: openemr/openemr:flex-3.24-php-8.5@sha256:71f93832be5cf1d0c0d27a66bba6c6c92b9d732a64c31a908372f3845c8746bb
     depends_on:
       mysql:
         condition: service_healthy

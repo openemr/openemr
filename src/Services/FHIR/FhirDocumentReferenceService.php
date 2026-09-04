@@ -100,7 +100,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
 
                 $service = $this->getServiceForCategory($categorySearchField, 'clinical-notes');
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-            } else if (isset($fhirSearchParameters['type'])) {
+            } elseif (isset($fhirSearchParameters['type'])) {
                 $service = $this->getServiceForCode(new TokenSearchField('type', $fhirSearchParameters['type']), '');
                 // if we have a service let's search on that
                 if (isset($service)) {
@@ -127,7 +127,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
         $profileSets = [
             $this->getProfileForVersions(self::US_CORE_PROFILE, $this->getSupportedVersions())

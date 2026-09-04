@@ -538,10 +538,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
 {
     global $code_types, $code_external_tables;
 
-    // limit the number of results we have
-    if ($limit === null) {
-        $limit = 250;
-    }
+    $limit ??= 250;
     // Figure out the appropriate limit clause
     $limit_query = limit_query_string($limit, $start, $number, $return_only_one);
 
@@ -706,7 +703,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                             $sql_bind_array[] = "%" . $keyword . "%";
                         }
                     }
-                } else if (!empty($code_text_col)) {
+                } elseif (!empty($code_text_col)) {
                     // do only a prefix search on small character codes
                     $query .= " AND " . $table_dot . $code_text_col . " LIKE ? ";
                     $sql_bind_array[] = $search_term . "%";

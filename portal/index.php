@@ -31,7 +31,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -110,8 +109,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $ot = $oneTime->decodePortalOneTime($token, logUpdate: false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey($session);
-        $twig = new TwigContainer(null, $globalsBag->getKernel());
-        echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
+        echo ServiceContainer::getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => text($_GET['service_auth']),
             'csrf_token' => CsrfUtils::collectCsrfToken($session, 'autologin'),

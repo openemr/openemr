@@ -29,7 +29,7 @@ class RuleCriteriaType
     const custom = "custom";
     const custom_bucket = "custom_bucket";
 
-    function __construct(public $code, public $lbl, public $method)
+    public function __construct(public $code, public $lbl, public $method)
     {
     }
 

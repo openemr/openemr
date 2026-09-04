@@ -22,7 +22,7 @@ class ReminderIntervals
 {
     public $detailMap;
 
-    function __construct()
+    public function __construct()
     {
         $this->detailMap = [];
     }
@@ -31,18 +31,16 @@ class ReminderIntervals
      * Adds a OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalDetail to the collection, which is a map
      * @param ReminderIntervalDetail $detail
      */
-    function addDetail($detail)
+    public function addDetail($detail)
     {
         $details = $this->detailMap[$detail->intervalType->code] ?? null;
-        if (is_null($details)) {
-            $details = [];
-        }
+        $details ??= [];
 
         array_push($details, $detail);
         $this->detailMap[$detail->intervalType->code] = $details;
     }
 
-    function getTypes()
+    public function getTypes()
     {
         $types = [];
         foreach (array_keys($this->detailMap) as $code) {
@@ -58,7 +56,7 @@ class ReminderIntervals
      * @param ReminderIntervalRange $range
      * @return array
      */
-    function getDetailFor($type, $range = null)
+    public function getDetailFor($type, $range = null)
     {
         $details = $this->detailMap[$type->code] ?? null;
         if (is_null($range)) {
@@ -75,7 +73,7 @@ class ReminderIntervals
         return null;
     }
 
-    function displayDetails($type)
+    public function displayDetails($type)
     {
         $details = $this->getDetailFor($type);
         $display = "";

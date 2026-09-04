@@ -19,7 +19,6 @@
  */
 
 use OpenEMR\BC\Utilities;
-use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -30,28 +29,6 @@ use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
-
-require_once(__DIR__ . "/dupscore.inc.php");
-
-global $facilityService;
-$facilityService = new FacilityService();
-
-// These are for sports team use:
-$PLAYER_FITNESSES = [
-  xl('Full Play'),
-  xl('Full Training'),
-  xl('Restricted Training'),
-  xl('Injured Out'),
-  xl('Rehabilitation'),
-  xl('Illness'),
-  xl('International Duty')
-];
-$PLAYER_FITCOLORS = ['#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa'];
-
-// Hard-coding this array because its values and meanings are fixed by the 837p
-// standard and we don't want people messing with them.
-global $policy_types;
-$policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
 
 /**
  * Get a patient's demographic data.
@@ -140,8 +117,7 @@ function getInsuranceProvidersExtra()
 //
 function getFacility($facid = 0)
 {
-    global $facilityService;
-
+    $facilityService = new FacilityService();
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $facility = null;
 
@@ -236,9 +212,7 @@ returns all facilities or just the id for the first one
 */
 function getFacilities($first = '')
 {
-    global $facilityService;
-
-    $fres = $facilityService->getAllFacility();
+    $fres = (new FacilityService())->getAllFacility();
 
     if ($first == 'first') {
         return $fres[0]['id'];
@@ -1237,12 +1211,8 @@ function newInsuranceData(
         return false;
     }
 
-    if (is_null($accept_assignment)) {
-        $accept_assignment = "TRUE";
-    }
-    if (is_null($policy_type)) {
-        $policy_type = "";
-    }
+    $accept_assignment ??= "TRUE";
+    $policy_type ??= "";
 
     // If empty dates were passed, then null.
     if (empty($effective_date)) {

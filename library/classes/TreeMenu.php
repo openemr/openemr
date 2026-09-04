@@ -75,7 +75,7 @@ class HTML_TreeMenu
     *
     * @access public
     */
-    function __construct()
+    public function __construct()
     {
         // Not much to do here :(
     }
@@ -89,7 +89,7 @@ class HTML_TreeMenu
     * @return object       Returns a reference to the new node inside
     *                      the tree.
     */
-    function &addItem(&$node)
+    public function &addItem(&$node)
     {
         $this->items[] = &$node;
         return $this->items[count($this->items) - 1];
@@ -112,11 +112,9 @@ class HTML_TreeMenu
     *
     * @return object           The resulting HTML_TreeMenu object
     */
-    function createFromStructure($params)
+    public function createFromStructure($params)
     {
-        if (!isset($params['nodeOptions'])) {
-            $params['nodeOptions'] = [];
-        }
+        $params['nodeOptions'] ??= [];
 
         switch (@$params['type']) {
 
@@ -340,7 +338,7 @@ class HTML_TreeNode
     *                       for the 'onexpand', 'oncollapse' and 'ontoggle' events which will be fired
     *                       whenever a node is collapsed and/or expanded.
     */
-    function __construct($options = [], public $events = [])
+    public function __construct($options = [], public $events = [])
     {
         $this->text          = '';
         $this->link          = '';
@@ -376,7 +374,7 @@ class HTML_TreeNode
     * @param  string $option Option to set
     * @param  string $value  Value to set the option to
     */
-    function setOption($option, $value)
+    public function setOption($option, $value)
     {
         $this->$option = $value;
     }
@@ -387,7 +385,7 @@ class HTML_TreeNode
     * @access public
     * @param  object $node The new node
     */
-    function &addItem($node)
+    public function &addItem($node)
     {
         $node->parent  = &$this;
         $this->items[] = &$node;
@@ -408,7 +406,7 @@ class HTML_TreeNode
     *
     * @access private
     */
-    function _ensureVisible()
+    public function _ensureVisible()
     {
         $this->ensureVisible = true;
         $this->expanded      = true;
@@ -439,7 +437,7 @@ class HTML_TreeMenu_Presentation
     *
     * @param object $structure The menu structure
     */
-    function __construct(&$structure)
+    public function __construct(&$structure)
     {
         $this->menu = &$structure;
     }
@@ -454,7 +452,7 @@ class HTML_TreeMenu_Presentation
     *                the presentation class can be specified
     *                here.
     */
-    function printMenu($options = [])
+    public function printMenu($options = [])
     {
         foreach ($options as $option => $value) {
             $this->$option = $value;
@@ -529,7 +527,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     * @param array  $options   Array of options
     * @param bool   $isDynamic Whether the tree is dynamic or not
     */
-    function __construct(&$structure, $options = [], public $isDynamic = true)
+    public function __construct(&$structure, $options = [], public $isDynamic = true)
     {
         parent::__construct($structure);
 
@@ -554,7 +552,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     * @access public
     * @return string The HTML for the menu
     */
-    function toHTML()
+    public function toHTML()
     {
         static $count = 0;
         $menuObj     = 'objTreeMenu_' . ++$count;
@@ -600,7 +598,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     *
     * @access private
     */
-    function _nodeToHTML($nodeObj, $prefix, $return = 'newNode', $currentDepth = 0, $maxDepthPrefix = null)
+    public function _nodeToHTML($nodeObj, $prefix, $return = 'newNode', $currentDepth = 0, $maxDepthPrefix = null)
     {
         $prefix = empty($maxDepthPrefix) ? $prefix : $maxDepthPrefix;
 
@@ -696,7 +694,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     *                           o linkTarget Target for the links. Defaults to "_self"
     *                           o submitText Text for the submit button. Defaults to "Go"
     */
-    function __construct($structure, $options = [])
+    public function __construct($structure, $options = [])
     {
         parent::__construct($structure);
 
@@ -714,7 +712,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     /**
     * Returns the HTML generated
     */
-    function toHTML()
+    public function toHTML()
     {
         static $count = 0;
         $nodeHTML = '';
@@ -740,7 +738,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     *
     * @access private
     */
-    function _nodeToHTML($node, $prefix = '')
+    public function _nodeToHTML($node, $prefix = '')
     {
         $html = sprintf('<option value="%s">%s%s</option>', attr($node->id), $prefix, text($node->text));
 

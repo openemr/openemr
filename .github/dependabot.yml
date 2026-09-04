@@ -28,11 +28,17 @@ updates:
       update-types:
       - minor
       - patch
+    # phpstan/* and rector/rector are deliberately absent, so each gets its
+    # own PR. A static-analyzer bump is never just a lock change: PHPStan
+    # sharpens inference and invalidates baseline entries, Rector shuffles
+    # rules between sets and rewrites source. Grouped with phpunit, that
+    # fallout arrives as one PR nobody can review or revert in pieces --
+    # 2.6.x pulled ExplicitPublicClassMethodRector into withPhpSets() and
+    # touched over a thousand files. Solo PRs keep each analyzer's fallout
+    # attributable to the bump that caused it.
     development:
       patterns:
       - phpunit/*
-      - phpstan/*
-      - rector/rector
       - shipmonk/*
       - friendsofphp/*
       update-types:
@@ -167,29 +173,24 @@ updates:
   # Tooling images (mailpit, dev-nginx, couchdb, redis) are unconstrained.
 - package-ecosystem: docker-compose
   directories:
-  - ci/apache_82_118/
-  - ci/apache_82_118_redis_sentinel_mtls/
-  - ci/apache_82_118_upgrade/
-  - ci/apache_83_118/
-  - ci/apache_84_118/
+  - ci/apache_83_123/
+  - ci/apache_83_123_redis_sentinel_mtls/
+  - ci/apache_83_123_upgrade/
+  - ci/apache_84_123/
   - ci/apache_85_1011/
-  - ci/apache_85_106/
   - ci/apache_85_114/
   - ci/apache_85_118/
-  - ci/apache_85_118_redis_sentinel/
-  - ci/apache_85_118_redis_sentinel_tls/
-  - ci/apache_85_118_redis_sentinel_mtls/
-  - ci/apache_85_118_upgrade/
-  - ci/apache_85_122/
-  - ci/apache_85_57/
-  - ci/apache_85_80/
+  - ci/apache_85_123/
+  - ci/apache_85_123_redis_sentinel/
+  - ci/apache_85_123_redis_sentinel_tls/
+  - ci/apache_85_123_redis_sentinel_mtls/
+  - ci/apache_85_123_upgrade/
   - ci/apache_85_84/
   - ci/apache_85_93/
   - ci/compose-shared-mailpit/
   - ci/compose-shared-nginx/
   - ci/compose-shared-redis-sentinel/
   - ci/inferno/
-  - ci/nginx_82/
   - ci/nginx_83/
   - ci/nginx_84/
   - ci/nginx_85/

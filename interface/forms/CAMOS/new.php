@@ -15,8 +15,6 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;

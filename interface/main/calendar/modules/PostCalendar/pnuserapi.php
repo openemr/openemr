@@ -25,6 +25,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
@@ -61,7 +62,6 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/group.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -140,20 +140,13 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     $Date = postcalendar_getDate();
 
-    //=================================================================
-    //  get the current view
-    //=================================================================
-    if (!isset($viewtype)) {
-        $viewtype = 'month';
-    }
+    $viewtype ??= 'month';
 
     //=================================================================
     //  Find out what Template we're using
     //=================================================================
     $template_name = _SETTING_TEMPLATE;
-    if (!isset($template_name)) {
-        $template_name = 'default';
-    }
+    $template_name ??= 'default';
 
     //=================================================================
     //  Grab the current theme information
@@ -834,9 +827,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $eventstatus = $event_status;
     }
 
-    if (!isset($start)) {
-        $start = Date_Calc::dateNow('%Y-%m-%d');
-    }
+    $start ??= Date_Calc::dateNow('%Y-%m-%d');
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
@@ -1042,6 +1033,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
+
     return $events;
 }
 
@@ -1088,18 +1081,14 @@ function &postcalendar_userapi_pcQueryEvents($args)
         }
     }
 
-    if (!isset($eventstatus)) {
-        $eventstatus = 1;
-    }
+    $eventstatus ??= 1;
 
   // sanity check on eventstatus
     if ((int)$eventstatus < -1 || (int)$eventstatus > 1) {
         $eventstatus = 1;
     }
 
-    if (!isset($start)) {
-        $start = Date_Calc::dateNow('%Y-%m-%d');
-    }
+    $start ??= Date_Calc::dateNow('%Y-%m-%d');
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
@@ -1466,6 +1455,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
             : '';
     }
 
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
+
     return $events;
 }
 
@@ -1547,9 +1538,7 @@ function &postcalendar_userapi_pcGetEvents($args)
         $a = ['listappsFlag' => true,'start' => $start_date,'end' => $end_date, 'patient_id' => $patient_id, 's_keywords' => $s_keywords];
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     } elseif (!isset($events)) {
-        if (!isset($s_keywords)) {
-            $s_keywords = '';
-        }
+        $s_keywords ??= '';
 
         $providerID ??= '';
 

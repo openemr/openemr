@@ -392,47 +392,77 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/insurance_allocation_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 10 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1\\}\\.$#',
+    'message' => '#^Offset 0 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 11 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1\\}\\.$#',
+    'message' => '#^Offset 1 might not exist on array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\: int\\<1, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 12 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1\\}\\.$#',
+    'message' => '#^Offset 10 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 5 might not exist on array\\{4\\: 1\\}\\|array\\{mixed, 0, 0, 0, 0\\|1, 0, 0, 0, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset 11 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 6 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0, 0, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1\\}\\.$#',
+    'message' => '#^Offset 12 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 7 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1\\}\\.$#',
+    'message' => '#^Offset 2 might not exist on array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\: int\\<1, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 8 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1\\}\\.$#',
+    'message' => '#^Offset 3 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 9 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1\\}\\.$#',
+    'message' => '#^Offset 4 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 5 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 6 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 7 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 8 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 9 might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset int\\<0, 11\\> does not exist on array\\{\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset int\\<1, 12\\> might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];

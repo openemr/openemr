@@ -18,10 +18,7 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-require_once($srcdir . "/forms.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 require_once $srcdir . '/ESign/Api.php';
@@ -35,6 +32,7 @@ use Mpdf\MpdfException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
@@ -50,8 +48,7 @@ if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
 
 $facilityService = new FacilityService();
 
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 /** @var array<string, mixed> $insurance_data_array */
 $insurance_data_array = OEGlobalsBag::getInstance()->get('insurance_data_array', []);
 
@@ -204,7 +201,7 @@ function getContent()
                 $plogo = glob(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/*");// let's give the user a little say in image format.
                 $plogo = preg_grep('~practice_logo\.(gif|png|jpg|jpeg)$~i', $plogo);
                 if (!empty($plogo)) {
-                    $k = current(array_keys($plogo));
+                    $k = array_key_first($plogo);
                     $practice_logo = $plogo[$k];
                 }
 

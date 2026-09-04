@@ -45,14 +45,10 @@ use OpenEMR\Services\PatientIssuesService;
 use Symfony\Component\HttpFoundation\Request;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/api.inc.php");
-require_once($srcdir . "/forms.inc.php");
 require_once("php/" . $form_name . "_functions.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/report.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

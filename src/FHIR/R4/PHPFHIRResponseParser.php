@@ -45,9 +45,7 @@ class PHPFHIRResponseParser
      */
     public function __construct($registerAutoloader = true)
     {
-        if (null === self::$sxeArgs) {
-            self::$sxeArgs = LIBXML_COMPACT | LIBXML_NSCLEAN;
-        }
+        self::$sxeArgs ??= LIBXML_COMPACT | LIBXML_NSCLEAN;
 
         if ($registerAutoloader) {
             self::_registerAutoloader();

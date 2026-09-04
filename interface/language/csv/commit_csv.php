@@ -60,7 +60,7 @@ if (!$errmsg) {
                     array_push($changed, $result);
                     if (str_starts_with((string) $result, '[3]')) {
                         array_push($updated, substr((string) $result, 3));
-                    } else if (str_starts_with((string) $result, '[5]')) {
+                    } elseif (str_starts_with((string) $result, '[5]')) {
                         array_push($created, substr((string) $result, 3));
                     }
                 }

@@ -25,8 +25,6 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -690,9 +688,7 @@ function create_skeleton_patient($patient_data)
     $employer_data = [];
     $tmp = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
     $ptid = empty($tmp['pid']) ? 1 : intval($tmp['pid']);
-    if (!isset($patient_data['pubpid'])) {
-        $patient_data['pubpid'] = $ptid;
-    }
+    $patient_data['pubpid'] ??= $ptid;
 
     updatePatientData($ptid, $patient_data, true);
     updateEmployerData($ptid, $employer_data, true);
@@ -1183,14 +1179,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $code_seq_array = [];
             }
 
-            // Find the order line item (procedure code) that matches this result.
-            // If there is more than one, then we select the one whose sequence number
-            // is next after the last sequence number encountered for this procedure
-            // code; this assumes that result OBRs are returned in the same sequence
-            // as the corresponding OBRs in the order.
-            if (!isset($code_seq_array[$in_procedure_code])) {
-                $code_seq_array[$in_procedure_code] = 0;
-            }
+            $code_seq_array[$in_procedure_code] ??= 0;
 
             $pcquery = "SELECT pc.* FROM procedure_order_code AS pc " .
                 "WHERE pc.procedure_order_id = ? AND pc.procedure_code = ? " .
@@ -1593,9 +1582,7 @@ function poll_hl7_results(&$info, $labs = 0)
                     continue;
                 }
 
-                if (!isset($info["$lab_name/$ppid/$file"])) {
-                    $info["$lab_name/$ppid/$file"] = [];
-                }
+                $info["$lab_name/$ppid/$file"] ??= [];
 
                 // Ensure that archive directory exists.
                 $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
@@ -1725,9 +1712,7 @@ function poll_hl7_results(&$info, $labs = 0)
             ksort($files);
             // For each file...
             foreach ($files as $file) {
-                if (!isset($info["$lab_name/$ppid/$file"])) {
-                    $info["$lab_name/$ppid/$file"] = [];
-                }
+                $info["$lab_name/$ppid/$file"] ??= [];
 
                 // Ensure that archive directory exists.
                 $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
@@ -1857,9 +1842,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 $file = "result_" . $control_id . ".hl7";
 
                 ++$filecount;
-                if (!isset($info["$lab_name/$ppid/$file"])) {
-                    $info["$lab_name/$ppid/$file"] = [];
-                }
+                $info["$lab_name/$ppid/$file"] ??= [];
 
                 // Ensure that archive directory exists.
                 $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";

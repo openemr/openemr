@@ -16,6 +16,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyForward;
@@ -2681,7 +2682,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 function show_PMSFH_report($PMSFH): void
 {
     global $pid;
-    global $ISSUE_TYPES;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
     $count = [];
     $total_PMSFH = 0;
 
@@ -3903,7 +3904,6 @@ function report_header($pid, $direction = 'shell')
 {
     global $encounter;
     global $visit_date;
-    global $facilityService;
     global $OE_SITE_DIR;
 
     /*******************************************************************
@@ -3914,6 +3914,7 @@ function report_header($pid, $direction = 'shell')
     $titleres = getPatientData($pid, "fname,lname,providerID,DOB");
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $pc_facility = $session->get('pc_facility');
+    $facilityService = new FacilityService();
     $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
 
     $DOB = oeFormatShortDate($titleres['DOB']);

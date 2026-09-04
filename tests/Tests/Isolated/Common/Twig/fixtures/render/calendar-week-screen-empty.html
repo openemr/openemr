@@ -109,6 +109,16 @@
  }
 
  function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+  // Guard: holiday / clinic-closed days must not open create dialog from the time gutter.
+  var holidayDate = String(eventdate || '');
+  var $holidayCell = $('#bigCal td.schedule[data-holiday="1"][date="' + holidayDate + '"]');
+  if (!$holidayCell.length && typeof pcIsHolidayDay !== 'undefined' && pcIsHolidayDay) {
+    // Day view: single Date applies to the whole grid.
+    $holidayCell = $('#bigCal td.schedule.schedule-holiday');
+  }
+  if ($holidayCell.length) {
+    return false;
+  }
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
    '&starttimeh=' + encodeURIComponent(starttimeh) + '&userid=' + encodeURIComponent(providerid) + '&starttimem=' + encodeURIComponent(starttimem) +
    '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)
@@ -157,6 +167,7 @@
 <script>
         var tsHeight="20px";
     var tsHeightNum=20;
+    var pcIsHolidayDay = false;
     var pcWebroot="";
     var pcViewtype="week";
     var pcDate="20260315";
@@ -241,6 +252,18 @@
         $("#wrapper").toggleClass("toggled");
     });
 </script>
+
+<style>
+    /* Time gutter on holidays: show labels but do not offer new-appointment links. */
+    #bigCal td.timeslot.timeslot-holiday .timeslot-holiday-label {
+        color: var(--gray600, #6c757d);
+        cursor: not-allowed;
+        display: block;
+        opacity: 0.75;
+        text-decoration: none;
+        user-select: none;
+    }
+</style>
 
 <script>
     $(function () { if (typeof setupDirectTime === 'function') { setupDirectTime(); } });

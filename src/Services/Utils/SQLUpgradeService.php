@@ -220,7 +220,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $filename Sql upgrade/patch filename
      */
-    function upgradeFromSqlFile($filename, $path = '')
+    public function upgradeFromSqlFile($filename, $path = '')
     {
         global $webserver_root;
 
@@ -1542,8 +1542,8 @@ class SQLUpgradeService implements ISQLUpgradeService
             if ($this->isThrowExceptionOnError()) {
                 throw $exception;
             }
-        } // we let errors percolate up
-        finally {
+        } finally {
+            // we let errors percolate up
             if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }

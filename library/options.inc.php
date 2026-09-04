@@ -57,8 +57,6 @@
  * NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
  */
 
-require_once("patient.inc.php");
-require_once("lists.inc.php");
 require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
 use OpenEMR\BC\Utilities;
@@ -68,6 +66,7 @@ use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
@@ -75,8 +74,6 @@ use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
-
-$facilityService = new FacilityService();
 
 $date_init = "";
 $membership_group_number = 0;
@@ -585,7 +582,8 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 //
 function generate_form_field($frow, $currvalue): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
+    global $rootdir, $date_init, $code_types, $membership_group_number;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -1696,7 +1694,8 @@ function generate_form_field($frow, $currvalue): void
 
 function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES;
+    global $rootdir, $date_init;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -2359,7 +2358,7 @@ function generate_list_map($list_id, $translate = false)
 
 function generate_display_field($frow, $currvalue)
 {
-    global $ISSUE_TYPES, $facilityService;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -2756,7 +2755,7 @@ function generate_display_field($frow, $currvalue)
             $s .= $arr[$i];
         }
     } elseif ($data_type == 35) { // facility
-        $urow = $facilityService->getById($currvalue);
+        $urow = (new FacilityService())->getById($currvalue);
         $s = htmlspecialchars($urow['name'] ?? '', ENT_NOQUOTES);
     } elseif ($data_type == 36 || $data_type == 33) { // Multi select. Supports backup lists
         $values_array = explode("|", (string) $currvalue);
@@ -2864,7 +2863,7 @@ function generate_display_field($frow, $currvalue)
 //
 function generate_plaintext_field($frow, $currvalue)
 {
-    global $ISSUE_TYPES;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'] ?? null;
@@ -4458,10 +4457,8 @@ function dropdown_facility(
     $multiple = false,
     $class = ''
 ): void {
-    global $facilityService;
-
     $have_selected = false;
-    $fres = $facilityService->getAllFacility();
+    $fres = (new FacilityService())->getAllFacility();
     $id = $name;
 
     if ($multiple) {
@@ -4644,9 +4641,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 //billing_facility function will give the dropdown list which contain billing facilities.
 function billing_facility($name, $select): void
 {
-    global $facilityService;
-
-    $fres = $facilityService->getAllBillingLocations();
+    $fres = (new FacilityService())->getAllBillingLocations();
         echo "   <select id='" . htmlspecialchars((string) $name, ENT_QUOTES) . "' class='form-control' name='" . htmlspecialchars((string) $name, ENT_QUOTES) . "'>";
     foreach ($fres as $facrow) {
             $selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;

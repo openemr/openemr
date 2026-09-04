@@ -34,8 +34,6 @@ $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 // fetchNextXAppts() (in library/appointments.inc.php) writes $resNotNull via the
 // global keyword to signal whether the appointments query returned a non-null result.
 $resNotNull = false;
-require_once($srcdir . "/lists.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../history/history.inc.php");
 require_once($srcdir . "/clinical_rules.php");
@@ -77,9 +75,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // for one itself.
 $request = CurrentRequest::get();
 
-if (!isset($pid)) {
-    $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
-}
+$pid ??= $session->get('pid') ?? $_GET['pid'] ?? null;
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
@@ -936,7 +932,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']));
             } else {
                 echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
-            } ?>);
+            }
+            echo "," . ((new PatientService())->hasPictureForPid($pid) ? 'true' : 'false'); ?>);
             var EncounterDateArray = [];
             var CalendarCategoryArray = [];
             var EncounterIdArray = [];
@@ -1295,10 +1292,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_bg_color' => '',
                         'card_text_color' => '',
                         'forceAlwaysOpen' => !$card->canCollapse(),
+                        // btnLabel/btnLink/linkMethod are owned by the card
+                        // class — it supplies them via getTemplateVariables(),
+                        // which wins the array_merge below.
                         'btnClass'   => 'js-card-toggle-edit',
-                        'btnLabel' => 'Add',
-                        'linkMethod' => 'javascript',
-                        'btnLink' => "void(0);",
                     ];
                     // Merge with ViewCard variables and render CARD template (not form!)
                     echo "<div class='col-12 m-0 p-0 px-2'>";
@@ -1322,10 +1319,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_bg_color' => '',
                         'card_text_color' => '',
                         'forceAlwaysOpen' =>  !$card->canCollapse(),
+                        // btnLabel/btnLink/linkMethod are owned by the card
+                        // class — it supplies them via getTemplateVariables(),
+                        // which wins the array_merge below.
                         'btnClass'   => 'js-card-toggle-edit',
-                        'btnLabel' => 'Add',
-                        'linkMethod' => 'javascript',
-                        'btnLink' => "void(0);",
                     ];
 
                     // Merge with ViewCard variables and render CARD template (not form!)
@@ -1659,7 +1656,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
+                            // Fallback only: a section card that needs a button
+                            // target supplies its own btnLink via
+                            // getTemplateVariables(), which wins the merge
+                            // below. It must stay a safe href — `javascript:`
+                            // URLs are rejected by |safe_href.
+                            'btnLink' => '#',
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));

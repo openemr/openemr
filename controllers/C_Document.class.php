@@ -14,9 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/forms.inc.php");
-require_once(__DIR__ . "/../library/patient.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -25,6 +22,8 @@ use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -51,7 +50,6 @@ class C_Document extends Controller
     private bool $returnRetrieveKey = false;
 
     public function __construct(
-        $template_mod = "general",
         ?CryptoInterface $crypto = null,
     ) {
         parent::__construct();
@@ -59,7 +57,6 @@ class C_Document extends Controller
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "document&");
 
@@ -431,9 +428,8 @@ class C_Document extends Controller
 
     public function view_action(?string $patient_id, $doc_id)
     {
-        global $ISSUE_TYPES;
+        $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
-        require_once(__DIR__ . "/../library/lists.inc.php");
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $d = new Document($doc_id);
 
@@ -637,13 +633,8 @@ class C_Document extends Controller
             }
         }
 
-        switch ($context) {
-            case "patient_picture":
-                $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
-                break;
-        }
-
         // For patient_picture context, non-portal users may only request the session's active patient.
+        // Runs before the missing-photo branch so 403 vs 404 does not leak whether the patient has a photo.
         if ($context === 'patient_picture') {
             if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
                 $allowed_pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
@@ -651,6 +642,18 @@ class C_Document extends Controller
                     AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
                 }
             }
+        }
+
+        switch ($context) {
+            case "patient_picture":
+                $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
+                if ($document_id === null) {
+                    if ($disable_exit == true) {
+                        return null;
+                    }
+                    (new RequestTerminator())->error(404, '');
+                }
+                break;
         }
 
         $d = new Document($document_id);

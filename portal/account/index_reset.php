@@ -12,11 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
@@ -115,7 +115,7 @@ $vars = [
     ,'isSaved' => $isSaved
 ];
 try {
-    echo (new TwigContainer(null, $globalsBag->getKernel()))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
+    echo ServiceContainer::getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
 } catch (\Throwable $exception) {
     (new \OpenEMR\Common\Logging\SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
     die(xlt("Failed to render twig file"));

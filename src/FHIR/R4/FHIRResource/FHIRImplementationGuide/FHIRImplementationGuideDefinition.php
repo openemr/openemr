@@ -314,9 +314,7 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImplementationGuideDefinition xmlns="http://hl7.org/fhir"></ImplementationGuideDefinition>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImplementationGuideDefinition xmlns="http://hl7.org/fhir"></ImplementationGuideDefinition>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->grouping)) {
             foreach ($this->grouping as $grouping) {

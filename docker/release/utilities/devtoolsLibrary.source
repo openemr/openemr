@@ -285,12 +285,21 @@ demoData() {
 # ----------------------------------------------------------------------------
 upgradeOpenEMR() {
     # Inject site context, then run the standard upgrade via its CLI interface
-    {
+    if ! {
         echo "<?php \$_GET['site'] = 'default'; ?>"
         cat /var/www/localhost/htdocs/openemr/sql_upgrade.php
-    } > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+    } > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php; then
+        echo "ERROR: could not stage sql_upgrade.php (file missing?)" >&2
+        rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+        return 1
+    fi
     # Execute the upgrade script with the from-version argument
-    run_php_as_apache /usr/local/bin/php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php -- --from="${1}"
+    # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+    if ! run_php_as_apache /usr/local/bin/php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php -- --from="${1}"; then
+        echo "ERROR: Database upgrade failed (from ${1})" >&2
+        rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+        return 1
+    fi
 
     # Clean up temporary file
     rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php

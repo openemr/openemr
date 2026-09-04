@@ -20,13 +20,11 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('rootdir');
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
-require_once($srcdir . "/lists.inc.php");
-require_once($srcdir . "/forms.inc.php");
-require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -35,8 +33,7 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Patient Reports", xl("Patient Reports"));

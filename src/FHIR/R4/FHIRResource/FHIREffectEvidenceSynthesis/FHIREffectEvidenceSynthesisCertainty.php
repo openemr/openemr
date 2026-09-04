@@ -241,9 +241,7 @@ class FHIREffectEvidenceSynthesisCertainty extends FHIRBackboneElement implement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisCertainty xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisCertainty>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EffectEvidenceSynthesisCertainty xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisCertainty>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->rating)) {
             foreach ($this->rating as $rating) {

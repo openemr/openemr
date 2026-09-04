@@ -15,7 +15,6 @@
  */
 
 require_once(__DIR__ . "/../../interface/globals.php");
-require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;

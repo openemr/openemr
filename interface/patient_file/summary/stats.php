@@ -14,21 +14,18 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-$kernel = OEGlobalsBag::getInstance()->getKernel();
-$twigContainer = new TwigContainer(null, $kernel);
-$t = $twigContainer->getTwig();
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$t = ServiceContainer::getTwig();
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 $need_head = true;
 
 /**
