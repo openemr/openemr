@@ -56,7 +56,14 @@ final class BandOverlap
         if ($min === null || $max === null) {
             return false;
         }
-        return $min > $max;
+        if ($min > $max) {
+            return true;
+        }
+        // Equal exclusive bounds are an empty range, not a point band.
+        return $min === $max && (
+            !Values::asBool($rule['min_inclusive'] ?? 1)
+            || !Values::asBool($rule['max_inclusive'] ?? 1)
+        );
     }
 
     /**
