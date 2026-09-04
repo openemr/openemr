@@ -45,8 +45,9 @@ class AdminController
     {
         $twig = $this->bootstrap->getTwig();
         if (!AclMain::aclCheckCore('admin', 'super')) {
+            http_response_code(403);
             echo $twig->render('error/400.html.twig', [
-                'statusCode' => 401,
+                'statusCode' => 403,
                 'errorMessage' => xl('Access Denied'),
             ]);
             return;
