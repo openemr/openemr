@@ -16,11 +16,17 @@ namespace OpenEMR\Modules\LbfStatements;
 
 final class Identifiers
 {
+    /**
+     * True when $id is a layout form or field id (letters, digits, underscore, hyphen).
+     */
     public static function isFieldId(string $id): bool
     {
         return $id !== '' && preg_match('/^[A-Za-z0-9_-]+$/', $id) === 1;
     }
 
+    /**
+     * Return $id, or throw when it is not a safe layout identifier.
+     */
     public static function assertFieldId(string $id): string
     {
         if (!self::isFieldId($id)) {
