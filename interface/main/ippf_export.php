@@ -23,7 +23,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));

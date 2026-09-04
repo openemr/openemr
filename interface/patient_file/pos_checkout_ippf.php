@@ -51,7 +51,6 @@
 
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once($srcdir . "/appointment_status.inc.php");

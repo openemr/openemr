@@ -49,7 +49,6 @@ use Symfony\Component\Process\Process;
 require_once("../globals.php");
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/appointments.inc.php');
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 // statement.inc.php sets $STMT_TEMP_FILE

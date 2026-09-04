@@ -18,7 +18,6 @@
 
 require_once(__DIR__ . "/../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/lists.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {

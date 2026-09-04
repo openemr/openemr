@@ -67,7 +67,6 @@ if (!$isPortal) {
 
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
-require_once("$srcdir/patient.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");

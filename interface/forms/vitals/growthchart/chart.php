@@ -39,7 +39,6 @@
  */
 
 require_once("../../../../interface/globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
