@@ -19,9 +19,19 @@ use PHPUnit\Framework\TestCase;
 
 final class StatementEnvelopeTest extends TestCase
 {
+    public function testDefaultIsNotWindowed(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_DEFAULT);
+        $this->assertFalse($env->isWindowed());
+        $this->assertNull($env->geometry());
+        $this->assertSame('', $env->windowCss());
+        $this->assertSame('', $env->windowHtml('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']));
+    }
+
     public function testHash9UsesThreeEighthsLeftCut(): void
     {
-        $g = (new StatementEnvelope())->geometry();
+        $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH9))->geometry();
+        $this->assertNotNull($g);
         $this->assertEqualsWithDelta(0.375, $g['left'], 0.0001);
         $this->assertEqualsWithDelta(0.6875, $g['return']['top'], 0.0001);
         $this->assertEqualsWithDelta(1.1875, $g['return']['h'], 0.0001);
@@ -30,6 +40,19 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $g['to']['h'], 0.0001);
         $this->assertEqualsWithDelta(4.0, $g['to']['w'], 0.0001);
         $this->assertEqualsWithDelta(11.0 / 3.0, $g['panel'], 0.0001);
+    }
+
+    public function testHash10UsesHalfInchLeftCut(): void
+    {
+        $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH10))->geometry();
+        $this->assertNotNull($g);
+        $this->assertEqualsWithDelta(0.5, $g['left'], 0.0001);
+        $this->assertEqualsWithDelta(0.625, $g['return']['top'], 0.0001);
+        $this->assertEqualsWithDelta(1.0, $g['return']['h'], 0.0001);
+        $this->assertEqualsWithDelta(3.5, $g['return']['w'], 0.0001);
+        $this->assertEqualsWithDelta(2.0, $g['to']['top'], 0.0001);
+        $this->assertEqualsWithDelta(1.375, $g['to']['h'], 0.0001);
+        $this->assertEqualsWithDelta(4.0, $g['to']['w'], 0.0001);
     }
 
     public function testLongLineWrapsAndShrinks(): void
@@ -46,7 +69,7 @@ final class StatementEnvelopeTest extends TestCase
 
     public function testWindowHtmlEscapesAndIsFirstPageOnly(): void
     {
-        $env = new StatementEnvelope();
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
         $html = $env->windowHtml('Clinic & Co', "1 Main\nSte 2", 'Town, ND, 00000', ['Pat <X>']);
         $this->assertStringContainsString('stmt-env-windows', $html);
         $this->assertStringContainsString('Clinic &amp; Co', $html);
