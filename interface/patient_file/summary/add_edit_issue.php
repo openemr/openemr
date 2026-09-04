@@ -23,6 +23,7 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/cust
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -431,6 +432,25 @@ function getCodeText($code)
             theopts[i] = aopts[index][i];
         }
         document.getElementById('row_titles').style.display = i ? '' : 'none';
+
+        const isMedicationIssue = index == <?php echo issueTypeIndex('medication'); ?>;
+        const standardIssueTitles = document.getElementById('standard_issue_titles');
+        const medicationSearchWrap = document.getElementById('issue_medication_search_wrap');
+        const medicationDatabaseGroup = document.getElementById('issue_medication_database_group');
+
+        if (standardIssueTitles) {
+            standardIssueTitles.style.display = isMedicationIssue ? 'none' : '';
+        }
+        if (medicationSearchWrap) {
+            medicationSearchWrap.style.display = isMedicationIssue ? '' : 'none';
+        }
+        if (medicationDatabaseGroup) {
+            medicationDatabaseGroup.style.display = isMedicationIssue ? '' : 'none';
+        }
+        if (isMedicationIssue) {
+            document.getElementById('row_titles').style.display = '';
+        }
+
         //
         ///////////////////////
         var listBoxOpts2 = f.form_active_codes.options;
@@ -506,6 +526,442 @@ function getCodeText($code)
         }
     }
 
+    // Medication issues use the configured drug and clinical terminology code systems.
+    <?php
+    $allCodeTypes = OEGlobalsBag::getInstance()->get('code_types', []);
+    if (!is_array($allCodeTypes)) {
+        $allCodeTypes = [];
+    }
+
+    // The global registry contains active code types only. Query configuration
+    // directly as well so replacement removes a medication coding even if its
+    // code system was deactivated after the issue was created.
+    $allMedicationCodeTypes = [];
+    $medicationCodeTypeRows = QueryUtils::fetchRecords(
+        "SELECT ct_key FROM code_types WHERE ct_drug = 1 OR ct_term = 1 ORDER BY ct_seq, ct_key"
+    );
+    foreach ($medicationCodeTypeRows as $medicationCodeTypeRow) {
+        $allMedicationCodeTypes[] = $medicationCodeTypeRow['ct_key'];
+    }
+
+    $medicationCodeTypes = array_values(array_filter(
+        $allMedicationCodeTypes,
+        static fn ($codeType): bool => !empty($allCodeTypes[$codeType]['active'])
+    ));
+
+    if (
+        !empty($allCodeTypes['RXCUI']) &&
+        !empty($allCodeTypes['RXCUI']['active'])
+    ) {
+        $medicationCodeTypes = array_values(array_filter(
+            $medicationCodeTypes,
+            static fn ($codeType): bool => $codeType !== 'RXCUI'
+        ));
+        array_unshift($medicationCodeTypes, 'RXCUI');
+    }
+
+    // Keep the advanced popup within the same medication-relevant systems
+    // used by the stock workflow: diagnosis plus drug/clinical terminology.
+    $allSelectableCodeTypes = [];
+    foreach ($allCodeTypes as $codeTypeKey => $codeTypeConfig) {
+        if (
+            !empty($codeTypeConfig['active']) &&
+            (!empty($codeTypeConfig['diag']) || !empty($codeTypeConfig['drug']) || !empty($codeTypeConfig['term']))
+        ) {
+            $allSelectableCodeTypes[] = $codeTypeKey;
+        }
+    }
+    ?>
+
+    const medicationCodeTypes = <?php
+        echo json_encode(
+            $medicationCodeTypes,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+        ?>;
+    const allMedicationCodeTypes = <?php
+        echo json_encode(
+            $allMedicationCodeTypes,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+        ?>;
+    const allSelectableCodeTypes = <?php
+        echo json_encode(
+            $allSelectableCodeTypes,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+        ?>;
+
+    let issueMedicationSearchTimer = null;
+    let issueMedicationSearchRequest = null;
+    let issueMedicationResults = [];
+    let issueMedicationActiveIndex = -1;
+
+    function getIssueMedicationDatabase() {
+        const database = document.getElementById('issue_medication_database');
+        return database ? database.value : '';
+    }
+
+    function hideIssueMedicationResults() {
+        const results = document.getElementById('issue_medication_search_results');
+        if (results) {
+            results.innerHTML = '';
+            results.style.display = 'none';
+        }
+        issueMedicationResults = [];
+        issueMedicationActiveIndex = -1;
+    }
+
+    function cancelIssueMedicationSearch() {
+        clearTimeout(issueMedicationSearchTimer);
+        issueMedicationSearchTimer = null;
+        if (issueMedicationSearchRequest && issueMedicationSearchRequest.readyState !== 4) {
+            issueMedicationSearchRequest.abort();
+        }
+        issueMedicationSearchRequest = null;
+    }
+
+    function parseIssueMedicationResult(row) {
+        if (!row || typeof row.DT_RowId !== 'string' || row.DT_RowId.indexOf('CID|') !== 0) {
+            return null;
+        }
+
+        let payload = null;
+        try {
+            payload = JSON.parse(row.DT_RowId.substring(4));
+        } catch (error) {
+            console.error('Unable to parse OpenEMR code-search result', error);
+            return null;
+        }
+
+        if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
+            return null;
+        }
+
+        const code = payload.code !== undefined ? String(payload.code).split('|')[0] : '';
+        const description = payload.description !== undefined ? String(payload.description) : '';
+        const codeType = payload.codetype ? String(payload.codetype) : '';
+
+        if (!code || !description || !codeType) {
+            return null;
+        }
+
+        return {
+            code: code,
+            codeType: codeType,
+            description: description
+        };
+    }
+
+    function scoreIssueMedicationResult(item, term) {
+        const description = item.description.toLowerCase();
+        const query = term.trim().toLowerCase();
+
+        if (!query) {
+            return 0;
+        }
+        if (description === query) {
+            return 1000;
+        }
+        if (description.startsWith(query)) {
+            return 950;
+        }
+        if (description.includes('[' + query) || description.includes('(' + query)) {
+            return 925;
+        }
+
+        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const boundary = new RegExp('(^|[^a-z0-9])' + escaped, 'i');
+        if (boundary.test(description)) {
+            return 900;
+        }
+        if (description.includes(query)) {
+            return 500;
+        }
+        return 0;
+    }
+
+    function renderIssueMedicationResults(items, term) {
+        const results = document.getElementById('issue_medication_search_results');
+        if (!results) {
+            return;
+        }
+
+        results.innerHTML = '';
+        issueMedicationResults = items;
+        issueMedicationActiveIndex = -1;
+
+        if (!items.length) {
+            const empty = document.createElement('div');
+            empty.className = 'px-3 py-2 text-muted';
+            empty.textContent = <?php echo xlj('No matching medications found'); ?>;
+            results.appendChild(empty);
+            results.style.display = 'block';
+            return;
+        }
+
+        items.forEach(function(item, index) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'dropdown-item issue-medication-result';
+            button.dataset.index = String(index);
+
+            const description = document.createElement('div');
+            description.textContent = item.description;
+            button.appendChild(description);
+
+            const code = document.createElement('small');
+            code.className = 'text-muted';
+            code.textContent = item.codeType + ' ' + item.code;
+            button.appendChild(code);
+
+            button.addEventListener('mousedown', function(event) {
+                event.preventDefault();
+                chooseIssueMedicationResult(index);
+            });
+
+            results.appendChild(button);
+        });
+
+        results.style.display = 'block';
+    }
+
+    function setActiveIssueMedicationResult(index) {
+        const buttons = Array.from(document.querySelectorAll('#issue_medication_search_results .issue-medication-result'));
+
+        if (!buttons.length) {
+            issueMedicationActiveIndex = -1;
+            return;
+        }
+
+        if (index < 0) {
+            index = buttons.length - 1;
+        } else if (index >= buttons.length) {
+            index = 0;
+        }
+
+        buttons.forEach((button) => button.classList.remove('active'));
+        buttons[index].classList.add('active');
+        buttons[index].scrollIntoView({block: 'nearest'});
+        issueMedicationActiveIndex = index;
+    }
+
+    function removeExistingMedicationCodes() {
+        const f = document.forms[0];
+        for (let i = f.form_selected_codes.options.length - 1; i >= 0; --i) {
+            const value = f.form_selected_codes.options[i].value;
+            const prefix = value.includes(':') ? value.substring(0, value.indexOf(':')) : '';
+            if (allMedicationCodeTypes.includes(prefix)) {
+                f.form_selected_codes.remove(i);
+            }
+        }
+        updateDiagnosisFromSelectedCodes();
+    }
+
+    function chooseIssueMedicationResult(index) {
+        const item = issueMedicationResults[index];
+        if (!item) {
+            return;
+        }
+
+        const f = document.forms[0];
+        const searchInput = document.getElementById('issue_medication_search_input');
+
+        // One medication coding is primary for this issue. Remove prior
+        // medication/clinical-term code-system entries, including configured
+        // systems that are currently inactive, while preserving unrelated codes.
+        removeExistingMedicationCodes();
+
+        f.form_title.value = item.description;
+        f.form_title_id.value = '';
+        addSelectedCode(
+            item.codeType + ':' + item.code,
+            item.codeType + ':' + item.code + ' (' + item.description + ')'
+        );
+
+        if (searchInput) {
+            searchInput.value = item.description;
+        }
+
+        hideIssueMedicationResults();
+    }
+
+    function runIssueMedicationSearch() {
+        const input = document.getElementById('issue_medication_search_input');
+        const codeType = getIssueMedicationDatabase();
+
+        if (!input || !codeType) {
+            hideIssueMedicationResults();
+            return;
+        }
+
+        const term = input.value.trim();
+        if (term.length < 2) {
+            hideIssueMedicationResults();
+            return;
+        }
+
+        const request = $.ajax({
+            url: '../encounter/find_code_dynamic_ajax.php',
+            dataType: 'json',
+            data: {
+                what: 'codes',
+                codetype: codeType,
+                inactive: 0,
+                sSearch: term,
+                iDisplayStart: 0,
+                iDisplayLength: 500,
+                sEcho: 1,
+                iSortingCols: 1,
+                iSortCol_0: 1,
+                sSortDir_0: 'asc',
+                bSortable_1: 'true',
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+            }
+        });
+        issueMedicationSearchRequest = request;
+
+        request.done(function(data) {
+            const currentInput = document.getElementById('issue_medication_search_input');
+            if (
+                !currentInput ||
+                currentInput.value.trim() !== term ||
+                getIssueMedicationDatabase() !== codeType
+            ) {
+                return;
+            }
+
+            const rows = data && Array.isArray(data.aaData) ? data.aaData : [];
+            const seen = new Set();
+
+            let items = rows
+                .map((row) => parseIssueMedicationResult(row))
+                .filter((item) => item !== null)
+                .filter(function(item) {
+                    const key = item.codeType + ':' + item.code;
+                    if (seen.has(key)) {
+                        return false;
+                    }
+                    seen.add(key);
+                    return true;
+                });
+
+            items.sort(function(a, b) {
+                const scoreDifference =
+                    scoreIssueMedicationResult(b, term) -
+                    scoreIssueMedicationResult(a, term);
+
+                if (scoreDifference !== 0) {
+                    return scoreDifference;
+                }
+
+                return a.description.localeCompare(b.description);
+            });
+
+            renderIssueMedicationResults(items.slice(0, 25), term);
+        }).fail(function(xhr, status) {
+            if (status !== 'abort') {
+                console.error('Medication search failed', status);
+                hideIssueMedicationResults();
+            }
+        }).always(function() {
+            if (issueMedicationSearchRequest === request) {
+                issueMedicationSearchRequest = null;
+            }
+        });
+    }
+
+    function scheduleIssueMedicationSearch() {
+        cancelIssueMedicationSearch();
+        hideIssueMedicationResults();
+        issueMedicationSearchTimer = setTimeout(runIssueMedicationSearch, 250);
+    }
+
+    function handleIssueMedicationDatabaseChange() {
+        const input = document.getElementById('issue_medication_search_input');
+        cancelIssueMedicationSearch();
+        hideIssueMedicationResults();
+
+        if (input && input.value.trim().length >= 2) {
+            issueMedicationSearchTimer = setTimeout(runIssueMedicationSearch, 250);
+        }
+    }
+
+    function openIssueCodeSelector() {
+        const medicationSearchWrap = document.getElementById('issue_medication_search_wrap');
+        const medicationMode = medicationSearchWrap && medicationSearchWrap.style.display !== 'none';
+
+        if (!medicationMode) {
+            onAddCode();
+            return;
+        }
+
+        const codeType = getIssueMedicationDatabase();
+
+        if (!codeType) {
+            alert(<?php echo xlj('No medication database is selected.'); ?>);
+            return;
+        }
+
+        // select_codes.php shows a dropdown whenever codetype contains more
+        // than one allowed code system. Put the currently selected database
+        // first so it opens there, while preserving the medication-relevant
+        // and diagnosis systems supported by the stock issue workflow.
+        const allowedCodeTypes = [
+            codeType,
+            ...allSelectableCodeTypes.filter((item) => item !== codeType)
+        ];
+
+        const url = '../encounter/select_codes.php?codetype=' +
+            encodeURIComponent(allowedCodeTypes.join(','));
+        dlgopen(url, '_blank', 985, 800, '', <?php echo xlj("Select Codes"); ?>);
+    }
+
+    function initIssueMedicationSearch() {
+        const input = document.getElementById('issue_medication_search_input');
+        const database = document.getElementById('issue_medication_database');
+
+        if (!input || !database || input.dataset.issueMedicationInitialized === '1') {
+            return;
+        }
+
+        input.dataset.issueMedicationInitialized = '1';
+
+        // When editing, preserve an existing medication terminology selection.
+        const existingCodeType = Array.from(document.forms[0].form_selected_codes.options)
+            .map((option) => option.value.includes(':') ? option.value.substring(0, option.value.indexOf(':')) : '')
+            .find((codeType) => medicationCodeTypes.includes(codeType));
+        if (existingCodeType) {
+            database.value = existingCodeType;
+        }
+
+        input.addEventListener('input', scheduleIssueMedicationSearch);
+
+        input.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                setActiveIssueMedicationResult(issueMedicationActiveIndex + 1);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                setActiveIssueMedicationResult(issueMedicationActiveIndex - 1);
+            } else if (event.key === 'Enter' && issueMedicationActiveIndex >= 0) {
+                event.preventDefault();
+                chooseIssueMedicationResult(issueMedicationActiveIndex);
+            } else if (event.key === 'Escape') {
+                hideIssueMedicationResults();
+            }
+        });
+
+        database.addEventListener('change', handleIssueMedicationDatabaseChange);
+
+        document.addEventListener('mousedown', function(event) {
+            const wrap = document.getElementById('issue_medication_search_wrap');
+            if (wrap && !wrap.contains(event.target)) {
+                hideIssueMedicationResults();
+            }
+        });
+    }
+
     function closeme() {
         dlgclose();
     }
@@ -538,11 +994,30 @@ function getCodeText($code)
     // This is for callback by the select codes popup.
     // Appends to or erases the current list of diagnoses.
     function OnCodeSelected(codetype, code, selector, codedesc) {
+        var f = document.forms[0]
+        const medicationWrap = document.getElementById('issue_medication_search_wrap');
+        const medicationMode = medicationWrap && medicationWrap.style.display !== 'none';
+
+        if (medicationMode) {
+            removeExistingMedicationCodes();
+        }
+
         var codeKey = codetype + ':' + code
         addSelectedCode(codeKey, codeKey + ' (' + codedesc + ')')
 
-        var f = document.forms[0]
-        if (f.form_title.value == '') {
+        if (medicationMode) {
+            const database = document.getElementById('issue_medication_database');
+            const searchInput = document.getElementById('issue_medication_search_input');
+
+            if (database && Array.from(database.options).some((option) => option.value === codetype)) {
+                database.value = codetype;
+            }
+            if (searchInput) {
+                searchInput.value = codedesc;
+            }
+            f.form_title.value = codedesc;
+            f.form_title_id.value = '';
+        } else if (f.form_title.value == '') {
             f.form_title.value = codedesc;
         }
     }
@@ -605,7 +1080,8 @@ function getCodeText($code)
                         $pos = strpos($url, $item);
                         if ($pos === false) {
                             $item = urlencode($item);
-                            $url .= ",$item&default=$item";
+                            // Keep every medication code type inside the codetype query parameter.
+                            $url .= ",$item";
                         }
                     }
                 }
@@ -810,15 +1286,49 @@ function getCodeText($code)
                         </div>
                         <div class="row">
                             <div class="form-group col" id='row_titles'>
-                                <label for="form_titles" class=""><?php echo xlt('Select from list or type your own in Title'); ?></label>
-                                <select name='form_titles' id='form_titles' class="form-control select2" multiple onchange='set_text()'><option></option></select>
+                                <div id="standard_issue_titles">
+                                    <label for="form_titles" class=""><?php echo xlt('Select from list or type your own in Title'); ?></label>
+                                    <select name='form_titles' id='form_titles' class="form-control select2" multiple onchange='set_text()'><option></option></select>
+                                </div>
+
+                                <div id="issue_medication_search_wrap" style="display:none; position:relative;">
+                                    <label for="issue_medication_search_input"><?php echo xlt('Medication Search'); ?>:</label>
+                                    <input
+                                        type="text"
+                                        id="issue_medication_search_input"
+                                        class="form-control"
+                                        autocomplete="off"
+                                        placeholder="<?php echo xla('Start typing medication name'); ?>"
+                                    />
+                                    <div
+                                        id="issue_medication_search_results"
+                                        class="dropdown-menu w-100"
+                                        style="display:none; position:absolute; left:0; right:0; top:100%; max-height:320px; overflow-y:auto; z-index:2000;"
+                                    ></div>
+                                    <small class="form-text text-muted">
+                                        <?php echo xlt('Results appear after you type 2 or more characters.'); ?>
+                                    </small>
+
+                                    <div id="issue_medication_database_group" class="mt-2">
+                                        <label for="issue_medication_database"><?php echo xlt('Database'); ?>:</label>
+                                        <select id="issue_medication_database" class="form-control">
+                                            <?php
+                                            foreach ($medicationCodeTypes as $medicationCodeType) {
+                                                $medicationCodeTypeLabel = $allCodeTypes[$medicationCodeType]['label'] ?? $medicationCodeType;
+                                                $medicationCodeTypeSelected = ($medicationCodeType === 'RXCUI') ? ' selected' : '';
+                                                echo "<option value='" . attr($medicationCodeType) . "'" . $medicationCodeTypeSelected . ">" . text($medicationCodeTypeLabel) . "</option>\n";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group col">
                                 <label for="title_diagnosis"><?php echo xlt('Title'); ?>:</label>
                                 <div class="input-group">
                                     <input type='text' class="form-control" name='form_title' id='form_title' value='<?php echo attr($irow['title'] ?? '') ?>' />
                                     <div class="input-group-append">
-                                        <button type="button" id="btnCodeSearch" class="btn btn-outline-secondary" onclick="onAddCode()" title="<?php echo xla("Select a Code"); ?>"><i class="fa fa-sm fa-magnifying-glass"></i></button>
+                                        <button type="button" id="btnCodeSearch" class="btn btn-outline-secondary" onclick="openIssueCodeSelector()" title="<?php echo xla("Select a Code"); ?>"><i class="fa fa-sm fa-magnifying-glass"></i></button>
                                     </div>
                                 </div>
                                 <input type='hidden' name='form_title_id' value='<?php echo attr($irow['list_option_id'] ?? '') ?>'>
@@ -1053,6 +1563,7 @@ function getCodeText($code)
         // Include bs3 / bs4 classes here.  Keep html tags functional.
         $('table').addClass('table table-sm');
         $('.select2').select2({theme: 'bootstrap4'});
+        initIssueMedicationSearch();
         $('#expanded_options').on('shown.bs.collapse hidden.bs.collapse', toggleBtnExpOpts);
 
         onCodeSelectionChange()
