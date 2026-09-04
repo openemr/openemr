@@ -17,6 +17,7 @@ namespace OpenEMR\Modules\LbfStatements\Controller;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Modules\LbfStatements\BandLockException;
 use OpenEMR\Modules\LbfStatements\BandOverlapException;
 use OpenEMR\Modules\LbfStatements\Bootstrap;
 use OpenEMR\Modules\LbfStatements\Identifiers;
@@ -93,6 +94,8 @@ class AdminController
                         $error = xl('Minimum must be less than or equal to maximum.');
                     } catch (BandOverlapException) {
                         $error = xl('This numeric range overlaps another band on the same field.');
+                    } catch (BandLockException) {
+                        $error = xl('Could not save the rule. Another save is in progress.');
                     } catch (\InvalidArgumentException) {
                         $error = xl('Could not save the rule.');
                     }
@@ -125,6 +128,10 @@ class AdminController
                         $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
                     } catch (BandOverlapException) {
                         $error = xl('This numeric range overlaps another band on the same field.');
+                        $edit = $data;
+                        $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
+                    } catch (BandLockException) {
+                        $error = xl('Could not save the rule. Another save is in progress.');
                         $edit = $data;
                         $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
                     } catch (\InvalidArgumentException) {
