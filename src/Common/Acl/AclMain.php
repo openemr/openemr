@@ -119,6 +119,7 @@
 namespace OpenEMR\Common\Acl;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Gacl\Gacl;
 
@@ -386,12 +387,11 @@ class AclMain
     //
     public static function aclCheckIssue($type, $user = '', $return_value = '')
     {
-        require_once(__DIR__ . '/../../../library/lists.inc.php');
-        global $ISSUE_TYPES;
-        if (empty($ISSUE_TYPES[$type][5])) {
+        $issueTypes = IssueTypeRegistry::issueTypes();
+        if (empty($issueTypes[$type][5])) {
             return true;
         }
-        return self::aclCheckAcoSpec($ISSUE_TYPES[$type][5], $user, $return_value);
+        return self::aclCheckAcoSpec($issueTypes[$type][5], $user, $return_value);
     }
 
     //Fetches aco for given postcalendar category

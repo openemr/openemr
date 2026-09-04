@@ -19,6 +19,7 @@ use Mpdf\Mpdf;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
@@ -50,7 +51,6 @@ $web_root = $globalsBag->getString('web_root');
 $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once(__DIR__ . "/../../custom/code_types.inc.php");
 require_once("$srcdir/ESign/Api.php");
@@ -673,7 +673,7 @@ foreach ($ar as $key => $val) {
             $diagnosis = $irow['diagnosis'];
             if ($prevIssueType != $irow['type']) {
                 // output a header for each Issue Type we encounter
-                $disptype = $ISSUE_TYPES[$irow['type']][0];
+                $disptype = IssueTypeRegistry::issueTypes()[$irow['type']][0] ?? '';
                 echo "<div class='issue_type'>" . attr($disptype) . ":</div>\n";
                 $prevIssueType = $irow['type'];
             }

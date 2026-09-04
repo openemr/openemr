@@ -17,7 +17,6 @@ require_once("../../globals.php");
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
 
 $form_folder = "eye_mag";
 ?>

@@ -16,6 +16,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyForward;
@@ -2681,7 +2682,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 function show_PMSFH_report($PMSFH): void
 {
     global $pid;
-    global $ISSUE_TYPES;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
     $count = [];
     $total_PMSFH = 0;
 
