@@ -101,6 +101,18 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertTrue(BandOverlap::invertedBounds(['min_value' => 10, 'max_value' => 1]));
             $this->assertFalse(BandOverlap::invertedBounds(['min_value' => 1, 'max_value' => 10]));
             $this->assertFalse(BandOverlap::invertedBounds(['min_value' => 5, 'max_value' => null]));
+            $this->assertFalse(BandOverlap::invertedBounds([
+                'min_value' => 5,
+                'max_value' => 5,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+            ]));
+            $this->assertTrue(BandOverlap::invertedBounds([
+                'min_value' => 5,
+                'max_value' => 5,
+                'min_inclusive' => 0,
+                'max_inclusive' => 1,
+            ]));
         }
     }
 }
