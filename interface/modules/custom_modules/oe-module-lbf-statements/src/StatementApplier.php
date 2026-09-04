@@ -17,6 +17,8 @@ namespace OpenEMR\Modules\LbfStatements;
 class StatementApplier
 {
     /**
+     * Merge generated text onto $paragraphField in overwrite or append mode.
+     *
      * @param array<string, string> $current
      * @param list<array<string, mixed>> $actions
      * @return array<string, string>
@@ -41,6 +43,8 @@ class StatementApplier
     }
 
     /**
+     * Field list the writer should persist for this paragraph.
+     *
      * @return list<array{field_id:string}>
      */
     public function writeActions(string $paragraphField): array
@@ -48,30 +52,53 @@ class StatementApplier
         return [['field_id' => $paragraphField]];
     }
 
+    /**
+     * Append only generated sentences that are not already in the paragraph.
+     */
     private function appendText(string $existing, string $add): string
     {
         if ($existing === '') {
             return $add;
         }
-        if ($this->alreadyHasSentences($existing, $add)) {
+        $have = $this->sentenceTokens($existing);
+        $missing = [];
+        foreach ($this->sentenceParts($add) as $part) {
+            $norm = $this->normalizeSentence($part);
+            if ($norm === '' || in_array($norm, $have, true)) {
+                continue;
+            }
+            $missing[] = $part;
+            $have[] = $norm;
+        }
+        if ($missing === []) {
             return $existing;
         }
-        return rtrim($existing) . ' ' . $add;
+        return rtrim($existing) . ' ' . implode(' ', $missing);
     }
 
-    private function alreadyHasSentences(string $existing, string $add): bool
+    /**
+     * @return list<string>
+     */
+    private function sentenceParts(string $text): array
     {
-        $want = $this->sentenceTokens($add);
-        if ($want === []) {
-            return false;
-        }
-        $have = $this->sentenceTokens($existing);
-        foreach ($want as $sentence) {
-            if (!in_array($sentence, $have, true)) {
-                return false;
+        $parts = preg_split('/(?<=[.!?])\s+/u', trim($text)) ?: [];
+        $out = [];
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if ($part !== '') {
+                $out[] = $part;
             }
         }
-        return true;
+        return $out;
+    }
+
+    /**
+     * Lowercase token used to compare sentence identity.
+     */
+    private function normalizeSentence(string $part): string
+    {
+        $norm = strtolower(trim($part, " \t\n\r\0\x0B.!?"));
+        return preg_replace('/\s+/u', ' ', $norm) ?? $norm;
     }
 
     /**
@@ -79,11 +106,9 @@ class StatementApplier
      */
     private function sentenceTokens(string $text): array
     {
-        $parts = preg_split('/(?<=[.!?])\s+/u', trim($text)) ?: [];
         $out = [];
-        foreach ($parts as $part) {
-            $norm = strtolower(trim($part, " \t\n\r\0\x0B.!?"));
-            $norm = preg_replace('/\s+/u', ' ', $norm) ?? $norm;
+        foreach ($this->sentenceParts($text) as $part) {
+            $norm = $this->normalizeSentence($part);
             if ($norm !== '') {
                 $out[] = $norm;
             }

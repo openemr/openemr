@@ -200,7 +200,7 @@
 
             {% if formUrl %}
                 <a class="btn btn-outline-secondary" id="lbf-stmt-open-form"
-                   href="open_form.php"
+                   href="{{ formUrl|attr }}"
                    data-dest="form"
                    data-form-id="{{ form_id|attr }}"
                    data-pid="{{ pid|attr }}"
@@ -208,7 +208,7 @@
                    data-csrf="{{ csrfTokenValue|attr }}"
                    data-fallback-url="{{ formUrl|attr }}"
                    {% if patientSetUrl %}data-tabs-url="{{ patientSetUrl|attr }}"{% endif %}
-                   onclick="try { if (typeof openEncounterTab === 'function') { openEncounterTab(event); } } finally { return false; }">{{ "Open encounter"|xlt }}</a>
+                   onclick="if (typeof openEncounterTab === 'function') { openEncounterTab(event); return false; }">{{ "Open encounter"|xlt }}</a>
             {% endif %}
             {% if printUrl %}
                 <a class="btn btn-outline-secondary" id="lbf-stmt-print"

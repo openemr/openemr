@@ -33,11 +33,17 @@ use Symfony\Component\HttpFoundation\Request;
 
 class GenerateController
 {
+    /**
+     * @param Bootstrap $bootstrap Module Twig and public URL helper.
+     */
     public function __construct(
         private readonly Bootstrap $bootstrap
     ) {
     }
 
+    /**
+     * Render the generate screen and persist an edited paragraph on POST.
+     */
     public function run(Request $request): void
     {
         $twig = $this->bootstrap->getTwig();
@@ -65,9 +71,14 @@ class GenerateController
             }
         }
 
+        $message = '';
+        $error = '';
         $formId = $this->stringParam($request, 'form_id');
-        if ($formId !== '') {
-            Identifiers::assertFieldId($formId);
+        $invalidFormId = false;
+        if ($formId !== '' && !Identifiers::isFieldId($formId)) {
+            $error = xl('Invalid form.');
+            $formId = '';
+            $invalidFormId = true;
         }
 
         $pid = $this->intParam($request, 'pid');
@@ -84,13 +95,11 @@ class GenerateController
                     $instanceId = 0;
                 }
             }
-            if ($formId === '' && count($formChoices) === 1) {
+            if (!$invalidFormId && $formId === '' && count($formChoices) === 1) {
                 $formId = $formChoices[0]['form_id'];
             }
         }
 
-        $message = '';
-        $error = '';
         $actions = [];
         $rules = [];
         $patient = $reader->patientName($pid);
@@ -126,10 +135,14 @@ class GenerateController
                 $values = $reader->readValues($instanceId);
                 $meta = $catalog->fieldMeta($formId);
                 $paragraphField = $catalog->paragraphField($formId);
-                $paragraphTitle = $meta[$paragraphField]['title'] ?? $paragraphField;
-                $paragraphCurrent = $values[$paragraphField] ?? '';
-                $rules = $repo->rulesForForm($formId, true);
-                $actions = $engine->evaluate($formId, $values, $rules);
+                if ($paragraphField === '') {
+                    $error = $error !== '' ? $error : xl('No paragraph field is configured for this form.');
+                } else {
+                    $paragraphTitle = $meta[$paragraphField]['title'] ?? $paragraphField;
+                    $paragraphCurrent = $values[$paragraphField] ?? '';
+                    $rules = $repo->rulesForForm($formId, true);
+                    $actions = $engine->evaluate($formId, $values, $rules);
+                }
             }
         }
 
@@ -143,6 +156,10 @@ class GenerateController
             }
             if ($csrfOk && ($instanceId <= 0 || $pid <= 0 || $formId === '')) {
                 $error = xl('Select a patient and form instance.');
+            } elseif ($csrfOk && !in_array($formId, $ruleFormIds, true)) {
+                $error = xl('This form has no statement rules.');
+            } elseif ($csrfOk && $paragraphField === '') {
+                $error = xl('No paragraph field is configured for this form.');
             } elseif ($csrfOk) {
                 $row = $reader->instanceRow($instanceId, $formId);
                 if ($row === null || Values::rowInt($row, 'pid') !== $pid) {
@@ -273,6 +290,9 @@ class GenerateController
         ]);
     }
 
+    /**
+     * First matching POST or GET string for $key.
+     */
     private function stringParam(Request $request, string $key): string
     {
         $posted = $request->request->get($key);
@@ -286,6 +306,9 @@ class GenerateController
         return '';
     }
 
+    /**
+     * Integer form of stringParam(), or 0.
+     */
     private function intParam(Request $request, string $key): int
     {
         return Values::asInt($this->stringParam($request, $key));

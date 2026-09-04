@@ -36,6 +36,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
     final class BandOverlapTest extends TestCase
     {
+        /**
+         * Inclusive bands that share an endpoint overlap.
+         */
         public function testInclusiveTouchOverlaps(): void
         {
             $this->assertTrue(BandOverlap::rangesOverlap(
@@ -44,6 +47,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ));
         }
 
+        /**
+         * Exclusive bands that only touch do not overlap.
+         */
         public function testExclusiveTouchDoesNotOverlap(): void
         {
             $this->assertFalse(BandOverlap::rangesOverlap(
@@ -52,6 +58,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ));
         }
 
+        /**
+         * Bands with a gap between them do not overlap.
+         */
         public function testGapDoesNotOverlap(): void
         {
             $this->assertFalse(BandOverlap::rangesOverlap(
@@ -60,6 +69,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ));
         }
 
+        /**
+         * An open-ended band overlaps a finite neighbor.
+         */
         public function testOpenEndedOverlaps(): void
         {
             $this->assertTrue(BandOverlap::rangesOverlap(
@@ -68,6 +80,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ));
         }
 
+        /**
+         * An exclusive open upper bound does not overlap at the edge.
+         */
         public function testOpenUpperExclusiveDoesNotOverlapAtBoundary(): void
         {
             $normal = ['min_value' => null, 'max_value' => 40, 'min_inclusive' => 1, 'max_inclusive' => 0];
@@ -78,6 +93,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertFalse(BandOverlap::rangesOverlap($normal, $severe));
         }
 
+        /**
+         * Detect a minimum that is greater than the maximum.
+         */
         public function testInvertedBounds(): void
         {
             $this->assertTrue(BandOverlap::invertedBounds(['min_value' => 10, 'max_value' => 1]));
