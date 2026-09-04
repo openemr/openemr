@@ -14,16 +14,19 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\LbfStatements;
 
-use OpenEMR\Common\Database\QueryUtils;
-
 class LayoutCatalog
 {
+    public function __construct(
+        private readonly Queries $sql = new Queries()
+    ) {
+    }
+
     /**
      * @return list<array{form_id:string,title:string}>
      */
     public function listLbfForms(): array
     {
-        $rows = QueryUtils::fetchRecords(
+        $rows = $this->sql->fetchRecords(
             "SELECT grp_form_id, grp_title FROM layout_group_properties " .
             "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 " .
             "ORDER BY grp_title, grp_form_id"
@@ -53,7 +56,7 @@ class LayoutCatalog
     public function fieldMeta(string $formId): array
     {
         Identifiers::assertFieldId($formId);
-        $rows = QueryUtils::fetchRecords(
+        $rows = $this->sql->fetchRecords(
             "SELECT field_id, data_type, title, list_id, seq, group_id FROM layout_options " .
             "WHERE form_id = ? AND field_id != '' AND uor > 0 ORDER BY group_id, seq",
             [$formId]
@@ -82,7 +85,7 @@ class LayoutCatalog
     public function paragraphField(string $formId): string
     {
         Identifiers::assertFieldId($formId);
-        $row = Values::assocRow(QueryUtils::querySingleRow(
+        $row = Values::assocRow($this->sql->querySingleRow(
             "SELECT paragraph_field_id FROM module_lbf_statement_forms WHERE form_id = ?",
             [$formId]
         ));
@@ -112,7 +115,7 @@ class LayoutCatalog
         if (!isset($meta[$fieldId]) || $meta[$fieldId]['data_type'] !== 3) {
             throw new \InvalidArgumentException('Paragraph field must be a textarea on this layout.');
         }
-        QueryUtils::sqlStatementThrowException(
+        $this->sql->sqlStatementThrowException(
             "REPLACE INTO module_lbf_statement_forms (form_id, paragraph_field_id) VALUES (?, ?)",
             [$formId, $fieldId]
         );
@@ -121,13 +124,13 @@ class LayoutCatalog
     public function ensureParagraphField(string $formId): string
     {
         Identifiers::assertFieldId($formId);
-        $exists = Values::assocRow(QueryUtils::querySingleRow(
+        $exists = Values::assocRow($this->sql->querySingleRow(
             "SELECT field_id FROM layout_options WHERE form_id = ? AND field_id = 'stmt_paragraph'",
             [$formId]
         ));
         $existingId = $exists !== null ? Values::rowString($exists, 'field_id') : '';
         if ($existingId === '') {
-            $group = Values::assocRow(QueryUtils::querySingleRow(
+            $group = Values::assocRow($this->sql->querySingleRow(
                 "SELECT grp_group_id FROM layout_group_properties " .
                 "WHERE grp_form_id = ? AND grp_group_id != '' ORDER BY grp_seq LIMIT 1",
                 [$formId]
@@ -139,7 +142,7 @@ class LayoutCatalog
                     $gid = $fromGroup;
                 }
             }
-            QueryUtils::sqlStatementThrowException(
+            $this->sql->sqlStatementThrowException(
                 "INSERT INTO layout_options (form_id, field_id, group_id, title, seq, data_type, uor, " .
                 "fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, " .
                 "description, fld_rows, list_backup_id, source, conditions, validation, codes) VALUES (" .

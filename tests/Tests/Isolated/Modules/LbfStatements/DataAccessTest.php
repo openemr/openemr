@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Layout, LBF I/O, and rule repository tests against a QueryUtils stub.
+ * Layout, LBF I/O, and rule repository tests against a Queries fake.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -11,54 +11,6 @@
  */
 
 declare(strict_types=1);
-
-namespace OpenEMR\Common\Database {
-    if (!class_exists(QueryUtils::class, false)) {
-        final class QueryUtils
-        {
-            /** @var list<mixed> */
-            public static array $queue = [];
-            /** @var list<array<string, mixed>> */
-            public static array $calls = [];
-            public static int $insertId = 42;
-
-            public static function reset(): void
-            {
-                self::$queue = [];
-                self::$calls = [];
-                self::$insertId = 42;
-            }
-
-            public static function fetchRecords($sqlStatement, $binds = [], $noLog = false): array
-            {
-                self::$calls[] = ['op' => 'fetch', 'sql' => (string) $sqlStatement, 'binds' => $binds];
-                $next = array_shift(self::$queue);
-                return is_array($next) ? $next : [];
-            }
-
-            public static function querySingleRow(string $sql, $params = [], bool $log = true): mixed
-            {
-                self::$calls[] = ['op' => 'one', 'sql' => $sql, 'binds' => $params];
-                if (self::$queue === []) {
-                    return null;
-                }
-                return array_shift(self::$queue);
-            }
-
-            public static function sqlStatementThrowException($statement, $binds = [], $noLog = false): bool
-            {
-                self::$calls[] = ['op' => 'exec', 'sql' => (string) $statement, 'binds' => $binds];
-                return true;
-            }
-
-            public static function sqlInsert($statement, $binds = []): int
-            {
-                self::$calls[] = ['op' => 'insert', 'sql' => (string) $statement, 'binds' => $binds];
-                return self::$insertId;
-            }
-        }
-    }
-}
 
 namespace {
     $moduleSrc = dirname(__DIR__, 5) . '/interface/modules/custom_modules/oe-module-lbf-statements/src/';
@@ -79,33 +31,96 @@ namespace {
 
 namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
-    use OpenEMR\Common\Database\QueryUtils;
+    use OpenEMR\Modules\LbfStatements\BandOverlapException;
+    use OpenEMR\Modules\LbfStatements\InvertedBoundsException;
     use OpenEMR\Modules\LbfStatements\LayoutCatalog;
     use OpenEMR\Modules\LbfStatements\LbfReader;
     use OpenEMR\Modules\LbfStatements\LbfWriter;
+    use OpenEMR\Modules\LbfStatements\Queries;
     use OpenEMR\Modules\LbfStatements\StatementRepository;
     use PHPUnit\Framework\TestCase;
 
+    final class FakeQueries extends Queries
+    {
+        /** @var list<mixed> */
+        public array $queue = [];
+        /** @var list<array{op:string,sql:string,binds:mixed}> */
+        public array $calls = [];
+        public int $insertId = 42;
+
+        /**
+         * @param array<int|string, mixed> $binds
+         * @return list<array<mixed>>
+         */
+        public function fetchRecords(string $sql, array $binds = []): array
+        {
+            $this->calls[] = ['op' => 'fetch', 'sql' => $sql, 'binds' => $binds];
+            $next = array_shift($this->queue);
+            if (!is_array($next)) {
+                return [];
+            }
+            $out = [];
+            foreach ($next as $row) {
+                if (is_array($row)) {
+                    $out[] = $row;
+                }
+            }
+            return $out;
+        }
+
+        /**
+         * @param array<int|string, mixed> $params
+         */
+        public function querySingleRow(string $sql, array $params = []): mixed
+        {
+            $this->calls[] = ['op' => 'one', 'sql' => $sql, 'binds' => $params];
+            if ($this->queue === []) {
+                return null;
+            }
+            return array_shift($this->queue);
+        }
+
+        /**
+         * @param array<int|string, mixed> $binds
+         */
+        public function sqlStatementThrowException(string $sql, array $binds = []): mixed
+        {
+            $this->calls[] = ['op' => 'exec', 'sql' => $sql, 'binds' => $binds];
+            return true;
+        }
+
+        /**
+         * @param array<int|string, mixed> $binds
+         */
+        public function sqlInsert(string $sql, array $binds = []): int
+        {
+            $this->calls[] = ['op' => 'insert', 'sql' => $sql, 'binds' => $binds];
+            return $this->insertId;
+        }
+    }
+
     final class DataAccessTest extends TestCase
     {
+        private FakeQueries $sql;
+
         protected function setUp(): void
         {
-            QueryUtils::reset();
+            $this->sql = new FakeQueries();
         }
 
         public function testListAndFieldMeta(): void
         {
-            QueryUtils::$queue[] = [
+            $this->sql->queue[] = [
                 ['grp_form_id' => 'LBFecho', 'grp_title' => 'Echo'],
                 [0 => 'skip-me'],
             ];
-            $catalog = new LayoutCatalog();
+            $catalog = new LayoutCatalog($this->sql);
             $this->assertSame(
                 [['form_id' => 'LBFecho', 'title' => 'Echo']],
                 $catalog->listLbfForms()
             );
 
-            QueryUtils::$queue[] = [
+            $this->sql->queue[] = [
                 ['field_id' => 'findings', 'data_type' => 3, 'title' => 'Findings', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
                 ['field_id' => '', 'data_type' => 3, 'title' => 'No', 'list_id' => '', 'seq' => 2, 'group_id' => '1'],
             ];
@@ -116,12 +131,12 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
         public function testParagraphFieldPrefersSummaryThenTextarea(): void
         {
-            $catalog = new LayoutCatalog();
-            QueryUtils::$queue[] = ['paragraph_field_id' => 'custom_box'];
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = ['paragraph_field_id' => 'custom_box'];
             $this->assertSame('custom_box', $catalog->paragraphField('LBFecho'));
 
-            QueryUtils::$queue[] = null;
-            QueryUtils::$queue[] = [
+            $this->sql->queue[] = null;
+            $this->sql->queue[] = [
                 ['field_id' => 'summary_comments', 'data_type' => 3, 'title' => 'Sum', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
             ];
             $this->assertSame('summary_comments', $catalog->paragraphField('LBFecho'));
@@ -129,8 +144,8 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
         public function testSaveParagraphFieldRejectsNonTextarea(): void
         {
-            $catalog = new LayoutCatalog();
-            QueryUtils::$queue[] = [
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = [
                 ['field_id' => 'num', 'data_type' => 2, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
             ];
             $this->expectException(\InvalidArgumentException::class);
@@ -139,20 +154,21 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
         public function testSaveParagraphFieldWritesTextarea(): void
         {
-            $catalog = new LayoutCatalog();
-            QueryUtils::$queue[] = [
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = [
                 ['field_id' => 'notes', 'data_type' => 3, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
             ];
             $catalog->saveParagraphField('LBFecho', 'notes');
-            $this->assertSame('exec', QueryUtils::$calls[1]['op']);
+            $ops = array_column($this->sql->calls, 'op');
+            $this->assertSame('exec', $ops[1] ?? null);
         }
 
         public function testEnsureParagraphFieldInsertsWhenMissing(): void
         {
-            $catalog = new LayoutCatalog();
-            QueryUtils::$queue[] = null;
-            QueryUtils::$queue[] = ['grp_group_id' => '2'];
-            QueryUtils::$queue[] = [
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = null;
+            $this->sql->queue[] = ['grp_group_id' => '2'];
+            $this->sql->queue[] = [
                 ['field_id' => 'stmt_paragraph', 'data_type' => 3, 'title' => 'Generated statements', 'list_id' => '', 'seq' => 1, 'group_id' => '2'],
             ];
             $this->assertSame('stmt_paragraph', $catalog->ensureParagraphField('LBFecho'));
@@ -160,35 +176,35 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
         public function testReaderPatientAndOwnership(): void
         {
-            $reader = new LbfReader();
+            $reader = new LbfReader($this->sql);
             $this->assertNull($reader->patientName(0));
-            QueryUtils::$queue[] = ['pid' => 1, 'fname' => 'Ted', 'lname' => 'Shaw'];
+            $this->sql->queue[] = ['pid' => 1, 'fname' => 'Ted', 'lname' => 'Shaw'];
             $this->assertSame(['pid' => 1, 'name' => 'Shaw, Ted'], $reader->patientName(1));
-            QueryUtils::$queue[] = ['encounter' => 9];
+            $this->sql->queue[] = ['encounter' => 9];
             $this->assertTrue($reader->encounterOwnedBy(1, 9));
             $this->assertFalse($reader->encounterOwnedBy(1, 9));
         }
 
         public function testReaderInstancesAndValues(): void
         {
-            $reader = new LbfReader();
+            $reader = new LbfReader($this->sql);
             $this->assertSame([], $reader->instancesOnEncounter(0, 1, ['LBFecho']));
             $this->assertSame([], $reader->formdirsForPatient(1, []));
-            QueryUtils::$queue[] = [
+            $this->sql->queue[] = [
                 ['formdir' => 'LBFecho', 'form_id' => 12, 'form_name' => 'Echo'],
                 [0 => 'x'],
             ];
             $onEnc = $reader->instancesOnEncounter(1, 5, ['LBFecho']);
             $this->assertSame(12, $onEnc[0]['instance_id']);
 
-            QueryUtils::$queue[] = [
+            $this->sql->queue[] = [
                 ['formdir' => 'LBFecho'],
                 ['formdir' => 'LBFecho'],
                 ['formdir' => ''],
             ];
             $this->assertSame(['LBFecho'], $reader->formdirsForPatient(1, ['LBFecho']));
 
-            QueryUtils::$queue[] = [
+            $this->sql->queue[] = [
                 ['form_id' => 3, 'encounter' => 8, 'date' => '2026-01-02', 'form_name' => 'Echo', 'encounter_date' => '', 'reason' => str_repeat('r', 90)],
             ];
             $list = $reader->instancesForPatient('LBFecho', 1);
@@ -196,10 +212,12 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame(8, $list[0]['encounter']);
             $this->assertStringEndsWith('...', $list[0]['reason']);
 
-            QueryUtils::$queue[] = ['id' => 1, 'pid' => 1, 'encounter' => 8, 'formdir' => 'LBFecho', 'form_id' => 3, 'date' => '2026-01-02'];
-            $this->assertSame(1, $reader->instanceRow(3, 'LBFecho')['pid']);
+            $this->sql->queue[] = ['id' => 1, 'pid' => 1, 'encounter' => 8, 'formdir' => 'LBFecho', 'form_id' => 3, 'date' => '2026-01-02'];
+            $row = $reader->instanceRow(3, 'LBFecho');
+            $this->assertNotNull($row);
+            $this->assertSame(1, $row['pid']);
 
-            QueryUtils::$queue[] = [
+            $this->sql->queue[] = [
                 ['field_id' => 'findings', 'field_value' => 'mild'],
                 ['field_id' => '', 'field_value' => 'x'],
             ];
@@ -208,31 +226,35 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
         public function testWriterInsertUpdateDelete(): void
         {
-            $writer = new LbfWriter();
+            $writer = new LbfWriter($this->sql);
             $writer->write(3, ['notes' => 'hi', 'gone' => ''], ['gone' => 'old'], [
                 ['field_id' => ''],
                 ['field_id' => 'notes'],
                 ['field_id' => 'gone'],
             ]);
-            $ops = array_column(QueryUtils::$calls, 'op');
+            $ops = array_column($this->sql->calls, 'op');
             $this->assertContains('exec', $ops);
             $writer->write(3, ['notes' => 'hi'], [], [['field_id' => 'notes']]);
-            $this->assertSame('exec', QueryUtils::$calls[array_key_last(QueryUtils::$calls)]['op']);
+            $last = $this->sql->calls[array_key_last($this->sql->calls)] ?? null;
+            $this->assertIsArray($last);
+            $this->assertSame('exec', $last['op']);
         }
 
         public function testRepositoryRulesAndSave(): void
         {
-            $repo = new StatementRepository();
-            QueryUtils::$queue[] = [['form_id' => 'LBFecho'], [0 => 'x']];
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [['form_id' => 'LBFecho'], [0 => 'x']];
             $this->assertSame(['LBFecho'], $repo->formIdsWithRules());
 
-            QueryUtils::$queue[] = [['id' => 1, 'form_id' => 'LBFecho', 'source_field_id' => 'n', 'op' => 'band', 'enabled' => 1]];
+            $this->sql->queue[] = [['id' => 1, 'form_id' => 'LBFecho', 'source_field_id' => 'n', 'op' => 'band', 'enabled' => 1]];
             $this->assertCount(1, $repo->rulesForForm('LBFecho', true));
 
-            QueryUtils::$queue[] = ['id' => 2, 'form_id' => 'LBFecho', 'op' => 'band'];
-            $this->assertSame(2, $repo->getRule(2)['id']);
+            $this->sql->queue[] = ['id' => 2, 'form_id' => 'LBFecho', 'op' => 'band'];
+            $rule = $repo->getRule(2);
+            $this->assertNotNull($rule);
+            $this->assertSame(2, $rule['id']);
 
-            QueryUtils::$queue[] = [];
+            $this->sql->queue[] = [];
             $id = $repo->saveRule([
                 'form_id' => 'LBFecho',
                 'source_field_id' => 'n',
@@ -247,7 +269,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ]);
             $this->assertSame(42, $id);
 
-            QueryUtils::$queue[] = [];
+            $this->sql->queue[] = [];
             $this->assertSame(7, $repo->saveRule([
                 'form_id' => 'LBFecho',
                 'source_field_id' => 'n',
@@ -257,17 +279,19 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'enabled' => 1,
             ], 7));
 
-            QueryUtils::$queue[] = ['id' => 7, 'form_id' => 'LBFecho', 'source_field_id' => 'n', 'op' => 'parse_severity', 'enabled' => 0];
+            $this->sql->queue[] = ['id' => 7, 'form_id' => 'LBFecho', 'source_field_id' => 'n', 'op' => 'parse_severity', 'enabled' => 0];
             $repo->setEnabled(7, true);
 
             $repo->logRun('LBFecho', 1, 3, 'admin', 'overwrite');
-            $this->assertSame('insert', QueryUtils::$calls[array_key_last(QueryUtils::$calls)]['op']);
+            $last = $this->sql->calls[array_key_last($this->sql->calls)] ?? null;
+            $this->assertIsArray($last);
+            $this->assertSame('insert', $last['op']);
         }
 
-        public function testRepositoryRejectsOverlapAndBadMode(): void
+        public function testRepositoryRejectsOverlap(): void
         {
-            $repo = new StatementRepository();
-            QueryUtils::$queue[] = [[
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [[
                 'id' => 1,
                 'form_id' => 'LBFecho',
                 'source_field_id' => 'n',
@@ -279,13 +303,30 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'max_inclusive' => 1,
                 'enabled' => 1,
             ]];
-            $this->expectException(\InvalidArgumentException::class);
+            $this->expectException(BandOverlapException::class);
             $repo->saveRule([
                 'form_id' => 'LBFecho',
                 'source_field_id' => 'n',
                 'op' => 'band',
                 'min_value' => 4,
                 'max_value' => 9,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
+        }
+
+        public function testRepositoryRejectsInvertedBounds(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->expectException(InvertedBoundsException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 9,
+                'max_value' => 1,
                 'min_inclusive' => 1,
                 'max_inclusive' => 1,
                 'enabled' => 1,

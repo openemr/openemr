@@ -14,10 +14,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\LbfStatements;
 
-use OpenEMR\Common\Database\QueryUtils;
-
 class LbfReader
 {
+    public function __construct(
+        private readonly Queries $sql = new Queries()
+    ) {
+    }
+
     /**
      * @return array{pid:int,name:string}|null
      */
@@ -26,7 +29,7 @@ class LbfReader
         if ($pid <= 0) {
             return null;
         }
-        $row = Values::assocRow(QueryUtils::querySingleRow(
+        $row = Values::assocRow($this->sql->querySingleRow(
             "SELECT pid, fname, lname FROM patient_data WHERE pid = ?",
             [$pid]
         ));
@@ -56,7 +59,7 @@ class LbfReader
         }
         $placeholders = implode(',', array_fill(0, count($safe), '?'));
         $bind = array_merge([$pid, $encounter], $safe);
-        $rows = QueryUtils::fetchRecords(
+        $rows = $this->sql->fetchRecords(
             "SELECT f.formdir, f.form_id, f.form_name FROM forms f " .
             "WHERE f.pid = ? AND f.encounter = ? AND f.deleted = 0 AND f.formdir IN ($placeholders) " .
             "ORDER BY f.date DESC",
@@ -92,7 +95,7 @@ class LbfReader
         }
         $placeholders = implode(',', array_fill(0, count($safe), '?'));
         $bind = array_merge([$pid], $safe);
-        $rows = QueryUtils::fetchRecords(
+        $rows = $this->sql->fetchRecords(
             "SELECT f.formdir FROM forms f " .
             "WHERE f.pid = ? AND f.deleted = 0 AND f.formdir IN ($placeholders) " .
             "ORDER BY f.date DESC, f.form_id DESC",
@@ -121,7 +124,7 @@ class LbfReader
     public function instancesForPatient(string $formId, int $pid): array
     {
         Identifiers::assertFieldId($formId);
-        $rows = QueryUtils::fetchRecords(
+        $rows = $this->sql->fetchRecords(
             "SELECT f.form_id, f.encounter, f.date, f.form_name, " .
             "fe.date AS encounter_date, fe.reason " .
             "FROM forms f " .
@@ -141,7 +144,10 @@ class LbfReader
                 $date = Values::rowString($row, 'date');
             }
             if (function_exists('oeFormatShortDate') && $date !== '') {
-                $date = oeFormatShortDate(substr($date, 0, 10));
+                $formatted = oeFormatShortDate(substr($date, 0, 10));
+                if (is_string($formatted) && $formatted !== '') {
+                    $date = $formatted;
+                }
             }
             $reason = trim(strip_tags(Values::rowString($row, 'reason')));
             if (strlen($reason) > 80) {
@@ -164,7 +170,7 @@ class LbfReader
     public function instanceRow(int $instanceId, string $formDir): ?array
     {
         Identifiers::assertFieldId($formDir);
-        return Values::assocRow(QueryUtils::querySingleRow(
+        return Values::assocRow($this->sql->querySingleRow(
             "SELECT id, pid, encounter, formdir, form_id, date FROM forms " .
             "WHERE form_id = ? AND formdir = ? AND deleted = 0",
             [$instanceId, $formDir]
@@ -176,7 +182,7 @@ class LbfReader
      */
     public function readValues(int $instanceId): array
     {
-        $rows = QueryUtils::fetchRecords(
+        $rows = $this->sql->fetchRecords(
             "SELECT field_id, field_value FROM lbf_data WHERE form_id = ? AND field_id != ''",
             [$instanceId]
         );
@@ -197,7 +203,7 @@ class LbfReader
 
     public function encounterOwnedBy(int $pid, int $encounter): bool
     {
-        $row = Values::assocRow(QueryUtils::querySingleRow(
+        $row = Values::assocRow($this->sql->querySingleRow(
             "SELECT encounter FROM form_encounter WHERE pid = ? AND encounter = ?",
             [$pid, $encounter]
         ));
