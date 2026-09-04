@@ -125,7 +125,7 @@ $info_msg = "";
                     allempty = false;
                 }
                 if(adjDisable) {
-                    if ((cAdjust == 0 && ins_done.value == 'changed')) {
+                    if ((cAdjust == 0 && f['ins_done'].value == 'changed')) {
                         allempty = false;
                     }
                 }
@@ -234,12 +234,10 @@ $info_msg = "";
                 <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
+            $("#ins_done_group").on("change", "input[name='form_done']", function() {
+                $("#ins_done").val('changed');
+            });
         });
-
-        $("#ins_done").on("change", function() {
-            $("#ins_done").val('changed');
-        });
-
     </script>
     <style>
         @media only screen and (max-width: 768px) {
@@ -585,7 +583,8 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia'] ?? '') ?>'/>
                         </div>
                     </div>
-                    <div class="form-group col-lg" id='ins_done'>
+                    <div class="form-group col-lg" id='ins_done_group'>
+                        <input type="hidden" name="ins_done" id="ins_done" value="" />
                         <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
                         <a class="btn btn-save bg-light text-primary"
                             onclick="document.forms[0].isLastClosed.value='3'; document.forms[0].submit()"><?php echo xlt("Save Level"); ?>
