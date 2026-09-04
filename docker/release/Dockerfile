@@ -172,18 +172,24 @@ WORKDIR /openemr
 # install; the cache mount keeps successful downloads so retries are cheap.
 ENV COMPOSER_MAX_RETRIES=8
 # Use Docker buildkit cache mount for Composer cache (requires DOCKER_BUILDKIT=1)
-RUN --mount=type=cache,target=/root/.composer/cache \
-    attempt=1; \
-    until composer install --no-dev --optimize-autoloader; do \
-        if [ "${attempt}" -ge 5 ]; then \
-            echo "ERROR: composer install failed after ${attempt} attempts"; \
-            exit 1; \
-        fi; \
-        echo "WARNING: composer install failed (attempt ${attempt}/5), retrying in 15s..."; \
-        attempt=$((attempt + 1)); \
-        sleep 15; \
-    done \
-    && composer dump-autoload --optimize --apcu
+# POSIX test, not (( )): this RUN executes under Alpine's busybox ash, which
+# parses (( )) as nested subshells rather than arithmetic.
+RUN --mount=type=cache,target=/root/.composer/cache <<EOF
+set -e
+attempt=1
+max_attempts=5
+until composer install --no-dev --optimize-autoloader; do
+    if [ "${attempt}" -ge "${max_attempts}" ]; then
+        printf 'ERROR: composer install failed after %s attempts\n' "${attempt}" >&2
+        exit 1
+    fi
+    printf 'WARNING: composer install failed (attempt %s/%s), retrying in 15s...\n' \
+        "${attempt}" "${max_attempts}" >&2
+    attempt=$((attempt + 1))
+    sleep 15
+done
+composer dump-autoload --optimize --apcu
+EOF
 
 # Stage 3: Build frontend assets (npm)
 # Separate stage allows Docker to cache npm dependencies independently

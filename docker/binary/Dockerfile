@@ -25,8 +25,12 @@ FROM alpine:${ALPINE_VERSION} AS base
 ARG OPENEMR_VERSION=8_3_0
 ARG BINARY_RELEASE_DATE=08232026
 ARG PHP_VERSION=8.5
+# Forge tags use an abbreviated PHP version (e.g. "8.5" -> "php85"). Derived
+# once here rather than per-RUN, the same way docker/flex/Dockerfile does it.
+ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
 ENV OPENEMR_VERSION=${OPENEMR_VERSION}
 ENV PHP_VERSION=${PHP_VERSION}
+ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
 
 # Architecture detection - Docker automatically provides TARGETARCH
 # TARGETARCH values: amd64, arm64
@@ -95,11 +99,7 @@ RUN usermod -u 1000 apache
 # These binaries are statically compiled and include all necessary extensions
 # We need php-fpm (for FastCGI) and php-cli (for command-line scripts like auto_configure.php)
 # Architecture naming: amd64 and arm64 are used directly in release URLs and filenames
-# Forge tags use an abbreviated PHP version (e.g. "8.5" -> "php85").
-# Derive it in the RUN shell with POSIX tr so it does not depend on
-# Dockerfile frontend pattern-replacement support.
 RUN ARCH_SUFFIX="${TARGETARCH}" \
-    && PHP_VERSION_ABBR="$(echo "${PHP_VERSION}" | tr -d '.')" \
     && cd /tmp \
     && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-fpm-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-fpm \
     && test -s php-fpm || (echo "ERROR: php-fpm download failed - file is empty or missing" && exit 1) \
@@ -126,7 +126,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # via volumes at runtime and never overwritten by this build-time extraction.
 # Architecture naming: amd64 and arm64 are used directly in release URLs
 RUN ARCH_SUFFIX="${TARGETARCH}" \
-    && PHP_VERSION_ABBR="$(echo "${PHP_VERSION}" | tr -d '.')" \
     && cd /tmp \
     && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/openemr.phar" -o openemr.phar \
     && test -s openemr.phar || (echo "ERROR: openemr.phar download failed - file is empty or missing" && exit 1) \

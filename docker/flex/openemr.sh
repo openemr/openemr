@@ -67,14 +67,16 @@ flex_timing() {
 # downloads stay in the Composer cache, so later attempts are cheap.
 composer_install_with_retry() {
     local attempt=1
+    local max_attempts=5
     export COMPOSER_MAX_RETRIES="${COMPOSER_MAX_RETRIES:-8}"
     until composer install "$@"; do
-        if [[ "${attempt}" -ge 5 ]]; then
-            echo "ERROR: composer install failed after ${attempt} attempts"
+        if (( attempt >= max_attempts )); then
+            printf 'ERROR: composer install failed after %s attempts\n' "${attempt}" >&2
             return 1
         fi
-        echo "WARNING: composer install failed (attempt ${attempt}/5), retrying in 15s..."
-        attempt=$((attempt + 1))
+        printf 'WARNING: composer install failed (attempt %s/%s), retrying in 15s...\n' \
+            "${attempt}" "${max_attempts}" >&2
+        (( ++attempt ))
         sleep 15
     done
 }

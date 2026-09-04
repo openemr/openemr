@@ -44,17 +44,23 @@ setup() {
     local openemr_version
     local binary_release_date
     local alpine_version
+    local php_version_abbr
     local probe
     php_version=$(sed -n 's/^ARG PHP_VERSION=//p' "$dockerfile" | head -1)
     openemr_version=$(sed -n 's/^ARG OPENEMR_VERSION=//p' "$dockerfile" | head -1)
     binary_release_date=$(sed -n 's/^ARG BINARY_RELEASE_DATE=//p' "$dockerfile" | head -1)
     alpine_version=$(sed -n 's/^ARG ALPINE_VERSION=//p' "$dockerfile" | head -1)
-    [[ "$php_version" == "8.5" ]]
-    [[ "$(echo "$php_version" | tr -d '.')" == "85" ]]
-    [[ "$openemr_version" == "8_3_0" ]]
-    [[ "$binary_release_date" == "08232026" ]]
-    [[ "$alpine_version" == "3.24" ]]
-    assert_pattern_count_ge "$dockerfile" 'PHP_VERSION_ABBR="$(echo "\${PHP_VERSION}" | tr -d' 2
+    # Shape, not value. These four ARGs are bot-maintained by
+    # .github/workflows/updatecli-docker-pins.yml, so pinning the literals
+    # here would turn every routine pin bump red until someone hand-edited
+    # this file. What the derivation actually needs is that each ARG is
+    # present and well-formed.
+    [[ "$php_version" =~ ^[0-9]+\.[0-9]+$ ]]
+    [[ "$openemr_version" =~ ^[0-9]+(_[0-9]+)+$ ]]
+    [[ "$binary_release_date" =~ ^[0-9]{8}$ ]]
+    [[ "$alpine_version" =~ ^3\.[0-9]+$ ]]
+    php_version_abbr=$(sed -n 's/^ARG PHP_VERSION_ABBR=//p' "$dockerfile" | head -1)
+    [[ "$php_version_abbr" == '${PHP_VERSION//./}' ]]
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/php-fpm-v\${OPENEMR_VERSION}'
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/php-cli-v\${OPENEMR_VERSION}'
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/openemr.phar'
@@ -69,10 +75,9 @@ setup() {
 # syntax=docker/dockerfile:1
 FROM alpine:${alpine_version}
 ARG PHP_VERSION=8.5
+ARG PHP_VERSION_ABBR=\${PHP_VERSION//./}
 ARG EXPECTED_PHP_VERSION_ABBR=85
-ENV PHP_VERSION=\${PHP_VERSION}
-RUN PHP_VERSION_ABBR="\$(echo "\${PHP_VERSION}" | tr -d '.')" \\
-    && test "\${PHP_VERSION_ABBR}" = "\${EXPECTED_PHP_VERSION_ABBR}"
+RUN test "\${PHP_VERSION_ABBR}" = "\${EXPECTED_PHP_VERSION_ABBR}"
 EOF
     docker build --quiet \
         --build-arg PHP_VERSION=8.5 \
