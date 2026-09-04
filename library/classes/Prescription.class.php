@@ -82,7 +82,6 @@
 //
 
 
-require_once(__DIR__ . "/../lists.inc.php");
 
 
 /**

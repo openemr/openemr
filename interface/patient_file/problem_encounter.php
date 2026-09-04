@@ -17,7 +17,6 @@
 require_once("../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-require_once($srcdir . "/lists.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

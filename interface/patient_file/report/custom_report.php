@@ -19,7 +19,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 require_once $srcdir . '/ESign/Api.php';

@@ -45,7 +45,6 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
-require_once("$srcdir/lists.inc.php");
 
 // get various authorization levels
 $auth_notes_a = true; //AclMain::aclCheckCore('encounters', 'notes_a');

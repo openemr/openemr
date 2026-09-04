@@ -30,7 +30,6 @@ $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 $pid = PatientSessionUtil::getPid();
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
 
 if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once("$srcdir/group.inc.php");

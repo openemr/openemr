@@ -51,7 +51,6 @@ $web_root = $globalsBag->getString('web_root');
 $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once(__DIR__ . "/../../custom/code_types.inc.php");
 require_once("$srcdir/ESign/Api.php");

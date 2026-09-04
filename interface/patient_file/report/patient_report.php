@@ -20,7 +20,6 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('rootdir');
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
-require_once($srcdir . "/lists.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

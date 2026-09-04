@@ -28,7 +28,6 @@
 // +------------------------------------------------------------------------------+
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;

@@ -57,7 +57,6 @@
  * NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
  */
 
-require_once("lists.inc.php");
 require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
 use OpenEMR\BC\Utilities;

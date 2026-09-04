@@ -25,7 +25,6 @@ use OpenEMR\Forms\EyeMag\RxType;
 use OpenEMR\Services\FacilityService;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/report.inc.php");
 
