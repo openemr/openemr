@@ -18,24 +18,17 @@ use OpenEMR\Core\OEGlobalsBag;
 /**
  * Lazy loader for the `issue_types` lookup tables that legacy code reads as
  * top-level globals ($ISSUE_TYPES, $ISSUE_TYPE_CATEGORIES, $ISSUE_TYPE_STYLES,
- * $ISSUE_CLASSIFICATIONS). Each getter memoizes its result and writes it into
- * OEGlobalsBag on first call so `global $ISSUE_TYPES;` and
- * `OEGlobalsBag::get('ISSUE_TYPES')` readers continue to work while callers
- * migrate.
+ * $ISSUE_CLASSIFICATIONS). Each getter writes its result into OEGlobalsBag on
+ * every call so `global $ISSUE_TYPES;` and `OEGlobalsBag::get('ISSUE_TYPES')`
+ * readers continue to work; kept for backwards compatibility.
  */
 final class IssueTypeRegistry
 {
     /** @var array<string, string>|null */
     private static ?array $categories = null;
 
-    /** @var array<int, string>|null */
-    private static ?array $styles = null;
-
     /** @var array<string, array{string, string, string, mixed, mixed, mixed}>|null */
     private static ?array $types = null;
-
-    /** @var array<int, string>|null */
-    private static ?array $classifications = null;
 
     /**
      * @return array<string, string>
@@ -68,10 +61,6 @@ final class IssueTypeRegistry
      */
     public static function issueTypeStyles(): array
     {
-        if (self::$styles !== null) {
-            return self::$styles;
-        }
-
         $styles = [
             0 => xl('Standard'),
             1 => xl('Simplified'),
@@ -79,7 +68,6 @@ final class IssueTypeRegistry
             3 => xl('IPPF Abortion'),
             4 => xl('IPPF Contraception'),
         ];
-        self::$styles = $styles;
         OEGlobalsBag::getInstance()->set('ISSUE_TYPE_STYLES', $styles);
 
         return $styles;
@@ -134,16 +122,11 @@ final class IssueTypeRegistry
      */
     public static function issueClassifications(): array
     {
-        if (self::$classifications !== null) {
-            return self::$classifications;
-        }
-
         $classifications = [
             0 => xl('Unknown or N/A'),
             1 => xl('Trauma'),
             2 => xl('Overuse'),
         ];
-        self::$classifications = $classifications;
         OEGlobalsBag::getInstance()->set('ISSUE_CLASSIFICATIONS', $classifications);
 
         return $classifications;
