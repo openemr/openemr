@@ -16,12 +16,17 @@ namespace OpenEMR\Modules\LbfStatements;
 
 class LbfWriter
 {
+    /**
+     * @param Queries $sql Database access, or a test fake.
+     */
     public function __construct(
         private readonly Queries $sql = new Queries()
     ) {
     }
 
     /**
+     * Insert, replace, or delete the listed lbf_data fields in one transaction.
+     *
      * @param array<string, string> $newValues
      * @param array<string, string> $oldValues
      * @param list<array{field_id:string}> $actions

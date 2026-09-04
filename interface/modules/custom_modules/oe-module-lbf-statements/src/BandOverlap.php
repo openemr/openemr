@@ -59,6 +59,9 @@ final class BandOverlap
         return $min > $max;
     }
 
+    /**
+     * Numeric bound, or -INF / INF when the side is open.
+     */
     private static function bound(mixed $value, bool $isMin): float
     {
         $n = Values::asFloatOrNull($value);
