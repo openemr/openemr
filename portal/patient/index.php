@@ -26,9 +26,6 @@ if (!GlobalConfig::$CONNECTION_SETTING) {
     throw new Exception('GlobalConfig::$CONNECTION_SETTING is not configured.  Are you missing _machine_config.php?');
 }
 
-/* require framework libs */
-require_once("verysimple/Phreeze/Dispatcher.php");
-
 // the global config is used for all dependency injection
 $gc = GlobalConfig::GetInstance();
 

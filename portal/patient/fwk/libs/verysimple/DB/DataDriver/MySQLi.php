@@ -2,10 +2,6 @@
 
 /** @package verysimple::DB::DataDriver */
 
-require_once("IDataDriver.php");
-require_once("verysimple/DB/ISqlFunction.php");
-require_once("verysimple/DB/DatabaseException.php");
-require_once("verysimple/DB/DatabaseConfig.php");
 
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;

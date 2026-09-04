@@ -3,13 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("DataAdapter.php");
-require_once("CriteriaFilter.php");
-require_once("verysimple/IO/Includer.php");
-
-/**
  * Criteria is a base object that is passed into Phreeze->Query for retrieving
  * records based on specific criteria
  *

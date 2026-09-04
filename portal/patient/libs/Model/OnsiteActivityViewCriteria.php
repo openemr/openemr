@@ -10,9 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("DAO/OnsiteActivityViewCriteriaDAO.php");
-
 /**
  * The OnsiteActivityViewCriteria class extends OnsiteActivityViewDAOCriteria and is used
  * to query the database for objects and collections

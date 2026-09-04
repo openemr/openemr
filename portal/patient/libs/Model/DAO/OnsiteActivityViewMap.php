@@ -11,12 +11,6 @@
  */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/Phreeze/IDaoMap.php");
-require_once("verysimple/Phreeze/IDaoMap2.php");
-
-/**
  *
  * @package Openemr::Model::DAO
  * @author ClassBuilder

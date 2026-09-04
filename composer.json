@@ -176,7 +176,10 @@
             "OpenEMR\\": "src"
         },
         "classmap": [
-            "library/classes"
+            "library/classes",
+            "portal/patient/fwk/libs/savant",
+            "portal/patient/fwk/libs/verysimple",
+            "portal/patient/libs"
         ],
         "files": [
             "library/amc.php",

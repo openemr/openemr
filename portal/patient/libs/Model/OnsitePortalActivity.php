@@ -10,10 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("DAO/OnsitePortalActivityDAO.php");
-require_once("OnsitePortalActivityCriteria.php");
-
 /**
  * The OnsitePortalActivity class extends OnsitePortalActivityDAO which provides the access
  * to the datastore.

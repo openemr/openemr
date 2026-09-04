@@ -2,9 +2,6 @@
 
 /** @package    verysimple::HTTP */
 
-/**
- * import supporting libraries
- */
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -395,7 +392,6 @@ class RequestUtil
         $tmp_path = $upload ['tmp_name'];
         $info = pathinfo((string) $upload ['name']);
 
-        require_once("FileUpload.php");
         $fupload = new FileUpload();
         $fupload->Name = $info ['basename'];
         $fupload->Size = $upload ['size'];
@@ -496,7 +492,6 @@ class RequestUtil
         }
 
         if (self::$ENCODE_NON_ASCII) {
-            require_once("verysimple/String/VerySimpleStringUtil.php");
 
             if (is_array($val)) {
                 foreach ($val as $k => $v) {
@@ -518,7 +513,6 @@ class RequestUtil
      */
     public static function HasNonAsciiChars($fieldname)
     {
-        require_once("verysimple/String/VerySimpleStringUtil.php");
 
         $val = $_REQUEST [$fieldname] ?? '';
         return VerySimpleStringUtil::EncodeToHTML($val) != $val;

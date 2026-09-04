@@ -2,9 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-/**
- * import supporting libraries
- */
 define("KM_LOAD_LAZY", 1);
 define("KM_LOAD_EAGER", 2);
 define("KM_LOAD_INNER", 4);

@@ -49,9 +49,6 @@ if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $sess
     }
 }
 
-require_once 'verysimple/Phreeze/ConnectionSetting.php';
-require_once("verysimple/HTTP/RequestUtil.php");
-
 /**
  * database connection settings
  */
