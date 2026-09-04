@@ -81,15 +81,14 @@
         if (shell !== null && tabsUrl) {
             try {
                 openPatientTab(shell, tabsUrl);
+                return false;
             } catch (e) {
                 if (window.console && typeof console.error === 'function') {
                     console.error('openEncounterTab', e);
                 }
             }
-            return false;
         }
-        // Unframed (no OpenEMR tab shell): follow the encounter view URL.
-        if (shell === null && href && href !== '#') {
+        if (href && href !== '#') {
             window.location.href = href;
         }
         return false;
