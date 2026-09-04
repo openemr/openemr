@@ -32192,21 +32192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lft\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'rght\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_documents.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'assessment_oid\' on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../portal/get_pro.php',
@@ -33270,26 +33255,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'foreign_id\' on array\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lft\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'rght\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'DOB\' on array\\|false\\.$#',

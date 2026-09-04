@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -33,26 +34,44 @@ $tmp = $globalsBag->getString('temporary_files_dir');
 $documentIds = $_POST['documents'];
 $pid = $session->get('pid');
 
+$documentSql = "SELECT d.url, d.id, d.mimetype, d.`name`, d.`foreign_id`
+        FROM `documents` AS d
+        WHERE d.`id` = ?
+          AND d.`deleted` = 0
+          AND NOT EXISTS (
+              SELECT 1
+              FROM `categories_to_documents` AS ctd
+              INNER JOIN `categories` AS c ON c.id = ctd.category_id
+              WHERE ctd.document_id = d.id
+                AND c.`aco_spec` != 'patients|docs'
+          )";
+$categorySql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
+        WHERE `categories_to_documents`.`category_id` = `categories`.`id`
+        AND `categories_to_documents`.`document_id` = ?";
+$categoryPathSql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
+
 // Process each selected document
 foreach ($documentIds as $documentId) {
-    $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
-    $file = sqlQuery($sql, [$documentId]);
-    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $pid) {
+    // Verify the document belongs to this patient, is not deleted, and does not
+    // belong to any restricted category.  Using NOT EXISTS with aco_spec check
+    // ensures the portal cannot serve high-sensitivity or admin-only content
+    // even when document IDs are submitted directly (bypass of the listing UI).
+    $file = QueryUtils::querySingleRow($documentSql, [$documentId]);
+    if ($file === false || $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
-    // Find the document category
-    $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
-            WHERE `categories_to_documents`.`category_id` = `categories`.`id`
-            AND `categories_to_documents`.`document_id` = ?";
-    $cat = sqlQuery($sql, [$file['id']]);
+    // Find the document category (confirmed to be patients|docs above)
+    $cat = QueryUtils::querySingleRow($categorySql, [$file['id']]);
+    if ($cat === false) {
+        die(xlt("Invalid document category."));
+    }
 
     // Find the tree of the document's category
-    $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
+    $parents = QueryUtils::fetchRecords($categoryPathSql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $path = "";
-    while ($parent = sqlFetchArray($pathres)) {
+    foreach ($parents as $parent) {
         $path .= convert_safe_file_dir_name($parent['name']) . "/";
     }
 
