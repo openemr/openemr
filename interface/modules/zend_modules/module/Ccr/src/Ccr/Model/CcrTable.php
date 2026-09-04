@@ -18,7 +18,6 @@ use DOMXpath;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
-
 class CcrTable
 {
   /*

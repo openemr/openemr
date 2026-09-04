@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Billing;
 
-
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\PaymentProcessing\Recorder;
 

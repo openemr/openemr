@@ -16,7 +16,6 @@ require_once('../../globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
 
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
