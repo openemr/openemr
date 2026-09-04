@@ -134,7 +134,7 @@ class ParseERATest extends TestCase
             'SVC*HC:99213*100.00*75.00~',
             'DTM*472*20260101~',
             'CAS*CO*45*25.00~',
-            'SE*15*0001~',
+            sprintf('SE*%d*0001~', $ref === null ? 13 : 14),
             'GE*1*1~',
             'IEA*1*000000001~',
         ]));
