@@ -19,6 +19,8 @@ use OpenEMR\Common\Database\QueryUtils;
 class Queries
 {
     /**
+     * Fetch every matching row.
+     *
      * @param array<int|string, mixed> $binds
      * @return list<array<mixed>>
      */
@@ -28,6 +30,8 @@ class Queries
     }
 
     /**
+     * Fetch one row, or null when none match.
+     *
      * @param array<int|string, mixed> $params
      */
     public function querySingleRow(string $sql, array $params = []): mixed
@@ -36,6 +40,8 @@ class Queries
     }
 
     /**
+     * Run a statement and throw on a database error.
+     *
      * @param array<int|string, mixed> $binds
      */
     public function sqlStatementThrowException(string $sql, array $binds = []): mixed
@@ -44,6 +50,8 @@ class Queries
     }
 
     /**
+     * Insert a row and return the new id.
+     *
      * @param array<int|string, mixed> $binds
      */
     public function sqlInsert(string $sql, array $binds = []): int
@@ -52,6 +60,10 @@ class Queries
     }
 
     /**
+     * Run $action in one database transaction.
+     *
+     * Requires QueryUtils::inTransaction(), added in OpenEMR 8.
+     *
      * @template T
      * @param callable(): T $action
      * @return T
@@ -61,6 +73,9 @@ class Queries
         return QueryUtils::inTransaction($action);
     }
 
+    /**
+     * Take a named GET_LOCK, or return false if the wait timed out.
+     */
     public function acquireLock(string $name, int $timeoutSeconds = 10): bool
     {
         $got = QueryUtils::fetchSingleValue(
@@ -71,6 +86,9 @@ class Queries
         return is_scalar($got) && (string) $got === "1";
     }
 
+    /**
+     * Drop a named GET_LOCK held by this session.
+     */
     public function releaseLock(string $name): void
     {
         QueryUtils::sqlStatementThrowException("DO RELEASE_LOCK(?)", [$name]);

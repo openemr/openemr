@@ -16,12 +16,17 @@ namespace OpenEMR\Modules\LbfStatements;
 
 class StatementRepository
 {
+    /**
+     * @param Queries $sql Database access, or a test fake.
+     */
     public function __construct(
         private readonly Queries $sql = new Queries()
     ) {
     }
 
     /**
+     * Layout form_id values that currently have at least one enabled rule.
+     *
      * @return list<string>
      */
     public function formIdsWithRules(): array
@@ -44,6 +49,8 @@ class StatementRepository
     }
 
     /**
+     * Rules for one layout, optionally only the enabled ones.
+     *
      * @return list<array<string, mixed>>
      */
     public function rulesForForm(string $formId, bool $enabledOnly = true): array
@@ -69,6 +76,8 @@ class StatementRepository
     }
 
     /**
+     * One rule by id, or null when it is gone.
+     *
      * @return array<string, mixed>|null
      */
     public function getRule(int $id): ?array
@@ -82,6 +91,8 @@ class StatementRepository
     }
 
     /**
+     * Insert or update a rule after locking the form and source-field pair.
+     *
      * @param array<string, mixed> $data
      */
     public function saveRule(array $data, ?int $id = null): int
@@ -97,10 +108,11 @@ class StatementRepository
             throw new \InvalidArgumentException('Invalid op');
         }
         $lockName = null;
+        $lockAcquired = false;
         try {
-            return $this->sql->inTransaction(function () use ($data, $id, &$lockName): int {
+            return $this->sql->inTransaction(function () use ($data, $id, &$lockName, &$lockAcquired): int {
                 if ($id !== null && $id > 0) {
-                    $this->lockRuleRow($id);
+                    $this->requireRuleRow($id);
                 }
                 $lockName = static::bandLockName(
                     Values::asString($data['form_id'] ?? ''),
@@ -108,20 +120,22 @@ class StatementRepository
                     Values::asString($data['source_field_id_2'] ?? '')
                 );
                 if (!$this->sql->acquireLock($lockName, 10)) {
-                    $lockName = null;
                     throw new BandLockException('Could not lock this field to save the rule.');
                 }
+                $lockAcquired = true;
                 $this->assertBandDoesNotOverlap($data, $id);
                 return $this->writeRule($data, $id);
             });
         } finally {
-            if ($lockName !== null) {
+            if ($lockAcquired && $lockName !== null) {
                 $this->sql->releaseLock($lockName);
             }
         }
     }
 
     /**
+     * INSERT or UPDATE the rule row. Caller must hold the band lock.
+     *
      * @param array<string, mixed> $data
      */
     private function writeRule(array $data, ?int $id): int
@@ -164,16 +178,16 @@ class StatementRepository
         );
     }
 
+    /**
+     * Enable or disable one rule. A missing row is an error, not a silent success.
+     */
     public function setEnabled(int $id, bool $enabled): void
     {
         $lockName = null;
+        $lockAcquired = false;
         try {
-            $this->sql->inTransaction(function () use ($id, $enabled, &$lockName): void {
-                $rule = $this->lockRuleRow($id);
-                if ($rule === null) {
-                    $this->writeEnabled($id, $enabled);
-                    return;
-                }
+            $this->sql->inTransaction(function () use ($id, $enabled, &$lockName, &$lockAcquired): void {
+                $rule = $this->requireRuleRow($id);
                 if (!$enabled) {
                     $this->writeEnabled($id, false);
                     return;
@@ -185,19 +199,22 @@ class StatementRepository
                     Values::asString($rule['source_field_id_2'] ?? '')
                 );
                 if (!$this->sql->acquireLock($lockName, 10)) {
-                    $lockName = null;
                     throw new BandLockException('Could not lock this field to save the rule.');
                 }
+                $lockAcquired = true;
                 $this->assertBandDoesNotOverlap($rule, $id);
                 $this->writeEnabled($id, true);
             });
         } finally {
-            if ($lockName !== null) {
+            if ($lockAcquired && $lockName !== null) {
                 $this->sql->releaseLock($lockName);
             }
         }
     }
 
+    /**
+     * Persist the enabled flag for one rule id.
+     */
     private function writeEnabled(int $id, bool $enabled): void
     {
         $this->sql->sqlStatementThrowException(
@@ -207,6 +224,22 @@ class StatementRepository
     }
 
     /**
+     * Lock one rule row for the rest of the transaction, or throw if it is gone.
+     *
+     * @return array<string, mixed>
+     */
+    private function requireRuleRow(int $id): array
+    {
+        $rule = $this->lockRuleRow($id);
+        if ($rule === null || Values::rowInt($rule, 'id') !== $id) {
+            throw new RuleNotFoundException('Rule not found.');
+        }
+        return $rule;
+    }
+
+    /**
+     * SELECT ... FOR UPDATE one rule row.
+     *
      * @return array<string, mixed>|null
      */
     private function lockRuleRow(int $id): ?array
@@ -219,12 +252,17 @@ class StatementRepository
         ));
     }
 
+    /**
+     * Advisory lock name for one form and source-field pair.
+     */
     public static function bandLockName(string $formId, string $source, string $source2): string
     {
         return 'lbfstmt_' . md5($formId . "\0" . $source . "\0" . $source2);
     }
 
     /**
+     * Throw when this enabled band overlaps another on the same source fields.
+     *
      * @param array<string, mixed> $data
      */
     public function assertBandDoesNotOverlap(array $data, ?int $id = null): void
@@ -262,6 +300,9 @@ class StatementRepository
         }
     }
 
+    /**
+     * Record that a paragraph was written for this form instance.
+     */
     public function logRun(string $formId, int $pid, int $instanceFormId, string $user, string $mode): void
     {
         Identifiers::assertFieldId($formId);

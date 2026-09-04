@@ -176,6 +176,9 @@ class StatementEngine
         return preg_match('/(?:^|[^A-Za-z0-9_])' . $quoted . '(?:[^A-Za-z0-9_]|$)/i', $raw) === 1;
     }
 
+    /**
+     * True when $value sits on the correct side of an open or closed bound.
+     */
     private function inBound(float $value, mixed $bound, bool $inclusive, bool $isMin): bool
     {
         $b = Values::asFloatOrNull($bound);
