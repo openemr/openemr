@@ -15,6 +15,7 @@
 
 require_once(__DIR__ . "/FeeSheet.class.php");
 
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -433,7 +434,7 @@ function jsLineItemValidation(f) {
  }
 ";
         } // end match services to products
-        if (isset(OEGlobalsBag::getInstance()->get('code_types')['MA'])) {
+        if (isset(CodeTypeRegistry::codeTypes()['MA'])) {
             $s .= "
  if (required_code_count == 0) {
   if (!confirm(" . xlj('You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.') . ")) {

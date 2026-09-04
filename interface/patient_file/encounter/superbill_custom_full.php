@@ -27,6 +27,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
 
@@ -48,7 +49,7 @@ function ffescape($field)
 }
 
 /** @var array<string, array<string, mixed>> $code_types */
-$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$code_types = CodeTypeRegistry::codeTypes();
 
 $alertmsg = '';
 $pagesize = 100;

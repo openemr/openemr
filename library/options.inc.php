@@ -62,6 +62,7 @@ require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
@@ -582,8 +583,9 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 //
 function generate_form_field($frow, $currvalue): void
 {
-    global $rootdir, $date_init, $code_types, $membership_group_number;
+    global $rootdir, $date_init, $membership_group_number;
     $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
+    $code_types = CodeTypeRegistry::codeTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

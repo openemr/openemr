@@ -139,7 +139,7 @@ function isSnomedSpanish(): bool
  */
 function fees_are_used(): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if ($value['fee'] && $value['active']) {
             return true;
@@ -158,7 +158,7 @@ function fees_are_used(): bool
  */
 function modifiers_are_used(bool $fee_sheet = false): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if ($fee_sheet && !empty($value['nofs'])) {
             continue;
@@ -179,7 +179,7 @@ function modifiers_are_used(bool $fee_sheet = false): bool
  */
 function justifiers_are_used(): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if (!empty($value['just']) && $value['active']) {
             return true;
@@ -196,7 +196,7 @@ function justifiers_are_used(): bool
  */
 function related_codes_are_used(): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if ($value['rel'] && $value['active']) {
             return true;
@@ -214,7 +214,7 @@ function related_codes_are_used(): bool
  */
 function convert_type_id_to_key($id)
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $key => $value) {
         if ($value['id'] == $id) {
             return $key;
@@ -231,7 +231,7 @@ function convert_type_id_to_key($id)
  */
 function check_is_code_type_justify(bool $key): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     return !empty($code_types[$key]['just']);
 }
 
@@ -244,7 +244,7 @@ function check_is_code_type_justify(bool $key): bool
  */
 function check_code_set_filters($key, $filters = []): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     if (empty($filters)) {
         return false;
@@ -278,7 +278,7 @@ function check_code_set_filters($key, $filters = []): bool
  */
 function collect_codetypes($category, $return_format = "array")
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     $return = [];
 
@@ -410,7 +410,8 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  */
 function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = [], $limit = null, $mode = 'default', $return_query = false)
 {
-    global $code_types, $code_external_tables;
+    $code_types = CodeTypeRegistry::codeTypes();
+    $code_external_tables = CodeTypeRegistry::codeExternalTables();
 
     $limit ??= 250;
     // Figure out the appropriate limit clause
@@ -644,7 +645,8 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
  */
 function lookup_code_descriptions($codes, $desc_detail = "code_text")
 {
-    global $code_types, $code_external_tables;
+    $code_types = CodeTypeRegistry::codeTypes();
+    $code_external_tables = CodeTypeRegistry::codeExternalTables();
 
     // ensure $desc_detail is set properly
     if (($desc_detail != "code_text") && ($desc_detail != "code_text_short")) {
@@ -924,7 +926,7 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
 //
 function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0)
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     // echo "<!-- related_code = '$related_code' depth = '$depth' -->\n"; // debugging
     if (++$depth > 4 || empty($related_code)) {
         return false; // protects against relation loops

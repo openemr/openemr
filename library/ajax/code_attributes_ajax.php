@@ -20,6 +20,7 @@ require_once("../../interface/globals.php");
 require_once("$fileroot/custom/code_types.inc.php");
 require_once("$fileroot/interface/drugs/drugs.inc.php");
 
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -28,7 +29,7 @@ CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 function write_code_info($codetype, $code, $selector, $pricelevel): void
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     $wh = ''; // options for warehouse selection
 

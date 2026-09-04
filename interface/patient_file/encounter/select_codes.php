@@ -18,12 +18,13 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/cust
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /** @var array<string, array<string, mixed>> $code_types */
-$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$code_types = CodeTypeRegistry::codeTypes();
 
 $codetype = empty($_GET['codetype']) ? '' : $_GET['codetype'];
 if (!empty($codetype)) {

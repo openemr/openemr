@@ -30,6 +30,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
@@ -599,7 +600,7 @@ function checkBackgroundServices(): void
 
                                                     echo "  </select>\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_CODE_TYPES) {
-                                                    global $code_types;
+                                                    $code_types = CodeTypeRegistry::codeTypes();
                                                     echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
                                                     foreach (array_keys($code_types) as $code_key) {
                                                         $codeLabel = is_string($code_types[$code_key]['label'] ?? null) ? $code_types[$code_key]['label'] : '';
