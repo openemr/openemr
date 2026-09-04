@@ -17,8 +17,10 @@ namespace OpenEMR\Modules\LbfStatements\Controller;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Modules\LbfStatements\BandOverlapException;
 use OpenEMR\Modules\LbfStatements\Bootstrap;
 use OpenEMR\Modules\LbfStatements\Identifiers;
+use OpenEMR\Modules\LbfStatements\InvertedBoundsException;
 use OpenEMR\Modules\LbfStatements\LayoutCatalog;
 use OpenEMR\Modules\LbfStatements\StatementRepository;
 use OpenEMR\Modules\LbfStatements\Values;
@@ -87,8 +89,12 @@ class AdminController
                     try {
                         $repo->setEnabled($rid, $enabled);
                         $message = $enabled ? xl('Rule enabled.') : xl('Rule disabled.');
-                    } catch (\InvalidArgumentException) {
+                    } catch (InvertedBoundsException) {
+                        $error = xl('Minimum must be less than or equal to maximum.');
+                    } catch (BandOverlapException) {
                         $error = xl('This numeric range overlaps another band on the same field.');
+                    } catch (\InvalidArgumentException) {
+                        $error = xl('Could not save the rule.');
                     }
                 } elseif ($action === 'save') {
                     $data = [
@@ -113,12 +119,16 @@ class AdminController
                         $id = Values::asInt($this->stringParam($request, 'rule_id'));
                         $repo->saveRule($data, $id > 0 ? $id : null);
                         $message = xl('Rule saved.');
-                    } catch (\InvalidArgumentException $e) {
-                        $error = match ($e->getMessage()) {
-                            'Minimum must be less than or equal to maximum.' => xl('Minimum must be less than or equal to maximum.'),
-                            'This numeric range overlaps another band on the same field.' => xl('This numeric range overlaps another band on the same field.'),
-                            default => xl('Could not save the rule.'),
-                        };
+                    } catch (InvertedBoundsException) {
+                        $error = xl('Minimum must be less than or equal to maximum.');
+                        $edit = $data;
+                        $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
+                    } catch (BandOverlapException) {
+                        $error = xl('This numeric range overlaps another band on the same field.');
+                        $edit = $data;
+                        $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
+                    } catch (\InvalidArgumentException) {
+                        $error = xl('Could not save the rule.');
                         $edit = $data;
                         $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
                     }
