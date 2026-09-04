@@ -16,6 +16,9 @@ namespace OpenEMR\Modules\LbfStatements;
 
 final class Values
 {
+    /**
+     * String form of a scalar, or $default.
+     */
     public static function asString(mixed $value, string $default = ''): string
     {
         if ($value === null) {
@@ -33,6 +36,9 @@ final class Values
         return $default;
     }
 
+    /**
+     * Integer form of a numeric scalar, or $default.
+     */
     public static function asInt(mixed $value, int $default = 0): int
     {
         if (is_int($value)) {
@@ -47,11 +53,17 @@ final class Values
         return $default;
     }
 
+    /**
+     * True for boolean true, integer 1, or string "1".
+     */
     public static function asBool(mixed $value): bool
     {
         return $value === true || $value === 1 || $value === '1';
     }
 
+    /**
+     * Float form of a numeric scalar, or null when empty or non-numeric.
+     */
     public static function asFloatOrNull(mixed $value): ?float
     {
         if ($value === null) {

@@ -16,12 +16,17 @@ namespace OpenEMR\Modules\LbfStatements;
 
 class LayoutCatalog
 {
+    /**
+     * @param Queries $sql Database access, or a test fake.
+     */
     public function __construct(
         private readonly Queries $sql = new Queries()
     ) {
     }
 
     /**
+     * Active LBF layouts for the rules editor dropdown.
+     *
      * @return list<array{form_id:string,title:string}>
      */
     public function listLbfForms(): array
@@ -51,6 +56,8 @@ class LayoutCatalog
     }
 
     /**
+     * Visible fields on one layout, keyed by field_id.
+     *
      * @return array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string}>
      */
     public function fieldMeta(string $formId): array
@@ -82,6 +89,9 @@ class LayoutCatalog
         return $out;
     }
 
+    /**
+     * Destination textarea for generated text. Does not create layout_options rows.
+     */
     public function paragraphField(string $formId): string
     {
         Identifiers::assertFieldId($formId);
@@ -104,9 +114,12 @@ class LayoutCatalog
                 return $fieldId;
             }
         }
-        return $this->ensureParagraphField($formId);
+        return '';
     }
 
+    /**
+     * Store which textarea on this layout receives generated statements.
+     */
     public function saveParagraphField(string $formId, string $fieldId): void
     {
         Identifiers::assertFieldId($formId);
@@ -121,6 +134,9 @@ class LayoutCatalog
         );
     }
 
+    /**
+     * Create stmt_paragraph on this layout when an administrator asks for it.
+     */
     public function ensureParagraphField(string $formId): string
     {
         Identifiers::assertFieldId($formId);

@@ -30,11 +30,17 @@ class Bootstrap
 
     private static self $instance;
 
+    /**
+     * @param EventDispatcherInterface $eventDispatcher OpenEMR kernel dispatcher.
+     */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
+    /**
+     * Subscribe once and return the shared bootstrap.
+     */
     public static function instantiate(EventDispatcherInterface $eventDispatcher, Kernel $kernel): self
     {
         unset($kernel);
@@ -45,6 +51,9 @@ class Bootstrap
         return self::$instance;
     }
 
+    /**
+     * Register the Modules menu item and the encounter toolbar button.
+     */
     public function subscribeToEvents(): void
     {
         $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomModuleMenuItem(...));
@@ -54,6 +63,9 @@ class Bootstrap
         );
     }
 
+    /**
+     * Add Form statements under the Modules menu.
+     */
     public function addCustomModuleMenuItem(MenuEvent $event): MenuEvent
     {
         $menu = $event->getMenu();
@@ -89,6 +101,9 @@ class Bootstrap
         return $event;
     }
 
+    /**
+     * Twig environment with this module's templates on the loader.
+     */
     public function getTwig(): Environment
     {
         $twig = ServiceContainer::getTwig();
@@ -109,11 +124,17 @@ class Bootstrap
         return $twig;
     }
 
+    /**
+     * Absolute path to this module's Twig templates.
+     */
     public function getTemplatePath(): string
     {
         return dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }
 
+    /**
+     * Web-root URL of this module's public/ directory, with trailing slash.
+     */
     public function getPublicUrl(): string
     {
         return OEGlobalsBag::getInstance()->getWebRoot()

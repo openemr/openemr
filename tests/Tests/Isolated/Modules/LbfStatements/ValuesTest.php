@@ -38,6 +38,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
     final class ValuesTest extends TestCase
     {
+        /**
+         * Cast null, strings, numbers, and booleans to strings.
+         */
         public function testAsStringCastsScalars(): void
         {
             $this->assertSame('', Values::asString(null));
@@ -50,6 +53,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('', Values::asString(['nope']));
         }
 
+        /**
+         * Cast numeric scalars to integers and reject junk.
+         */
         public function testAsIntCastsScalars(): void
         {
             $this->assertSame(4, Values::asInt(4));
@@ -59,6 +65,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame(9, Values::asInt(false, 9));
         }
 
+        /**
+         * Parse boolean flags and optional floats.
+         */
         public function testAsBoolAndFloat(): void
         {
             $this->assertTrue(Values::asBool(true));
@@ -75,6 +84,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertNull(Values::asFloatOrNull([]));
         }
 
+        /**
+         * Keep string-keyed SQL rows and typed column helpers.
+         */
         public function testAssocRowAndRowHelpers(): void
         {
             $this->assertNull(Values::assocRow('nope'));
@@ -86,6 +98,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame(0, Values::rowInt($row, 'missing'));
         }
 
+        /**
+         * Accept layout ids and reject identifiers with spaces.
+         */
         public function testIdentifiers(): void
         {
             $this->assertSame('LBFecho', Identifiers::assertFieldId('LBFecho'));
@@ -94,6 +109,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             Identifiers::assertFieldId('bad id');
         }
 
+        /**
+         * Allow spaces and plus in stored list option ids.
+         */
         public function testUnsafeOptionId(): void
         {
             $this->assertTrue(Identifiers::isSafeStoredOptionId('mild + dilated'));
@@ -103,6 +121,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertFalse(Identifiers::isSafeStoredOptionId('a\\b'));
         }
 
+        /**
+         * Join action sentences and add a missing period.
+         */
         public function testParagraphJoinsSentences(): void
         {
             $this->assertSame('', StatementParagraph::fromActions([['sentence' => '  ']]));
