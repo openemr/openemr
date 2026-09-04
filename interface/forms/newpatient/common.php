@@ -19,6 +19,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
@@ -41,7 +42,7 @@ try {
     /**
      * @global $rootdir
      */
-    $controller = new C_EncounterVisitForm(__DIR__, OEGlobalsBag::getInstance()->getKernel(), OEGlobalsBag::getInstance()->get('ISSUE_TYPES'), $rootdir, 'newpatient/common.php');
+    $controller = new C_EncounterVisitForm(__DIR__, OEGlobalsBag::getInstance()->getKernel(), IssueTypeRegistry::issueTypes(), $rootdir, 'newpatient/common.php');
     /**
      * @global $pid
      */
