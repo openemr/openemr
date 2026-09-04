@@ -18,8 +18,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/dated_reminder_functions.php");
-
 $dateRanges = [];
 // $dateranges = array ( number_period => text to display ) == period is always in the singular
 // eg. $dateRanges['4_week'] = '4 Weeks From Now';

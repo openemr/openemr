@@ -271,7 +271,7 @@ if ($popup) {
     echo "<input type='hidden' name='patient' value='" . attr($patient) . "' />\n";
     echo "<input type='hidden' name='findBy'  value='" . attr($findBy) . "' />\n";
 
-    $result = match($findBy) {
+    $result = match ($findBy) {
         "Last" => getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart),
         "ID" => getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart),
         "DOB" => getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart),

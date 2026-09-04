@@ -883,7 +883,7 @@ class C_Prescription extends Controller
             $parts[] = $res['street'];
             if (!empty($res['city'])) {
                 $parts[] = $res['city'] ?? '' . ', ' . $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
-            } else if (!empty($res['state']) && !empty($res['postal_code'])) {
+            } elseif (!empty($res['state']) && !empty($res['postal_code'])) {
                 $parts[] = $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
             }
             if (!empty($res['phone'])) {
@@ -939,7 +939,7 @@ class C_Prescription extends Controller
             $parts[] = $res['street'];
             if (!empty($res['city'])) {
                 $parts[] = $res['city'] ?? '' . ', ' . $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
-            } else if (!empty($res['state']) && !empty($res['postal_code'])) {
+            } elseif (!empty($res['state']) && !empty($res['postal_code'])) {
                 $parts[] = $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
             }
 

@@ -22,9 +22,6 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../globals.php');
 
-/* For the addform() function */
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php');
-
 /**
  * @class C_AbstractClickmap
  *

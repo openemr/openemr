@@ -157,12 +157,12 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_API_DISABLED) {
             $newDetails = xl("Patient API access is disabled");
-        } else if ($type == self::ACTION_DETAILS_KEY_ACCESS_GRANTED) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_ACCESS_GRANTED) {
             $newDetails = xl("Patient has automatic access to patient data since API credentials were generated on") . " "
                 . $details['date'];
-        } else if ($type == self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT) {
             $newDetails = xl("Patient opted out of 3rd party api access");
-        } else if ($type == self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS) {
             $newDetails = xl("API Credentials were not generated");
         }
         return $newDetails;

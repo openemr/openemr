@@ -14,13 +14,11 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 
 use function OpenEMR\Forms\PhysicalExam\physical_exam_lines;
 use function OpenEMR\Forms\PhysicalExam\scalar_string;
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 require_once(__DIR__ . '/lines.php');
 
 function physical_exam_report(int $pid, int $encounter, int $cols, int $id): void
