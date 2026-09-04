@@ -16,9 +16,14 @@ namespace OpenEMR\Modules\LbfStatements;
 
 final class Identifiers
 {
+    public static function isFieldId(string $id): bool
+    {
+        return $id !== '' && preg_match('/^[A-Za-z0-9_-]+$/', $id) === 1;
+    }
+
     public static function assertFieldId(string $id): string
     {
-        if ($id === '' || preg_match('/^[A-Za-z0-9_-]+$/', $id) !== 1) {
+        if (!self::isFieldId($id)) {
             throw new \InvalidArgumentException('Invalid identifier');
         }
         return $id;
