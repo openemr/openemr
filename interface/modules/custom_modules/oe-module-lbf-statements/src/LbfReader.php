@@ -16,6 +16,9 @@ namespace OpenEMR\Modules\LbfStatements;
 
 class LbfReader
 {
+    /**
+     * @param Queries $sql Database access, or a test fake.
+     */
     public function __construct(
         private readonly Queries $sql = new Queries()
     ) {
@@ -201,6 +204,9 @@ class LbfReader
         return $out;
     }
 
+    /**
+     * True when this encounter row belongs to $pid.
+     */
     public function encounterOwnedBy(int $pid, int $encounter): bool
     {
         $row = Values::assocRow($this->sql->querySingleRow(

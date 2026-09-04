@@ -18,6 +18,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
 
     final class ModuleManagerListenerTest extends TestCase
     {
+        /**
+         * Create fixtures for this test case.
+         */
         protected function setUp(): void
         {
             $file = dirname(__DIR__, 5) . '/interface/modules/custom_modules/oe-module-lbf-statements/ModuleManagerListener.php';
@@ -26,6 +29,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             }
         }
 
+        /**
+         * Dispatch only install, enable, disable, and unregister.
+         */
         public function testAllowlistAndNamespace(): void
         {
             if (!class_exists('ModuleManagerListener')) {

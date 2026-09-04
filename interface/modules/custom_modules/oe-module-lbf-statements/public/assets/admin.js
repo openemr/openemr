@@ -15,6 +15,11 @@
         overlap: modalEl.getAttribute('data-msg-overlap') || 'This numeric range overlaps another band on the same field.'
     };
 
+    /**
+     * Set an input or checkbox. Numeric 0 is kept; null becomes empty.
+     * @param {string} id
+     * @param {*} value
+     */
     function setValue(id, value) {
         const el = document.getElementById(id);
         if (!el) {
@@ -27,6 +32,9 @@
         el.value = value == null ? '' : String(value);
     }
 
+    /**
+     * Show band, ratio, or token fields for the selected operator.
+     */
     function syncOp() {
         const op = (document.getElementById('op') || {}).value || 'band';
         const band = document.getElementById('band-fields');
@@ -54,6 +62,10 @@
         }
     }
 
+    /**
+     * Show or hide the overlap warning under the rule form.
+     * @param {string} text
+     */
     function showOverlap(text) {
         const box = document.getElementById('rule-overlap-msg');
         if (!box) {
@@ -68,6 +80,11 @@
         box.classList.remove('d-none');
     }
 
+    /**
+     * Parse a numeric field, or null when blank.
+     * @param {*} raw
+     * @returns {number|null}
+     */
     function numOrNull(raw) {
         if (raw === null || raw === undefined || String(raw).trim() === '') {
             return null;
@@ -76,6 +93,12 @@
         return Number.isFinite(n) ? n : null;
     }
 
+    /**
+     * True when two inclusive/exclusive numeric ranges overlap.
+     * @param {{min:number|null,max:number|null,minInc:boolean,maxInc:boolean}} a
+     * @param {{min:number|null,max:number|null,minInc:boolean,maxInc:boolean}} b
+     * @returns {boolean}
+     */
     function rangesOverlap(a, b) {
         const aMin = a.min == null ? Number.NEGATIVE_INFINITY : a.min;
         const aMax = a.max == null ? Number.POSITIVE_INFINITY : a.max;
@@ -96,6 +119,10 @@
         return true;
     }
 
+    /**
+     * Current rule-editor values used for client-side overlap checks.
+     * @returns {object}
+     */
     function readDraft() {
         return {
             id: document.getElementById('rule_id').value,
@@ -110,6 +137,10 @@
         };
     }
 
+    /**
+     * Warning text when the draft band is inverted or overlaps another rule.
+     * @returns {string}
+     */
     function draftOverlaps() {
         const draft = readDraft();
         if (draft.op !== 'band' || !draft.enabled) {
@@ -146,6 +177,10 @@
         return '';
     }
 
+    /**
+     * Load one rule into the editor. A numeric 0 bound is not treated as empty.
+     * @param {object} rule
+     */
     function fill(rule) {
         showOverlap('');
         setValue('rule_id', rule.id || '');
