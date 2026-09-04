@@ -262,7 +262,7 @@ if ($refType !== null) {
                AND PID = ?
                AND RX_NUMBER = ?
             SQL,
-            [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']],
+            [$encounter, $_REQUEST['form_id'], $pid, $_REQUEST['rx_number']],
         );
 
         // A field the wearing prescription does not carry reads null, so the
@@ -348,7 +348,7 @@ if ($refType !== null) {
 if ($_REQUEST['dispensed'] ?? '') {
     $dispensed = QueryUtils::fetchRecords(
         'SELECT * FROM form_eye_mag_dispense WHERE pid = ? ORDER BY date DESC',
-        [$_REQUEST['pid']],
+        [$pid],
     );
     ?><html>
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
