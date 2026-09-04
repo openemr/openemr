@@ -1382,6 +1382,17 @@ $GLOBALS_METADATA = [
             xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
         ],
 
+        'statement_envelope' => [
+            xl('Statement envelope'),
+            [
+                'default' => xl('None'),
+                'hash9' => xl('#9 double-window'),
+                'hash10' => xl('#10 double-window'),
+            ],
+            'default',
+            xl('Fits the statement to a window envelope.')
+        ],
+
         'billing_phone_number' => [
             xl('Custom Billing Phone Number'),
             'text',                           // data type
