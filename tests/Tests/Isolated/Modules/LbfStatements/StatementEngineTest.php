@@ -56,27 +56,42 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ],
         ];
 
+        /**
+         * Create fixtures for this test case.
+         */
         protected function setUp(): void
         {
             $this->engine = new StatementEngine();
             $this->applier = new StatementApplier();
         }
 
+        /**
+         * A value below the band does not fire.
+         */
         public function testBandBelowRange(): void
         {
             $this->assertSame('', $this->paragraph('LBFstmt_demo', ['num' => '5'], $this->demoRules));
         }
 
+        /**
+         * A value inside the band fires the sentence.
+         */
         public function testBandInRange(): void
         {
             $this->assertSame('In range.', $this->paragraph('LBFstmt_demo', ['num' => '15'], $this->demoRules));
         }
 
+        /**
+         * A value above the band does not fire.
+         */
         public function testBandAboveRange(): void
         {
             $this->assertSame('', $this->paragraph('LBFstmt_demo', ['num' => '25'], $this->demoRules));
         }
 
+        /**
+         * Substitute the source value into the sentence.
+         */
         public function testInterpolateSource(): void
         {
             $rules = [[
@@ -93,6 +108,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('Measured 4 cm.', $this->paragraph('LBFstmt_demo', ['num' => '4'], $rules));
         }
 
+        /**
+         * Fire ratio_lt when the first field is below the second.
+         */
         public function testRatioLt(): void
         {
             $rules = [[
@@ -113,6 +131,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             );
         }
 
+        /**
+         * Match a severity token exactly or in a pipe list.
+         */
         public function testParseSeverityExactAndPipe(): void
         {
             $rules = [[
@@ -133,6 +154,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             );
         }
 
+        /**
+         * Match list option ids that contain spaces or plus.
+         */
         public function testParseSeverityAllowsSpaceAndPlusInOptionId(): void
         {
             $rules = [[
@@ -149,6 +173,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             );
         }
 
+        /**
+         * Skip a rule whose enabled flag is off.
+         */
         public function testDisabledRuleDoesNotFire(): void
         {
             $rules = $this->demoRules;
@@ -156,6 +183,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('', $this->paragraph('LBFstmt_demo', ['num' => '15'], $rules));
         }
 
+        /**
+         * Overwrite, append missing sentences, and skip duplicates.
+         */
         public function testOverwriteAndAppend(): void
         {
             $actions = $this->engine->evaluate('LBFstmt_demo', ['num' => '15'], $this->demoRules);
@@ -167,6 +197,8 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('In range. Extra note.', $dup['sum']);
             $partial = $this->applier->apply(['sum' => 'Something in range today.'], $actions, 'append', 'sum');
             $this->assertSame('Something in range today. In range.', $partial['sum']);
+            $mixed = $this->applier->apply(['sum' => 'A.'], [], 'append', 'sum', 'A. B.');
+            $this->assertSame('A. B.', $mixed['sum']);
         }
 
         /**
