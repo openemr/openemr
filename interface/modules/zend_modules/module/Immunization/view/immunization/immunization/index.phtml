@@ -110,6 +110,7 @@ $form->prepare();
            <table class="responsive">
                 <tr class="se_in_9">
                         <th width="2%">#</th>
+                        <th width="3%"><?php echo $listener->z_xlt('Select'); ?></th>
                         <th width="10%" ><?php echo $listener->z_xlt('Patient Id'); ?></th>
                         <th width="15%"><?php echo $listener->z_xlt('Patient Name'); ?></th>
                         <th width="18%"><?php echo $listener->z_xlt('Immunization Code'); ?></th>
@@ -123,6 +124,11 @@ $form->prepare();
                 ?>
                 <tr>
                         <td style="height: 17px;"><label><?php echo $slno;?>)</label></td>
+                        <td>
+                            <?php if ($value['isPatientSelectable']) { ?>
+                                <input class="check_pid check_pid_<?php echo $this->escapeHtml($value['patientid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($value['patientid']); ?>" aria-label="<?php echo $this->escapeHtmlAttr($listener->z_xlt('Select patient') . ': ' . $value['patientname']); ?>">
+                            <?php } ?>
+                        </td>
                         <td width="10%"><?php echo $this->escapeHtml($value['patientid']); ?></td>
                         <td><?php echo $this->escapeHtml($value['patientname']); ?></td>
                         <td><?php echo $this->escapeHtml($value['cvx_code']); ?></td>
@@ -131,7 +137,7 @@ $form->prepare();
                 </tr>
                  <?php endforeach; ?>
                 <tr>
-                    <th colspan="6">
+                    <th colspan="7">
                     <?php echo $listener->z_xlt('Total Number of Immunizations').':'; ?>
                     <?php echo $this->escapeHtml(sizeof($res));?>
                     </th>
