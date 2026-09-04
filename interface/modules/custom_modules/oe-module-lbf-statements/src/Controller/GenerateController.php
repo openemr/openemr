@@ -84,6 +84,12 @@ class GenerateController
 
         $pid = $this->intParam($request, 'pid');
         $instanceId = $this->intParam($request, 'instance_id');
+        if ($formId !== '' && !in_array($formId, $ruleFormIds, true)) {
+            $error = xl('This form has no statement rules.');
+            $formId = '';
+            $instanceId = 0;
+            $invalidFormId = true;
+        }
         if ($pid > 0) {
             $have = $reader->formdirsForPatient($pid, $ruleFormIds);
             if ($have !== []) {
