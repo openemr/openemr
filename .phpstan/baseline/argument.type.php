@@ -19018,7 +19018,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$haystack of function in_array expects array, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/user_admin.php',
 ];
 $ignoreErrors[] = [
