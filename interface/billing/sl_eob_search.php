@@ -278,7 +278,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     }
 
     if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
-        $config_mpdf = (new StatementEnvelope())->mpdfConfig();
+        $config_mpdf = StatementEnvelope::fromGlobals()->mpdfConfig();
         $pdf2 = new mPDF($config_mpdf);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('language_direction') === 'rtl') {
@@ -587,7 +587,7 @@ if (
                     $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
                     $mimetype = $isPdf ? 'pdf' : 'text/plain';
                     if ($isPdf) {
-                        $pdf2 = new mPDF((new StatementEnvelope())->mpdfConfig());
+                        $pdf2 = new mPDF(StatementEnvelope::fromGlobals()->mpdfConfig());
                         $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         if ($session->get('language_direction') === 'rtl') {
                             $pdf2->SetDirectionality('rtl');

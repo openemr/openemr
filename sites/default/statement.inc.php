@@ -45,6 +45,8 @@ $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->getString('temporary_files_di
  *      Adjust directory paths per your installation.
  *      Further customize 2. manually in functions report_2() and create_HTML_statement(), below.
  *
+ * Windowed envelopes: Administration > Billing > Statement envelope.
+ *
  */
 function make_statement($stmt)
 {
@@ -184,7 +186,7 @@ function create_HTML_statement($stmt)
     $remit_name = $row['name'] ?? '';
     [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
 
-    $env = new StatementEnvelope();
+    $env = StatementEnvelope::fromGlobals();
     $windowed = $env->isWindowed();
     ob_start();
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
@@ -751,7 +753,7 @@ function create_statement($stmt)
     //  %-25s = left-justified string of 25 characters padded with spaces
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
-    $windowed = (new StatementEnvelope())->isWindowed();
+    $windowed = StatementEnvelope::fromGlobals()->isWindowed();
     $providerNAME = getProviderName($stmt['provider_id']);
     if ($windowed) {
         $pad = '       ';
@@ -1006,7 +1008,7 @@ function osp_create_HTML_statement($stmt)
     $remit_name = $clinic_name;
     [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
 
-    $env = new StatementEnvelope();
+    $env = StatementEnvelope::fromGlobals();
     ob_start();
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
