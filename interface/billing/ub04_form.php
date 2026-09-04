@@ -413,10 +413,10 @@ function postClaim(action)
         }
     };
     if(action === 'payer_save'){
-        var qs = param({handler:action,payerid:payerid,ub04id: ub04idSave})
+        var qs = param({handler:action,payerid:payerid,ub04id: ub04idSave,csrf_token_form:ub04CsrfToken})
     }
     else if(action === 'batch_save'){
-        var qs = param({handler:action,pid:pid,encounter:encounter,ub04id:ub04idSave,loc:cj})
+        var qs = param({handler:action,pid:pid,encounter:encounter,ub04id:ub04idSave,loc:cj,csrf_token_form:ub04CsrfToken})
     }
     xhr.send(qs);
 }

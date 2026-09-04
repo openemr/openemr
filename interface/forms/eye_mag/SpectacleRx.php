@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -123,15 +124,19 @@ $query = "select  *,form_encounter.date as encounter_date
     $OSMPDD     = $OSPDMeasured;
     $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
 
+    // Mutation branches below (mode=update/remove, RXTYPE=..., dispensed=1)
+    // do not send an encounter, so the querySingleRow above returns [] and
+    // these lookups run with missing keys. Fall back to null rather than
+    // emit undefined-array-key warnings on every mutation request.
     $query      = "SELECT * FROM users where id = ?";
-    $prov_data  = sqlQuery($query, [$data['provider_id']]);
+    $prov_data  = sqlQuery($query, [$data['provider_id'] ?? null]);
 
     $query      = "SELECT * FROM patient_data where pid=?";
-    $pat_data   = sqlQuery($query, [$data['pid']]);
+    $pat_data   = sqlQuery($query, [$data['pid'] ?? null]);
 
     $practice_data = $facilityService->getPrimaryBusinessEntity();
 
-    $visit_date = oeFormatShortDate($data['encounter_date']);
+    $visit_date = oeFormatShortDate($data['encounter_date'] ?? null);
 
 $RXTYPE ??= '';
 $encounter ??= '';
@@ -139,6 +144,22 @@ $encounter ??= '';
 if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in dispense table
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $table_name = "form_eye_mag_dispense";
+    // Confirm the target dispense row belongs to the session patient before
+    // handing it to formUpdate(); formUpdate scopes only by id and rewrites
+    // the row's pid to the session pid, so a submission with another
+    // patient's row id would silently pull that row into the current chart.
+    $updateId = CurrentRequest::get()->request->getInt('id');
+    if ($updateId <= 0) {
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing dispense row id.'));
+    }
+    $ownerPid = QueryUtils::fetchSingleValue(
+        'SELECT pid FROM form_eye_mag_dispense WHERE id = ? AND pid = ?',
+        'pid',
+        [$updateId, $pid]
+    );
+    if ($ownerPid === null) {
+        AccessDeniedHelper::deny('SpectacleRx dispense update: row does not belong to session pid');
+    }
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
     $fields = [];
@@ -157,7 +178,7 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
             }
         }
         $fields['RXTYPE'] = $RXTYPE;
-        $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $session->get('userauthorized'));
+        $insert_this_id = formUpdate($table_name, $fields, $updateId, $session->get('userauthorized'));
     }
 
     exit;
