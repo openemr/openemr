@@ -16,6 +16,7 @@ namespace OpenEMR\Modules\LbfStatements;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
@@ -30,23 +31,16 @@ if (!AclMain::aclCheckCore('encounters', 'notes')) {
     exit;
 }
 
-$pid = Values::asInt($_GET['pid'] ?? 0);
-$instanceId = Values::asInt($_GET['instance_id'] ?? 0);
-$formId = Values::asString($_GET['form_id'] ?? '');
-$dest = Values::asString($_GET['dest'] ?? 'form');
+$request = CurrentRequest::get();
+$pid = Values::asInt($request->query->getString('pid'));
+$instanceId = Values::asInt($request->query->getString('instance_id'));
+$formId = $request->query->getString('form_id');
+$dest = $request->query->getString('dest', 'form');
 if ($dest !== 'print') {
     $dest = 'form';
 }
 
-if ($pid <= 0 || $instanceId <= 0 || $formId === '') {
-    http_response_code(400);
-    echo xlt('Select a patient and form instance.');
-    exit;
-}
-
-try {
-    Identifiers::assertFieldId($formId);
-} catch (\InvalidArgumentException) {
+if ($pid <= 0 || $instanceId <= 0 || !Identifiers::isFieldId($formId)) {
     http_response_code(400);
     echo xlt('Select a patient and form instance.');
     exit;

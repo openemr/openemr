@@ -14,16 +14,19 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\LbfStatements;
 
-use OpenEMR\Common\Database\QueryUtils;
-
 class StatementRepository
 {
+    public function __construct(
+        private readonly Queries $sql = new Queries()
+    ) {
+    }
+
     /**
      * @return list<string>
      */
     public function formIdsWithRules(): array
     {
-        $rows = QueryUtils::fetchRecords(
+        $rows = $this->sql->fetchRecords(
             "SELECT DISTINCT form_id FROM module_lbf_statement_rules WHERE enabled = 1 ORDER BY form_id"
         );
         $out = [];
@@ -54,7 +57,7 @@ class StatementRepository
             $sql .= " AND enabled = 1";
         }
         $sql .= " ORDER BY seq, id";
-        $rows = QueryUtils::fetchRecords($sql, $bind);
+        $rows = $this->sql->fetchRecords($sql, $bind);
         $out = [];
         foreach ($rows as $raw) {
             $row = Values::assocRow($raw);
@@ -70,7 +73,7 @@ class StatementRepository
      */
     public function getRule(int $id): ?array
     {
-        return Values::assocRow(QueryUtils::querySingleRow(
+        return Values::assocRow($this->sql->querySingleRow(
             "SELECT id, form_id, source_field_id, source_field_id_2, op, min_value, max_value, " .
             "min_inclusive, max_inclusive, match_token, statement_text, seq, enabled " .
             "FROM module_lbf_statement_rules WHERE id = ?",
@@ -114,7 +117,7 @@ class StatementRepository
             Values::asBool($data['enabled'] ?? 0) ? 1 : 0,
         ];
         if ($id !== null && $id > 0) {
-            QueryUtils::sqlStatementThrowException(
+            $this->sql->sqlStatementThrowException(
                 "UPDATE module_lbf_statement_rules SET form_id=?, source_field_id=?, source_field_id_2=?, " .
                 "op=?, min_value=?, max_value=?, min_inclusive=?, max_inclusive=?, match_token=?, " .
                 "statement_text=?, seq=?, enabled=? WHERE id=?",
@@ -122,12 +125,12 @@ class StatementRepository
             );
             return $id;
         }
-        return Values::asInt(QueryUtils::sqlInsert(
+        return $this->sql->sqlInsert(
             "INSERT INTO module_lbf_statement_rules (" .
             "form_id, source_field_id, source_field_id_2, op, min_value, max_value, min_inclusive, " .
             "max_inclusive, match_token, statement_text, seq, enabled) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             $fields
-        ));
+        );
     }
 
     public function setEnabled(int $id, bool $enabled): void
@@ -139,7 +142,7 @@ class StatementRepository
                 $this->assertBandDoesNotOverlap($rule, $id);
             }
         }
-        QueryUtils::sqlStatementThrowException(
+        $this->sql->sqlStatementThrowException(
             "UPDATE module_lbf_statement_rules SET enabled = ? WHERE id = ?",
             [$enabled ? 1 : 0, $id]
         );
@@ -154,7 +157,7 @@ class StatementRepository
             return;
         }
         if (BandOverlap::invertedBounds($data)) {
-            throw new \InvalidArgumentException('Minimum must be less than or equal to maximum.');
+            throw new InvertedBoundsException('Minimum must be less than or equal to maximum.');
         }
         if (!Values::asBool($data['enabled'] ?? 0)) {
             return;
@@ -176,7 +179,7 @@ class StatementRepository
                 continue;
             }
             if (BandOverlap::rangesOverlap($data, $other)) {
-                throw new \InvalidArgumentException(
+                throw new BandOverlapException(
                     'This numeric range overlaps another band on the same field.'
                 );
             }
@@ -189,7 +192,7 @@ class StatementRepository
         if (!in_array($mode, ['append', 'overwrite'], true)) {
             throw new \InvalidArgumentException('Invalid mode');
         }
-        QueryUtils::sqlInsert(
+        $this->sql->sqlInsert(
             "INSERT INTO module_lbf_statement_runs (form_id, pid, instance_form_id, user, mode) " .
             "VALUES (?,?,?,?,?)",
             [$formId, $pid, $instanceFormId, $user, $mode]

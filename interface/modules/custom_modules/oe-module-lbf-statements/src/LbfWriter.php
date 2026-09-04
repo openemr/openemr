@@ -14,10 +14,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\LbfStatements;
 
-use OpenEMR\Common\Database\QueryUtils;
-
 class LbfWriter
 {
+    public function __construct(
+        private readonly Queries $sql = new Queries()
+    ) {
+    }
+
     /**
      * @param array<string, string> $newValues
      * @param array<string, string> $oldValues
@@ -38,20 +41,20 @@ class LbfWriter
             $value = $newValues[$fieldId] ?? '';
             $old = $oldValues[$fieldId] ?? null;
             if ($value === '') {
-                QueryUtils::sqlStatementThrowException(
+                $this->sql->sqlStatementThrowException(
                     "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ?",
                     [$instanceId, $fieldId]
                 );
                 continue;
             }
             if ($old === null) {
-                QueryUtils::sqlStatementThrowException(
+                $this->sql->sqlStatementThrowException(
                     "INSERT INTO lbf_data (form_id, field_id, field_value) VALUES (?,?,?)",
                     [$instanceId, $fieldId, $value]
                 );
                 continue;
             }
-            QueryUtils::sqlStatementThrowException(
+            $this->sql->sqlStatementThrowException(
                 "REPLACE INTO lbf_data SET field_value = ?, form_id = ?, field_id = ?",
                 [$value, $instanceId, $fieldId]
             );

@@ -14,13 +14,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\LbfStatements;
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Menu\MenuEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class Bootstrap
 {
@@ -90,9 +91,22 @@ class Bootstrap
 
     public function getTwig(): Environment
     {
-        $kernel = OEGlobalsBag::getInstance()->getKernel();
-        $container = new TwigContainer($this->getTemplatePath(), $kernel);
-        return $container->getTwig();
+        $twig = ServiceContainer::getTwig();
+        $loader = $twig->getLoader();
+        if ($loader instanceof FilesystemLoader) {
+            $path = rtrim($this->getTemplatePath(), '/\\');
+            $already = false;
+            foreach ($loader->getPaths() as $existing) {
+                if (rtrim((string) $existing, '/\\') === $path) {
+                    $already = true;
+                    break;
+                }
+            }
+            if (!$already) {
+                $loader->prependPath($path);
+            }
+        }
+        return $twig;
     }
 
     public function getTemplatePath(): string
