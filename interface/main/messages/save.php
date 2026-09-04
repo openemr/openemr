@@ -20,7 +20,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php";
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/MedEx/API.php";
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');

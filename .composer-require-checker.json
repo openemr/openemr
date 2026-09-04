@@ -96,6 +96,7 @@
         "sqlGetLastInsertId",
         "sqlInsert",
         "sqlInsertClean_audit",
+        "sqlListFields",
         "sqlNumRows",
         "sqlQ",
         "sqlQuery",

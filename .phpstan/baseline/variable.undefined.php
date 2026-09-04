@@ -297,11 +297,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/import_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/import_xml.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$patients might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/qrda_category1.inc.php',
@@ -428,7 +423,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/easipro/pro.php',
 ];
 $ignoreErrors[] = [
@@ -453,7 +448,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
@@ -483,7 +478,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
@@ -803,7 +798,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/treatment_plan/new.php',
 ];
 $ignoreErrors[] = [
@@ -873,7 +868,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
 ];
 $ignoreErrors[] = [
@@ -883,7 +878,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive_save.php',
 ];
 $ignoreErrors[] = [
@@ -900,16 +895,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$rootdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_patient_save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_patient_save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_search_popup.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$MedEx might not be defined\\.$#',
@@ -973,7 +958,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
@@ -1458,7 +1443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1640,11 +1625,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$use_validate_js might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/account/account.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$portalRegistrationAuthorization might not be defined\\.$#',
@@ -1948,7 +1928,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
 ];
 $ignoreErrors[] = [

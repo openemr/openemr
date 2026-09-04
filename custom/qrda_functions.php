@@ -24,8 +24,6 @@
 
   use OpenEMR\Services\FacilityService;
 
-  $facilityService = new FacilityService();
-
     // Functions for QRDA Category I (or) III 2014 XML format.
 
     //function for Stratification data getting for NQF# 0024 Rule
@@ -291,8 +289,7 @@ function getUsrDataCheck($provider_id)
 
 function getFacilDataChk($facility_id)
 {
-    global $facilityService;
-    return $facilityService->getById($facility_id);
+    return (new FacilityService())->getById($facility_id);
 }
 
 function patientQRDAHistory($patient_id)

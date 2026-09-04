@@ -11,7 +11,6 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;

@@ -26,7 +26,6 @@ global $ignoreAuth_onsite_portal;
 $globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/appointments.inc.php");
 

@@ -22,7 +22,6 @@ use OpenEMR\Core\OEGlobalsBag;
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 formHeader("Form:Lab Requisition");

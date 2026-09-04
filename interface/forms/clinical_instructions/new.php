@@ -23,7 +23,6 @@ use OpenEMR\Core\OEGlobalsBag;
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 $returnurl = 'encounter_top.php';

@@ -102,11 +102,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$facilityService\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/qrda_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$db\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/object_search.php',
@@ -202,11 +197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$msg, \\$facilityService\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx_xml.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$msg, \\$page\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
@@ -218,7 +208,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$msg\\)\\. Use dependency injection instead\\.$#',
-    'count' => 9,
+    'count' => 10,
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
@@ -307,11 +297,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$facilityService\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$form_folder\\)\\. Use dependency injection instead\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -392,11 +377,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$facilityService\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$providerNAME\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
@@ -413,11 +393,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$choice\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$facilityService\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
@@ -912,17 +887,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$alertmsg\\)\\. Use dependency injection instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$details, \\$TAXES_AFTER_ADJUSTMENT\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$details, \\$rapid_data_entry, \\$aAdjusts\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$facilityService, \\$alertmsg\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
@@ -1517,13 +1492,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES, \\$facilityService\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1534,11 +1504,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$cell_count, \\$CPR\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$facilityService\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1585,16 +1550,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$sk_layout_items\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$facilityService\\)\\. Use dependency injection instead\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$policy_types\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$attendant_type\\)\\. Use dependency injection instead\\.$#',

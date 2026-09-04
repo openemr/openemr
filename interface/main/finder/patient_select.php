@@ -21,7 +21,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 $report_id = 0;

@@ -3903,7 +3903,6 @@ function report_header($pid, $direction = 'shell')
 {
     global $encounter;
     global $visit_date;
-    global $facilityService;
     global $OE_SITE_DIR;
 
     /*******************************************************************
@@ -3914,6 +3913,7 @@ function report_header($pid, $direction = 'shell')
     $titleres = getPatientData($pid, "fname,lname,providerID,DOB");
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $pc_facility = $session->get('pc_facility');
+    $facilityService = new FacilityService();
     $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
 
     $DOB = oeFormatShortDate($titleres['DOB']);

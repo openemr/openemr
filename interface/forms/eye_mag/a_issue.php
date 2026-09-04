@@ -36,7 +36,6 @@ require_once('../../globals.php');
 
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");

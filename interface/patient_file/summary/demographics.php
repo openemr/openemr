@@ -35,7 +35,6 @@ $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 // global keyword to signal whether the appointments query returned a non-null result.
 $resNotNull = false;
 require_once($srcdir . "/lists.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../history/history.inc.php");
 require_once($srcdir . "/clinical_rules.php");

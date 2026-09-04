@@ -33,7 +33,6 @@ require_once("../../globals.php");
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 $returnurl = 'encounter_top.php';
