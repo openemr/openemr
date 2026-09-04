@@ -114,22 +114,23 @@
                     </thead>
                     <tbody>
                         {% for inst in instances %}
-                            {% set instQuery = 'form_id=' ~ form_id ~ '&pid=' ~ pid ~ '&instance_id=' ~ inst.instance_id %}
                             <tr class="{% if inst.instance_id == instance_id %}lbf-stmt-current{% endif %}"
                                 {% if inst.instance_id == instance_id %}aria-current="true"{% endif %}>
                                 <td>
-                                    <a class="lbf-stmt-date" href="index.php?{{ instQuery|attr }}">
+                                    <a class="lbf-stmt-date lbf-stmt-pick-inst" href="index.php"
+                                       data-instance-id="{{ inst.instance_id|attr }}">
                                         {{ inst.date|text }}
                                         {% if inst.instance_id == instance_id %}
                                             <span class="badge badge-secondary">{{ "Current"|xlt }}</span>
                                         {% endif %}
                                     </a>
                                 </td>
-                                <td><a href="index.php?{{ instQuery|attr }}">{{ inst.encounter|text }}</a></td>
-                                <td><a href="index.php?{{ instQuery|attr }}">{{ inst.reason|text }}</a></td>
-                                <td><a href="index.php?{{ instQuery|attr }}">{{ inst.form_name|text }}</a></td>
+                                <td><a class="lbf-stmt-pick-inst" href="index.php" data-instance-id="{{ inst.instance_id|attr }}">{{ inst.encounter|text }}</a></td>
+                                <td><a class="lbf-stmt-pick-inst" href="index.php" data-instance-id="{{ inst.instance_id|attr }}">{{ inst.reason|text }}</a></td>
+                                <td><a class="lbf-stmt-pick-inst" href="index.php" data-instance-id="{{ inst.instance_id|attr }}">{{ inst.form_name|text }}</a></td>
                                 <td>
-                                    <a class="lbf-stmt-action" href="index.php?{{ instQuery|attr }}">
+                                    <a class="lbf-stmt-action lbf-stmt-pick-inst" href="index.php"
+                                       data-instance-id="{{ inst.instance_id|attr }}">
                                         {% if inst.instance_id == instance_id %}{{ "Current"|xlt }}{% else %}{{ "Select"|xlt }}{% endif %}
                                     </a>
                                 </td>
@@ -199,19 +200,28 @@
 
             {% if formUrl %}
                 <a class="btn btn-outline-secondary" id="lbf-stmt-open-form"
-                   href="open_form.php?form_id={{ form_id|attr }}&amp;pid={{ pid|attr }}&amp;instance_id={{ instance_id|attr }}&amp;dest=form&amp;csrf_token_form={{ csrfTokenValue|attr }}"
+                   href="open_form.php"
+                   data-dest="form"
+                   data-form-id="{{ form_id|attr }}"
+                   data-pid="{{ pid|attr }}"
+                   data-instance-id="{{ instance_id|attr }}"
+                   data-csrf="{{ csrfTokenValue|attr }}"
                    data-fallback-url="{{ formUrl|attr }}"
                    {% if patientSetUrl %}data-tabs-url="{{ patientSetUrl|attr }}"{% endif %}
                    onclick="try { if (typeof openEncounterTab === 'function') { openEncounterTab(event); } } finally { return false; }">{{ "Open encounter"|xlt }}</a>
             {% endif %}
             {% if printUrl %}
                 <a class="btn btn-outline-secondary" id="lbf-stmt-print"
-                   href="open_form.php?form_id={{ form_id|attr }}&amp;pid={{ pid|attr }}&amp;instance_id={{ instance_id|attr }}&amp;dest=print&amp;csrf_token_form={{ csrfTokenValue|attr }}"
-                   target="_blank"
-                   onclick="if (typeof top !== 'undefined' && top.restoreSession) { top.restoreSession(); }">{{ "Print"|xlt }}</a>
+                   href="open_form.php"
+                   data-dest="print"
+                   data-form-id="{{ form_id|attr }}"
+                   data-pid="{{ pid|attr }}"
+                   data-instance-id="{{ instance_id|attr }}"
+                   data-csrf="{{ csrfTokenValue|attr }}"
+                   target="_blank">{{ "Print"|xlt }}</a>
             {% endif %}
         {% endif %}
     </div>
-    <script src="{{ assetBase|attr }}generate.js?v=0.1.1"></script>
+    <script src="{{ assetBase|attr }}generate.js?v=0.1.2"></script>
 </body>
 </html>
