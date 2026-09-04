@@ -802,11 +802,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getPrimaryBusinessEntity\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx_xml.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method setAttribute\\(\\) on mixed\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../interface/eRx_xml.php',

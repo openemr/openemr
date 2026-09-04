@@ -67,7 +67,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
-$facilityService = new FacilityService();
 $recorder = new Recorder();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

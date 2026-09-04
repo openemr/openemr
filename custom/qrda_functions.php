@@ -24,8 +24,6 @@
 
   use OpenEMR\Services\FacilityService;
 
-  $facilityService = new FacilityService();
-
     // Functions for QRDA Category I (or) III 2014 XML format.
 
     //function for Stratification data getting for NQF# 0024 Rule
