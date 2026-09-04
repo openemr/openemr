@@ -75,8 +75,6 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$facilityService = new FacilityService();
-
 $date_init = "";
 $membership_group_number = 0;
 
