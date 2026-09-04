@@ -59,7 +59,7 @@
             return false;
         }
         const tabsUrl = el.getAttribute('data-tabs-url');
-        const href = el.getAttribute('data-fallback-url') || el.getAttribute('href');
+        const href = el.getAttribute('data-fallback-url') || openFormUrl(el);
         const shell = tabsWindow();
         if (shell !== null && tabsUrl) {
             try {
@@ -77,6 +77,55 @@
         }
         return false;
     };
+
+    function pickFormId() {
+        const el = document.getElementById('form_id');
+        return el ? String(el.value || '') : '';
+    }
+
+    function pickPid() {
+        const el = document.getElementById('pid');
+        return el ? String(el.value || '') : '';
+    }
+
+    function instanceIndexUrl(instanceId) {
+        return 'index.php?form_id=' + encodeURIComponent(pickFormId())
+            + '&pid=' + encodeURIComponent(pickPid())
+            + '&instance_id=' + encodeURIComponent(String(instanceId || ''));
+    }
+
+    function openFormUrl(el) {
+        if (!el) {
+            return 'open_form.php';
+        }
+        const dest = el.getAttribute('data-dest') || 'form';
+        return 'open_form.php?form_id=' + encodeURIComponent(el.getAttribute('data-form-id') || '')
+            + '&pid=' + encodeURIComponent(el.getAttribute('data-pid') || '')
+            + '&instance_id=' + encodeURIComponent(el.getAttribute('data-instance-id') || '')
+            + '&dest=' + encodeURIComponent(dest)
+            + '&csrf_token_form=' + encodeURIComponent(el.getAttribute('data-csrf') || '');
+    }
+
+    document.querySelectorAll('.lbf-stmt-pick-inst').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+                top.restoreSession();
+            }
+            window.location.href = instanceIndexUrl(a.getAttribute('data-instance-id'));
+        });
+    });
+
+    const printBtn = document.getElementById('lbf-stmt-print');
+    if (printBtn) {
+        printBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+                top.restoreSession();
+            }
+            window.open(openFormUrl(printBtn), '_blank');
+        });
+    }
 
     window.setpatient = function (pid, lname, fname) {
         const pidEl = document.getElementById('pid');
