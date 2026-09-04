@@ -102,13 +102,11 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
 
-    # Deliberately unpinned. No dependency manager covers this action's
-    # `version` input or a .updatecli-version file, so a pin here would rot
-    # unnoticed. Floating means a breaking updatecli release surfaces as a
-    # loud failure in this run and on the next manifest PR, rather than as
-    # a pin nobody remembers to bump.
+    # Pinned to an exact tag because updatecli/updatecli-action publishes no
+    # floating major alias — `@v3` does not resolve, only `@v3.6.0` and its
+    # siblings. Dependabot's github-actions ecosystem keeps this current.
     - name: Install updatecli
-      uses: updatecli/updatecli-action@v3
+      uses: updatecli/updatecli-action@v3.6.0
 
     - name: Resolve pins
       env:
