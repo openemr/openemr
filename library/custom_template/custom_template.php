@@ -31,11 +31,13 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 // mdsupport : li code
 function listitemCode($strDisp, $strInsert, $ref = ''): void
 {

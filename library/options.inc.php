@@ -67,6 +67,7 @@ use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
@@ -582,7 +583,8 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 //
 function generate_form_field($frow, $currvalue): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
+    global $rootdir, $date_init, $code_types, $membership_group_number;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -1693,7 +1695,8 @@ function generate_form_field($frow, $currvalue): void
 
 function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES;
+    global $rootdir, $date_init;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -2356,7 +2359,7 @@ function generate_list_map($list_id, $translate = false)
 
 function generate_display_field($frow, $currvalue)
 {
-    global $ISSUE_TYPES;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -2861,7 +2864,7 @@ function generate_display_field($frow, $currvalue)
 //
 function generate_plaintext_field($frow, $currvalue)
 {
-    global $ISSUE_TYPES;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'] ?? null;

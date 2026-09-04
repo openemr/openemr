@@ -22,6 +22,7 @@ require_once($srcdir . "/lists.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientIssuesService;
@@ -32,8 +33,7 @@ use OpenEMR\Services\PatientIssuesService;
  */
 $pid ??= null;
 $webroot = OEGlobalsBag::getInstance()->getWebRoot();
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 $patdata = getPatientData($pid, "fname,lname,squad");
 
 $thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||

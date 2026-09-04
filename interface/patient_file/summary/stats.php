@@ -20,13 +20,13 @@ require_once($srcdir . "/options.inc.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $t = ServiceContainer::getTwig();
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 $need_head = true;
 
 /**
