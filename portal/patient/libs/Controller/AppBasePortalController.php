@@ -2,7 +2,6 @@
 
 /** @package    Patient Portal::Controller */
 
-require_once(__DIR__ . "/../../../lib/appsql.class.php");
 /**
  * AppBaseController is a base class Controller class from which
  * the front controllers inherit.  it is not necessary to use this
