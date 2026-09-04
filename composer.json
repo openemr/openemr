@@ -213,7 +213,10 @@
             "library/transactions.inc.php",
             "library/translation.inc.php",
             "library/user.inc.php",
-            "library/validation/validate_core.php"
+            "library/validation/validate_core.php",
+            "portal/patient/fwk/libs/verysimple/Phreeze/FieldMap.php",
+            "portal/patient/fwk/libs/verysimple/Phreeze/IObserver.php",
+            "portal/patient/fwk/libs/verysimple/Phreeze/KeyMap.php"
         ],
         "exclude-from-classmap": [
             "src/Common/Compatibility/Checker.php",
