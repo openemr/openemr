@@ -17,9 +17,11 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Storage\CacheDirectory;
+use Symfony\Component\HttpFoundation\Response;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
@@ -75,7 +77,7 @@ if ($action === 'print_labels') {
     $client = $_GET['acctid'];
     $pid = $query->getInt('pid');
     if ($pid <= 0) {
-        exit;
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing PID.'));
     }
     $order = $_GET['order'];
     $specimen = [];

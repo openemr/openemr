@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -27,6 +28,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\RefType;
 use OpenEMR\Forms\EyeMag\RxType;
 use OpenEMR\Services\FacilityService;
+use Symfony\Component\HttpFoundation\Response;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/api.inc.php");
@@ -55,7 +57,7 @@ $CTL_expir = "+6 months";
 // a single session-driven read so every query below scopes to the opened patient.
 $pid = PatientSessionUtil::getPid();
 if ($pid <= 0) {
-    exit;
+    (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing PID.'));
 }
 $form_id = $_REQUEST['form_id'] ?? null;
 

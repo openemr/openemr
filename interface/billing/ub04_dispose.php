@@ -18,9 +18,11 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Dispatch a UB04 handler action based on the `handler` request parameter.
@@ -34,8 +36,8 @@ use OpenEMR\Pdf\PdfCreator;
  *   - `payer_save`  -> savePayerTemplate() for a payer id (no pid context)
  *   - `batch_save`  -> saveTemplate() in batch mode
  *   - `reset_claim` -> BillingUtilities::updateClaim() clearing the claim
- * Every dispatched branch terminates the request with exit(); the function
- * returns void only when `handler` is absent.
+ * Every dispatched branch terminates the request; the function returns void
+ * only when `handler` is absent.
  */
 function ub04_dispose(): void
 {
@@ -50,13 +52,14 @@ function ub04_dispose(): void
         if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
             AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: UB04 Dispose", xl("UB04 Claim"));
         }
+        $terminator = new RequestTerminator();
         if ($dispose == "edit_save") {
             $ub04id = $request->getString('ub04id');
             $pid = $request->getInt('pid');
             $encounter = $request->getInt('encounter');
             $action = $request->getString('action');
             if ($pid <= 0 || $encounter <= 0) {
-                exit();
+                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing pid or encounter.'));
             }
             // Submitted pid must match the opened patient in session; reject
             // any submission targeting a different patient than the one whose
@@ -67,7 +70,7 @@ function ub04_dispose(): void
             }
             $decoded = $ub04id !== '' ? json_decode($ub04id, true) : null;
             if (!is_array($decoded)) {
-                exit();
+                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Invalid UB04 payload.'));
             }
             saveTemplate($encounter, $pid, $decoded, $action);
             exit();
@@ -75,7 +78,7 @@ function ub04_dispose(): void
             $ub04id = $request->getString('ub04id');
             $payerid = $request->getInt('payerid');
             if ($ub04id === '' || $payerid <= 0) {
-                exit("done");
+                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing payer payload.'));
             }
             savePayerTemplate($payerid, $ub04id);
             exit("done");
@@ -84,10 +87,10 @@ function ub04_dispose(): void
             $encounter = $request->getInt('encounter');
             $ub04id = $request->getString('ub04id');
             if ($pid <= 0 || $encounter <= 0) {
-                exit("done");
+                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing pid or encounter.'));
             }
             if ($ub04id === '') {
-                exit("done");
+                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing UB04 payload.'));
             }
             $sessionPid = PatientSessionUtil::getPid();
             if ($sessionPid <= 0 || $pid !== $sessionPid) {
@@ -99,7 +102,7 @@ function ub04_dispose(): void
             $pid = $request->getInt('pid');
             $encounter = $request->getInt('encounter');
             if ($pid <= 0 || $encounter <= 0) {
-                exit();
+                $terminator->error(Response::HTTP_BAD_REQUEST, xl('Missing pid or encounter.'));
             }
             $sessionPid = PatientSessionUtil::getPid();
             if ($sessionPid <= 0 || $pid !== $sessionPid) {

@@ -19,9 +19,11 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Response;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -39,8 +41,7 @@ if (!AclMain::aclCheckCore('patients', 'appt')) {
 $query = CurrentRequest::get()->query;
 $pid = $query->getInt('pid');
 if ($pid <= 0) {
-    echo "<p>" . xlt('Missing PID.') . "</p>";
-    exit;
+    (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xl('Missing PID.'));
 }
 ?>
 
