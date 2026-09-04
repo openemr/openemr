@@ -153,8 +153,8 @@ class LbfReader
                 }
             }
             $reason = trim(strip_tags(Values::rowString($row, 'reason')));
-            if (strlen($reason) > 80) {
-                $reason = substr($reason, 0, 77) . '...';
+            if (mb_strlen($reason) > 80) {
+                $reason = mb_substr($reason, 0, 77) . '...';
             }
             $out[] = [
                 'instance_id' => Values::rowInt($row, 'form_id'),

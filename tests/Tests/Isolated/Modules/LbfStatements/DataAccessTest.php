@@ -35,10 +35,10 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
     use OpenEMR\Modules\LbfStatements\BandOverlapException;
     use OpenEMR\Modules\LbfStatements\InvertedBoundsException;
     use OpenEMR\Modules\LbfStatements\LayoutCatalog;
-    use OpenEMR\Modules\LbfStatements\RuleNotFoundException;
     use OpenEMR\Modules\LbfStatements\LbfReader;
     use OpenEMR\Modules\LbfStatements\LbfWriter;
     use OpenEMR\Modules\LbfStatements\Queries;
+    use OpenEMR\Modules\LbfStatements\RuleNotFoundException;
     use OpenEMR\Modules\LbfStatements\StatementRepository;
     use PHPUnit\Framework\TestCase;
 
