@@ -47,7 +47,6 @@ if (isset($_GET['portal_auth'])) {
 require_once(__DIR__ . "/../interface/globals.php");
 require_once(__DIR__ . "/../library/sql-ccr.inc.php");
 require_once(__DIR__ . "/transmitCCD.php");
-require_once(__DIR__ . "/../custom/code_types.inc.php");
 
 
 if ($notPatientPortal) {

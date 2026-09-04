@@ -14,7 +14,6 @@
 require_once("../../globals.php");
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\CodeTypes\CodeTypeRegistry;

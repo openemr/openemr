@@ -20,7 +20,6 @@
  */
 
 require_once("../globals.php");
-require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;

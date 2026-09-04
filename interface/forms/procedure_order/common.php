@@ -45,7 +45,6 @@ $userauthorized = PatientSessionUtil::getUserAuthorized();
 
 require_once("$srcdir/options.inc.php");
 require_once(__DIR__ . "/../../orders/qoe.inc.php");
-require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
