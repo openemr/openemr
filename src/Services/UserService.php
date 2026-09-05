@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -61,9 +62,32 @@ class UserService
         }
     }
 
+    /**
+     * Columns on this table that hold binary UUID values.
+     */
     public function getUuidFields()
     {
         return ['uuid'];
+    }
+
+    /**
+     * Returns the SELECT column list for user queries.
+     * Subclasses can override to include additional columns (e.g., username, authorized).
+     *
+     * @return string SQL column list fragment
+     */
+    protected function getSelectColumns(): string
+    {
+        $columns = "id, uuid, users.title as title, fname, lname, mname,
+                    federaltaxid, federaldrugid, upin, facility_id, facility,
+                    npi, email, active, specialty, billname, url, assistant,
+                    organization, valedictory, street, streetb, city, state,
+                    zip, phone, fax, phonew1, phonecell, users.notes,
+                    state_license_number, abook.title as abook_title";
+        if ($this->_includeUsername) {
+            $columns .= ", username";
+        }
+        return $columns;
     }
 
     /**
@@ -237,44 +261,16 @@ class UserService
         return ($records ?? null);
     }
 
-    public function search(array $search, $isAndCondition = true)
+    /**
+     * Searches users, optionally bounded by a pagination window.
+     *
+     * Supplying a pagination object adds a stable sort and a LIMIT/OFFSET window;
+     * without one the statement is unchanged. Types are intentionally left off the
+     * tags here so this legacy signature keeps its existing analysis baseline.
+     */
+    public function search(array $search, $isAndCondition = true, ?QueryPagination $pagination = null)
     {
-        $sql = "SELECT  id,
-                        uuid,
-                        users.title as title,
-                        fname,
-                        lname,
-                        mname,
-                        federaltaxid,
-                        federaldrugid,
-                        upin,
-                        facility_id,
-                        facility,
-                        npi,
-                        email,
-                        active,
-                        specialty,
-                        billname,
-                        url,
-                        assistant,
-                        organization,
-                        valedictory,
-                        street,
-                        streetb,
-                        city,
-                        state,
-                        zip,
-                        phone,
-                        fax,
-                        phonew1,
-                        phonecell,
-                        users.notes,
-                        state_license_number,
-                        abook.title as abook_title,
-                        last_updated ";
-        if ($this->_includeUsername) {
-            $sql .= ", username";
-        }
+        $sql = "SELECT  " . $this->getSelectColumns() . ", last_updated";
         // grab our address book type, make sure to use the index w/ list_id and option_id
         $sql .= "
                 FROM  users
@@ -285,9 +281,25 @@ class UserService
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
+        // Callers that pass a pagination object get a bounded query; without one the
+        // statement is unchanged, so existing callers keep their current behavior.
+        if ($pagination !== null && $pagination->getLimit() > 0) {
+            $processingResult->setPagination($pagination);
+            $offset = $pagination->getCurrentOffsetId();
+            // One row past the limit lets ProcessingResult::addData() flag that more data exists.
+            $limitClause = $pagination->getLimit() + 1;
+            $offsetClause = is_numeric($offset) ? (int)$offset : 0;
+            // A deterministic sort is required for paging: without it MySQL may return rows
+            // in any order, so consecutive pages could repeat or skip users.
+            $sql .= " ORDER BY users.id LIMIT ? OFFSET ?";
+            $sqlBindArray[] = $limitClause;
+            $sqlBindArray[] = $offsetClause;
+        }
+
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
         while ($row = sqlFetchArray($statementResults)) {
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
             $processingResult->addData($resultRecord);
@@ -308,41 +320,7 @@ class UserService
     {
         $sqlBindArray = [];
 
-        $sql = "SELECT  id,
-                        uuid,
-                        users.title as title,
-                        fname,
-                        lname,
-                        mname,
-                        federaltaxid,
-                        federaldrugid,
-                        upin,
-                        facility_id,
-                        facility,
-                        npi,
-                        email,
-                        active,
-                        specialty,
-                        billname,
-                        url,
-                        assistant,
-                        organization,
-                        valedictory,
-                        street,
-                        streetb,
-                        city,
-                        state,
-                        zip,
-                        phone,
-                        fax,
-                        phonew1,
-                        phonecell,
-                        users.notes,
-                        state_license_number,
-                        abook.title as abook_title";
-        if ($this->_includeUsername) {
-            $sql .= ", username";
-        }
+        $sql = "SELECT  " . $this->getSelectColumns();
         $sql .= "
                 FROM  users
                 LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";

@@ -152,6 +152,7 @@ use OpenApi\Attributes as OA;
                 'user/surgery.cruds' => 'Create,Read,Update,Delete,Search surgeries the user has access to (api:oemr)',
                 'user/transaction.cuds' => 'Create,Update,Delete,Search transactions the user has access to (api:oemr)',
                 'user/user.rs' => 'Read,Search users the current user has access to (api:oemr)',
+                'user/users.crs' => 'Create,Read,Search users via the admin user management API (api:oemr)',
                 'user/version.s' => 'Search the software version information the user has access to (api:oemr)',
                 'user/vital.crus' => 'Create,Read,Update,Search vitals the user has access to (api:oemr)',
                 'api:port' => 'Standard Patient Portal OpenEMR API',
@@ -173,6 +174,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'fhir', description: 'FHIR R4 API')]
 #[OA\Tag(name: 'standard', description: 'Standard OpenEMR API')]
+#[OA\Tag(name: 'standard-admin', description: 'Standard Admin OpenEMR API')]
 #[OA\Tag(name: 'standard-patient', description: 'Standard Patient Portal OpenEMR API')]
 
 #[OA\Parameter(
