@@ -19,6 +19,9 @@ use PHPUnit\Framework\TestCase;
 
 final class StatementEnvelopeTest extends TestCase
 {
+    /**
+     * Default profile leaves the stock statement layout unchanged.
+     */
     public function testDefaultIsNotWindowed(): void
     {
         $env = new StatementEnvelope(StatementEnvelope::PROFILE_DEFAULT);
@@ -28,6 +31,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertSame('', $env->windowHtml('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']));
     }
 
+    /**
+     * #9 cut is 3/8 from the left; return 1-3/16 x 3-1/2.
+     */
     public function testHash9UsesThreeEighthsLeftCut(): void
     {
         $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH9))->geometry();
@@ -42,6 +48,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertEqualsWithDelta(11.0 / 3.0, $g['panel'], 0.0001);
     }
 
+    /**
+     * #10 cut is 1/2 from the left; return 1 x 3-1/2.
+     */
     public function testHash10UsesHalfInchLeftCut(): void
     {
         $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH10))->geometry();
@@ -55,6 +64,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertEqualsWithDelta(4.0, $g['to']['w'], 0.0001);
     }
 
+    /**
+     * 1 in = 2.54 cm exactly (127/50), rounded to 0.0001 cm.
+     */
     public function testInchCentimeterConversionKeepsTenthousandthCm(): void
     {
         $this->assertEqualsWithDelta(2.54, StatementEnvelope::inchesToCentimeters(1.0), 0.0001);
@@ -66,6 +78,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertEqualsWithDelta(0.0001, StatementEnvelope::inchesToCentimeters(StatementEnvelope::centimetersToInches(0.0001)), 0.0001);
     }
 
+    /**
+     * parseLength honors an explicit unit and a unit written in the text.
+     */
     public function testParseLengthReadsCentimeters(): void
     {
         $this->assertEqualsWithDelta(1.0, StatementEnvelope::parseLength('2.54', 'cm'), 0.000001);
@@ -74,6 +89,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertEqualsWithDelta(0.375, StatementEnvelope::parseLength('3/8', 'in'), 0.000001);
     }
 
+    /**
+     * Carton fractions such as 3/8 and 1-3/16 parse to inches.
+     */
     public function testParseInchReadsBoxFractions(): void
     {
         $this->assertEqualsWithDelta(0.375, StatementEnvelope::parseInch('3/8'), 0.0001);
@@ -87,6 +105,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertNull(StatementEnvelope::parseInch(''));
     }
 
+    /**
+     * Custom carton numbers can reproduce the #9 cut; empty or partial custom is not windowed.
+     */
     public function testCustomCartonNumbersMatchHash9Cut(): void
     {
         $hash9 = StatementEnvelope::presetHash9();
@@ -140,6 +161,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertFalse($partial->isWindowed());
     }
 
+    /**
+     * Long address lines wrap and shrink to fit the window.
+     */
     public function testLongLineWrapsAndShrinks(): void
     {
         $long = 'Northwest Heart Institute of North Dakota Billing Office Suite';
@@ -152,6 +176,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertGreaterThan(1, count($lines));
     }
 
+    /**
+     * Window HTML escapes address text and uses table rows, not absolute positioning.
+     */
     public function testWindowHtmlEscapesAndIsFirstPageOnly(): void
     {
         $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
@@ -162,6 +189,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertStringNotContainsString('position:absolute', $html);
     }
 
+    /**
+     * Custom windows that miss the page or invert the spacers are rejected.
+     */
     public function testCustomGeometryRejectsWindowsThatMissThePage(): void
     {
         $tooWide = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
@@ -191,6 +221,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertNull($inverted->geometry());
     }
 
+    /**
+     * One unspaced token wider than the window is split at character boundaries.
+     */
     public function testFitLinesSplitsUnspacedToken(): void
     {
         $token = str_repeat('W', 80);
@@ -200,6 +233,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertGreaterThanOrEqual(7.0, $pt);
     }
 
+    /**
+     * Remit address prefers facility mailing fields over the physical street.
+     */
     public function testFacilityRemitAddrPrefersMailing(): void
     {
         [$street, $csz] = StatementEnvelope::facilityRemitAddr([
@@ -217,6 +253,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertSame('Mailtown, ND, 11111', $csz);
     }
 
+    /**
+     * Plain-text address block left-pads to the window from-left measurement.
+     */
     public function testTextAddressBlockUsesGeometryLeftPad(): void
     {
         $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
