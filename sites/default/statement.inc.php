@@ -26,6 +26,7 @@
  */
 
 use OpenEMR\Billing\StatementEnvelope;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 // The location/name of a temporary file to hold printable statements.
@@ -130,6 +131,9 @@ function report_header_2($stmt, $providerID = '1')
     return $output;
 }
 
+/**
+ * Modern HTML statement. Windowed profiles put remit and patient in the envelope windows.
+ */
 function create_HTML_statement($stmt)
 {
     if (! $stmt['pid']) {
@@ -538,7 +542,7 @@ function create_HTML_statement($stmt)
    <pre>';
         $to3 = StatementEnvelope::stmtToLine($stmt, 3);
         if ($to3 !== '') {
-            $out .= sprintf("   %-32s\n", $to3);
+            $out .= sprintf("   %-32s\n", text($to3));
         }
         $out .= ' </pre>
   <div style="width:7.0in;border-top:1pt solid black;"><br />';
@@ -635,6 +639,9 @@ function create_HTML_statement($stmt)
     //  Billing Department
     //  [Your billing dept phone]
 
+/**
+ * Plain-text statement. Windowed profiles pad addresses to the envelope geometry.
+ */
 function create_statement($stmt)
 {
     if (! $stmt['pid']) {
@@ -953,6 +960,9 @@ function create_statement($stmt)
     return $out;
 }
 
+/**
+ * Portal HTML statement. Uses the facility mailing address when it is filled in.
+ */
 function osp_create_HTML_statement($stmt)
 {
     if (! $stmt['pid']) {
@@ -965,12 +975,11 @@ function osp_create_HTML_statement($stmt)
     }
 
     // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone," .
+    $row = QueryUtils::querySingleRow("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone," .
     "f.mail_street,f.mail_street2,f.mail_city,f.mail_state,f.mail_zip from facility f " .
     " left join users u on f.id=u.facility_id " .
     " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-    " where  service_location=1", [$stmt['pid']]);
-    $row = sqlFetchArray($atres);
+    " where  service_location=1", [$stmt['pid']]) ?: [];
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
     $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
