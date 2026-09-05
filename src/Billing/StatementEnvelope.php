@@ -26,9 +26,28 @@ final class StatementEnvelope
     public const PROFILE_DEFAULT = 'default';
     public const PROFILE_HASH9 = 'hash9';
     public const PROFILE_HASH10 = 'hash10';
+    public const PROFILE_CUSTOM = 'custom';
 
+    /**
+     * Custom carton numbers: window height x width, from left, from bottom,
+     * flap up. Envelope height converts bottoms to letter-top.
+     *
+     * @param array{
+     *   units?: string,
+     *   envelope_height?: float|int|string,
+     *   return_left?: float|int|string,
+     *   return_bottom?: float|int|string,
+     *   return_width?: float|int|string,
+     *   return_height?: float|int|string,
+     *   to_left?: float|int|string,
+     *   to_bottom?: float|int|string,
+     *   to_width?: float|int|string,
+     *   to_height?: float|int|string
+     * } $custom
+     */
     public function __construct(
-        private readonly string $profile
+        private readonly string $profile,
+        private readonly array $custom = []
     ) {
     }
 
@@ -39,7 +58,22 @@ final class StatementEnvelope
         if ($profile === '') {
             $profile = self::PROFILE_DEFAULT;
         }
-        return new self($profile);
+        $units = $bag->getString('statement_env_units');
+        if ($units === '') {
+            $units = 'in';
+        }
+        return new self($profile, [
+            'units' => $units,
+            'envelope_height' => $bag->getString('statement_env_height'),
+            'return_left' => $bag->getString('statement_env_return_left'),
+            'return_bottom' => $bag->getString('statement_env_return_bottom'),
+            'return_width' => $bag->getString('statement_env_return_width'),
+            'return_height' => $bag->getString('statement_env_return_height'),
+            'to_left' => $bag->getString('statement_env_to_left'),
+            'to_bottom' => $bag->getString('statement_env_to_bottom'),
+            'to_width' => $bag->getString('statement_env_to_width'),
+            'to_height' => $bag->getString('statement_env_to_height'),
+        ]);
     }
 
     public function isWindowed(): bool
@@ -62,6 +96,7 @@ final class StatementEnvelope
         return match ($this->profile) {
             self::PROFILE_HASH9 => self::presetHash9(),
             self::PROFILE_HASH10 => self::presetHash10(),
+            self::PROFILE_CUSTOM => $this->customGeometry(),
             default => null,
         };
     }
@@ -272,6 +307,149 @@ body { margin: 0; padding: 0; }
                 'left' => $left,
             ],
         ];
+    }
+
+    /**
+     * @return array{
+     *   page_w: float,
+     *   page_h: float,
+     *   panel: float,
+     *   left: float,
+     *   return: array{top: float, h: float, w: float, left: float},
+     *   to: array{top: float, h: float, w: float, left: float}
+     * }|null
+     */
+    private function customGeometry(): ?array
+    {
+        $unit = self::normalizeUnit($this->custom['units'] ?? 'in');
+        $envH = self::parseLength($this->custom['envelope_height'] ?? null, $unit);
+        $returnLeft = self::parseLength($this->custom['return_left'] ?? null, $unit);
+        $returnBottom = self::parseLength($this->custom['return_bottom'] ?? null, $unit);
+        $returnW = self::parseLength($this->custom['return_width'] ?? null, $unit);
+        $returnH = self::parseLength($this->custom['return_height'] ?? null, $unit);
+        $toLeft = self::parseLength($this->custom['to_left'] ?? null, $unit);
+        $toBottom = self::parseLength($this->custom['to_bottom'] ?? null, $unit);
+        $toW = self::parseLength($this->custom['to_width'] ?? null, $unit);
+        $toH = self::parseLength($this->custom['to_height'] ?? null, $unit);
+        if (
+            $envH === null || $returnLeft === null || $returnBottom === null
+            || $returnW === null || $returnH === null
+            || $toLeft === null || $toBottom === null || $toW === null || $toH === null
+            || $envH <= 0.0 || $returnW <= 0.0 || $returnH <= 0.0 || $toW <= 0.0 || $toH <= 0.0
+            || $returnLeft < 0.0 || $toLeft < 0.0 || $returnBottom < 0.0 || $toBottom < 0.0
+        ) {
+            return null;
+        }
+        $g = self::fromBottomOrigin(
+            left: $returnLeft,
+            returnH: $returnH,
+            returnW: $returnW,
+            returnFromBottom: $returnBottom,
+            toH: $toH,
+            toW: $toW,
+            toFromBottom: $toBottom,
+            envH: $envH
+        );
+        $g['to']['left'] = $toLeft;
+        $g['left'] = $returnLeft;
+        return $g;
+    }
+
+    /**
+     * 1 in = 2.54 cm exactly (127/50).
+     */
+    public static function inchesToCentimeters(float $inches): float
+    {
+        return round($inches * 127.0 / 50.0, 4);
+    }
+
+    public static function centimetersToInches(float $cm): float
+    {
+        return round($cm * 50.0 / 127.0, 6);
+    }
+
+    public static function normalizeUnit(mixed $unit): string
+    {
+        if (!is_string($unit) && !is_int($unit) && !is_float($unit)) {
+            return 'in';
+        }
+        $u = strtolower(trim((string) $unit));
+        return $u === 'cm' ? 'cm' : 'in';
+    }
+
+    public static function unitFromText(string $text): ?string
+    {
+        $s = strtolower($text);
+        if (preg_match('/\bcm\b|centimet/', $s) === 1) {
+            return 'cm';
+        }
+        if (preg_match('/\bin\b|inch/', $s) === 1) {
+            return 'in';
+        }
+        return null;
+    }
+
+    /**
+     * Length to inches. Text may name in or cm; otherwise $unit is used.
+     */
+    public static function parseLength(mixed $value, string $unit = 'in'): ?float
+    {
+        if (is_string($value)) {
+            $unit = self::unitFromText($value) ?? self::normalizeUnit($unit);
+        } else {
+            $unit = self::normalizeUnit($unit);
+        }
+        return self::toInches(self::parseInch($value), $unit);
+    }
+
+    public static function toInches(?float $n, string $unit): ?float
+    {
+        if ($n === null) {
+            return null;
+        }
+        if (self::normalizeUnit($unit) === 'cm') {
+            return self::centimetersToInches($n);
+        }
+        return $n;
+    }
+
+    /**
+     * Number from a carton or a ruler: 3/8, 1-3/16, 3 7/8, 0.375, or 9.8425.
+     */
+    public static function parseInch(mixed $value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (is_int($value) || is_float($value)) {
+            return (float) $value;
+        }
+        if (!is_string($value)) {
+            return null;
+        }
+        $s = strtolower(trim($value));
+        $s = str_replace(['centimeters', 'centimetres', 'centimeter', 'centimetre', 'inches', 'inch', '"'], '', $s);
+        $s = preg_replace('/\b(in|cm)\.?\b/', '', $s) ?? $s;
+        $s = trim(preg_replace('/\s+/', ' ', $s) ?? $s);
+        if ($s === '') {
+            return null;
+        }
+        if (preg_match('/^(\d+)\s*-\s*(\d+)\s*\/\s*(\d+)$/', $s, $m) === 1) {
+            $den = (int) $m[3];
+            return $den === 0 ? null : (float) $m[1] + ((float) $m[2] / $den);
+        }
+        if (preg_match('/^(\d+)\s+(\d+)\s*\/\s*(\d+)$/', $s, $m) === 1) {
+            $den = (int) $m[3];
+            return $den === 0 ? null : (float) $m[1] + ((float) $m[2] / $den);
+        }
+        if (preg_match('/^(\d+)\s*\/\s*(\d+)$/', $s, $m) === 1) {
+            $den = (int) $m[2];
+            return $den === 0 ? null : (float) $m[1] / $den;
+        }
+        if (is_numeric($s)) {
+            return (float) $s;
+        }
+        return null;
     }
 
     /**
