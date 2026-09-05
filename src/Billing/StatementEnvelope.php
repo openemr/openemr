@@ -51,6 +51,9 @@ final readonly class StatementEnvelope
     ) {
     }
 
+    /**
+     * Build from Administration > Billing > Statement envelope globals.
+     */
     public static function fromGlobals(): self
     {
         $bag = OEGlobalsBag::getInstance();
@@ -76,6 +79,9 @@ final readonly class StatementEnvelope
         ]);
     }
 
+    /**
+     * True when a #9, #10, or valid custom window profile is selected.
+     */
     public function isWindowed(): bool
     {
         return $this->geometry() !== null;
@@ -110,6 +116,9 @@ final readonly class StatementEnvelope
         ];
     }
 
+    /**
+     * Scalar statement field as a string, or empty when missing.
+     */
     public static function stmtString(mixed $stmt, string $key): string
     {
         if (!is_array($stmt) || !array_key_exists($key, $stmt)) {
@@ -119,6 +128,9 @@ final readonly class StatementEnvelope
         return is_scalar($v) ? (string) $v : '';
     }
 
+    /**
+     * One addressee line from $stmt['to'], or empty when missing.
+     */
     public static function stmtToLine(mixed $stmt, int $index): string
     {
         if (!is_array($stmt) || !isset($stmt['to']) || !is_array($stmt['to'])) {
@@ -204,6 +216,9 @@ final readonly class StatementEnvelope
         return $cfg;
     }
 
+    /**
+     * Page CSS for windowed mPDF (zero margins, first-page table layout).
+     */
     public function windowCss(): string
     {
         if (!$this->isWindowed()) {
@@ -482,11 +497,17 @@ body { margin: 0; padding: 0; }
         return round($inches * 127.0 / 50.0, 4);
     }
 
+    /**
+     * Inverse of inchesToCentimeters. 1 in = 2.54 cm exactly (127/50).
+     */
     public static function centimetersToInches(float $cm): float
     {
         return round($cm * 50.0 / 127.0, 6);
     }
 
+    /**
+     * 'cm' or 'in'. Anything else is inches.
+     */
     public static function normalizeUnit(mixed $unit): string
     {
         if (!is_string($unit) && !is_int($unit) && !is_float($unit)) {
@@ -496,6 +517,9 @@ body { margin: 0; padding: 0; }
         return $u === 'cm' ? 'cm' : 'in';
     }
 
+    /**
+     * Unit named in the text, if any.
+     */
     public static function unitFromText(string $text): ?string
     {
         $s = strtolower($text);
@@ -517,6 +541,9 @@ body { margin: 0; padding: 0; }
         return self::toInches(self::parseInch($value), $unit);
     }
 
+    /**
+     * Convert a parsed carton number to inches.
+     */
     public static function toInches(?float $n, string $unit): ?float
     {
         if ($n === null) {
@@ -603,6 +630,9 @@ body { margin: 0; padding: 0; }
             . '</td>';
     }
 
+    /**
+     * HTML-escape one address line for mPDF.
+     */
     private static function esc(string $s): string
     {
         return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -677,11 +707,17 @@ body { margin: 0; padding: 0; }
         return $out !== [] ? $out : [$word];
     }
 
+    /**
+     * Helvetica string width in inches at $pt.
+     */
     private static function textWidthIn(string $s, float $pt): float
     {
         return self::helveticaWidthEm($s) * $pt / 72.0;
     }
 
+    /**
+     * Helvetica WinAnsi widths in em (1000 units per em).
+     */
     private static function helveticaWidthEm(string $s): float
     {
         /** @var array<int, int> $w */
