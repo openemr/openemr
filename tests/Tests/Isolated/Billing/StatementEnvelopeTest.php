@@ -170,7 +170,7 @@ final class StatementEnvelopeTest extends TestCase
         [$pt, $lines] = StatementEnvelope::fitLines([$long], 3.4, 1.0, 16.0);
         $this->assertNotEmpty($lines);
         $this->assertLessThanOrEqual(16.0, $pt);
-        $this->assertGreaterThanOrEqual(7.0, $pt);
+        $this->assertGreaterThanOrEqual(StatementEnvelope::MIN_ADDRESS_PT, $pt);
         $joined = implode(' ', $lines);
         $this->assertStringContainsString('Northwest', $joined);
         $this->assertGreaterThan(1, count($lines));
@@ -230,7 +230,7 @@ final class StatementEnvelopeTest extends TestCase
         [$pt, $lines] = StatementEnvelope::fitLines([$token], 3.4, 1.0, 16.0);
         $this->assertGreaterThan(1, count($lines));
         $this->assertSame($token, implode('', $lines));
-        $this->assertGreaterThanOrEqual(7.0, $pt);
+        $this->assertGreaterThanOrEqual(StatementEnvelope::MIN_ADDRESS_PT, $pt);
     }
 
     /**
@@ -264,5 +264,88 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertStringContainsString('Pat', $block['text']);
         $this->assertGreaterThan(10, $block['lines']);
         $this->assertMatchesRegularExpression('/^ {3,}Clinic/m', $block['text']);
+    }
+
+    /**
+     * Recipient text starts at to.top for both short and long remit addresses.
+     */
+    public function testTextAddressBlockPinsRecipientToWindowTop(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $g = $env->geometry();
+        $this->assertNotNull($g);
+        $lpi = 6.0;
+        $toStart = (int) round($g['to']['top'] * $lpi);
+        $panelLines = (int) round($g['panel'] * $lpi);
+        $indexOf = static function (string $text, string $needle): int {
+            foreach (explode("\n", $text) as $i => $line) {
+                if (str_contains($line, $needle)) {
+                    return $i;
+                }
+            }
+            return -1;
+        };
+
+        $short = $env->textAddressBlock('Clinic', '', '', ['Pat']);
+        $long = $env->textAddressBlock('Clinic', "1 Main\nSuite 200", 'Town, ND, 00000', ['Pat']);
+        $this->assertSame($toStart, $indexOf($short['text'], 'Pat'));
+        $this->assertSame($toStart, $indexOf($long['text'], 'Pat'));
+        $this->assertSame($panelLines, $short['lines']);
+        $this->assertSame($panelLines, $long['lines']);
+    }
+
+    /**
+     * Wrapped lines that still miss the window height clip at 8 pt to whole lines.
+     */
+    public function testFitLinesClipsToWindowAtEightPoint(): void
+    {
+        $lines = [];
+        for ($i = 0; $i < 20; $i++) {
+            $lines[] = 'Line ' . $i . ' ' . str_repeat('x', 12);
+        }
+        [$pt, $fitted] = StatementEnvelope::fitLines($lines, 3.4, 0.35, 16.0);
+        $this->assertEqualsWithDelta(StatementEnvelope::MIN_ADDRESS_PT, $pt, 0.0001);
+        $this->assertNotEmpty($fitted);
+        $h = count($fitted) * ($pt / 72.0);
+        $this->assertLessThanOrEqual(0.35 + 0.0001, $h);
+        $this->assertLessThan(count($lines), count($fitted));
+        foreach ($fitted as $ln) {
+            $this->assertStringNotContainsString('...', $ln);
+        }
+    }
+
+    /**
+     * When lines are dropped, the last wrapped line (city / postcode) is kept.
+     */
+    public function testFitLinesKeepsLastLineWhenClipping(): void
+    {
+        $lines = [
+            'Northwest Heart Institute',
+            'PO Box 9',
+            'Ste 200',
+            'Bismarck ND 58501',
+        ];
+        [$pt, $fitted] = StatementEnvelope::fitLines($lines, 3.4, 0.12, 16.0);
+        $this->assertEqualsWithDelta(StatementEnvelope::MIN_ADDRESS_PT, $pt, 0.0001);
+        $this->assertSame(['Bismarck ND 58501'], $fitted);
+    }
+
+    /**
+     * A custom window shorter than one 8 pt line plus inset is not windowed.
+     */
+    public function testCustomGeometryRejectsWindowShorterThanMinType(): void
+    {
+        $tiny = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '0.15',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $this->assertNull($tiny->geometry());
     }
 }
