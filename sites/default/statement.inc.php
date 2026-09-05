@@ -62,37 +62,6 @@ function make_statement($stmt)
 }
 
 /**
- * Billing-facility mailing address, or physical address if mailing is empty.
- *
- * @param array|false $row facility row
- * @return array{0:string,1:string}
- */
-function statement_facility_remit_addr($row)
-{
-    if (!is_array($row)) {
-        return ['', ''];
-    }
-
-    $mailStreet = trim((string) ($row['mail_street'] ?? ''));
-    $mailStreet2 = trim((string) ($row['mail_street2'] ?? ''));
-    $mailCity = trim((string) ($row['mail_city'] ?? ''));
-    $mailState = trim((string) ($row['mail_state'] ?? ''));
-    $mailZip = trim((string) ($row['mail_zip'] ?? ''));
-    if ($mailStreet !== '' || $mailStreet2 !== '' || $mailCity !== '' || $mailZip !== '') {
-        $street = $mailStreet;
-        if ($mailStreet2 !== '') {
-            $street = $street === '' ? $mailStreet2 : ($street . "\n" . $mailStreet2);
-        }
-        return [$street, $mailCity . ', ' . $mailState . ', ' . $mailZip];
-    }
-
-    return [
-        trim((string) ($row['street'] ?? '')),
-        ($row['city'] ?? '') . ', ' . ($row['state'] ?? '') . ', ' . ($row['postal_code'] ?? ''),
-    ];
-}
-
-/**
  * This prints a header for documents.  Keeps the brand uniform...
  *  @param string $pid patient_id
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
@@ -183,8 +152,8 @@ function create_HTML_statement($stmt)
 // Billing location modified by Daniel Pflieger at Growlingflea Software
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
-    $remit_name = $row['name'] ?? '';
-    [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
+    $remit_name = StatementEnvelope::stmtString($row, 'name');
+    [$remit_addr, $remit_csz] = StatementEnvelope::facilityRemitAddr($row);
 
     $env = StatementEnvelope::fromGlobals();
     $windowed = $env->isWindowed();
@@ -196,14 +165,19 @@ function create_HTML_statement($stmt)
     if ($windowed) {
         echo '<html><head>' . $env->windowCss() . '</head><body style="margin:0;padding:0;">';
         echo '<div class="stmt-env-sheet">';
-        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, $stmt['to'] ?? []);
+        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, [
+            StatementEnvelope::stmtToLine($stmt, 0),
+            StatementEnvelope::stmtToLine($stmt, 1),
+            StatementEnvelope::stmtToLine($stmt, 2),
+            StatementEnvelope::stmtToLine($stmt, 3),
+        ]);
         echo '<div class="stmt-env-body">';
         echo '<table width="100%" style="width:100%;font-size:13pt;margin:0 0 12pt 0;"><tr>';
         echo '<td valign="top"><b style="font-size:16pt;">' . text($clinic_name) . '</b><br />' . xlt('Statement') . '</td>';
-        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text($stmt['patient']) . '</b><br />';
-        echo xlt('Chart') . ': ' . text($stmt['pid']) . '<br />';
-        echo xlt('Date') . ': ' . text(oeFormatShortDate($stmt['today'])) . '<br />';
-        echo '<b>' . xlt('Amount due') . ': ' . text($stmt['amount']) . '</b></td></tr></table>';
+        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text(StatementEnvelope::stmtString($stmt, 'patient')) . '</b><br />';
+        echo xlt('Chart') . ': ' . text(StatementEnvelope::stmtString($stmt, 'pid')) . '<br />';
+        echo xlt('Date') . ': ' . text(StatementEnvelope::stmtString($stmt, 'today')) . '<br />';
+        echo '<b>' . xlt('Amount due') . ': ' . text(StatementEnvelope::stmtString($stmt, 'amount')) . '</b></td></tr></table>';
     } else {
         echo '<div style="padding-left:25px; page-break-after:always;">';
         echo report_header_2($stmt, $providerID);
@@ -539,16 +513,17 @@ function create_HTML_statement($stmt)
 
     if ($windowed) {
         $out .= '</div>';
-        if (!empty($stmt['to'][3])) {
-            $out .= '<div>' . text($stmt['to'][3]) . '</div>';
+        $to3 = StatementEnvelope::stmtToLine($stmt, 3);
+        if ($to3 !== '') {
+            $out .= '<div>' . text($to3) . '</div>';
         }
         $out .= '<div style="width:100%;border-top:1pt solid black;margin-top:8pt;padding-top:8pt;">';
         $out .= '<table width="100%" style="width:100%;margin:0;"><tr>';
         $out .= '<td style="width:3.3in;vertical-align:top;text-align:left;"><b>'
             . text($label_addressee) . '</b><br />'
-            . text($stmt['to'][0] ?? '') . '<br />'
-            . text($stmt['to'][1] ?? '') . '<br />'
-            . text($stmt['to'][2] ?? '') . '
+            . text(StatementEnvelope::stmtToLine($stmt, 0)) . '<br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 1)) . '<br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 2)) . '
       </td>
       <td style="width:3.7in;vertical-align:top;text-align:right;"><b>'
             . text($label_remitto) . '</b><br />'
@@ -561,22 +536,23 @@ function create_HTML_statement($stmt)
     } else {
         $out .= '</div><br />
    <pre>';
-        if (!empty($stmt['to'][3])) {
-            $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        $to3 = StatementEnvelope::stmtToLine($stmt, 3);
+        if ($to3 !== '') {
+            $out .= sprintf("   %-32s\n", $to3);
         }
         $out .= ' </pre>
   <div style="width:7.0in;border-top:1pt solid black;"><br />';
         $out .= " <table style='width:7.0in;margin:auto;'><tr>";
         $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
-            . $label_addressee . '</b><br />'
-            . ($stmt['to'][0] ?? '') . '<br />'
-            . ($stmt['to'][1] ?? '') . '<br />'
-            . ($stmt['to'][2] ?? '') . '
+            . text($label_addressee) . '</b><br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 0)) . '<br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 1)) . '<br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 2)) . '
       </td><td style="width:0.5in;"></td>
-      <td style="margin:auto;"><b>' . $label_remitto . '</b><br />'
-            . $remit_name . '<br />'
-            . $remit_addr . '<br />'
-            . $remit_csz . '
+      <td style="margin:auto;"><b>' . text($label_remitto) . '</b><br />'
+            . text($remit_name) . '<br />'
+            . nl2br(text($remit_addr), false) . '<br />'
+            . text($remit_csz) . '
       </td>
       </tr></table>';
         $out .= "      </div></div>";
@@ -684,8 +660,8 @@ function create_statement($stmt)
     // Billing location modified by Daniel Pflieger at Growlingflea Software
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
-    $remit_name = $row['name'] ?? '';
-    [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
+    $remit_name = StatementEnvelope::stmtString($row, 'name');
+    [$remit_addr, $remit_csz] = StatementEnvelope::facilityRemitAddr($row);
 
 
     // Contacts
@@ -753,30 +729,25 @@ function create_statement($stmt)
     //  %-25s = left-justified string of 25 characters padded with spaces
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
-    $windowed = StatementEnvelope::fromGlobals()->isWindowed();
+    $env = StatementEnvelope::fromGlobals();
+    $windowed = $env->isWindowed();
     $providerNAME = getProviderName($stmt['provider_id']);
     if ($windowed) {
-        $pad = '       ';
-        $out = "\n\n";
-        $out .= $pad . sprintf("%s\n", $remit_name);
-        foreach (preg_split("/\n/", (string) $remit_addr) as $line) {
-            $out .= $pad . sprintf("%s\n", $line);
+        $toLines = [];
+        foreach ([0, 1, 2, 3] as $i) {
+            $ln = StatementEnvelope::stmtToLine($stmt, $i);
+            if ($ln !== '') {
+                $toLines[] = $ln;
+            }
         }
-        $out .= $pad . sprintf("%s\n", $remit_csz);
-        $out .= "\n\n\n\n";
-        $out .= $pad . sprintf("%s\n", $stmt['to'][0] ?? '');
-        $out .= $pad . sprintf("%s\n", $stmt['to'][1] ?? '');
-        $out .= $pad . sprintf("%s\n", $stmt['to'][2] ?? '');
-        if (!empty($stmt['to'][3])) {
-            $out .= $pad . sprintf("%s\n", $stmt['to'][3]);
-        }
-        $out .= "\n\n\n\n\n";
-        $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
-        $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
+        $block = $env->textAddressBlock($remit_name, $remit_addr, $remit_csz, $toLines);
+        $out = $block['text'];
+        $out .= sprintf("%-30s %s %-s\n", $clinic_name, StatementEnvelope::stmtString($stmt, 'patient'), StatementEnvelope::stmtString($stmt, 'today'));
+        $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, StatementEnvelope::stmtString($stmt, 'pid'));
         $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
-        $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
+        $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, StatementEnvelope::stmtString($stmt, 'amount'));
         $out .= "\n";
-        $count = 32;
+        $count = $block['lines'] + 5;
     } else {
         $out = "\n\n";
         $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
@@ -994,7 +965,8 @@ function osp_create_HTML_statement($stmt)
     }
 
     // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
+    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone," .
+    "f.mail_street,f.mail_street2,f.mail_city,f.mail_state,f.mail_zip from facility f " .
     " left join users u on f.id=u.facility_id " .
     " left join  billing b on b.provider_id=u.id and b.pid = ? " .
     " where  service_location=1", [$stmt['pid']]);
@@ -1006,7 +978,7 @@ function osp_create_HTML_statement($stmt)
     $billing_contact = "{$row['attn']}";
     $billing_phone = "{$row['phone']}";
     $remit_name = $clinic_name;
-    [$remit_addr, $remit_csz] = statement_facility_remit_addr($row);
+    [$remit_addr, $remit_csz] = StatementEnvelope::facilityRemitAddr($row);
 
     $env = StatementEnvelope::fromGlobals();
     ob_start();
@@ -1017,14 +989,19 @@ function osp_create_HTML_statement($stmt)
     if ($env->isWindowed()) {
         echo $env->windowCss();
         echo '<div class="stmt-env-sheet">';
-        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, $stmt['to'] ?? []);
+        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, [
+            StatementEnvelope::stmtToLine($stmt, 0),
+            StatementEnvelope::stmtToLine($stmt, 1),
+            StatementEnvelope::stmtToLine($stmt, 2),
+            StatementEnvelope::stmtToLine($stmt, 3),
+        ]);
         echo '<div class="stmt-env-body">';
         echo '<table width="100%" style="width:100%;font-size:13pt;margin:0 0 12pt 0;"><tr>';
         echo '<td valign="top"><b style="font-size:16pt;">' . text($clinic_name) . '</b><br />' . xlt('Statement') . '</td>';
-        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text($stmt['patient']) . '</b><br />';
-        echo xlt('Chart') . ': ' . text($stmt['pid']) . '<br />';
-        echo xlt('Date') . ': ' . text(oeFormatShortDate($stmt['today'])) . '<br />';
-        echo '<b>' . xlt('Amount due') . ': ' . text($stmt['amount']) . '</b></td></tr></table>';
+        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text(StatementEnvelope::stmtString($stmt, 'patient')) . '</b><br />';
+        echo xlt('Chart') . ': ' . text(StatementEnvelope::stmtString($stmt, 'pid')) . '<br />';
+        echo xlt('Date') . ': ' . text(StatementEnvelope::stmtString($stmt, 'today')) . '<br />';
+        echo '<b>' . xlt('Amount due') . ': ' . text(StatementEnvelope::stmtString($stmt, 'amount')) . '</b></td></tr></table>';
     } else {
         echo '<div style="padding-left:25px;">';
         echo report_header_2($stmt, $providerID);
@@ -1282,9 +1259,9 @@ function osp_create_HTML_statement($stmt)
     $out .= " <table width=\"100%\" style='width:6.0in;margin-left:40px;'><tr>";
     $out .= '<td style="width:3.0in;vertical-align:top;text-align:left;"><b>'
         . text($label_addressee) . '</b><br />'
-        . text($stmt['to'][0] ?? '') . '<br />'
-        . text($stmt['to'][1] ?? '') . '<br />'
-        . text($stmt['to'][2] ?? '') . '
+        . text(StatementEnvelope::stmtToLine($stmt, 0)) . '<br />'
+        . text(StatementEnvelope::stmtToLine($stmt, 1)) . '<br />'
+        . text(StatementEnvelope::stmtToLine($stmt, 2)) . '
       </td>
       <td style="width:3.0in;vertical-align:top;text-align:right;"><b>'
         . text($label_remitto) . '</b><br />'
