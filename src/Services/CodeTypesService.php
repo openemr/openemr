@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use InvalidArgumentException;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 
 /**
@@ -106,7 +107,7 @@ class CodeTypesService
     public function __construct()
     {
         // currently, our installed code types are
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
         $this->installedCodeTypes = $code_types;
 
         $this->snomedInstalled = isset($code_types[self::CODE_TYPE_SNOMED_CT]);
@@ -525,7 +526,7 @@ class CodeTypesService
      */
     public function collectCodeTypes($category, $return_format = "array"): string|array
     {
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
 
         // could turn this into an enum later if desired
         if (!in_array($return_format, ['array','csv'])) {

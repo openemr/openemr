@@ -53,55 +53,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Events\Codes\ExternalCodesCreatedEvent;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 
-$isStaticAnalysis = defined('OPENEMR_STATIC_ANALYSIS') && OPENEMR_STATIC_ANALYSIS;
-
-if ($isStaticAnalysis) {
-    require_once(__DIR__ . "/../library/sql.inc.php");
-}
-
-$code_types = [];
-global $code_types;
-
-
-// Skip database queries during static analysis
-// The OPENEMR_STATIC_ANALYSIS constant can be defined in static analysis tool bootstrap files
-if (!$isStaticAnalysis) {
-    $ctres = sqlStatement("SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
-    while ($ctrow = sqlFetchArray($ctres)) {
-        $code_types[$ctrow['ct_key']] = [
-            'active' => $ctrow['ct_active'  ],
-            'id'   => $ctrow['ct_id'  ],
-            'fee'  => $ctrow['ct_fee' ],
-            'mod'  => $ctrow['ct_mod' ],
-            'just' => $ctrow['ct_just'],
-            'rel'  => $ctrow['ct_rel' ],
-            'nofs' => $ctrow['ct_nofs'],
-            'diag' => $ctrow['ct_diag'],
-            'mask' => $ctrow['ct_mask'],
-            'label' => ( (empty($ctrow['ct_label'])) ? $ctrow['ct_key'] : $ctrow['ct_label'] ),
-            'external' => $ctrow['ct_external'],
-            'claim' => $ctrow['ct_claim'],
-            'proc' => $ctrow['ct_proc'],
-            'term' => $ctrow['ct_term'],
-            'problem' => $ctrow['ct_problem'],
-            'drug' => $ctrow['ct_drug']
-        ];
-        if (!array_key_exists(OEGlobalsBag::getInstance()->getString('default_search_code_type'), $code_types)) {
-            OEGlobalsBag::getInstance()->set('default_search_code_type', array_key_first($code_types));
-        }
-    }
-}
-
-/**
- * This array contains metadata describing the arrangement of the external data
- * tables for storing codes.
- */
-$code_external_tables = [];
-global $code_external_tables;
 define('EXT_COL_CODE', 'code');
 define('EXT_COL_DESCRIPTION', 'description');
 define('EXT_COL_DESCRIPTION_BRIEF', 'description_brief');
@@ -155,93 +108,7 @@ function define_external_table(&$results, int $index, $table_name, $col_code, $c
     }
 }
 
-// Skip populating code_external_tables during static analysis
-if (!$isStaticAnalysis) {
-    // In order to treat all the code types the same for lookup_code_descriptions, we include metadata for the original codes table
-    define_external_table($code_external_tables, 0, 'codes', 'code', 'code_text', 'code_text_short', [], 'id');
-
-    // ICD9 External Definitions
-    define_external_table($code_external_tables, 4, 'icd9_dx_code', 'formatted_dx_code', 'long_desc', 'short_desc', ["active='1'"], 'revision DESC');
-    define_external_table($code_external_tables, 5, 'icd9_sg_code', 'formatted_sg_code', 'long_desc', 'short_desc', ["active='1'"], 'revision DESC');
-    //**** End ICD9 External Definitions
-
-    // SNOMED Definitions
-    // For generic SNOMED-CT, there is no need to join with the descriptions table to get a specific description Type
-
-    // For generic concepts, use the fully specified description (DescriptionType=3) so we can tell the difference between them.
-    define_external_table($code_external_tables, 7, 'sct_descriptions', 'ConceptId', 'Term', 'Term', ["DescriptionStatus=0","DescriptionType=3"], "");
-
-    // To determine codes, we need to evaluate data in both the sct_descriptions table, and the sct_concepts table.
-    // the base join with sct_concepts is the same for all types of SNOMED definitions, so we define the common part here
-    $SNOMED_joins = [JOIN_TABLE => "sct_concepts",JOIN_FIELDS => ["sct_descriptions.ConceptId=sct_concepts.ConceptId"]];
-
-    // For disorders, use the preferred term (DescriptionType=1)
-    define_external_table($code_external_tables, 2, 'sct_descriptions', 'ConceptId', 'Term', 'Term', ["DescriptionStatus=0","DescriptionType=1"], "", [$SNOMED_joins]);
-    // Add the filter to choose only disorders. This filter happens as part of the join with the sct_concepts table
-    array_push($code_external_tables[2][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedName like '%(disorder)'");
-
-    // SNOMED-PR definition
-    define_external_table($code_external_tables, 9, 'sct_descriptions', 'ConceptId', 'Term', 'Term', ["DescriptionStatus=0","DescriptionType=1"], "", [$SNOMED_joins]);
-    // Add the filter to choose only procedures. This filter happens as part of the join with the sct_concepts table
-    array_push($code_external_tables[9][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedName like '%(procedure)'");
-
-    // SNOMED RF2 definitions
-    define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', ["active=1"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
-    if (isSnomedSpanish()) {
-        define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(trastorno)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
-        define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(procedimiento)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
-    } else {
-        define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(disorder)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
-        define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', ["active=1", "term LIKE '%(procedure)'"], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
-    }
-
-    define('SNOMED_RF2_EXTERNAL_TABLE_INDEXES', [10,11,12]);
-
-    //**** End SNOMED Definitions
-
-    // ICD 10 Definitions
-    define_external_table($code_external_tables, 1, 'icd10_dx_order_code', 'formatted_dx_code', 'long_desc', 'short_desc', ["active='1'","valid_for_coding = '1'"], 'revision DESC');
-    define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_code', 'long_desc', 'short_desc', ["active='1'","valid_for_coding = '1'"], 'revision DESC');
-    //**** End ICD 10 Definitions
-
-    define_external_table($code_external_tables, 13, 'valueset', 'code', 'description', 'description', [], '');
-    define_external_table($code_external_tables, 14, 'valueset_oid', 'code', 'description', 'description', [], '');
-} // End of OPENEMR_STATIC_ANALYSIS guard for code_external_tables
-
-/**
- * This array stores the external table options. See above for $code_types array
- * 'external' attribute for explanation of the option listings.
- * @var array
- */
-global $ct_external_options;
-$ct_external_options = [];
-
-// Skip populating ct_external_options during static analysis
-if (!$isStaticAnalysis) {
-    $ct_external_options = [
-        '0' => xl('No'),
-        '4' => xl('ICD9 Diagnosis'),
-        '5' => xl('ICD9 Procedure/Service'),
-        '1' => xl('ICD10 Diagnosis'),
-        '6' => xl('ICD10 Procedure/Service'),
-        '2' => xl('SNOMED (RF1) Diagnosis'),
-        '7' => xl('SNOMED (RF1) Clinical Term'),
-        '9' => xl('SNOMED (RF1) Procedure'),
-        '10' => xl('SNOMED (RF2) Diagnosis'),
-        '11' => xl('SNOMED (RF2) Clinical Term'),
-        '12' => xl('SNOMED (RF2) Procedure'),
-        '13' => xl('CQM (Mixed Types) Value Set'),
-        '14' => xl('CQM OID Value Set')
-    ];
-
-    /**
-     * @var EventDispatcher
-     */
-    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
-    $externalCodesEvent = new ExternalCodesCreatedEvent($ct_external_options);
-    $eventDispatcher->dispatch($externalCodesEvent, ExternalCodesCreatedEvent::EVENT_HANDLE);
-    $ct_external_options = $externalCodesEvent->getExternalCodeData();
-}
+define('SNOMED_RF2_EXTERNAL_TABLE_INDEXES', [10, 11, 12]);
 
 /**
  * Checks to see if using spanish snomed
@@ -265,7 +132,7 @@ function isSnomedSpanish(): bool
  */
 function fees_are_used(): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if ($value['fee'] && $value['active']) {
             return true;
@@ -284,7 +151,7 @@ function fees_are_used(): bool
  */
 function modifiers_are_used(bool $fee_sheet = false): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if ($fee_sheet && !empty($value['nofs'])) {
             continue;
@@ -305,7 +172,7 @@ function modifiers_are_used(bool $fee_sheet = false): bool
  */
 function justifiers_are_used(): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if (!empty($value['just']) && $value['active']) {
             return true;
@@ -322,7 +189,7 @@ function justifiers_are_used(): bool
  */
 function related_codes_are_used(): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $value) {
         if ($value['rel'] && $value['active']) {
             return true;
@@ -340,7 +207,7 @@ function related_codes_are_used(): bool
  */
 function convert_type_id_to_key($id)
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     foreach ($code_types as $key => $value) {
         if ($value['id'] == $id) {
             return $key;
@@ -357,7 +224,7 @@ function convert_type_id_to_key($id)
  */
 function check_is_code_type_justify(bool $key): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     return !empty($code_types[$key]['just']);
 }
 
@@ -370,7 +237,7 @@ function check_is_code_type_justify(bool $key): bool
  */
 function check_code_set_filters($key, $filters = []): bool
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     if (empty($filters)) {
         return false;
@@ -404,7 +271,7 @@ function check_code_set_filters($key, $filters = []): bool
  */
 function collect_codetypes($category, $return_format = "array")
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     $return = [];
 
@@ -536,7 +403,8 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  */
 function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = [], $limit = null, $mode = 'default', $return_query = false)
 {
-    global $code_types, $code_external_tables;
+    $code_types = CodeTypeRegistry::codeTypes();
+    $code_external_tables = CodeTypeRegistry::codeExternalTables();
 
     $limit ??= 250;
     // Figure out the appropriate limit clause
@@ -770,7 +638,8 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
  */
 function lookup_code_descriptions($codes, $desc_detail = "code_text")
 {
-    global $code_types, $code_external_tables;
+    $code_types = CodeTypeRegistry::codeTypes();
+    $code_external_tables = CodeTypeRegistry::codeExternalTables();
 
     // ensure $desc_detail is set properly
     if (($desc_detail != "code_text") && ($desc_detail != "code_text_short")) {
@@ -1050,7 +919,7 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
 //
 function recursive_related_code($related_code, $typewanted = 'IPPF2', $depth = 0)
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     // echo "<!-- related_code = '$related_code' depth = '$depth' -->\n"; // debugging
     if (++$depth > 4 || empty($related_code)) {
         return false; // protects against relation loops

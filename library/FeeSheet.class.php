@@ -27,13 +27,13 @@
  */
 
 require_once(__DIR__ . "/../interface/globals.php");
-require_once(__DIR__ . "/../custom/code_types.inc.php");
 require_once(__DIR__ . "/../interface/drugs/drugs.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -154,7 +154,7 @@ class FeeSheet
   //
     public static function alphaCodeType($id)
     {
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
         foreach ($code_types as $key => $value) {
             if ($value['id'] == $id) {
                 return $key;
@@ -433,7 +433,7 @@ class FeeSheet
   //  pricelevel
     public function addServiceLineItem($args)
     {
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
 
         // echo "<!-- \n"; // debugging
         // print_r($args); // debugging
@@ -647,7 +647,7 @@ class FeeSheet
     //
     public function addProductLineItem($args, $convert_units = true)
     {
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
 
         $li = [];
         $li['hidden'] = [];
@@ -930,7 +930,7 @@ class FeeSheet
         $mark_as_closed = false
     ) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
 
         if (isset($main_provid) && $main_supid == $main_provid) {
             $main_supid = 0;
@@ -1557,7 +1557,7 @@ class FeeSheet
   //
     public function genCodeSelectorValue($codes)
     {
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
         [$codetype, $code, $selector] = explode(':', (string) $codes);
         if ($codetype == 'PROD') {
             $crow = sqlQuery(
@@ -1588,7 +1588,7 @@ class FeeSheet
     //
     public function getPrice($pr_level, $codetype, $code, $selector = '')
     {
-        global $code_types;
+        $code_types = CodeTypeRegistry::codeTypes();
         if ($codetype == 'PROD') {
             $pr_id = $code;
         } else {

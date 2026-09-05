@@ -7,6 +7,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset bool on array\\<string, array\\<string, mixed\\>\\> in empty\\(\\) does not exist\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../custom/code_types.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset 7 on array\\{0\\: array\\{\\}, 2\\: string, 4\\: string, 8\\: non\\-falsy\\-string, 10\\: non\\-falsy\\-string, 3\\: non\\-falsy\\-string, 6\\: mixed\\} in empty\\(\\) does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',

@@ -52,7 +52,6 @@ require_once("../globals.php");
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
-require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;

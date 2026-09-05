@@ -179,6 +179,7 @@
             "library/classes"
         ],
         "files": [
+            "custom/code_types.inc.php",
             "library/amc.php",
             "library/api.inc.php",
             "library/calendar.inc.php",

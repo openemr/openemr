@@ -17,14 +17,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 /** @var array<string, array<string, mixed>> $code_types */
-$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$code_types = CodeTypeRegistry::codeTypes();
 /** @var array<int, array<int, mixed>> $code_external_tables */
 $code_external_tables = OEGlobalsBag::getInstance()->get('code_external_tables', []);
 

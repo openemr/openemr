@@ -13,14 +13,14 @@
 require_once("../../globals.php");
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-require_once("../../../custom/code_types.inc.php");
 
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 /** @var array<string, array<string, mixed>> $code_types */
-$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$code_types = CodeTypeRegistry::codeTypes();
 
 //the maximum number of records to pull out with the search:
 $M = 30;

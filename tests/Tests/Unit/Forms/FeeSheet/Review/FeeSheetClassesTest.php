@@ -12,39 +12,46 @@
 
 namespace OpenEMR\Tests\Unit\Forms\FeeSheet\Review;
 
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 use OpenEMR\Forms\FeeSheet\Review\EncounterInfo;
 use OpenEMR\Forms\FeeSheet\Review\Procedure;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 #[Group('isolated')]
 class FeeSheetClassesTest extends TestCase
 {
+    // CodeInfo's constructor calls check_code_set_filters(), which reads
+    // through CodeTypeRegistry::codeTypes() — that hits the database in
+    // production. Poke the Registry's private static memo via reflection so
+    // the isolated suite runs without a DB. Rework this when CodeTypeRegistry
+    // takes its database dependency via constructor injection.
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Set up minimal code_types global for check_code_set_filters()
-        $GLOBALS['code_types'] = [
-            'ICD10' => [
-                'active' => 1,
-                'diag' => 1,
-                'problem' => 1,
-                'fee' => 0,
-            ],
-            'CPT4' => [
-                'active' => 1,
-                'diag' => 0,
-                'problem' => 0,
-                'fee' => 1,
-            ],
-        ];
+        (new ReflectionProperty(CodeTypeRegistry::class, 'codeTypes'))
+            ->setValue(null, [
+                'ICD10' => [
+                    'active' => 1,
+                    'diag' => 1,
+                    'problem' => 1,
+                    'fee' => 0,
+                ],
+                'CPT4' => [
+                    'active' => 1,
+                    'diag' => 0,
+                    'problem' => 0,
+                    'fee' => 1,
+                ],
+            ]);
     }
 
     protected function tearDown(): void
     {
-        unset($GLOBALS['code_types']);
+        CodeTypeRegistry::reset();
         parent::tearDown();
     }
 

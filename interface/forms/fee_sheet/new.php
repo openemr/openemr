@@ -22,6 +22,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -95,7 +96,7 @@ function endFSCategory(): void
 // Generate JavaScript to build the array of diagnoses.
 function genDiagJS($code_type, $code): void
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     if (!empty($code_types[$code_type]['diag'])) {
         echo "diags.push(" . js_escape($code_type . "|" . $code) . ");\n";
     }
@@ -105,7 +106,8 @@ function genDiagJS($code_type, $code): void
 //
 function echoServiceLines(): void
 {
-    global $code_types, $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used, $institutional;
+    global $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used, $institutional;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     foreach ($fs->serviceitems as $lino => $li) {
         $id       = $li['hidden']['id'];
@@ -357,7 +359,8 @@ function echoServiceLines(): void
 //
 function echoProductLines(): void
 {
-    global $code_types, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
+    global $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     foreach ($fs->productitems as $lino => $li) {
         $drug_id      = $li['hidden']['drug_id'];
@@ -1097,7 +1100,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
                                 "WHERE list_id = 'superbill' AND activity = 1 ORDER BY seq");
                             while ($prow = sqlFetchArray($pres)) {
-                                global $code_types;
+                                $code_types = CodeTypeRegistry::codeTypes();
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
                                 echo "  <td class='text-center text-nowrap' width='50%'>\n";
