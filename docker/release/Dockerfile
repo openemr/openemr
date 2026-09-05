@@ -167,10 +167,29 @@ RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION
 FROM base AS openemr-composer
 COPY --from=openemr-source /openemr /openemr
 WORKDIR /openemr
+# GitHub zipball 504s are common when Composer pulls many dist files in
+# parallel. Retry both per-file (COMPOSER_MAX_RETRIES) and the whole
+# install; the cache mount keeps successful downloads so retries are cheap.
+ENV COMPOSER_MAX_RETRIES=8
 # Use Docker buildkit cache mount for Composer cache (requires DOCKER_BUILDKIT=1)
-RUN --mount=type=cache,target=/root/.composer/cache \
-    composer install --no-dev --optimize-autoloader \
-    && composer dump-autoload --optimize --apcu
+# POSIX test, not (( )): this RUN executes under Alpine's busybox ash, which
+# parses (( )) as nested subshells rather than arithmetic.
+RUN --mount=type=cache,target=/root/.composer/cache <<EOF
+set -e
+attempt=1
+max_attempts=5
+until composer install --no-dev --optimize-autoloader; do
+    if [ "${attempt}" -ge "${max_attempts}" ]; then
+        printf 'ERROR: composer install failed after %s attempts\n' "${attempt}" >&2
+        exit 1
+    fi
+    printf 'WARNING: composer install failed (attempt %s/%s), retrying in 15s...\n' \
+        "${attempt}" "${max_attempts}" >&2
+    attempt=$((attempt + 1))
+    sleep 15
+done
+composer dump-autoload --optimize --apcu
+EOF
 
 # Stage 3: Build frontend assets (npm)
 # Separate stage allows Docker to cache npm dependencies independently

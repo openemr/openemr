@@ -18,15 +18,19 @@
 # BASE IMAGE CONFIGURATION
 # ============================================================================
 # Alpine Linux version - centralized setting for easy updates
-ARG ALPINE_VERSION=3.22
+ARG ALPINE_VERSION=3.24
 FROM alpine:${ALPINE_VERSION} AS base
 
 # OpenEMR version and binary release information
-ARG OPENEMR_VERSION=7_0_4
-ARG BINARY_RELEASE_DATE=12292025
+ARG OPENEMR_VERSION=8_3_0
+ARG BINARY_RELEASE_DATE=08232026
 ARG PHP_VERSION=8.5
+# Forge tags use an abbreviated PHP version (e.g. "8.5" -> "php85"). Derived
+# once here rather than per-RUN, the same way docker/flex/Dockerfile does it.
+ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
 ENV OPENEMR_VERSION=${OPENEMR_VERSION}
 ENV PHP_VERSION=${PHP_VERSION}
+ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
 
 # Architecture detection - Docker automatically provides TARGETARCH
 # TARGETARCH values: amd64, arm64
@@ -97,10 +101,10 @@ RUN usermod -u 1000 apache
 # Architecture naming: amd64 and arm64 are used directly in release URLs and filenames
 RUN ARCH_SUFFIX="${TARGETARCH}" \
     && cd /tmp \
-    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php85-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-fpm-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-fpm \
+    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-fpm-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-fpm \
     && test -s php-fpm || (echo "ERROR: php-fpm download failed - file is empty or missing" && exit 1) \
     && test "$(stat -f%z php-fpm 2>/dev/null || stat -c%s php-fpm 2>/dev/null || echo 0)" -gt 1000000 || (echo "ERROR: php-fpm download appears invalid (file too small)" && exit 1) \
-    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php85-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-cli-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-cli \
+    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-cli-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-cli \
     && test -s php-cli || (echo "ERROR: php-cli download failed - file is empty or missing" && exit 1) \
     && test "$(stat -f%z php-cli 2>/dev/null || stat -c%s php-cli 2>/dev/null || echo 0)" -gt 1000000 || (echo "ERROR: php-cli download appears invalid (file too small)" && exit 1) \
     && chmod +x php-fpm php-cli \
@@ -123,24 +127,43 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # Architecture naming: amd64 and arm64 are used directly in release URLs
 RUN ARCH_SUFFIX="${TARGETARCH}" \
     && cd /tmp \
-    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php85-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/openemr.phar" -o openemr.phar \
+    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/openemr.phar" -o openemr.phar \
     && test -s openemr.phar || (echo "ERROR: openemr.phar download failed - file is empty or missing" && exit 1) \
     && test "$(stat -f%z openemr.phar 2>/dev/null || stat -c%s openemr.phar 2>/dev/null || echo 0)" -gt 10000000 || (echo "ERROR: openemr.phar download appears invalid (file too small, expected >10MB)" && exit 1) \
     && mkdir -p /tmp/openemr \
     && /usr/local/bin/php -d memory_limit=512M -r "try { \$phar = new Phar('openemr.phar'); \$phar->extractTo('/tmp/openemr'); } catch (Exception \$e) { echo 'Error: ' . \$e->getMessage() . PHP_EOL; exit(1); }" \
     && rm openemr.phar
 
-# Download tests directory from GitHub to match the PHAR version
-# GitHub tag format is v7_0_4 (with v prefix and underscores)
-# Note: GitHub archives strip the 'v' prefix, so openemr-v7_0_4 becomes openemr-7_0_4
-RUN OPENEMR_TAG="v${OPENEMR_VERSION}" \
-    && cd /tmp \
-    && curl -fSL "https://github.com/openemr/openemr/archive/refs/tags/${OPENEMR_TAG}.tar.gz" -o openemr-source.tar.gz \
-    && OPENEMR_DIR="openemr-${OPENEMR_VERSION}" \
-    && tar -xzf openemr-source.tar.gz \
-    && test -d "${OPENEMR_DIR}/tests" || (echo "ERROR: tests directory not found in ${OPENEMR_DIR}" && exit 1) \
-    && mv "${OPENEMR_DIR}/tests" /tmp/openemr/tests \
-    && rm -rf "${OPENEMR_DIR}" openemr-source.tar.gz
+# Overlay the test harness from the matching OpenEMR tag.
+# Use git clone, not the GitHub source archive: .gitattributes marks
+# tests/ as export-ignore, so tag tarballs omit it (same reason
+# docker/release/ clones instead of downloading the archive).
+#
+# The phpunit configs need the same treatment. v8_3_0 added
+# `phpunit*.xml export-ignore`, which v7_0_4 did not have, so the PHAR
+# built from the release package no longer carries phpunit.xml. Without
+# it `phpunit --testsuite unit` has no configuration, prints its usage
+# and exits 1 -- which is how this surfaced, as a container-functionality
+# failure rather than a build failure.
+RUN apk add --no-cache --virtual .fetch-tests git \
+    && git clone --depth 1 --branch "v${OPENEMR_VERSION}" \
+        https://github.com/openemr/openemr.git /tmp/openemr-src \
+    && if [ ! -d /tmp/openemr-src/tests ]; then \
+        echo "ERROR: tests directory not found in cloned v${OPENEMR_VERSION}"; \
+        echo "Top-level entries:"; \
+        ls -la /tmp/openemr-src; \
+        exit 1; \
+    fi \
+    && mv /tmp/openemr-src/tests /tmp/openemr/tests \
+    && for cfg in phpunit.xml phpunit-isolated.xml phpunit.integration.xml; do \
+        if [ ! -f "/tmp/openemr-src/${cfg}" ]; then \
+            echo "ERROR: ${cfg} not found in cloned v${OPENEMR_VERSION}"; \
+            exit 1; \
+        fi; \
+        mv "/tmp/openemr-src/${cfg}" "/tmp/openemr/${cfg}"; \
+    done \
+    && rm -rf /tmp/openemr-src \
+    && apk del .fetch-tests
 
 # ============================================================================
 # OPENEMR SETUP AND PERMISSIONS
@@ -236,6 +259,11 @@ COPY upgrade/docker-version \
      upgrade/fsupgrade-6.sh \
      upgrade/fsupgrade-7.sh \
      upgrade/fsupgrade-8.sh \
+     upgrade/fsupgrade-9.sh \
+     upgrade/fsupgrade-10.sh \
+     upgrade/fsupgrade-11.sh \
+     upgrade/fsupgrade-12.sh \
+     upgrade/fsupgrade-13.sh \
      /root/
 
 # Set upgrade scripts as executable (read and execute for owner only)
@@ -247,7 +275,12 @@ RUN chmod 500 \
     /root/fsupgrade-5.sh \
     /root/fsupgrade-6.sh \
     /root/fsupgrade-7.sh \
-    /root/fsupgrade-8.sh
+    /root/fsupgrade-8.sh \
+    /root/fsupgrade-9.sh \
+    /root/fsupgrade-10.sh \
+    /root/fsupgrade-11.sh \
+    /root/fsupgrade-12.sh \
+    /root/fsupgrade-13.sh
 
 # ============================================================================
 # APACHE AND PHP-FPM RUNTIME DIRECTORIES

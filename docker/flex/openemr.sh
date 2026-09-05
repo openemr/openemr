@@ -61,6 +61,26 @@ flex_timing() {
     printf 'TIMING: %s %s\n' "${now}" "$1" >&2
 }
 
+# GitHub zipball 504s are common when Composer pulls many dist files in
+# parallel. Retry both per-file (COMPOSER_MAX_RETRIES) and the whole
+# install so a burst of 504s does not fail container startup. Successful
+# downloads stay in the Composer cache, so later attempts are cheap.
+composer_install_with_retry() {
+    local attempt=1
+    local max_attempts=5
+    export COMPOSER_MAX_RETRIES="${COMPOSER_MAX_RETRIES:-8}"
+    until composer install "$@"; do
+        if (( attempt >= max_attempts )); then
+            printf 'ERROR: composer install failed after %s attempts\n' "${attempt}" >&2
+            return 1
+        fi
+        printf 'WARNING: composer install failed (attempt %s/%s), retrying in 15s...\n' \
+            "${attempt}" "${max_attempts}" >&2
+        (( ++attempt ))
+        sleep 15
+    done
+}
+
 # ============================================================================
 # SHELL LIBRARY SOURCING
 # ============================================================================
@@ -810,9 +830,9 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
         # install php dependencies
         flex_timing 'composer install start'
         if [[ "${DEVELOPER_TOOLS}" = "yes" ]]; then
-            composer install
+            composer_install_with_retry
         else
-            composer install --no-dev
+            composer_install_with_retry --no-dev
         fi
         flex_timing 'composer install done'
         RAN_ANY_BUILD=true

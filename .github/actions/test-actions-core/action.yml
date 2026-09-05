@@ -7,6 +7,13 @@ inputs:
     required: false
   php_version:
     required: false
+  unit_exclude_filter:
+    description: >
+      PHPUnit --exclude-filter pattern for the unit suite. Lets one image
+      opt out of a test the others must still run, rather than weakening
+      the assertion for everybody.
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -111,9 +118,17 @@ runs:
     working-directory: .github/docker
 
   - name: Unit Test
+    env:
+      UNIT_EXCLUDE_FILTER: ${{ inputs.unit_exclude_filter }}
     run: |
+      exclude=()
+      if [ -n "${UNIT_EXCLUDE_FILTER}" ]; then
+          exclude=(--exclude-filter "${UNIT_EXCLUDE_FILTER}")
+          echo "::notice::Excluding from the unit suite: ${UNIT_EXCLUDE_FILTER}"
+      fi
       docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
-        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite unit
+        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite unit \
+        "${exclude[@]}"
     shell: bash
     working-directory: .github/docker
 
