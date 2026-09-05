@@ -27,7 +27,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-
 class BaseService implements BaseServiceInterface
 {
     private $fields;

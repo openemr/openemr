@@ -57,7 +57,6 @@
  * NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
  */
 
-
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;

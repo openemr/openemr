@@ -17,10 +17,9 @@ $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
-use OpenEMR\Core\OEGlobalsBag;
 
 /** @var array<string, array<string, mixed>> $code_types */
 $code_types = CodeTypeRegistry::codeTypes();

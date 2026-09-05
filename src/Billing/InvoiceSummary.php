@@ -34,7 +34,6 @@
 //  arseq - ar_activity.sequence_no when it applies.
 namespace OpenEMR\Billing;
 
-
 use OpenEMR\Billing\SLEOB;
 
 // for Integrated A/R.

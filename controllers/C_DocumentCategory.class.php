@@ -1,6 +1,5 @@
 <?php
 
-
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
