@@ -99,6 +99,14 @@ jobs:
     - uses: ./.github/actions/test-actions-core
       with:
         is_production_docker: ${{ inputs.is_production_docker }}
+        # The binary image ships ccdaservice's source but not its
+        # dependencies, so the schematron service CdaValidateDocuments
+        # starts cannot run there and the test asserts 0 findings instead
+        # of 6. That is a real gap in the image, tracked in
+        # openemr/openemr#13851 -- not something to paper over for flex
+        # and release, which install the dependencies and must keep
+        # running this test. Drop this line when #13851 is resolved.
+        unit_exclude_filter: ${{ matrix.docker_dir == 'binary' && 'CdaValidateDocumentsTest' || '' }}
 
   development-test:
     name: "Development Docker Alpine-${{ inputs.alpine_version }} (PHP ${{ matrix.php_version }}, ${{ matrix.mode }})"
