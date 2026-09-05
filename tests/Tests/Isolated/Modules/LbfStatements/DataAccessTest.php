@@ -179,6 +179,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
         {
             $catalog = new LayoutCatalog($this->sql);
             $this->sql->queue[] = ['paragraph_field_id' => 'custom_box'];
+            $this->sql->queue[] = [
+                ['field_id' => 'custom_box', 'data_type' => 3, 'title' => 'Box', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+            ];
             $this->assertSame('custom_box', $catalog->paragraphField('LBFecho'));
 
             $this->sql->queue[] = null;
@@ -186,6 +189,26 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 ['field_id' => 'summary_comments', 'data_type' => 3, 'title' => 'Sum', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
             ];
             $this->assertSame('summary_comments', $catalog->paragraphField('LBFecho'));
+        }
+
+        /**
+         * A stored paragraph field that is no longer a textarea is not used.
+         */
+        public function testParagraphFieldIgnoresInvalidConfiguredTarget(): void
+        {
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = ['paragraph_field_id' => 'num'];
+            $this->sql->queue[] = [
+                ['field_id' => 'num', 'data_type' => 2, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+                ['field_id' => 'summary_comments', 'data_type' => 3, 'title' => 'Sum', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+            ];
+            $this->assertSame('', $catalog->paragraphField('LBFecho'));
+
+            $this->sql->queue[] = ['paragraph_field_id' => 'gone'];
+            $this->sql->queue[] = [
+                ['field_id' => 'notes', 'data_type' => 3, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+            ];
+            $this->assertSame('', $catalog->paragraphField('LBFecho'));
         }
 
         /**
