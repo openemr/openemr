@@ -19,25 +19,39 @@ use OpenEMR\Events\Codes\ExternalCodesCreatedEvent;
 /**
  * Lazy loader for the three code-type lookup tables that legacy code reads as
  * top-level globals ($code_types, $code_external_tables, $ct_external_options).
- * The `OEGlobalsBag` (which shadows $GLOBALS) is the source of truth: a getter
- * returns the bag entry when present, otherwise builds the array, writes it
- * into the bag, and returns it. Test code and `global $code_types;` readers
- * both see whichever value the bag currently holds.
+ * Each getter memoizes its result and writes it into OEGlobalsBag on first
+ * call so `global $code_types;` and `OEGlobalsBag::get('code_types')` readers
+ * continue to work; kept for backwards compatibility.
+ *
+ * The static memoization means tests that want to inject fixture data have to
+ * poke the private properties via ReflectionProperty and call reset() to clear
+ * between cases (see FeeSheetClassesTest). Rework this class to take its
+ * database dependency via constructor injection when the migration off
+ * `global $code_types;` is complete — that will replace both the static memo
+ * and the reflection dance with a plain mock instance.
  */
 final class CodeTypeRegistry
 {
+    /** @var array<string, array<string, mixed>>|null */
+    private static ?array $codeTypes = null;
+
+    /** @var array<int, array<string, mixed>>|null */
+    private static ?array $codeExternalTables = null;
+
+    /** @var array<int|string, mixed>|null */
+    private static ?array $ctExternalOptions = null;
+
     /**
-     * @return array<int|string, mixed>
+     * @return array<string, array<string, mixed>>
      */
     public static function codeTypes(): array
     {
-        $bag = OEGlobalsBag::getInstance();
-        $existing = $bag->get('code_types');
-        if (is_array($existing)) {
-            return $existing;
+        if (self::$codeTypes !== null) {
+            return self::$codeTypes;
         }
 
         $codeTypes = [];
+        $bag = OEGlobalsBag::getInstance();
         $rows = QueryUtils::fetchRecords(
             "SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key"
         );
@@ -69,20 +83,19 @@ final class CodeTypeRegistry
                 $bag->set('default_search_code_type', array_key_first($codeTypes));
             }
         }
+        self::$codeTypes = $codeTypes;
         $bag->set('code_types', $codeTypes);
 
         return $codeTypes;
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return array<int, array<string, mixed>>
      */
     public static function codeExternalTables(): array
     {
-        $bag = OEGlobalsBag::getInstance();
-        $existing = $bag->get('code_external_tables');
-        if (is_array($existing)) {
-            return $existing;
+        if (self::$codeExternalTables !== null) {
+            return self::$codeExternalTables;
         }
 
         $sctConceptJoin = fn(string $filter): array => [
@@ -118,7 +131,8 @@ final class CodeTypeRegistry
         $tables[10] = self::externalTableEntry('sct2_description', 'conceptId', 'term', 'term', ["active=1", $disorderFilter], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
         $tables[12] = self::externalTableEntry('sct2_description', 'conceptId', 'term', 'term', ["active=1", $procedureFilter], "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 
-        $bag->set('code_external_tables', $tables);
+        self::$codeExternalTables = $tables;
+        OEGlobalsBag::getInstance()->set('code_external_tables', $tables);
 
         return $tables;
     }
@@ -128,10 +142,8 @@ final class CodeTypeRegistry
      */
     public static function ctExternalOptions(): array
     {
-        $bag = OEGlobalsBag::getInstance();
-        $existing = $bag->get('ct_external_options');
-        if (is_array($existing)) {
-            return $existing;
+        if (self::$ctExternalOptions !== null) {
+            return self::$ctExternalOptions;
         }
 
         $options = [
@@ -151,16 +163,28 @@ final class CodeTypeRegistry
         ];
 
         $event = new ExternalCodesCreatedEvent($options);
-        $bag->getKernel()->getEventDispatcher()->dispatch(
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
             $event,
             ExternalCodesCreatedEvent::EVENT_HANDLE
         );
         $updated = $event->getExternalCodeData();
         $result = is_array($updated) ? $updated : $options;
 
-        $bag->set('ct_external_options', $result);
+        self::$ctExternalOptions = $result;
+        OEGlobalsBag::getInstance()->set('ct_external_options', $result);
 
         return $result;
+    }
+
+    /**
+     * Clear all memoized state. Tests call this in setUp/tearDown so injected
+     * fixture data does not leak between cases.
+     */
+    public static function reset(): void
+    {
+        self::$codeTypes = null;
+        self::$codeExternalTables = null;
+        self::$ctExternalOptions = null;
     }
 
     /**
