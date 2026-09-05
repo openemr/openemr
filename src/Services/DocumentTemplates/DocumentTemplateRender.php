@@ -228,6 +228,17 @@ class DocumentTemplateRender
                 $formname = $matches[2];
                 $this->keyLength = strlen($matches[0]);
                 $src = $formData['encounterForm'] ?? '';
+                // The portal captures this src URL with id=0 before the embedded form is
+                // first saved, and never rewrites it. If we know the saved form id, put it
+                // in the URL so the embedded form loads the patient's saved data; otherwise
+                // the form (and any chart/PDF made from it) renders blank. See encounterFormId
+                // stored alongside in template_data.
+                if (is_array($formData) && is_string($src) && $src !== '') {
+                    $encounterFormId = intval($formData['encounterFormId'] ?? 0);
+                    if ($encounterFormId > 0) {
+                        $src = preg_replace('/([?&]id=)\d+/', '${1}' . $encounterFormId, $src, 1) ?? $src;
+                    }
+                }
                 $sigfld = "<script>page.isFrameForm=1;page.encounterFormName=" . js_escape($formname) . "</script>";
                 $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
