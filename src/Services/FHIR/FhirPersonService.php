@@ -26,7 +26,19 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirPersonService extends FhirServiceBase implements IFhirExportableResourceService
+/**
+ * Treated as INonPatientCompartmentResourceService for now: FHIR Person can in
+ * principle bridge to Patient / Practitioner / RelatedPerson, but OpenEMR's
+ * current implementation is backed by the `users` table only (no patient
+ * records). Marking it as patient-compartment would silently return nothing to
+ * patient tokens — which blocks the legitimate case of patients reading a
+ * provider's public Person record via the same endpoint. Extending the service
+ * to source patient records and to scope field-level exposure by caller type
+ * is separate follow-up work; until then, the safe posture is to declare the
+ * service outside the patient compartment so the base compartment check does
+ * not deny legitimate provider-info reads.
+ */
+class FhirPersonService extends FhirServiceBase implements IFhirExportableResourceService, INonPatientCompartmentResourceService
 {
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;

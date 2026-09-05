@@ -86,6 +86,13 @@ class PrescriptionRestController
                 required: true,
                 schema: new OA\Schema(type: 'string')
             ),
+            new OA\Parameter(
+                name: 'patient_uuid',
+                in: 'query',
+                description: 'Optional. When supplied, the prescription must belong to this patient — otherwise the request is rejected with 400. Callers driving from a patient chart should always supply this to enforce per-patient ownership.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
         ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
@@ -96,7 +103,14 @@ class PrescriptionRestController
     )]
     public function delete(string $uuid, HttpRestRequest $request): ResponseInterface
     {
-        $processingResult = $this->prescriptionService->delete($uuid);
+        // If the caller supplied a `patient_uuid` query parameter, forward it
+        // so the service can assert the prescription belongs to that patient
+        // before deactivating it. Standard REST callers hitting this endpoint
+        // typically drive from a patient chart context and can supply the
+        // hint; when omitted (e.g. administrative cleanup), the service falls
+        // back to the pre-existing behaviour.
+        $expectedPatientUuid = $request->query->getString('patient_uuid') ?: null;
+        $processingResult = $this->prescriptionService->delete($uuid, $expectedPatientUuid);
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
     }
 
@@ -140,8 +154,17 @@ class PrescriptionRestController
      */
     #[OA\Get(
         path: '/api/prescription',
-        description: 'Retrieves a list of all prescriptions',
+        description: 'Retrieves a list of prescriptions for a patient. A `patient_uuid` query parameter is REQUIRED — tenant-wide enumeration is no longer supported.',
         tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'patient_uuid',
+                in: 'query',
+                description: 'REQUIRED. UUID of the patient whose prescriptions should be listed.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
@@ -153,6 +176,15 @@ class PrescriptionRestController
     {
         $search = $request->getQueryParams();
         unset($search['_REWRITE_COMMAND']);
+        // Standard REST callers pass `patient_uuid`; the service consumes the
+        // FHIR-style `patient.uuid` search key. Translate here so the required
+        // patient binding surfaces cleanly to the data layer. The service
+        // rejects the request with a validation error if no binding is
+        // present.
+        if (isset($search['patient_uuid'])) {
+            $search['patient.uuid'] = $search['patient_uuid'];
+            unset($search['patient_uuid']);
+        }
         $processingResult = $this->prescriptionService->getAll($search);
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }

@@ -59027,7 +59027,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$dsiTypeName of method OpenEMR\\\\Services\\\\DecisionSupportInterventionService\\:\\:getDsiTypeForStringName\\(\\) expects string, bool\\|float\\|int\\|string given\\.$#',
+    'message' => '#^Parameter \\#1 \\$dsiTypeName of method OpenEMR\\\\Services\\\\DecisionSupportInterventionService\\:\\:getDsiTypeForStringName\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
@@ -59043,6 +59043,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$grantTypeId of method League\\\\OAuth2\\\\Server\\\\RequestTypes\\\\AuthorizationRequest\\:\\:setGrantTypeId\\(\\) expects string, mixed given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$json of function json_decode expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
@@ -59107,7 +59112,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$string of function explode expects string, list\\<string\\>\\|string given\\.$#',
+    'message' => '#^Parameter \\#2 \\$string of function explode expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
@@ -59215,16 +59220,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$return_value of static method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:aclCheckCore\\(\\) expects array\\|string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$file of class Symfony\\\\Component\\\\HttpFoundation\\\\BinaryFileResponse constructor expects SplFileInfo\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$filename of method Symfony\\\\Component\\\\HttpFoundation\\\\BinaryFileResponse\\:\\:setContentDisposition\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, mixed given\\.$#',

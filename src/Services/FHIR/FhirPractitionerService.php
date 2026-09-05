@@ -30,7 +30,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
+class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService, INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;

@@ -39,6 +39,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation\UniqueID;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Http\SsrfSafeUrlValidator;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -104,6 +106,30 @@ class JWTClientAuthenticationService
     {
         $this->httpClient ??= new Client();
         return $this->httpClient;
+    }
+
+    /**
+     * @var SsrfSafeUrlValidator|null Additional validator applied to
+     * jwks_uri values loaded from storage before they are handed to
+     * JsonWebKeySet. Overridable for unit testing.
+     */
+    private ?SsrfSafeUrlValidator $jwksUriValidator = null;
+
+    /**
+     * Override the outbound-URL validator applied to persisted jwks_uri values.
+     * Useful for unit testing.
+     */
+    public function setJwksUriValidator(SsrfSafeUrlValidator $validator): void
+    {
+        $this->jwksUriValidator = $validator;
+    }
+
+    public function getJwksUriValidator(): SsrfSafeUrlValidator
+    {
+        if (!isset($this->jwksUriValidator)) {
+            $this->jwksUriValidator = new SsrfSafeUrlValidator();
+        }
+        return $this->jwksUriValidator;
     }
 
 
@@ -234,6 +260,39 @@ class JWTClientAuthenticationService
         if (empty($client->getJwksUri()) && empty($client->getJwks())) {
             $this->logger->error('Client has no JWKS or JWKS URI configured', ['client_id' => $clientId]);
             throw OAuthServerException::invalidClient($request);
+        }
+
+        // Additional outbound-URL check on the persisted jwks_uri. The write
+        // path (AuthorizationController::clientRegistration) validates on
+        // registration, but a client row may pre-date that check or have been
+        // mutated out-of-band, so we re-validate before every outbound fetch.
+        // Reject-and-audit rather than fetching a URL that resolves into
+        // internal / metadata address space.
+        $storedJwksUri = (string) $client->getJwksUri();
+        if ($storedJwksUri !== '') {
+            $rejectionReason = $this->getJwksUriValidator()->validate($storedJwksUri);
+            if ($rejectionReason !== null) {
+                $clientIdForLog = is_scalar($clientId) ? (string) $clientId : '';
+                $this->logger->error(
+                    'Rejected persisted jwks_uri as unsafe outbound target',
+                    [
+                        'client_id' => $clientIdForLog,
+                        'reason' => $rejectionReason,
+                    ]
+                );
+                EventAuditLogger::getInstance()->newEvent(
+                    'oauth-jwks-uri-rejected',
+                    '',
+                    '',
+                    0,
+                    sprintf(
+                        'jwks_uri rejected at read path for client_id=%s: %s',
+                        $clientIdForLog,
+                        $rejectionReason
+                    )
+                );
+                throw OAuthServerException::invalidClient($request);
+            }
         }
 
         $params = (array) $request->getParsedBody();

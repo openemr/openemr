@@ -58,6 +58,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Http\SsrfSafeUrlValidator;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -379,6 +380,41 @@ class AuthorizationController implements LoggerAwareInterface
                             }
                         }
                         $params[$key] = json_encode($jwks, JSON_THROW_ON_ERROR);
+                    } elseif ($key === 'jwks_uri') {
+                        // Reject jwks_uri values that point at loopback /
+                        // private / cloud-metadata endpoints. The value is
+                        // fetched later by JWTClientAuthenticationService
+                        // during introspect and token-endpoint flows, so it
+                        // MUST be validated before it is persisted.
+                        $rawJwksUri = $data->get($key);
+                        if (!is_string($rawJwksUri)) {
+                            throw new OAuthServerException(
+                                'jwks_uri must be a string',
+                                0,
+                                'invalid_client_metadata'
+                            );
+                        }
+                        $rejectionReason = (new SsrfSafeUrlValidator())->validate($rawJwksUri);
+                        if ($rejectionReason !== null) {
+                            // Audit-log the rejection with the specific reason
+                            // (host, scheme, DNS) so an operator can spot
+                            // registration-time probes. The client-facing
+                            // error stays deliberately generic to avoid
+                            // exposing internal network topology.
+                            EventAuditLogger::getInstance()->newEvent(
+                                'oauth-jwks-uri-rejected',
+                                '',
+                                '',
+                                0,
+                                'jwks_uri rejected at client registration: ' . $rejectionReason
+                            );
+                            throw new OAuthServerException(
+                                'jwks_uri is not an acceptable URL',
+                                0,
+                                'invalid_client_metadata'
+                            );
+                        }
+                        $params[$key] = $rawJwksUri;
                     } else {
                         $params[$key] = $data->get($key);
                     }

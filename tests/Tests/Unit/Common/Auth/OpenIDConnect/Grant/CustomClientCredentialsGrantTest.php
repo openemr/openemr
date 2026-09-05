@@ -29,6 +29,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use OpenEMR\Common\Http\SsrfSafeUrlValidator;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
@@ -119,6 +120,13 @@ class CustomClientCredentialsGrantTest extends TestCase
         $grant->setAccessTokenRepository($this->getMockAccessTokenRepository($accessToken));
         $grant->setScopeRepository($this->getMockScopeRepository());
         $jwtAuthservice = new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $this->getMockJwtRepository(), $httpClient);
+        // The read-path outbound-URL validator rejects the mock localhost jwks_uri used in this test.
+        // Inject a no-op validator so the unit test can exercise the JWT flow without needing
+        // a publicly-resolvable URL; the write-path validator (exercised elsewhere) is what
+        // enforces the outbound-URL check against real client registrations.
+        $permissiveValidator = $this->createMock(SsrfSafeUrlValidator::class);
+        $permissiveValidator->method('validate')->willReturn(null);
+        $jwtAuthservice->setJwksUriValidator($permissiveValidator);
         $grant->setJWTAuthenticationService($jwtAuthservice);
 
         $response = $this->createMock(ResponseTypeInterface::class);

@@ -25,6 +25,7 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -41,7 +42,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;

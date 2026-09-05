@@ -10,11 +10,13 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Yash Raj Bothra <yashrajbothra786@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Yash Raj Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -263,8 +265,12 @@ return [
             // only allow access to data of binded patient
             $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
-            // TODO: it seems like regular users should be able to grab authorship / provenance information
-            RestConfig::request_authorization_check($request, "patients", "demo");
+            // Non-patient callers hit `$docref` in system/administrative
+            // context (bulk export precursor, aggregate authorship /
+            // provenance queries). Mirror the sibling GET /fhir/DocumentReference
+            // (:247-258) which requires `admin/super` so the ACL requirement
+            // matches the other administrative DocumentReference operations.
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams());
         }
 
@@ -424,7 +430,22 @@ return [
         return $return;
     },
     "GET /fhir/Media/:uuid" => function ($uuid, HttpRestRequest $request) {
-        $return = (new FhirMediaRestController($request))->getOne($uuid, $request->getPatientUUIDString());
+        // Mirror the sibling `GET /fhir/Media` list route (:413-424) so the
+        // non-patient (user-scope / core-session) branch runs an explicit
+        // ACL check and the patient-scope branch explicitly binds the
+        // caller's puuid. Without this branching, non-patient callers hit
+        // the endpoint with `$request->getPatientUUIDString()` returning
+        // `null` and the compartment filter has nothing to constrain on.
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirMediaRestController($request))->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "demo");
+            // Non-patient callers already passed the ACL gate above; pass
+            // null puuid so the service does not attempt to bind a
+            // compartment that does not exist for this caller shape.
+            $return = (new FhirMediaRestController($request))->getOne($uuid, null);
+        }
         return $return;
     },
     "GET /fhir/Medication" => function (HttpRestRequest $request) {
@@ -640,7 +661,16 @@ return [
             RestConfig::request_authorization_check($request, "admin", "users");
             $return = (new FhirPersonRestController())->getOne($uuid);
         } else {
-            // if we are a patient bound request we need to make sure we are only bound to the patient
+            // Patient-scope token requesting a non-self Person UUID. Do NOT
+            // bind the caller's puuid: FhirPersonService is declared as
+            // INonPatientCompartmentResourceService because it is backed by
+            // the `users` table and legitimately serves provider / staff
+            // Person records that patient callers are allowed to read
+            // (fhirUser resolution, care-team lookups, RelatedPerson info
+            // per FHIR spec). The base check permits this shape via the
+            // non-patient-compartment marker; extending Person to
+            // patient-source records + scoping field-level exposure by
+            // caller type is separate follow-up work.
             $return = (new FhirPersonRestController())->getOne($uuid);
         }
 
@@ -789,12 +819,25 @@ return [
         return $return;
     },
     "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request) {
+        // Non-patient callers (user-scope OAuth tokens or APICSRFTOKEN
+        // core-session paths) previously reached the controller with no
+        // route-level ACL gate. Apply the same `patients/med` gate the
+        // controller had documented but commented out; the controller
+        // continues to branch on isPatientRequest() to bind the patient
+        // compartment for patient-scope tokens.
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "patients", "med");
+        }
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
         return $return;
     },
     "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request) {
+        // See sibling list route above — same ACL rationale.
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "patients", "med");
+        }
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->one($request, $uuid);
