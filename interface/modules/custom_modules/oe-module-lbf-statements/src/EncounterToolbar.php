@@ -48,8 +48,9 @@ class EncounterToolbar
                     . '&pid=' . $pid . '&instance_id=' . $item['instance_id'],
             ];
         }
-        $json = json_encode($payload, JSON_THROW_ON_ERROR);
-        $label = json_encode(xl('Form statements'), JSON_THROW_ON_ERROR);
+        $flags = JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+        $json = json_encode($payload, $flags);
+        $label = json_encode(xl('Form statements'), $flags);
         echo "<script>\n"
             . "(function() {\n"
             . "  const items = " . $json . ";\n"
