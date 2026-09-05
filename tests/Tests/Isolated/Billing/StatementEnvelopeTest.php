@@ -348,4 +348,81 @@ final class StatementEnvelopeTest extends TestCase
         ]);
         $this->assertNull($tiny->geometry());
     }
+
+    /**
+     * A custom window narrower than one 8 pt glyph plus inset is not windowed.
+     */
+    public function testCustomGeometryRejectsWindowNarrowerThanMinGlyph(): void
+    {
+        $tiny = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '0.01',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $this->assertNull($tiny->geometry());
+    }
+
+    /**
+     * Custom to_left pads the recipient independently of the return window.
+     */
+    public function testTextAddressBlockUsesRecipientLeft(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '1',
+            'to_bottom' => '1/2',
+        ]);
+        $block = $env->textAddressBlock('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']);
+        $this->assertMatchesRegularExpression('/^ {3,5}Clinic/m', $block['text']);
+        $this->assertMatchesRegularExpression('/^ {9,11}Pat/m', $block['text']);
+    }
+
+    /**
+     * Long plain-text remit and recipient lines wrap inside their windows.
+     */
+    public function testTextAddressBlockWrapsLongLines(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $g = $env->geometry();
+        $this->assertNotNull($g);
+        $inset = StatementEnvelope::WINDOW_INSET_IN;
+        $maxReturn = (int) floor((($g['return']['w'] - 2.0 * $inset) * 10.0) + 1e-9);
+        $maxTo = (int) floor((($g['to']['w'] - 2.0 * $inset) * 10.0) + 1e-9);
+        $long = str_repeat('A', 80);
+        $block = $env->textAddressBlock('Clinic', $long, 'Town, ND, 00000', [$long]);
+        foreach (explode("\n", $block['text']) as $line) {
+            $content = ltrim($line);
+            if (str_starts_with($content, 'A')) {
+                $this->assertLessThanOrEqual(max($maxReturn, $maxTo), mb_strlen($content, 'UTF-8'));
+            }
+        }
+        $this->assertGreaterThan(1, substr_count($block['text'], 'A'));
+    }
+
+    /**
+     * An unspaced UTF-8 token splits on characters, not bytes.
+     */
+    public function testFitLinesSplitsUnspacedUtf8Token(): void
+    {
+        $token = str_repeat('緯', 40);
+        [$pt, $lines] = StatementEnvelope::fitLines([$token], 3.4, 1.0, 16.0);
+        $this->assertGreaterThan(1, count($lines));
+        $this->assertSame($token, implode('', $lines));
+        foreach ($lines as $ln) {
+            $this->assertTrue(mb_check_encoding($ln, 'UTF-8'));
+        }
+        $this->assertGreaterThanOrEqual(StatementEnvelope::MIN_ADDRESS_PT, $pt);
+    }
 }
