@@ -31858,7 +31858,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'attn\' on array\\|false\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -31878,7 +31878,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'city\' on array\\|false\\.$#',
-    'count' => 6,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -31943,7 +31943,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
-    'count' => 6,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -31968,7 +31968,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'phone\' on array\\|false\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -31998,12 +31998,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'postal_code\' on array\\|false\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../sites/default/statement.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'provider_id\' on array\\|false\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -32023,17 +32018,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'state\' on array\\|false\\.$#',
-    'count' => 6,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'street\' on array\\|false\\.$#',
-    'count' => 6,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'to\' on mixed\\.$#',
-    'count' => 14,
+    'count' => 7,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -32058,22 +32053,22 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 1 on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 2 on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 3 on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
