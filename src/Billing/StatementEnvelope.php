@@ -788,9 +788,7 @@ body { margin: 0; padding: 0; }
                         $piece .= $ch;
                     }
                 }
-                if ($piece !== '') {
-                    $out[] = $piece;
-                }
+                $out[] = $piece;
                 continue;
             }
             $try = ($cur === '') ? $word : ($cur . ' ' . $word);
