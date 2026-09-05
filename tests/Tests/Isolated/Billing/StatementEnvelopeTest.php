@@ -1,0 +1,428 @@
+<?php
+
+/**
+ * Envelope window presets and address fitting.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ * @license   GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\Billing;
+
+use OpenEMR\Billing\StatementEnvelope;
+use PHPUnit\Framework\TestCase;
+
+final class StatementEnvelopeTest extends TestCase
+{
+    /**
+     * Default profile leaves the stock statement layout unchanged.
+     */
+    public function testDefaultIsNotWindowed(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_DEFAULT);
+        $this->assertFalse($env->isWindowed());
+        $this->assertNull($env->geometry());
+        $this->assertSame('', $env->windowCss());
+        $this->assertSame('', $env->windowHtml('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']));
+    }
+
+    /**
+     * #9 cut is 3/8 from the left; return 1-3/16 x 3-1/2.
+     */
+    public function testHash9UsesThreeEighthsLeftCut(): void
+    {
+        $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH9))->geometry();
+        $this->assertNotNull($g);
+        $this->assertEqualsWithDelta(0.375, $g['left'], 0.0001);
+        $this->assertEqualsWithDelta(0.6875, $g['return']['top'], 0.0001);
+        $this->assertEqualsWithDelta(1.1875, $g['return']['h'], 0.0001);
+        $this->assertEqualsWithDelta(3.5, $g['return']['w'], 0.0001);
+        $this->assertEqualsWithDelta(2.375, $g['to']['top'], 0.0001);
+        $this->assertEqualsWithDelta(1.0, $g['to']['h'], 0.0001);
+        $this->assertEqualsWithDelta(4.0, $g['to']['w'], 0.0001);
+        $this->assertEqualsWithDelta(11.0 / 3.0, $g['panel'], 0.0001);
+    }
+
+    /**
+     * #10 cut is 1/2 from the left; return 1 x 3-1/2.
+     */
+    public function testHash10UsesHalfInchLeftCut(): void
+    {
+        $g = (new StatementEnvelope(StatementEnvelope::PROFILE_HASH10))->geometry();
+        $this->assertNotNull($g);
+        $this->assertEqualsWithDelta(0.5, $g['left'], 0.0001);
+        $this->assertEqualsWithDelta(0.625, $g['return']['top'], 0.0001);
+        $this->assertEqualsWithDelta(1.0, $g['return']['h'], 0.0001);
+        $this->assertEqualsWithDelta(3.5, $g['return']['w'], 0.0001);
+        $this->assertEqualsWithDelta(2.0, $g['to']['top'], 0.0001);
+        $this->assertEqualsWithDelta(1.375, $g['to']['h'], 0.0001);
+        $this->assertEqualsWithDelta(4.0, $g['to']['w'], 0.0001);
+    }
+
+    /**
+     * 1 in = 2.54 cm exactly (127/50), rounded to 0.0001 cm.
+     */
+    public function testInchCentimeterConversionKeepsTenthousandthCm(): void
+    {
+        $this->assertEqualsWithDelta(2.54, StatementEnvelope::inchesToCentimeters(1.0), 0.0001);
+        $this->assertEqualsWithDelta(0.9525, StatementEnvelope::inchesToCentimeters(0.375), 0.0001);
+        $this->assertEqualsWithDelta(9.8425, StatementEnvelope::inchesToCentimeters(3.875), 0.0001);
+        $this->assertEqualsWithDelta(1.0, StatementEnvelope::centimetersToInches(2.54), 0.000001);
+        $this->assertEqualsWithDelta(0.375, StatementEnvelope::centimetersToInches(0.9525), 0.000001);
+        $this->assertEqualsWithDelta(3.875, StatementEnvelope::centimetersToInches(9.8425), 0.000001);
+        $this->assertEqualsWithDelta(0.0001, StatementEnvelope::inchesToCentimeters(StatementEnvelope::centimetersToInches(0.0001)), 0.0001);
+    }
+
+    /**
+     * parseLength honors an explicit unit and a unit written in the text.
+     */
+    public function testParseLengthReadsCentimeters(): void
+    {
+        $this->assertEqualsWithDelta(1.0, StatementEnvelope::parseLength('2.54', 'cm'), 0.000001);
+        $this->assertEqualsWithDelta(1.0, StatementEnvelope::parseLength('2.54 cm', 'in'), 0.000001);
+        $this->assertEqualsWithDelta(3.875, StatementEnvelope::parseLength('9.8425', 'cm'), 0.000001);
+        $this->assertEqualsWithDelta(0.375, StatementEnvelope::parseLength('3/8', 'in'), 0.000001);
+    }
+
+    /**
+     * Carton fractions such as 3/8 and 1-3/16 parse to inches.
+     */
+    public function testParseInchReadsBoxFractions(): void
+    {
+        $this->assertEqualsWithDelta(0.375, StatementEnvelope::parseInch('3/8'), 0.0001);
+        $this->assertEqualsWithDelta(0.5, StatementEnvelope::parseInch('1/2'), 0.0001);
+        $this->assertEqualsWithDelta(1.1875, StatementEnvelope::parseInch('1-3/16'), 0.0001);
+        $this->assertEqualsWithDelta(3.875, StatementEnvelope::parseInch('3 7/8'), 0.0001);
+        $this->assertEqualsWithDelta(3.5, StatementEnvelope::parseInch('3-1/2'), 0.0001);
+        $this->assertEqualsWithDelta(2.0, StatementEnvelope::parseInch('2'), 0.0001);
+        $this->assertEqualsWithDelta(0.375, StatementEnvelope::parseInch('0.375'), 0.0001);
+        $this->assertEqualsWithDelta(1.1875, StatementEnvelope::parseInch('1.1875'), 0.0001);
+        $this->assertNull(StatementEnvelope::parseInch(''));
+    }
+
+    /**
+     * Custom carton numbers can reproduce the #9 cut; empty or partial custom is not windowed.
+     */
+    public function testCustomCartonNumbersMatchHash9Cut(): void
+    {
+        $hash9 = StatementEnvelope::presetHash9();
+        $legacy = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $lg = $legacy->geometry();
+        $this->assertNotNull($lg);
+        $this->assertEqualsWithDelta($hash9['return']['top'], $lg['return']['top'], 0.0001);
+        $this->assertEqualsWithDelta($hash9['to']['top'], $lg['to']['top'], 0.0001);
+        $this->assertEqualsWithDelta($hash9['left'], $lg['left'], 0.0001);
+
+        $cm = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'units' => 'cm',
+            'envelope_height' => '9.8425',
+            'return_height' => '3.0163',
+            'return_width' => '8.89',
+            'return_left' => '0.9525',
+            'return_bottom' => '5.08',
+            'to_height' => '2.54',
+            'to_width' => '10.16',
+            'to_left' => '0.9525',
+            'to_bottom' => '1.27',
+        ]);
+        $cg = $cm->geometry();
+        $this->assertNotNull($cg);
+        $this->assertEqualsWithDelta($hash9['left'], $cg['left'], 0.001);
+        $this->assertEqualsWithDelta($hash9['return']['top'], $cg['return']['top'], 0.001);
+
+        $empty = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'return_width' => 0,
+        ]);
+        $this->assertNull($empty->geometry());
+        $this->assertFalse($empty->isWindowed());
+
+        $partial = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'return_height' => '1-3/16',
+            'return_width' => '3-1/2',
+            'to_height' => '1',
+            'to_width' => '4',
+        ]);
+        $this->assertNull($partial->geometry());
+        $this->assertFalse($partial->isWindowed());
+    }
+
+    /**
+     * Long address lines wrap and shrink to fit the window.
+     */
+    public function testLongLineWrapsAndShrinks(): void
+    {
+        $long = 'Northwest Heart Institute of North Dakota Billing Office Suite';
+        [$pt, $lines] = StatementEnvelope::fitLines([$long], 3.4, 1.0, 16.0);
+        $this->assertNotEmpty($lines);
+        $this->assertLessThanOrEqual(16.0, $pt);
+        $this->assertGreaterThanOrEqual(StatementEnvelope::MIN_ADDRESS_PT, $pt);
+        $joined = implode(' ', $lines);
+        $this->assertStringContainsString('Northwest', $joined);
+        $this->assertGreaterThan(1, count($lines));
+    }
+
+    /**
+     * Window HTML escapes address text and uses table rows, not absolute positioning.
+     */
+    public function testWindowHtmlEscapesAndIsFirstPageOnly(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $html = $env->windowHtml('Clinic & Co', "1 Main\nSte 2", 'Town, ND, 00000', ['Pat <X>']);
+        $this->assertStringContainsString('stmt-env-windows', $html);
+        $this->assertStringContainsString('Clinic &amp; Co', $html);
+        $this->assertStringContainsString('Pat &lt;X&gt;', $html);
+        $this->assertStringNotContainsString('position:absolute', $html);
+    }
+
+    /**
+     * Custom windows that miss the page or invert the spacers are rejected.
+     */
+    public function testCustomGeometryRejectsWindowsThatMissThePage(): void
+    {
+        $tooWide = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '9',
+            'return_left' => '0',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $this->assertNull($tooWide->geometry());
+
+        $inverted = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '0',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '2',
+        ]);
+        $this->assertNull($inverted->geometry());
+    }
+
+    /**
+     * One unspaced token wider than the window is split at character boundaries.
+     */
+    public function testFitLinesSplitsUnspacedToken(): void
+    {
+        $token = str_repeat('W', 80);
+        [$pt, $lines] = StatementEnvelope::fitLines([$token], 3.4, 1.0, 16.0);
+        $this->assertGreaterThan(1, count($lines));
+        $this->assertSame($token, implode('', $lines));
+        $this->assertGreaterThanOrEqual(StatementEnvelope::MIN_ADDRESS_PT, $pt);
+    }
+
+    /**
+     * Remit address prefers facility mailing fields over the physical street.
+     */
+    public function testFacilityRemitAddrPrefersMailing(): void
+    {
+        [$street, $csz] = StatementEnvelope::facilityRemitAddr([
+            'street' => '1 Physical',
+            'city' => 'Town',
+            'state' => 'ND',
+            'postal_code' => '00000',
+            'mail_street' => 'PO Box 9',
+            'mail_street2' => 'Ste 2',
+            'mail_city' => 'Mailtown',
+            'mail_state' => 'ND',
+            'mail_zip' => '11111',
+        ]);
+        $this->assertSame("PO Box 9\nSte 2", $street);
+        $this->assertSame('Mailtown, ND, 11111', $csz);
+    }
+
+    /**
+     * Plain-text address block left-pads to the window from-left measurement.
+     */
+    public function testTextAddressBlockUsesGeometryLeftPad(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $block = $env->textAddressBlock('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']);
+        $this->assertStringContainsString('Clinic', $block['text']);
+        $this->assertStringContainsString('Pat', $block['text']);
+        $this->assertGreaterThan(10, $block['lines']);
+        $this->assertMatchesRegularExpression('/^ {3,}Clinic/m', $block['text']);
+    }
+
+    /**
+     * Recipient text starts at to.top for both short and long remit addresses.
+     */
+    public function testTextAddressBlockPinsRecipientToWindowTop(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $g = $env->geometry();
+        $this->assertNotNull($g);
+        $lpi = 6.0;
+        $toStart = (int) round($g['to']['top'] * $lpi);
+        $panelLines = (int) round($g['panel'] * $lpi);
+        $indexOf = static function (string $text, string $needle): int {
+            foreach (explode("\n", $text) as $i => $line) {
+                if (str_contains($line, $needle)) {
+                    return $i;
+                }
+            }
+            return -1;
+        };
+
+        $short = $env->textAddressBlock('Clinic', '', '', ['Pat']);
+        $long = $env->textAddressBlock('Clinic', "1 Main\nSuite 200", 'Town, ND, 00000', ['Pat']);
+        $this->assertSame($toStart, $indexOf($short['text'], 'Pat'));
+        $this->assertSame($toStart, $indexOf($long['text'], 'Pat'));
+        $this->assertSame($panelLines, $short['lines']);
+        $this->assertSame($panelLines, $long['lines']);
+    }
+
+    /**
+     * Wrapped lines that still miss the window height clip at 8 pt to whole lines.
+     */
+    public function testFitLinesClipsToWindowAtEightPoint(): void
+    {
+        $lines = [];
+        for ($i = 0; $i < 20; $i++) {
+            $lines[] = 'Line ' . $i . ' ' . str_repeat('x', 12);
+        }
+        [$pt, $fitted] = StatementEnvelope::fitLines($lines, 3.4, 0.35, 16.0);
+        $this->assertEqualsWithDelta(StatementEnvelope::MIN_ADDRESS_PT, $pt, 0.0001);
+        $this->assertNotEmpty($fitted);
+        $h = count($fitted) * ($pt / 72.0);
+        $this->assertLessThanOrEqual(0.35 + 0.0001, $h);
+        $this->assertLessThan(count($lines), count($fitted));
+        foreach ($fitted as $ln) {
+            $this->assertStringNotContainsString('...', $ln);
+        }
+    }
+
+    /**
+     * When lines are dropped, the last wrapped line (city / postcode) is kept.
+     */
+    public function testFitLinesKeepsLastLineWhenClipping(): void
+    {
+        $lines = [
+            'Northwest Heart Institute',
+            'PO Box 9',
+            'Ste 200',
+            'Bismarck ND 58501',
+        ];
+        [$pt, $fitted] = StatementEnvelope::fitLines($lines, 3.4, 0.12, 16.0);
+        $this->assertEqualsWithDelta(StatementEnvelope::MIN_ADDRESS_PT, $pt, 0.0001);
+        $this->assertSame(['Bismarck ND 58501'], $fitted);
+    }
+
+    /**
+     * A custom window shorter than one 8 pt line plus inset is not windowed.
+     */
+    public function testCustomGeometryRejectsWindowShorterThanMinType(): void
+    {
+        $tiny = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '0.15',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $this->assertNull($tiny->geometry());
+    }
+
+    /**
+     * A custom window narrower than one 8 pt glyph plus inset is not windowed.
+     */
+    public function testCustomGeometryRejectsWindowNarrowerThanMinGlyph(): void
+    {
+        $tiny = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '0.01',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $this->assertNull($tiny->geometry());
+    }
+
+    /**
+     * Custom to_left pads the recipient independently of the return window.
+     */
+    public function testTextAddressBlockUsesRecipientLeft(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '1',
+            'to_bottom' => '1/2',
+        ]);
+        $block = $env->textAddressBlock('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']);
+        $this->assertMatchesRegularExpression('/^ {3,5}Clinic/m', $block['text']);
+        $this->assertMatchesRegularExpression('/^ {9,11}Pat/m', $block['text']);
+    }
+
+    /**
+     * Long plain-text remit and recipient lines wrap inside their windows.
+     */
+    public function testTextAddressBlockWrapsLongLines(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $g = $env->geometry();
+        $this->assertNotNull($g);
+        $inset = StatementEnvelope::WINDOW_INSET_IN;
+        $maxReturn = (int) floor((($g['return']['w'] - 2.0 * $inset) * 10.0) + 1e-9);
+        $maxTo = (int) floor((($g['to']['w'] - 2.0 * $inset) * 10.0) + 1e-9);
+        $long = str_repeat('A', 80);
+        $block = $env->textAddressBlock('Clinic', $long, 'Town, ND, 00000', [$long]);
+        foreach (explode("\n", $block['text']) as $line) {
+            $content = ltrim($line);
+            if (str_starts_with($content, 'A')) {
+                $this->assertLessThanOrEqual(max($maxReturn, $maxTo), mb_strlen($content, 'UTF-8'));
+            }
+        }
+        $this->assertGreaterThan(1, substr_count($block['text'], 'A'));
+    }
+
+    /**
+     * An unspaced UTF-8 token splits on characters, not bytes.
+     */
+    public function testFitLinesSplitsUnspacedUtf8Token(): void
+    {
+        $token = str_repeat('緯', 40);
+        [$pt, $lines] = StatementEnvelope::fitLines([$token], 3.4, 1.0, 16.0);
+        $this->assertGreaterThan(1, count($lines));
+        $this->assertSame($token, implode('', $lines));
+        foreach ($lines as $ln) {
+            $this->assertTrue(mb_check_encoding($ln, 'UTF-8'));
+        }
+        $this->assertGreaterThanOrEqual(StatementEnvelope::MIN_ADDRESS_PT, $pt);
+    }
+}
