@@ -91,6 +91,9 @@ class LayoutCatalog
 
     /**
      * Destination textarea for generated text. Does not create layout_options rows.
+     *
+     * A stored field is used only if it still exists as a textarea. If that
+     * configured target is invalid, return no field rather than another one.
      */
     public function paragraphField(string $formId): string
     {
@@ -99,20 +102,32 @@ class LayoutCatalog
             "SELECT paragraph_field_id FROM module_lbf_statement_forms WHERE form_id = ?",
             [$formId]
         ));
+        $meta = $this->fieldMeta($formId);
         if ($row !== null) {
             $configured = Values::rowString($row, 'paragraph_field_id');
             if ($configured !== '') {
-                return $configured;
+                return self::textareaId($meta, $configured);
             }
         }
-        $meta = $this->fieldMeta($formId);
-        if (isset($meta['summary_comments'])) {
-            return 'summary_comments';
+        $summary = self::textareaId($meta, 'summary_comments');
+        if ($summary !== '') {
+            return $summary;
         }
         foreach ($meta as $fieldId => $info) {
             if ($info['data_type'] === 3) {
                 return $fieldId;
             }
+        }
+        return '';
+    }
+
+    /**
+     * @param array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string}> $meta
+     */
+    private static function textareaId(array $meta, string $fieldId): string
+    {
+        if ($fieldId !== '' && isset($meta[$fieldId]) && $meta[$fieldId]['data_type'] === 3) {
+            return $fieldId;
         }
         return '';
     }
