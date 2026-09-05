@@ -1542,8 +1542,8 @@ class SQLUpgradeService implements ISQLUpgradeService
             if ($this->isThrowExceptionOnError()) {
                 throw $exception;
             }
-        } // we let errors percolate up
-        finally {
+        } finally {
+            // we let errors percolate up
             if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }

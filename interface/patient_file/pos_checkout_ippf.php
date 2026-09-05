@@ -51,10 +51,8 @@
 
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once($srcdir . "/checkout_receipt_array.inc.php");
 require_once($srcdir . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -69,7 +67,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
-$facilityService = new FacilityService();
 $recorder = new Recorder();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -502,7 +499,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     global $aTaxNames, $aInvTaxes, $checkout_times, $current_checksum;
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
     global $TAXES_AFTER_ADJUSTMENT;
-    global $facilityService, $alertmsg;
+    global $alertmsg;
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -532,7 +529,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
     $current_checksum = invoiceChecksum($patient_id, $encounter);
 
     // Get details for the visit's facility.
-    $frow = $facilityService->getById($ferow['facility_id']);
+    $frow = (new FacilityService())->getById($ferow['facility_id']);
 
     $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 

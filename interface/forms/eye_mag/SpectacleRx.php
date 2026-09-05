@@ -16,24 +16,31 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\RefType;
 use OpenEMR\Forms\EyeMag\RxType;
 use OpenEMR\Services\FacilityService;
+use Symfony\Component\HttpFoundation\Response;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/api.inc.php");
-require_once($srcdir . "/forms.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/report.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $facilityService = new FacilityService();
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: SpectacleRx", xl("Spectacle Rx"));
+}
 
 $form_name = "Eye Form";
 $form_folder = "eye_mag";
@@ -41,13 +48,14 @@ require_once("php/" . $form_folder . "_functions.php");
 
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
-if (!($_REQUEST['pid'] ?? '') && ($_REQUEST['id'] ?? '')) {
-    $_REQUEST['pid'] = $_REQUEST['id'];
+
+// pid comes from the session (patient context), not the request. The prior
+// fallback chain (request pid -> request id -> session) is collapsed here into
+// a single session-driven read so every query below scopes to the opened patient.
+$pid = PatientSessionUtil::getPid();
+if ($pid <= 0) {
+    (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, xlt('Missing PID.'));
 }
-if (!($_REQUEST['pid'] ?? '')) {
-    $_REQUEST['pid'] = $session->get('pid');
-}
-$pid = $_REQUEST['pid'];
 $form_id = $_REQUEST['form_id'] ?? null;
 
 $query = "select  *,form_encounter.date as encounter_date
@@ -75,9 +83,9 @@ $query = "select  *,form_encounter.date as encounter_date
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $data = sqlQuery($query, [$_REQUEST['encounter'], $_REQUEST['pid']]);
-    $data['ODMPDD'] = $data['ODPDMeasured'];
-    $data['OSMPDD'] = $data['OSPDMeasured'];
+    $data = QueryUtils::querySingleRow($query, [$_REQUEST['encounter'] ?? '', $pid]) ?: [];
+    $data['ODMPDD'] = $data['ODPDMeasured'] ?? null;
+    $data['OSMPDD'] = $data['OSPDMeasured'] ?? null;
     $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
     @extract($data);
 
@@ -112,21 +120,42 @@ $query = "select  *,form_encounter.date as encounter_date
     $OSMPDD     = $OSPDMeasured;
     $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
 
+    // Mutation branches below (mode=update/remove, RXTYPE=..., dispensed=1)
+    // do not send an encounter, so the querySingleRow above returns [] and
+    // these lookups run with missing keys. Fall back to null rather than
+    // emit undefined-array-key warnings on every mutation request.
     $query      = "SELECT * FROM users where id = ?";
-    $prov_data  = sqlQuery($query, [$data['provider_id']]);
+    $prov_data  = sqlQuery($query, [$data['provider_id'] ?? null]);
 
     $query      = "SELECT * FROM patient_data where pid=?";
-    $pat_data   = sqlQuery($query, [$data['pid']]);
+    $pat_data   = sqlQuery($query, [$data['pid'] ?? null]);
 
     $practice_data = $facilityService->getPrimaryBusinessEntity();
 
-    $visit_date = oeFormatShortDate($data['encounter_date']);
+    $visit_date = oeFormatShortDate($data['encounter_date'] ?? null);
 
 $RXTYPE ??= '';
 $encounter ??= '';
 
 if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in dispense table
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $table_name = "form_eye_mag_dispense";
+    // Confirm the target dispense row belongs to the session patient before
+    // handing it to formUpdate(); formUpdate scopes only by id and rewrites
+    // the row's pid to the session pid, so a submission with another
+    // patient's row id would silently pull that row into the current chart.
+    $updateId = CurrentRequest::get()->request->getInt('id');
+    if ($updateId <= 0) {
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Missing dispense row id.');
+    }
+    $ownerPid = QueryUtils::fetchSingleValue(
+        'SELECT pid FROM form_eye_mag_dispense WHERE id = ? AND pid = ?',
+        'pid',
+        [$updateId, $pid]
+    );
+    if ($ownerPid === null) {
+        AccessDeniedHelper::deny('SpectacleRx dispense update: row does not belong to session pid');
+    }
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
     $fields = [];
@@ -145,18 +174,23 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
             }
         }
         $fields['RXTYPE'] = $RXTYPE;
-        $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $session->get('userauthorized'));
+        $insert_this_id = formUpdate($table_name, $fields, $updateId, $session->get('userauthorized'));
     }
 
     exit;
 } elseif (($_REQUEST['mode'] ?? '') == "remove") {
-    $query = "DELETE FROM form_eye_mag_dispense where id=?";
-    sqlStatement($query, [$_REQUEST['delete_id']]);
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    // Scope the dispense mutation to the session patient so the request-supplied
+    // delete_id cannot reach dispense rows outside the opened chart.
+    $query = "DELETE FROM form_eye_mag_dispense where id=? AND pid=?";
+    sqlStatement($query, [$_REQUEST['delete_id'], $pid]);
     echo xlt('Prescription successfully removed.');
     exit;
 } elseif ($_REQUEST['RXTYPE'] ?? '') {  //store any changed fields
-    $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
-    sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id']]);
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    // Scope the dispense mutation to the session patient (see remove branch above).
+    $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=? AND pid=?";
+    sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id'], $pid]);
     exit;
 }
 
@@ -247,7 +281,7 @@ if ($refType !== null) {
                AND PID = ?
                AND RX_NUMBER = ?
             SQL,
-            [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']],
+            [$encounter, $_REQUEST['form_id'], $pid, $_REQUEST['rx_number']],
         );
 
         // A field the wearing prescription does not carry reads null, so the
@@ -333,7 +367,7 @@ if ($refType !== null) {
 if ($_REQUEST['dispensed'] ?? '') {
     $dispensed = QueryUtils::fetchRecords(
         'SELECT * FROM form_eye_mag_dispense WHERE pid = ? ORDER BY date DESC',
-        [$_REQUEST['pid']],
+        [$pid],
     );
     ?><html>
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
@@ -438,7 +472,8 @@ if ($_REQUEST['dispensed'] ?? '') {
                            data: {
                                mode: 'remove',
                                delete_id: delete_id,
-                               dispensed: '1'
+                               dispensed: '1',
+                               csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                            } // our data object
                        }).done(function (o) {
                     $('#RXID_' + delete_id).hide();
@@ -448,7 +483,7 @@ if ($_REQUEST['dispensed'] ?? '') {
 
         </script>
     </head>
-    <?php echo report_header($pid, "web"); ?>
+    <?php echo report_header((string) $pid, "web"); ?>
     <div class="row">
         <div class="col-sm-8 offset-sm-2 text-center m-3">
             <table>
@@ -832,7 +867,8 @@ if ($_REQUEST['dispensed'] ?? '') {
             var url = "../../forms/eye_mag/SpectacleRx.php";
             var formData = {
                 'RXTYPE': rxtype,
-                'id': id
+                'id': id,
+                'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             };
             top.restoreSession();
             $.ajax({
@@ -934,7 +970,7 @@ if ($_REQUEST['dispensed'] ?? '') {
     </script>
 </head>
 <body>
-<?php echo report_header($pid, "web");  ?>
+<?php echo report_header((string) $pid, "web");  ?>
 <br/><br/>
 <?php
 if ($refType?->isContactLens()) {
@@ -951,10 +987,11 @@ if ($refType?->isContactLens()) {
 <form method="post" action="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update"
       id="Spectacle" class="eye_mag pure-form text-center" name="Spectacle">
     <!-- start container for the main body of the form -->
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
     <input type="hidden" name="REFDATE" id="REFDATE" value="<?php echo attr($data['date']); ?>">
     <input type="hidden" name="RXTYPE" id="RXTYPE" value="<?php echo attr($RXTYPE); ?>">
     <input type="hidden" name="REFTYPE" value="<?php echo attr($REFTYPE); ?>"/>
-    <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
+    <input type="hidden" name="pid" id="pid" value="<?php echo attr((string) $pid); ?>">
     <input type="hidden" name="id" id="id" value="<?php echo attr($insert_this_id); ?>">
     <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
 

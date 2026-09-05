@@ -26,6 +26,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -37,8 +38,6 @@ $form_folder = "eye_mag";
 require_once('../../globals.php');
 
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
@@ -52,11 +51,8 @@ $requestPid = CurrentRequest::get()->query->getInt('pid');
 $pid = $requestPid > 0 ? $requestPid : PatientSessionUtil::getPid();
 $info_msg = "";
 
-// $ISSUE_TYPES and $ISSUE_CLASSIFICATIONS are populated by lists.inc.php
-// (required above) at file scope; declare defaults so PHPStan can verify the
-// reads below.
-$ISSUE_TYPES ??= [];
-$ISSUE_CLASSIFICATIONS ??= [];
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
+$ISSUE_CLASSIFICATIONS = IssueTypeRegistry::issueClassifications();
 
 // A nonempty thisenc means we are to link the issue to the encounter.
 // ie. we are going to use this as a billing issue?

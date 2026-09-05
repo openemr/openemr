@@ -17,7 +17,6 @@
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 
 require_once("$srcdir/../custom/code_types.inc.php");
-require_once("$srcdir/../library/lists.inc.php");
 require_once("code_check.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;

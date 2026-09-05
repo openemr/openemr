@@ -296,7 +296,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                 $group_label = xlt('Group') . ': ' . text($row['name']) . ' ( ' . xlt('TIN') . ' '
                     . text($row['federaltaxid']) . ' )';
                 $group_provider_label = $group_label;
-            } else if (isset($row['is_provider'])) {
+            } elseif (isset($row['is_provider'])) {
                 $provider_label = ' ' . xlt('Provider') . ': ' . text($row['prov_fname']) . ',' . text($row['prov_lname'])
                     . ' ( ' . xlt('NPI') . ' ' . text($row['npi']) . ' ) ';
                 $group_provider_label = isset($row['is_provider_in_group']) ? $group_label . ' ' . $provider_label : $provider_label;
@@ -488,7 +488,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
             if (isset($row['cqm_nqf_code'])) {
                 $displayFieldSubHeader .= " " . xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
             }
-        } else if ($is_amc) {
+        } elseif ($is_amc) {
             $row['type'] = 'amc';
             if (!empty($amc_report_types[$type_report]['code_col'])) {
                 $code_col = $amc_report_types[$type_report]['code_col'];
@@ -508,12 +508,12 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
                 $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
             }
             $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
-        } else if (isset($row['is_sub'])) {
+        } elseif (isset($row['is_sub'])) {
             $row['display_field'] = generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $row['action_category'])
                 . ': ' . generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $row['action_item']);
             // Excluded is not part of denominator in standard rules so do not use in calculation
             $failed_items = $main_pass_filter - $row['pass_target'];
-        } else if (isset($row['is_plan'])) {
+        } elseif (isset($row['is_plan'])) {
             $row['display_field'] = generate_display_field(['data_type' => '1','list_id' => 'clinical_plans'], $row['id']);
         }
 

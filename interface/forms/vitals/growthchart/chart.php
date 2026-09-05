@@ -39,9 +39,12 @@
  */
 
 require_once("../../../../interface/globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VitalsService;
@@ -49,11 +52,23 @@ use OpenEMR\Services\VitalsService;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Growth Chart", xl("Growth Chart"));
+}
+
+// Deep-linked chart page: bootstrap session pid from the request the first
+// time this window is opened, then read pid from the session for every query.
+$requestPid = CurrentRequest::get()->query->getInt('pid');
+$sessionPid = PatientSessionUtil::getPid();
+if ($requestPid > 0 && $sessionPid <= 0) {
+    setpid($requestPid);
+}
+$pid = PatientSessionUtil::getPid();
+
 $chartpath = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/vitals/growthchart/";
 $name = "";
-$pid = $_GET['pid'];
 
-if ($pid == "") {
+if ($pid <= 0) {
     // no pid? no graph for you.
     echo "<p>" . xlt('Missing PID.') . ' ' .  xlt('Please close this window.') . "</p>";
     exit;
@@ -63,16 +78,11 @@ $vitalsService = new VitalsService();
 
 $isMetric = ((OEGlobalsBag::getInstance()->get('units_of_measurement') == 2) || (OEGlobalsBag::getInstance()->get('units_of_measurement') == 4));
 
-$patient_data = "";
-$sex = '';
-$dob = '';
-if (isset($pid) && is_numeric($pid)) {
-    $patient_data = getPatientData($pid, "fname, lname, sex, DATE_FORMAT(DOB,'%Y%m%d') as DOB");
-    $nowAge = getPatientAge($patient_data['DOB']);
-    $dob = $patient_data['DOB'];
-    $name = $patient_data['fname'] . " " . $patient_data['lname'];
-    $sex = strtolower((string) $patient_data['sex']);
-}
+$patient_data = getPatientData($pid, "fname, lname, sex, DATE_FORMAT(DOB,'%Y%m%d') as DOB");
+$nowAge = getPatientAge($patient_data['DOB']);
+$dob = $patient_data['DOB'];
+$name = $patient_data['fname'] . " " . $patient_data['lname'];
+$sex = strtolower((string) $patient_data['sex']);
 
 // The first data point in the DATA set is significant. It tells the date
 // of the currently viewed vitals by the user. We will use this
@@ -694,7 +704,7 @@ foreach ($datapoints as $data) {
         if ($charttype == "birth") {
             // Draw Head circumference
             $HC_x = $HC_dot_x + $HC_delta_x * $age;
-            $HC_y = $HC_dot_y - $HC_delta_y * (((int) $head_circ ?? null) - 11);
+            $HC_y = $HC_dot_y - $HC_delta_y * ((is_scalar($head_circ) ? (int) $head_circ : 0) - 11);
             imagefilledellipse($im, (int) $HC_x, (int) $HC_y, 10, 10, $color1);
             // Draw Wt and Ht graph at the bottom half
             $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);

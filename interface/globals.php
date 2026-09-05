@@ -27,6 +27,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\VersionFile;
 use OpenEMR\Services\CodeTypes\Subscriber\CodeTypeEventsSubscriber;
 use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
 use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
@@ -398,16 +399,28 @@ require_once(__DIR__ . "/../library/sql.inc.php");
 $globalsBag->set("adodb", $GLOBALS['adodb'] ?? null);
 $globalsBag->set("dbh", $GLOBALS['dbh'] ?? null);
 
-// Include the version file
-require_once(__DIR__ . "/../version.php");
-$globalsBag->set("v_major", $v_major ?? null);
-$globalsBag->set("v_minor", $v_minor ?? null);
-$globalsBag->set("v_patch", $v_patch ?? null);
-$globalsBag->set("v_tag", $v_tag ?? null);
-$globalsBag->set("v_realpatch", $v_realpatch ?? null);
-$globalsBag->set("v_database", $v_database ?? null);
-$globalsBag->set("v_acl", $v_acl ?? null);
-$globalsBag->set("v_js_includes", $v_js_includes ?? null);
+// Read the version file. VersionFile evaluates it in its own scope, because
+// a require_once here is a no-op when another entry point already included
+// version.php, and the $v_* variables would then be undefined in this scope.
+// Storing them as null poisons every reader: the keys are present, so
+// getString() ignores its default and throws instead.
+$versionFile = VersionFile::load(dirname(__DIR__));
+$v_major = $versionFile->major;
+$v_minor = $versionFile->minor;
+$v_patch = $versionFile->patch;
+$v_tag = $versionFile->tag;
+$v_realpatch = $versionFile->realpatch;
+$v_database = $versionFile->database;
+$v_acl = $versionFile->acl;
+$v_js_includes = $versionFile->jsIncludes;
+$globalsBag->set('v_major', $v_major);
+$globalsBag->set('v_minor', $v_minor);
+$globalsBag->set('v_patch', $v_patch);
+$globalsBag->set('v_tag', $v_tag);
+$globalsBag->set('v_realpatch', $v_realpatch);
+$globalsBag->set('v_database', $v_database);
+$globalsBag->set('v_acl', $v_acl);
+$globalsBag->set('v_js_includes', $v_js_includes);
 
 ini_set('default_charset', 'utf-8');
 $HTML_CHARSET = "UTF-8";

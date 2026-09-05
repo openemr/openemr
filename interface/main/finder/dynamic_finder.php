@@ -413,7 +413,7 @@ function rp()
     foreach ($pd_dtCols as $v) {
         if ($v['data_type'] == "datetime") {
             $datetime_cols[] = $v['column_name'];
-        } else if ($v['data_type'] == "date") {
+        } elseif ($v['data_type'] == "date") {
             $date_cols[] = $v['column_name'];
         }
     }

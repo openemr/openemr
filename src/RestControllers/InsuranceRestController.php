@@ -313,7 +313,7 @@ class InsuranceRestController
         $insertedResult = $this->insuranceService->insert($data);
         if (!$insertedResult->isValid()) {
             return RestControllerHelper::handleProcessingResult($insertedResult, 200, false);
-        } else if (empty($insertedResult->hasData())) {
+        } elseif (empty($insertedResult->hasData())) {
             $insertedResult = new ProcessingResult();
             $insertedResult->addInternalError('Insurance Policy record not found after insert');
             return RestControllerHelper::handleProcessingResult($insertedResult, 200);

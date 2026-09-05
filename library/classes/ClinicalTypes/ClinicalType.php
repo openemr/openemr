@@ -8,9 +8,6 @@
 // of the License, or (at your option) any later version.
 //
 require_once(__DIR__ . "/../../clinical_rules.php");
-require_once(__DIR__ . "/../../forms.inc.php");
-require_once(__DIR__ . "/../../patient.inc.php");
-require_once(__DIR__ . "/../../lists.inc.php");
 require_once(__DIR__ . "/../rulesets/library/RsPatient.php");
 require_once('codes.php');
 
