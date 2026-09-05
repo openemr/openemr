@@ -161,4 +161,69 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertStringContainsString('Pat &lt;X&gt;', $html);
         $this->assertStringNotContainsString('position:absolute', $html);
     }
+
+    public function testCustomGeometryRejectsWindowsThatMissThePage(): void
+    {
+        $tooWide = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '9',
+            'return_left' => '0',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ]);
+        $this->assertNull($tooWide->geometry());
+
+        $inverted = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '0',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '2',
+        ]);
+        $this->assertNull($inverted->geometry());
+    }
+
+    public function testFitLinesSplitsUnspacedToken(): void
+    {
+        $token = str_repeat('W', 80);
+        [$pt, $lines] = StatementEnvelope::fitLines([$token], 3.4, 1.0, 16.0);
+        $this->assertGreaterThan(1, count($lines));
+        $this->assertSame($token, implode('', $lines));
+        $this->assertGreaterThanOrEqual(7.0, $pt);
+    }
+
+    public function testFacilityRemitAddrPrefersMailing(): void
+    {
+        [$street, $csz] = StatementEnvelope::facilityRemitAddr([
+            'street' => '1 Physical',
+            'city' => 'Town',
+            'state' => 'ND',
+            'postal_code' => '00000',
+            'mail_street' => 'PO Box 9',
+            'mail_street2' => 'Ste 2',
+            'mail_city' => 'Mailtown',
+            'mail_state' => 'ND',
+            'mail_zip' => '11111',
+        ]);
+        $this->assertSame("PO Box 9\nSte 2", $street);
+        $this->assertSame('Mailtown, ND, 11111', $csz);
+    }
+
+    public function testTextAddressBlockUsesGeometryLeftPad(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $block = $env->textAddressBlock('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']);
+        $this->assertStringContainsString('Clinic', $block['text']);
+        $this->assertStringContainsString('Pat', $block['text']);
+        $this->assertGreaterThan(10, $block['lines']);
+        $this->assertMatchesRegularExpression('/^ {3,}Clinic/m', $block['text']);
+    }
 }
