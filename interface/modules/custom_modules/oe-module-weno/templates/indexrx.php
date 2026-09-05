@@ -16,7 +16,6 @@
 
 require_once("../../../../globals.php");
 /** @var string $srcdir */
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;

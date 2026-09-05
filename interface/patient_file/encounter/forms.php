@@ -28,7 +28,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
  */
 
 require_once($srcdir . "/group.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . '/ESign/Api.php');
 require_once($srcdir . "/../controllers/C_Document.class.php");
 

@@ -82,7 +82,6 @@
 //
 
 
-require_once(__DIR__ . "/../lists.inc.php");
 
 
 /**
@@ -90,6 +89,7 @@ require_once(__DIR__ . "/../lists.inc.php");
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -299,11 +299,10 @@ class Prescription extends ORDataObject
      */
     private function handle_medication_list_updates(): void
     {
-        global $ISSUE_TYPES;
-        /** @var array<string, mixed>|null $ISSUE_TYPES */
+        $issueTypes = IssueTypeRegistry::issueTypes();
 
         // Avoid making a mess if we are not using the "medication" issue type.
-        if (isset($ISSUE_TYPES) && !$ISSUE_TYPES['medication']) {
+        if (!($issueTypes['medication'] ?? false)) {
             return;
         }
 

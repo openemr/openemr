@@ -36,7 +36,6 @@ if ($patientPortalSession) {
 
 require_once "../../globals.php";
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/patient.inc.php";
 require_once OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 

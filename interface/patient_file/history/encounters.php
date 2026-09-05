@@ -18,8 +18,6 @@
 
 require_once(__DIR__ . "/../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once($srcdir . "/group.inc.php");
@@ -32,6 +30,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -39,8 +38,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
 // The including page provides $attendant_type and $therapy_group.
 $attendant_type ??= 'pid';
@@ -97,7 +95,8 @@ $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 //Get Document List by Encounter ID
 function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
 {
-    global $ISSUE_TYPES, $auth_med;
+    global $auth_med;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $documents = getDocumentsByEncounter($pid, $encounter);
     if (!empty($documents) && count($documents) > 0) {
@@ -136,7 +135,8 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
 //
 function showDocument(&$drow): void
 {
-    global $ISSUE_TYPES, $auth_med;
+    global $auth_med;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $docdate = $drow['docdate'];
 

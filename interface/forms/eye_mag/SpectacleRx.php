@@ -32,9 +32,7 @@ use OpenEMR\Services\FacilityService;
 use Symfony\Component\HttpFoundation\Response;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/report.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
