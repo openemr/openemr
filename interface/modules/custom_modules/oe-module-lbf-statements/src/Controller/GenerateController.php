@@ -92,16 +92,12 @@ class GenerateController
         }
         if ($pid > 0) {
             $have = $reader->formdirsForPatient($pid, $ruleFormIds);
-            $formChoices = array_values(array_filter(
-                $formChoices,
-                static fn (array $layout): bool => in_array($layout['form_id'], $have, true)
-            ));
-            if ($formId !== '' && !in_array($formId, $have, true)) {
-                $formId = '';
-                $instanceId = 0;
-            }
+            $limited = self::limitFormsToPatient($formChoices, $have, $formId, $instanceId);
+            $formChoices = $limited[0];
+            $formId = Values::asString($limited[1]);
+            $instanceId = Values::asInt($limited[2]);
             if (!$invalidFormId && $formId === '' && count($formChoices) === 1) {
-                $formId = $formChoices[0]['form_id'];
+                $formId = Values::asString($formChoices[0]['form_id'] ?? '');
             }
         }
 
@@ -152,6 +148,28 @@ class GenerateController
         }
 
         if ($pid > 0) {
+            $have = $reader->formdirsForPatient($pid, $ruleFormIds);
+            $previousFormId = $formId;
+            $limited = self::limitFormsToPatient($formChoices, $have, $formId, $instanceId);
+            $formChoices = $limited[0];
+            $formId = Values::asString($limited[1]);
+            $instanceId = Values::asInt($limited[2]);
+            if ($previousFormId !== '' && $formId === '') {
+                $values = [];
+                $rules = [];
+                $actions = [];
+                $paragraphField = '';
+                $paragraphTitle = '';
+                $paragraphCurrent = '';
+                $encounter = 0;
+                $selectedInstance = null;
+                $instances = [];
+                if ($error === '') {
+                    $error = xl('This form is not on this patient.');
+                }
+            } elseif (!$invalidFormId && $formId === '' && count($formChoices) === 1) {
+                $formId = Values::asString($formChoices[0]['form_id'] ?? '');
+            }
             $patient = $reader->patientName($pid);
             if ($formId !== '' && $instances === []) {
                 $instances = $reader->instancesForPatient($formId, $pid);
@@ -302,6 +320,31 @@ class GenerateController
             'adminUrl' => $this->bootstrap->getPublicUrl() . 'admin.php',
             'assetBase' => $this->bootstrap->getPublicUrl() . 'assets/',
         ]);
+    }
+
+    /**
+     * Keep layouts this patient has. Clear form_id and instance_id when the
+     * selected form is not in that list.
+     *
+     * @param list<array<string, mixed>> $formChoices
+     * @param list<string> $have
+     * @return array{0: list<array<string, mixed>>, 1: string, 2: int}
+     */
+    public static function limitFormsToPatient(
+        array $formChoices,
+        array $have,
+        string $formId,
+        int $instanceId
+    ): array {
+        $formChoices = array_values(array_filter(
+            $formChoices,
+            static fn (array $layout): bool => in_array($layout['form_id'] ?? '', $have, true)
+        ));
+        if ($formId !== '' && !in_array($formId, $have, true)) {
+            $formId = '';
+            $instanceId = 0;
+        }
+        return [$formChoices, $formId, $instanceId];
     }
 
     /**
