@@ -168,6 +168,7 @@ class StatementRepository
                 "statement_text=?, seq=?, enabled=? WHERE id=?",
                 array_merge($fields, [$id])
             );
+            $this->assertRuleExists($id);
             return $id;
         }
         return $this->sql->sqlInsert(
@@ -221,6 +222,7 @@ class StatementRepository
             "UPDATE module_lbf_statement_rules SET enabled = ? WHERE id = ?",
             [$enabled ? 1 : 0, $id]
         );
+        $this->assertRuleExists($id);
     }
 
     /**
@@ -279,17 +281,8 @@ class StatementRepository
         $formId = Values::asString($data['form_id'] ?? '');
         $source = Values::asString($data['source_field_id'] ?? '');
         $source2 = Values::asString($data['source_field_id_2'] ?? '');
-        foreach ($this->rulesForForm($formId, true) as $other) {
+        foreach ($this->lockedEnabledBands($formId, $source, $source2) as $other) {
             if ($id !== null && Values::rowInt($other, 'id') === $id) {
-                continue;
-            }
-            if (Values::rowString($other, 'op') !== 'band') {
-                continue;
-            }
-            if (Values::rowString($other, 'source_field_id') !== $source) {
-                continue;
-            }
-            if (Values::rowString($other, 'source_field_id_2') !== $source2) {
                 continue;
             }
             if (BandOverlap::rangesOverlap($data, $other)) {
@@ -297,6 +290,45 @@ class StatementRepository
                     'This numeric range overlaps another band on the same field.'
                 );
             }
+        }
+    }
+
+    /**
+     * Enabled bands for one source-field pair, locked for the rest of the
+     * transaction so a concurrent insert is visible after GET_LOCK.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function lockedEnabledBands(string $formId, string $source, string $source2): array
+    {
+        $rows = $this->sql->fetchRecords(
+            "SELECT id, form_id, source_field_id, source_field_id_2, op, min_value, max_value, " .
+            "min_inclusive, max_inclusive, match_token, statement_text, seq, enabled " .
+            "FROM module_lbf_statement_rules WHERE form_id = ? AND source_field_id = ? " .
+            "AND IFNULL(source_field_id_2, '') = ? AND enabled = 1 AND op = 'band' FOR UPDATE",
+            [$formId, $source, $source2]
+        );
+        $out = [];
+        foreach ($rows as $raw) {
+            $row = Values::assocRow($raw);
+            if ($row !== null) {
+                $out[] = $row;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Throw when an UPDATE matched no remaining row.
+     */
+    private function assertRuleExists(int $id): void
+    {
+        $row = Values::assocRow($this->sql->querySingleRow(
+            "SELECT id FROM module_lbf_statement_rules WHERE id = ?",
+            [$id]
+        ));
+        if ($row === null || Values::rowInt($row, 'id') !== $id) {
+            throw new RuleNotFoundException('Rule not found.');
         }
     }
 
