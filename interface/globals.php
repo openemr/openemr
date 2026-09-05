@@ -749,12 +749,6 @@ $globalsBag->set('layout_search_color', '#ff9919');
 
 $encounter = EncounterSessionUtil::getEncounter();
 
-if (!empty($_GET['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_GET['pid']);
-} elseif (!empty($_POST['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_POST['pid']);
-}
-
 $pid = PatientSessionUtil::getPid();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 $groupname = empty($session->get('authProvider')) ? 0 : $session->get('authProvider');

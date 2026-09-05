@@ -25,7 +25,9 @@ TODO: Code cleanup */
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -42,7 +44,11 @@ require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_function
 
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = (int) ($_REQUEST['pid'] ?? $session->get('pid', 0));
+// Deep-linked page opened via URL with ?pid=X; use the query bag (typed int,
+// no in-band sentinel). Falls back to the current session pid when the URL
+// omits pid (in-encounter navigation).
+$requestPid = CurrentRequest::get()->query->getInt('pid');
+$pid = $requestPid > 0 ? $requestPid : PatientSessionUtil::getPid();
 $info_msg = "";
 
 $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
@@ -72,6 +78,15 @@ if (
     ])
 ) {
     AccessDeniedHelper::deny('Adding eye exam issue is not authorized');
+}
+
+// Align session pid with the URL patient so the wrapping chart header and
+// menu render for the same patient the queries below load. Placed after the
+// ACL check above so an unauthorized caller cannot pollute session pid.
+// Fires on bootstrap (empty session) AND on context switch (bookmark for a
+// different patient while another chart is open).
+if ($requestPid > 0 && $requestPid !== PatientSessionUtil::getPid()) {
+    setpid($requestPid);
 }
 
 $PMSFH = build_PMSFH($pid);
