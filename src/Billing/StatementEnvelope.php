@@ -28,6 +28,12 @@ final readonly class StatementEnvelope
     public const PROFILE_HASH10 = 'hash10';
     public const PROFILE_CUSTOM = 'custom';
 
+    /** Smallest type in a window. 8 pt is the USPS/Canada destination floor. */
+    public const MIN_ADDRESS_PT = 8.0;
+
+    /** 2 mm inside the glass (Royal Mail window-internal minimum). */
+    public const WINDOW_INSET_IN = 10.0 / 127.0;
+
     /**
      * Custom carton numbers: window height x width, from left, from bottom,
      * flap up. Envelope height converts bottoms to letter-top.
@@ -155,8 +161,7 @@ final readonly class StatementEnvelope
         $cpi = 10.0;
         $lpi = 6.0;
         $pad = str_repeat(' ', max(0, (int) round($g['left'] * $cpi)));
-        $blank = (static fn(float $inches): string => str_repeat("\n", max(0, (int) round($inches * $lpi))));
-        $out = $blank($g['return']['top']);
+        $out = self::padTextToLine('', (int) round($g['return']['top'] * $lpi));
         $out .= $pad . $remitName . "\n";
         foreach (preg_split("/\n/", $remitStreet) ?: [] as $ln) {
             $ln = trim($ln);
@@ -165,15 +170,13 @@ final readonly class StatementEnvelope
             }
         }
         $out .= $pad . $remitCsz . "\n";
-        $gap = $g['to']['top'] - ($g['return']['top'] + $g['return']['h']);
-        $out .= $blank($gap);
+        $out = self::padTextToLine($out, (int) round($g['to']['top'] * $lpi));
         foreach ($toLines as $ln) {
             if ($ln !== '') {
                 $out .= $pad . $ln . "\n";
             }
         }
-        $rest = $g['panel'] - ($g['to']['top'] + $g['to']['h']);
-        $out .= $blank($rest);
+        $out = self::padTextToLine($out, (int) round($g['panel'] * $lpi));
         return ['text' => $out, 'lines' => substr_count($out, "\n")];
     }
 
@@ -286,6 +289,8 @@ body { margin: 0; padding: 0; }
     }
 
     /**
+     * Wrap and shrink to fit. Type will not go below MIN_ADDRESS_PT.
+     *
      * @param list<string> $lines
      * @return array{0: float, 1: list<string>}
      */
@@ -294,7 +299,7 @@ body { margin: 0; padding: 0; }
         float $maxW,
         float $maxH,
         float $maxPt,
-        float $minPt = 7.0,
+        float $minPt = self::MIN_ADDRESS_PT,
         float $lineHeight = 1.00
     ): array {
         for ($pt = $maxPt; $pt >= $minPt - 0.0001; $pt -= 0.05) {
@@ -311,7 +316,7 @@ body { margin: 0; padding: 0; }
                 return [$pt, $wrapped];
             }
         }
-        return [$minPt, self::wrapLines($lines, $maxW, $minPt)];
+        return [$minPt, self::clipLines(self::wrapLines($lines, $maxW, $minPt), $maxH, $minPt, $lineHeight)];
     }
 
     /**
@@ -486,6 +491,10 @@ body { margin: 0; padding: 0; }
         if ($ret['top'] + $ret['h'] > $g['panel'] || $to['top'] + $to['h'] > $g['panel']) {
             return false;
         }
+        $minH = (self::MIN_ADDRESS_PT / 72.0) + (2.0 * self::WINDOW_INSET_IN);
+        if ($ret['h'] < $minH || $to['h'] < $minH) {
+            return false;
+        }
         return true;
     }
 
@@ -600,7 +609,7 @@ body { margin: 0; padding: 0; }
      */
     private function addrCell(array $lines, array $box, float $maxPt, float $pageW): string
     {
-        $inset = 0.050;
+        $inset = self::WINDOW_INSET_IN;
         $maxW = $box['w'] - 2 * $inset;
         $maxH = $box['h'] - 2 * $inset;
         [$pt, $fitted] = self::fitLines($lines, $maxW, $maxH, $maxPt);
@@ -705,6 +714,49 @@ body { margin: 0; padding: 0; }
             $out[] = $cur;
         }
         return $out !== [] ? $out : [$word];
+    }
+
+    /**
+     * Pad $out with newlines so the next content starts at 0-based $line.
+     */
+    private static function padTextToLine(string $out, int $line): string
+    {
+        return $out . str_repeat("\n", max(0, $line - substr_count($out, "\n")));
+    }
+
+    /**
+     * Keep whole wrapped lines that fit $maxH at $pt. Prefer the last line.
+     *
+     * @param list<string> $lines
+     * @return list<string>
+     */
+    private static function clipLines(
+        array $lines,
+        float $maxH,
+        float $pt,
+        float $lineHeight
+    ): array {
+        if ($lines === []) {
+            return $lines;
+        }
+        $lineIn = ($pt / 72.0) * $lineHeight;
+        if ($lineIn <= 0.0) {
+            return $lines;
+        }
+        $maxLines = (int) floor(($maxH / $lineIn) + 1e-9);
+        if ($maxLines < 1) {
+            return [];
+        }
+        if (count($lines) <= $maxLines) {
+            return $lines;
+        }
+        $last = $lines[array_key_last($lines)];
+        if ($maxLines === 1) {
+            return [$last];
+        }
+        $head = array_slice($lines, 0, $maxLines - 1);
+        $head[] = $last;
+        return $head;
     }
 
     /**
