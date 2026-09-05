@@ -134,10 +134,17 @@ RUN ARCH_SUFFIX="${TARGETARCH}" \
     && /usr/local/bin/php -d memory_limit=512M -r "try { \$phar = new Phar('openemr.phar'); \$phar->extractTo('/tmp/openemr'); } catch (Exception \$e) { echo 'Error: ' . \$e->getMessage() . PHP_EOL; exit(1); }" \
     && rm openemr.phar
 
-# Overlay the tests directory from the matching OpenEMR tag.
+# Overlay the test harness from the matching OpenEMR tag.
 # Use git clone, not the GitHub source archive: .gitattributes marks
 # tests/ as export-ignore, so tag tarballs omit it (same reason
 # docker/release/ clones instead of downloading the archive).
+#
+# The phpunit configs need the same treatment. v8_3_0 added
+# `phpunit*.xml export-ignore`, which v7_0_4 did not have, so the PHAR
+# built from the release package no longer carries phpunit.xml. Without
+# it `phpunit --testsuite unit` has no configuration, prints its usage
+# and exits 1 -- which is how this surfaced, as a container-functionality
+# failure rather than a build failure.
 RUN apk add --no-cache --virtual .fetch-tests git \
     && git clone --depth 1 --branch "v${OPENEMR_VERSION}" \
         https://github.com/openemr/openemr.git /tmp/openemr-src \
@@ -148,6 +155,13 @@ RUN apk add --no-cache --virtual .fetch-tests git \
         exit 1; \
     fi \
     && mv /tmp/openemr-src/tests /tmp/openemr/tests \
+    && for cfg in phpunit.xml phpunit-isolated.xml phpunit.integration.xml; do \
+        if [ ! -f "/tmp/openemr-src/${cfg}" ]; then \
+            echo "ERROR: ${cfg} not found in cloned v${OPENEMR_VERSION}"; \
+            exit 1; \
+        fi; \
+        mv "/tmp/openemr-src/${cfg}" "/tmp/openemr/${cfg}"; \
+    done \
     && rm -rf /tmp/openemr-src \
     && apk del .fetch-tests
 
