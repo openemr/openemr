@@ -21,7 +21,7 @@ namespace OpenEMR\Billing;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 
-final class StatementEnvelope
+final readonly class StatementEnvelope
 {
     public const PROFILE_DEFAULT = 'default';
     public const PROFILE_HASH9 = 'hash9';
@@ -46,8 +46,8 @@ final class StatementEnvelope
      * } $custom
      */
     public function __construct(
-        private readonly string $profile,
-        private readonly array $custom = []
+        private string $profile,
+        private array $custom = []
     ) {
     }
 
@@ -79,6 +79,90 @@ final class StatementEnvelope
     public function isWindowed(): bool
     {
         return $this->geometry() !== null;
+    }
+
+    /**
+     * Billing-facility mailing address, or physical address if mailing is empty.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public static function facilityRemitAddr(mixed $row): array
+    {
+        if (!is_array($row)) {
+            return ['', ''];
+        }
+        $str = static fn(mixed $v): string => is_scalar($v) ? trim((string) $v) : '';
+        $mailStreet = $str($row['mail_street'] ?? '');
+        $mailStreet2 = $str($row['mail_street2'] ?? '');
+        $mailCity = $str($row['mail_city'] ?? '');
+        $mailState = $str($row['mail_state'] ?? '');
+        $mailZip = $str($row['mail_zip'] ?? '');
+        if ($mailStreet !== '' || $mailStreet2 !== '' || $mailCity !== '' || $mailZip !== '') {
+            $street = $mailStreet;
+            if ($mailStreet2 !== '') {
+                $street = $street === '' ? $mailStreet2 : ($street . "\n" . $mailStreet2);
+            }
+            return [$street, $mailCity . ', ' . $mailState . ', ' . $mailZip];
+        }
+        return [
+            $str($row['street'] ?? ''),
+            $str($row['city'] ?? '') . ', ' . $str($row['state'] ?? '') . ', ' . $str($row['postal_code'] ?? ''),
+        ];
+    }
+
+    public static function stmtString(mixed $stmt, string $key): string
+    {
+        if (!is_array($stmt) || !array_key_exists($key, $stmt)) {
+            return '';
+        }
+        $v = $stmt[$key];
+        return is_scalar($v) ? (string) $v : '';
+    }
+
+    public static function stmtToLine(mixed $stmt, int $index): string
+    {
+        if (!is_array($stmt) || !isset($stmt['to']) || !is_array($stmt['to'])) {
+            return '';
+        }
+        $v = $stmt['to'][$index] ?? null;
+        return is_scalar($v) ? (string) $v : '';
+    }
+
+    /**
+     * Monospace address block for plain-text statements, using envelope geometry.
+     *
+     * @param list<string> $toLines
+     * @return array{text: string, lines: int}
+     */
+    public function textAddressBlock(string $remitName, string $remitStreet, string $remitCsz, array $toLines): array
+    {
+        $g = $this->geometry();
+        if ($g === null) {
+            return ['text' => '', 'lines' => 0];
+        }
+        $cpi = 10.0;
+        $lpi = 6.0;
+        $pad = str_repeat(' ', max(0, (int) round($g['left'] * $cpi)));
+        $blank = (static fn(float $inches): string => str_repeat("\n", max(0, (int) round($inches * $lpi))));
+        $out = $blank($g['return']['top']);
+        $out .= $pad . $remitName . "\n";
+        foreach (preg_split("/\n/", $remitStreet) ?: [] as $ln) {
+            $ln = trim($ln);
+            if ($ln !== '') {
+                $out .= $pad . $ln . "\n";
+            }
+        }
+        $out .= $pad . $remitCsz . "\n";
+        $gap = $g['to']['top'] - ($g['return']['top'] + $g['return']['h']);
+        $out .= $blank($gap);
+        foreach ($toLines as $ln) {
+            if ($ln !== '') {
+                $out .= $pad . $ln . "\n";
+            }
+        }
+        $rest = $g['panel'] - ($g['to']['top'] + $g['to']['h']);
+        $out .= $blank($rest);
+        return ['text' => $out, 'lines' => substr_count($out, "\n")];
     }
 
     /**
@@ -335,6 +419,9 @@ body { margin: 0; padding: 0; }
             $envH === null || $returnLeft === null || $returnBottom === null
             || $returnW === null || $returnH === null
             || $toLeft === null || $toBottom === null || $toW === null || $toH === null
+            || !is_finite($envH) || !is_finite($returnLeft) || !is_finite($returnBottom)
+            || !is_finite($returnW) || !is_finite($returnH)
+            || !is_finite($toLeft) || !is_finite($toBottom) || !is_finite($toW) || !is_finite($toH)
             || $envH <= 0.0 || $returnW <= 0.0 || $returnH <= 0.0 || $toW <= 0.0 || $toH <= 0.0
             || $returnLeft < 0.0 || $toLeft < 0.0 || $returnBottom < 0.0 || $toBottom < 0.0
         ) {
@@ -352,7 +439,39 @@ body { margin: 0; padding: 0; }
         );
         $g['to']['left'] = $toLeft;
         $g['left'] = $returnLeft;
+        if (!self::geometryFitsPage($g)) {
+            return null;
+        }
         return $g;
+    }
+
+    /**
+     * @param array{
+     *   page_w: float,
+     *   page_h: float,
+     *   panel: float,
+     *   left: float,
+     *   return: array{top: float, h: float, w: float, left: float},
+     *   to: array{top: float, h: float, w: float, left: float}
+     * } $g
+     */
+    private static function geometryFitsPage(array $g): bool
+    {
+        $ret = $g['return'];
+        $to = $g['to'];
+        $top = $ret['top'];
+        $gap = $to['top'] - ($ret['top'] + $ret['h']);
+        $rest = $g['panel'] - ($to['top'] + $to['h']);
+        if ($top < 0.0 || $gap < 0.0 || $rest < 0.0) {
+            return false;
+        }
+        if ($ret['left'] + $ret['w'] > $g['page_w'] || $to['left'] + $to['w'] > $g['page_w']) {
+            return false;
+        }
+        if ($ret['top'] + $ret['h'] > $g['panel'] || $to['top'] + $to['h'] > $g['panel']) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -394,11 +513,7 @@ body { margin: 0; padding: 0; }
      */
     public static function parseLength(mixed $value, string $unit = 'in'): ?float
     {
-        if (is_string($value)) {
-            $unit = self::unitFromText($value) ?? self::normalizeUnit($unit);
-        } else {
-            $unit = self::normalizeUnit($unit);
-        }
+        $unit = is_string($value) ? self::unitFromText($value) ?? self::normalizeUnit($unit) : self::normalizeUnit($unit);
         return self::toInches(self::parseInch($value), $unit);
     }
 
@@ -512,6 +627,16 @@ body { margin: 0; padding: 0; }
             $words = preg_split('/\s+/', $line) ?: [$line];
             $cur = '';
             foreach ($words as $word) {
+                if (self::textWidthIn($word, $pt) > $maxWidthIn) {
+                    if ($cur !== '') {
+                        $out[] = $cur;
+                        $cur = '';
+                    }
+                    foreach (self::splitToken($word, $maxWidthIn, $pt) as $piece) {
+                        $out[] = $piece;
+                    }
+                    continue;
+                }
                 $try = ($cur === '') ? $word : ($cur . ' ' . $word);
                 if (self::textWidthIn($try, $pt) <= $maxWidthIn) {
                     $cur = $try;
@@ -527,6 +652,29 @@ body { margin: 0; padding: 0; }
             }
         }
         return $out;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function splitToken(string $word, float $maxWidthIn, float $pt): array
+    {
+        $out = [];
+        $cur = '';
+        $len = strlen($word);
+        for ($i = 0; $i < $len; $i++) {
+            $try = $cur . $word[$i];
+            if ($cur !== '' && self::textWidthIn($try, $pt) > $maxWidthIn) {
+                $out[] = $cur;
+                $cur = $word[$i];
+            } else {
+                $cur = $try;
+            }
+        }
+        if ($cur !== '') {
+            $out[] = $cur;
+        }
+        return $out !== [] ? $out : [$word];
     }
 
     private static function textWidthIn(string $s, float $pt): float
