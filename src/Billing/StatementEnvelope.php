@@ -160,20 +160,37 @@ final readonly class StatementEnvelope
         }
         $cpi = 10.0;
         $lpi = 6.0;
-        $pad = str_repeat(' ', max(0, (int) round($g['left'] * $cpi)));
-        $out = self::padTextToLine('', (int) round($g['return']['top'] * $lpi));
-        $out .= $pad . $remitName . "\n";
+        $inset = self::WINDOW_INSET_IN;
+        $returnPad = str_repeat(' ', max(0, (int) round($g['return']['left'] * $cpi)));
+        $toPad = str_repeat(' ', max(0, (int) round($g['to']['left'] * $cpi)));
+        $returnLines = [$remitName];
         foreach (preg_split("/\n/", $remitStreet) ?: [] as $ln) {
             $ln = trim($ln);
             if ($ln !== '') {
-                $out .= $pad . $ln . "\n";
+                $returnLines[] = $ln;
             }
         }
-        $out .= $pad . $remitCsz . "\n";
+        if (trim($remitCsz) !== '') {
+            $returnLines[] = $remitCsz;
+        }
+        $returnFitted = self::fitTextWindow(
+            $returnLines,
+            $g['return']['w'] - 2.0 * $inset,
+            $g['return']['h'] - 2.0 * $inset
+        );
+        $toFitted = self::fitTextWindow(
+            $toLines,
+            $g['to']['w'] - 2.0 * $inset,
+            $g['to']['h'] - 2.0 * $inset
+        );
+        $out = self::padTextToLine('', (int) round($g['return']['top'] * $lpi));
+        foreach ($returnFitted as $ln) {
+            $out .= $returnPad . $ln . "\n";
+        }
         $out = self::padTextToLine($out, (int) round($g['to']['top'] * $lpi));
-        foreach ($toLines as $ln) {
+        foreach ($toFitted as $ln) {
             if ($ln !== '') {
-                $out .= $pad . $ln . "\n";
+                $out .= $toPad . $ln . "\n";
             }
         }
         $out = self::padTextToLine($out, (int) round($g['panel'] * $lpi));
@@ -316,6 +333,7 @@ body { margin: 0; padding: 0; }
                 return [$pt, $wrapped];
             }
         }
+        // Floor size: keep whole lines that fit $maxH. Extra lines are dropped.
         return [$minPt, self::clipLines(self::wrapLines($lines, $maxW, $minPt), $maxH, $minPt, $lineHeight)];
     }
 
@@ -491,8 +509,10 @@ body { margin: 0; padding: 0; }
         if ($ret['top'] + $ret['h'] > $g['panel'] || $to['top'] + $to['h'] > $g['panel']) {
             return false;
         }
-        $minH = (self::MIN_ADDRESS_PT / 72.0) + (2.0 * self::WINDOW_INSET_IN);
-        if ($ret['h'] < $minH || $to['h'] < $minH) {
+        $minGlyph = self::MIN_ADDRESS_PT / 72.0;
+        $minH = $minGlyph + (2.0 * self::WINDOW_INSET_IN);
+        $minW = $minGlyph + (2.0 * self::WINDOW_INSET_IN);
+        if ($ret['h'] < $minH || $to['h'] < $minH || $ret['w'] < $minW || $to['w'] < $minW) {
             return false;
         }
         return true;
@@ -700,12 +720,11 @@ body { margin: 0; padding: 0; }
     {
         $out = [];
         $cur = '';
-        $len = strlen($word);
-        for ($i = 0; $i < $len; $i++) {
-            $try = $cur . $word[$i];
+        foreach (mb_str_split($word, 1, 'UTF-8') as $ch) {
+            $try = $cur . $ch;
             if ($cur !== '' && self::textWidthIn($try, $pt) > $maxWidthIn) {
                 $out[] = $cur;
-                $cur = $word[$i];
+                $cur = $ch;
             } else {
                 $cur = $try;
             }
@@ -714,6 +733,101 @@ body { margin: 0; padding: 0; }
             $out[] = $cur;
         }
         return $out !== [] ? $out : [$word];
+    }
+
+    /**
+     * Wrap and clip monospace lines at 10 cpi / 6 lpi. Prefer the last line.
+     *
+     * @param list<string> $lines
+     * @return list<string>
+     */
+    private static function fitTextWindow(array $lines, float $widthIn, float $heightIn): array
+    {
+        $maxChars = (int) floor(($widthIn * 10.0) + 1e-9);
+        $maxLines = (int) floor(($heightIn * 6.0) + 1e-9);
+        if ($maxChars < 1 || $maxLines < 1) {
+            return [];
+        }
+        $wrapped = [];
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            foreach (self::wrapMonospace($line, $maxChars) as $piece) {
+                $wrapped[] = $piece;
+            }
+        }
+        return self::keepLastLines($wrapped, $maxLines);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function wrapMonospace(string $line, int $maxChars): array
+    {
+        $words = preg_split('/\s+/u', $line) ?: [$line];
+        $out = [];
+        $cur = '';
+        foreach ($words as $word) {
+            if ($word === '') {
+                continue;
+            }
+            if (mb_strlen($word, 'UTF-8') > $maxChars) {
+                if ($cur !== '') {
+                    $out[] = $cur;
+                    $cur = '';
+                }
+                $chars = mb_str_split($word, 1, 'UTF-8');
+                $piece = '';
+                foreach ($chars as $ch) {
+                    if ($piece !== '' && mb_strlen($piece, 'UTF-8') >= $maxChars) {
+                        $out[] = $piece;
+                        $piece = $ch;
+                    } else {
+                        $piece .= $ch;
+                    }
+                }
+                if ($piece !== '') {
+                    $out[] = $piece;
+                }
+                continue;
+            }
+            $try = ($cur === '') ? $word : ($cur . ' ' . $word);
+            if (mb_strlen($try, 'UTF-8') <= $maxChars) {
+                $cur = $try;
+            } else {
+                if ($cur !== '') {
+                    $out[] = $cur;
+                }
+                $cur = $word;
+            }
+        }
+        if ($cur !== '') {
+            $out[] = $cur;
+        }
+        return $out;
+    }
+
+    /**
+     * @param list<string> $lines
+     * @return list<string>
+     */
+    private static function keepLastLines(array $lines, int $maxLines): array
+    {
+        if ($maxLines < 1) {
+            return [];
+        }
+        if (count($lines) <= $maxLines) {
+            return $lines;
+        }
+        $last = $lines[array_key_last($lines)];
+        if ($maxLines === 1) {
+            return [$last];
+        }
+        $head = array_slice($lines, 0, $maxLines - 1);
+        $head[] = $last;
+        return $head;
     }
 
     /**
@@ -744,19 +858,7 @@ body { margin: 0; padding: 0; }
             return $lines;
         }
         $maxLines = (int) floor(($maxH / $lineIn) + 1e-9);
-        if ($maxLines < 1) {
-            return [];
-        }
-        if (count($lines) <= $maxLines) {
-            return $lines;
-        }
-        $last = $lines[array_key_last($lines)];
-        if ($maxLines === 1) {
-            return [$last];
-        }
-        $head = array_slice($lines, 0, $maxLines - 1);
-        $head[] = $last;
-        return $head;
+        return self::keepLastLines($lines, $maxLines);
     }
 
     /**
@@ -782,14 +884,15 @@ body { margin: 0; padding: 0; }
             556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
         ];
         $sum = 0;
-        $len = strlen($s);
-        for ($i = 0; $i < $len; $i++) {
-            $c = ord($s[$i]);
-            if ($c >= 32 && $c <= 126) {
-                $sum += $w[$c - 32];
-            } else {
-                $sum += 600;
+        foreach (mb_str_split($s, 1, 'UTF-8') as $ch) {
+            if (strlen($ch) === 1) {
+                $c = ord($ch);
+                if ($c >= 32 && $c <= 126) {
+                    $sum += $w[$c - 32];
+                    continue;
+                }
             }
+            $sum += 600;
         }
         return $sum / 1000.0;
     }
