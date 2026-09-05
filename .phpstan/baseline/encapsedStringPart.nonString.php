@@ -2233,12 +2233,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$row\\[\'city\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$row\\[\'name\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
@@ -2248,17 +2248,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$row\\[\'postal_code\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$row\\[\'state\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$row\\[\'street\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
