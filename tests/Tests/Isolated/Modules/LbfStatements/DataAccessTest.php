@@ -343,6 +343,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'op' => 'parse_severity',
                 'enabled' => 1,
             ];
+            $this->sql->queue[] = ['id' => 7];
             $this->assertSame(7, $repo->saveRule([
                 'form_id' => 'LBFecho',
                 'source_field_id' => 'n',
@@ -353,6 +354,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ], 7));
 
             $this->sql->queue[] = ['id' => 7, 'form_id' => 'LBFecho', 'source_field_id' => 'n', 'op' => 'parse_severity', 'enabled' => 0];
+            $this->sql->queue[] = ['id' => 7];
             $repo->setEnabled(7, true);
 
             $repo->logRun('LBFecho', 1, 3, 'admin', 'overwrite');
@@ -468,6 +470,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'enabled' => 0,
             ];
             $this->sql->queue[] = [];
+            $this->sql->queue[] = ['id' => 9];
             $repo->setEnabled(9, true);
             $this->assertSame(
                 [['op' => 'get', 'name' => $expected], ['op' => 'release', 'name' => $expected]],
@@ -570,6 +573,58 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'enabled' => 1,
                 'statement_text' => 'X',
             ]);
+        }
+
+        /**
+         * Fail an update when the row disappears after the write.
+         */
+        public function testSaveRuleRejectsUpdateWhenRowIsGone(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [
+                'id' => 7,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'parse_severity',
+                'enabled' => 1,
+            ];
+            $this->sql->queue[] = [];
+            $this->expectException(RuleNotFoundException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'parse_severity',
+                'match_token' => 'mild',
+                'statement_text' => 'Mild.',
+                'enabled' => 1,
+            ], 7);
+        }
+
+        /**
+         * Overlap reads lock the pair rows for the rest of the transaction.
+         */
+        public function testOverlapCheckLocksEnabledBands(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [];
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 1,
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
+            $sql = '';
+            foreach ($this->sql->calls as $call) {
+                if ($call['op'] === 'fetch' && str_contains($call['sql'], 'FOR UPDATE')) {
+                    $sql = $call['sql'];
+                    break;
+                }
+            }
+            $this->assertNotSame('', $sql);
+            $this->assertStringContainsString("op = 'band'", $sql);
         }
     }
 }
