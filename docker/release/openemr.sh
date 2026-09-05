@@ -570,7 +570,7 @@ run_upgrade() {
             # Update heartbeat after each upgrade script
             [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         fi
-        (( c++ ))
+        (( ++c ))
     done
 
     # Update version marker
