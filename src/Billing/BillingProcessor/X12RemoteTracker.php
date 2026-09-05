@@ -17,7 +17,6 @@ namespace OpenEMR\Billing\BillingProcessor;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\BaseService;
-use phpseclib3\Net\SFTP;
 
 class X12RemoteTracker extends BaseService
 {
@@ -85,13 +84,33 @@ class X12RemoteTracker extends BaseService
                 continue;
             }
 
-            // Attempt to login
-            $sftp = new SFTP($x12_remote['x12_sftp_host'], $x12_remote['x12_sftp_port']);
+            // Attempt to login. See SftpConnector for why a thrown exception
+            // and a false return are handled differently.
+            $sftpHost = $x12_remote['x12_sftp_host'];
+            $sftpPort = $x12_remote['x12_sftp_port'];
+            $sftpLogin = $x12_remote['x12_sftp_login'];
             $decrypted_password = $cryptoGen->decryptFromDatabase(is_string($x12_remote['x12_sftp_pass']) ? $x12_remote['x12_sftp_pass'] : null);
-            if ($sftp->login($x12_remote['x12_sftp_login'], $decrypted_password) === false) {
+            $connector = new SftpConnector(logger: ServiceContainer::getLogger());
+            $sftp = $connector->connect(
+                is_string($sftpHost) ? $sftpHost : '',
+                is_numeric($sftpPort) ? (int) $sftpPort : 22,
+                is_string($sftpLogin) ? $sftpLogin : '',
+                $decrypted_password
+            );
+            if ($sftp === null || $connector->credentialsRejected()) {
+                if ($sftp === null) {
+                    $loginFailure = sprintf(
+                        'Could not connect to the SFTP host after %d attempts. See the server log for details.',
+                        $connector->getAttempts()
+                    );
+                    $loginDetails = [];
+                } else {
+                    $loginFailure = "Invalid Username or Password.";
+                    $loginDetails = $sftp->getSFTPErrors();
+                }
                 $x12_remote['status'] = self::STATUS_LOGIN_ERROR;
-                $x12_remote['messages'][] = "Invalid Username or Password.";
-                $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());
+                $x12_remote['messages'][] = $loginFailure;
+                $x12_remote['messages'] = array_merge($x12_remote['messages'], $loginDetails);
                 $remoteTracker->update($x12_remote);
                 continue;
             }
