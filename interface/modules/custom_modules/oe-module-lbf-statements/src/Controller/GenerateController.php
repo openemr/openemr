@@ -92,15 +92,13 @@ class GenerateController
         }
         if ($pid > 0) {
             $have = $reader->formdirsForPatient($pid, $ruleFormIds);
-            if ($have !== []) {
-                $formChoices = array_values(array_filter(
-                    $formChoices,
-                    static fn (array $layout): bool => in_array($layout['form_id'], $have, true)
-                ));
-                if ($formId !== '' && !in_array($formId, $have, true)) {
-                    $formId = '';
-                    $instanceId = 0;
-                }
+            $formChoices = array_values(array_filter(
+                $formChoices,
+                static fn (array $layout): bool => in_array($layout['form_id'], $have, true)
+            ));
+            if ($formId !== '' && !in_array($formId, $have, true)) {
+                $formId = '';
+                $instanceId = 0;
             }
             if (!$invalidFormId && $formId === '' && count($formChoices) === 1) {
                 $formId = $formChoices[0]['form_id'];
@@ -109,7 +107,7 @@ class GenerateController
 
         $actions = [];
         $rules = [];
-        $patient = $reader->patientName($pid);
+        $patient = '';
         $instances = [];
         $values = [];
         $meta = [];
@@ -150,6 +148,13 @@ class GenerateController
                     $rules = $repo->rulesForForm($formId, true);
                     $actions = $engine->evaluate($formId, $values, $rules);
                 }
+            }
+        }
+
+        if ($pid > 0) {
+            $patient = $reader->patientName($pid);
+            if ($formId !== '' && $instances === []) {
+                $instances = $reader->instancesForPatient($formId, $pid);
             }
         }
 
@@ -250,6 +255,8 @@ class GenerateController
             $csrfTokenValue = CsrfUtils::collectCsrfToken($session);
         } catch (\RuntimeException) {
             $csrfTokenValue = '';
+        } catch (\Throwable $e) {
+            throw $e;
         }
         if ($instanceId > 0 && $formId !== '' && $pid > 0 && $csrfTokenValue !== '') {
             $openQuery = 'form_id=' . rawurlencode($formId)
