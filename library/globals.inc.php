@@ -1402,12 +1402,10 @@ $GLOBALS_METADATA = [
             '',
             [
                 GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => static function (): string {
-                    $lab = static function (string $id, string $text): string {
-                        return '<div class="stmt-env-box">'
-                            . '<label class="small font-weight-normal mb-0 d-block">'
-                            . text($text) . '</label>'
-                            . '<div id="' . attr($id) . '"></div></div>';
-                    };
+                    $lab = (static fn(string $id, string $text): string => '<div class="stmt-env-box">'
+                        . '<label class="small font-weight-normal mb-0 d-block">'
+                        . text($text) . '</label>'
+                        . '<div id="' . attr($id) . '"></div></div>');
                     $html = '<style>'
                         . '#stmt-env-custom{overflow-x:hidden;}'
                         . '#stmt-env-custom .stmt-env-boxes{display:flex;flex-wrap:nowrap;gap:0.35rem;max-width:100%;}'
