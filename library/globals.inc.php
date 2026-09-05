@@ -84,6 +84,7 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
@@ -1388,9 +1389,236 @@ $GLOBALS_METADATA = [
                 'default' => xl('None'),
                 'hash9' => xl('#9 double-window'),
                 'hash10' => xl('#10 double-window'),
+                'custom' => xl('Custom')
             ],
             'default',
             xl('Fits the statement to a window envelope.')
+        ],
+
+        'statement_envelope_help' => [
+            xl('Statement envelope help'),
+            GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION,
+            '',
+            '',
+            [
+                GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => static function (): string {
+                    $lab = static function (string $id, string $text): string {
+                        return '<div class="stmt-env-box">'
+                            . '<label class="small font-weight-normal mb-0 d-block">'
+                            . text($text) . '</label>'
+                            . '<div id="' . attr($id) . '"></div></div>';
+                    };
+                    $html = '<style>'
+                        . '#stmt-env-custom{overflow-x:hidden;}'
+                        . '#stmt-env-custom .stmt-env-boxes{display:flex;flex-wrap:nowrap;gap:0.35rem;max-width:100%;}'
+                        . '#stmt-env-custom .stmt-env-box{flex:1 1 0;min-width:0;}'
+                        . '#stmt-env-custom .stmt-env-box .form-control,'
+                        . '#stmt-env-custom #stmt-env-slot-height .form-control{'
+                        . 'width:100%;max-width:100%;box-sizing:border-box;'
+                        . 'height:calc(1.5em + 0.5rem + 2px);padding:0.25rem 0.3rem;font-size:0.8125rem;}'
+                        . '#stmt-env-custom #stmt-env-slot-height .form-control{max-width:5.5rem;}'
+                        . '</style>'
+                        . '<div id="stmt-env-custom" class="mb-2" style="display:none">'
+                        . '<div class="row form-group">'
+                        . '<div class="col-sm-6">' . xlt('Envelope units') . '</div>'
+                        . '<div class="col-sm-6">'
+                        . '<label class="mr-3 font-weight-normal">'
+                        . '<input type="radio" name="stmt_env_units_ui" value="in"> ' . xlt('Inches')
+                        . '</label>'
+                        . '<label class="font-weight-normal">'
+                        . '<input type="radio" name="stmt_env_units_ui" value="cm"> ' . xlt('Centimeters')
+                        . '</label>'
+                        . '</div></div>'
+                        . '<div class="row form-group">'
+                        . '<div class="col-sm-6">' . xlt('Envelope height') . '</div>'
+                        . '<div class="col-sm-6" id="stmt-env-slot-height"></div>'
+                        . '</div>'
+                        . '<div class="row form-group">'
+                        . '<div class="col-sm-6">' . xlt('Return window') . '</div>'
+                        . '<div class="col-sm-6"><div class="stmt-env-boxes">'
+                        . $lab('stmt-env-slot-rh', xl('Height'))
+                        . $lab('stmt-env-slot-rw', xl('Width'))
+                        . $lab('stmt-env-slot-rl', xl('From left'))
+                        . $lab('stmt-env-slot-rb', xl('From bottom'))
+                        . '</div></div></div>'
+                        . '<div class="row form-group">'
+                        . '<div class="col-sm-6">' . xlt('Patient window') . '</div>'
+                        . '<div class="col-sm-6"><div class="stmt-env-boxes">'
+                        . $lab('stmt-env-slot-th', xl('Height'))
+                        . $lab('stmt-env-slot-tw', xl('Width'))
+                        . $lab('stmt-env-slot-tl', xl('From left'))
+                        . $lab('stmt-env-slot-tb', xl('From bottom'))
+                        . '</div></div></div>'
+                        . '</div>';
+                    $html .= <<<'JS'
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var sel = Array.prototype.find.call(document.querySelectorAll('select'), function (s) {
+    return s.querySelector('option[value="hash9"]') && s.querySelector('option[value="custom"]');
+  });
+  var panel = document.getElementById('stmt-env-custom');
+  if (!sel || !panel) { return; }
+  var row = sel.closest('.row.form-group');
+  if (!row) { return; }
+  var hideRows = [];
+  var unitsSel = null;
+  var texts = [];
+  var el = row.nextElementSibling;
+  while (el && texts.length < 9) {
+    var next = el.nextElementSibling;
+    if (el.id === 'stmt-env-custom' || (el.querySelector && el.querySelector('#stmt-env-custom'))) {
+      el = next;
+      continue;
+    }
+    if (el.classList && el.classList.contains('form-group')) {
+      var u = el.querySelector('select');
+      if (u && u.querySelector('option[value="in"]') && u.querySelector('option[value="cm"]')) {
+        unitsSel = u;
+        hideRows.push(el);
+      } else {
+        var inp = el.querySelector('input[type="text"]');
+        if (inp) {
+          texts.push(inp);
+          hideRows.push(el);
+        }
+      }
+    }
+    el = next;
+  }
+  function parseMeasure(s) {
+    s = String(s).trim();
+    var m = s.match(/^(\d+)\s*-\s*(\d+)\s*\/\s*(\d+)$/);
+    if (m) { return +m[1] + (+m[2] / +m[3]); }
+    m = s.match(/^(\d+)\s+(\d+)\s*\/\s*(\d+)$/);
+    if (m) { return +m[1] + (+m[2] / +m[3]); }
+    m = s.match(/^(\d+)\s*\/\s*(\d+)$/);
+    if (m) { return +m[1] / +m[2]; }
+    if (s !== '' && isFinite(s)) { return +s; }
+    return null;
+  }
+  function toCm(inches) { return +(inches * 127 / 50).toFixed(4); }
+  function toIn(cm) { return +(cm * 50 / 127).toFixed(6); }
+  function convertFields(from, to) {
+    if (from === to) { return; }
+    texts.forEach(function (inp) {
+      var n = parseMeasure(inp.value);
+      if (n === null) { return; }
+      inp.value = (to === 'cm') ? String(toCm(n)) : String(toIn(n));
+    });
+  }
+  var slots = [
+    'stmt-env-slot-height',
+    'stmt-env-slot-rh', 'stmt-env-slot-rw', 'stmt-env-slot-rl', 'stmt-env-slot-rb',
+    'stmt-env-slot-th', 'stmt-env-slot-tw', 'stmt-env-slot-tl', 'stmt-env-slot-tb'
+  ];
+  if (texts.length !== 9) { return; }
+  slots.forEach(function (id, i) {
+    var slot = document.getElementById(id);
+    if (!slot) { return; }
+    texts[i].classList.add('form-control-sm');
+    slot.appendChild(texts[i]);
+  });
+  hideRows.forEach(function (r) { r.style.display = 'none'; });
+  var helpRow = panel.closest('.row.form-group');
+  row.after(panel);
+  if (helpRow && helpRow !== row) { helpRow.style.display = 'none'; }
+  var startUnit = (unitsSel && unitsSel.value === 'cm') ? 'cm' : 'in';
+  var radio = panel.querySelector('input[name="stmt_env_units_ui"][value="' + startUnit + '"]');
+  if (radio) { radio.checked = true; }
+  panel.querySelectorAll('input[name="stmt_env_units_ui"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      var next = r.value === 'cm' ? 'cm' : 'in';
+      var prev = (unitsSel && unitsSel.value === 'cm') ? 'cm' : 'in';
+      convertFields(prev, next);
+      if (unitsSel) { unitsSel.value = next; }
+    });
+  });
+  function sync() {
+    var show = sel.value === 'custom';
+    panel.style.display = show ? '' : 'none';
+    hideRows.forEach(function (r) { r.style.display = 'none'; });
+  }
+  sel.addEventListener('change', sync);
+  sync();
+});
+</script>
+JS;
+                    return $html;
+                }
+            ],
+        ],
+
+        'statement_env_units' => [
+            xl('Envelope units'),
+            [
+                'in' => xl('Inches'),
+                'cm' => xl('Centimeters'),
+            ],
+            'in',
+            xl('Units on the carton.')
+        ],
+
+        'statement_env_height' => [
+            xl('Envelope height'),
+            'text',
+            '3-7/8',
+            xl('Flap-up height.')
+        ],
+
+        'statement_env_return_height' => [
+            xl('Return height'),
+            'text',
+            '1-3/16',
+            xl('Return window height.')
+        ],
+
+        'statement_env_return_width' => [
+            xl('Return width'),
+            'text',
+            '3-1/2',
+            xl('Return window width.')
+        ],
+
+        'statement_env_return_left' => [
+            xl('Return from left'),
+            'text',
+            '3/8',
+            xl('Return window, from left.')
+        ],
+
+        'statement_env_return_bottom' => [
+            xl('Return from bottom'),
+            'text',
+            '2',
+            xl('Return window, from bottom.')
+        ],
+
+        'statement_env_to_height' => [
+            xl('Patient height'),
+            'text',
+            '1',
+            xl('Patient window height.')
+        ],
+
+        'statement_env_to_width' => [
+            xl('Patient width'),
+            'text',
+            '4',
+            xl('Patient window width.')
+        ],
+
+        'statement_env_to_left' => [
+            xl('Patient from left'),
+            'text',
+            '3/8',
+            xl('Patient window, from left.')
+        ],
+
+        'statement_env_to_bottom' => [
+            xl('Patient from bottom'),
+            'text',
+            '1/2',
+            xl('Patient window, from bottom.')
         ],
 
         'billing_phone_number' => [
