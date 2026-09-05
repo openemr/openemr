@@ -11,11 +11,6 @@
  */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/Phreeze/Reporter.php");
-
-/**
  * This is an example Reporter based on the OnsiteActivityView object.
  * The reporter object
  * allows you to run arbitrary queries that return data which may or may not fit within

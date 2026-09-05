@@ -5,10 +5,6 @@
  */
 
 /**
- * import supporting libraries
- */
-
-/**
  * CriteriaFilter allows arbitrary filtering based on one or more fields
  *
  * @package verysimple::Phreeze

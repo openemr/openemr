@@ -15,12 +15,6 @@
  */
 
 /**
- * Always have these classes available.
- */
-include_once __DIR__ . '/Savant3/Filter.php';
-include_once __DIR__ . '/Savant3/Plugin.php';
-
-/**
  *
  * Provides an object-oriented template system for PHP5.
  *

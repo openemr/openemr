@@ -2,7 +2,6 @@
 
 /** @package    verysimple::Util */
 
-require_once("verysimple/Phreeze/CacheMemCache.php");
 
 /**
  * MemCacheProxy provides simple access to memcache pool but ignores

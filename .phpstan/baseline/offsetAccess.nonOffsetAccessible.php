@@ -32767,11 +32767,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access an offset on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\|string on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
