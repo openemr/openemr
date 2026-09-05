@@ -812,62 +812,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/ajax_download.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'active\' on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'binds\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'column_type\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'count\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'description\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'description_brief\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'diag\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'display_description\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'drug\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'external\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
@@ -877,52 +827,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'filter_clause\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'filter_version_order\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'join\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'joins\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'just\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'mod\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'nofs\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'problem\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'proc\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
@@ -932,27 +842,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'rel\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'related_code\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'table\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'term\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
@@ -6217,11 +6107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'nofs\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'notes\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
@@ -6387,11 +6272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'claim\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
@@ -6432,18 +6312,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'diag\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'drug_id\' on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -6459,11 +6334,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
     'count' => 6,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'just\' on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -6493,7 +6363,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'mod\' on mixed\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -6523,7 +6393,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'nofs\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -6600,21 +6470,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset decimal\\-int\\-string on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'active\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/code_check.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'diag\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/code_check.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/code_check.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
@@ -18163,7 +18018,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/pending_followup.php',
 ];
 $ignoreErrors[] = [
@@ -20053,12 +19908,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'diag\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
@@ -23817,11 +23672,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_globals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'label\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'action\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
@@ -24203,7 +24053,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
@@ -25228,7 +25078,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
 $ignoreErrors[] = [
@@ -25238,7 +25088,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 8,
+    'count' => 3,
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
 $ignoreErrors[] = [
@@ -26255,16 +26105,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'x12_partner_id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/billing_tracker_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'external\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
@@ -28443,11 +28283,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'cyp_factor\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
 ];
@@ -41055,16 +40890,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'active\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'active\'\\|\'diag\'\\|\'drug\'\\|\'problem\'\\|\'proc\'\\|\'term\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'code_system\' on mixed\\.$#',
