@@ -49,4 +49,12 @@ $activeMessages = getPnotesByUser("1", "no", $session->get('authUser'), true);
 $totalNumber = $dueReminders + $activeMessages;
 $total_counts['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
 
+// Background repeater requests include skip_timeout_reset=1, so this read does
+// not extend the session. An unavailable tracker value is deliberately omitted
+// rather than being interpreted as an expired session.
+$sessionSecondsRemaining = SessionTracker::getSessionSecondsRemaining();
+if ($sessionSecondsRemaining !== null) {
+    $total_counts['sessionSecondsRemaining'] = $sessionSecondsRemaining;
+}
+
 echo json_encode($total_counts);
