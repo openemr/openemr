@@ -263,51 +263,60 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // Patient reference -> puuid (required in US Core)
         $patientRef = $json['patient']['reference'] ?? null;
         if (is_string($patientRef) && $patientRef !== '') {
-            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
-            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $parsedUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
+            if (
+                is_string($parsedUuid) && $parsedUuid !== ''
+                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsedUuid)
+            ) {
+                $data['puuid'] = $parsedUuid;
             }
         }
 
         // Code -> title and diagnosis
-        if (!empty($json['code']['coding'])) {
+        $code = $json['code'] ?? null;
+        $codeCodings = $this->codingEntries($code);
+        if ($codeCodings !== []) {
             $codeTypesService = new CodeTypesService();
             $diagnosisParts = [];
-            foreach ($json['code']['coding'] as $coding) {
-                $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
-                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
-                $display = $coding['display'] ?? '';
-                if ($codeValue !== '' && $codeValue !== false) {
+            foreach ($codeCodings as $coding) {
+                $systemValue = $coding['system'] ?? null;
+                $system = is_string($systemValue) ? $systemValue : '';
+                $codeValue = $coding['code'] ?? null;
+                if (is_scalar($codeValue) && $codeValue !== '' && $codeValue !== false) {
                     $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
                 }
-                if (!empty($display) && empty($data['title'])) {
+                $display = $coding['display'] ?? null;
+                if (is_string($display) && $display !== '' && !isset($data['title'])) {
                     $data['title'] = $display;
                 }
             }
-            if (!empty($diagnosisParts)) {
+            if ($diagnosisParts !== []) {
                 $data['diagnosis'] = implode(';', $diagnosisParts);
             }
         }
-        if (empty($data['title']) && !empty($json['code']['text'])) {
-            $data['title'] = $json['code']['text'];
+        $codeText = is_array($code) ? ($code['text'] ?? null) : null;
+        if (!isset($data['title']) && is_string($codeText) && $codeText !== '') {
+            $data['title'] = $codeText;
         }
 
         // ClinicalStatus -> outcome
-        if (!empty($json['clinicalStatus']['coding'][0]['code'])) {
-            $statusCode = $json['clinicalStatus']['coding'][0]['code'];
-            $data['outcome'] = ($statusCode === 'resolved') ? '1' : '0';
+        $clinicalStatus = $this->firstCodingCode($json['clinicalStatus'] ?? null);
+        if ($clinicalStatus !== '') {
+            $data['outcome'] = ($clinicalStatus === 'resolved') ? '1' : '0';
         }
 
         // Criticality -> severity_al
-        if (!empty($json['criticality'])) {
-            $data['severity_al'] = match ($json['criticality']) {
+        $criticality = $json['criticality'] ?? null;
+        if (is_string($criticality) && $criticality !== '') {
+            $data['severity_al'] = match ($criticality) {
                 'low' => 'mild',
                 'high' => 'severe',
                 'unable-to-assess' => 'unassigned',
@@ -316,54 +325,112 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // VerificationStatus -> verification
-        if (!empty($json['verificationStatus']['coding'][0]['code'])) {
-            $data['verification'] = $json['verificationStatus']['coding'][0]['code'];
+        $verification = $this->firstCodingCode($json['verificationStatus'] ?? null);
+        if ($verification !== '') {
+            $data['verification'] = $verification;
         }
 
         // Recorder -> practitioner reference
         $recorderRef = $json['recorder']['reference'] ?? null;
         if (is_string($recorderRef) && $recorderRef !== '') {
-            $parsed = UtilsService::parseReferenceString($recorderRef, 'Practitioner');
-            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['practitioner_uuid'] = $parsed['uuid'];
+            $recorderUuid = UtilsService::parseReferenceString($recorderRef, 'Practitioner')['uuid'] ?? null;
+            if (
+                is_string($recorderUuid) && $recorderUuid !== ''
+                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($recorderUuid)
+            ) {
+                $data['practitioner_uuid'] = $recorderUuid;
             }
         }
 
         // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s)
-        if (!empty($json['onsetDateTime']) && is_string($json['onsetDateTime'])) {
-            $onsetDt = date_create_immutable($json['onsetDateTime']);
+        $onsetDateTime = $json['onsetDateTime'] ?? null;
+        if (is_string($onsetDateTime) && $onsetDateTime !== '') {
+            $onsetDt = date_create_immutable($onsetDateTime);
             if ($onsetDt !== false) {
                 $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
             }
         }
 
         // Note -> comments
-        if (!empty($json['note'][0]['text'])) {
-            $data['comments'] = $json['note'][0]['text'];
+        $note = $json['note'] ?? null;
+        $firstNote = is_array($note) ? ($note[0] ?? null) : null;
+        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
+        if (is_string($noteText) && $noteText !== '') {
+            $data['comments'] = $noteText;
         }
 
         // Reaction -> reaction code
-        if (!empty($json['reaction'][0]['manifestation'][0]['coding'])) {
+        $reaction = $json['reaction'] ?? null;
+        $firstReaction = is_array($reaction) ? ($reaction[0] ?? null) : null;
+        $manifestation = is_array($firstReaction) ? ($firstReaction['manifestation'] ?? null) : null;
+        $firstManifestation = is_array($manifestation) ? ($manifestation[0] ?? null) : null;
+        $reactionCodings = $this->codingEntries($firstManifestation);
+        if ($reactionCodings !== []) {
             $codeTypesService = new CodeTypesService();
             $reactionParts = [];
-            foreach ($json['reaction'][0]['manifestation'][0]['coding'] as $coding) {
-                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
-                if ($codeValue !== '' && $codeValue !== false) {
-                    $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
+            foreach ($reactionCodings as $coding) {
+                $codeValue = $coding['code'] ?? null;
+                if (is_scalar($codeValue) && $codeValue !== '' && $codeValue !== false) {
+                    $systemValue = $coding['system'] ?? null;
+                    $system = is_string($systemValue) ? $systemValue : '';
                     $reactionParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
                 }
             }
-            if (!empty($reactionParts)) {
+            if ($reactionParts !== []) {
                 $data['reaction'] = implode(';', $reactionParts);
             }
         }
 
         // Final title fallback from narrative text
-        if (empty($data['title']) && !empty($json['text']['div'])) {
-            $data['title'] = strip_tags((string) $json['text']['div']);
+        $text = $json['text'] ?? null;
+        $narrative = is_array($text) ? ($text['div'] ?? null) : null;
+        if (!isset($data['title']) && is_string($narrative) && $narrative !== '') {
+            $data['title'] = strip_tags($narrative);
         }
 
         return $data;
+    }
+
+    /**
+     * Extracts the `coding` entries of a FHIR CodeableConcept.
+     *
+     * The FHIR R4 library does not hydrate nested elements, so what reaches
+     * here is whatever the request payload carried. Entries that are not
+     * arrays are dropped rather than passed on to the callers' offset reads.
+     *
+     * @param mixed $codeableConcept
+     * @return list<array<array-key, mixed>>
+     */
+    private function codingEntries($codeableConcept): array
+    {
+        if (!is_array($codeableConcept)) {
+            return [];
+        }
+        $coding = $codeableConcept['coding'] ?? null;
+        if (!is_array($coding)) {
+            return [];
+        }
+        $entries = [];
+        foreach ($coding as $entry) {
+            if (is_array($entry)) {
+                $entries[] = $entry;
+            }
+        }
+
+        return $entries;
+    }
+
+    /**
+     * Returns the `code` of a CodeableConcept's first coding entry.
+     *
+     * @param mixed $codeableConcept
+     * @return string The code, or '' when absent or not a string
+     */
+    private function firstCodingCode($codeableConcept): string
+    {
+        $code = $this->codingEntries($codeableConcept)[0]['code'] ?? null;
+
+        return is_string($code) ? $code : '';
     }
 
     /**
