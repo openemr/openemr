@@ -254,39 +254,40 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // Patient reference -> patient_id
-        $patientRef = $json['patient']['reference'] ?? null;
-        if (is_string($patientRef) && $patientRef !== '') {
-            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $puuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
-                $patientId = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
-                if ($patientId !== false) {
-                    $data['patient_id'] = $patientId;
-                }
+        $patientUuid = $this->referenceUuid($json['patient'] ?? null, 'Patient');
+        if ($patientUuid !== '') {
+            $puuidBytes = UuidRegistry::uuidToBytes($patientUuid);
+            $patientId = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
+            if ($patientId !== false) {
+                $data['patient_id'] = $patientId;
             }
         }
 
         // VaccineCode -> cvx_code
-        if (!empty($json['vaccineCode']['coding'][0]['code'])) {
-            $data['cvx_code'] = $json['vaccineCode']['coding'][0]['code'];
+        $cvxCode = $this->firstCodingCode($json['vaccineCode'] ?? null);
+        if ($cvxCode !== '') {
+            $data['cvx_code'] = $cvxCode;
         }
 
         // OccurrenceDateTime -> administered_date
-        if (!empty($json['occurrenceDateTime']) && is_string($json['occurrenceDateTime'])) {
-            $dt = date_create_immutable($json['occurrenceDateTime']);
+        $occurrence = $json['occurrenceDateTime'] ?? null;
+        if (is_string($occurrence) && $occurrence !== '') {
+            $dt = date_create_immutable($occurrence);
             if ($dt !== false) {
                 $data['administered_date'] = $dt->format('Y-m-d');
             }
         }
 
         // Status -> completion_status / added_erroneously
-        if (!empty($json['status'])) {
-            switch ($json['status']) {
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            switch ($status) {
                 case 'completed':
                     $data['completion_status'] = 'Completed';
                     break;
@@ -300,83 +301,91 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // StatusReason -> refusal_reason
-        if (!empty($json['statusReason']['coding'][0]['code'])) {
-            $data['refusal_reason'] = $json['statusReason']['coding'][0]['code'];
+        $refusalReason = $this->firstCodingCode($json['statusReason'] ?? null);
+        if ($refusalReason !== '') {
+            $data['refusal_reason'] = $refusalReason;
         }
 
         // LotNumber -> lot_number
-        if (!empty($json['lotNumber'])) {
-            $data['lot_number'] = $json['lotNumber'];
+        $lotNumber = $json['lotNumber'] ?? null;
+        if (is_string($lotNumber) && $lotNumber !== '') {
+            $data['lot_number'] = $lotNumber;
         }
 
         // ExpirationDate -> expiration_date
-        if (!empty($json['expirationDate']) && is_string($json['expirationDate'])) {
-            $dt = date_create_immutable($json['expirationDate']);
+        $expirationDate = $json['expirationDate'] ?? null;
+        if (is_string($expirationDate) && $expirationDate !== '') {
+            $dt = date_create_immutable($expirationDate);
             if ($dt !== false) {
                 $data['expiration_date'] = $dt->format('Y-m-d');
             }
         }
 
         // Site -> administration_site
-        if (!empty($json['site']['coding'][0]['code'])) {
-            $data['administration_site'] = $json['site']['coding'][0]['code'];
+        $administrationSite = $this->firstCodingCode($json['site'] ?? null);
+        if ($administrationSite !== '') {
+            $data['administration_site'] = $administrationSite;
         }
 
         // DoseQuantity -> amount_administered, amount_administered_unit
-        if (!empty($json['doseQuantity']['value'])) {
-            $data['amount_administered'] = $json['doseQuantity']['value'];
+        $doseQuantity = $json['doseQuantity'] ?? null;
+        $doseValue = is_array($doseQuantity) ? ($doseQuantity['value'] ?? null) : null;
+        if (is_numeric($doseValue) && (float) $doseValue !== 0.0) {
+            $data['amount_administered'] = $doseValue;
         }
-        if (!empty($json['doseQuantity']['code'])) {
-            $data['amount_administered_unit'] = $json['doseQuantity']['code'];
+        $doseUnit = is_array($doseQuantity) ? ($doseQuantity['code'] ?? null) : null;
+        if (is_string($doseUnit) && $doseUnit !== '') {
+            $data['amount_administered_unit'] = $doseUnit;
         }
 
         // Note -> note
-        if (!empty($json['note'][0]['text'])) {
-            $data['note'] = $json['note'][0]['text'];
+        $notes = $json['note'] ?? null;
+        $firstNote = is_array($notes) ? ($notes[0] ?? null) : null;
+        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
+        if (is_string($noteText) && $noteText !== '') {
+            $data['note'] = $noteText;
         }
 
         // Performer -> administered_by_id (resolve Practitioner uuid to id)
-        if (!empty($json['performer'])) {
-            foreach ($json['performer'] as $performer) {
-                $actorRef = $performer['actor']['reference'] ?? null;
-                if (is_string($actorRef) && $actorRef !== '') {
-                    $parsed = UtilsService::parseReferenceString($actorRef, 'Practitioner');
-                    if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                        $practitionerUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
-                        $practitionerId = BaseService::getIdByUuid(
-                            $practitionerUuidBytes,
-                            'users',
-                            'id'
-                        );
-                        if ($practitionerId !== false) {
-                            $data['administered_by_id'] = $practitionerId;
-                        }
-                        break;
-                    }
-                }
+        $performers = $json['performer'] ?? null;
+        foreach (is_array($performers) ? $performers : [] as $performer) {
+            $practitionerUuid = $this->referenceUuid(
+                is_array($performer) ? ($performer['actor'] ?? null) : null,
+                'Practitioner'
+            );
+            if ($practitionerUuid === '') {
+                continue;
             }
+            $practitionerUuidBytes = UuidRegistry::uuidToBytes($practitionerUuid);
+            $practitionerId = BaseService::getIdByUuid(
+                $practitionerUuidBytes,
+                'users',
+                'id'
+            );
+            if ($practitionerId !== false) {
+                $data['administered_by_id'] = $practitionerId;
+            }
+            break;
         }
 
         // Encounter -> encounter_id (resolve Encounter uuid to encounter number)
-        $encounterRef = $json['encounter']['reference'] ?? null;
-        if (is_string($encounterRef) && $encounterRef !== '') {
-            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $encounterUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
-                $encounterId = BaseService::getIdByUuid(
-                    $encounterUuidBytes,
-                    'form_encounter',
-                    'encounter'
-                );
-                if ($encounterId !== false) {
-                    $data['encounter_id'] = $encounterId;
-                }
+        $encounterUuid = $this->referenceUuid($json['encounter'] ?? null, 'Encounter');
+        if ($encounterUuid !== '') {
+            $encounterUuidBytes = UuidRegistry::uuidToBytes($encounterUuid);
+            $encounterId = BaseService::getIdByUuid(
+                $encounterUuidBytes,
+                'form_encounter',
+                'encounter'
+            );
+            if ($encounterId !== false) {
+                $data['encounter_id'] = $encounterId;
             }
         }
 
         // Recorded -> create_date
-        if (!empty($json['recorded']) && is_string($json['recorded'])) {
-            $dt = date_create_immutable($json['recorded']);
+        $recorded = $json['recorded'] ?? null;
+        if (is_string($recorded) && $recorded !== '') {
+            $dt = date_create_immutable($recorded);
             if ($dt !== false) {
                 $data['create_date'] = $dt->format('Y-m-d H:i:s');
             }
@@ -390,6 +399,50 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         return $data;
+    }
+
+    /**
+     * Returns the `code` of a CodeableConcept's first coding entry.
+     *
+     * The FHIR R4 library does not hydrate nested elements, so what reaches
+     * here is whatever the request payload carried; anything that is not a
+     * string is reported as absent.
+     *
+     * @param mixed $codeableConcept
+     * @return string The code, or '' when absent or not a string
+     */
+    private function firstCodingCode($codeableConcept): string
+    {
+        if (!is_array($codeableConcept)) {
+            return '';
+        }
+        $coding = $codeableConcept['coding'] ?? null;
+        $firstCoding = is_array($coding) ? ($coding[0] ?? null) : null;
+        $code = is_array($firstCoding) ? ($firstCoding['code'] ?? null) : null;
+
+        return is_string($code) ? $code : '';
+    }
+
+    /**
+     * Resolves a FHIR Reference element to a well-formed uuid of the expected
+     * resource type.
+     *
+     * @param mixed $reference The Reference element from the payload
+     * @param string $expectedType The FHIR resource type the reference must name
+     * @return string The uuid, or '' when absent, of another type, or malformed
+     */
+    private function referenceUuid($reference, string $expectedType): string
+    {
+        $referenceString = is_array($reference) ? ($reference['reference'] ?? null) : null;
+        if (!is_string($referenceString) || $referenceString === '') {
+            return '';
+        }
+        $uuid = UtilsService::parseReferenceString($referenceString, $expectedType)['uuid'] ?? null;
+        if (!is_string($uuid) || $uuid === '' || !UuidRegistry::isValidStringUUID($uuid)) {
+            return '';
+        }
+
+        return $uuid;
     }
 
     /**
