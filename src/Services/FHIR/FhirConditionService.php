@@ -141,63 +141,74 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // Category -> subtype
-        if (!empty($json['category'][0]['coding'][0]['code'])) {
-            $data['subtype'] = $json['category'][0]['coding'][0]['code'];
+        $categories = $json['category'] ?? null;
+        $subtype = $this->firstCodingCode(is_array($categories) ? ($categories[0] ?? null) : null);
+        if ($subtype !== '') {
+            $data['subtype'] = $subtype;
         }
 
         // Subject -> puuid
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
-            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (
+                is_string($subjectUuid) && $subjectUuid !== ''
+                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($subjectUuid)
+            ) {
+                $data['puuid'] = $subjectUuid;
             }
         }
 
         // Code -> title and diagnosis
-        if (!empty($json['code']['coding'])) {
+        $code = $json['code'] ?? null;
+        $codeCodings = $this->codingEntries($code);
+        if ($codeCodings !== []) {
             $codeTypesService = new CodeTypesService();
             $diagnosisParts = [];
-            foreach ($json['code']['coding'] as $coding) {
-                $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
-                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
-                $display = $coding['display'] ?? '';
-                if ($codeValue !== '' && $codeValue !== false) {
+            foreach ($codeCodings as $coding) {
+                $systemValue = $coding['system'] ?? null;
+                $system = is_string($systemValue) ? $systemValue : '';
+                $codeValue = $coding['code'] ?? null;
+                if (is_scalar($codeValue) && $codeValue !== '' && $codeValue !== false) {
                     $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
                 }
-                if (!empty($display) && empty($data['title'])) {
+                $display = $coding['display'] ?? null;
+                if (is_string($display) && $display !== '' && !isset($data['title'])) {
                     $data['title'] = $display;
                 }
             }
-            if (!empty($diagnosisParts)) {
+            if ($diagnosisParts !== []) {
                 $data['diagnosis'] = implode(';', $diagnosisParts);
             }
         }
-        if (empty($data['title']) && !empty($json['code']['text'])) {
-            $data['title'] = $json['code']['text'];
+        $codeText = is_array($code) ? ($code['text'] ?? null) : null;
+        if (!isset($data['title']) && is_string($codeText) && $codeText !== '') {
+            $data['title'] = $codeText;
         }
 
         // ClinicalStatus -> outcome and occurrence
-        if (!empty($json['clinicalStatus']['coding'][0]['code'])) {
-            $statusCode = $json['clinicalStatus']['coding'][0]['code'];
-            $data['outcome'] = match ($statusCode) {
+        $clinicalStatus = $this->firstCodingCode($json['clinicalStatus'] ?? null);
+        if ($clinicalStatus !== '') {
+            $data['outcome'] = match ($clinicalStatus) {
                 'resolved' => '1',
                 'recurrence' => '0',
                 default => '0',
             };
-            if ($statusCode === 'recurrence') {
+            if ($clinicalStatus === 'recurrence') {
                 $data['occurrence'] = '2';
             }
         }
 
         // VerificationStatus -> verification
-        if (!empty($json['verificationStatus']['coding'][0]['code'])) {
-            $data['verification'] = $json['verificationStatus']['coding'][0]['code'];
+        $verification = $this->firstCodingCode($json['verificationStatus'] ?? null);
+        if ($verification !== '') {
+            $data['verification'] = $verification;
         }
 
         // onsetDateTime -> begdate (ConditionValidator expects Y-m-d).
@@ -216,11 +227,56 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         }
 
         // Note -> comments
-        if (!empty($json['note'][0]['text'])) {
-            $data['comments'] = $json['note'][0]['text'];
+        $notes = $json['note'] ?? null;
+        $firstNote = is_array($notes) ? ($notes[0] ?? null) : null;
+        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
+        if (is_string($noteText) && $noteText !== '') {
+            $data['comments'] = $noteText;
         }
 
         return $data;
+    }
+
+    /**
+     * Extracts the `coding` entries of a FHIR CodeableConcept.
+     *
+     * The FHIR R4 library does not hydrate nested elements, so what reaches
+     * here is whatever the request payload carried. Entries that are not
+     * arrays are dropped rather than passed on to the callers' offset reads.
+     *
+     * @param mixed $codeableConcept
+     * @return list<array<array-key, mixed>>
+     */
+    private function codingEntries($codeableConcept): array
+    {
+        if (!is_array($codeableConcept)) {
+            return [];
+        }
+        $coding = $codeableConcept['coding'] ?? null;
+        if (!is_array($coding)) {
+            return [];
+        }
+        $entries = [];
+        foreach ($coding as $entry) {
+            if (is_array($entry)) {
+                $entries[] = $entry;
+            }
+        }
+
+        return $entries;
+    }
+
+    /**
+     * Returns the `code` of a CodeableConcept's first coding entry.
+     *
+     * @param mixed $codeableConcept
+     * @return string The code, or '' when absent or not a string
+     */
+    private function firstCodingCode($codeableConcept): string
+    {
+        $code = $this->codingEntries($codeableConcept)[0]['code'] ?? null;
+
+        return is_string($code) ? $code : '';
     }
 
     /**
