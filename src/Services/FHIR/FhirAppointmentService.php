@@ -301,20 +301,22 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         }
 
         // Use jsonSerialize() to get a normalized array representation since
-        // the FHIR R4 library does not deeply hydrate nested objects
-        $json = $fhirResource->jsonSerialize();
+        // the FHIR R4 library does not deeply hydrate nested objects. It is
+        // declared as returning mixed, so narrow once here and let the rest of
+        // the method read plain array offsets.
+        $serialized = $fhirResource->jsonSerialize();
+        $json = is_array($serialized) ? $serialized : [];
         $data = [];
 
         // status -> pc_apptstatus (reverse the status mapping from parseOpenEMRRecord)
-        if (!empty($json['status'])) {
-            $data['pc_apptstatus'] = $this->mapFhirStatusToOpenEmr($json['status']);
-        } else {
-            $data['pc_apptstatus'] = '-'; // default to pending/proposed
-        }
+        $status = $json['status'] ?? null;
+        $data['pc_apptstatus'] = is_string($status) && $status !== ''
+            ? $this->mapFhirStatusToOpenEmr($status)
+            : '-'; // default to pending/proposed
 
         // appointmentType[0].coding[0].code -> pc_catid (look up by pc_constant_id)
-        if (!empty($json['appointmentType']['coding'][0]['code'])) {
-            $constantId = $json['appointmentType']['coding'][0]['code'];
+        $constantId = $this->firstAppointmentTypeCodingValue($json, 'code');
+        if ($constantId !== '') {
             $catId = $this->lookupCategoryByConstantId($constantId);
             if ($catId !== false) {
                 $data['pc_catid'] = $catId;
@@ -323,11 +325,10 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
         // Default pc_title from appointmentType display, else the translated
         // fallback category title.
-        if (!empty($json['appointmentType']['coding'][0]['display'])) {
-            $data['pc_title'] = $json['appointmentType']['coding'][0]['display'];
-        } else {
-            $data['pc_title'] = \xl_appt_category(self::DEFAULT_CATEGORY_TITLE);
-        }
+        $typeDisplay = $this->firstAppointmentTypeCodingValue($json, 'display');
+        $data['pc_title'] = $typeDisplay !== ''
+            ? $typeDisplay
+            : \xl_appt_category(self::DEFAULT_CATEGORY_TITLE);
 
         // Authorization context for provider/facility attribution. Only callers
         // holding admin/users may attribute an appointment to a different
@@ -344,34 +345,41 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             && AclMain::aclCheckCore('admin', 'users', $authUser) !== false;
 
         // Parse participants - Patient, Practitioner, Location
-        if (!empty($json['participant']) && is_array($json['participant'])) {
-            foreach ($json['participant'] as $participant) {
-                if (empty($participant['actor']['reference'])) {
+        $participants = $json['participant'] ?? null;
+        if (is_array($participants)) {
+            foreach ($participants as $participant) {
+                $actor = is_array($participant) ? ($participant['actor'] ?? null) : null;
+                $reference = is_array($actor) ? ($actor['reference'] ?? null) : null;
+                if (!is_string($reference) || $reference === '') {
                     continue;
                 }
-                $reference = (string) $participant['actor']['reference'];
                 $parsed = UtilsService::parseReferenceString($reference);
+                $referenceUuid = $parsed['uuid'] ?? null;
+                $referenceType = $parsed['type'] ?? null;
 
-                if (empty($parsed['uuid']) || empty($parsed['type'])) {
+                if (
+                    !is_string($referenceUuid) || $referenceUuid === ''
+                    || !is_string($referenceType) || $referenceType === ''
+                ) {
                     continue;
                 }
 
                 // Reject malformed UUIDs before touching UuidRegistry — uuidToBytes()
                 // throws on invalid input, which would surface as a 500 to the client.
-                if (!UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                if (!UuidRegistry::isValidStringUUID($referenceUuid)) {
                     continue;
                 }
 
-                if ($parsed['type'] === 'Patient') {
-                    $data['puuid'] = $parsed['uuid'];
+                if ($referenceType === 'Patient') {
+                    $data['puuid'] = $referenceUuid;
                     // Resolve patient uuid to pid
-                    $puuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
+                    $puuidBytes = UuidRegistry::uuidToBytes($referenceUuid);
                     $pid = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
                     if ($pid !== false) {
                         $data['pid'] = $pid;
                     }
-                } elseif ($parsed['type'] === 'Practitioner' || $parsed['type'] === 'Person') {
-                    $providerUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
+                } elseif ($referenceType === 'Practitioner' || $referenceType === 'Person') {
+                    $providerUuidBytes = UuidRegistry::uuidToBytes($referenceUuid);
                     $providerId = BaseService::getIdByUuid($providerUuidBytes, 'users', 'id');
                     // Only honour the assignment if the caller has admin/users
                     // OR is assigning the appointment to themselves.
@@ -382,8 +390,8 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                     ) {
                         $data['pc_aid'] = $providerId;
                     }
-                } elseif ($parsed['type'] === 'Location') {
-                    $facilityUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
+                } elseif ($referenceType === 'Location') {
+                    $facilityUuidBytes = UuidRegistry::uuidToBytes($referenceUuid);
                     $facilityId = BaseService::getIdByUuid($facilityUuidBytes, 'facility', 'id');
                     // Honour any resolvable facility — the patients/appt ACL
                     // already gates *who* can schedule, and FHIR R4 lets the
@@ -397,25 +405,20 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             }
         }
 
+        $startRaw = $json['start'] ?? null;
+        $endRaw = $json['end'] ?? null;
+        $startDt = is_string($startRaw) && $startRaw !== '' ? date_create_immutable($startRaw) : false;
+        $endDt = is_string($endRaw) && $endRaw !== '' ? date_create_immutable($endRaw) : false;
+
         // start -> pc_eventDate (Y-m-d) + pc_startTime (H:i)
-        if (!empty($json['start']) && is_string($json['start'])) {
-            $startDt = date_create_immutable($json['start']);
-            if ($startDt !== false) {
-                $data['pc_eventDate'] = $startDt->format('Y-m-d');
-                $data['pc_startTime'] = $startDt->format('H:i');
-            }
+        if ($startDt !== false) {
+            $data['pc_eventDate'] = $startDt->format('Y-m-d');
+            $data['pc_startTime'] = $startDt->format('H:i');
         }
 
         // end -> calculate pc_duration from start/end difference (in seconds)
-        if (
-            !empty($json['start']) && is_string($json['start'])
-            && !empty($json['end']) && is_string($json['end'])
-        ) {
-            $startDt = date_create_immutable($json['start']);
-            $endDt = date_create_immutable($json['end']);
-            if ($startDt !== false && $endDt !== false) {
-                $data['pc_duration'] = $endDt->getTimestamp() - $startDt->getTimestamp();
-            }
+        if ($startDt !== false && $endDt !== false) {
+            $data['pc_duration'] = $endDt->getTimestamp() - $startDt->getTimestamp();
         }
 
         // comment -> pc_hometext. FHIR R4 Appointment.comment is a plain
@@ -423,9 +426,8 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         // markup at the write boundary so HTML never reaches storage. The
         // render sinks (printed_fee_sheet etc.) also escape, but defense in
         // depth: other render paths in the legacy UI may render raw.
-        $commentRaw = !empty($json['comment']) && is_string($json['comment'])
-            ? $json['comment']
-            : '';
+        $comment = $json['comment'] ?? null;
+        $commentRaw = is_string($comment) ? $comment : '';
         $data['pc_hometext'] = $commentRaw === '' ? '' : strip_tags($commentRaw);
 
         // Default pc_billing_location to pc_facility if not set
@@ -434,6 +436,37 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         }
 
         return $data;
+    }
+
+    /**
+     * Reads a string field off the first Appointment.appointmentType coding entry.
+     *
+     * The FHIR R4 library does not hydrate nested elements, so a resource built
+     * from a request payload carries plain nested arrays here. Anything that is
+     * not a string (a missing key, a hydrated element object, a non-string JSON
+     * value) is reported as an absent value.
+     *
+     * @param array<mixed> $json The serialized FHIR Appointment
+     * @param string $field The coding field to read ('code', 'display', ...)
+     * @return string The field value, or '' when it is absent or not a string
+     */
+    private function firstAppointmentTypeCodingValue(array $json, string $field): string
+    {
+        $appointmentType = $json['appointmentType'] ?? null;
+        if (!is_array($appointmentType)) {
+            return '';
+        }
+        $coding = $appointmentType['coding'] ?? null;
+        if (!is_array($coding)) {
+            return '';
+        }
+        $firstCoding = $coding[0] ?? null;
+        if (!is_array($firstCoding)) {
+            return '';
+        }
+        $value = $firstCoding[$field] ?? null;
+
+        return is_string($value) ? $value : '';
     }
 
     /**
@@ -470,8 +503,9 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_constant_id = ? AND pc_active = 1",
             [$constantId]
         );
-        if (!empty($result['pc_catid'])) {
-            return (int) $result['pc_catid'];
+        $catId = is_array($result) ? ($result['pc_catid'] ?? null) : null;
+        if (is_numeric($catId) && (int) $catId > 0) {
+            return (int) $catId;
         }
         return false;
     }
@@ -494,23 +528,27 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         // picking the first row would attribute the appointment to an arbitrary
         // facility (potentially the wrong tenant in a multi-site deployment).
         // Callers must supply a serviceProvider Reference to a Location.
-        if (empty($openEmrRecord['pc_facility'])) {
+        $facilityId = $openEmrRecord['pc_facility'] ?? null;
+        if (!is_numeric($facilityId) || (int) $facilityId <= 0) {
             $processingResult->setValidationMessages([
                 'serviceProvider' => 'Appointment.serviceProvider (a Location reference) is required',
             ]);
             return $processingResult;
         }
-        if (empty($openEmrRecord['pc_billing_location']) && !empty($openEmrRecord['pc_facility'])) {
-            $openEmrRecord['pc_billing_location'] = $openEmrRecord['pc_facility'];
+        $billingLocation = $openEmrRecord['pc_billing_location'] ?? null;
+        if (!is_numeric($billingLocation) || (int) $billingLocation <= 0) {
+            $openEmrRecord['pc_billing_location'] = $facilityId;
         }
 
         // Default pc_catid if not provided (required by validator)
-        if (empty($openEmrRecord['pc_catid'])) {
+        $catId = $openEmrRecord['pc_catid'] ?? null;
+        if (!is_numeric($catId) || (int) $catId <= 0) {
             $openEmrRecord['pc_catid'] = self::DEFAULT_CATEGORY_ID;
         }
 
         // Default pc_duration if not provided (validator requires it)
-        if (empty($openEmrRecord['pc_duration'])) {
+        $duration = $openEmrRecord['pc_duration'] ?? null;
+        if (!is_numeric($duration) || (int) $duration <= 0) {
             $openEmrRecord['pc_duration'] = self::DEFAULT_DURATION_SECONDS;
         }
 
@@ -525,7 +563,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         if ($insertId) {
             // Fetch the created appointment to return full data
             $appointment = $this->appointmentService->getAppointment($insertId);
-            if (!empty($appointment)) {
+            if (is_array($appointment) && isset($appointment[0])) {
                 $processingResult->addData($appointment[0]);
             } else {
                 $processingResult->addData(['pc_eid' => $insertId]);
