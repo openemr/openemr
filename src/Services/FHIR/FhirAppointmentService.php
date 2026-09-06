@@ -301,11 +301,10 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         }
 
         // Use jsonSerialize() to get a normalized array representation since
-        // the FHIR R4 library does not deeply hydrate nested objects. It is
-        // declared as returning mixed, so narrow once here and let the rest of
-        // the method read plain array offsets.
-        $serialized = $fhirResource->jsonSerialize();
-        $json = is_array($serialized) ? $serialized : [];
+        // the FHIR R4 library does not deeply hydrate nested objects: the top
+        // level is an array, but every value below it is still whatever the
+        // request payload carried, so each read below narrows before using it.
+        $json = $fhirResource->jsonSerialize();
         $data = [];
 
         // status -> pc_apptstatus (reverse the status mapping from parseOpenEMRRecord)
