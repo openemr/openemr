@@ -733,31 +733,33 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // subject -> puuid
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
-            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
             }
         }
 
         // encounter -> euuid (REQUIRED for new CarePlans; care_plan forms live on an encounter)
         $encounterRef = $json['encounter']['reference'] ?? null;
         if (is_string($encounterRef) && $encounterRef !== '') {
-            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['euuid'] = $parsed['uuid'];
+            $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
+            if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
+                $data['euuid'] = $encounterUuid;
             }
         }
 
         // status -> plan_status (mapping mirrors mapCarePlanStatus inverse used in setStatus)
-        if (!empty($json['status']) && is_string($json['status'])) {
-            $data['plan_status'] = $json['status'];
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            $data['plan_status'] = $status;
         }
 
         // period -> first activity defaults if items don't specify their own dates
@@ -781,29 +783,34 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             ];
 
             // code -> code + codetext
-            $coding = $detail['code']['coding'][0] ?? null;
+            $detailCode = $detail['code'] ?? null;
+            $detailCodeText = is_array($detailCode) ? ($detailCode['text'] ?? null) : null;
+            $detailCodings = is_array($detailCode) ? ($detailCode['coding'] ?? null) : null;
+            $coding = is_array($detailCodings) ? ($detailCodings[0] ?? null) : null;
             if (is_array($coding)) {
                 $codeValue = $coding['code'] ?? null;
                 if (is_string($codeValue) && $codeValue !== '') {
                     $system = $coding['system'] ?? '';
                     $item['code'] = $this->prefixCodeForStorage($system, $codeValue);
                 }
-                $display = $coding['display'] ?? ($detail['code']['text'] ?? null);
+                $display = $coding['display'] ?? $detailCodeText;
                 if (is_string($display)) {
                     $item['codetext'] = $display;
                 }
-            } elseif (!empty($detail['code']['text']) && is_string($detail['code']['text'])) {
-                $item['codetext'] = $detail['code']['text'];
+            } elseif (is_string($detailCodeText) && $detailCodeText !== '') {
+                $item['codetext'] = $detailCodeText;
             }
 
             // description
-            if (!empty($detail['description']) && is_string($detail['description'])) {
-                $item['description'] = $detail['description'];
+            $description = $detail['description'] ?? null;
+            if (is_string($description) && $description !== '') {
+                $item['description'] = $description;
             }
 
             // status (FHIR activity status) -> plan_status on this row
-            if (!empty($detail['status']) && is_string($detail['status'])) {
-                $item['plan_status'] = $detail['status'];
+            $detailStatus = $detail['status'] ?? null;
+            if (is_string($detailStatus) && $detailStatus !== '') {
+                $item['plan_status'] = $detailStatus;
             }
 
             // scheduledPeriod -> per-item date / date_end
@@ -817,8 +824,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             }
 
             // scheduledString -> proposed_date (target)
-            if (!empty($detail['scheduledString']) && is_string($detail['scheduledString'])) {
-                $item['proposed_date'] = $detail['scheduledString'];
+            $scheduledString = $detail['scheduledString'] ?? null;
+            if (is_string($scheduledString) && $scheduledString !== '') {
+                $item['proposed_date'] = $scheduledString;
             }
 
             $items[] = $item;
