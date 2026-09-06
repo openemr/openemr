@@ -310,30 +310,35 @@ class FhirEncounterService extends FhirServiceBase implements
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // Subject -> puuid (required in US Core)
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
-            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '') {
+                $data['puuid'] = $subjectUuid;
             }
         }
 
         // Class -> class_code (required in FHIR R4)
-        if (!empty($json['class']['code'])) {
-            $data['class_code'] = $json['class']['code'];
+        $class = $json['class'] ?? null;
+        $classCode = is_array($class) ? ($class['code'] ?? null) : null;
+        if (is_string($classCode) && $classCode !== '') {
+            $data['class_code'] = $classCode;
         }
 
         // Period -> date (normalize to Y-m-d H:i:s for database)
-        if (!empty($json['period']['start']) && is_string($json['period']['start'])) {
-            $startDt = date_create_immutable($json['period']['start']);
+        $period = $json['period'] ?? null;
+        $periodStart = is_array($period) ? ($period['start'] ?? null) : null;
+        if (is_string($periodStart) && $periodStart !== '') {
+            $startDt = date_create_immutable($periodStart);
             $data['date'] = $startDt !== false
                 ? $startDt->format('Y-m-d H:i:s')
-                : $json['period']['start'];
+                : $periodStart;
         }
 
         // Participant -> provider_uuid and referrer_uuid. FHIR R4 requires that
@@ -341,9 +346,11 @@ class FhirEncounterService extends FhirServiceBase implements
         // partial Encounter and tells the caller the write succeeded. We throw
         // InvalidArgumentException so the controller emits a 400 with a clear
         // OperationOutcome.
-        if (!empty($json['participant'])) {
-            foreach ($json['participant'] as $idx => $participant) {
-                $reference = $participant['individual']['reference'] ?? null;
+        $participants = $json['participant'] ?? null;
+        if (is_array($participants)) {
+            foreach ($participants as $idx => $participant) {
+                $individual = is_array($participant) ? ($participant['individual'] ?? null) : null;
+                $reference = is_array($individual) ? ($individual['reference'] ?? null) : null;
                 if (!is_string($reference) || $reference === '') {
                     // No reference at all on a participant entry is a malformed
                     // resource — reject rather than silently dropping the entry.
@@ -351,19 +358,24 @@ class FhirEncounterService extends FhirServiceBase implements
                         'Encounter.participant[' . (int) $idx . '].individual.reference is required'
                     );
                 }
-                $parsed = UtilsService::parseReferenceString($reference, 'Practitioner');
-                if (empty($parsed['uuid']) || !\OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $practitionerUuid = UtilsService::parseReferenceString($reference, 'Practitioner')['uuid'] ?? null;
+                if (
+                    !is_string($practitionerUuid) || $practitionerUuid === ''
+                    || !\OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($practitionerUuid)
+                ) {
                     throw new \InvalidArgumentException(
                         'Encounter.participant[' . (int) $idx . '].individual.reference is not a valid Practitioner reference'
                     );
                 }
-                $practitionerUuid = $parsed['uuid'];
 
                 // Determine participant type from type codings
                 $isPrimaryPerformer = false;
                 $isReferrer = false;
-                foreach (($participant['type'] ?? []) as $pType) {
-                    $code = $pType['coding'][0]['code'] ?? null;
+                // $participant is provably an array here: reaching this line
+                // required $individual, and therefore $participant, to be one.
+                $participantTypes = $participant['type'] ?? null;
+                foreach (is_array($participantTypes) ? $participantTypes : [] as $pType) {
+                    $code = $this->firstCodingCode($pType);
                     if ($code === self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER) {
                         $isPrimaryPerformer = true;
                     } elseif ($code === self::ENCOUNTER_PARTICIPANT_TYPE_REFERRER) {
@@ -380,21 +392,27 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // ReasonCode -> reason
-        if (!empty($json['reasonCode'][0])) {
-            $reason = $json['reasonCode'][0];
-            if (!empty($reason['text'])) {
-                $data['reason'] = $reason['text'];
-            } elseif (!empty($reason['coding'][0]['display'])) {
-                $data['reason'] = $reason['coding'][0]['display'];
+        $reasonCodes = $json['reasonCode'] ?? null;
+        $reason = is_array($reasonCodes) ? ($reasonCodes[0] ?? null) : null;
+        if (is_array($reason)) {
+            $reasonText = $reason['text'] ?? null;
+            $reasonDisplay = $this->firstCodingValue($reason, 'display');
+            if (is_string($reasonText) && $reasonText !== '') {
+                $data['reason'] = $reasonText;
+            } elseif ($reasonDisplay !== '') {
+                $data['reason'] = $reasonDisplay;
             }
         }
 
         // ServiceProvider -> facility_id (via Organization uuid)
         $serviceProviderRef = $json['serviceProvider']['reference'] ?? null;
         if (is_string($serviceProviderRef) && $serviceProviderRef !== '') {
-            $parsed = UtilsService::parseReferenceString($serviceProviderRef, 'Organization');
-            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $facilityUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($parsed['uuid']);
+            $organizationUuid = UtilsService::parseReferenceString($serviceProviderRef, 'Organization')['uuid'] ?? null;
+            if (
+                is_string($organizationUuid) && $organizationUuid !== ''
+                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($organizationUuid)
+            ) {
+                $facilityUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($organizationUuid);
                 $facilityId = $this->encounterService->getIdByUuid($facilityUuidBytes, 'facility', 'id');
                 if ($facilityId) {
                     $data['facility_id'] = $facilityId;
@@ -403,14 +421,52 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // Hospitalization -> discharge_disposition
-        if (!empty($json['hospitalization']['dischargeDisposition']['coding'][0]['code'])) {
-            $data['discharge_disposition'] = $json['hospitalization']['dischargeDisposition']['coding'][0]['code'];
+        $hospitalization = $json['hospitalization'] ?? null;
+        $dischargeCode = $this->firstCodingCode(
+            is_array($hospitalization) ? ($hospitalization['dischargeDisposition'] ?? null) : null
+        );
+        if ($dischargeCode !== '') {
+            $data['discharge_disposition'] = $dischargeCode;
         }
 
         // Default pc_catid for new encounters (required by EncounterValidator)
         $data['pc_catid'] = $this->getDefaultEncounterCategoryId();
 
         return $data;
+    }
+
+    /**
+     * Returns a field of a CodeableConcept's first coding entry.
+     *
+     * The FHIR R4 library does not hydrate nested elements, so what reaches
+     * here is whatever the request payload carried; anything that is not a
+     * string is reported as absent.
+     *
+     * @param mixed $codeableConcept
+     * @param string $field The coding field to read ('code', 'display', ...)
+     * @return string The field value, or '' when absent or not a string
+     */
+    private function firstCodingValue($codeableConcept, string $field): string
+    {
+        if (!is_array($codeableConcept)) {
+            return '';
+        }
+        $coding = $codeableConcept['coding'] ?? null;
+        $firstCoding = is_array($coding) ? ($coding[0] ?? null) : null;
+        $value = is_array($firstCoding) ? ($firstCoding[$field] ?? null) : null;
+
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * Returns the `code` of a CodeableConcept's first coding entry.
+     *
+     * @param mixed $codeableConcept
+     * @return string The code, or '' when absent or not a string
+     */
+    private function firstCodingCode($codeableConcept): string
+    {
+        return $this->firstCodingValue($codeableConcept, 'code');
     }
 
     /**
@@ -432,8 +488,9 @@ class FhirEncounterService extends FhirServiceBase implements
             "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_constant_id = ? LIMIT 1",
             ['office_visit']
         );
-        if (!empty($category['pc_catid'])) {
-            return (int) $category['pc_catid'];
+        $categoryId = is_array($category) ? ($category['pc_catid'] ?? null) : null;
+        if (is_numeric($categoryId) && (int) $categoryId > 0) {
+            return (int) $categoryId;
         }
         return 5;
     }
@@ -451,10 +508,10 @@ class FhirEncounterService extends FhirServiceBase implements
 
         // user and group are required by EncounterService::insertEncounter for addForm()
         $session = $this->getSession();
-        if ($session && empty($openEmrRecord['user'])) {
+        if ($session !== null && ($openEmrRecord['user'] ?? '') === '') {
             $openEmrRecord['user'] = $session->get('authUser') ?? '';
         }
-        if ($session && empty($openEmrRecord['group'])) {
+        if ($session !== null && ($openEmrRecord['group'] ?? '') === '') {
             $openEmrRecord['group'] = $session->get('authProvider') ?? '';
         }
 
@@ -488,10 +545,10 @@ class FhirEncounterService extends FhirServiceBase implements
 
         // user and group are required by EncounterValidator for updates
         $session = $this->getSession();
-        if ($session && empty($updatedOpenEMRRecord['user'])) {
+        if ($session !== null && ($updatedOpenEMRRecord['user'] ?? '') === '') {
             $updatedOpenEMRRecord['user'] = $session->get('authUser') ?? '';
         }
-        if ($session && empty($updatedOpenEMRRecord['group'])) {
+        if ($session !== null && ($updatedOpenEMRRecord['group'] ?? '') === '') {
             $updatedOpenEMRRecord['group'] = $session->get('authProvider') ?? '';
         }
 
@@ -557,7 +614,9 @@ class FhirEncounterService extends FhirServiceBase implements
         string $authUserId
     ): void {
         $uuid = $record[$uuidKey] ?? null;
-        if (!is_string($uuid) || $uuid === '' || !empty($record[$idKey])) {
+        $existingId = $record[$idKey] ?? null;
+        $alreadyResolved = is_numeric($existingId) && (int) $existingId > 0;
+        if (!is_string($uuid) || $uuid === '' || $alreadyResolved) {
             unset($record[$uuidKey]);
             return;
         }
