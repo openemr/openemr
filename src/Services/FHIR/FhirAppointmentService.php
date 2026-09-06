@@ -404,19 +404,21 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             }
         }
 
-        $startRaw = $json['start'] ?? null;
-        $endRaw = $json['end'] ?? null;
-        $startDt = is_string($startRaw) && $startRaw !== '' ? date_create_immutable($startRaw) : false;
-        $endDt = is_string($endRaw) && $endRaw !== '' ? date_create_immutable($endRaw) : false;
+        // Appointment.start / .end are FHIR `instant`, so a timezone is always
+        // present and partial precision is not legal. FhirDateTimeParser rejects
+        // anything else with an InvalidArgumentException, which the controller
+        // turns into a 400 rather than writing a fabricated date.
+        $startDt = FhirDateTimeParser::toDateTimeImmutable($json['start'] ?? null, 'Appointment.start');
+        $endDt = FhirDateTimeParser::toDateTimeImmutable($json['end'] ?? null, 'Appointment.end');
 
         // start -> pc_eventDate (Y-m-d) + pc_startTime (H:i)
-        if ($startDt !== false) {
+        if ($startDt !== null) {
             $data['pc_eventDate'] = $startDt->format('Y-m-d');
             $data['pc_startTime'] = $startDt->format('H:i');
         }
 
         // end -> calculate pc_duration from start/end difference (in seconds)
-        if ($startDt !== false && $endDt !== false) {
+        if ($startDt !== null && $endDt !== null) {
             $data['pc_duration'] = $endDt->getTimestamp() - $startDt->getTimestamp();
         }
 

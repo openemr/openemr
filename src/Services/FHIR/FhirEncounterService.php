@@ -331,14 +331,17 @@ class FhirEncounterService extends FhirServiceBase implements
             $data['class_code'] = $classCode;
         }
 
-        // Period -> date (normalize to Y-m-d H:i:s for database)
+        // Period -> date (normalize to Y-m-d H:i:s for database). An encounter
+        // names a specific point in time, so partial precision is rejected. The
+        // previous fallback wrote the raw unparseable string into a DATETIME
+        // column; the parser raises a 400 instead.
         $period = $json['period'] ?? null;
-        $periodStart = is_array($period) ? ($period['start'] ?? null) : null;
-        if (is_string($periodStart) && $periodStart !== '') {
-            $startDt = date_create_immutable($periodStart);
-            $data['date'] = $startDt !== false
-                ? $startDt->format('Y-m-d H:i:s')
-                : $periodStart;
+        $encounterDate = FhirDateTimeParser::toDbDateTime(
+            is_array($period) ? ($period['start'] ?? null) : null,
+            'Encounter.period.start'
+        );
+        if ($encounterDate !== null) {
+            $data['date'] = $encounterDate;
         }
 
         // Participant -> provider_uuid and referrer_uuid. FHIR R4 requires that

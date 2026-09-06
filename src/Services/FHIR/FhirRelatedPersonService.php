@@ -241,12 +241,14 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         if (is_string($gender) && $gender !== '') {
             $data['gender'] = $gender;
         }
-        $birthDate = $json['birthDate'] ?? null;
-        if (is_string($birthDate) && $birthDate !== '') {
-            $dt = date_create_immutable($birthDate);
-            if ($dt !== false) {
-                $data['birth_date'] = $dt->format('Y-m-d');
-            }
+        // A partial birthDate is legal FHIR but would be stored as a fabricated
+        // 1 January, so it is rejected rather than widened.
+        $birthDate = FhirDateTimeParser::toDbDate(
+            $json['birthDate'] ?? null,
+            'RelatedPerson.birthDate'
+        );
+        if ($birthDate !== null) {
+            $data['birth_date'] = $birthDate;
         }
         if (isset($json['active'])) {
             $data['active'] = (bool) $json['active'];

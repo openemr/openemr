@@ -323,12 +323,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // authoredOn -> date_added (normalized for MySQL DATETIME)
-        $authoredOn = $json['authoredOn'] ?? null;
-        if (is_string($authoredOn) && $authoredOn !== '') {
-            $authoredDt = date_create_immutable($authoredOn);
-            if ($authoredDt !== false) {
-                $data['date_added'] = $authoredDt->format('Y-m-d H:i:s');
-            }
+        $dateAdded = FhirDateTimeParser::toDbDateTime(
+            $json['authoredOn'] ?? null,
+            'MedicationRequest.authoredOn'
+        );
+        if ($dateAdded !== null) {
+            $data['date_added'] = $dateAdded;
         }
 
         // dosageInstruction[0].text -> drug_dosage_instructions

@@ -762,11 +762,21 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             $data['plan_status'] = $status;
         }
 
-        // period -> first activity defaults if items don't specify their own dates
-        $periodStart = $json['period']['start'] ?? null;
-        $periodEnd = $json['period']['end'] ?? null;
-        $defaultStart = is_string($periodStart) ? $this->normalizeDate($periodStart) : null;
-        $defaultEnd = is_string($periodEnd) ? $this->normalizeDate($periodEnd) : null;
+        // period -> first activity defaults if items don't specify their own dates.
+        // Partial precision is widened to the first day of the period, matching
+        // FhirGoalService::parseFhirResource on the same form_care_plan table --
+        // "the plan started in 2024" is legitimate and common.
+        $period = $json['period'] ?? null;
+        $defaultStart = FhirDateTimeParser::toDbDate(
+            is_array($period) ? ($period['start'] ?? null) : null,
+            'CarePlan.period.start',
+            true
+        );
+        $defaultEnd = FhirDateTimeParser::toDbDate(
+            is_array($period) ? ($period['end'] ?? null) : null,
+            'CarePlan.period.end',
+            true
+        );
 
         // activity[] -> items (one row per activity)
         $items = [];
@@ -814,13 +824,22 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             }
 
             // scheduledPeriod -> per-item date / date_end
-            $itemStart = $detail['scheduledPeriod']['start'] ?? null;
-            $itemEnd = $detail['scheduledPeriod']['end'] ?? null;
-            if (is_string($itemStart)) {
-                $item['date'] = $this->normalizeDate($itemStart);
+            $scheduledPeriod = $detail['scheduledPeriod'] ?? null;
+            $itemStart = FhirDateTimeParser::toDbDate(
+                is_array($scheduledPeriod) ? ($scheduledPeriod['start'] ?? null) : null,
+                'CarePlan.activity.detail.scheduledPeriod.start',
+                true
+            );
+            if ($itemStart !== null) {
+                $item['date'] = $itemStart;
             }
-            if (is_string($itemEnd)) {
-                $item['date_end'] = $this->normalizeDate($itemEnd);
+            $itemEnd = FhirDateTimeParser::toDbDate(
+                is_array($scheduledPeriod) ? ($scheduledPeriod['end'] ?? null) : null,
+                'CarePlan.activity.detail.scheduledPeriod.end',
+                true
+            );
+            if ($itemEnd !== null) {
+                $item['date_end'] = $itemEnd;
             }
 
             // scheduledString -> proposed_date (target)
@@ -951,12 +970,6 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             return $result;
         }
         return (int) $encounterId;
-    }
-
-    private function normalizeDate(string $value): ?string
-    {
-        $dt = date_create_immutable($value);
-        return $dt === false ? null : $dt->format('Y-m-d');
     }
 
     /**

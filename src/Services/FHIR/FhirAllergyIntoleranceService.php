@@ -342,13 +342,17 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             }
         }
 
-        // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s)
-        $onsetDateTime = $json['onsetDateTime'] ?? null;
-        if (is_string($onsetDateTime) && $onsetDateTime !== '') {
-            $onsetDt = date_create_immutable($onsetDateTime);
-            if ($onsetDt !== false) {
-                $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
-            }
+        // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s). Partial
+        // precision is rejected rather than widened, matching the policy
+        // FhirConditionService applies to the same lists.begdate column: a
+        // year-only onset cannot be stored faithfully, so the caller gets a 400
+        // instead of a fabricated day.
+        $begdate = FhirDateTimeParser::toDbDateTime(
+            $json['onsetDateTime'] ?? null,
+            'AllergyIntolerance.onsetDateTime'
+        );
+        if ($begdate !== null) {
+            $data['begdate'] = $begdate;
         }
 
         // Note -> comments

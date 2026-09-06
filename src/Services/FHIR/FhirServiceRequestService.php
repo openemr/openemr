@@ -902,12 +902,12 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // authoredOn -> date_ordered (Y-m-d H:i:s for DATETIME column)
-        $authoredOn = $json['authoredOn'] ?? null;
-        if (is_string($authoredOn) && $authoredOn !== '') {
-            $dt = date_create_immutable($authoredOn);
-            if ($dt !== false) {
-                $header['date_ordered'] = $dt->format('Y-m-d H:i:s');
-            }
+        $dateOrdered = FhirDateTimeParser::toDbDateTime(
+            $json['authoredOn'] ?? null,
+            'ServiceRequest.authoredOn'
+        );
+        if ($dateOrdered !== null) {
+            $header['date_ordered'] = $dateOrdered;
         }
 
         // patientInstruction -> patient_instructions

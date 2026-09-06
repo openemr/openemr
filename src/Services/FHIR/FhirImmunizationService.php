@@ -275,13 +275,14 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $data['cvx_code'] = $cvxCode;
         }
 
-        // OccurrenceDateTime -> administered_date
-        $occurrence = $json['occurrenceDateTime'] ?? null;
-        if (is_string($occurrence) && $occurrence !== '') {
-            $dt = date_create_immutable($occurrence);
-            if ($dt !== false) {
-                $data['administered_date'] = $dt->format('Y-m-d');
-            }
+        // OccurrenceDateTime -> administered_date. When a dose was given is a
+        // point in time, so partial precision is rejected rather than widened.
+        $administeredDate = FhirDateTimeParser::toDbDate(
+            $json['occurrenceDateTime'] ?? null,
+            'Immunization.occurrenceDateTime'
+        );
+        if ($administeredDate !== null) {
+            $data['administered_date'] = $administeredDate;
         }
 
         // Status -> completion_status / added_erroneously
@@ -313,12 +314,12 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // ExpirationDate -> expiration_date
-        $expirationDate = $json['expirationDate'] ?? null;
-        if (is_string($expirationDate) && $expirationDate !== '') {
-            $dt = date_create_immutable($expirationDate);
-            if ($dt !== false) {
-                $data['expiration_date'] = $dt->format('Y-m-d');
-            }
+        $expiration = FhirDateTimeParser::toDbDate(
+            $json['expirationDate'] ?? null,
+            'Immunization.expirationDate'
+        );
+        if ($expiration !== null) {
+            $data['expiration_date'] = $expiration;
         }
 
         // Site -> administration_site
@@ -383,12 +384,12 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // Recorded -> create_date
-        $recorded = $json['recorded'] ?? null;
-        if (is_string($recorded) && $recorded !== '') {
-            $dt = date_create_immutable($recorded);
-            if ($dt !== false) {
-                $data['create_date'] = $dt->format('Y-m-d H:i:s');
-            }
+        $recorded = FhirDateTimeParser::toDbDateTime(
+            $json['recorded'] ?? null,
+            'Immunization.recorded'
+        );
+        if ($recorded !== null) {
+            $data['create_date'] = $recorded;
         }
 
         // PrimarySource -> information_source

@@ -505,21 +505,25 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             };
         }
 
-        // period -> date / date_end
+        // period -> date / date_end. Coverage periods are routinely quoted to
+        // month precision ("cover starts 2024-01"), so partial values are
+        // widened to the first day of the period rather than rejected.
         $period = $json['period'] ?? null;
-        $periodStart = is_array($period) ? ($period['start'] ?? null) : null;
-        if (is_string($periodStart) && $periodStart !== '') {
-            $normalized = $this->normalizeDate($periodStart);
-            if ($normalized !== null) {
-                $data['date'] = $normalized;
-            }
+        $periodStart = FhirDateTimeParser::toDbDate(
+            is_array($period) ? ($period['start'] ?? null) : null,
+            'Coverage.period.start',
+            true
+        );
+        if ($periodStart !== null) {
+            $data['date'] = $periodStart;
         }
-        $periodEnd = is_array($period) ? ($period['end'] ?? null) : null;
-        if (is_string($periodEnd) && $periodEnd !== '') {
-            $normalized = $this->normalizeDate($periodEnd);
-            if ($normalized !== null) {
-                $data['date_end'] = $normalized;
-            }
+        $periodEnd = FhirDateTimeParser::toDbDate(
+            is_array($period) ? ($period['end'] ?? null) : null,
+            'Coverage.period.end',
+            true
+        );
+        if ($periodEnd !== null) {
+            $data['date_end'] = $periodEnd;
         }
 
         // class[] -> group_number / plan_name
@@ -745,16 +749,6 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $record['subscriber_country'] ??= $p['country_code'] ?? '';
         $record['subscriber_phone'] ??= $p['phone_home'] ?? '';
         $record['subscriber_ss'] ??= $p['ss'] ?? '';
-    }
-
-    /**
-     * Normalizes a FHIR date/dateTime/instant string to OpenEMR's Y-m-d storage format.
-     * Returns null if the input cannot be parsed.
-     */
-    private function normalizeDate(string $value): ?string
-    {
-        $dt = date_create_immutable($value);
-        return $dt === false ? null : $dt->format('Y-m-d');
     }
 
     /**
