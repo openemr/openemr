@@ -68,12 +68,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$fhirId of method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirPersonRestController\\:\\:getOne\\(\\) expects string, mixed given\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$fhirId of method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirPractitionerRestController\\:\\:getOne\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php',
 ];
 $ignoreErrors[] = [
@@ -64452,6 +64452,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$searchParams of static method OpenEMR\\\\Services\\\\FHIR\\\\UsersRowPatientAllowlist\\:\\:filterSearchParams\\(\\) expects array\\<string, mixed\\>, array given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$system of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRIdentifier\\:\\:setSystem\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRUri, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerService.php',
@@ -71165,6 +71170,11 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Rules/ListOptionRuleTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$openEMRSearchParameters of method OpenEMR\\\\Services\\\\FHIR\\\\FhirPractitionerService@anonymous/tests/Tests/Isolated/Services/FHIR/FhirPractitionerServicePatientCallerViewIsolatedTest\\.php\\:184\\:\\:searchForOpenEMRRecords\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>, array\\<string, mixed\\> given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/FhirPractitionerServicePatientCallerViewIsolatedTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$dataRecord of method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationQuestionnaireItemService\\:\\:parseOpenEMRRecord\\(\\) expects array, mixed given\\.$#',

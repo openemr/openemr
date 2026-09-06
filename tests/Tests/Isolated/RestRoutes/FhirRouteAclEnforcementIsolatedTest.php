@@ -194,23 +194,135 @@ class FhirRouteAclEnforcementIsolatedTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Person/:uuid patient-scope else branch — must NOT bind puuid while the
-    // underlying FhirPersonService is INonPatientCompartmentResourceService.
+    // Person routes deny patient-scoped callers.
     //
-    // Binding puuid on that shape has no effect (the base check drops the
-    // bind for non-patient-compartment services) and misleadingly implies
-    // the endpoint enforces the patient compartment. Patient tokens
-    // legitimately need to read provider Person records via this endpoint.
+    // FhirPersonService is backed by the `users` table (staff only). Person
+    // is not a US Core profile. Patient tokens have no read path here; the
+    // ONC-shaped surface for provider directory information is
+    // /Practitioner and /PractitionerRole. Route branches throw
+    // AccessDeniedHttpException before touching the controller.
+    //
+    // The single-record route retains a self-branch (line lookup by
+    // requestUserUUID) which fires for staff tokens whose requestUser IS
+    // in the users table. Patient tokens' requestUser is not in users, so
+    // the self-branch never matches and the patient path always reaches
+    // the deny.
     // -------------------------------------------------------------------------
 
-    public function testPersonSingleRoutePatientElseBranchDoesNotBindPuuid(): void
+    public function testPersonSearchRouteDeniesPatientCaller(): void
+    {
+        $body = $this->extractRouteBody('GET /fhir/Person');
+        $this->assertNotSame('', $body, 'GET /fhir/Person route must exist');
+        $this->assertMatchesRegularExpression(
+            '/if\s*\(\s*\$request->isPatientRequest\(\)\s*\)\s*\{[\s\S]{0,600}?throw\s+new\s+AccessDeniedHttpException/',
+            $body,
+            'Person search route must throw AccessDeniedHttpException on the patient-caller branch'
+        );
+    }
+
+    public function testPersonSingleRouteDeniesNonSelfPatientCaller(): void
     {
         $body = $this->extractRouteBody('GET /fhir/Person/:uuid');
         $this->assertNotSame('', $body, 'GET /fhir/Person/:uuid route must exist');
-        $this->assertDoesNotMatchRegularExpression(
-            '/getOne\(\s*\$uuid,\s*\$request->getPatientUUIDString\(\)\s*\)/',
+        $this->assertMatchesRegularExpression(
+            '/if\s*\(\s*\$request->isPatientRequest\(\)\s*\)\s*\{[\s\S]{0,600}?throw\s+new\s+AccessDeniedHttpException/',
             $body,
-            'Person/:uuid patient-scope else branch must NOT pass puuid: FhirPersonService is declared INonPatientCompartmentResourceService and the bind is a no-op that misleadingly implies compartment enforcement.'
+            'Person/:uuid must throw AccessDeniedHttpException when isPatientRequest and the self-branch did not match'
+        );
+    }
+
+    public function testPersonSingleRouteDenyRunsAfterSelfBranch(): void
+    {
+        // Ordering: the requestUserUUID equality check must run BEFORE the
+        // patient deny so staff tokens whose requestUser resolves in users
+        // are not caught by the deny path.
+        $body = $this->extractRouteBody('GET /fhir/Person/:uuid');
+        $this->assertNotSame('', $body);
+        $selfCheckOffset = strpos($body, 'getRequestUserUUIDString()');
+        $denyOffset = strpos($body, 'AccessDeniedHttpException');
+        $this->assertIsInt($selfCheckOffset, 'self-branch check missing');
+        $this->assertIsInt($denyOffset, 'patient deny missing');
+        $this->assertLessThan(
+            $denyOffset,
+            $selfCheckOffset,
+            'requestUser self-branch must run before the isPatientRequest deny'
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // Practitioner routes: patient callers reach a view-shaped service
+    // (setPatientCallerView(true)) that drops non-allowlisted columns and
+    // search parameters before the FHIR builder sees them.
+    // -------------------------------------------------------------------------
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function practitionerRouteProvider(): array
+    {
+        return [
+            'search' => ['GET /fhir/Practitioner'],
+            'single' => ['GET /fhir/Practitioner/:uuid'],
+        ];
+    }
+
+    #[DataProvider('practitionerRouteProvider')]
+    public function testPractitionerRouteEnablesPatientCallerView(string $routeKey): void
+    {
+        $body = $this->extractRouteBody($routeKey);
+        $this->assertNotSame('', $body, sprintf('%s route must exist', $routeKey));
+        $this->assertMatchesRegularExpression(
+            '/if\s*\(\s*!\$request->isPatientRequest\(\)\s*\)[\s\S]{0,400}?request_authorization_check[\s\S]{0,200}?\}\s*\$service\s*=\s*new\s+FhirPractitionerService\(\)\s*;\s*\$service->setPatientCallerView\(\s*true\s*\)/',
+            $body,
+            sprintf('%s must construct a FhirPractitionerService with setPatientCallerView(true) on the patient branch', $routeKey)
+        );
+    }
+
+    #[DataProvider('practitionerRouteProvider')]
+    public function testPractitionerRouteStillGatesNonPatientCaller(string $routeKey): void
+    {
+        $body = $this->extractRouteBody($routeKey);
+        $this->assertNotSame('', $body);
+        $this->assertMatchesRegularExpression(
+            '/if\s*\(\s*!\$request->isPatientRequest\(\)\s*\)[\s\S]{0,200}?RestConfig::request_authorization_check\(\s*\$request,\s*["\']admin["\'],\s*["\']users["\']/',
+            $body,
+            sprintf('%s must keep the admin/users ACL on the non-patient branch', $routeKey)
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // PractitionerRole routes: opened to patient callers. Service is
+    // work-only (phonew1 + fax + url + users.email as use=work) so no
+    // per-caller field filter is required.
+    // -------------------------------------------------------------------------
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function practitionerRoleRouteProvider(): array
+    {
+        return [
+            'search' => ['GET /fhir/PractitionerRole'],
+            'single' => ['GET /fhir/PractitionerRole/:uuid'],
+        ];
+    }
+
+    #[DataProvider('practitionerRoleRouteProvider')]
+    public function testPractitionerRoleRouteAllowsPatientCaller(string $routeKey): void
+    {
+        $body = $this->extractRouteBody($routeKey);
+        $this->assertNotSame('', $body, sprintf('%s route must exist', $routeKey));
+        // Patient branch must NOT run the admin/users check — the check
+        // has to sit inside `if (!isPatientRequest())` so patient callers
+        // skip it. Anti-pattern to catch: unconditional check.
+        $this->assertMatchesRegularExpression(
+            '/if\s*\(\s*!\$request->isPatientRequest\(\)\s*\)[\s\S]{0,200}?RestConfig::request_authorization_check\(\s*\$request,\s*["\']admin["\'],\s*["\']users["\']/',
+            $body,
+            sprintf('%s must guard the admin/users ACL with !isPatientRequest() so patient callers reach the controller', $routeKey)
         );
     }
 

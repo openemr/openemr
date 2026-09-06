@@ -62,11 +62,13 @@ use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirObservationService;
+use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -645,64 +647,54 @@ return [
         return $return;
     },
     "GET /fhir/Person" => function (HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // Person is backed by the `users` table (staff records only) and
+            // is not a US Core profile. Patient callers get provider directory
+            // information from /Practitioner and /PractitionerRole instead.
+            throw new AccessDeniedHttpException('Person is not available to patient-scoped callers.');
+        }
         RestConfig::request_authorization_check($request, "admin", "users");
         $return = (new FhirPersonRestController())->getAll($request->getQueryParams());
 
         return $return;
     },
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
-        // if the api user is requesting their own user we need to let it through
-        // this is because the /Person endpoint needs to be responsive to the fhirUser return value
-        // for the currently logged in user
+        // The self-branch is retained for staff tokens whose requestUserUUID
+        // is a `users` row (so their own Person lookup resolves). For
+        // patient-scoped callers the request user is not in `users`, so the
+        // self-branch never matches and the patient path falls to the deny
+        // below.
         if ($request->getRequestUserUUIDString() == $uuid) {
-            $return = (new FhirPersonRestController())->getOne($uuid);
-        } elseif (!$request->isPatientRequest()) {
-            // not a patient ,make sure we have access to the users ACL
-            RestConfig::request_authorization_check($request, "admin", "users");
-            $return = (new FhirPersonRestController())->getOne($uuid);
-        } else {
-            // Patient-scope token requesting a non-self Person UUID. Do NOT
-            // bind the caller's puuid: FhirPersonService is declared as
-            // INonPatientCompartmentResourceService because it is backed by
-            // the `users` table and legitimately serves provider / staff
-            // Person records that patient callers are allowed to read
-            // (fhirUser resolution, care-team lookups, RelatedPerson info
-            // per FHIR spec). The base check permits this shape via the
-            // non-patient-compartment marker; extending Person to
-            // patient-source records + scoping field-level exposure by
-            // caller type is separate follow-up work.
-            $return = (new FhirPersonRestController())->getOne($uuid);
+            return (new FhirPersonRestController())->getOne($uuid);
         }
-
-
-        return $return;
+        if ($request->isPatientRequest()) {
+            throw new AccessDeniedHttpException('Person is not available to patient-scoped callers.');
+        }
+        RestConfig::request_authorization_check($request, "admin", "users");
+        return (new FhirPersonRestController())->getOne($uuid);
     },
     "GET /fhir/Practitioner" => function (HttpRestRequest $request) {
-
-        // TODO: @adunsulag talk with brady.miller about patients needing access to any practitioner resource
-        // that is referenced in connected patient resources -- such as AllergyIntollerance.
-        // I don't believe patients are assigned to a particular practitioner
-        // should we allow just open api access to admin information?  Should we restrict particular pieces
-        // of data in the practitioner side (phone number, address information) based on a permission set?
+        // Patient-scoped callers legitimately need care-team lookups (name +
+        // NPI + work phone) via US Core Practitioner. The service applies
+        // an allowlist over both search parameters and returned columns
+        // when patient-caller view is on, so home address / home phone /
+        // cell / non-work email are dropped before the FHIR builder runs.
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "admin", "users");
+            return (new FhirPractitionerRestController())->getAll($request->getQueryParams());
         }
-        $return = (new FhirPractitionerRestController())->getAll($request->getQueryParams());
-
-        return $return;
+        $service = new FhirPractitionerService();
+        $service->setPatientCallerView(true);
+        return (new FhirPractitionerRestController($service))->getAll($request->getQueryParams());
     },
     "GET /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
-        // TODO: @adunsulag talk with brady.miller about patients needing access to any practitioner resource
-        // that is referenced in connected patient resources -- such as AllergyIntollerance.
-        // I don't believe patients are assigned to a particular practitioner
-        // should we allow just open api access to admin information?  Should we restrict particular pieces
-        // of data in the practitioner side (phone number, address information) based on a permission set?
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "admin", "users");
+            return (new FhirPractitionerRestController())->getOne($uuid);
         }
-        $return = (new FhirPractitionerRestController())->getOne($uuid);
-
-        return $return;
+        $service = new FhirPractitionerService();
+        $service->setPatientCallerView(true);
+        return (new FhirPractitionerRestController($service))->getOne($uuid);
     },
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
@@ -719,16 +711,21 @@ return [
         return $return;
     },
     "GET /fhir/PractitionerRole" => function (HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "admin", "users");
-        $return = (new FhirPractitionerRoleRestController())->getAll($request->getQueryParams());
-
-        return $return;
+        // PractitionerRole is the US Core surface for provider specialty /
+        // facility / role affiliations. The service reads only work-labeled
+        // telecoms (phonew1, fax, url, and the users.email column emitted
+        // as use=work) and never touches street/city/zip or the home
+        // telecom columns, so no per-caller field filter is needed.
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "admin", "users");
+        }
+        return (new FhirPractitionerRoleRestController())->getAll($request->getQueryParams());
     },
     "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "admin", "users");
-        $return = (new FhirPractitionerRoleRestController())->getOne($uuid);
-
-        return $return;
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "admin", "users");
+        }
+        return (new FhirPractitionerRoleRestController())->getOne($uuid);
     },
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
