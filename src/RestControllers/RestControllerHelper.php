@@ -365,11 +365,12 @@ class RestControllerHelper
      *
      * @param  $processingResult         - The service processing result.
      * @param  $successStatusCode        - The HTTP status code to return for a successful operation that completes without error.
-     * @param  $isMultipleResultResponse - Indicates if the response contains multiple results.
+     * @param  int|null $successStatusCode HTTP status used when the result is valid.
+     * @param  bool $isMultipleResultResponse - Indicates if the response contains multiple results.
      * @return array[]
      * @deprecated use createProcessingResultResponse() instead.
      */
-    public static function handleProcessingResult(ProcessingResult $processingResult, $successStatusCode, $isMultipleResultResponse = false): array
+    public static function handleProcessingResult(ProcessingResult $processingResult, ?int $successStatusCode, bool $isMultipleResultResponse = false): array
     {
         $httpResponseBody = [
             "validationErrors" => [],
@@ -624,7 +625,10 @@ class RestControllerHelper
         }
     }
 
-    public function addRequestMethods($items, FHIRCapabilityStatementResource $capResource)
+    /**
+     * @param string[] $items The route key split on "/", e.g. ["POST ", "fhir", "Condition"].
+     */
+    public function addRequestMethods(array $items, FHIRCapabilityStatementResource $capResource)
     {
         $reqMethod = trim((string) $items[0], " ");
         $numberItems = count($items);
@@ -666,7 +670,10 @@ class RestControllerHelper
     }
 
 
-    public function getCapabilityRESTObject($routes, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE, $structureDefinition = self::DEFAULT_STRUCTURE_DEFINITION): FHIRCapabilityStatementRest
+    /**
+     * @param array<string, mixed> $routes The route map, keyed by "<METHOD> /path".
+     */
+    public function getCapabilityRESTObject(array $routes, string $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE, string $structureDefinition = self::DEFAULT_STRUCTURE_DEFINITION): FHIRCapabilityStatementRest
     {
         $restItem = new FHIRCapabilityStatementRest();
         $mode = new FHIRRestfulCapabilityMode();
@@ -675,7 +682,7 @@ class RestControllerHelper
 
         $resourcesHash = [];
         foreach ($routes as $key => $function) {
-            $items = explode("/", (string) $key);
+            $items = explode("/", $key);
             if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {
                 // FHIR routes always have the resource at $items[2]
                 $resource = $items[2];

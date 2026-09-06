@@ -169,8 +169,8 @@ class PractitionerRoleService extends BaseService
             $result->setValidationMessages(['uuid' => 'PractitionerRole not found']);
             return $result;
         }
-        $uid = (int) ($marker['uid'] ?? 0);
-        $facilityId = (int) ($marker['facility_id'] ?? 0);
+        $uid = is_numeric($marker['uid'] ?? null) ? (int) $marker['uid'] : 0;
+        $facilityId = is_numeric($marker['facility_id'] ?? null) ? (int) $marker['facility_id'] : 0;
 
         try {
             QueryUtils::inTransaction(function () use ($uid, $facilityId, $data): void {

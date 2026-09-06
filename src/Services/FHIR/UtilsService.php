@@ -477,7 +477,7 @@ class UtilsService
             'type' => null,
         ];
 
-        if (empty($referenceString)) {
+        if ($referenceString === null || $referenceString === '') {
             return $parsed;
         }
 

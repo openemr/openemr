@@ -200,7 +200,7 @@ class DeviceService extends BaseService
         $record = parent::createResultRecordFromDatabaseResult($row);
 
         $json = $record['udi_data'] ?? '{}';
-        if (!empty($record['diagnosis'])) {
+        if (isset($record['diagnosis']) && $record['diagnosis'] !== '') {
             $record['code'] = $this->addCoding($record['diagnosis']);
             $record['code_full'] = $record['diagnosis'];
         }

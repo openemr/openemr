@@ -75,7 +75,8 @@ class ImmunizationValidator extends BaseValidator
             function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules): void {
+                    /** @param iterable<object> $rules */
+                    function (iterable $rules): void {
                         foreach ($rules as $chain) {
                             $chain->required(false);
                         }

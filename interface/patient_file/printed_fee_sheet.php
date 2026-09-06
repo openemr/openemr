@@ -508,7 +508,7 @@ foreach ($pid_list as $pid) {
                 $html .= xlt('Visit date');
                 $html .= ":<br />\n";
                 if (!empty($encdata)) {
-                    $html .= text(substr((string) $encdata['date'], 0, 10));
+                    $html .= text(substr((string) ($encdata['date'] ?? ''), 0, 10));
                 } else {
                     $html .= text(oeFormatShortDate(date('Y-m-d'))) . "\n";
                 }
