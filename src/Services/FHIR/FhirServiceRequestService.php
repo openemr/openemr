@@ -821,39 +821,41 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $codes = [];
         $data = ['header' => &$header, 'codes' => &$codes];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // subject.reference -> patient puuid (resolved downstream)
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
-            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
             }
         }
 
         // requester.reference -> provider pruuid (resolved downstream; optional)
         $requesterRef = $json['requester']['reference'] ?? null;
         if (is_string($requesterRef) && $requesterRef !== '') {
-            $parsed = UtilsService::parseReferenceString($requesterRef, 'Practitioner');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['pruuid'] = $parsed['uuid'];
+            $requesterUuid = UtilsService::parseReferenceString($requesterRef, 'Practitioner')['uuid'] ?? null;
+            if (is_string($requesterUuid) && $requesterUuid !== '' && UuidRegistry::isValidStringUUID($requesterUuid)) {
+                $data['pruuid'] = $requesterUuid;
             }
         }
 
         // encounter.reference -> encounter euuid (optional)
         $encounterRef = $json['encounter']['reference'] ?? null;
         if (is_string($encounterRef) && $encounterRef !== '') {
-            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['euuid'] = $parsed['uuid'];
+            $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
+            if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
+                $data['euuid'] = $encounterUuid;
             }
         }
 
         // status -> order_status (inverse of mapOrderStatus)
-        if (!empty($json['status']) && is_string($json['status'])) {
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
             $statusReverseMap = [
                 'active' => 'pending',
                 'completed' => 'complete',
@@ -861,8 +863,8 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 'draft' => 'pending',
                 'on-hold' => 'pending',
             ];
-            $header['order_status'] = $statusReverseMap[$json['status']] ?? 'pending';
-            if ($json['status'] === 'entered-in-error') {
+            $header['order_status'] = $statusReverseMap[$status] ?? 'pending';
+            if ($status === 'entered-in-error') {
                 $header['activity'] = 0;
             }
         }
@@ -871,16 +873,18 @@ class FhirServiceRequestService extends FhirServiceBase implements
         // holds order/plan/directive/proposal/option; other R4 intents (e.g.
         // original-order, reflex-order, filler-order, instance-order) fall back to
         // 'order' since OpenEMR's order workflow has no distinction for those.
-        if (!empty($json['intent']) && is_string($json['intent'])) {
+        $intent = $json['intent'] ?? null;
+        if (is_string($intent) && $intent !== '') {
             $supportedIntents = ['order', 'plan', 'directive', 'proposal', 'option'];
-            $header['order_intent'] = in_array($json['intent'], $supportedIntents, true)
-                ? $json['intent']
+            $header['order_intent'] = in_array($intent, $supportedIntents, true)
+                ? $intent
                 : 'order';
         }
 
         // priority passthrough (matches OpenEMR vocab for routine/urgent/asap/stat)
-        if (!empty($json['priority']) && is_string($json['priority'])) {
-            $header['order_priority'] = $json['priority'];
+        $priority = $json['priority'] ?? null;
+        if (is_string($priority) && $priority !== '') {
+            $header['order_priority'] = $priority;
         }
 
         // category[0].coding[0].code (SNOMED) -> procedure_order_type (inverse of CATEGORY_MAP)
@@ -898,21 +902,26 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // authoredOn -> date_ordered (Y-m-d H:i:s for DATETIME column)
-        if (!empty($json['authoredOn']) && is_string($json['authoredOn'])) {
-            $dt = date_create_immutable($json['authoredOn']);
+        $authoredOn = $json['authoredOn'] ?? null;
+        if (is_string($authoredOn) && $authoredOn !== '') {
+            $dt = date_create_immutable($authoredOn);
             if ($dt !== false) {
                 $header['date_ordered'] = $dt->format('Y-m-d H:i:s');
             }
         }
 
         // patientInstruction -> patient_instructions
-        if (!empty($json['patientInstruction']) && is_string($json['patientInstruction'])) {
-            $header['patient_instructions'] = $json['patientInstruction'];
+        $patientInstruction = $json['patientInstruction'] ?? null;
+        if (is_string($patientInstruction) && $patientInstruction !== '') {
+            $header['patient_instructions'] = $patientInstruction;
         }
 
         // note[0].text -> clinical_hx (best-fit free-text field)
-        if (!empty($json['note'][0]['text']) && is_string($json['note'][0]['text'])) {
-            $header['clinical_hx'] = $json['note'][0]['text'];
+        $notes = $json['note'] ?? null;
+        $firstNote = is_array($notes) ? ($notes[0] ?? null) : null;
+        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
+        if (is_string($noteText) && $noteText !== '') {
+            $header['clinical_hx'] = $noteText;
         }
 
         // code.coding[] -> procedure_order_code rows (one per coding, or fallback to text)
@@ -948,12 +957,13 @@ class FhirServiceRequestService extends FhirServiceBase implements
 
         // reasonCode[0].coding -> diagnoses on the first procedure code row (string form)
         $reasonCoding = $json['reasonCode'][0]['coding'][0] ?? null;
-        if (is_array($reasonCoding) && !empty($reasonCoding['code']) && is_string($reasonCoding['code'])) {
-            $system = is_string($reasonCoding['system'] ?? null) ? $reasonCoding['system'] : '';
-            if ($codes !== []) {
-                $codes[0]['diagnoses'] = (new CodeTypesService())
-                    ->getOpenEMRCodeForSystemAndCode($system, $reasonCoding['code']);
-            }
+        $reasonCode = is_array($reasonCoding) ? ($reasonCoding['code'] ?? null) : null;
+        if (is_string($reasonCode) && $reasonCode !== '' && $codes !== []) {
+            // $reasonCoding is provably an array here: $reasonCode came out of it.
+            $reasonSystem = $reasonCoding['system'] ?? null;
+            $system = is_string($reasonSystem) ? $reasonSystem : '';
+            $codes[0]['diagnoses'] = (new CodeTypesService())
+                ->getOpenEMRCodeForSystemAndCode($system, $reasonCode);
         }
 
         return $data;
