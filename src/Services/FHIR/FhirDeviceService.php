@@ -174,16 +174,17 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // patient.reference -> puuid (resolved to pid downstream)
         $patientRef = $json['patient']['reference'] ?? null;
         if (is_string($patientRef) && $patientRef !== '') {
-            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $patientUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
+            if (is_string($patientUuid) && $patientUuid !== '' && UuidRegistry::isValidStringUUID($patientUuid)) {
+                $data['puuid'] = $patientUuid;
             }
         }
 
@@ -198,19 +199,25 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
             if (is_string($display) && $display !== '') {
                 $data['title'] = $display;
             }
-        } elseif (!empty($json['type']['text']) && is_string($json['type']['text'])) {
-            $data['title'] = $json['type']['text'];
+        } else {
+            $type = $json['type'] ?? null;
+            $typeText = is_array($type) ? ($type['text'] ?? null) : null;
+            if (is_string($typeText) && $typeText !== '') {
+                $data['title'] = $typeText;
+            }
         }
 
         // udiCarrier[0]: deviceIdentifier -> udi_data.standard_elements.di, carrierHRF -> lists.udi
         $udiCarrier = $json['udiCarrier'][0] ?? null;
         $standardElements = [];
         if (is_array($udiCarrier)) {
-            if (!empty($udiCarrier['deviceIdentifier']) && is_string($udiCarrier['deviceIdentifier'])) {
-                $standardElements['di'] = $udiCarrier['deviceIdentifier'];
+            $deviceIdentifier = $udiCarrier['deviceIdentifier'] ?? null;
+            if (is_string($deviceIdentifier) && $deviceIdentifier !== '') {
+                $standardElements['di'] = $deviceIdentifier;
             }
-            if (!empty($udiCarrier['carrierHRF']) && is_string($udiCarrier['carrierHRF'])) {
-                $data['udi'] = $udiCarrier['carrierHRF'];
+            $carrierHRF = $udiCarrier['carrierHRF'] ?? null;
+            if (is_string($carrierHRF) && $carrierHRF !== '') {
+                $data['udi'] = $carrierHRF;
             }
         }
 

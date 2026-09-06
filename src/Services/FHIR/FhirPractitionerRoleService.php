@@ -178,23 +178,30 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         $practitionerRef = $json['practitioner']['reference'] ?? null;
         if (is_string($practitionerRef) && $practitionerRef !== '') {
-            $parsed = UtilsService::parseReferenceString($practitionerRef, 'Practitioner');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['provider_uuid'] = $parsed['uuid'];
+            $practitionerUuid = UtilsService::parseReferenceString($practitionerRef, 'Practitioner')['uuid'] ?? null;
+            if (
+                is_string($practitionerUuid) && $practitionerUuid !== ''
+                && UuidRegistry::isValidStringUUID($practitionerUuid)
+            ) {
+                $data['provider_uuid'] = $practitionerUuid;
             }
         }
 
         $organizationRef = $json['organization']['reference'] ?? null;
         if (is_string($organizationRef) && $organizationRef !== '') {
-            $parsed = UtilsService::parseReferenceString($organizationRef, 'Organization');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['facility_uuid'] = $parsed['uuid'];
+            $organizationUuid = UtilsService::parseReferenceString($organizationRef, 'Organization')['uuid'] ?? null;
+            if (
+                is_string($organizationUuid) && $organizationUuid !== ''
+                && UuidRegistry::isValidStringUUID($organizationUuid)
+            ) {
+                $data['facility_uuid'] = $organizationUuid;
             }
         }
 

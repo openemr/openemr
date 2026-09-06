@@ -178,13 +178,15 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // status -> active
-        if (!empty($json['status']) && is_string($json['status'])) {
-            $data['active'] = $json['status'] === 'active' ? 1 : 0;
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            $data['active'] = $status === 'active' ? 1 : 0;
         }
 
         // code.coding[] -> drug_code (prefer RxNorm) + name (display)
@@ -205,16 +207,17 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
                     $system === 'http://www.nlm.nih.gov/research/umls/rxnorm'
                     && is_string($code)
                     && $code !== ''
-                    && empty($data['drug_code'])
+                    && !isset($data['drug_code'])
                 ) {
                     $data['drug_code'] = $code;
                 }
             }
             // Fall back: first coding with any code value if no RxNorm found
-            if (empty($data['drug_code'])) {
+            if (!isset($data['drug_code'])) {
                 foreach ($codings as $coding) {
-                    if (is_array($coding) && !empty($coding['code']) && is_string($coding['code'])) {
-                        $data['drug_code'] = $coding['code'];
+                    $fallbackCode = is_array($coding) ? ($coding['code'] ?? null) : null;
+                    if (is_string($fallbackCode) && $fallbackCode !== '') {
+                        $data['drug_code'] = $fallbackCode;
                         break;
                     }
                 }

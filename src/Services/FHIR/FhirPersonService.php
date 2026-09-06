@@ -196,8 +196,9 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // identifier[] -> npi (system http://hl7.org/fhir/sid/us-npi)
@@ -220,19 +221,22 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
                 break;
             }
         }
-        if ($name === null && !empty($names) && is_array($names[0])) {
+        if ($name === null && is_array($names[0] ?? null)) {
             $name = $names[0];
         }
         if (is_array($name)) {
-            if (!empty($name['family']) && is_string($name['family'])) {
-                $data['lname'] = $name['family'];
+            $family = $name['family'] ?? null;
+            if (is_string($family) && $family !== '') {
+                $data['lname'] = $family;
             }
             $given = is_array($name['given'] ?? null) ? $name['given'] : [];
-            if (!empty($given[0]) && is_string($given[0])) {
-                $data['fname'] = $given[0];
+            $firstName = $given[0] ?? null;
+            if (is_string($firstName) && $firstName !== '') {
+                $data['fname'] = $firstName;
             }
-            if (!empty($given[1]) && is_string($given[1])) {
-                $data['mname'] = $given[1];
+            $middleName = $given[1] ?? null;
+            if (is_string($middleName) && $middleName !== '') {
+                $data['mname'] = $middleName;
             }
             $prefix = $name['prefix'][0] ?? null;
             if (is_string($prefix) && $prefix !== '') {
@@ -295,7 +299,8 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
-        if (empty($openEmrRecord['npi'])) {
+        $npi = $openEmrRecord['npi'] ?? null;
+        if (!is_string($npi) || $npi === '') {
             $result = new ProcessingResult();
             $result->setValidationMessages([
                 'identifier' => 'FHIR Person writes require an identifier with system '
