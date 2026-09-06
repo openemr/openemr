@@ -175,16 +175,17 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // patient.reference -> puuid (resolved to pid in insertOpenEMRRecord)
         $patientRef = $json['patient']['reference'] ?? null;
         if (is_string($patientRef) && $patientRef !== '') {
-            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $patientUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
+            if (is_string($patientUuid) && $patientUuid !== '' && UuidRegistry::isValidStringUUID($patientUuid)) {
+                $data['puuid'] = $patientUuid;
             }
         }
 
@@ -217,27 +218,32 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
                 break;
             }
         }
-        if ($name === null && !empty($names) && is_array($names[0])) {
+        if ($name === null && is_array($names[0] ?? null)) {
             $name = $names[0];
         }
         if (is_array($name)) {
-            if (!empty($name['family']) && is_string($name['family'])) {
-                $data['last_name'] = $name['family'];
+            $family = $name['family'] ?? null;
+            if (is_string($family) && $family !== '') {
+                $data['last_name'] = $family;
             }
             $given = is_array($name['given'] ?? null) ? $name['given'] : [];
-            if (!empty($given[0]) && is_string($given[0])) {
-                $data['first_name'] = $given[0];
+            $firstName = $given[0] ?? null;
+            if (is_string($firstName) && $firstName !== '') {
+                $data['first_name'] = $firstName;
             }
-            if (!empty($given[1]) && is_string($given[1])) {
-                $data['middle_name'] = $given[1];
+            $middleName = $given[1] ?? null;
+            if (is_string($middleName) && $middleName !== '') {
+                $data['middle_name'] = $middleName;
             }
         }
 
-        if (!empty($json['gender']) && is_string($json['gender'])) {
-            $data['gender'] = $json['gender'];
+        $gender = $json['gender'] ?? null;
+        if (is_string($gender) && $gender !== '') {
+            $data['gender'] = $gender;
         }
-        if (!empty($json['birthDate']) && is_string($json['birthDate'])) {
-            $dt = date_create_immutable($json['birthDate']);
+        $birthDate = $json['birthDate'] ?? null;
+        if (is_string($birthDate) && $birthDate !== '') {
+            $dt = date_create_immutable($birthDate);
             if ($dt !== false) {
                 $data['birth_date'] = $dt->format('Y-m-d');
             }
@@ -248,13 +254,14 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
 
         $telecoms = [];
         foreach (($json['telecom'] ?? []) as $t) {
-            if (!is_array($t) || empty($t['value'])) {
+            $value = is_array($t) ? ($t['value'] ?? null) : null;
+            if (!is_string($value) || $value === '') {
                 continue;
             }
             $telecoms[] = [
                 'system' => is_string($t['system'] ?? null) ? $t['system'] : 'phone',
                 'use' => is_string($t['use'] ?? null) ? $t['use'] : 'home',
-                'value' => $t['value'],
+                'value' => $value,
             ];
         }
         $data['telecoms'] = $telecoms;
