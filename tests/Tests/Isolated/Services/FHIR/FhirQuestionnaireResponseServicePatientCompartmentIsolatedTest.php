@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * FhirQuestionnaireResponseServicePatientCompartmentIsolatedTest.php
  *
@@ -19,6 +17,8 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\FHIR;
 

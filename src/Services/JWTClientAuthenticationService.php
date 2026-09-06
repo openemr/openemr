@@ -126,9 +126,11 @@ class JWTClientAuthenticationService
 
     public function getJwksUriValidator(): SsrfSafeUrlValidator
     {
-        if (!isset($this->jwksUriValidator)) {
-            $this->jwksUriValidator = new SsrfSafeUrlValidator();
-        }
+        // Https-only allowlist for jwks_uri fetch; matches the
+        // registration-write-path allowlist (see
+        // AuthorizationController::clientRegistration) so relaxing
+        // one path does not open the other.
+        $this->jwksUriValidator ??= new SsrfSafeUrlValidator(['https']);
         return $this->jwksUriValidator;
     }
 

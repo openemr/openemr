@@ -394,7 +394,9 @@ class AuthorizationController implements LoggerAwareInterface
                                 'invalid_client_metadata'
                             );
                         }
-                        $rejectionReason = (new SsrfSafeUrlValidator())->validate($rawJwksUri);
+                        // Https-only allowlist for jwks_uri; matches the
+                        // fetch-path validator (JWTClientAuthenticationService::getJwksUriValidator).
+                        $rejectionReason = (new SsrfSafeUrlValidator(['https']))->validate($rawJwksUri);
                         if ($rejectionReason !== null) {
                             // Audit-log the rejection with the specific reason
                             // (host, scheme, DNS) so an operator can spot

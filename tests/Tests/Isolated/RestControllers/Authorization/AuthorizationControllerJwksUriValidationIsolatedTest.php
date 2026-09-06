@@ -87,10 +87,22 @@ class AuthorizationControllerJwksUriValidationIsolatedTest extends TestCase
 
     public function testWritePathInvokesValidatorOnJwksUri(): void
     {
+        // The paired testWritePathValidatorIsHttpsOnly pins the allowlist
+        // shape; this test only checks that validate() runs against
+        // $rawJwksUri, so it accepts either an empty arg or an explicit array.
         $this->assertMatchesRegularExpression(
-            '/new\s+SsrfSafeUrlValidator\s*\(\s*\)\s*\)\s*->\s*validate\s*\(\s*\$rawJwksUri\s*\)/',
+            '/new\s+SsrfSafeUrlValidator\s*\([^)]*\)\s*\)\s*->\s*validate\s*\(\s*\$rawJwksUri\s*\)/',
             $this->writePathContent,
             'clientRegistration must call SsrfSafeUrlValidator->validate on the raw jwks_uri'
+        );
+    }
+
+    public function testWritePathValidatorIsHttpsOnly(): void
+    {
+        $this->assertMatchesRegularExpression(
+            "/new\\s+SsrfSafeUrlValidator\\s*\\(\\s*\\[\\s*['\"]https['\"]\\s*\\]\\s*\\)/",
+            $this->writePathContent,
+            'registration-write-path jwks_uri validator must use an https-only scheme allowlist'
         );
     }
 
@@ -191,6 +203,17 @@ class AuthorizationControllerJwksUriValidationIsolatedTest extends TestCase
             $pattern,
             $this->readPathContent,
             'read-path rejection must be audit-logged via EventAuditLogger'
+        );
+    }
+
+    public function testReadPathValidatorIsHttpsOnly(): void
+    {
+        // Pin the read-path allowlist so it does not drift from the
+        // registration-write-path allowlist (see the write-path variant).
+        $this->assertMatchesRegularExpression(
+            "/getJwksUriValidator\\s*\\(\\s*\\)\\s*:\\s*SsrfSafeUrlValidator\\s*\\{[\\s\\S]{0,2000}?new\\s+SsrfSafeUrlValidator\\s*\\(\\s*\\[\\s*['\"]https['\"]\\s*\\]\\s*\\)/",
+            $this->readPathContent,
+            'getJwksUriValidator() must construct the validator with an https-only scheme allowlist'
         );
     }
 }

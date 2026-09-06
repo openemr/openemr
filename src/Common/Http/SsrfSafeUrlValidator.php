@@ -255,7 +255,7 @@ class SsrfSafeUrlValidator
             return null;
         }
         // IPv4-mapped IPv6 (`::ffff:0:0/96`): unwrap so the v4 CIDR lists match.
-        if (strlen($packed) === 16 && substr($packed, 0, 12) === "\0\0\0\0\0\0\0\0\0\0\xff\xff") {
+        if (strlen($packed) === 16 && str_starts_with($packed, "\0\0\0\0\0\0\0\0\0\0\xff\xff")) {
             $v4 = inet_ntop(substr($packed, 12));
             return is_string($v4) ? $v4 : null;
         }

@@ -270,13 +270,13 @@ class DocumentRestController
                 ),
             ]
         );
-        // we no longer use pre-check and post-check headers as they are not needed and microsoft even discourages
-        // their use at this point.
+        // Non-cacheable response. no_store blocks storage; must_revalidate
+        // pairs for older caches that pre-date no_store handling.
         $response->setCache([
+            'no_store' => true,
             'must_revalidate' => true,
         ]);
-        // this used to be Expires: 0 but that is not recommended anymore, we set it to be 1 hour ago so that
-        // the browser will not cache the file.
+        // Backstop expiry for the same legacy-cache case.
         $response->setExpires(new \DateTimeImmutable("-1 HOUR"));
 
         return $response;

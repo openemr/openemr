@@ -305,9 +305,9 @@ class DocumentRestControllerDownloadFileIsolatedTest extends TestCase
         $response = $this->downloadFileAsStream('1', '42');
 
         $cacheControl = $response->headers->get('Cache-Control') ?? '';
+        $this->assertStringContainsString('no-store', $cacheControl);
         $this->assertStringContainsString('must-revalidate', $cacheControl);
-        // Expires is set to one hour in the past so browsers immediately
-        // treat the response as stale.
+        // Expires is set an hour in the past for legacy caches.
         $expires = $response->headers->get('Expires');
         $this->assertIsString($expires);
         $expiresTimestamp = strtotime($expires);
