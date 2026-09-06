@@ -240,16 +240,18 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // status (FHIR enum) -> active flag. The read-side recovers FHIR status via a CASE
         // on (active, end_date) — see PrescriptionService::getBaseSql — so the only column
         // we write here is `active`. completed/stopped/cancelled -> inactive (0); everything
         // else maps to active (1).
-        if (!empty($json['status']) && is_string($json['status'])) {
-            $data['active'] = in_array($json['status'], ['completed', 'stopped', 'cancelled'], true) ? 0 : 1;
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            $data['active'] = in_array($status, ['completed', 'stopped', 'cancelled'], true) ? 0 : 1;
         }
 
         // intent -> request_intent + request_intent_title
@@ -274,58 +276,67 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // medicationCodeableConcept -> drug + rxnorm_drugcode
-        $medCoding = $json['medicationCodeableConcept']['coding'][0] ?? null;
+        $medicationConcept = $json['medicationCodeableConcept'] ?? null;
+        $medicationCodings = is_array($medicationConcept) ? ($medicationConcept['coding'] ?? null) : null;
+        $medCoding = is_array($medicationCodings) ? ($medicationCodings[0] ?? null) : null;
         if (is_array($medCoding)) {
-            if (!empty($medCoding['display']) && is_string($medCoding['display'])) {
-                $data['drug'] = $medCoding['display'];
+            $medDisplay = $medCoding['display'] ?? null;
+            if (is_string($medDisplay) && $medDisplay !== '') {
+                $data['drug'] = $medDisplay;
             }
             $system = $medCoding['system'] ?? '';
-            if ($system === FhirCodeSystemConstants::RXNORM && !empty($medCoding['code'])) {
-                $data['rxnorm_drugcode'] = $medCoding['code'];
+            $medCode = $medCoding['code'] ?? null;
+            if ($system === FhirCodeSystemConstants::RXNORM && is_string($medCode) && $medCode !== '') {
+                $data['rxnorm_drugcode'] = $medCode;
             }
         }
-        if (empty($data['drug']) && !empty($json['medicationCodeableConcept']['text'])) {
-            $data['drug'] = $json['medicationCodeableConcept']['text'];
+        $medicationText = is_array($medicationConcept) ? ($medicationConcept['text'] ?? null) : null;
+        if (!isset($data['drug']) && is_string($medicationText) && $medicationText !== '') {
+            $data['drug'] = $medicationText;
         }
 
         // subject -> puuid (resolved to patient_id downstream)
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
-            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
             }
         }
 
         // encounter -> euuid (resolved to form_encounter.encounter downstream)
         $encounterRef = $json['encounter']['reference'] ?? null;
         if (is_string($encounterRef) && $encounterRef !== '') {
-            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['euuid'] = $parsed['uuid'];
+            $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
+            if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
+                $data['euuid'] = $encounterUuid;
             }
         }
 
         // requester -> pruuid (resolved to users.id downstream)
         $requesterRef = $json['requester']['reference'] ?? null;
         if (is_string($requesterRef) && $requesterRef !== '') {
-            $parsed = UtilsService::parseReferenceString($requesterRef, 'Practitioner');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['pruuid'] = $parsed['uuid'];
+            $requesterUuid = UtilsService::parseReferenceString($requesterRef, 'Practitioner')['uuid'] ?? null;
+            if (is_string($requesterUuid) && $requesterUuid !== '' && UuidRegistry::isValidStringUUID($requesterUuid)) {
+                $data['pruuid'] = $requesterUuid;
             }
         }
 
         // authoredOn -> date_added (normalized for MySQL DATETIME)
-        if (!empty($json['authoredOn']) && is_string($json['authoredOn'])) {
-            $authoredDt = date_create_immutable($json['authoredOn']);
+        $authoredOn = $json['authoredOn'] ?? null;
+        if (is_string($authoredOn) && $authoredOn !== '') {
+            $authoredDt = date_create_immutable($authoredOn);
             if ($authoredDt !== false) {
                 $data['date_added'] = $authoredDt->format('Y-m-d H:i:s');
             }
         }
 
         // dosageInstruction[0].text -> drug_dosage_instructions
-        if (!empty($json['dosageInstruction'][0]['text']) && is_string($json['dosageInstruction'][0]['text'])) {
-            $data['drug_dosage_instructions'] = $json['dosageInstruction'][0]['text'];
+        $dosageInstructions = $json['dosageInstruction'] ?? null;
+        $firstDosage = is_array($dosageInstructions) ? ($dosageInstructions[0] ?? null) : null;
+        $dosageText = is_array($firstDosage) ? ($firstDosage['text'] ?? null) : null;
+        if (is_string($dosageText) && $dosageText !== '') {
+            $data['drug_dosage_instructions'] = $dosageText;
         }
 
         // dispenseRequest.quantity.value -> quantity
@@ -335,8 +346,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // note[0].text -> note
-        if (!empty($json['note'][0]['text']) && is_string($json['note'][0]['text'])) {
-            $data['note'] = $json['note'][0]['text'];
+        $notes = $json['note'] ?? null;
+        $firstNote = is_array($notes) ? ($notes[0] ?? null) : null;
+        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
+        if (is_string($noteText) && $noteText !== '') {
+            $data['note'] = $noteText;
         }
 
         return $data;
@@ -357,7 +371,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         // txDate is NOT NULL with no default; populate from authoredOn if available,
         // else today.
-        if (empty($openEmrRecord['txDate'])) {
+        if (($openEmrRecord['txDate'] ?? '') === '') {
             $authored = $openEmrRecord['date_added'] ?? null;
             if (is_string($authored) && $authored !== '') {
                 $authoredDt = date_create_immutable($authored);
@@ -400,8 +414,9 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     private function resolveReferences(array &$record): ?ProcessingResult
     {
-        if (!empty($record['puuid'])) {
-            $puuidBytes = UuidRegistry::uuidToBytes($record['puuid']);
+        $puuid = $record['puuid'] ?? null;
+        if (is_string($puuid) && $puuid !== '') {
+            $puuidBytes = UuidRegistry::uuidToBytes($puuid);
             $pid = QueryUtils::fetchSingleValue(
                 "SELECT pid FROM patient_data WHERE uuid = ?",
                 'pid',
@@ -410,7 +425,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             if ($pid === null) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
-                    'subject' => ['Patient reference could not be resolved' => $record['puuid']],
+                    'subject' => ['Patient reference could not be resolved' => $puuid],
                 ]);
                 return $result;
             }
@@ -418,8 +433,9 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             unset($record['puuid']);
         }
 
-        if (!empty($record['euuid'])) {
-            $euuidBytes = UuidRegistry::uuidToBytes($record['euuid']);
+        $euuid = $record['euuid'] ?? null;
+        if (is_string($euuid) && $euuid !== '') {
+            $euuidBytes = UuidRegistry::uuidToBytes($euuid);
             $encounterId = QueryUtils::fetchSingleValue(
                 "SELECT encounter FROM form_encounter WHERE uuid = ?",
                 'encounter',
@@ -431,8 +447,9 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             unset($record['euuid']);
         }
 
-        if (!empty($record['pruuid'])) {
-            $pruuidBytes = UuidRegistry::uuidToBytes($record['pruuid']);
+        $pruuid = $record['pruuid'] ?? null;
+        if (is_string($pruuid) && $pruuid !== '') {
+            $pruuidBytes = UuidRegistry::uuidToBytes($pruuid);
             $providerId = QueryUtils::fetchSingleValue(
                 "SELECT id FROM users WHERE uuid = ?",
                 'id',
