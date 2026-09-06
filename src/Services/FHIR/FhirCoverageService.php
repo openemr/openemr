@@ -457,31 +457,36 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // beneficiary -> puuid (Patient uuid, resolved to pid downstream)
         $beneficiaryRef = $json['beneficiary']['reference'] ?? null;
         if (is_string($beneficiaryRef) && $beneficiaryRef !== '') {
-            $parsed = UtilsService::parseReferenceString($beneficiaryRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $beneficiaryUuid = UtilsService::parseReferenceString($beneficiaryRef, 'Patient')['uuid'] ?? null;
+            if (
+                is_string($beneficiaryUuid) && $beneficiaryUuid !== ''
+                && UuidRegistry::isValidStringUUID($beneficiaryUuid)
+            ) {
+                $data['puuid'] = $beneficiaryUuid;
             }
         }
 
         // payor[0] -> insureruuid (Organization uuid, resolved to insurance_companies.id downstream)
         $payorRef = $json['payor'][0]['reference'] ?? null;
         if (is_string($payorRef) && $payorRef !== '') {
-            $parsed = UtilsService::parseReferenceString($payorRef, 'Organization');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['insureruuid'] = $parsed['uuid'];
+            $payorUuid = UtilsService::parseReferenceString($payorRef, 'Organization')['uuid'] ?? null;
+            if (is_string($payorUuid) && $payorUuid !== '' && UuidRegistry::isValidStringUUID($payorUuid)) {
+                $data['insureruuid'] = $payorUuid;
             }
         }
 
         // subscriberId -> policy_number
-        if (!empty($json['subscriberId']) && is_string($json['subscriberId'])) {
-            $data['policy_number'] = $json['subscriberId'];
+        $subscriberId = $json['subscriberId'] ?? null;
+        if (is_string($subscriberId) && $subscriberId !== '') {
+            $data['policy_number'] = $subscriberId;
         }
 
         // relationship -> subscriber_relationship (uses our own reverse of mapRelationship)
@@ -501,14 +506,17 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // period -> date / date_end
-        if (!empty($json['period']['start']) && is_string($json['period']['start'])) {
-            $normalized = $this->normalizeDate($json['period']['start']);
+        $period = $json['period'] ?? null;
+        $periodStart = is_array($period) ? ($period['start'] ?? null) : null;
+        if (is_string($periodStart) && $periodStart !== '') {
+            $normalized = $this->normalizeDate($periodStart);
             if ($normalized !== null) {
                 $data['date'] = $normalized;
             }
         }
-        if (!empty($json['period']['end']) && is_string($json['period']['end'])) {
-            $normalized = $this->normalizeDate($json['period']['end']);
+        $periodEnd = is_array($period) ? ($period['end'] ?? null) : null;
+        if (is_string($periodEnd) && $periodEnd !== '') {
+            $normalized = $this->normalizeDate($periodEnd);
             if ($normalized !== null) {
                 $data['date_end'] = $normalized;
             }
@@ -532,8 +540,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         // status from date/date_end. Rather than silently dropping caller-supplied status,
         // we stash it for the insert/update path to validate against the derived status.
         // If the values disagree the caller gets a 422.
-        if (!empty($json['status']) && is_string($json['status'])) {
-            $data['__fhir_status__'] = $json['status'];
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            $data['__fhir_status__'] = $status;
         }
 
         // costToBeneficiary[copay].valueMoney.value -> copay (string column)
@@ -656,8 +665,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      */
     private function resolveReferences(array &$record): ?ProcessingResult
     {
-        if (!empty($record['puuid'])) {
-            $puuidBytes = UuidRegistry::uuidToBytes($record['puuid']);
+        $puuid = $record['puuid'] ?? null;
+        if (is_string($puuid) && $puuid !== '') {
+            $puuidBytes = UuidRegistry::uuidToBytes($puuid);
             $pid = QueryUtils::fetchSingleValue(
                 "SELECT pid FROM patient_data WHERE uuid = ?",
                 'pid',
@@ -666,7 +676,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             if ($pid === null) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
-                    'beneficiary' => ['Patient reference could not be resolved' => $record['puuid']],
+                    'beneficiary' => ['Patient reference could not be resolved' => $puuid],
                 ]);
                 return $result;
             }
@@ -674,8 +684,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             unset($record['puuid']);
         }
 
-        if (!empty($record['insureruuid'])) {
-            $insurerUuidBytes = UuidRegistry::uuidToBytes($record['insureruuid']);
+        $insurerUuid = $record['insureruuid'] ?? null;
+        if (is_string($insurerUuid) && $insurerUuid !== '') {
+            $insurerUuidBytes = UuidRegistry::uuidToBytes($insurerUuid);
             $providerId = QueryUtils::fetchSingleValue(
                 "SELECT id FROM insurance_companies WHERE uuid = ?",
                 'id',
@@ -684,7 +695,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             if ($providerId === null) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
-                    'payor' => ['Organization reference could not be resolved to an insurance company' => $record['insureruuid']],
+                    'payor' => ['Organization reference could not be resolved to an insurance company' => $insurerUuid],
                 ]);
                 return $result;
             }
@@ -707,19 +718,20 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $record['policy_type'] ??= '';
 
         $relationship = $record['subscriber_relationship'] ?? null;
-        if ($relationship !== 'self' || empty($record['pid'])) {
+        $pid = $record['pid'] ?? null;
+        if ($relationship !== 'self' || !is_numeric($pid) || (int) $pid <= 0) {
             return;
         }
 
         $patient = QueryUtils::fetchRecords(
             "SELECT fname, mname, lname, DOB, sex, street, city, state, postal_code, country_code, phone_home, ss "
             . "FROM patient_data WHERE pid = ?",
-            [$record['pid']]
+            [$pid]
         );
-        if (empty($patient[0])) {
+        $p = $patient[0] ?? null;
+        if (!is_array($p)) {
             return;
         }
-        $p = $patient[0];
 
         $record['subscriber_fname'] ??= $p['fname'] ?? '';
         $record['subscriber_mname'] ??= $p['mname'] ?? '';
