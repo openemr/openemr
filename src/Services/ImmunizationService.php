@@ -296,7 +296,7 @@ class ImmunizationService extends BaseService
      */
     public function update($uuid, $data)
     {
-        if (empty($data)) {
+        if (!is_array($data) || $data === []) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages("Invalid Data");
             return $processingResult;

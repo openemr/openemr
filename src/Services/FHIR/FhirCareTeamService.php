@@ -308,16 +308,17 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // subject.reference -> puuid (REQUIRED; resolved to pid downstream)
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
-            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
             }
         }
 
@@ -338,13 +339,17 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             if (!is_string($memberRef) || $memberRef === '') {
                 continue;
             }
-            $parsed = UtilsService::parseReferenceString($memberRef, 'Practitioner');
-            if (empty($parsed['uuid']) || !UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+            $memberUuid = UtilsService::parseReferenceString($memberRef, 'Practitioner')['uuid'] ?? null;
+            if (!is_string($memberUuid) || $memberUuid === '' || !UuidRegistry::isValidStringUUID($memberUuid)) {
                 continue;
             }
-            $role = $participant['role'][0]['coding'][0]['code'] ?? null;
+            $roles = $participant['role'] ?? null;
+            $firstRole = is_array($roles) ? ($roles[0] ?? null) : null;
+            $roleCodings = is_array($firstRole) ? ($firstRole['coding'] ?? null) : null;
+            $firstRoleCoding = is_array($roleCodings) ? ($roleCodings[0] ?? null) : null;
+            $role = is_array($firstRoleCoding) ? ($firstRoleCoding['code'] ?? null) : null;
             $members[] = [
-                'practitioner_uuid' => $parsed['uuid'],
+                'practitioner_uuid' => $memberUuid,
                 'role' => is_string($role) ? $role : '',
             ];
         }

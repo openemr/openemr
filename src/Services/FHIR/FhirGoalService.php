@@ -389,16 +389,17 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $json = $fhirResource->jsonSerialize();
         $data = [];
 
-        if (!empty($json['id']) && is_string($json['id'])) {
-            $data['uuid'] = $json['id'];
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
 
         // subject.reference -> puuid
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
-            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                $data['puuid'] = $parsed['uuid'];
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
             }
         }
 
@@ -412,11 +413,15 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             if (($ext['url'] ?? null) !== 'http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter') {
                 continue;
             }
-            $ref = $ext['valueReference']['reference'] ?? null;
+            $valueReference = $ext['valueReference'] ?? null;
+            $ref = is_array($valueReference) ? ($valueReference['reference'] ?? null) : null;
             if (is_string($ref) && $ref !== '') {
-                $parsed = UtilsService::parseReferenceString($ref, 'Encounter');
-                if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                    $data['euuid'] = $parsed['uuid'];
+                $encounterUuid = UtilsService::parseReferenceString($ref, 'Encounter')['uuid'] ?? null;
+                if (
+                    is_string($encounterUuid) && $encounterUuid !== ''
+                    && UuidRegistry::isValidStringUUID($encounterUuid)
+                ) {
+                    $data['euuid'] = $encounterUuid;
                 }
             }
             break;
@@ -425,11 +430,12 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         // lifecycleStatus -> plan_status. R4 marks lifecycleStatus as 1..1; we require it
         // on write rather than silently defaulting. OpenEMR plan_status values are a free
         // string at storage; the read side maps via mapPlanStatusToLifecycleStatus.
-        if (empty($json['lifecycleStatus']) || !is_string($json['lifecycleStatus'])) {
+        $lifecycleStatus = $json['lifecycleStatus'] ?? null;
+        if (!is_string($lifecycleStatus) || $lifecycleStatus === '') {
             $data['__validation_error__'] = 'Goal.lifecycleStatus is required (FHIR R4 1..1)';
             return $data;
         }
-        $planStatus = $json['lifecycleStatus'];
+        $planStatus = $lifecycleStatus;
 
         // Build the single item row
         $item = ['plan_status' => $planStatus];
