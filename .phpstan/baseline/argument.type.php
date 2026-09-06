@@ -26717,11 +26717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$username of method phpseclib3\\\\Net\\\\SSH2\\:\\:login\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
@@ -26733,11 +26728,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$binds of function sqlStatement expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$port of class phpseclib3\\\\Net\\\\SFTP constructor expects int, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
 ];
