@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
@@ -15,6 +13,7 @@ use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR CarePlan Service CRUD Tests
@@ -58,7 +57,7 @@ class FhirCarePlanServiceCrudTest extends TestCase
         $encounterResource = new FHIREncounter($encounterFixture);
 
         $encounterService = new FhirEncounterService();
-        $encounterService->setSystemLogger(new SystemLogger(Level::Critical));
+        $encounterService->setLogger($this->createMock(LoggerInterface::class));
         $encounterResult = $encounterService->insert($encounterResource);
         $this->assertTrue(
             $encounterResult->isValid(),
@@ -72,7 +71,7 @@ class FhirCarePlanServiceCrudTest extends TestCase
         $this->fhirCarePlanFixture = new FHIRCarePlan($fixture);
 
         $this->fhirCarePlanService = new FhirCarePlanService();
-        $this->fhirCarePlanService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirCarePlanService->setLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

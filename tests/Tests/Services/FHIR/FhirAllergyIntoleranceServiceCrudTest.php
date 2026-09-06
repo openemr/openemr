@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR AllergyIntolerance Service CRUD Tests
@@ -52,7 +51,7 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
         $this->fhirAllergyIntoleranceFixture = new FHIRAllergyIntolerance($fixture);
 
         $this->fhirAllergyIntoleranceService = new FhirAllergyIntoleranceService();
-        $this->fhirAllergyIntoleranceService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirAllergyIntoleranceService->setLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

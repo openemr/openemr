@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitionerRole;
 use OpenEMR\Services\FHIR\FhirPractitionerRoleService;
@@ -15,6 +13,7 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR PractitionerRole Service CRUD Tests
@@ -78,7 +77,7 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
         $this->fhirPractitionerRoleFixture = new FHIRPractitionerRole($fixture);
 
         $this->fhirPractitionerRoleService = new FhirPractitionerRoleService();
-        $this->fhirPractitionerRoleService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirPractitionerRoleService->setLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

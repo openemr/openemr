@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment;
 use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Appointment Service CRUD Tests
@@ -76,7 +75,7 @@ class FhirAppointmentServiceCrudTest extends TestCase
         $this->fhirAppointmentFixture = new FHIRAppointment($fixture);
 
         $this->fhirAppointmentService = new FhirAppointmentService();
-        $this->fhirAppointmentService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirAppointmentService->setLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

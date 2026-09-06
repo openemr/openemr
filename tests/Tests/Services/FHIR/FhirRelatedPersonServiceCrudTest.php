@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR RelatedPerson Service CRUD Tests
@@ -51,7 +50,7 @@ class FhirRelatedPersonServiceCrudTest extends TestCase
         $this->fhirRelatedPersonFixture = new FHIRRelatedPerson($fixture);
 
         $this->fhirRelatedPersonService = new FhirRelatedPersonService();
-        $this->fhirRelatedPersonService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirRelatedPersonService->setLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

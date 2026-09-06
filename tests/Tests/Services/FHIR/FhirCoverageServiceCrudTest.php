@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Coverage Service CRUD Tests
@@ -52,7 +51,7 @@ class FhirCoverageServiceCrudTest extends TestCase
         $this->fhirCoverageFixture = new FHIRCoverage($fixture);
 
         $this->fhirCoverageService = new FhirCoverageService();
-        $this->fhirCoverageService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirCoverageService->setLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

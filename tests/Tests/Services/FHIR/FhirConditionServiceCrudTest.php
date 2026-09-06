@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Condition Service CRUD Tests
@@ -55,7 +54,7 @@ class FhirConditionServiceCrudTest extends TestCase
         $this->fhirConditionFixture = new FHIRCondition($fixture);
 
         $this->fhirConditionService = new FhirConditionService();
-        $this->fhirConditionService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirConditionService->setLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void
