@@ -120,34 +120,54 @@ class SsrfSafeUrlValidator
      */
     public function validate(string $url): ?string
     {
+        return $this->validateAndPin($url)['reason'];
+    }
+
+    /**
+     * Validate the URL and, when accepted, return the resolved addresses so
+     * the caller can bind the fetch to the same IP the validation was
+     * performed against. The caller should hand these to their HTTP client
+     * via CURLOPT_RESOLVE (or the transport equivalent) so the connect step
+     * cannot see a different address than the check did.
+     *
+     * `ips` is empty on rejection AND on the IP-literal accept path (nothing
+     * to pin against for a literal — the URL already names the address).
+     * Callers pin only when it is non-empty.
+     *
+     * @return array{reason: string|null, host: string, port: int, scheme: string, ips: list<string>}
+     */
+    public function validateAndPin(string $url): array
+    {
+        $empty = ['reason' => null, 'host' => '', 'port' => 0, 'scheme' => '', 'ips' => []];
+
         $trimmed = trim($url);
         if ($trimmed === '') {
-            return self::REASON_EMPTY;
+            return ['reason' => self::REASON_EMPTY] + $empty;
         }
 
         $parts = parse_url($trimmed);
         if ($parts === false) {
-            return self::REASON_MALFORMED;
+            return ['reason' => self::REASON_MALFORMED] + $empty;
         }
 
         $scheme = isset($parts['scheme']) ? strtolower((string) $parts['scheme']) : '';
         if ($scheme === '') {
-            return self::REASON_MISSING_SCHEME;
+            return ['reason' => self::REASON_MISSING_SCHEME] + $empty;
         }
         if (!in_array($scheme, $this->allowedSchemes, true)) {
-            return self::REASON_DISALLOWED_SCHEME;
+            return ['reason' => self::REASON_DISALLOWED_SCHEME] + $empty;
         }
 
         // Userinfo (`http://user:pass@host/`) obscures the effective host in
         // logs and is not needed for a JWKS endpoint. Reject to keep the sink
         // free of embedded credentials in URLs.
         if (isset($parts['user']) || isset($parts['pass'])) {
-            return self::REASON_USERINFO;
+            return ['reason' => self::REASON_USERINFO] + $empty;
         }
 
         $host = isset($parts['host']) ? strtolower((string) $parts['host']) : '';
         if ($host === '') {
-            return self::REASON_MISSING_HOST;
+            return ['reason' => self::REASON_MISSING_HOST] + $empty;
         }
 
         // Strip IPv6 brackets before ip literal checks.
@@ -158,20 +178,47 @@ class SsrfSafeUrlValidator
 
         $literalReason = $this->classifyLiteral($bareHost);
         if ($literalReason !== null) {
-            return $literalReason;
+            return ['reason' => $literalReason] + $empty;
         }
+
+        $port = isset($parts['port']) ? (int) $parts['port'] : ($scheme === 'https' ? 443 : 80);
+        $pinnedIps = [];
 
         // Not an IP literal — a hostname. If the caller opted in, resolve it
         // and re-check each resolved address so a public-looking name that
-        // points into RFC1918 or the metadata service is rejected.
-        if ($this->resolveDns && !$this->isIpLiteral($bareHost)) {
-            $dnsReason = $this->classifyResolvedHost($bareHost);
-            if ($dnsReason !== null) {
-                return $dnsReason;
+        // points into RFC1918 or the metadata service is rejected. On accept
+        // we also carry the resolved IPs out so the fetch can be pinned.
+        if (!$this->isIpLiteral($bareHost)) {
+            if ($this->resolveDns) {
+                $ipv4 = $this->resolveIpv4($bareHost);
+                $ipv6 = $this->resolveIpv6($bareHost);
+
+                if ($ipv4 === [] && $ipv6 === []) {
+                    return ['reason' => self::REASON_DNS_UNRESOLVABLE] + $empty;
+                }
+
+                foreach ($ipv4 as $ip) {
+                    if ($this->classifyIp($ip) !== null) {
+                        return ['reason' => self::REASON_DNS_UNSAFE] + $empty;
+                    }
+                }
+                foreach ($ipv6 as $ip) {
+                    if ($this->classifyIp($ip) !== null) {
+                        return ['reason' => self::REASON_DNS_UNSAFE] + $empty;
+                    }
+                }
+
+                $pinnedIps = array_merge($ipv4, $ipv6);
             }
         }
 
-        return null;
+        return [
+            'reason' => null,
+            'host' => $bareHost,
+            'port' => $port,
+            'scheme' => $scheme,
+            'ips' => $pinnedIps,
+        ];
     }
 
     /**
@@ -266,40 +313,6 @@ class SsrfSafeUrlValidator
     private function isIpLiteral(string $host): bool
     {
         return filter_var($host, FILTER_VALIDATE_IP) !== false;
-    }
-
-    /**
-     * Resolve $host and reject if any address is unsafe.
-     *
-     * Delegates the actual resolver calls to `resolveIpv4` / `resolveIpv6`
-     * hooks that subclasses can override for tests. Each returns a list of
-     * IP-literal strings; every literal is classified with the same rules
-     * used for direct IP-literal input, so the accept/reject decision is
-     * identical no matter how the host was expressed.
-     */
-    private function classifyResolvedHost(string $host): ?string
-    {
-        $ipv4Addresses = $this->resolveIpv4($host);
-        $ipv6Addresses = $this->resolveIpv6($host);
-
-        if ($ipv4Addresses === [] && $ipv6Addresses === []) {
-            return self::REASON_DNS_UNRESOLVABLE;
-        }
-
-        foreach ($ipv4Addresses as $ip) {
-            $reason = $this->classifyIp($ip);
-            if ($reason !== null) {
-                return self::REASON_DNS_UNSAFE;
-            }
-        }
-        foreach ($ipv6Addresses as $ip) {
-            $reason = $this->classifyIp($ip);
-            if ($reason !== null) {
-                return self::REASON_DNS_UNSAFE;
-            }
-        }
-
-        return null;
     }
 
     /**

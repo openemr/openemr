@@ -291,4 +291,137 @@ class SsrfSafeUrlValidatorIsolatedTest extends TestCase
         );
         $this->assertNull($validator->validate('https://example.com/jwks'));
     }
+
+    // -------------------------------------------------------------------------
+    // validateAndPin() — resolved-address carry-out for fetch-time pinning.
+    // The DNS check and the connect step both live in one process, but they
+    // do not share a resolver cache, so a second resolution at fetch time
+    // can see a different answer than the check did. Callers avoid that
+    // gap by pinning the connect step to the address the validator returned.
+    // -------------------------------------------------------------------------
+
+    public function testValidateAndPinCarriesResolvedIpsForHostname(): void
+    {
+        $validator = new class extends SsrfSafeUrlValidator {
+            public function __construct()
+            {
+                parent::__construct(['https'], true);
+            }
+
+            protected function resolveIpv4(string $host): array
+            {
+                return ['203.0.113.10', '203.0.113.11'];
+            }
+
+            protected function resolveIpv6(string $host): array
+            {
+                return ['2606:4700:4700::1111'];
+            }
+        };
+        $result = $validator->validateAndPin('https://issuer.example.com:8443/jwks');
+
+        $this->assertNull($result['reason']);
+        $this->assertSame('issuer.example.com', $result['host']);
+        $this->assertSame(8443, $result['port']);
+        $this->assertSame('https', $result['scheme']);
+        $this->assertSame(
+            ['203.0.113.10', '203.0.113.11', '2606:4700:4700::1111'],
+            $result['ips'],
+            'Both v4 and v6 resolved addresses must be handed to the caller'
+        );
+    }
+
+    public function testValidateAndPinDefaultsPortByScheme(): void
+    {
+        $validator = new class extends SsrfSafeUrlValidator {
+            public function __construct()
+            {
+                parent::__construct(['http', 'https'], true);
+            }
+
+            protected function resolveIpv4(string $host): array
+            {
+                return ['203.0.113.10'];
+            }
+
+            protected function resolveIpv6(string $host): array
+            {
+                return [];
+            }
+        };
+
+        $this->assertSame(443, $validator->validateAndPin('https://example.com/jwks')['port']);
+        $this->assertSame(80, $validator->validateAndPin('http://example.com/jwks')['port']);
+    }
+
+    public function testValidateAndPinReturnsEmptyIpsForIpLiteral(): void
+    {
+        // IP literal — nothing for the caller to pin against, the URL
+        // already names the target address. `ips` empty is the signal.
+        $validator = new SsrfSafeUrlValidator(['http', 'https'], false);
+        $result = $validator->validateAndPin('https://8.8.8.8/jwks');
+
+        $this->assertNull($result['reason']);
+        $this->assertSame('8.8.8.8', $result['host']);
+        $this->assertSame([], $result['ips']);
+    }
+
+    public function testValidateAndPinReturnsEmptyIpsWhenResolverOff(): void
+    {
+        // Resolver off — no lookup happened, no addresses to pin against.
+        $validator = new SsrfSafeUrlValidator(['http', 'https'], false);
+        $result = $validator->validateAndPin('https://example.com/jwks');
+
+        $this->assertNull($result['reason']);
+        $this->assertSame([], $result['ips']);
+    }
+
+    public function testValidateAndPinCarriesRejectionReason(): void
+    {
+        $validator = new SsrfSafeUrlValidator(['https'], false);
+        $result = $validator->validateAndPin('http://example.com/jwks');
+
+        $this->assertSame(SsrfSafeUrlValidator::REASON_DISALLOWED_SCHEME, $result['reason']);
+        $this->assertSame([], $result['ips']);
+    }
+
+    public function testValidateAndPinRejectsWhenAnyResolvedAddressIsUnsafe(): void
+    {
+        // Mirrors testValidateRejectsHostnameWithMixedSafeAndUnsafeAddresses:
+        // if even one resolved address is unsafe, the whole URL is rejected
+        // and no pin data is returned.
+        $validator = new class extends SsrfSafeUrlValidator {
+            public function __construct()
+            {
+                parent::__construct(['https'], true);
+            }
+
+            protected function resolveIpv4(string $host): array
+            {
+                return ['8.8.8.8', '10.0.0.1'];
+            }
+
+            protected function resolveIpv6(string $host): array
+            {
+                return [];
+            }
+        };
+        $result = $validator->validateAndPin('https://split-horizon.example.com/jwks');
+
+        $this->assertSame(SsrfSafeUrlValidator::REASON_DNS_UNSAFE, $result['reason']);
+        $this->assertSame([], $result['ips']);
+    }
+
+    public function testValidateStillReturnsReasonAfterRefactor(): void
+    {
+        // validate() is now a thin wrapper over validateAndPin(). Lock the
+        // legacy string|null return contract so callers of validate() do not
+        // regress silently when validateAndPin() evolves.
+        $validator = new SsrfSafeUrlValidator(['http', 'https'], false);
+        $this->assertNull($validator->validate('https://example.com/jwks'));
+        $this->assertSame(
+            SsrfSafeUrlValidator::REASON_LOOPBACK,
+            $validator->validate('http://127.0.0.1/jwks')
+        );
+    }
 }

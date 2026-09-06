@@ -172,9 +172,9 @@ class AuthorizationControllerJwksUriValidationIsolatedTest extends TestCase
         // instantiation inside validateJWTClientAssertion. Ordering matters:
         // JsonWebKeySet fetches the URL immediately in its constructor, so
         // the check has to run first.
-        $validateOffset = strpos($this->readPathContent, '$this->getJwksUriValidator()->validate($storedJwksUri)');
+        $validateOffset = strpos($this->readPathContent, '$this->getJwksUriValidator()->validateAndPin($storedJwksUri)');
         $jwksOffset = strpos($this->readPathContent, 'new JsonWebKeySet(');
-        $this->assertIsInt($validateOffset, 'read-path validate() call not present');
+        $this->assertIsInt($validateOffset, 'read-path validateAndPin() call not present');
         $this->assertIsInt($jwksOffset, 'JsonWebKeySet construction not present');
         $this->assertLessThan(
             $jwksOffset,
@@ -214,6 +214,63 @@ class AuthorizationControllerJwksUriValidationIsolatedTest extends TestCase
             "/getJwksUriValidator\\s*\\(\\s*\\)\\s*:\\s*SsrfSafeUrlValidator\\s*\\{[\\s\\S]{0,2000}?new\\s+SsrfSafeUrlValidator\\s*\\(\\s*\\[\\s*['\"]https['\"]\\s*\\]\\s*\\)/",
             $this->readPathContent,
             'getJwksUriValidator() must construct the validator with an https-only scheme allowlist'
+        );
+    }
+
+    // ---- Read-path address pinning --------------------------------------
+
+    public function testReadPathUsesValidateAndPin(): void
+    {
+        // A plain validate() call throws away the resolved addresses, so the
+        // fetch step later has to resolve again and can see a different
+        // answer. The read path must call validateAndPin() so it can hand
+        // those addresses to the HTTP client.
+        $this->assertMatchesRegularExpression(
+            '/getJwksUriValidator\s*\(\s*\)\s*->\s*validateAndPin\s*\(\s*\$storedJwksUri\s*\)/',
+            $this->readPathContent,
+            'validateJWTClientAssertion must call validateAndPin() so the fetch can be bound to the validated address'
+        );
+    }
+
+    public function testReadPathBuildsPinnedClientWhenIpsPresent(): void
+    {
+        // The pin result carries resolved addresses on the hostname accept
+        // path (empty on IP-literal accept). The read path must switch to
+        // buildPinnedHttpClient() when addresses are present rather than
+        // reusing the generic client, otherwise the pin never reaches curl.
+        $this->assertMatchesRegularExpression(
+            '/\$pinResult\s*\[\s*[\'"]ips[\'"]\s*\]\s*!==\s*\[\s*\][\s\S]{0,200}?buildPinnedHttpClient\s*\(\s*\$pinResult\s*\)/',
+            $this->readPathContent,
+            'read path must select buildPinnedHttpClient() when validateAndPin() returned addresses'
+        );
+    }
+
+    public function testReadPathPinnedClientUsesCurlResolve(): void
+    {
+        // The pinned-client builder must set CURLOPT_RESOLVE on the Guzzle
+        // curl transport so the outbound connect targets the validated IP.
+        // Guzzle's default curl handler passes any `curl` option array
+        // through to curl_setopt_array.
+        $this->assertMatchesRegularExpression(
+            '/buildPinnedHttpClient\s*\([^)]*\)[\s\S]{0,600}?CURLOPT_RESOLVE/',
+            $this->readPathContent,
+            'buildPinnedHttpClient() must set CURLOPT_RESOLVE so curl connects to the pinned address'
+        );
+    }
+
+    public function testReadPathPinnedClientRunsBeforeJsonWebKeySet(): void
+    {
+        // Ordering: the pinned client must be constructed BEFORE
+        // JsonWebKeySet is instantiated, since JsonWebKeySet fetches in its
+        // constructor via the injected client.
+        $buildOffset = strpos($this->readPathContent, 'buildPinnedHttpClient(');
+        $jwksOffset = strpos($this->readPathContent, 'new JsonWebKeySet(');
+        $this->assertIsInt($buildOffset, 'buildPinnedHttpClient call not present');
+        $this->assertIsInt($jwksOffset, 'JsonWebKeySet construction not present');
+        $this->assertLessThan(
+            $jwksOffset,
+            $buildOffset,
+            'buildPinnedHttpClient() must run before JsonWebKeySet is constructed'
         );
     }
 }

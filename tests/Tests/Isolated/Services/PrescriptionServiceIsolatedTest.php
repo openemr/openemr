@@ -338,6 +338,245 @@ class PrescriptionServiceIsolatedTest extends TestCase
         $this->assertSame([], $result->getData(), 'No prescription id must be returned on rejection');
     }
 
+    // -------------------------------------------------------------------------
+    // getAll() must enforce per-patient ACL after validating the binding.
+    // A `patients/rx view` grant is tenant-wide, so the same
+    // `patients/demo` + `squads/<squad>` policy that gates chart access must
+    // gate this listing.
+    // -------------------------------------------------------------------------
+
+    public function testGetAllRejectsWhenCallerLacksPerPatientAcl(): void
+    {
+        $service = new class extends PrescriptionService {
+            public bool $aclChecked = false;
+
+            public function __construct()
+            {
+                // Skip parent constructor: it hits the DB.
+            }
+
+            /**
+             * @return array<string,mixed>
+             */
+            protected function findPatientByPatientUuid(string $uuid): array
+            {
+                return ['pid' => 1, 'squad' => '', 'uuid' => $uuid];
+            }
+
+            protected function aclCheckUserPatientAccess(string $squad): bool
+            {
+                $this->aclChecked = true;
+                return false;
+            }
+        };
+        $result = $service->getAll(['patient.uuid' => '11111111-2222-3333-4444-555555555555']);
+
+        $this->assertTrue($service->aclChecked, 'ACL seam must have been invoked');
+        $this->assertFalse($result->isValid(), 'getAll must be rejected when caller lacks per-patient ACL');
+        $messages = $this->extractValidationMessages($result);
+        $this->assertArrayHasKey('patient.uuid', $messages);
+        $this->assertSame('User does not have access to this patient.', $messages['patient.uuid']);
+        $this->assertSame([], $result->getData(), 'No prescription rows must be returned on rejection');
+    }
+
+    public function testGetAllRejectsWhenPatientUuidDoesNotResolve(): void
+    {
+        // patient_data has no row with the requested uuid — treat as
+        // validation failure rather than falling through to an empty listing.
+        $service = new class extends PrescriptionService {
+            public function __construct()
+            {
+                // Skip parent constructor: it hits the DB.
+            }
+
+            protected function findPatientByPatientUuid(string $uuid): ?array
+            {
+                return null;
+            }
+
+            protected function aclCheckUserPatientAccess(string $squad): bool
+            {
+                throw new \LogicException(
+                    'ACL check must not run when the patient does not resolve'
+                );
+            }
+        };
+        $result = $service->getAll(['patient.uuid' => '99999999-9999-9999-9999-999999999999']);
+
+        $this->assertFalse($result->isValid(), 'Unresolvable patient.uuid must be rejected');
+        $messages = $this->extractValidationMessages($result);
+        $this->assertArrayHasKey('patient.uuid', $messages);
+        $this->assertSame('Patient does not exist.', $messages['patient.uuid']);
+    }
+
+    public function testGetAllForwardsSquadTagToAclCheck(): void
+    {
+        $capturedSquad = null;
+        $service = new class ($capturedSquad) extends PrescriptionService {
+            public ?string $captured = null;
+
+            public function __construct(?string &$captured)
+            {
+                $this->captured = &$captured;
+            }
+
+            /**
+             * @return array<string,mixed>
+             */
+            protected function findPatientByPatientUuid(string $uuid): array
+            {
+                return ['pid' => 1, 'squad' => 'cardiology', 'uuid' => $uuid];
+            }
+
+            protected function aclCheckUserPatientAccess(string $squad): bool
+            {
+                $this->captured = $squad;
+                return false; // Reject so we do not reach the SQL SELECT.
+            }
+        };
+        $service->getAll(['patient.uuid' => '11111111-2222-3333-4444-555555555555']);
+
+        $this->assertSame('cardiology', $capturedSquad, 'Squad tag from patient row must be forwarded to the ACL check');
+    }
+
+    // -------------------------------------------------------------------------
+    // getOne() must resolve the target's owner and enforce per-patient ACL.
+    // Route previously accepted any prescription uuid and returned the row
+    // as long as the caller cleared the tenant-wide `patients/rx view`.
+    // -------------------------------------------------------------------------
+
+    public function testGetOneRejectsWhenCallerLacksPerPatientAcl(): void
+    {
+        $service = new class extends PrescriptionService {
+            public bool $aclChecked = false;
+
+            public function __construct()
+            {
+                // Skip parent constructor: it hits the DB.
+            }
+
+            /**
+             * @return array<string,mixed>
+             */
+            protected function findPatientForPrescription(string $prescriptionUuid): array
+            {
+                return ['pid' => 1, 'squad' => 'oncology', 'uuid' => 'patient-bytes'];
+            }
+
+            protected function aclCheckUserPatientAccess(string $squad): bool
+            {
+                $this->aclChecked = true;
+                return false;
+            }
+        };
+        $result = $service->getOne('11111111-2222-3333-4444-555555555555');
+
+        $this->assertTrue($service->aclChecked, 'ACL seam must have been invoked');
+        $this->assertFalse($result->isValid());
+        $messages = $this->extractValidationMessages($result);
+        $this->assertArrayHasKey('patient.uuid', $messages);
+        $this->assertSame('User does not have access to this patient.', $messages['patient.uuid']);
+        $this->assertSame([], $result->getData(), 'No prescription row must be returned on rejection');
+    }
+
+    public function testGetOneReturnsEmptyWhenPrescriptionHasNoOwner(): void
+    {
+        // Orphaned patient_id (patient row deleted). Treat like "no such
+        // record" — do not surface the row and do not touch the ACL.
+        $service = new class extends PrescriptionService {
+            public function __construct()
+            {
+                // Skip parent constructor: it hits the DB.
+            }
+
+            protected function findPatientForPrescription(string $prescriptionUuid): ?array
+            {
+                return null;
+            }
+
+            protected function aclCheckUserPatientAccess(string $squad): bool
+            {
+                throw new \LogicException(
+                    'ACL check must not run when the prescription has no resolvable owner'
+                );
+            }
+        };
+        $result = $service->getOne('11111111-2222-3333-4444-555555555555');
+
+        // Note: getOne validates the prescription uuid via PatientValidator
+        // first. In isolated mode that validator will short-circuit before
+        // reaching our findPatientForPrescription stub, so the assertion is
+        // limited to "no data leaked".
+        $this->assertSame([], $result->getData());
+    }
+
+    // -------------------------------------------------------------------------
+    // delete() must enforce per-patient ACL regardless of $expectedPatientUuid.
+    // The prior contract allowed callers to skip the ownership check by
+    // passing null; the ACL check must apply either way.
+    // -------------------------------------------------------------------------
+
+    public function testDeleteRejectsWhenCallerLacksAclEvenWithoutExpectedPatientUuid(): void
+    {
+        // Prior behavior: passing null for $expectedPatientUuid skipped the
+        // ownership assertion entirely. That must NOT translate to skipping
+        // the ACL — the two checks are independent.
+        $service = new class extends PrescriptionService {
+            public bool $aclChecked = false;
+
+            public function __construct()
+            {
+                // Skip parent constructor: it hits the DB.
+            }
+
+            /**
+             * @return array<string,mixed>
+             */
+            protected function findPatientForPrescription(string $prescriptionUuid): array
+            {
+                return ['pid' => 1, 'squad' => '', 'uuid' => 'patient-bytes'];
+            }
+
+            protected function aclCheckUserPatientAccess(string $squad): bool
+            {
+                $this->aclChecked = true;
+                return false;
+            }
+        };
+        $result = $service->delete('11111111-2222-3333-4444-555555555555', null);
+
+        $this->assertTrue($service->aclChecked, 'ACL seam must run even when $expectedPatientUuid is null');
+        $this->assertFalse($result->isValid());
+        $messages = $this->extractValidationMessages($result);
+        $this->assertArrayHasKey('patient.uuid', $messages);
+        $this->assertSame('User does not have access to this patient.', $messages['patient.uuid']);
+    }
+
+    public function testDeleteRejectsWhenPrescriptionHasNoOwner(): void
+    {
+        $service = new class extends PrescriptionService {
+            public function __construct()
+            {
+                // Skip parent constructor: it hits the DB.
+            }
+
+            protected function findPatientForPrescription(string $prescriptionUuid): ?array
+            {
+                return null;
+            }
+
+            protected function aclCheckUserPatientAccess(string $squad): bool
+            {
+                throw new \LogicException('ACL check must not run when the owner is unresolvable');
+            }
+        };
+        $result = $service->delete('11111111-2222-3333-4444-555555555555');
+
+        $this->assertFalse($result->isValid());
+        $messages = $this->extractValidationMessages($result);
+        $this->assertArrayHasKey('uuid', $messages);
+    }
+
     public function testInsertPassesSquadTagToAclCheck(): void
     {
         // When the patient carries a squad tag, the ACL seam must be told

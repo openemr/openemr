@@ -134,6 +134,31 @@ class JWTClientAuthenticationService
         return $this->jwksUriValidator;
     }
 
+    /**
+     * Build a per-request Guzzle client whose curl transport binds the JWKS
+     * hostname to the addresses that passed validation. Uses CURLOPT_RESOLVE
+     * so the outbound TCP connect targets the same IP the validator saw,
+     * while the TLS SNI and Host header keep the original hostname (so
+     * certificate validation and virtual hosting continue to work).
+     *
+     * Overridable so isolated tests can substitute a client without exercising
+     * the real Guzzle curl handler.
+     *
+     * @param array{reason: string|null, host: string, port: int, scheme: string, ips: list<string>} $pin
+     */
+    protected function buildPinnedHttpClient(array $pin): ClientInterface
+    {
+        $resolveEntries = [];
+        foreach ($pin['ips'] as $ip) {
+            $resolveEntries[] = sprintf('%s:%d:%s', $pin['host'], $pin['port'], $ip);
+        }
+        return new Client([
+            'curl' => [
+                CURLOPT_RESOLVE => $resolveEntries,
+            ],
+        ]);
+    }
+
 
     /**
      * Set logger for debugging
@@ -269,10 +294,15 @@ class JWTClientAuthenticationService
         // registration, but a client row may pre-date that check or have been
         // mutated out-of-band, so we re-validate before every outbound fetch.
         // Reject-and-audit rather than fetching a URL that resolves into
-        // internal / metadata address space.
+        // internal / metadata address space. validateAndPin() also returns
+        // the resolved addresses so the subsequent fetch can bind to the
+        // same IP the check saw, closing the gap between validate() and the
+        // connect step.
         $storedJwksUri = (string) $client->getJwksUri();
+        $pinResult = null;
         if ($storedJwksUri !== '') {
-            $rejectionReason = $this->getJwksUriValidator()->validate($storedJwksUri);
+            $pinResult = $this->getJwksUriValidator()->validateAndPin($storedJwksUri);
+            $rejectionReason = $pinResult['reason'];
             if ($rejectionReason !== null) {
                 $clientIdForLog = is_scalar($clientId) ? (string) $clientId : '';
                 $this->logger->error(
@@ -301,9 +331,16 @@ class JWTClientAuthenticationService
         $jwt = $params['client_assertion'] ?? '';
 
         try {
-            // Get the JSON Web Key Set for signature validation
+            // Get the JSON Web Key Set for signature validation. When the
+            // validator returned resolved addresses (hostname URL, not an IP
+            // literal), hand JsonWebKeySet a client whose curl transport is
+            // pinned to those addresses so the connect step targets the same
+            // IP the validator classified.
+            $jwksClient = ($pinResult !== null && $pinResult['ips'] !== [])
+                ? $this->buildPinnedHttpClient($pinResult)
+                : $this->getHttpClient();
             $jsonWebKeySet = new JsonWebKeySet(
-                $this->getHttpClient(),
+                $jwksClient,
                 $client->getJwksUri(),
                 $client->getJwks()
             );
