@@ -219,11 +219,12 @@ class ContactRelationService extends BaseService
 
                 $targetContact = $this->contactService->getOrCreateForEntity('person', $personId);
 
-                if (!empty($data['relationship']) && is_string($data['relationship'])) {
+                $relationship = $data['relationship'] ?? null;
+                if (is_string($relationship) && $relationship !== '') {
                     QueryUtils::sqlStatementThrowException(
                         "UPDATE contact_relation SET relationship = ? "
                         . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
-                        [$data['relationship'], $personId, $ownerContactId]
+                        [$relationship, $personId, $ownerContactId]
                     );
                 }
                 if (isset($data['active'])) {

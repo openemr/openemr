@@ -497,7 +497,7 @@ class CarePlanService extends BaseService
              WHERE f.encounter = ? AND f.form_id = ? AND f.formdir = 'care_plan' AND f.deleted = 0",
             [$encounterId, $formId]
         );
-        if (empty($existing)) {
+        if (!is_array($existing) || $existing === []) {
             $result->setValidationMessages(['uuid' => 'Care plan form not found for given encounter and form id']);
             return $result;
         }
@@ -600,10 +600,11 @@ class CarePlanService extends BaseService
             "SELECT uuid FROM form_encounter WHERE encounter = ?",
             [$encounterId]
         );
-        if (empty($row['uuid'])) {
+        $uuid = is_array($row) ? ($row['uuid'] ?? null) : null;
+        if (!is_string($uuid) || $uuid === '') {
             throw new \RuntimeException("Encounter $encounterId has no uuid");
         }
-        return UuidRegistry::uuidToString($row['uuid']);
+        return UuidRegistry::uuidToString($uuid);
     }
 
     private function buildV2SurrogateKey(string $encounterUuid, int $formId): string
