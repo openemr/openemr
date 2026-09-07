@@ -411,6 +411,51 @@ class PrescriptionServiceIsolatedTest extends TestCase
         $this->assertArrayHasKey('uuid', $messages);
     }
 
+    public function testDeleteRejectsOrphanedListsMedicationUuid(): void
+    {
+        // findPatientForPrescription() accepts UUIDs from both `prescriptions`
+        // and `lists` medication rows (matches the FHIR MedicationRequest
+        // getOne surface). delete() only updates the `prescriptions` table,
+        // so a lists-only UUID would silently affect zero rows while the
+        // API reported success. The prescriptionUuidExists() guard closes
+        // that gap.
+        $service = new class extends PrescriptionService {
+            public function __construct()
+            {
+                // Skip parent constructor: it hits the DB.
+            }
+
+            /**
+             * Return type narrowed to `array` (parent declares `?array`);
+             * this stub always resolves an owner via the lists surface.
+             *
+             * @return array<string,mixed>
+             */
+            public function findPatientForPrescription(string $prescriptionUuid): array
+            {
+                return ['pid' => 1, 'squad' => '', 'uuid' => 'patient-bytes'];
+            }
+
+            protected function prescriptionUuidExists(string $uuid): bool
+            {
+                return false; // Not in the prescriptions table.
+            }
+        };
+        $result = $service->delete('11111111-2222-3333-4444-555555555555');
+
+        $this->assertFalse(
+            $result->isValid(),
+            'delete() must reject a UUID that resolves only via the lists medication surface'
+        );
+        $messages = $this->extractValidationMessages($result);
+        $this->assertArrayHasKey('uuid', $messages);
+        $this->assertSame(
+            [],
+            $result->getData(),
+            'No "record deleted" message may accompany the rejection'
+        );
+    }
+
     public function testInsertPassesSquadTagToAclCheck(): void
     {
         // When the patient carries a squad tag, the ACL seam must be told

@@ -634,6 +634,20 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
+        // findPatientForPrescription accepts UUIDs from both `prescriptions`
+        // and `lists` (medication rows) via UNION — matching the FHIR
+        // MedicationRequest getOne surface. The UPDATE below only modifies
+        // `prescriptions`, so a lists-only UUID would silently affect zero
+        // rows while the API still reported success. Reject the lists-only
+        // case explicitly with the same validation-error shape.
+        if (!$this->prescriptionUuidExists($uuid)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages([
+                'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
+            ]);
+            return $processingResult;
+        }
+
         $uuidBytes = UuidRegistry::uuidToBytes($uuid);
 
         if ($expectedPatientUuid !== null && $expectedPatientUuid !== '') {
@@ -654,6 +668,29 @@ class PrescriptionService extends BaseService
         $processingResult = new ProcessingResult();
         $processingResult->addData(['message' => 'record deleted']);
         return $processingResult;
+    }
+
+    /**
+     * Returns true if the given uuid resolves to a row in the
+     * `prescriptions` table. Distinct from
+     * {@see self::findPatientForPrescription()} which also accepts UUIDs
+     * from the `lists` medication surface. Used by
+     * {@see self::delete()} to reject a lists-only UUID before running an
+     * UPDATE that only touches `prescriptions`. Split out so isolated
+     * tests can override this seam without touching the database.
+     */
+    protected function prescriptionUuidExists(string $uuid): bool
+    {
+        try {
+            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        } catch (InvalidUuidStringException) {
+            return false;
+        }
+        $rows = QueryUtils::fetchRecords(
+            "SELECT 1 FROM " . self::PRESCRIPTION_TABLE . " WHERE uuid = ? LIMIT 1",
+            [$uuidBytes]
+        );
+        return isset($rows[0]);
     }
 
     /**
