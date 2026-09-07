@@ -105,8 +105,10 @@ jobs:
         # of 6. That is a real gap in the image, tracked in
         # openemr/openemr#13851 -- not something to paper over for flex
         # and release, which install the dependencies and must keep
-        # running this test. Drop this line when #13851 is resolved.
-        unit_exclude_filter: ${{ matrix.docker_dir == 'binary' && 'CdaValidateDocumentsTest' || '' }}
+        # running this test. The test lives in tests/Tests/Services, so
+        # it runs in the services suite, not the unit one. Drop this line
+        # when #13851 is resolved.
+        services_exclude_filter: ${{ matrix.docker_dir == 'binary' && 'CdaValidateDocumentsTest' || '' }}
 
   development-test:
     name: "Development Docker Alpine-${{ inputs.alpine_version }} (PHP ${{ matrix.php_version }}, ${{ matrix.mode }})"
