@@ -109,7 +109,15 @@ class PrescriptionService extends BaseService
             // `patient.puuid` before FhirSearchWhereClauseBuilder builds
             // the WHERE. The FHIR path already carries `puuid` as an
             // ISearchField and needs no rewrite here.
-            $search['patient.puuid'] = UuidRegistry::uuidToBytes($patientUuidRaw);
+            try {
+                $search['patient.puuid'] = UuidRegistry::uuidToBytes($patientUuidRaw);
+            } catch (InvalidUuidStringException) {
+                $processingResult = new ProcessingResult();
+                $processingResult->setValidationMessages([
+                    'patient.uuid' => 'Patient identifier is not a valid UUID.',
+                ]);
+                return $processingResult;
+            }
             unset($search['patient.uuid']);
         }
 
@@ -557,14 +565,28 @@ class PrescriptionService extends BaseService
         // failure if the pid does not resolve or the caller lacks access — a
         // tenant-wide `patients/rx write` grant must not translate to "can
         // create a prescription for any patient".
+        // Require an integer LEXICAL form for patient_id. `is_numeric`
+        // accepts things like "1.5", "1e2", "+1", and "  1  "; the (int)
+        // cast then narrows to 1, so ACL runs against patient 1 while
+        // MySQL's implicit conversion for the BIGINT column would round
+        // "1.5" to 2 for the actual INSERT. Match ACL and INSERT by
+        // rejecting anything that is not an unsigned-integer string / int,
+        // then normalize once and use the int form for both the ACL
+        // lookup and the INSERT payload below.
         $patientIdRaw = $data['patient_id'];
-        if (!is_numeric($patientIdRaw) || (int) $patientIdRaw <= 0) {
+        $patientIdNormalized = null;
+        if (is_int($patientIdRaw) && $patientIdRaw > 0) {
+            $patientIdNormalized = $patientIdRaw;
+        } elseif (is_string($patientIdRaw) && preg_match('/^[1-9][0-9]*$/', $patientIdRaw) === 1) {
+            $patientIdNormalized = (int) $patientIdRaw;
+        }
+        if ($patientIdNormalized === null) {
             $processingResult->setValidationMessages([
                 'patient_id' => 'Patient id must be a positive integer.',
             ]);
             return $processingResult;
         }
-        $patient = $this->findPatientByPid((int) $patientIdRaw);
+        $patient = $this->findPatientByPid($patientIdNormalized);
         if ($patient === null) {
             $processingResult->setValidationMessages([
                 'patient_id' => 'Patient does not exist.',
@@ -583,6 +605,9 @@ class PrescriptionService extends BaseService
         // Field allowlist: drop keys the REST contract does not expose so
         // client input cannot populate server-managed columns.
         $filteredData = array_intersect_key($data, array_flip(self::INSERTABLE_FIELDS));
+        // Store the normalized integer so MySQL's implicit conversion for
+        // the BIGINT column can't drift from the value ACL saw.
+        $filteredData['patient_id'] = $patientIdNormalized;
         $filteredData['uuid'] = UuidRegistry::getRegistryForTable(self::PRESCRIPTION_TABLE)->createUuid();
 
         $query = $this->buildInsertColumns($filteredData);

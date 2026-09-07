@@ -252,6 +252,27 @@ class PrescriptionServiceIsolatedTest extends TestCase
         }
     }
 
+    public function testInsertRejectsNonIntegerLexicalPatientId(): void
+    {
+        // is_numeric accepts "1.5", "1e2", "+1", "  1  " — the (int) cast
+        // then narrows to 1 for the ACL lookup while MySQL's implicit
+        // conversion for the BIGINT column would drift ("1.5" rounds to
+        // 2). Require an integer LEXICAL form so the value the ACL sees
+        // is byte-identical to the value that reaches the INSERT.
+        foreach (['1.5', '1e2', '+1', '  1  ', '1.0', '01'] as $bad) {
+            $result = $this->makeService()->insert([
+                'drug' => 'aspirin',
+                'patient_id' => $bad,
+            ]);
+
+            $this->assertFalse(
+                $result->isValid(),
+                sprintf('patient_id=%s must be rejected — non-integer lexical form allows ACL vs INSERT drift', var_export($bad, true))
+            );
+            $this->assertArrayHasKey('patient_id', $this->extractValidationMessages($result));
+        }
+    }
+
     public function testInsertFailsClosedWhenPatientIdDoesNotResolve(): void
     {
         // Simulate `patient_id => 999999` where the pid does not exist.
