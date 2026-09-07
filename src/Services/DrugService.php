@@ -164,21 +164,15 @@ class DrugService extends BaseService
         }
 
         $sql = "UPDATE " . self::DRUG_TABLE . " SET " . $setClause . " WHERE uuid = ?";
-        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
-        $binds[] = $uuidBytes;
+        $binds[] = UuidRegistry::uuidToBytes($uuid);
         QueryUtils::sqlStatementThrowException($sql, $binds);
 
-        $result = new ProcessingResult();
-        $row = QueryUtils::querySingleRow(
-            "SELECT drug_id, uuid, name, drug_code, form, active, last_updated AS drug_last_updated "
-            . "FROM drugs WHERE uuid = ?",
-            [$uuidBytes]
-        );
-        if (is_array($row)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $result->addData($row);
-        }
-        return $result;
+        // Read the row back through the search path rather than re-selecting the raw
+        // columns. FhirServiceBase::update() feeds this result straight into
+        // parseOpenEMRRecord(), which expects the read-side shape -- in particular
+        // drug_code as the coding array createResultRecordFromDatabaseResult() builds,
+        // not the raw column string.
+        return $this->getOne($uuid);
     }
 
     public function search(array $search, $isAndCondition = true)

@@ -624,13 +624,54 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             return $resolveResult;
         }
 
-        // For updates, the existing row already has the subscriber_* fields; only backfill
-        // when the caller explicitly changed relationship to self AND fields are missing.
+        // InsuranceService::update() rewrites every insurance_data column in one statement,
+        // binding each one unconditionally. FHIR Coverage cannot express most of them --
+        // subscriber demographics, employer address, copay -- so the parsed record is only
+        // ever a partial row. Overlay it on the stored row so the untouched columns keep
+        // their current values instead of being read as undefined and written as null.
+        $existing = $this->fetchStoredRecord($fhirResourceId);
+        if ($existing === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Coverage not found']);
+            return $result;
+        }
+        $updatedOpenEMRRecord = array_merge($existing, $updatedOpenEMRRecord);
+
         $this->applyDefaults($updatedOpenEMRRecord);
 
         $result = $this->coverageService->update($updatedOpenEMRRecord);
 
         return $result instanceof ProcessingResult ? $result : new ProcessingResult();
+    }
+
+    /**
+     * Loads the stored insurance_data row for a Coverage uuid, keyed by column name.
+     *
+     * The `uuid` and `id` columns are dropped: `uuid` is binary here and the caller
+     * supplies the string form, and `id` is not part of the update payload.
+     *
+     * @return array<string, mixed>|null Null when no row carries that uuid.
+     */
+    private function fetchStoredRecord(string $fhirResourceId): ?array
+    {
+        if (!UuidRegistry::isValidStringUUID($fhirResourceId)) {
+            return null;
+        }
+        $row = QueryUtils::querySingleRow(
+            "SELECT * FROM insurance_data WHERE uuid = ?",
+            [UuidRegistry::uuidToBytes($fhirResourceId)]
+        );
+        if (!is_array($row)) {
+            return null;
+        }
+        unset($row['uuid'], $row['id']);
+
+        $stored = [];
+        foreach ($row as $column => $value) {
+            $stored[(string) $column] = $value;
+        }
+
+        return $stored;
     }
 
     /**

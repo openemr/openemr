@@ -20,6 +20,7 @@ use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -209,7 +210,7 @@ class ContactRelationService extends BaseService
         }
 
         try {
-            $out = QueryUtils::inTransaction(function () use ($personId, $ownerContactId, $uuid, $data): array {
+            QueryUtils::inTransaction(function () use ($personId, $ownerContactId, $uuid, $data): array {
                 $personService = new PersonService();
                 $personUpdate = array_filter([
                     'first_name' => $data['first_name'] ?? null,
@@ -271,14 +272,20 @@ class ContactRelationService extends BaseService
 
                 return ['uuid' => $uuid, 'person_id' => $personId];
             });
-
-            $result->addData($out);
         } catch (\RuntimeException | SqlQueryException $e) {
             $this->getLogger()->error('RelatedPerson update failed', ['uuid' => $uuid, 'error' => $e->getMessage()]);
             $result->addInternalError($e->getMessage());
+            return $result;
         }
 
-        return $result;
+        // Read the related person back through the search path rather than returning the
+        // ids the transaction produced. FhirServiceBase::update() feeds this result
+        // straight into parseOpenEMRRecord(), which expects the read-side shape built by
+        // getPersonFromRecord() -- uuid, puuid, active, relationship, name, telecom,
+        // addresses -- not just the identifiers.
+        return $this->searchPatientRelationships([
+            'person_uuid' => new TokenSearchField('person_uuid', $uuid, true),
+        ]);
     }
 
     /**
