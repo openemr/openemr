@@ -445,6 +445,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             }
                         }
 
+                        // This form only ever creates a patient, so any field without
+                        // a value takes the layout's configured default.
+                        $default_value = is_array($frow) ? ($frow['default_value'] ?? '') : '';
+                        if ($currvalue === null && $default_value !== '') {
+                            $currvalue = $default_value;
+                        }
+
                         // Handle a data category (group) change.
                         if (strcmp((string) $this_group, (string) $last_group) != 0) {
                             if (!$SHORT_FORM) {

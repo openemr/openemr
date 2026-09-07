@@ -1108,6 +1108,14 @@ if (
                         } // End "P" option logic.
                     }
 
+                    // A new form has no stored data, so fall back to the field's
+                    // configured default value. An existing form is left alone, so
+                    // that a value the user deliberately cleared stays cleared.
+                    $default_value = is_array($frow) ? ($frow['default_value'] ?? '') : '';
+                    if (!$formid && ($currvalue === '' || $currvalue === null) && $default_value !== '') {
+                        $currvalue = $default_value;
+                    }
+
                     $this_levels = $this_group;
                     $i = 0;
                     $mincount = min(strlen((string) $this_levels), strlen($group_levels));
