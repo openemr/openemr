@@ -74,21 +74,28 @@ class PrescriptionService extends BaseService
      */
     public function getAll(array $search = [], $isAndCondition = true)
     {
-        // Two caller shapes reach here:
-        //   - REST /api/prescription: passes `patient.uuid` as a bare uuid
-        //     string (after PrescriptionRestController translates the
+        // Three caller shapes reach here:
+        //   - REST /api/prescription list: passes `patient.uuid` as a bare
+        //     uuid string (after PrescriptionRestController translates the
         //     `patient_uuid` query parameter).
-        //   - FHIR /MedicationRequest: FhirMedicationRequestService uses
-        //     PatientSearchTrait::getPatientContextSearchField() which maps
-        //     the FHIR `patient` parameter to an already-parsed
+        //   - FHIR /MedicationRequest search: FhirMedicationRequestService
+        //     uses PatientSearchTrait::getPatientContextSearchField() which
+        //     maps the FHIR `patient` parameter to an already-parsed
         //     ISearchField keyed as `puuid`. FhirServiceBase's compartment
         //     check already validated the caller's puuid against the
         //     resource compartment before we get here.
-        // Either shape satisfies the "required patient binding" gate that
-        // closes the unfiltered-list enumeration.
+        //   - FHIR /MedicationRequest/{id} read: FhirServiceBase::getOne
+        //     invokes getAll(['_id' => $uuid]) which converts to a
+        //     `uuid` ISearchField — a single-record lookup with no patient
+        //     binding. The auth layer already gated the caller.
+        // The required-binding gate closes the tenant-wide enumeration
+        // shape (no filter at all); single-record read by known uuid does
+        // not enumerate and is allowed through.
         $patientUuidRaw = $search['patient.uuid'] ?? null;
         $hasFhirPuuidBinding = isset($search['puuid']);
-        if (!$hasFhirPuuidBinding && (!is_string($patientUuidRaw) || $patientUuidRaw === '')) {
+        $hasSingleRecordUuidBinding = isset($search['uuid']);
+        $hasPatientUuidString = is_string($patientUuidRaw) && $patientUuidRaw !== '';
+        if (!$hasFhirPuuidBinding && !$hasSingleRecordUuidBinding && !$hasPatientUuidString) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages([
                 'patient.uuid' => 'A patient identifier is required to list prescriptions.',
