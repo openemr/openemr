@@ -7,10 +7,12 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitionerRole;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirPractitionerRoleService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -56,6 +58,7 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             . "AND npi IS NOT NULL AND npi != '' ORDER BY id DESC LIMIT 1",
             []
         );
+        $this->assertIsArray($practitionerRow);
         if (!is_array($practitionerRow) || empty($practitionerRow['uuid'])) {
             $this->markTestSkipped('Practitioner fixture did not produce a queryable row');
         }
@@ -66,6 +69,7 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             "SELECT uuid FROM facility ORDER BY id DESC LIMIT 1",
             []
         );
+        $this->assertIsArray($facilityRow);
         if (!is_array($facilityRow) || empty($facilityRow['uuid'])) {
             $this->markTestSkipped('Facility fixture did not produce a queryable row');
         }
@@ -90,14 +94,14 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirPractitionerRoleFixture->setId(null);
+        $this->fhirPractitionerRoleFixture->setId(new FHIRId());
         $result = $this->fhirPractitionerRoleService->insert($this->fhirPractitionerRoleFixture);
         $this->assertTrue(
             $result->isValid(),
             'Insert should succeed: ' . json_encode($result->getValidationMessages())
         );
 
-        $data = $result->getData()[0];
+        $data = $this->firstDataRow($result);
         $this->assertArrayHasKey('uuid', $data);
         $this->assertIsString($data['uuid']);
     }
@@ -108,14 +112,14 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
         $bogusUuid = UuidRegistry::uuidToString(
             (new UuidRegistry(['table_name' => 'users']))->createUuid()
         );
-        $this->fhirPractitionerRoleFixture->setId(null);
+        $this->fhirPractitionerRoleFixture->setId(new FHIRId());
         $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
         $payload['practitioner'] = ['reference' => 'Practitioner/' . $bogusUuid];
         $fixture = new FHIRPractitionerRole($payload);
 
         $result = $this->fhirPractitionerRoleService->insert($fixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
     }
 
     #[Test]
@@ -124,26 +128,26 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
         $bogusUuid = UuidRegistry::uuidToString(
             (new UuidRegistry(['table_name' => 'facility']))->createUuid()
         );
-        $this->fhirPractitionerRoleFixture->setId(null);
+        $this->fhirPractitionerRoleFixture->setId(new FHIRId());
         $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
         $payload['organization'] = ['reference' => 'Organization/' . $bogusUuid];
         $fixture = new FHIRPractitionerRole($payload);
 
         $result = $this->fhirPractitionerRoleService->insert($fixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
     }
 
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirPractitionerRoleFixture->setId(null);
+        $this->fhirPractitionerRoleFixture->setId(new FHIRId());
         $insertResult = $this->fhirPractitionerRoleService->insert($this->fhirPractitionerRoleFixture);
         $this->assertTrue(
             $insertResult->isValid(),
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
-        $fhirId = $insertResult->getData()[0]['uuid'];
+        $fhirId = $this->firstDataRow($insertResult)['uuid'];
 
         $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
         $payload['id'] = $fhirId;
@@ -164,6 +168,23 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
     {
         $result = $this->fhirPractitionerRoleService->update('bad-uuid', $this->fhirPractitionerRoleFixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

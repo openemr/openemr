@@ -7,8 +7,10 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -36,10 +38,12 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
         $patientFixture = $patients[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
         $fixture = (array) $this->fixtureManager->getSingleFhirMedicationRequestFixture();
@@ -59,14 +63,14 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirMedicationRequestFixture->setId(null);
+        $this->fhirMedicationRequestFixture->setId(new FHIRId());
         $processingResult = $this->fhirMedicationRequestService->insert($this->fhirMedicationRequestFixture);
         $this->assertTrue(
             $processingResult->isValid(),
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $dataResult);
         $this->assertIsString($dataResult['uuid']);
     }
@@ -77,20 +81,20 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
         $bogusPatientUuid = UuidRegistry::uuidToString(
             (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
         );
-        $this->fhirMedicationRequestFixture->setId(null);
+        $this->fhirMedicationRequestFixture->setId(new FHIRId());
         $payload = $this->fhirMedicationRequestFixture->jsonSerialize();
         $payload['subject'] = ['reference' => 'Patient/' . $bogusPatientUuid];
         $fixture = new FHIRMedicationRequest($payload);
 
         $processingResult = $this->fhirMedicationRequestService->insert($fixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
     public function testInsertMissingDrugReturnsValidationError(): void
     {
-        $this->fhirMedicationRequestFixture->setId(null);
+        $this->fhirMedicationRequestFixture->setId(new FHIRId());
         $this->fhirMedicationRequestFixture->setMedicationCodeableConcept(null);
 
         $processingResult = $this->fhirMedicationRequestService->insert($this->fhirMedicationRequestFixture);
@@ -100,14 +104,14 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirMedicationRequestFixture->setId(null);
+        $this->fhirMedicationRequestFixture->setId(new FHIRId());
         $processingResult = $this->fhirMedicationRequestService->insert($this->fhirMedicationRequestFixture);
         $this->assertTrue(
             $processingResult->isValid(),
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $fhirId = $processingResult->getData()[0]['uuid'];
+        $fhirId = $this->firstDataRow($processingResult)['uuid'];
         $this->assertIsString($fhirId);
 
         $payload = $this->fhirMedicationRequestFixture->jsonSerialize();
@@ -125,7 +129,11 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
         // so getData()[0] is the FHIRMedicationRequest object (not the column array).
         // populateNote stores the note as a raw string on FHIRAnnotation.text (it doesn't
         // wrap in FHIRMarkdown), so we compare the string directly.
-        $updatedResource = $actualResult->getData()[0];
+        $updatedData = $actualResult->getData();
+        $this->assertIsArray($updatedData);
+        $this->assertArrayHasKey(0, $updatedData);
+        $updatedResource = $updatedData[0];
+        $this->assertInstanceOf(FHIRMedicationRequest::class, $updatedResource);
         $notes = $updatedResource->getNote();
         $this->assertCount(1, $notes);
         $this->assertSame('test-fixture updated note', $notes[0]->getText());
@@ -136,7 +144,24 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
     {
         $actualResult = $this->fhirMedicationRequestService->update('bad-uuid', $this->fhirMedicationRequestFixture);
         $this->assertFalse($actualResult->isValid());
-        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
-        $this->assertEquals(0, count($actualResult->getData()));
+        $this->assertNotSame([], $actualResult->getValidationMessages());
+        $this->assertSame([], $actualResult->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

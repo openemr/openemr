@@ -7,8 +7,10 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -43,6 +45,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
         $fixture = (array) $this->fixtureManager->getSingleFhirServiceRequestFixture();
@@ -62,14 +65,14 @@ class FhirServiceRequestServiceCrudTest extends TestCase
     #[Test]
     public function testInsertCreatesOrderAndCodes(): void
     {
-        $this->fhirServiceRequestFixture->setId(null);
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
         $result = $this->fhirServiceRequestService->insert($this->fhirServiceRequestFixture);
         $this->assertTrue(
             $result->isValid(),
             'Insert should succeed: ' . json_encode($result->getValidationMessages())
         );
 
-        $data = $result->getData()[0];
+        $data = $this->firstDataRow($result);
         $this->assertArrayHasKey('uuid', $data);
         $this->assertIsString($data['uuid']);
         $this->assertGreaterThan(0, $data['procedure_order_id']);
@@ -88,27 +91,27 @@ class FhirServiceRequestServiceCrudTest extends TestCase
         $bogusUuid = UuidRegistry::uuidToString(
             (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
         );
-        $this->fhirServiceRequestFixture->setId(null);
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
         $payload = $this->fhirServiceRequestFixture->jsonSerialize();
         $payload['subject'] = ['reference' => 'Patient/' . $bogusUuid];
         $fixture = new FHIRServiceRequest($payload);
 
         $result = $this->fhirServiceRequestService->insert($fixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
     }
 
     #[Test]
     public function testUpdateReplacesCodes(): void
     {
-        $this->fhirServiceRequestFixture->setId(null);
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
         $insertResult = $this->fhirServiceRequestService->insert($this->fhirServiceRequestFixture);
         $this->assertTrue(
             $insertResult->isValid(),
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
-        $fhirId = $insertResult->getData()[0]['uuid'];
-        $orderId = $insertResult->getData()[0]['procedure_order_id'];
+        $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $orderId = $this->firstDataRow($insertResult)['procedure_order_id'];
 
         // Update with TWO codings instead of one
         $payload = $this->fhirServiceRequestFixture->jsonSerialize();
@@ -146,13 +149,13 @@ class FhirServiceRequestServiceCrudTest extends TestCase
     {
         $result = $this->fhirServiceRequestService->update('bad-uuid', $this->fhirServiceRequestFixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
     }
 
     #[Test]
     public function testInsertPersistsIntent(): void
     {
-        $this->fhirServiceRequestFixture->setId(null);
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
         $payload = $this->fhirServiceRequestFixture->jsonSerialize();
         $payload['intent'] = 'plan';
         $fixture = new FHIRServiceRequest($payload);
@@ -162,7 +165,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             $result->isValid(),
             'Insert should succeed: ' . json_encode($result->getValidationMessages())
         );
-        $procedureOrderId = $result->getData()[0]['procedure_order_id'];
+        $procedureOrderId = $this->firstDataRow($result)['procedure_order_id'];
 
         $intent = QueryUtils::fetchSingleValue(
             "SELECT order_intent FROM procedure_order WHERE procedure_order_id = ?",
@@ -170,5 +173,22 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             [$procedureOrderId]
         );
         $this->assertSame('plan', $intent);
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

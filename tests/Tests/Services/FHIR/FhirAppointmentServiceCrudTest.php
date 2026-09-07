@@ -9,6 +9,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment;
 use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -40,11 +41,13 @@ class FhirAppointmentServiceCrudTest extends TestCase
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
         $patientFixture = $patients[0];
+        $this->assertIsArray($patientFixture);
         // look up the installed patient to get the uuid
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($patientRecord['uuid']);
 
         // Install a facility — FhirAppointmentService now requires an explicit
@@ -54,6 +57,7 @@ class FhirAppointmentServiceCrudTest extends TestCase
             "SELECT uuid FROM facility ORDER BY id DESC LIMIT 1",
             []
         );
+        $this->assertIsArray($facilityRow);
         $this->facilityUuid = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($facilityRow['uuid']);
 
         // Load FHIR fixture and set patient + facility references
@@ -97,7 +101,7 @@ class FhirAppointmentServiceCrudTest extends TestCase
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $this->assertNotEmpty($dataResult);
     }
 
@@ -111,6 +115,23 @@ class FhirAppointmentServiceCrudTest extends TestCase
         ]);
         $processingResult = $this->fhirAppointmentService->insert($badFixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

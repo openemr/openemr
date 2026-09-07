@@ -7,8 +7,10 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -37,10 +39,12 @@ class FhirCoverageServiceCrudTest extends TestCase
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
         $patientFixture = $patients[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
         $this->insurerUuid = $this->fixtureManager->installInsuranceCompanyFixture();
@@ -64,14 +68,14 @@ class FhirCoverageServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirCoverageFixture->setId(null);
+        $this->fhirCoverageFixture->setId(new FHIRId());
         $processingResult = $this->fhirCoverageService->insert($this->fhirCoverageFixture);
         $this->assertTrue(
             $processingResult->isValid(),
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $dataResult);
         $this->assertIsString($dataResult['uuid']);
     }
@@ -84,27 +88,27 @@ class FhirCoverageServiceCrudTest extends TestCase
         );
         // The UuidRegistry::createUuid call above reserved a registry row but did not insert a
         // patient_data row, so the beneficiary reference cannot be resolved.
-        $this->fhirCoverageFixture->setId(null);
+        $this->fhirCoverageFixture->setId(new FHIRId());
         $payload = $this->fhirCoverageFixture->jsonSerialize();
         $payload['beneficiary'] = ['reference' => 'Patient/' . $bogusPatientUuid];
         $fixture = new FHIRCoverage($payload);
 
         $processingResult = $this->fhirCoverageService->insert($fixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirCoverageFixture->setId(null);
+        $this->fhirCoverageFixture->setId(new FHIRId());
         $processingResult = $this->fhirCoverageService->insert($this->fhirCoverageFixture);
         $this->assertTrue(
             $processingResult->isValid(),
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $fhirId = $processingResult->getData()[0]['uuid'];
+        $fhirId = $this->firstDataRow($processingResult)['uuid'];
         $this->assertIsString($fhirId);
 
         $payload = $this->fhirCoverageFixture->jsonSerialize();
@@ -120,7 +124,11 @@ class FhirCoverageServiceCrudTest extends TestCase
         $this->assertNotEmpty($actualResult->getData());
         // FhirServiceBase::update re-parses the updated row through parseOpenEMRRecord,
         // so getData()[0] is the FHIRCoverage object. subscriberId carries policy_number.
-        $updatedResource = $actualResult->getData()[0];
+        $updatedData = $actualResult->getData();
+        $this->assertIsArray($updatedData);
+        $this->assertArrayHasKey(0, $updatedData);
+        $updatedResource = $updatedData[0];
+        $this->assertInstanceOf(FHIRCoverage::class, $updatedResource);
         $this->assertSame('test-fixture-policy-002-updated', $updatedResource->getSubscriberId()->getValue());
     }
 
@@ -132,7 +140,7 @@ class FhirCoverageServiceCrudTest extends TestCase
         $nonExistentUuid = '00000000-0000-0000-0000-000000000000';
         $actualResult = $this->fhirCoverageService->update($nonExistentUuid, $this->fhirCoverageFixture);
         $this->assertFalse($actualResult->isValid());
-        $this->assertEquals(0, count($actualResult->getData()));
+        $this->assertSame([], $actualResult->getData());
     }
 
     #[Test]
@@ -141,7 +149,7 @@ class FhirCoverageServiceCrudTest extends TestCase
         // Fixture period is 2024-01-01 -> 2099-12-31 (active by derivation). Claiming
         // status=cancelled should produce a 422-style validation error rather than
         // silently dropping the modifier element.
-        $this->fhirCoverageFixture->setId(null);
+        $this->fhirCoverageFixture->setId(new FHIRId());
         $payload = $this->fhirCoverageFixture->jsonSerialize();
         $payload['status'] = 'cancelled';
         $fixture = new \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage($payload);
@@ -155,7 +163,7 @@ class FhirCoverageServiceCrudTest extends TestCase
     #[Test]
     public function testInsertWithStatusEnteredInErrorReturnsValidationError(): void
     {
-        $this->fhirCoverageFixture->setId(null);
+        $this->fhirCoverageFixture->setId(new FHIRId());
         $payload = $this->fhirCoverageFixture->jsonSerialize();
         $payload['status'] = 'entered-in-error';
         $fixture = new \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage($payload);
@@ -164,5 +172,22 @@ class FhirCoverageServiceCrudTest extends TestCase
         $this->assertFalse($result->isValid());
         $messages = $result->getValidationMessages();
         $this->assertArrayHasKey('status', $messages);
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

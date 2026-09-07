@@ -298,7 +298,7 @@ class ImmunizationService extends BaseService
     {
         if (!is_array($data) || $data === []) {
             $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages("Invalid Data");
+            $processingResult->setValidationMessages(['data' => 'Invalid Data']);
             return $processingResult;
         }
 

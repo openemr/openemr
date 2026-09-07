@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedication;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirMedicationService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -49,14 +51,14 @@ class FhirMedicationServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirMedicationFixture->setId(null);
+        $this->fhirMedicationFixture->setId(new FHIRId());
         $processingResult = $this->fhirMedicationService->insert($this->fhirMedicationFixture);
         $this->assertTrue(
             $processingResult->isValid(),
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $dataResult);
         $this->assertIsString($dataResult['uuid']);
         $this->assertArrayHasKey('drug_id', $dataResult);
@@ -73,20 +75,20 @@ class FhirMedicationServiceCrudTest extends TestCase
 
         $processingResult = $this->fhirMedicationService->insert($fixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirMedicationFixture->setId(null);
+        $this->fhirMedicationFixture->setId(new FHIRId());
         $insertResult = $this->fhirMedicationService->insert($this->fhirMedicationFixture);
         $this->assertTrue(
             $insertResult->isValid(),
             "Insert should succeed: " . json_encode($insertResult->getValidationMessages())
         );
 
-        $fhirId = $insertResult->getData()[0]['uuid'];
+        $fhirId = $this->firstDataRow($insertResult)['uuid'];
         $this->assertIsString($fhirId);
 
         $payload = $this->fhirMedicationFixture->jsonSerialize();
@@ -108,6 +110,23 @@ class FhirMedicationServiceCrudTest extends TestCase
     {
         $actualResult = $this->fhirMedicationService->update('bad-uuid', $this->fhirMedicationFixture);
         $this->assertFalse($actualResult->isValid());
-        $this->assertEquals(0, count($actualResult->getData()));
+        $this->assertSame([], $actualResult->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

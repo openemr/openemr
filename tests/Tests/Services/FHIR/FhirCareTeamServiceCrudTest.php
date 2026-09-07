@@ -7,9 +7,11 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -47,6 +49,7 @@ class FhirCareTeamServiceCrudTest extends TestCase
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
         $this->practitionerFixtureManager->installPractitionerFixtures();
@@ -54,6 +57,7 @@ class FhirCareTeamServiceCrudTest extends TestCase
             "SELECT uuid FROM users WHERE fname LIKE 'test-fixture-%' LIMIT 1",
             []
         );
+        $this->assertIsArray($practitionerRow);
         $this->practitionerUuid = UuidRegistry::uuidToString($practitionerRow['uuid']);
 
         $fixture = (array) $this->fixtureManager->getSingleFhirCareTeamFixture();
@@ -75,14 +79,14 @@ class FhirCareTeamServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirCareTeamFixture->setId(null);
+        $this->fhirCareTeamFixture->setId(new FHIRId());
         $result = $this->fhirCareTeamService->insert($this->fhirCareTeamFixture);
         $this->assertTrue(
             $result->isValid(),
             'Insert should succeed: ' . json_encode($result->getValidationMessages())
         );
 
-        $data = $result->getData()[0];
+        $data = $this->firstDataRow($result);
         $this->assertArrayHasKey('uuid', $data);
         $this->assertIsString($data['uuid']);
     }
@@ -93,26 +97,26 @@ class FhirCareTeamServiceCrudTest extends TestCase
         $bogusUuid = UuidRegistry::uuidToString(
             (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
         );
-        $this->fhirCareTeamFixture->setId(null);
+        $this->fhirCareTeamFixture->setId(new FHIRId());
         $payload = $this->fhirCareTeamFixture->jsonSerialize();
         $payload['subject'] = ['reference' => 'Patient/' . $bogusUuid];
         $fixture = new FHIRCareTeam($payload);
 
         $result = $this->fhirCareTeamService->insert($fixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
     }
 
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirCareTeamFixture->setId(null);
+        $this->fhirCareTeamFixture->setId(new FHIRId());
         $insertResult = $this->fhirCareTeamService->insert($this->fhirCareTeamFixture);
         $this->assertTrue(
             $insertResult->isValid(),
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
-        $fhirId = $insertResult->getData()[0]['uuid'];
+        $fhirId = $this->firstDataRow($insertResult)['uuid'];
 
         $payload = $this->fhirCareTeamFixture->jsonSerialize();
         $payload['id'] = $fhirId;
@@ -132,6 +136,23 @@ class FhirCareTeamServiceCrudTest extends TestCase
     {
         $result = $this->fhirCareTeamService->update('bad-uuid', $this->fhirCareTeamFixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

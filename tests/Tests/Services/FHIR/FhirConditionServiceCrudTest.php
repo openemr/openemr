@@ -6,8 +6,10 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -36,17 +38,19 @@ class FhirConditionServiceCrudTest extends TestCase
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
         $patientFixture = $patients[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($patientRecord['uuid']);
 
         // Load FHIR fixture and set patient reference
-        $fixtureData = json_decode(
-            file_get_contents(__DIR__ . '/../../Fixtures/FHIR/condition.json'),
-            true
-        );
+        $raw = file_get_contents(__DIR__ . '/../../Fixtures/FHIR/condition.json');
+        $this->assertIsString($raw);
+        $fixtureData = json_decode($raw, true);
+        $this->assertIsArray($fixtureData);
         $fixture = $fixtureData[0];
         $fixture['subject'] = [
             'reference' => 'Patient/' . $this->patientUuid
@@ -66,11 +70,11 @@ class FhirConditionServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirConditionFixture->setId(null);
+        $this->fhirConditionFixture->setId(new FHIRId());
         $processingResult = $this->fhirConditionService->insert($this->fhirConditionFixture);
         $this->assertTrue($processingResult->isValid(), "Insert should succeed: " . json_encode($processingResult->getValidationMessages()));
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $dataResult);
         $this->assertIsString($dataResult['uuid']);
     }
@@ -83,22 +87,22 @@ class FhirConditionServiceCrudTest extends TestCase
         $this->fhirConditionFixture->setCode(null);
         $processingResult = $this->fhirConditionService->insert($this->fhirConditionFixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirConditionFixture->setId(null);
+        $this->fhirConditionFixture->setId(new FHIRId());
         $processingResult = $this->fhirConditionService->insert($this->fhirConditionFixture);
         $this->assertTrue($processingResult->isValid(), "Insert should succeed: " . json_encode($processingResult->getValidationMessages()));
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
         // Update the condition
-        $this->fhirConditionFixture->setId($fhirId);
+        $this->fhirConditionFixture->setId(self::fhirId($fhirId));
         $actualResult = $this->fhirConditionService->update($fhirId, $this->fhirConditionFixture);
         $this->assertTrue($actualResult->isValid(), "Update should succeed: " . json_encode($actualResult->getValidationMessages()));
     }
@@ -108,8 +112,8 @@ class FhirConditionServiceCrudTest extends TestCase
     {
         $actualResult = $this->fhirConditionService->update('bad-uuid', $this->fhirConditionFixture);
         $this->assertFalse($actualResult->isValid());
-        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
-        $this->assertEquals(0, count($actualResult->getData()));
+        $this->assertNotSame([], $actualResult->getValidationMessages());
+        $this->assertSame([], $actualResult->getData());
     }
 
     /**
@@ -165,5 +169,30 @@ class FhirConditionServiceCrudTest extends TestCase
         $fixture['onsetDateTime'] = '2020-03-15T09:30:00+00:00';
         $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
         $this->assertSame('2020-03-15', $parsed['begdate']);
+    }
+
+    private static function fhirId(string $value): FHIRId
+    {
+        $id = new FHIRId();
+        $id->setValue($value);
+
+        return $id;
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

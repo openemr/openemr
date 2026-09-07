@@ -7,8 +7,10 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -40,17 +42,19 @@ class FhirEncounterServiceCrudTest extends TestCase
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
         $patientFixture = $patients[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
         // Load FHIR fixture and set patient reference
-        $fixtureData = json_decode(
-            file_get_contents(__DIR__ . '/../../Fixtures/FHIR/encounter.json'),
-            true
-        );
+        $raw = file_get_contents(__DIR__ . '/../../Fixtures/FHIR/encounter.json');
+        $this->assertIsString($raw);
+        $fixtureData = json_decode($raw, true);
+        $this->assertIsArray($fixtureData);
         $fixture = $fixtureData[0];
         $fixture['subject'] = [
             'reference' => 'Patient/' . $this->patientUuid
@@ -84,11 +88,11 @@ class FhirEncounterServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirEncounterFixture->setId(null);
+        $this->fhirEncounterFixture->setId(new FHIRId());
         $processingResult = $this->fhirEncounterService->insert($this->fhirEncounterFixture);
         $this->assertTrue($processingResult->isValid(), "Insert should succeed: " . json_encode($processingResult->getValidationMessages()));
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('euuid', $dataResult);
         $this->assertIsString($dataResult['euuid']);
         $this->createdEncounterUuids[] = $dataResult['euuid'];
@@ -102,7 +106,7 @@ class FhirEncounterServiceCrudTest extends TestCase
         $this->fhirEncounterFixture->setClass(null);
         $processingResult = $this->fhirEncounterService->insert($this->fhirEncounterFixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
@@ -110,7 +114,24 @@ class FhirEncounterServiceCrudTest extends TestCase
     {
         $actualResult = $this->fhirEncounterService->update('bad-uuid', $this->fhirEncounterFixture);
         $this->assertFalse($actualResult->isValid());
-        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
-        $this->assertEquals(0, count($actualResult->getData()));
+        $this->assertNotSame([], $actualResult->getValidationMessages());
+        $this->assertSame([], $actualResult->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

@@ -8,9 +8,11 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirCarePlanService;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -45,13 +47,14 @@ class FhirCarePlanServiceCrudTest extends TestCase
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patients[0]['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
         // Create an encounter to host the care plan
-        $encounterFixtureData = json_decode(
-            file_get_contents(__DIR__ . '/../../Fixtures/FHIR/encounter.json'),
-            true
-        );
+        $raw = file_get_contents(__DIR__ . '/../../Fixtures/FHIR/encounter.json');
+        $this->assertIsString($raw);
+        $encounterFixtureData = json_decode($raw, true);
+        $this->assertIsArray($encounterFixtureData);
         $encounterFixture = $encounterFixtureData[0];
         $encounterFixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
         $encounterResource = new FHIREncounter($encounterFixture);
@@ -63,7 +66,7 @@ class FhirCarePlanServiceCrudTest extends TestCase
             $encounterResult->isValid(),
             "Encounter insert (setup) failed: " . json_encode($encounterResult->getValidationMessages())
         );
-        $this->encounterUuid = $encounterResult->getData()[0]['euuid'];
+        $this->encounterUuid = $this->firstDataRow($encounterResult)['euuid'];
 
         $fixture = (array) $this->fixtureManager->getSingleFhirCarePlanFixture();
         $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
@@ -86,14 +89,14 @@ class FhirCarePlanServiceCrudTest extends TestCase
     #[Test]
     public function testInsertCreatesFormAndRows(): void
     {
-        $this->fhirCarePlanFixture->setId(null);
+        $this->fhirCarePlanFixture->setId(new FHIRId());
         $processingResult = $this->fhirCarePlanService->insert($this->fhirCarePlanFixture);
         $this->assertTrue(
             $processingResult->isValid(),
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $data = $processingResult->getData()[0];
+        $data = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $data);
         $this->assertIsString($data['uuid']);
         $this->assertStringContainsString('-SK-', $data['uuid']);
@@ -111,12 +114,12 @@ class FhirCarePlanServiceCrudTest extends TestCase
     #[Test]
     public function testInsertWithoutEncounterReturnsValidationError(): void
     {
-        $this->fhirCarePlanFixture->setId(null);
+        $this->fhirCarePlanFixture->setId(new FHIRId());
         $this->fhirCarePlanFixture->setEncounter(null);
 
         $processingResult = $this->fhirCarePlanService->insert($this->fhirCarePlanFixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
@@ -125,28 +128,28 @@ class FhirCarePlanServiceCrudTest extends TestCase
         $bogusUuid = UuidRegistry::uuidToString(
             (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
         );
-        $this->fhirCarePlanFixture->setId(null);
+        $this->fhirCarePlanFixture->setId(new FHIRId());
         $payload = $this->fhirCarePlanFixture->jsonSerialize();
         $payload['subject'] = ['reference' => 'Patient/' . $bogusUuid];
         $fixture = new FHIRCarePlan($payload);
 
         $processingResult = $this->fhirCarePlanService->insert($fixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
     public function testUpdateReplacesRows(): void
     {
-        $this->fhirCarePlanFixture->setId(null);
+        $this->fhirCarePlanFixture->setId(new FHIRId());
         $insertResult = $this->fhirCarePlanService->insert($this->fhirCarePlanFixture);
         $this->assertTrue(
             $insertResult->isValid(),
             "Insert should succeed: " . json_encode($insertResult->getValidationMessages())
         );
 
-        $surrogateUuid = $insertResult->getData()[0]['uuid'];
-        $formId = $insertResult->getData()[0]['form_id'];
+        $surrogateUuid = $this->firstDataRow($insertResult)['uuid'];
+        $formId = $this->firstDataRow($insertResult)['form_id'];
 
         // Update with a single activity (was 2)
         $payload = $this->fhirCarePlanFixture->jsonSerialize();
@@ -185,6 +188,23 @@ class FhirCarePlanServiceCrudTest extends TestCase
     {
         $result = $this->fhirCarePlanService->update('bad-uuid', $this->fhirCarePlanFixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

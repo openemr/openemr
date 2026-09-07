@@ -6,8 +6,10 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -36,11 +38,13 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
         $patientFixture = $patients[0];
+        $this->assertIsArray($patientFixture);
         // look up the installed patient to get the uuid
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($patientRecord['uuid']);
 
         // Load FHIR fixture and set patient reference
@@ -65,11 +69,11 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirAllergyIntoleranceFixture->setId(null);
+        $this->fhirAllergyIntoleranceFixture->setId(new FHIRId());
         $processingResult = $this->fhirAllergyIntoleranceService->insert($this->fhirAllergyIntoleranceFixture);
         $this->assertTrue($processingResult->isValid(), "Insert should succeed: " . json_encode($processingResult->getValidationMessages()));
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $dataResult);
         $this->assertIsString($dataResult['uuid']);
     }
@@ -83,22 +87,22 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
         $this->fhirAllergyIntoleranceFixture->setCode(null);
         $processingResult = $this->fhirAllergyIntoleranceService->insert($this->fhirAllergyIntoleranceFixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirAllergyIntoleranceFixture->setId(null);
+        $this->fhirAllergyIntoleranceFixture->setId(new FHIRId());
         $processingResult = $this->fhirAllergyIntoleranceService->insert($this->fhirAllergyIntoleranceFixture);
         $this->assertTrue($processingResult->isValid(), "Insert should succeed: " . json_encode($processingResult->getValidationMessages()));
 
-        $dataResult = $processingResult->getData()[0];
+        $dataResult = $this->firstDataRow($processingResult);
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
         // Update the allergy - change the verification status
-        $this->fhirAllergyIntoleranceFixture->setId($fhirId);
+        $this->fhirAllergyIntoleranceFixture->setId(self::fhirId($fhirId));
         $actualResult = $this->fhirAllergyIntoleranceService->update($fhirId, $this->fhirAllergyIntoleranceFixture);
         $this->assertTrue($actualResult->isValid(), "Update should succeed: " . json_encode($actualResult->getValidationMessages()));
         $this->assertNotEmpty($actualResult->getData());
@@ -109,7 +113,32 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
     {
         $actualResult = $this->fhirAllergyIntoleranceService->update('bad-uuid', $this->fhirAllergyIntoleranceFixture);
         $this->assertFalse($actualResult->isValid());
-        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
-        $this->assertEquals(0, count($actualResult->getData()));
+        $this->assertNotSame([], $actualResult->getValidationMessages());
+        $this->assertSame([], $actualResult->getData());
+    }
+
+    private static function fhirId(string $value): FHIRId
+    {
+        $id = new FHIRId();
+        $id->setValue($value);
+
+        return $id;
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }

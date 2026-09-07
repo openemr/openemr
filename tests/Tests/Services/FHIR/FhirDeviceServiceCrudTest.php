@@ -7,8 +7,10 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDevice;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirDeviceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -42,6 +44,7 @@ class FhirDeviceServiceCrudTest extends TestCase
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
         );
+        $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
         $fixture = (array) $this->fixtureManager->getSingleFhirDeviceFixture();
@@ -61,14 +64,14 @@ class FhirDeviceServiceCrudTest extends TestCase
     #[Test]
     public function testInsert(): void
     {
-        $this->fhirDeviceFixture->setId(null);
+        $this->fhirDeviceFixture->setId(new FHIRId());
         $processingResult = $this->fhirDeviceService->insert($this->fhirDeviceFixture);
         $this->assertTrue(
             $processingResult->isValid(),
             "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
         );
 
-        $data = $processingResult->getData()[0];
+        $data = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $data);
         $this->assertIsString($data['uuid']);
         $this->assertGreaterThan(0, $data['id']);
@@ -80,27 +83,27 @@ class FhirDeviceServiceCrudTest extends TestCase
         $bogusUuid = UuidRegistry::uuidToString(
             (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
         );
-        $this->fhirDeviceFixture->setId(null);
+        $this->fhirDeviceFixture->setId(new FHIRId());
         $payload = $this->fhirDeviceFixture->jsonSerialize();
         $payload['patient'] = ['reference' => 'Patient/' . $bogusUuid];
         $fixture = new FHIRDevice($payload);
 
         $processingResult = $this->fhirDeviceService->insert($fixture);
         $this->assertFalse($processingResult->isValid());
-        $this->assertEquals(0, count($processingResult->getData()));
+        $this->assertSame([], $processingResult->getData());
     }
 
     #[Test]
     public function testUpdate(): void
     {
-        $this->fhirDeviceFixture->setId(null);
+        $this->fhirDeviceFixture->setId(new FHIRId());
         $insertResult = $this->fhirDeviceService->insert($this->fhirDeviceFixture);
         $this->assertTrue(
             $insertResult->isValid(),
             "Insert should succeed: " . json_encode($insertResult->getValidationMessages())
         );
 
-        $fhirId = $insertResult->getData()[0]['uuid'];
+        $fhirId = $this->firstDataRow($insertResult)['uuid'];
         $this->assertIsString($fhirId);
 
         $payload = $this->fhirDeviceFixture->jsonSerialize();
@@ -121,6 +124,23 @@ class FhirDeviceServiceCrudTest extends TestCase
     {
         $result = $this->fhirDeviceService->update('bad-uuid', $this->fhirDeviceFixture);
         $this->assertFalse($result->isValid());
-        $this->assertEquals(0, count($result->getData()));
+        $this->assertSame([], $result->getData());
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
     }
 }
