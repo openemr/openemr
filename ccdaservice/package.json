@@ -13,7 +13,8 @@
     "start": "node serveccda.js",
     "start:cqm": "node packages/oe-cqm-service/server.js",
     "start:schematron": "node oe-schematron-service/app.js",
-    "test": "npm run test --workspaces"
+    "test": "npm run test:service && npm run test --workspaces --if-present",
+    "test:service": "node --test serveccda.crash-check.js"
   },
   "dependencies": {
     "file": "./oe-blue-button-generate",
