@@ -18,7 +18,7 @@
 # BASE IMAGE CONFIGURATION
 # ============================================================================
 # Alpine Linux version - centralized setting for easy updates
-ARG ALPINE_VERSION=3.22
+ARG ALPINE_VERSION=3.24
 FROM alpine:${ALPINE_VERSION} AS base
 
 # OpenEMR version and binary release information
