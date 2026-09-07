@@ -432,8 +432,13 @@ class PrescriptionService extends BaseService
         $patient = $this->findPatientForPrescription($uuid);
         if ($patient === null) {
             // Prescription does not exist, its uuid is malformed, or its
-            // owning patient row is gone. Treat like "no such record" —
-            // do not surface the row.
+            // owning patient row is gone. Return a validation-error
+            // ProcessingResult so RestControllerHelper maps this to 400
+            // (matches the historical PatientValidator::validateId shape
+            // that PrescriptionApiTest::testGetOneNotFound pins).
+            $processingResult->setValidationMessages([
+                'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
+            ]);
             return $processingResult;
         }
         $squadRaw = $patient['squad'] ?? '';
@@ -620,9 +625,12 @@ class PrescriptionService extends BaseService
     {
         $patient = $this->findPatientForPrescription($uuid);
         if ($patient === null) {
+            // Same shape as getOne — historical PatientValidator::validateId
+            // format so RestControllerHelper maps to 400 (pinned by
+            // PrescriptionApiTest::testDeleteNonExistent).
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages([
-                'uuid' => 'Prescription does not exist or has no resolvable owner.',
+                'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
             ]);
             return $processingResult;
         }

@@ -479,10 +479,12 @@ class PrescriptionServiceIsolatedTest extends TestCase
         $this->assertSame([], $result->getData(), 'No prescription row must be returned on rejection');
     }
 
-    public function testGetOneReturnsEmptyWhenPrescriptionHasNoOwner(): void
+    public function testGetOneReturnsValidationErrorWhenPrescriptionHasNoOwner(): void
     {
-        // Orphaned patient_id (patient row deleted). Treat like "no such
-        // record" — do not surface the row and do not touch the ACL.
+        // Orphaned patient_id (patient row deleted) or unknown prescription
+        // uuid. getOne returns a validation-error ProcessingResult keyed on
+        // `uuid` so RestControllerHelper maps to 400 (matches the shape
+        // PrescriptionApiTest::testGetOneNotFound pins).
         $service = new class extends PrescriptionService {
             public function __construct()
             {
@@ -503,11 +505,10 @@ class PrescriptionServiceIsolatedTest extends TestCase
         };
         $result = $service->getOne('11111111-2222-3333-4444-555555555555');
 
-        // Note: getOne validates the prescription uuid via PatientValidator
-        // first. In isolated mode that validator will short-circuit before
-        // reaching our findPatientForPrescription stub, so the assertion is
-        // limited to "no data leaked".
-        $this->assertSame([], $result->getData());
+        $this->assertFalse($result->isValid(), 'getOne on unresolved prescription must be a validation failure (mapped to 400 by the controller)');
+        $this->assertSame([], $result->getData(), 'No data may be returned when the prescription cannot be resolved');
+        $messages = $this->extractValidationMessages($result);
+        $this->assertArrayHasKey('uuid', $messages);
     }
 
     // -------------------------------------------------------------------------
