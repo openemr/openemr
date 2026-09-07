@@ -510,7 +510,8 @@ foreach ($pid_list as $pid) {
                 if (!empty($encdata)) {
                     $html .= text(substr((string) ($encdata['date'] ?? ''), 0, 10));
                 } else {
-                    $html .= text(oeFormatShortDate(date('Y-m-d'))) . "\n";
+                    $today = oeFormatShortDate(date('Y-m-d'));
+                    $html .= text(is_string($today) ? $today : '') . "\n";
                 }
             }
 

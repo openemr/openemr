@@ -827,8 +827,8 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // subject.reference -> patient puuid (resolved downstream)
-        $subjectRef = $json['subject']['reference'] ?? null;
-        if (is_string($subjectRef) && $subjectRef !== '') {
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
             $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
             if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
                 $data['puuid'] = $subjectUuid;
@@ -836,8 +836,8 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // requester.reference -> provider pruuid (resolved downstream; optional)
-        $requesterRef = $json['requester']['reference'] ?? null;
-        if (is_string($requesterRef) && $requesterRef !== '') {
+        $requesterRef = FhirPayloadReader::reference($json['requester'] ?? null);
+        if ($requesterRef !== null) {
             $requesterUuid = UtilsService::parseReferenceString($requesterRef, 'Practitioner')['uuid'] ?? null;
             if (is_string($requesterUuid) && $requesterUuid !== '' && UuidRegistry::isValidStringUUID($requesterUuid)) {
                 $data['pruuid'] = $requesterUuid;
@@ -845,8 +845,8 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // encounter.reference -> encounter euuid (optional)
-        $encounterRef = $json['encounter']['reference'] ?? null;
-        if (is_string($encounterRef) && $encounterRef !== '') {
+        $encounterRef = FhirPayloadReader::reference($json['encounter'] ?? null);
+        if ($encounterRef !== null) {
             $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
             if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
                 $data['euuid'] = $encounterUuid;
@@ -888,8 +888,8 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // category[0].coding[0].code (SNOMED) -> procedure_order_type (inverse of CATEGORY_MAP)
-        $categoryCode = $json['category'][0]['coding'][0]['code'] ?? null;
-        if (is_string($categoryCode)) {
+        $categoryCode = FhirPayloadReader::firstConceptCode($json['category'] ?? null);
+        if ($categoryCode !== '') {
             $categoryReverseMap = [
                 self::CATEGORY_LABORATORY => self::ORDER_TYPE_LABORATORY,
                 self::CATEGORY_IMAGING => self::ORDER_TYPE_IMAGING,
@@ -917,37 +917,29 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // note[0].text -> clinical_hx (best-fit free-text field)
-        $notes = $json['note'] ?? null;
-        $firstNote = is_array($notes) ? ($notes[0] ?? null) : null;
-        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
-        if (is_string($noteText) && $noteText !== '') {
+        $noteText = FhirPayloadReader::getString(FhirPayloadReader::get($json['note'] ?? null, 0), 'text');
+        if ($noteText !== null) {
             $header['clinical_hx'] = $noteText;
         }
 
         // code.coding[] -> procedure_order_code rows (one per coding, or fallback to text)
-        $codings = $json['code']['coding'] ?? [];
-        $codeText = $json['code']['text'] ?? null;
-        if (is_array($codings)) {
-            foreach ($codings as $coding) {
-                if (!is_array($coding)) {
-                    continue;
-                }
-                $procCode = $coding['code'] ?? '';
-                if (!is_string($procCode) || $procCode === '') {
-                    continue;
-                }
-                $codes[] = [
-                    'procedure_code' => $procCode,
-                    'procedure_name' => is_string($coding['display'] ?? null)
-                        ? $coding['display']
-                        : (is_string($codeText) ? $codeText : ''),
-                    'procedure_order_title' => is_string($coding['display'] ?? null)
-                        ? $coding['display']
-                        : '',
-                ];
+        $codeConcept = $json['code'] ?? null;
+        $codeText = FhirPayloadReader::getString($codeConcept, 'text');
+        foreach (FhirPayloadReader::codings($codeConcept) as $coding) {
+            $procCode = $coding['code'] ?? '';
+            if (!is_string($procCode) || $procCode === '') {
+                continue;
             }
+            $display = $coding['display'] ?? null;
+            $codes[] = [
+                'procedure_code' => $procCode,
+                'procedure_name' => is_string($display)
+                    ? $display
+                    : ($codeText ?? ''),
+                'procedure_order_title' => is_string($display) ? $display : '',
+            ];
         }
-        if ($codes === [] && is_string($codeText) && $codeText !== '') {
+        if ($codes === [] && $codeText !== null) {
             $codes[] = [
                 'procedure_code' => $codeText,
                 'procedure_name' => $codeText,
@@ -956,10 +948,11 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         // reasonCode[0].coding -> diagnoses on the first procedure code row (string form)
-        $reasonCoding = $json['reasonCode'][0]['coding'][0] ?? null;
-        $reasonCode = is_array($reasonCoding) ? ($reasonCoding['code'] ?? null) : null;
+        $reasonCoding = FhirPayloadReader::firstCoding(
+            FhirPayloadReader::get($json['reasonCode'] ?? null, 0)
+        );
+        $reasonCode = $reasonCoding['code'] ?? null;
         if (is_string($reasonCode) && $reasonCode !== '' && $codes !== []) {
-            // $reasonCoding is provably an array here: $reasonCode came out of it.
             $reasonSystem = $reasonCoding['system'] ?? null;
             $system = is_string($reasonSystem) ? $reasonSystem : '';
             $codes[0]['diagnoses'] = (new CodeTypesService())
@@ -970,10 +963,14 @@ class FhirServiceRequestService extends FhirServiceBase implements
     }
 
     /**
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR ServiceRequest record array');
+        }
+
         $puuid = $openEmrRecord['puuid'] ?? null;
         if (!is_string($puuid) || $puuid === '') {
             $result = new ProcessingResult();
@@ -985,14 +982,13 @@ class FhirServiceRequestService extends FhirServiceBase implements
             'pid',
             [UuidRegistry::uuidToBytes($puuid)]
         );
-        if ($pid === null) {
+        if (!is_numeric($pid)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
             return $result;
         }
 
-        $headerRaw = $openEmrRecord['header'] ?? [];
-        $header = is_array($headerRaw) ? $headerRaw : [];
+        $header = FhirPayloadReader::stringKeyed($openEmrRecord['header'] ?? null);
         $header['patient_id'] = (int) $pid;
 
         // Optional encounter resolution
@@ -1003,7 +999,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 'encounter',
                 [UuidRegistry::uuidToBytes($euuid)]
             );
-            if ($encounterId !== null) {
+            if (is_numeric($encounterId)) {
                 $header['encounter_id'] = (int) $encounterId;
             }
         }
@@ -1016,30 +1012,27 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 'id',
                 [UuidRegistry::uuidToBytes($pruuid)]
             );
-            if ($providerId !== null) {
+            if (is_numeric($providerId)) {
                 $header['provider_id'] = (int) $providerId;
             }
         }
 
-        $codesRaw = $openEmrRecord['codes'] ?? [];
-        $codes = is_array($codesRaw) ? $codesRaw : [];
+        $codes = FhirPayloadReader::rows($openEmrRecord['codes'] ?? null);
 
         return $this->procedureService->createOrder($header, $codes);
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        $headerRaw = $updatedOpenEMRRecord['header'] ?? [];
-        $header = is_array($headerRaw) ? $headerRaw : [];
+        $header = FhirPayloadReader::stringKeyed($updatedOpenEMRRecord['header'] ?? null);
         // PUT cannot rebind patient/encounter/requester; drop those resolved ids.
         unset($header['patient_id']);
 
-        $codesRaw = $updatedOpenEMRRecord['codes'] ?? [];
-        $codes = is_array($codesRaw) ? $codesRaw : [];
+        $codes = FhirPayloadReader::rows($updatedOpenEMRRecord['codes'] ?? null);
 
         // Defense-in-depth: resolve the body's subject to a pid and require it
         // to match the stored procedure_order.patient_id. Prevents an attacker
@@ -1052,7 +1045,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 'pid',
                 [UuidRegistry::uuidToBytes($puuid)]
             );
-            if ($pid !== null) {
+            if (is_numeric($pid)) {
                 $expectedPatientId = (int) $pid;
             }
         }

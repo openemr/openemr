@@ -263,8 +263,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         // category[0] -> usage_category. usage_category_title is NOT NULL; default to
         // 'community'/'Home/Community' (matches the read-side COALESCE).
-        $categoryCode = $json['category'][0]['coding'][0]['code'] ?? null;
-        $categoryDisplay = $json['category'][0]['coding'][0]['display'] ?? null;
+        $categoryCoding = FhirPayloadReader::firstCoding(
+            FhirPayloadReader::get($json['category'] ?? null, 0)
+        );
+        $categoryCode = $categoryCoding['code'] ?? null;
+        $categoryDisplay = $categoryCoding['display'] ?? null;
         if (is_string($categoryCode) && $categoryCode !== '') {
             $data['usage_category'] = $categoryCode;
             $data['usage_category_title'] = is_string($categoryDisplay) && $categoryDisplay !== ''
@@ -296,8 +299,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // subject -> puuid (resolved to patient_id downstream)
-        $subjectRef = $json['subject']['reference'] ?? null;
-        if (is_string($subjectRef) && $subjectRef !== '') {
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
             $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
             if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
                 $data['puuid'] = $subjectUuid;
@@ -305,8 +308,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // encounter -> euuid (resolved to form_encounter.encounter downstream)
-        $encounterRef = $json['encounter']['reference'] ?? null;
-        if (is_string($encounterRef) && $encounterRef !== '') {
+        $encounterRef = FhirPayloadReader::reference($json['encounter'] ?? null);
+        if ($encounterRef !== null) {
             $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
             if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
                 $data['euuid'] = $encounterUuid;
@@ -314,8 +317,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // requester -> pruuid (resolved to users.id downstream)
-        $requesterRef = $json['requester']['reference'] ?? null;
-        if (is_string($requesterRef) && $requesterRef !== '') {
+        $requesterRef = FhirPayloadReader::reference($json['requester'] ?? null);
+        if ($requesterRef !== null) {
             $requesterUuid = UtilsService::parseReferenceString($requesterRef, 'Practitioner')['uuid'] ?? null;
             if (is_string($requesterUuid) && $requesterUuid !== '' && UuidRegistry::isValidStringUUID($requesterUuid)) {
                 $data['pruuid'] = $requesterUuid;
@@ -340,7 +343,10 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // dispenseRequest.quantity.value -> quantity
-        $dispenseQuantity = $json['dispenseRequest']['quantity']['value'] ?? null;
+        $dispenseQuantity = FhirPayloadReader::get(
+            FhirPayloadReader::get($json['dispenseRequest'] ?? null, 'quantity'),
+            'value'
+        );
         if (is_numeric($dispenseQuantity)) {
             $data['quantity'] = (string) $dispenseQuantity;
         }
@@ -359,11 +365,15 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     /**
      * Inserts a prescriptions row from a parsed FHIR MedicationRequest.
      *
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR MedicationRequest record array');
+        }
+
         $resolveResult = $this->resolveReferences($openEmrRecord);
         if ($resolveResult !== null) {
             return $resolveResult;
@@ -383,14 +393,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             }
         }
 
-        return $this->getPrescriptionService()->insert($openEmrRecord);
+        return $this->getPrescriptionService()->insert(FhirPayloadReader::stringKeyed($openEmrRecord));
     }
 
     /**
      * Updates a prescriptions row from a parsed FHIR MedicationRequest.
      *
      * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      * @return ProcessingResult
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
@@ -400,7 +410,10 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             return $resolveResult;
         }
 
-        return $this->getPrescriptionService()->update($fhirResourceId, $updatedOpenEMRRecord);
+        return $this->getPrescriptionService()->update(
+            $fhirResourceId,
+            FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
+        );
     }
 
     /**
@@ -409,7 +422,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      * ProcessingResult with a 422-style error if a required reference is unresolvable;
      * null on success.
      *
-     * @param array<string, mixed> $record (mutated in place)
+     * @param array<array-key, mixed> $record (mutated in place)
      * @return ProcessingResult|null
      */
     private function resolveReferences(array &$record): ?ProcessingResult
@@ -422,7 +435,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 'pid',
                 [$puuidBytes]
             );
-            if ($pid === null) {
+            if (!is_numeric($pid)) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
                     'subject' => ['Patient reference could not be resolved' => $puuid],
@@ -441,7 +454,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 'encounter',
                 [$euuidBytes]
             );
-            if ($encounterId !== null) {
+            if (is_numeric($encounterId)) {
                 $record['encounter'] = (int) $encounterId;
             }
             unset($record['euuid']);
@@ -455,7 +468,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 'id',
                 [$pruuidBytes]
             );
-            if ($providerId !== null) {
+            if (is_numeric($providerId)) {
                 $record['provider_id'] = (int) $providerId;
             }
             unset($record['pruuid']);

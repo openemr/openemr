@@ -41,6 +41,7 @@ class FhirRelatedPersonServiceCrudTest extends TestCase
 
         $this->fixtureManager->installPatientFixtures();
         $patientFixture = $this->fixtureManager->getPatientFixtures()[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
@@ -103,6 +104,7 @@ class FhirRelatedPersonServiceCrudTest extends TestCase
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
 
         $payload = $this->fhirRelatedPersonFixture->jsonSerialize();
         $payload['id'] = $fhirId;
@@ -136,6 +138,7 @@ class FhirRelatedPersonServiceCrudTest extends TestCase
         $insertResult = $this->fhirRelatedPersonService->insert($this->fhirRelatedPersonFixture);
         $this->assertTrue($insertResult->isValid());
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
 
         // Strip the patient reference — the new scoping enforcement requires it
         // so we know which patient's relationship row to update.
@@ -147,6 +150,7 @@ class FhirRelatedPersonServiceCrudTest extends TestCase
         $result = $this->fhirRelatedPersonService->update($fhirId, $updated);
         $this->assertFalse($result->isValid());
         $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
         $this->assertArrayHasKey('patient', $messages);
     }
 

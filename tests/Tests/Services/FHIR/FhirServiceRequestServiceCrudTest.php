@@ -41,6 +41,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
 
         $this->fixtureManager->installPatientFixtures();
         $patientFixture = $this->fixtureManager->getPatientFixtures()[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
@@ -82,6 +83,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             'c',
             [$data['procedure_order_id']]
         );
+        $this->assertIsNumeric($codeCount);
         $this->assertSame(1, (int) $codeCount);
     }
 
@@ -111,12 +113,16 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
         $orderId = $this->firstDataRow($insertResult)['procedure_order_id'];
+        $this->assertIsString($orderId);
 
         // Update with TWO codings instead of one
         $payload = $this->fhirServiceRequestFixture->jsonSerialize();
         $payload['id'] = $fhirId;
-        $payload['code']['coding'] = [
+        $code = $payload['code'] ?? [];
+        $this->assertIsArray($code);
+        $code['coding'] = [
             [
                 'system' => 'http://loinc.org',
                 'code' => '5778-6',
@@ -128,6 +134,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
                 'display' => 'test-fixture-updated Glucose [Mass/volume] in Serum or Plasma',
             ],
         ];
+        $payload['code'] = $code;
         $updated = new FHIRServiceRequest($payload);
 
         $result = $this->fhirServiceRequestService->update($fhirId, $updated);
@@ -141,6 +148,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             'c',
             [$orderId]
         );
+        $this->assertIsNumeric($codeCount);
         $this->assertSame(2, (int) $codeCount);
     }
 
@@ -166,6 +174,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             'Insert should succeed: ' . json_encode($result->getValidationMessages())
         );
         $procedureOrderId = $this->firstDataRow($result)['procedure_order_id'];
+        $this->assertIsString($procedureOrderId);
 
         $intent = QueryUtils::fetchSingleValue(
             "SELECT order_intent FROM procedure_order WHERE procedure_order_id = ?",

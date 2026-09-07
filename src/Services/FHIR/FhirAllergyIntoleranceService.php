@@ -269,8 +269,8 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // Patient reference -> puuid (required in US Core)
-        $patientRef = $json['patient']['reference'] ?? null;
-        if (is_string($patientRef) && $patientRef !== '') {
+        $patientRef = FhirPayloadReader::reference($json['patient'] ?? null);
+        if ($patientRef !== null) {
             $parsedUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
             if (
                 is_string($parsedUuid) && $parsedUuid !== ''
@@ -282,7 +282,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
 
         // Code -> title and diagnosis
         $code = $json['code'] ?? null;
-        $codeCodings = $this->codingEntries($code);
+        $codeCodings = FhirPayloadReader::codings($code);
         if ($codeCodings !== []) {
             $codeTypesService = new CodeTypesService();
             $diagnosisParts = [];
@@ -308,7 +308,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // ClinicalStatus -> outcome
-        $clinicalStatus = $this->firstCodingCode($json['clinicalStatus'] ?? null);
+        $clinicalStatus = FhirPayloadReader::firstCodingCode($json['clinicalStatus'] ?? null);
         if ($clinicalStatus !== '') {
             $data['outcome'] = ($clinicalStatus === 'resolved') ? '1' : '0';
         }
@@ -325,14 +325,14 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // VerificationStatus -> verification
-        $verification = $this->firstCodingCode($json['verificationStatus'] ?? null);
+        $verification = FhirPayloadReader::firstCodingCode($json['verificationStatus'] ?? null);
         if ($verification !== '') {
             $data['verification'] = $verification;
         }
 
         // Recorder -> practitioner reference
-        $recorderRef = $json['recorder']['reference'] ?? null;
-        if (is_string($recorderRef) && $recorderRef !== '') {
+        $recorderRef = FhirPayloadReader::reference($json['recorder'] ?? null);
+        if ($recorderRef !== null) {
             $recorderUuid = UtilsService::parseReferenceString($recorderRef, 'Practitioner')['uuid'] ?? null;
             if (
                 is_string($recorderUuid) && $recorderUuid !== ''
@@ -368,7 +368,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $firstReaction = is_array($reaction) ? ($reaction[0] ?? null) : null;
         $manifestation = is_array($firstReaction) ? ($firstReaction['manifestation'] ?? null) : null;
         $firstManifestation = is_array($manifestation) ? ($manifestation[0] ?? null) : null;
-        $reactionCodings = $this->codingEntries($firstManifestation);
+        $reactionCodings = FhirPayloadReader::codings($firstManifestation);
         if ($reactionCodings !== []) {
             $codeTypesService = new CodeTypesService();
             $reactionParts = [];
@@ -396,55 +396,17 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
     }
 
     /**
-     * Extracts the `coding` entries of a FHIR CodeableConcept.
-     *
-     * The FHIR R4 library does not hydrate nested elements, so what reaches
-     * here is whatever the request payload carried. Entries that are not
-     * arrays are dropped rather than passed on to the callers' offset reads.
-     *
-     * @param mixed $codeableConcept
-     * @return list<array<array-key, mixed>>
-     */
-    private function codingEntries($codeableConcept): array
-    {
-        if (!is_array($codeableConcept)) {
-            return [];
-        }
-        $coding = $codeableConcept['coding'] ?? null;
-        if (!is_array($coding)) {
-            return [];
-        }
-        $entries = [];
-        foreach ($coding as $entry) {
-            if (is_array($entry)) {
-                $entries[] = $entry;
-            }
-        }
-
-        return $entries;
-    }
-
-    /**
-     * Returns the `code` of a CodeableConcept's first coding entry.
-     *
-     * @param mixed $codeableConcept
-     * @return string The code, or '' when absent or not a string
-     */
-    private function firstCodingCode($codeableConcept): string
-    {
-        $code = $this->codingEntries($codeableConcept)[0]['code'] ?? null;
-
-        return is_string($code) ? $code : '';
-    }
-
-    /**
      * Inserts an OpenEMR record into the system.
      *
-     * @param array $openEmrRecord The OpenEMR record to insert
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord)
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR AllergyIntolerance record array');
+        }
+
         return $this->allergyIntoleranceService->insert($openEmrRecord);
     }
 

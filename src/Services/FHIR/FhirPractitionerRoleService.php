@@ -183,8 +183,8 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
             $data['uuid'] = $resourceId;
         }
 
-        $practitionerRef = $json['practitioner']['reference'] ?? null;
-        if (is_string($practitionerRef) && $practitionerRef !== '') {
+        $practitionerRef = FhirPayloadReader::reference($json['practitioner'] ?? null);
+        if ($practitionerRef !== null) {
             $practitionerUuid = UtilsService::parseReferenceString($practitionerRef, 'Practitioner')['uuid'] ?? null;
             if (
                 is_string($practitionerUuid) && $practitionerUuid !== ''
@@ -194,8 +194,8 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
             }
         }
 
-        $organizationRef = $json['organization']['reference'] ?? null;
-        if (is_string($organizationRef) && $organizationRef !== '') {
+        $organizationRef = FhirPayloadReader::reference($json['organization'] ?? null);
+        if ($organizationRef !== null) {
             $organizationUuid = UtilsService::parseReferenceString($organizationRef, 'Organization')['uuid'] ?? null;
             if (
                 is_string($organizationUuid) && $organizationUuid !== ''
@@ -206,14 +206,14 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         }
 
         // code[0].coding[0].code -> role_code
-        $codeCoding = $json['code'][0]['coding'][0]['code'] ?? null;
-        if (is_string($codeCoding) && $codeCoding !== '') {
+        $codeCoding = FhirPayloadReader::firstConceptCode($json['code'] ?? null);
+        if ($codeCoding !== '') {
             $data['role_code'] = $codeCoding;
         }
 
         // specialty[0].coding[0].code -> specialty_code
-        $specialtyCoding = $json['specialty'][0]['coding'][0]['code'] ?? null;
-        if (is_string($specialtyCoding) && $specialtyCoding !== '') {
+        $specialtyCoding = FhirPayloadReader::firstConceptCode($json['specialty'] ?? null);
+        if ($specialtyCoding !== '') {
             $data['specialty_code'] = $specialtyCoding;
         }
 
@@ -221,10 +221,14 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
     }
 
     /**
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR PractitionerRole record array');
+        }
+
         $practitionerUuid = $openEmrRecord['provider_uuid'] ?? null;
         if (!is_string($practitionerUuid) || $practitionerUuid === '') {
             $result = new ProcessingResult();
@@ -236,7 +240,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
             'id',
             [UuidRegistry::uuidToBytes($practitionerUuid)]
         );
-        if ($providerId === null) {
+        if (!is_numeric($providerId)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['practitioner' => 'Practitioner reference could not be resolved: ' . $practitionerUuid]);
             return $result;
@@ -253,7 +257,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
             'id',
             [UuidRegistry::uuidToBytes($facilityUuid)]
         );
-        if ($facilityId === null) {
+        if (!is_numeric($facilityId)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['organization' => 'Organization reference could not be resolved: ' . $facilityUuid]);
             return $result;
@@ -263,19 +267,22 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         $openEmrRecord['facility_id'] = (int) $facilityId;
         unset($openEmrRecord['provider_uuid'], $openEmrRecord['facility_uuid']);
 
-        return $this->practitionerRoleService->insert($openEmrRecord);
+        return $this->practitionerRoleService->insert(FhirPayloadReader::stringKeyed($openEmrRecord));
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         // FHIR PUT cannot rebind the practitioner or organization; drop those uuids from
         // the update payload to keep PractitionerRoleService::update focused on role/specialty.
         unset($updatedOpenEMRRecord['provider_uuid'], $updatedOpenEMRRecord['facility_uuid']);
-        return $this->practitionerRoleService->update($fhirResourceId, $updatedOpenEMRRecord);
+        return $this->practitionerRoleService->update(
+            $fhirResourceId,
+            FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
+        );
     }
 
     /**

@@ -7,7 +7,9 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\ProcessingResult;
@@ -56,6 +58,7 @@ class FhirEncounterServiceCrudTest extends TestCase
         $fixtureData = json_decode($raw, true);
         $this->assertIsArray($fixtureData);
         $fixture = $fixtureData[0];
+        $this->assertIsArray($fixture);
         $fixture['subject'] = [
             'reference' => 'Patient/' . $this->patientUuid
         ];
@@ -102,8 +105,8 @@ class FhirEncounterServiceCrudTest extends TestCase
     public function testInsertWithErrors(): void
     {
         // Remove required fields to trigger validation error
-        $this->fhirEncounterFixture->setSubject(null);
-        $this->fhirEncounterFixture->setClass(null);
+        $this->fhirEncounterFixture->setSubject(new FHIRReference());
+        $this->fhirEncounterFixture->setClass(new FHIRCoding());
         $processingResult = $this->fhirEncounterService->insert($this->fhirEncounterFixture);
         $this->assertFalse($processingResult->isValid());
         $this->assertSame([], $processingResult->getData());

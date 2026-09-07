@@ -6,7 +6,9 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\ProcessingResult;
@@ -52,6 +54,7 @@ class FhirConditionServiceCrudTest extends TestCase
         $fixtureData = json_decode($raw, true);
         $this->assertIsArray($fixtureData);
         $fixture = $fixtureData[0];
+        $this->assertIsArray($fixture);
         $fixture['subject'] = [
             'reference' => 'Patient/' . $this->patientUuid
         ];
@@ -83,8 +86,8 @@ class FhirConditionServiceCrudTest extends TestCase
     public function testInsertWithErrors(): void
     {
         // Remove the patient reference and code to trigger validation error
-        $this->fhirConditionFixture->setSubject(null);
-        $this->fhirConditionFixture->setCode(null);
+        $this->fhirConditionFixture->setSubject(new FHIRReference());
+        $this->fhirConditionFixture->setCode(new FHIRCodeableConcept());
         $processingResult = $this->fhirConditionService->insert($this->fhirConditionFixture);
         $this->assertFalse($processingResult->isValid());
         $this->assertSame([], $processingResult->getData());

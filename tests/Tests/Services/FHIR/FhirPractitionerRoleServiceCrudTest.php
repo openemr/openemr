@@ -59,7 +59,7 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             []
         );
         $this->assertIsArray($practitionerRow);
-        if (!is_array($practitionerRow) || empty($practitionerRow['uuid'])) {
+        if (($practitionerRow['uuid'] ?? '') === '') {
             $this->markTestSkipped('Practitioner fixture did not produce a queryable row');
         }
         $this->practitionerUuid = UuidRegistry::uuidToString($practitionerRow['uuid']);
@@ -70,7 +70,7 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             []
         );
         $this->assertIsArray($facilityRow);
-        if (!is_array($facilityRow) || empty($facilityRow['uuid'])) {
+        if (($facilityRow['uuid'] ?? '') === '') {
             $this->markTestSkipped('Facility fixture did not produce a queryable row');
         }
         $this->facilityUuid = UuidRegistry::uuidToString($facilityRow['uuid']);
@@ -148,11 +148,22 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
 
         $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
         $payload['id'] = $fhirId;
         // Pick a different valid role code from list_options
-        $payload['code'][0]['coding'][0]['code'] = '111N00000X'; // Chiropractor
+        $codes = $payload['code'] ?? [];
+        $this->assertIsArray($codes);
+        $this->assertArrayHasKey(0, $codes);
+        $this->assertIsArray($codes[0]);
+        $coding = $codes[0]['coding'] ?? [];
+        $this->assertIsArray($coding);
+        $this->assertArrayHasKey(0, $coding);
+        $this->assertIsArray($coding[0]);
+        $coding[0]['code'] = '111N00000X'; // Chiropractor
+        $codes[0]['coding'] = $coding;
+        $payload['code'] = $codes;
         $updated = new FHIRPractitionerRole($payload);
 
         $result = $this->fhirPractitionerRoleService->update($fhirId, $updated);

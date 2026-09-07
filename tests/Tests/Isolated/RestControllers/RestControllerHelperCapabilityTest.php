@@ -114,11 +114,8 @@ class RestControllerHelperCapabilityTest extends TestCase
     private function interactionCodes(FHIRCapabilityStatementResource $capResource): array
     {
         $codes = [];
-        foreach (($capResource->getInteraction() ?? []) as $interaction) {
-            $code = $interaction->getCode();
-            if ($code !== null) {
-                $codes[] = (string) $code->getValue();
-            }
+        foreach ($capResource->getInteraction() as $interaction) {
+            $codes[] = (string) $interaction->getCode()->getValue();
         }
         return $codes;
     }

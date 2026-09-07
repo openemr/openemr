@@ -93,8 +93,16 @@ class FhirMedicationServiceCrudTest extends TestCase
 
         $payload = $this->fhirMedicationFixture->jsonSerialize();
         $payload['id'] = $fhirId;
-        $payload['code']['coding'][0]['display'] = 'test-fixture-medication-001-updated';
-        $payload['code']['text'] = 'test-fixture-medication-001-updated';
+        $code = $payload['code'] ?? [];
+        $this->assertIsArray($code);
+        $coding = $code['coding'] ?? [];
+        $this->assertIsArray($coding);
+        $this->assertArrayHasKey(0, $coding);
+        $this->assertIsArray($coding[0]);
+        $coding[0]['display'] = 'test-fixture-medication-001-updated';
+        $code['coding'] = $coding;
+        $code['text'] = 'test-fixture-medication-001-updated';
+        $payload['code'] = $code;
         $updated = new FHIRMedication($payload);
 
         $actualResult = $this->fhirMedicationService->update($fhirId, $updated);

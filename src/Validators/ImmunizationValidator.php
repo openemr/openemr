@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Validators;
 
+use Particle\Validator\Chain;
 use Particle\Validator\Validator;
 
 /**
@@ -75,10 +76,13 @@ class ImmunizationValidator extends BaseValidator
             function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    /** @param iterable<object> $rules */
                     function (iterable $rules): void {
                         foreach ($rules as $chain) {
-                            $chain->required(false);
+                            // Validator::runChainCallback hands the copied Chain[] to
+                            // this callback; anything else is not ours to relax.
+                            if ($chain instanceof Chain) {
+                                $chain->required(false);
+                            }
                         }
                     }
                 );

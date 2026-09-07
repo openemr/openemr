@@ -316,8 +316,8 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // Subject -> puuid (required in US Core)
-        $subjectRef = $json['subject']['reference'] ?? null;
-        if (is_string($subjectRef) && $subjectRef !== '') {
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
             $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
             if (is_string($subjectUuid) && $subjectUuid !== '') {
                 $data['puuid'] = $subjectUuid;
@@ -333,7 +333,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
         // Period -> date (normalize to Y-m-d H:i:s for database). An encounter
         // names a specific point in time, so partial precision is rejected. The
-        // previous fallback wrote the raw unparseable string into a DATETIME
+        // previous fallback wrote the raw unparsable string into a DATETIME
         // column; the parser raises a 400 instead.
         $period = $json['period'] ?? null;
         $encounterDate = FhirDateTimeParser::toDbDateTime(
@@ -378,7 +378,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 // required $individual, and therefore $participant, to be one.
                 $participantTypes = $participant['type'] ?? null;
                 foreach (is_array($participantTypes) ? $participantTypes : [] as $pType) {
-                    $code = $this->firstCodingCode($pType);
+                    $code = FhirPayloadReader::firstCodingCode($pType);
                     if ($code === self::ENCOUNTER_PARTICIPANT_TYPE_PRIMARY_PERFORMER) {
                         $isPrimaryPerformer = true;
                     } elseif ($code === self::ENCOUNTER_PARTICIPANT_TYPE_REFERRER) {
@@ -399,7 +399,7 @@ class FhirEncounterService extends FhirServiceBase implements
         $reason = is_array($reasonCodes) ? ($reasonCodes[0] ?? null) : null;
         if (is_array($reason)) {
             $reasonText = $reason['text'] ?? null;
-            $reasonDisplay = $this->firstCodingValue($reason, 'display');
+            $reasonDisplay = FhirPayloadReader::firstCodingValue($reason, 'display');
             if (is_string($reasonText) && $reasonText !== '') {
                 $data['reason'] = $reasonText;
             } elseif ($reasonDisplay !== '') {
@@ -408,8 +408,8 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // ServiceProvider -> facility_id (via Organization uuid)
-        $serviceProviderRef = $json['serviceProvider']['reference'] ?? null;
-        if (is_string($serviceProviderRef) && $serviceProviderRef !== '') {
+        $serviceProviderRef = FhirPayloadReader::reference($json['serviceProvider'] ?? null);
+        if ($serviceProviderRef !== null) {
             $organizationUuid = UtilsService::parseReferenceString($serviceProviderRef, 'Organization')['uuid'] ?? null;
             if (
                 is_string($organizationUuid) && $organizationUuid !== ''
@@ -425,7 +425,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
         // Hospitalization -> discharge_disposition
         $hospitalization = $json['hospitalization'] ?? null;
-        $dischargeCode = $this->firstCodingCode(
+        $dischargeCode = FhirPayloadReader::firstCodingCode(
             is_array($hospitalization) ? ($hospitalization['dischargeDisposition'] ?? null) : null
         );
         if ($dischargeCode !== '') {
@@ -436,40 +436,6 @@ class FhirEncounterService extends FhirServiceBase implements
         $data['pc_catid'] = $this->getDefaultEncounterCategoryId();
 
         return $data;
-    }
-
-    /**
-     * Returns a field of a CodeableConcept's first coding entry.
-     *
-     * The FHIR R4 library does not hydrate nested elements, so what reaches
-     * here is whatever the request payload carried; anything that is not a
-     * string is reported as absent.
-     *
-     * @param mixed $codeableConcept
-     * @param string $field The coding field to read ('code', 'display', ...)
-     * @return string The field value, or '' when absent or not a string
-     */
-    private function firstCodingValue($codeableConcept, string $field): string
-    {
-        if (!is_array($codeableConcept)) {
-            return '';
-        }
-        $coding = $codeableConcept['coding'] ?? null;
-        $firstCoding = is_array($coding) ? ($coding[0] ?? null) : null;
-        $value = is_array($firstCoding) ? ($firstCoding[$field] ?? null) : null;
-
-        return is_string($value) ? $value : '';
-    }
-
-    /**
-     * Returns the `code` of a CodeableConcept's first coding entry.
-     *
-     * @param mixed $codeableConcept
-     * @return string The code, or '' when absent or not a string
-     */
-    private function firstCodingCode($codeableConcept): string
-    {
-        return $this->firstCodingValue($codeableConcept, 'code');
     }
 
     /**
@@ -501,11 +467,15 @@ class FhirEncounterService extends FhirServiceBase implements
     /**
      * Inserts an OpenEMR record into the system.
      *
-     * @param array $openEmrRecord The OpenEMR record to insert
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord)
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Encounter record array');
+        }
+
         $puuid = $openEmrRecord['puuid'] ?? '';
         unset($openEmrRecord['puuid']);
 
@@ -538,7 +508,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * Updates an existing OpenEMR record.
      *
      * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
-     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @param array<array-key, mixed> $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
@@ -570,7 +540,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * write succeeded while billing/audit attributes the visit to a default
      * provider — worse than failing outright.
      *
-     * @param array &$record The OpenEMR record to modify in place
+     * @param array<array-key, mixed> &$record The OpenEMR record to modify in place
      */
     private function resolveProviderUuids(array &$record): void
     {
@@ -606,7 +576,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * admin/users-or-self policy. Throws on policy violation rather than
      * silently dropping.
      *
-     * @param array<string, mixed> &$record
+     * @param array<array-key, mixed> &$record
      */
     private function resolveSingleProviderField(
         array &$record,

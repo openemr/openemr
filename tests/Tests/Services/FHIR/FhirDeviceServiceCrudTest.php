@@ -40,6 +40,7 @@ class FhirDeviceServiceCrudTest extends TestCase
 
         $this->fixtureManager->installPatientFixtures();
         $patientFixture = $this->fixtureManager->getPatientFixtures()[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]

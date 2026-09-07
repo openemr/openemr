@@ -295,10 +295,14 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * Requires NPI in the FHIR identifier (system http://hl7.org/fhir/sid/us-npi) because
      * PractitionerValidator gates writes on it. The 422-style response calls that out.
      *
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Person record array');
+        }
+
         $npi = $openEmrRecord['npi'] ?? null;
         if (!is_string($npi) || $npi === '') {
             $result = new ProcessingResult();
@@ -316,7 +320,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * Updates an existing `users` row via PractitionerService.
      *
      * @param string $fhirResourceId The users.uuid string
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {

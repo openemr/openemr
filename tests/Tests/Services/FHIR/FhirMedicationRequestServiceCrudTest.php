@@ -7,6 +7,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -95,7 +96,7 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
     public function testInsertMissingDrugReturnsValidationError(): void
     {
         $this->fhirMedicationRequestFixture->setId(new FHIRId());
-        $this->fhirMedicationRequestFixture->setMedicationCodeableConcept(null);
+        $this->fhirMedicationRequestFixture->setMedicationCodeableConcept(new FHIRCodeableConcept());
 
         $processingResult = $this->fhirMedicationRequestService->insert($this->fhirMedicationRequestFixture);
         $this->assertFalse($processingResult->isValid());
@@ -136,7 +137,7 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
         $this->assertInstanceOf(FHIRMedicationRequest::class, $updatedResource);
         $notes = $updatedResource->getNote();
         $this->assertCount(1, $notes);
-        $this->assertSame('test-fixture updated note', $notes[0]->getText());
+        $this->assertSame('test-fixture updated note', (string) $notes[0]->getText());
     }
 
     #[Test]

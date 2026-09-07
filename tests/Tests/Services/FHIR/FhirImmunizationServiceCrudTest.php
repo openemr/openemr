@@ -7,7 +7,9 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirImmunizationService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\ProcessingResult;
@@ -87,9 +89,9 @@ class FhirImmunizationServiceCrudTest extends TestCase
     public function testInsertWithErrors(): void
     {
         // Remove the patient reference to trigger validation error
-        $this->fhirImmunizationFixture->setPatient(null);
+        $this->fhirImmunizationFixture->setPatient(new FHIRReference());
         // Also clear the vaccine code so cvx_code is empty
-        $this->fhirImmunizationFixture->setVaccineCode(null);
+        $this->fhirImmunizationFixture->setVaccineCode(new FHIRCodeableConcept());
         $processingResult = $this->fhirImmunizationService->insert($this->fhirImmunizationFixture);
         $this->assertFalse($processingResult->isValid());
         $this->assertSame([], $processingResult->getData());

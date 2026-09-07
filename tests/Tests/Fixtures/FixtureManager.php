@@ -65,13 +65,29 @@ class FixtureManager
     /**
      * Load a JSON fixture file. Used for FHIR fixtures that stay in JSON format.
      *
-     * @return array<string, mixed>[]
+     * @return list<array<string, mixed>>
      */
     private function loadJsonFile(string $fileName): array
     {
-        /** @var array<string, mixed>[] $parsedRecords */
-        $parsedRecords = json_decode((string) file_get_contents(__DIR__ . '/' . $fileName), true);
-        return $parsedRecords;
+        $contents = file_get_contents(__DIR__ . '/' . $fileName);
+        $decoded = is_string($contents) ? json_decode($contents, true) : null;
+        if (!is_array($decoded)) {
+            throw new \RuntimeException('Fixture file could not be decoded: ' . $fileName);
+        }
+
+        $records = [];
+        foreach ($decoded as $record) {
+            if (!is_array($record)) {
+                continue;
+            }
+            $keyed = [];
+            foreach ($record as $key => $value) {
+                $keyed[(string) $key] = $value;
+            }
+            $records[] = $keyed;
+        }
+
+        return $records;
     }
 
     /**
@@ -179,9 +195,9 @@ class FixtureManager
     }
 
     /**
-     * @return array of FHIR AllergyIntolerance fixtures.
+     * @return list<array<string, mixed>> FHIR AllergyIntolerance fixtures.
      */
-    public function getFhirAllergyIntoleranceFixtures()
+    public function getFhirAllergyIntoleranceFixtures(): array
     {
         return $this->loadJsonFile("FHIR/allergy-intolerance.json");
     }
@@ -195,9 +211,9 @@ class FixtureManager
     }
 
     /**
-     * @return array of FHIR Immunization fixtures.
+     * @return list<array<string, mixed>> FHIR Immunization fixtures.
      */
-    public function getFhirImmunizationFixtures()
+    public function getFhirImmunizationFixtures(): array
     {
         return $this->loadJsonFile("FHIR/immunization.json");
     }
@@ -211,9 +227,9 @@ class FixtureManager
     }
 
     /**
-     * @return array of FHIR Appointment fixtures.
+     * @return list<array<string, mixed>> FHIR Appointment fixtures.
      */
-    public function getFhirAppointmentFixtures()
+    public function getFhirAppointmentFixtures(): array
     {
         return $this->loadJsonFile("FHIR/appointment.json");
     }
@@ -645,7 +661,7 @@ class FixtureManager
             'pid',
             [$pubpid]
         );
-        if (empty($pids)) {
+        if ($pids === []) {
             return;
         }
         $placeholders = implode(',', array_fill(0, count($pids), '?'));
@@ -688,7 +704,7 @@ class FixtureManager
             'pid',
             [$pubpid]
         );
-        if (empty($pids)) {
+        if ($pids === []) {
             return;
         }
         $placeholders = implode(',', array_fill(0, count($pids), '?'));
@@ -732,7 +748,7 @@ class FixtureManager
     public function installInsuranceCompanyFixture(): string
     {
         $uuid = (new UuidRegistry(['table_name' => 'insurance_companies']))->createUuid();
-        sqlInsert(
+        QueryUtils::sqlInsert(
             "INSERT INTO insurance_companies (uuid, name, attn, cms_id, ins_type_code) "
             . "VALUES (?, ?, ?, ?, ?)",
             [$uuid, 'test-fixture-insurer', null, null, 3]
@@ -767,7 +783,7 @@ class FixtureManager
             'pid',
             [$pubpid]
         );
-        if (empty($pids)) {
+        if ($pids === []) {
             return;
         }
         // delete uuid_registry rows for insurance_data referenced by these pids
@@ -878,7 +894,7 @@ class FixtureManager
             [$pubpid]
         );
 
-        if (!empty($pids)) {
+        if ($pids !== []) {
             $count = count($pids) - 1;
             $where = "WHERE pid = ? " . str_repeat("OR pid = ? ", $count);
             $sqlStatement = "DELETE FROM `lists` " . $where;

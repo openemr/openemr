@@ -157,6 +157,7 @@ class FhirCoverageServiceCrudTest extends TestCase
         $result = $this->fhirCoverageService->insert($fixture);
         $this->assertFalse($result->isValid());
         $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
         $this->assertArrayHasKey('status', $messages);
     }
 
@@ -171,6 +172,7 @@ class FhirCoverageServiceCrudTest extends TestCase
         $result = $this->fhirCoverageService->insert($fixture);
         $this->assertFalse($result->isValid());
         $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
         $this->assertArrayHasKey('status', $messages);
     }
 

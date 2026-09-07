@@ -51,7 +51,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization';
 
-    public function __construct($fhirAPIURL = null)
+    public function __construct(?string $fhirAPIURL = null)
     {
         parent::__construct($fhirAPIURL);
         $this->immunizationService = new ImmunizationService();
@@ -270,7 +270,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // VaccineCode -> cvx_code
-        $cvxCode = $this->firstCodingCode($json['vaccineCode'] ?? null);
+        $cvxCode = FhirPayloadReader::firstCodingCode($json['vaccineCode'] ?? null);
         if ($cvxCode !== '') {
             $data['cvx_code'] = $cvxCode;
         }
@@ -302,7 +302,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // StatusReason -> refusal_reason
-        $refusalReason = $this->firstCodingCode($json['statusReason'] ?? null);
+        $refusalReason = FhirPayloadReader::firstCodingCode($json['statusReason'] ?? null);
         if ($refusalReason !== '') {
             $data['refusal_reason'] = $refusalReason;
         }
@@ -323,7 +323,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // Site -> administration_site
-        $administrationSite = $this->firstCodingCode($json['site'] ?? null);
+        $administrationSite = FhirPayloadReader::firstCodingCode($json['site'] ?? null);
         if ($administrationSite !== '') {
             $data['administration_site'] = $administrationSite;
         }
@@ -403,28 +403,6 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     }
 
     /**
-     * Returns the `code` of a CodeableConcept's first coding entry.
-     *
-     * The FHIR R4 library does not hydrate nested elements, so what reaches
-     * here is whatever the request payload carried; anything that is not a
-     * string is reported as absent.
-     *
-     * @param mixed $codeableConcept
-     * @return string The code, or '' when absent or not a string
-     */
-    private function firstCodingCode($codeableConcept): string
-    {
-        if (!is_array($codeableConcept)) {
-            return '';
-        }
-        $coding = $codeableConcept['coding'] ?? null;
-        $firstCoding = is_array($coding) ? ($coding[0] ?? null) : null;
-        $code = is_array($firstCoding) ? ($firstCoding['code'] ?? null) : null;
-
-        return is_string($code) ? $code : '';
-    }
-
-    /**
      * Resolves a FHIR Reference element to a well-formed uuid of the expected
      * resource type.
      *
@@ -449,11 +427,15 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     /**
      * Inserts an OpenEMR record into the system.
      *
-     * @param array $openEmrRecord The OpenEMR record to insert
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord)
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Immunization record array');
+        }
+
         return $this->immunizationService->insert($openEmrRecord);
     }
 

@@ -157,6 +157,8 @@ class RestControllerHelper
      * @param string $method       HTTP method the route is registered under (POST/PUT/PATCH/DELETE).
      * @param string $resourceType FHIR resource type as it appears in the route path.
      * @param string $reason       Client-facing explanation placed in OperationOutcome.diagnostics.
+     * @return \Closure(mixed...): (JsonResponse|Response) Route handler; variadic so it serves
+     *     both collection routes (request only) and instance routes (uuid, request).
      */
     public static function fhirWriteNotImplemented(string $method, string $resourceType, string $reason): \Closure
     {
@@ -753,7 +755,7 @@ class RestControllerHelper
     {
         if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload) || is_bool($payload)) {
             $response = new JsonResponse($payload);
-        } else if ($payload instanceof \Stringable || is_string($payload)) {
+        } elseif ($payload instanceof \Stringable || is_string($payload)) {
             $response = new Response((string)$payload, Response::HTTP_OK, ['Content-Type' => 'text/html']);
         } else {
             throw new \TypeError(sprintf(

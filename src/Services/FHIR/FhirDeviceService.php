@@ -180,8 +180,8 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         }
 
         // patient.reference -> puuid (resolved to pid downstream)
-        $patientRef = $json['patient']['reference'] ?? null;
-        if (is_string($patientRef) && $patientRef !== '') {
+        $patientRef = FhirPayloadReader::reference($json['patient'] ?? null);
+        if ($patientRef !== null) {
             $patientUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
             if (is_string($patientUuid) && $patientUuid !== '' && UuidRegistry::isValidStringUUID($patientUuid)) {
                 $data['puuid'] = $patientUuid;
@@ -189,26 +189,24 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         }
 
         // type.coding -> lists.diagnosis (SNOMED-CT:code) + lists.title (display)
-        $typeCoding = $json['type']['coding'][0] ?? null;
-        if (is_array($typeCoding)) {
-            $code = $typeCoding['code'] ?? null;
-            $display = $typeCoding['display'] ?? ($json['type']['text'] ?? null);
-            if (is_string($code) && $code !== '') {
+        $type = $json['type'] ?? null;
+        $typeText = FhirPayloadReader::getString($type, 'text');
+        $typeCoding = FhirPayloadReader::firstCoding($type);
+        if ($typeCoding !== []) {
+            $code = FhirPayloadReader::getString($typeCoding, 'code');
+            if ($code !== null) {
                 $data['diagnosis'] = 'SNOMED-CT:' . $code;
             }
-            if (is_string($display) && $display !== '') {
+            $display = FhirPayloadReader::getString($typeCoding, 'display') ?? $typeText;
+            if ($display !== null) {
                 $data['title'] = $display;
             }
-        } else {
-            $type = $json['type'] ?? null;
-            $typeText = is_array($type) ? ($type['text'] ?? null) : null;
-            if (is_string($typeText) && $typeText !== '') {
-                $data['title'] = $typeText;
-            }
+        } elseif ($typeText !== null) {
+            $data['title'] = $typeText;
         }
 
         // udiCarrier[0]: deviceIdentifier -> udi_data.standard_elements.di, carrierHRF -> lists.udi
-        $udiCarrier = $json['udiCarrier'][0] ?? null;
+        $udiCarrier = FhirPayloadReader::get($json['udiCarrier'] ?? null, 0);
         $standardElements = [];
         if (is_array($udiCarrier)) {
             $deviceIdentifier = $udiCarrier['deviceIdentifier'] ?? null;
@@ -259,32 +257,39 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     /**
      * Resolves the FHIR Patient reference to internal pid, then delegates to DeviceService::insert.
      *
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Device record array');
+        }
+
         $resolved = $this->resolvePatientId($openEmrRecord);
         if ($resolved instanceof ProcessingResult) {
             return $resolved;
         }
-        return $this->deviceService->insert($openEmrRecord);
+        return $this->deviceService->insert(FhirPayloadReader::stringKeyed($openEmrRecord));
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         // Patient is not mutable on update; drop the resolved pid path so updates only touch fields the FHIR resource carries.
         unset($updatedOpenEMRRecord['puuid']);
-        return $this->deviceService->update($fhirResourceId, $updatedOpenEMRRecord);
+        return $this->deviceService->update(
+            $fhirResourceId,
+            FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
+        );
     }
 
     /**
      * Mutates $record in place: puuid -> pid. Returns a ProcessingResult on failure, null on success.
      *
-     * @param array<string, mixed> $record
+     * @param array<array-key, mixed> $record
      */
     private function resolvePatientId(array &$record): ?ProcessingResult
     {
@@ -301,7 +306,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
             'pid',
             [UuidRegistry::uuidToBytes($puuid)]
         );
-        if ($pid === null) {
+        if (!is_numeric($pid)) {
             $result = new ProcessingResult();
             $result->setValidationMessages([
                 'patient' => 'Patient reference could not be resolved: ' . $puuid,

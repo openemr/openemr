@@ -181,8 +181,8 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         }
 
         // patient.reference -> puuid (resolved to pid in insertOpenEMRRecord)
-        $patientRef = $json['patient']['reference'] ?? null;
-        if (is_string($patientRef) && $patientRef !== '') {
+        $patientRef = FhirPayloadReader::reference($json['patient'] ?? null);
+        if ($patientRef !== null) {
             $patientUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
             if (is_string($patientUuid) && $patientUuid !== '' && UuidRegistry::isValidStringUUID($patientUuid)) {
                 $data['puuid'] = $patientUuid;
@@ -190,14 +190,9 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         }
 
         // relationship[].coding (HL7 v3 RoleCode) -> first matching code
-        foreach (($json['relationship'] ?? []) as $rel) {
-            if (!is_array($rel)) {
-                continue;
-            }
-            foreach (($rel['coding'] ?? []) as $coding) {
-                if (!is_array($coding)) {
-                    continue;
-                }
+        $relationships = $json['relationship'] ?? null;
+        foreach (is_array($relationships) ? $relationships : [] as $rel) {
+            foreach (FhirPayloadReader::codings($rel) as $coding) {
                 $system = $coding['system'] ?? null;
                 $code = $coding['code'] ?? null;
                 $isV3 = $system === 'http://terminology.hl7.org/CodeSystem/v3-RoleCode'
@@ -255,33 +250,35 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         }
 
         $telecoms = [];
-        foreach (($json['telecom'] ?? []) as $t) {
-            $value = is_array($t) ? ($t['value'] ?? null) : null;
-            if (!is_string($value) || $value === '') {
+        $telecomEntries = $json['telecom'] ?? null;
+        foreach (is_array($telecomEntries) ? $telecomEntries : [] as $t) {
+            $value = FhirPayloadReader::getString($t, 'value');
+            if ($value === null) {
                 continue;
             }
             $telecoms[] = [
-                'system' => is_string($t['system'] ?? null) ? $t['system'] : 'phone',
-                'use' => is_string($t['use'] ?? null) ? $t['use'] : 'home',
+                'system' => FhirPayloadReader::getString($t, 'system') ?? 'phone',
+                'use' => FhirPayloadReader::getString($t, 'use') ?? 'home',
                 'value' => $value,
             ];
         }
         $data['telecoms'] = $telecoms;
 
         $addresses = [];
-        foreach (($json['address'] ?? []) as $a) {
+        $addressEntries = $json['address'] ?? null;
+        foreach (is_array($addressEntries) ? $addressEntries : [] as $a) {
             if (!is_array($a)) {
                 continue;
             }
-            $line1 = $a['line'][0] ?? '';
+            $lines = $a['line'] ?? null;
             $addresses[] = [
-                'line1' => is_string($line1) ? $line1 : '',
-                'line2' => is_string($a['line'][1] ?? null) ? $a['line'][1] : '',
-                'city' => is_string($a['city'] ?? null) ? $a['city'] : '',
-                'state' => is_string($a['state'] ?? null) ? $a['state'] : '',
-                'postal_code' => is_string($a['postalCode'] ?? null) ? $a['postalCode'] : '',
-                'country' => is_string($a['country'] ?? null) ? $a['country'] : '',
-                'use' => is_string($a['use'] ?? null) ? $a['use'] : 'home',
+                'line1' => FhirPayloadReader::getString($lines, 0) ?? '',
+                'line2' => FhirPayloadReader::getString($lines, 1) ?? '',
+                'city' => FhirPayloadReader::getString($a, 'city') ?? '',
+                'state' => FhirPayloadReader::getString($a, 'state') ?? '',
+                'postal_code' => FhirPayloadReader::getString($a, 'postalCode') ?? '',
+                'country' => FhirPayloadReader::getString($a, 'country') ?? '',
+                'use' => FhirPayloadReader::getString($a, 'use') ?? 'home',
             ];
         }
         $data['addresses'] = $addresses;
@@ -290,10 +287,14 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     }
 
     /**
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR RelatedPerson record array');
+        }
+
         $puuid = $openEmrRecord['puuid'] ?? null;
         if (!is_string($puuid) || $puuid === '') {
             $result = new ProcessingResult();
@@ -307,7 +308,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
             'pid',
             [UuidRegistry::uuidToBytes($puuid)]
         );
-        if ($pid === null) {
+        if (!is_numeric($pid)) {
             $result = new ProcessingResult();
             $result->setValidationMessages([
                 'patient' => 'Patient reference could not be resolved: ' . $puuid,
@@ -317,12 +318,14 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         $openEmrRecord['pid'] = (int) $pid;
         unset($openEmrRecord['puuid']);
 
-        return (new ContactRelationService())->insertRelatedPerson($openEmrRecord);
+        return (new ContactRelationService())->insertRelatedPerson(
+            FhirPayloadReader::stringKeyed($openEmrRecord)
+        );
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
@@ -343,7 +346,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
             'pid',
             [UuidRegistry::uuidToBytes($puuid)]
         );
-        if ($pid === null) {
+        if (!is_numeric($pid)) {
             $result = new ProcessingResult();
             $result->setValidationMessages([
                 'patient' => 'Patient reference could not be resolved: ' . $puuid,
@@ -353,7 +356,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         unset($updatedOpenEMRRecord['puuid']);
         return (new ContactRelationService())->updateRelatedPerson(
             $fhirResourceId,
-            $updatedOpenEMRRecord,
+            FhirPayloadReader::stringKeyed($updatedOpenEMRRecord),
             (int) $pid
         );
     }

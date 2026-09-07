@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -26,7 +27,7 @@ class ImmunizationService extends BaseService
 {
     private const IMMUNIZATION_TABLE = "immunizations";
     private const PATIENT_TABLE = "patient_data";
-    private $immunizationValidator;
+    private ImmunizationValidator $immunizationValidator;
 
     /**
      * Default constructor.
@@ -247,12 +248,18 @@ class ImmunizationService extends BaseService
     /**
      * Inserts a new immunization record.
      *
-     * @param $data The immunization fields (array) to insert.
+     * @param mixed $data The immunization fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
     public function insert($data)
     {
+        if (!is_array($data) || $data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'Invalid Data']);
+            return $processingResult;
+        }
+
         $processingResult = $this->immunizationValidator->validate(
             $data,
             ImmunizationValidator::DATABASE_INSERT_CONTEXT
@@ -262,25 +269,25 @@ class ImmunizationService extends BaseService
             return $processingResult;
         }
 
-        $data['uuid'] = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
+        $uuid = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
+        $data['uuid'] = $uuid;
 
-        $query = $this->buildInsertColumns($data);
+        [$set, $bind] = $this->splitColumnQuery($this->buildInsertColumns($data));
         $sql  = " INSERT INTO immunizations SET";
         $sql .= "     create_date=NOW(),";
-        $sql .= $query['set'];
-        $results = sqlInsert(
-            $sql,
-            $query['bind']
-        );
+        $sql .= $set;
 
-        if ($results) {
-            $processingResult->addData([
-                'id' => $results,
-                'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ]);
-        } else {
+        try {
+            $results = QueryUtils::sqlInsert($sql, $bind);
+        } catch (SqlQueryException) {
             $processingResult->addInternalError("error processing SQL Insert");
+            return $processingResult;
         }
+
+        $processingResult->addData([
+            'id' => $results,
+            'uuid' => UuidRegistry::uuidToString($uuid),
+        ]);
 
         return $processingResult;
     }
@@ -290,7 +297,7 @@ class ImmunizationService extends BaseService
      * Updates an existing immunization record.
      *
      * @param $uuid - The immunization uuid identifier in string format used for update.
-     * @param $data - The updated immunization data fields
+     * @param mixed $data - The updated immunization data fields
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
@@ -311,20 +318,39 @@ class ImmunizationService extends BaseService
             return $processingResult;
         }
 
-        $query = $this->buildUpdateColumns($data);
+        [$set, $bind] = $this->splitColumnQuery($this->buildUpdateColumns($data));
         $sql = " UPDATE immunizations SET ";
-        $sql .= $query['set'];
+        $sql .= $set;
         $sql .= " WHERE `uuid` = ?";
 
-        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        array_push($query['bind'], $uuidBinary);
-        $sqlResult = sqlStatement($sql, $query['bind']);
+        $bind[] = UuidRegistry::uuidToBytes($uuid);
 
-        if (!$sqlResult) {
-            $processingResult->addErrorMessage("error processing SQL Update");
-        } else {
-            $processingResult = $this->getOne($uuid);
+        try {
+            QueryUtils::sqlStatementThrowException($sql, $bind);
+        } catch (SqlQueryException) {
+            $processingResult->addInternalError("error processing SQL Update");
+            return $processingResult;
         }
-        return $processingResult;
+
+        return $this->getOne($uuid);
+    }
+
+    /**
+     * Splits the payload BaseService's column builders return into the SET fragment
+     * and its bind list. Those builders are untyped, so the shape is asserted here
+     * rather than assumed at the call sites.
+     *
+     * @param mixed $query
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function splitColumnQuery($query): array
+    {
+        $set = is_array($query) ? ($query['set'] ?? null) : null;
+        $bind = is_array($query) ? ($query['bind'] ?? null) : null;
+
+        return [
+            is_string($set) ? $set : '',
+            is_array($bind) ? array_values($bind) : [],
+        ];
     }
 }

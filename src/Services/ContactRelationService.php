@@ -103,8 +103,13 @@ class ContactRelationService extends BaseService
                         'Failed to create person: ' . json_encode($personResult->getValidationMessages())
                     );
                 }
-                $personRow = $personResult->getData()[0];
-                $personId = (int) $personRow['id'];
+                $personRows = $personResult->getData();
+                $personRow = is_array($personRows) ? ($personRows[0] ?? null) : null;
+                $personIdValue = is_array($personRow) ? ($personRow['id'] ?? null) : null;
+                if (!is_numeric($personIdValue)) {
+                    throw new \RuntimeException('Failed to create person: result carried no id');
+                }
+                $personId = (int) $personIdValue;
 
                 $targetContact = $this->contactService->getOrCreateForEntity('person', $personId);
                 $ownerContact = $this->contactService->getOrCreateForEntity('patient_data', $pid);
@@ -181,7 +186,7 @@ class ContactRelationService extends BaseService
             'id',
             [UuidRegistry::uuidToBytes($uuid)]
         );
-        if ($personIdValue === null) {
+        if (!is_numeric($personIdValue)) {
             $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
             return $result;
         }
@@ -328,7 +333,7 @@ class ContactRelationService extends BaseService
                     'm',
                     []
                 );
-                $candidate = ((int) ($maxAddressId ?? 0)) + 1;
+                $candidate = (is_numeric($maxAddressId) ? (int) $maxAddressId : 0) + 1;
                 try {
                     QueryUtils::sqlStatementThrowException(
                         "INSERT INTO addresses (id, line1, line2, city, state, zip, country) "

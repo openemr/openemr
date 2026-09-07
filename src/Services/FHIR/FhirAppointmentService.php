@@ -37,6 +37,7 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
+use Particle\Validator\ValidationResult;
 
 class FhirAppointmentService extends FhirServiceBase implements IPatientCompartmentResourceService, IFhirExportableResourceService
 {
@@ -314,7 +315,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             : '-'; // default to pending/proposed
 
         // appointmentType[0].coding[0].code -> pc_catid (look up by pc_constant_id)
-        $constantId = $this->firstAppointmentTypeCodingValue($json, 'code');
+        $constantId = FhirPayloadReader::firstCodingValue($json['appointmentType'] ?? null, 'code');
         if ($constantId !== '') {
             $catId = $this->lookupCategoryByConstantId($constantId);
             if ($catId !== false) {
@@ -324,7 +325,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
         // Default pc_title from appointmentType display, else the translated
         // fallback category title.
-        $typeDisplay = $this->firstAppointmentTypeCodingValue($json, 'display');
+        $typeDisplay = FhirPayloadReader::firstCodingValue($json['appointmentType'] ?? null, 'display');
         $data['pc_title'] = $typeDisplay !== ''
             ? $typeDisplay
             : \xl_appt_category(self::DEFAULT_CATEGORY_TITLE);
@@ -431,43 +432,14 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         $commentRaw = is_string($comment) ? $comment : '';
         $data['pc_hometext'] = $commentRaw === '' ? '' : strip_tags($commentRaw);
 
-        // Default pc_billing_location to pc_facility if not set
-        if (!isset($data['pc_billing_location']) && isset($data['pc_facility'])) {
+        // pc_billing_location is not carried by FHIR Appointment; default it to the
+        // facility resolved from serviceProvider so the validator's numeric requirement
+        // is satisfied without inventing a location.
+        if (isset($data['pc_facility'])) {
             $data['pc_billing_location'] = $data['pc_facility'];
         }
 
         return $data;
-    }
-
-    /**
-     * Reads a string field off the first Appointment.appointmentType coding entry.
-     *
-     * The FHIR R4 library does not hydrate nested elements, so a resource built
-     * from a request payload carries plain nested arrays here. Anything that is
-     * not a string (a missing key, a hydrated element object, a non-string JSON
-     * value) is reported as an absent value.
-     *
-     * @param array<mixed> $json The serialized FHIR Appointment
-     * @param string $field The coding field to read ('code', 'display', ...)
-     * @return string The field value, or '' when it is absent or not a string
-     */
-    private function firstAppointmentTypeCodingValue(array $json, string $field): string
-    {
-        $appointmentType = $json['appointmentType'] ?? null;
-        if (!is_array($appointmentType)) {
-            return '';
-        }
-        $coding = $appointmentType['coding'] ?? null;
-        if (!is_array($coding)) {
-            return '';
-        }
-        $firstCoding = $coding[0] ?? null;
-        if (!is_array($firstCoding)) {
-            return '';
-        }
-        $value = $firstCoding[$field] ?? null;
-
-        return is_string($value) ? $value : '';
     }
 
     /**
@@ -514,11 +486,15 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
     /**
      * Inserts an OpenEMR record into the system.
      *
-     * @param array $openEmrRecord The OpenEMR record to insert
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord)
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Appointment record array');
+        }
+
         $processingResult = new ProcessingResult();
 
         $pid = $openEmrRecord['pid'] ?? 0;
@@ -554,8 +530,9 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         }
 
         // Validate that required fields are present
+        // AppointmentService::validate() is untyped; it returns Particle's ValidationResult.
         $validationResult = $this->appointmentService->validate($openEmrRecord);
-        if (!$validationResult->isValid()) {
+        if ($validationResult instanceof ValidationResult && !$validationResult->isValid()) {
             $processingResult->setValidationMessages($validationResult->getMessages());
             return $processingResult;
         }

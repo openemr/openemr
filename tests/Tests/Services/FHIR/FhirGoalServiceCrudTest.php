@@ -44,6 +44,7 @@ class FhirGoalServiceCrudTest extends TestCase
 
         $this->fixtureManager->installPatientFixtures();
         $patientFixture = $this->fixtureManager->getPatientFixtures()[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
@@ -57,6 +58,7 @@ class FhirGoalServiceCrudTest extends TestCase
         $encounterRaw = json_decode($raw, true);
         $this->assertIsArray($encounterRaw);
         $encounterPayload = $encounterRaw[0];
+        $this->assertIsArray($encounterPayload);
         $encounterPayload['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
         $encounterResource = new FHIREncounter($encounterPayload);
 
@@ -67,7 +69,9 @@ class FhirGoalServiceCrudTest extends TestCase
             $encounterInsert->isValid(),
             'Encounter insert (setup) failed: ' . json_encode($encounterInsert->getValidationMessages())
         );
-        $this->encounterUuid = $this->firstDataRow($encounterInsert)['euuid'];
+        $encounterUuid = $this->firstDataRow($encounterInsert)['euuid'];
+        $this->assertIsString($encounterUuid);
+        $this->encounterUuid = $encounterUuid;
 
         $fixture = (array) $this->fixtureManager->getSingleFhirGoalFixture();
         $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
@@ -102,7 +106,9 @@ class FhirGoalServiceCrudTest extends TestCase
 
         $data = $this->firstDataRow($result);
         $this->assertArrayHasKey('uuid', $data);
-        $this->assertStringContainsString('-SK-', $data['uuid']);
+        $uuid = $data['uuid'];
+        $this->assertIsString($uuid);
+        $this->assertStringContainsString('-SK-', $uuid);
     }
 
     #[Test]
@@ -144,10 +150,14 @@ class FhirGoalServiceCrudTest extends TestCase
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
 
         $payload = $this->fhirGoalFixture->jsonSerialize();
         $payload['id'] = $fhirId;
-        $payload['description']['text'] = 'test-fixture updated goal description';
+        $description = $payload['description'] ?? [];
+        $this->assertIsArray($description);
+        $description['text'] = 'test-fixture updated goal description';
+        $payload['description'] = $description;
         $updated = new FHIRGoal($payload);
 
         $result = $this->fhirGoalService->update($fhirId, $updated);

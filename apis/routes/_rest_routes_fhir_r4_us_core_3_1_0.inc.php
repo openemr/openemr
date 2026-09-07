@@ -80,7 +80,6 @@ use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
-use OpenEMR\Services\FHIR\UtilsService;
 use Symfony\Component\HttpFoundation\Response;
 
 // Note that the fhir route includes both user role and patient role
@@ -1818,7 +1817,7 @@ return [
             if (empty($uuid) || ($uuid != $request->getPatientUUIDString())) {
                 throw new AccessDeniedException("patients", "demo", "patient id invalid");
             }
-            $uuid = $request->getPatientUUIDString();
+            $uuid = $request->getPatientUUIDString() ?? '';
         } else {
             RestConfig::request_authorization_check($request, "patients", "demo");
         }

@@ -463,8 +463,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // beneficiary -> puuid (Patient uuid, resolved to pid downstream)
-        $beneficiaryRef = $json['beneficiary']['reference'] ?? null;
-        if (is_string($beneficiaryRef) && $beneficiaryRef !== '') {
+        $beneficiaryRef = FhirPayloadReader::reference($json['beneficiary'] ?? null);
+        if ($beneficiaryRef !== null) {
             $beneficiaryUuid = UtilsService::parseReferenceString($beneficiaryRef, 'Patient')['uuid'] ?? null;
             if (
                 is_string($beneficiaryUuid) && $beneficiaryUuid !== ''
@@ -475,8 +475,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // payor[0] -> insureruuid (Organization uuid, resolved to insurance_companies.id downstream)
-        $payorRef = $json['payor'][0]['reference'] ?? null;
-        if (is_string($payorRef) && $payorRef !== '') {
+        $payorRef = FhirPayloadReader::reference(FhirPayloadReader::get($json['payor'] ?? null, 0));
+        if ($payorRef !== null) {
             $payorUuid = UtilsService::parseReferenceString($payorRef, 'Organization')['uuid'] ?? null;
             if (is_string($payorUuid) && $payorUuid !== '' && UuidRegistry::isValidStringUUID($payorUuid)) {
                 $data['insureruuid'] = $payorUuid;
@@ -490,8 +490,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // relationship -> subscriber_relationship (uses our own reverse of mapRelationship)
-        $relationshipCode = $json['relationship']['coding'][0]['code'] ?? null;
-        if (is_string($relationshipCode) && $relationshipCode !== '') {
+        $relationshipCode = FhirPayloadReader::firstCodingCode($json['relationship'] ?? null);
+        if ($relationshipCode !== '') {
             $data['subscriber_relationship'] = $relationshipCode;
         }
 
@@ -527,10 +527,14 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // class[] -> group_number / plan_name
-        foreach (($json['class'] ?? []) as $coverageClass) {
-            $classCode = $coverageClass['type']['coding'][0]['code'] ?? null;
+        $classEntries = $json['class'] ?? null;
+        foreach (is_array($classEntries) ? $classEntries : [] as $coverageClass) {
+            if (!is_array($coverageClass)) {
+                continue;
+            }
+            $classCode = FhirPayloadReader::firstCodingCode($coverageClass['type'] ?? null);
             $classValue = $coverageClass['value'] ?? null;
-            if (!is_string($classCode) || !is_string($classValue) || $classValue === '') {
+            if ($classCode === '' || !is_string($classValue) || $classValue === '') {
                 continue;
             }
             if ($classCode === 'group') {
@@ -550,12 +554,13 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // costToBeneficiary[copay].valueMoney.value -> copay (string column)
-        foreach (($json['costToBeneficiary'] ?? []) as $cost) {
-            $costCode = $cost['type']['coding'][0]['code'] ?? null;
-            if ($costCode !== 'copay') {
+        $costs = $json['costToBeneficiary'] ?? null;
+        foreach (is_array($costs) ? $costs : [] as $cost) {
+            if (!is_array($cost) || FhirPayloadReader::firstCodingCode($cost['type'] ?? null) !== 'copay') {
                 continue;
             }
-            $value = $cost['valueMoney']['value'] ?? null;
+            $money = $cost['valueMoney'] ?? null;
+            $value = is_array($money) ? ($money['value'] ?? null) : null;
             if (is_numeric($value)) {
                 $data['copay'] = (string) $value;
                 break;
@@ -572,11 +577,15 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * subscriber_* fields from patient_data when relationship == 'self'. Applies safe defaults
      * for accept_assignment and policy_type. Validation is enforced downstream by CoverageValidator.
      *
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Coverage record array');
+        }
+
         $statusError = $this->validateStatusAgainstDates($openEmrRecord);
         if ($statusError !== null) {
             return $statusError;
@@ -597,7 +606,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * Updates an existing OpenEMR insurance_data record from a parsed FHIR Coverage.
      *
      * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      * @return ProcessingResult
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
@@ -619,7 +628,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         // when the caller explicitly changed relationship to self AND fields are missing.
         $this->applyDefaults($updatedOpenEMRRecord);
 
-        return $this->coverageService->update($updatedOpenEMRRecord);
+        $result = $this->coverageService->update($updatedOpenEMRRecord);
+
+        return $result instanceof ProcessingResult ? $result : new ProcessingResult();
     }
 
     /**
@@ -629,7 +640,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * a disagreeing input we surface a 422 so callers get an explicit signal.
      * Accepts 'active', 'cancelled', 'draft', and 'entered-in-error'.
      *
-     * @param array<string, mixed> $record
+     * @param array<array-key, mixed> $record
      */
     private function validateStatusAgainstDates(array $record): ?ProcessingResult
     {
@@ -664,7 +675,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * requires (pid, provider). Returns a ProcessingResult with a 422-style error if a reference
      * cannot be resolved; null on success.
      *
-     * @param array<string, mixed> $record (mutated in place)
+     * @param array<array-key, mixed> $record (mutated in place)
      * @return ProcessingResult|null
      */
     private function resolveReferences(array &$record): ?ProcessingResult
@@ -677,7 +688,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
                 'pid',
                 [$puuidBytes]
             );
-            if ($pid === null) {
+            if (!is_numeric($pid)) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
                     'beneficiary' => ['Patient reference could not be resolved' => $puuid],
@@ -696,7 +707,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
                 'id',
                 [$insurerUuidBytes]
             );
-            if ($providerId === null) {
+            if (!is_numeric($providerId)) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
                     'payor' => ['Organization reference could not be resolved to an insurance company' => $insurerUuid],
@@ -714,7 +725,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * Applies safe defaults for fields FHIR Coverage doesn't carry but CoverageValidator requires.
      * When relationship == 'self', subscriber demographic fields are sourced from patient_data.
      *
-     * @param array<string, mixed> $record (mutated in place)
+     * @param array<array-key, mixed> $record (mutated in place)
      */
     private function applyDefaults(array &$record): void
     {

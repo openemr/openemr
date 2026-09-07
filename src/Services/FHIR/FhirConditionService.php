@@ -148,14 +148,14 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         // Category -> subtype
         $categories = $json['category'] ?? null;
-        $subtype = $this->firstCodingCode(is_array($categories) ? ($categories[0] ?? null) : null);
+        $subtype = FhirPayloadReader::firstConceptCode($categories);
         if ($subtype !== '') {
             $data['subtype'] = $subtype;
         }
 
         // Subject -> puuid
-        $subjectRef = $json['subject']['reference'] ?? null;
-        if (is_string($subjectRef) && $subjectRef !== '') {
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
             $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
             if (
                 is_string($subjectUuid) && $subjectUuid !== ''
@@ -167,7 +167,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         // Code -> title and diagnosis
         $code = $json['code'] ?? null;
-        $codeCodings = $this->codingEntries($code);
+        $codeCodings = FhirPayloadReader::codings($code);
         if ($codeCodings !== []) {
             $codeTypesService = new CodeTypesService();
             $diagnosisParts = [];
@@ -193,7 +193,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         }
 
         // ClinicalStatus -> outcome and occurrence
-        $clinicalStatus = $this->firstCodingCode($json['clinicalStatus'] ?? null);
+        $clinicalStatus = FhirPayloadReader::firstCodingCode($json['clinicalStatus'] ?? null);
         if ($clinicalStatus !== '') {
             $data['outcome'] = match ($clinicalStatus) {
                 'resolved' => '1',
@@ -206,7 +206,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         }
 
         // VerificationStatus -> verification
-        $verification = $this->firstCodingCode($json['verificationStatus'] ?? null);
+        $verification = FhirPayloadReader::firstCodingCode($json['verificationStatus'] ?? null);
         if ($verification !== '') {
             $data['verification'] = $verification;
         }
@@ -238,55 +238,17 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     }
 
     /**
-     * Extracts the `coding` entries of a FHIR CodeableConcept.
-     *
-     * The FHIR R4 library does not hydrate nested elements, so what reaches
-     * here is whatever the request payload carried. Entries that are not
-     * arrays are dropped rather than passed on to the callers' offset reads.
-     *
-     * @param mixed $codeableConcept
-     * @return list<array<array-key, mixed>>
-     */
-    private function codingEntries($codeableConcept): array
-    {
-        if (!is_array($codeableConcept)) {
-            return [];
-        }
-        $coding = $codeableConcept['coding'] ?? null;
-        if (!is_array($coding)) {
-            return [];
-        }
-        $entries = [];
-        foreach ($coding as $entry) {
-            if (is_array($entry)) {
-                $entries[] = $entry;
-            }
-        }
-
-        return $entries;
-    }
-
-    /**
-     * Returns the `code` of a CodeableConcept's first coding entry.
-     *
-     * @param mixed $codeableConcept
-     * @return string The code, or '' when absent or not a string
-     */
-    private function firstCodingCode($codeableConcept): string
-    {
-        $code = $this->codingEntries($codeableConcept)[0]['code'] ?? null;
-
-        return is_string($code) ? $code : '';
-    }
-
-    /**
      * Inserts an OpenEMR record into the system.
      *
-     * @param array $openEmrRecord The OpenEMR record to insert
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord)
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Condition record array');
+        }
+
         return $this->conditionService->insert($openEmrRecord);
     }
 

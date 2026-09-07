@@ -6,7 +6,9 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\ProcessingResult;
@@ -82,9 +84,9 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
     public function testInsertWithErrors(): void
     {
         // Remove the patient reference to trigger validation error
-        $this->fhirAllergyIntoleranceFixture->setPatient(null);
+        $this->fhirAllergyIntoleranceFixture->setPatient(new FHIRReference());
         // Also clear the code text so title is empty
-        $this->fhirAllergyIntoleranceFixture->setCode(null);
+        $this->fhirAllergyIntoleranceFixture->setCode(new FHIRCodeableConcept());
         $processingResult = $this->fhirAllergyIntoleranceService->insert($this->fhirAllergyIntoleranceFixture);
         $this->assertFalse($processingResult->isValid());
         $this->assertSame([], $processingResult->getData());

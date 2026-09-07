@@ -190,49 +190,44 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
         }
 
         // code.coding[] -> drug_code (prefer RxNorm) + name (display)
-        $codings = $json['code']['coding'] ?? [];
+        $codeConcept = $json['code'] ?? null;
+        $codings = FhirPayloadReader::codings($codeConcept);
         $primaryDisplay = null;
-        if (is_array($codings)) {
-            foreach ($codings as $coding) {
-                if (!is_array($coding)) {
-                    continue;
-                }
-                $system = $coding['system'] ?? '';
-                $code = $coding['code'] ?? '';
-                $display = $coding['display'] ?? '';
-                if ($primaryDisplay === null && is_string($display) && $display !== '') {
-                    $primaryDisplay = $display;
-                }
-                if (
-                    $system === 'http://www.nlm.nih.gov/research/umls/rxnorm'
-                    && is_string($code)
-                    && $code !== ''
-                    && !isset($data['drug_code'])
-                ) {
-                    $data['drug_code'] = $code;
-                }
+        foreach ($codings as $coding) {
+            $system = $coding['system'] ?? '';
+            $code = FhirPayloadReader::getString($coding, 'code');
+            $display = FhirPayloadReader::getString($coding, 'display');
+            if ($primaryDisplay === null && $display !== null) {
+                $primaryDisplay = $display;
             }
-            // Fall back: first coding with any code value if no RxNorm found
-            if (!isset($data['drug_code'])) {
-                foreach ($codings as $coding) {
-                    $fallbackCode = is_array($coding) ? ($coding['code'] ?? null) : null;
-                    if (is_string($fallbackCode) && $fallbackCode !== '') {
-                        $data['drug_code'] = $fallbackCode;
-                        break;
-                    }
+            if (
+                $system === 'http://www.nlm.nih.gov/research/umls/rxnorm'
+                && $code !== null
+                && !isset($data['drug_code'])
+            ) {
+                $data['drug_code'] = $code;
+            }
+        }
+        // Fall back: first coding with any code value if no RxNorm found
+        if (!isset($data['drug_code'])) {
+            foreach ($codings as $coding) {
+                $fallbackCode = FhirPayloadReader::getString($coding, 'code');
+                if ($fallbackCode !== null) {
+                    $data['drug_code'] = $fallbackCode;
+                    break;
                 }
             }
         }
-        $codeText = $json['code']['text'] ?? null;
-        if (is_string($primaryDisplay) && $primaryDisplay !== '') {
+        $codeText = FhirPayloadReader::getString($codeConcept, 'text');
+        if ($primaryDisplay !== null) {
             $data['name'] = $primaryDisplay;
-        } elseif (is_string($codeText) && $codeText !== '') {
+        } elseif ($codeText !== null) {
             $data['name'] = $codeText;
         }
 
         // form.coding[0].code -> form (NCI -> integer reverse map mirroring parseOpenEMRRecord)
-        $formCode = $json['form']['coding'][0]['code'] ?? null;
-        if (is_string($formCode) && $formCode !== '') {
+        $formCode = FhirPayloadReader::firstCodingCode($json['form'] ?? null);
+        if ($formCode !== '') {
             $reverseFormMap = [
                 'C60928' => '1',  // suspension
                 'C42998' => '2',  // tablet
@@ -255,20 +250,23 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
     }
 
     /**
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
-        return $this->medicationService->insert($openEmrRecord);
+        return $this->medicationService->insert(FhirPayloadReader::stringKeyed($openEmrRecord));
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        return $this->medicationService->update($fhirResourceId, $updatedOpenEMRRecord);
+        return $this->medicationService->update(
+            $fhirResourceId,
+            FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
+        );
     }
 
     /**

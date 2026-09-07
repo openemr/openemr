@@ -49,7 +49,16 @@ class FhirMetaDataRestController
     protected function buildCapabilityStatement(): FHIRCapabilityStatement
     {
         // TODO: @adunsulag we need to centralize the route inclusion and figure out how to handle the profiles...
-        $routes = include $this->config->getWebServerRoot() . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
+        $includedRoutes = include $this->config->getWebServerRoot() . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
+        if (!is_array($includedRoutes)) {
+            throw new \RuntimeException('FHIR route map could not be loaded');
+        }
+        // The route map is keyed by "<METHOD> /path"; re-key so the declared string
+        // keys survive the include, which PHPStan can only see as mixed.
+        $routes = [];
+        foreach ($includedRoutes as $key => $handler) {
+            $routes[(string) $key] = $handler;
+        }
         $capabilityStatement = new FHIRCapabilityStatement();
         // TODO: @adunsulag we need to figure out capability statements for different FHIR versions/profiles
         $capabilityStatement->addInstantiates('http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server');

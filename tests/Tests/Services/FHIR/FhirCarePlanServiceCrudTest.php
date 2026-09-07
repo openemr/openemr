@@ -9,6 +9,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirCarePlanService;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -43,9 +44,11 @@ class FhirCarePlanServiceCrudTest extends TestCase
 
         $this->fixtureManager->installPatientFixtures();
         $patients = $this->fixtureManager->getPatientFixtures();
+        $patientFixture = $patients[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
-            [$patients[0]['pubpid']]
+            [$patientFixture['pubpid']]
         );
         $this->assertIsArray($patientRecord);
         $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
@@ -56,6 +59,7 @@ class FhirCarePlanServiceCrudTest extends TestCase
         $encounterFixtureData = json_decode($raw, true);
         $this->assertIsArray($encounterFixtureData);
         $encounterFixture = $encounterFixtureData[0];
+        $this->assertIsArray($encounterFixture);
         $encounterFixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
         $encounterResource = new FHIREncounter($encounterFixture);
 
@@ -66,7 +70,9 @@ class FhirCarePlanServiceCrudTest extends TestCase
             $encounterResult->isValid(),
             "Encounter insert (setup) failed: " . json_encode($encounterResult->getValidationMessages())
         );
-        $this->encounterUuid = $this->firstDataRow($encounterResult)['euuid'];
+        $encounterUuid = $this->firstDataRow($encounterResult)['euuid'];
+        $this->assertIsString($encounterUuid);
+        $this->encounterUuid = $encounterUuid;
 
         $fixture = (array) $this->fixtureManager->getSingleFhirCarePlanFixture();
         $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
@@ -108,6 +114,7 @@ class FhirCarePlanServiceCrudTest extends TestCase
             'c',
             [$data['form_id'], $data['pid']]
         );
+        $this->assertIsNumeric($rowCount);
         $this->assertSame(2, (int) $rowCount);
     }
 
@@ -115,7 +122,7 @@ class FhirCarePlanServiceCrudTest extends TestCase
     public function testInsertWithoutEncounterReturnsValidationError(): void
     {
         $this->fhirCarePlanFixture->setId(new FHIRId());
-        $this->fhirCarePlanFixture->setEncounter(null);
+        $this->fhirCarePlanFixture->setEncounter(new FHIRReference());
 
         $processingResult = $this->fhirCarePlanService->insert($this->fhirCarePlanFixture);
         $this->assertFalse($processingResult->isValid());
@@ -149,7 +156,9 @@ class FhirCarePlanServiceCrudTest extends TestCase
         );
 
         $surrogateUuid = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($surrogateUuid);
         $formId = $this->firstDataRow($insertResult)['form_id'];
+        $this->assertIsString($formId);
 
         // Update with a single activity (was 2)
         $payload = $this->fhirCarePlanFixture->jsonSerialize();
@@ -173,6 +182,7 @@ class FhirCarePlanServiceCrudTest extends TestCase
             'c',
             [$formId]
         );
+        $this->assertIsNumeric($rowCount);
         $this->assertSame(1, (int) $rowCount);
 
         $description = QueryUtils::fetchSingleValue(

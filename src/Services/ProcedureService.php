@@ -904,6 +904,8 @@ class ProcedureService extends BaseService
      * @param array<int, array<string, mixed>> $codes Full replacement code list (one or more)
      */
     /**
+     * @param array<string, mixed> $orderData
+     * @param array<int, array<string, mixed>> $codes
      * @param int|null $expectedPatientId If provided, the existing order's
      *     patient_id must match — defense-in-depth ownership check so a UUID
      *     leak cannot be used to mutate orders that belong to a different
@@ -931,8 +933,10 @@ class ProcedureService extends BaseService
             $result->setValidationMessages(['uuid' => 'ServiceRequest not found']);
             return $result;
         }
-        $orderId = (int) ($orderRow['procedure_order_id'] ?? 0);
-        $rowPatientId = (int) ($orderRow['patient_id'] ?? 0);
+        $orderIdRaw = $orderRow['procedure_order_id'] ?? 0;
+        $rowPatientIdRaw = $orderRow['patient_id'] ?? 0;
+        $orderId = is_numeric($orderIdRaw) ? (int) $orderIdRaw : 0;
+        $rowPatientId = is_numeric($rowPatientIdRaw) ? (int) $rowPatientIdRaw : 0;
 
         if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
             // Caller's resolved subject doesn't match the order's actual owner —

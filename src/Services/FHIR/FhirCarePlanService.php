@@ -739,8 +739,8 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         // subject -> puuid
-        $subjectRef = $json['subject']['reference'] ?? null;
-        if (is_string($subjectRef) && $subjectRef !== '') {
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
             $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
             if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
                 $data['puuid'] = $subjectUuid;
@@ -748,8 +748,8 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         // encounter -> euuid (REQUIRED for new CarePlans; care_plan forms live on an encounter)
-        $encounterRef = $json['encounter']['reference'] ?? null;
-        if (is_string($encounterRef) && $encounterRef !== '') {
+        $encounterRef = FhirPayloadReader::reference($json['encounter'] ?? null);
+        if ($encounterRef !== null) {
             $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
             if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
                 $data['euuid'] = $encounterUuid;
@@ -780,8 +780,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
         // activity[] -> items (one row per activity)
         $items = [];
-        foreach (($json['activity'] ?? []) as $activity) {
-            $detail = $activity['detail'] ?? [];
+        $activities = $json['activity'] ?? null;
+        foreach (is_array($activities) ? $activities : [] as $activity) {
+            $detail = FhirPayloadReader::get($activity, 'detail');
             if (!is_array($detail)) {
                 continue;
             }
@@ -794,20 +795,21 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
             // code -> code + codetext
             $detailCode = $detail['code'] ?? null;
-            $detailCodeText = is_array($detailCode) ? ($detailCode['text'] ?? null) : null;
-            $detailCodings = is_array($detailCode) ? ($detailCode['coding'] ?? null) : null;
-            $coding = is_array($detailCodings) ? ($detailCodings[0] ?? null) : null;
-            if (is_array($coding)) {
-                $codeValue = $coding['code'] ?? null;
-                if (is_string($codeValue) && $codeValue !== '') {
-                    $system = $coding['system'] ?? '';
-                    $item['code'] = $this->prefixCodeForStorage($system, $codeValue);
+            $detailCodeText = FhirPayloadReader::getString($detailCode, 'text');
+            $coding = FhirPayloadReader::firstCoding($detailCode);
+            if ($coding !== []) {
+                $codeValue = FhirPayloadReader::getString($coding, 'code');
+                if ($codeValue !== null) {
+                    $item['code'] = $this->prefixCodeForStorage(
+                        FhirPayloadReader::getString($coding, 'system') ?? '',
+                        $codeValue
+                    );
                 }
                 $display = $coding['display'] ?? $detailCodeText;
                 if (is_string($display)) {
                     $item['codetext'] = $display;
                 }
-            } elseif (is_string($detailCodeText) && $detailCodeText !== '') {
+            } elseif ($detailCodeText !== null) {
                 $item['codetext'] = $detailCodeText;
             }
 
@@ -862,11 +864,15 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      * Requires an encounter context — there is no encounter-less form_care_plan. If FHIR omits
      * encounter, returns a 422-style ProcessingResult.
      *
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR CarePlan record array');
+        }
+
         $patientId = $this->resolvePatientId($openEmrRecord);
         if ($patientId instanceof ProcessingResult) {
             return $patientId;
@@ -876,26 +882,27 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             return $encounterId;
         }
 
-        $items = $openEmrRecord['items'] ?? [];
-        if (!is_array($items)) {
-            $items = [];
-        }
-
-        return $this->service->create($patientId, $encounterId, $items);
+        return $this->service->create(
+            $patientId,
+            $encounterId,
+            FhirPayloadReader::rows($openEmrRecord['items'] ?? null)
+        );
     }
 
     /**
      * Replaces an existing care_plan form's items from a parsed FHIR CarePlan.
      *
      * @param string $fhirResourceId The surrogate key (encounter-uuid + "-SK-" + form_id).
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      * @return ProcessingResult
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
-        $encounterUuid = $parts['euuid'] ?? '';
-        $formId = (int) ($parts['form_id'] ?? 0);
+        $euuid = $parts['euuid'] ?? '';
+        $encounterUuid = is_string($euuid) ? $euuid : '';
+        $formIdRaw = $parts['form_id'] ?? 0;
+        $formId = is_numeric($formIdRaw) ? (int) $formIdRaw : 0;
 
         if ($encounterUuid === '' || $formId <= 0 || !UuidRegistry::isValidStringUUID($encounterUuid)) {
             $result = new ProcessingResult();
@@ -908,22 +915,21 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             'encounter',
             [UuidRegistry::uuidToBytes($encounterUuid)]
         );
-        if ($encounterId === null) {
+        if (!is_numeric($encounterId)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['uuid' => 'Encounter not found for given CarePlan id']);
             return $result;
         }
 
-        $items = $updatedOpenEMRRecord['items'] ?? [];
-        if (!is_array($items)) {
-            $items = [];
-        }
-
-        return $this->service->replace((int) $encounterId, $formId, $items);
+        return $this->service->replace(
+            (int) $encounterId,
+            $formId,
+            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null)
+        );
     }
 
     /**
-     * @param array<string, mixed> $record
+     * @param array<array-key, mixed> $record
      * @return int|ProcessingResult Numeric pid on success, ProcessingResult on resolution failure.
      */
     private function resolvePatientId(array $record): int|ProcessingResult
@@ -939,7 +945,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             'pid',
             [UuidRegistry::uuidToBytes($puuid)]
         );
-        if ($pid === null) {
+        if (!is_numeric($pid)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['subject' => ['Patient reference could not be resolved' => $puuid]]);
             return $result;
@@ -948,7 +954,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     }
 
     /**
-     * @param array<string, mixed> $record
+     * @param array<array-key, mixed> $record
      * @return int|ProcessingResult
      */
     private function resolveEncounterId(array $record): int|ProcessingResult
@@ -964,7 +970,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             'encounter',
             [UuidRegistry::uuidToBytes($euuid)]
         );
-        if ($encounterId === null) {
+        if (!is_numeric($encounterId)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['encounter' => ['Encounter reference could not be resolved' => $euuid]]);
             return $result;

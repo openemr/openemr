@@ -45,6 +45,7 @@ class FhirCareTeamServiceCrudTest extends TestCase
 
         $this->fixtureManager->installPatientFixtures();
         $patientFixture = $this->fixtureManager->getPatientFixtures()[0];
+        $this->assertIsArray($patientFixture);
         $patientRecord = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pubpid = ?",
             [$patientFixture['pubpid']]
@@ -62,7 +63,12 @@ class FhirCareTeamServiceCrudTest extends TestCase
 
         $fixture = (array) $this->fixtureManager->getSingleFhirCareTeamFixture();
         $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
-        $fixture['participant'][0]['member']['reference'] = 'Practitioner/' . $this->practitionerUuid;
+        $participants = $fixture['participant'] ?? [];
+        $this->assertIsArray($participants);
+        $this->assertArrayHasKey(0, $participants);
+        $this->assertIsArray($participants[0]);
+        $participants[0]['member'] = ['reference' => 'Practitioner/' . $this->practitionerUuid];
+        $fixture['participant'] = $participants;
         $this->fhirCareTeamFixture = new FHIRCareTeam($fixture);
 
         $this->fhirCareTeamService = new FhirCareTeamService();
@@ -117,6 +123,7 @@ class FhirCareTeamServiceCrudTest extends TestCase
             'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
         );
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
 
         $payload = $this->fhirCareTeamFixture->jsonSerialize();
         $payload['id'] = $fhirId;

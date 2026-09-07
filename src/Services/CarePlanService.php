@@ -420,7 +420,7 @@ class CarePlanService extends BaseService
                         'largestId',
                         []
                     );
-                    $newFormId = ((int) ($maxId ?? 0)) + 1;
+                    $newFormId = (is_numeric($maxId) ? (int) $maxId : 0) + 1;
 
                     $formService = new FormService();
                     $formService->addForm(
@@ -506,12 +506,18 @@ class CarePlanService extends BaseService
             return $result;
         }
 
-        $pid = (int) $existing['pid'];
+        $existingPid = $existing['pid'] ?? null;
+        if (!is_numeric($existingPid)) {
+            $result->setValidationMessages(['uuid' => 'Care plan form not found for given encounter and form id']);
+            return $result;
+        }
+        $pid = (int) $existingPid;
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = $context['user'] ?? $session->get('authUser') ?? '';
         $group = $context['groupname'] ?? $session->get('authProvider') ?? '';
-        $authorized = (string) ($context['authorized'] ?? 0);
+        $authorizedRaw = $context['authorized'] ?? 0;
+        $authorized = is_scalar($authorizedRaw) ? (string) $authorizedRaw : '0';
 
         try {
             $surrogateUuid = QueryUtils::inTransaction(function () use (
@@ -634,7 +640,8 @@ class CarePlanService extends BaseService
         // - care_plan_id: form_care_plan table id (unique per goal row)
         // Note: forms.form_id = form_care_plan.id, so we only need care_plan_id
         if (!empty($row['goal_care_plan_ids']) && !empty($record['euuid'])) {
-            $goalIds = explode(',', (string) $row['goal_care_plan_ids']);
+            $goalCarePlanIds = $row['goal_care_plan_ids'];
+            $goalIds = explode(',', is_scalar($goalCarePlanIds) ? (string) $goalCarePlanIds : '');
             $goalUuids = [];
             $separator = self::SURROGATE_KEY_SEPARATOR_V2;
             if (intval($creationTimestamp) <= self::V2_TIMESTAMP) {

@@ -189,7 +189,7 @@ final class FhirDateTimeParser
 
         try {
             $parsed = new \DateTimeImmutable($normalized);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \InvalidArgumentException(
                 $elementPath . ': "' . $value . '" could not be parsed as a date/dateTime',
                 0,

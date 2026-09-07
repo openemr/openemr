@@ -314,8 +314,8 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         // subject.reference -> puuid (REQUIRED; resolved to pid downstream)
-        $subjectRef = $json['subject']['reference'] ?? null;
-        if (is_string($subjectRef) && $subjectRef !== '') {
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
             $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
             if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
                 $data['puuid'] = $subjectUuid;
@@ -331,12 +331,13 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         // participants[].member (Practitioner) -> {user_id, role}
         // user_id resolution happens in insertOpenEMRRecord.
         $members = [];
-        foreach (($json['participant'] ?? []) as $participant) {
+        $participants = $json['participant'] ?? null;
+        foreach (is_array($participants) ? $participants : [] as $participant) {
             if (!is_array($participant)) {
                 continue;
             }
-            $memberRef = $participant['member']['reference'] ?? null;
-            if (!is_string($memberRef) || $memberRef === '') {
+            $memberRef = FhirPayloadReader::reference($participant['member'] ?? null);
+            if ($memberRef === null) {
                 continue;
             }
             $memberUuid = UtilsService::parseReferenceString($memberRef, 'Practitioner')['uuid'] ?? null;
@@ -359,16 +360,20 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     }
 
     /**
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR CareTeam record array');
+        }
+
         return $this->saveCareTeamRecord($openEmrRecord, null);
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
@@ -386,9 +391,14 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             $result->setValidationMessages(['uuid' => 'CareTeam not found']);
             return $result;
         }
-        $teamId = (int) ($teamRow['id'] ?? 0);
+        $teamIdRaw = $teamRow['id'] ?? 0;
+        $teamPidRaw = $teamRow['pid'] ?? 0;
         // PUT cannot rebind a CareTeam to a different patient; ignore any puuid drift.
-        return $this->saveCareTeamRecord($updatedOpenEMRRecord, $teamId, (int) ($teamRow['pid'] ?? 0));
+        return $this->saveCareTeamRecord(
+            $updatedOpenEMRRecord,
+            is_numeric($teamIdRaw) ? (int) $teamIdRaw : 0,
+            is_numeric($teamPidRaw) ? (int) $teamPidRaw : 0
+        );
     }
 
     /**
@@ -396,7 +406,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * CareTeamService::saveCareTeam. On insert teamId is null; on update it's the
      * existing care_teams.id.
      *
-     * @param array<string, mixed> $record
+     * @param array<array-key, mixed> $record
      */
     private function saveCareTeamRecord(array $record, ?int $teamId, ?int $existingPid = null): ProcessingResult
     {
@@ -414,7 +424,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 'pid',
                 [UuidRegistry::uuidToBytes($puuid)]
             );
-            if ($resolved === null) {
+            if (!is_numeric($resolved)) {
                 $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
                 return $result;
             }
@@ -437,7 +447,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 'id',
                 [UuidRegistry::uuidToBytes($practitionerUuid)]
             );
-            if ($userId === null) {
+            if (!is_numeric($userId)) {
                 // Skip unresolvable practitioners rather than failing the whole save
                 continue;
             }
@@ -474,10 +484,24 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         return $result;
     }
 
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param array<array-key, mixed> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        $processingResult = $this->careTeamService->getAll($openEMRSearchParameters, true);
-        return $processingResult;
+        // FhirServiceBase declares the parameter as a bare array; CareTeamService::getAll
+        // accepts only search fields, so anything else is dropped rather than forwarded.
+        $search = [];
+        foreach ($openEMRSearchParameters as $key => $value) {
+            if ($value instanceof ISearchField || is_string($value)) {
+                $search[(string) $key] = $value;
+            }
+        }
+
+        return $this->careTeamService->getAll($search, true);
     }
 
     /**

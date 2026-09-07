@@ -395,8 +395,8 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         }
 
         // subject.reference -> puuid
-        $subjectRef = $json['subject']['reference'] ?? null;
-        if (is_string($subjectRef) && $subjectRef !== '') {
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
             $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
             if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
                 $data['puuid'] = $subjectUuid;
@@ -406,16 +406,16 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         // FHIR Goal has no encounter field. To anchor the goal to a form_care_plan
         // row we require an encounter via the `encounter-associatedEncounter`
         // extension on the resource.
-        foreach (($json['extension'] ?? []) as $ext) {
+        $extensions = $json['extension'] ?? null;
+        foreach (is_array($extensions) ? $extensions : [] as $ext) {
             if (!is_array($ext)) {
                 continue;
             }
             if (($ext['url'] ?? null) !== 'http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter') {
                 continue;
             }
-            $valueReference = $ext['valueReference'] ?? null;
-            $ref = is_array($valueReference) ? ($valueReference['reference'] ?? null) : null;
-            if (is_string($ref) && $ref !== '') {
+            $ref = FhirPayloadReader::reference($ext['valueReference'] ?? null);
+            if ($ref !== null) {
                 $encounterUuid = UtilsService::parseReferenceString($ref, 'Encounter')['uuid'] ?? null;
                 if (
                     is_string($encounterUuid) && $encounterUuid !== ''
@@ -441,22 +441,23 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $item = ['plan_status' => $planStatus];
 
         // description.text -> description; description.coding[0] -> code+codetext
-        $descriptionText = $json['description']['text'] ?? null;
-        if (is_string($descriptionText) && $descriptionText !== '') {
+        $description = $json['description'] ?? null;
+        $descriptionText = FhirPayloadReader::getString($description, 'text');
+        if ($descriptionText !== null) {
             $item['description'] = $descriptionText;
             $item['codetext'] = $descriptionText;
         }
-        $coding = $json['description']['coding'][0] ?? null;
-        if (is_array($coding)) {
-            $codeValue = $coding['code'] ?? null;
-            if (is_string($codeValue) && $codeValue !== '') {
-                $system = $coding['system'] ?? '';
-                $item['code'] = $this->prefixCodeForStorage($system, $codeValue);
-            }
-            $display = $coding['display'] ?? null;
-            if (is_string($display) && !isset($item['codetext'])) {
-                $item['codetext'] = $display;
-            }
+        $coding = FhirPayloadReader::firstCoding($description);
+        $codeValue = FhirPayloadReader::getString($coding, 'code');
+        if ($codeValue !== null) {
+            $item['code'] = $this->prefixCodeForStorage(
+                FhirPayloadReader::getString($coding, 'system') ?? '',
+                $codeValue
+            );
+        }
+        $display = $coding['display'] ?? null;
+        if (is_string($display) && !isset($item['codetext'])) {
+            $item['codetext'] = $display;
         }
 
         // startDate -> date. Goal.startDate is a FHIR `date`, where partial
@@ -471,7 +472,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         // target[0].dueDate -> proposed_date. Previously stored verbatim, which
         // let any client-supplied string reach the column.
         $dueDate = FhirDateTimeParser::toDbDate(
-            $json['target'][0]['dueDate'] ?? null,
+            FhirPayloadReader::get(FhirPayloadReader::get($json['target'] ?? null, 0), 'dueDate'),
             'Goal.target[0].dueDate',
             true
         );
@@ -485,10 +486,14 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     }
 
     /**
-     * @param array<string, mixed> $openEmrRecord
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Goal record array');
+        }
+
         if (isset($openEmrRecord['__validation_error__'])) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['lifecycleStatus' => $openEmrRecord['__validation_error__']]);
@@ -505,7 +510,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             'pid',
             [UuidRegistry::uuidToBytes($puuid)]
         );
-        if ($pid === null) {
+        if (!is_numeric($pid)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
             return $result;
@@ -530,21 +535,22 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             'encounter',
             [UuidRegistry::uuidToBytes($encounterUuid)]
         );
-        if ($encounterId === null) {
+        if (!is_numeric($encounterId)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['encounter' => 'Encounter reference could not be resolved: ' . $encounterUuid]);
             return $result;
         }
 
-        $itemsRaw = $openEmrRecord['items'] ?? [];
-        $items = is_array($itemsRaw) ? $itemsRaw : [];
-
-        return $this->service->create((int) $pid, (int) $encounterId, $items);
+        return $this->service->create(
+            (int) $pid,
+            (int) $encounterId,
+            FhirPayloadReader::rows($openEmrRecord['items'] ?? null)
+        );
     }
 
     /**
      * @param string $fhirResourceId
-     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
@@ -554,8 +560,10 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             return $result;
         }
         $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
-        $encounterUuid = $parts['euuid'] ?? '';
-        $formId = (int) ($parts['form_id'] ?? 0);
+        $euuid = $parts['euuid'] ?? '';
+        $encounterUuid = is_string($euuid) ? $euuid : '';
+        $formIdRaw = $parts['form_id'] ?? 0;
+        $formId = is_numeric($formIdRaw) ? (int) $formIdRaw : 0;
         if ($encounterUuid === '' || $formId <= 0 || !UuidRegistry::isValidStringUUID($encounterUuid)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['uuid' => 'Invalid Goal id; expected encounter-uuid + "-SK-" + form-id']);
@@ -566,16 +574,17 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             'encounter',
             [UuidRegistry::uuidToBytes($encounterUuid)]
         );
-        if ($encounterId === null) {
+        if (!is_numeric($encounterId)) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['uuid' => 'Encounter not found for given Goal id']);
             return $result;
         }
 
-        $itemsRaw = $updatedOpenEMRRecord['items'] ?? [];
-        $items = is_array($itemsRaw) ? $itemsRaw : [];
-
-        return $this->service->replace((int) $encounterId, $formId, $items);
+        return $this->service->replace(
+            (int) $encounterId,
+            $formId,
+            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null)
+        );
     }
 
     /**
@@ -584,7 +593,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      * a sibling `euuid` field already extracted by some caller. Returns null if
      * neither is present.
      *
-     * @param array<string, mixed> $record
+     * @param array<array-key, mixed> $record
      */
     private function resolveGoalEncounterUuid(array $record): ?string
     {
