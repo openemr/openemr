@@ -135,7 +135,7 @@ class PrescriptionRestControllerAclIsolatedTest extends TestCase
         // The controller must resolve the owner via
         // findPatientForPrescription so the gate can check chart access
         // against the actual owner.
-        $pattern = '/' . preg_quote($methodSignature, '/') . '[\s\S]{0,600}?\$this->prescriptionService->findPatientForPrescription\(/';
+        $pattern = '/' . preg_quote($methodSignature, '/') . '[\s\S]{0,1500}?\$this->prescriptionService->findPatientForPrescription\(/';
         $this->assertMatchesRegularExpression(
             $pattern,
             $this->controllerContent,

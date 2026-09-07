@@ -428,11 +428,15 @@ class PrescriptionService extends BaseService
 
         $patient = $this->findPatientForPrescription($uuid);
         if ($patient === null) {
-            // Prescription does not exist, its uuid is malformed, or its
-            // owning patient row is gone. Return a validation-error
-            // ProcessingResult so RestControllerHelper maps this to 400
-            // (matches the historical PatientValidator::validateId shape
-            // that PrescriptionApiTest::testGetOneNotFound pins).
+            // Prescription uuid does not resolve (unknown or malformed).
+            // Return a validation-error ProcessingResult so
+            // RestControllerHelper maps this to 400 — matches the
+            // historical PatientValidator::validateId shape that
+            // PrescriptionApiTest::testGetOneNotFound pins. Orphaned rows
+            // (prescription exists but owner patient row is missing) do
+            // NOT hit this branch; findPatientForPrescription returns a
+            // row with null pid/squad/uuid in that case, and the SELECT
+            // below still surfaces the prescription.
             $processingResult->setValidationMessages([
                 'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
             ]);
@@ -674,11 +678,19 @@ class PrescriptionService extends BaseService
     }
 
     /**
-     * Given a prescription uuid, return the owning patient row (pid, squad,
-     * uuid). Handles both the `prescriptions` table (patient_id column) and
-     * the `lists` medication rows (pid column) via a UNION mirror of the
-     * `combined_prescriptions` shape used by the SELECT SQL. Returns null
-     * when the prescription has no resolvable owner (deleted patient row).
+     * Given a prescription uuid, return the row for the prescription and
+     * its owning patient (pid, squad, uuid). Handles both the
+     * `prescriptions` table (patient_id column) and the `lists`
+     * medication rows (pid column) via a UNION mirror of the
+     * `combined_prescriptions` shape used by the SELECT SQL.
+     *
+     * Returns null ONLY when the prescription uuid does not resolve at
+     * all. When the prescription exists but the owner patient row is
+     * missing (orphaned data), the returned row has `pid`/`squad`/`uuid`
+     * as null — mirroring the LEFT JOIN in {@see self::getBaseSql()} so
+     * callers can still surface the prescription. The REST controller's
+     * per-patient ACL check treats a null pid as "no owner to gate
+     * against" and skips (matching the historical no-ACL behavior).
      *
      * Public so PrescriptionRestController's per-patient ACL check on the
      * staff REST path can resolve the target's owner (getOne/delete
@@ -701,7 +713,7 @@ class PrescriptionService extends BaseService
                     UNION
                     SELECT uuid, pid AS owner_pid FROM lists WHERE type = 'medication'
                 ) combined"
-            . " INNER JOIN " . self::PATIENT_TABLE
+            . " LEFT JOIN " . self::PATIENT_TABLE
             . " ON " . self::PATIENT_TABLE . ".pid = combined.owner_pid"
             . " WHERE combined.uuid = ? LIMIT 1",
             [$uuidBytes]
