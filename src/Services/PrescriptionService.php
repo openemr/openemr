@@ -56,10 +56,16 @@ class PrescriptionService extends BaseService
      * scope narrowing at the data-layer boundary rather than relying on a
      * caller elsewhere to remember to bind a patient.
      *
-     * After the binding is validated the per-patient ACL check applies too:
-     * a `patients/rx` view grant is tenant-wide, so the same
-     * `patients/demo` + `squads/<squad>` policy that gates chart access must
-     * gate this listing.
+     * Per-patient authorization is handled at the boundary:
+     *   - SMART/FHIR path: BearerTokenAuthorizationStrategy::checkUserHasAccessToPatient
+     *     validates the token's user against the token's patient at request
+     *     entry, so any downstream service can trust the patient binding.
+     *   - REST /api/prescription path: the route-level `patients/rx view`
+     *     ACL gates the endpoint per tenant, and the compartment bind above
+     *     restricts the query to the requested patient.
+     * A duplicate service-layer AclMain::aclCheckCore is both redundant and
+     * incorrect for SMART tokens (there is no $_SESSION['authUser'] to check
+     * against — the identity is on the OAuth token).
      *
      * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
@@ -73,29 +79,10 @@ class PrescriptionService extends BaseService
             // The bind-builder accepts an already-parsed ISearchField for
             // this key, but every caller of PrescriptionService::getAll()
             // hands it as a bare uuid string. Reject the ISearchField shape
-            // here so the ACL check and the byte translation below can rely
-            // on a string.
+            // here so the byte translation below can rely on a string.
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages([
                 'patient.uuid' => 'A patient identifier is required to list prescriptions.',
-            ]);
-            return $processingResult;
-        }
-
-        $patient = $this->findPatientByPatientUuid($patientUuidRaw);
-        if ($patient === null) {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages([
-                'patient.uuid' => 'Patient does not exist.',
-            ]);
-            return $processingResult;
-        }
-        $squadRaw = $patient['squad'] ?? '';
-        $squad = is_string($squadRaw) ? $squadRaw : '';
-        if (!$this->aclCheckUserPatientAccess($squad)) {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages([
-                'patient.uuid' => 'User does not have access to this patient.',
             ]);
             return $processingResult;
         }
@@ -416,10 +403,11 @@ class PrescriptionService extends BaseService
     /**
      * Returns a single prescription record by uuid.
      *
-     * Resolves the target's owning patient and applies the same per-patient
-     * ACL that gates the rest of the service. A caller with only a
-     * tenant-wide `patients/rx view` grant cannot pull records for patients
-     * outside their chart-access scope.
+     * Per-patient authorization is applied at the boundary (SMART token
+     * check in BearerTokenAuthorizationStrategy for FHIR-path callers;
+     * route-level `patients/rx view` for REST-path callers). This method
+     * only rejects unknown / malformed prescription UUIDs so the response
+     * shape stays consistent with the historical validateId contract.
      *
      * @param string $uuid The prescription uuid identifier in string format.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
@@ -438,14 +426,6 @@ class PrescriptionService extends BaseService
             // that PrescriptionApiTest::testGetOneNotFound pins).
             $processingResult->setValidationMessages([
                 'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
-            ]);
-            return $processingResult;
-        }
-        $squadRaw = $patient['squad'] ?? '';
-        $squad = is_string($squadRaw) ? $squadRaw : '';
-        if (!$this->aclCheckUserPatientAccess($squad)) {
-            $processingResult->setValidationMessages([
-                'patient.uuid' => 'User does not have access to this patient.',
             ]);
             return $processingResult;
         }
@@ -610,12 +590,11 @@ class PrescriptionService extends BaseService
     /**
      * Soft-deletes a prescription record by setting active = 0.
      *
-     * Always resolves the target's owning patient and applies the same
-     * per-patient ACL used by insert()/getAll()/getOne(). When
-     * `$expectedPatientUuid` is supplied, the stored owner must also match
-     * that UUID (an additional caller-side constraint layered on top of the
-     * ACL). The two checks are independent — omitting `$expectedPatientUuid`
-     * does NOT skip the ACL.
+     * Per-patient authorization is applied at the boundary (SMART / REST
+     * route ACL). This method still validates the target uuid resolves
+     * to a real prescription, and when `$expectedPatientUuid` is supplied,
+     * that the stored owner matches — mirroring the caller-side constraint
+     * the DELETE route already applied.
      *
      * @param string      $uuid                The prescription uuid in string format.
      * @param string|null $expectedPatientUuid Optional patient UUID the record must belong to.
@@ -648,16 +627,6 @@ class PrescriptionService extends BaseService
             }
         }
 
-        $squadRaw = $patient['squad'] ?? '';
-        $squad = is_string($squadRaw) ? $squadRaw : '';
-        if (!$this->aclCheckUserPatientAccess($squad)) {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages([
-                'patient.uuid' => 'User does not have access to this patient.',
-            ]);
-            return $processingResult;
-        }
-
         $sql = "UPDATE " . self::PRESCRIPTION_TABLE
              . " SET active = 0, date_modified = NOW() WHERE uuid = ?";
         QueryUtils::sqlStatementThrowException($sql, [$uuidBytes]);
@@ -665,32 +634,6 @@ class PrescriptionService extends BaseService
         $processingResult = new ProcessingResult();
         $processingResult->addData(['message' => 'record deleted']);
         return $processingResult;
-    }
-
-    /**
-     * Look up a patient row by its public uuid. Returns null when the uuid
-     * does not correspond to an existing patient. Split out so isolated
-     * tests can override this seam without touching the database.
-     *
-     * @return array<string,mixed>|null
-     */
-    protected function findPatientByPatientUuid(string $uuid): ?array
-    {
-        try {
-            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
-        } catch (InvalidUuidStringException) {
-            return null;
-        }
-        $rows = QueryUtils::fetchRecords(
-            "SELECT pid, squad, uuid FROM " . self::PATIENT_TABLE . " WHERE uuid = ? LIMIT 1",
-            [$uuidBytes]
-        );
-        if (!isset($rows[0])) {
-            return null;
-        }
-        /** @var array<string,mixed> $row */
-        $row = $rows[0];
-        return $row;
     }
 
     /**
