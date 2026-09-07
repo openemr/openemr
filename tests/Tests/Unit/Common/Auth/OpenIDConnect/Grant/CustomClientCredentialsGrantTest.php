@@ -126,6 +126,17 @@ class CustomClientCredentialsGrantTest extends TestCase
         // enforces the outbound-URL check against real client registrations.
         $permissiveValidator = $this->createMock(SsrfSafeUrlValidator::class);
         $permissiveValidator->method('validate')->willReturn(null);
+        // JWTClientAuthenticationService reads pin data (host/port/ips) from
+        // validateAndPin to decide whether to swap in a pinned Guzzle client
+        // for the JWKS fetch. Empty `ips` keeps the injected mock http client
+        // path — the test asserts the JWT flow, not the pinning transport.
+        $permissiveValidator->method('validateAndPin')->willReturn([
+            'reason' => null,
+            'host' => 'localhost',
+            'port' => 9000,
+            'scheme' => 'https',
+            'ips' => [],
+        ]);
         $jwtAuthservice->setJwksUriValidator($permissiveValidator);
         $grant->setJWTAuthenticationService($jwtAuthservice);
 
