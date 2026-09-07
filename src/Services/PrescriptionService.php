@@ -74,12 +74,21 @@ class PrescriptionService extends BaseService
      */
     public function getAll(array $search = [], $isAndCondition = true)
     {
-        $patientUuidRaw = $search['patient.uuid'] ?? '';
-        if (!is_string($patientUuidRaw) || $patientUuidRaw === '') {
-            // The bind-builder accepts an already-parsed ISearchField for
-            // this key, but every caller of PrescriptionService::getAll()
-            // hands it as a bare uuid string. Reject the ISearchField shape
-            // here so the byte translation below can rely on a string.
+        // Two caller shapes reach here:
+        //   - REST /api/prescription: passes `patient.uuid` as a bare uuid
+        //     string (after PrescriptionRestController translates the
+        //     `patient_uuid` query parameter).
+        //   - FHIR /MedicationRequest: FhirMedicationRequestService uses
+        //     PatientSearchTrait::getPatientContextSearchField() which maps
+        //     the FHIR `patient` parameter to an already-parsed
+        //     ISearchField keyed as `puuid`. FhirServiceBase's compartment
+        //     check already validated the caller's puuid against the
+        //     resource compartment before we get here.
+        // Either shape satisfies the "required patient binding" gate that
+        // closes the unfiltered-list enumeration.
+        $patientUuidRaw = $search['patient.uuid'] ?? null;
+        $hasFhirPuuidBinding = isset($search['puuid']);
+        if (!$hasFhirPuuidBinding && (!is_string($patientUuidRaw) || $patientUuidRaw === '')) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages([
                 'patient.uuid' => 'A patient identifier is required to list prescriptions.',
@@ -87,15 +96,15 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
-        // Translate the caller-facing FHIR-style `patient.uuid` search key to
-        // the actual SELECT column alias `patient.puuid`. The previous code
-        // performed the value conversion here but never rewrote the key, so
-        // an accidental `patient.uuid` filter would have produced a SQL error
-        // (`Unknown column patient.uuid in WHERE`). The mismatch was invisible
-        // because the endpoint was previously called without any patient
-        // filter at all.
-        $search['patient.puuid'] = UuidRegistry::uuidToBytes($patientUuidRaw);
-        unset($search['patient.uuid']);
+        if (is_string($patientUuidRaw) && $patientUuidRaw !== '') {
+            // REST-path translation: rewrite the caller-facing FHIR-style
+            // `patient.uuid` key to the actual SELECT column alias
+            // `patient.puuid` before FhirSearchWhereClauseBuilder builds
+            // the WHERE. The FHIR path already carries `puuid` as an
+            // ISearchField and needs no rewrite here.
+            $search['patient.puuid'] = UuidRegistry::uuidToBytes($patientUuidRaw);
+            unset($search['patient.uuid']);
+        }
 
         $sql = $this->getBaseSql();
 
@@ -637,18 +646,48 @@ class PrescriptionService extends BaseService
     }
 
     /**
+     * Look up a patient row by its public uuid. Returns null when the uuid
+     * does not correspond to an existing patient. Called by
+     * PrescriptionRestController's per-patient ACL check on the staff REST
+     * path (where the caller supplies patient_uuid directly). Split out so
+     * isolated tests can override this seam without touching the database.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function findPatientByPatientUuid(string $uuid): ?array
+    {
+        try {
+            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        } catch (InvalidUuidStringException) {
+            return null;
+        }
+        $rows = QueryUtils::fetchRecords(
+            "SELECT pid, squad, uuid FROM " . self::PATIENT_TABLE . " WHERE uuid = ? LIMIT 1",
+            [$uuidBytes]
+        );
+        if (!isset($rows[0])) {
+            return null;
+        }
+        /** @var array<string,mixed> $row */
+        $row = $rows[0];
+        return $row;
+    }
+
+    /**
      * Given a prescription uuid, return the owning patient row (pid, squad,
      * uuid). Handles both the `prescriptions` table (patient_id column) and
      * the `lists` medication rows (pid column) via a UNION mirror of the
      * `combined_prescriptions` shape used by the SELECT SQL. Returns null
      * when the prescription has no resolvable owner (deleted patient row).
      *
-     * Split out so isolated tests can override this seam without touching
-     * the database.
+     * Public so PrescriptionRestController's per-patient ACL check on the
+     * staff REST path can resolve the target's owner (getOne/delete
+     * receive a prescription uuid, not a patient uuid). Split out so
+     * isolated tests can override this seam without touching the database.
      *
      * @return array<string,mixed>|null
      */
-    protected function findPatientForPrescription(string $prescriptionUuid): ?array
+    public function findPatientForPrescription(string $prescriptionUuid): ?array
     {
         try {
             $uuidBytes = UuidRegistry::uuidToBytes($prescriptionUuid);

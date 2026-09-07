@@ -361,7 +361,7 @@ class PrescriptionServiceIsolatedTest extends TestCase
                 // Skip parent constructor: it hits the DB.
             }
 
-            protected function findPatientForPrescription(string $prescriptionUuid): ?array
+            public function findPatientForPrescription(string $prescriptionUuid): ?array
             {
                 return null;
             }
@@ -394,7 +394,7 @@ class PrescriptionServiceIsolatedTest extends TestCase
                 // Skip parent constructor: it hits the DB.
             }
 
-            protected function findPatientForPrescription(string $prescriptionUuid): ?array
+            public function findPatientForPrescription(string $prescriptionUuid): ?array
             {
                 return null;
             }
