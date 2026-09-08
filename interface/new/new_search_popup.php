@@ -27,7 +27,8 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
+$fstartRequest = $_REQUEST['fstart'] ?? null;
+$fstart = is_numeric($fstartRequest) ? (int) $fstartRequest : 0;
 
 $searchcolor = empty(OEGlobalsBag::getInstance()->get('layout_search_color')) ? 'var(--yellow)' : OEGlobalsBag::getInstance()->get('layout_search_color');
 $simpleSearch = $_GET['simple_search'] ?? null;
@@ -148,7 +149,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
 
         $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
         $sqlBindArray[] = $MAXSHOW;
-        $sqlBindArray[] = (int) $fstart;
+        $sqlBindArray[] = $fstart;
         $rez = sqlStatement($sql, $sqlBindArray);
         $result = [];
         while ($row = sqlFetchArray($rez)) {

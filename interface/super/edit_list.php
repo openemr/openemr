@@ -1402,7 +1402,7 @@ function writeITLine($it_array): void
                     $list_from--;
                 }
                 if ($list_to > 0) {
-                    $sql_limits = " ASC LIMIT " . (intval($list_to) > 0 ? ($list_to - $list_from) : "") . " OFFSET " . $list_from;
+                    $sql_limits = ' ASC LIMIT ' . ($list_to - $list_from) . ' OFFSET ' . $list_from;
                 }
 
                 if ($list_id == 'feesheet') {

@@ -3096,49 +3096,52 @@ function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, 
     // Collect the correct column label for date in the table
     $date_label = collect_database_label('date', $table);
 
-    // Deal with interval
+    // Deal with interval. MySQL requires a literal after INTERVAL, so this is
+    // narrowed to an int once here rather than bound as a query parameter.
+    $intervalInt = is_numeric($intervalValue) ? (int) $intervalValue : 0;
+
     if (!empty($intervalType)) {
         switch ($intervalType) {
             case "year":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . (is_numeric($intervalValue) ? (int) $intervalValue : 0) .
+                    "', INTERVAL " . $intervalInt .
                     " YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "month":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . (is_numeric($intervalValue) ? (int) $intervalValue : 0) .
+                    "', INTERVAL " . $intervalInt .
                     " MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "week":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . (is_numeric($intervalValue) ? (int) $intervalValue : 0) .
+                    "', INTERVAL " . $intervalInt .
                     " WEEK) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "day":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . (is_numeric($intervalValue) ? (int) $intervalValue : 0) .
+                    "', INTERVAL " . $intervalInt .
                     " DAY) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "hour":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . (is_numeric($intervalValue) ? (int) $intervalValue : 0) .
+                    "', INTERVAL " . $intervalInt .
                     " HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "minute":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . (is_numeric($intervalValue) ? (int) $intervalValue : 0) .
+                    "', INTERVAL " . $intervalInt .
                     " MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "second":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . (is_numeric($intervalValue) ? (int) $intervalValue : 0) .
+                    "', INTERVAL " . $intervalInt .
                     " SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "flu_season":
