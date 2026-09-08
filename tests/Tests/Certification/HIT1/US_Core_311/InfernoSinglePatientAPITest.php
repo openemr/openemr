@@ -86,7 +86,19 @@ final class InfernoSinglePatientAPITest extends TestCase
     public const DEFAULT_OPENEMR_BASE_URL_API = 'http://openemr';
     public const DEFAULT_INFERNO_BASE_URL = 'http://nginx';
     public const DEFAULT_TEST_GROUP_ID = 'us_core_v311-us_core_v311_fhir_api';
-    public const TIMEOUT = 60; // seconds
+    public const TIMEOUT = 60; // seconds — HTTP client per-request timeout
+
+    /**
+     * Max wall time (seconds) to wait for an async Inferno test_run to
+     * reach `status = 'done'`. Individual test groups can take a while
+     * — observed patient-group runtime ~186s on the worker — and
+     * because every test in this class shares a single Inferno session
+     * (see setUpBeforeClass), a timeout here leaves the previous run
+     * mid-execution and the next test's POST /test_runs returns 409
+     * (session busy), cascading a single slow test into ~30 failures.
+     * 300s gives comfortable margin over the longest observed run.
+     */
+    public const POLLING_TIMEOUT = 300;
 
     private static ApiTestClient $testClient;
     private static string $baseUrl;
@@ -439,7 +451,7 @@ final class InfernoSinglePatientAPITest extends TestCase
 
         // Poll /test_runs/$testRunId?include_results=false every 500 ms until the
         // status is 'done'; if it never reaches 'done' before the timeout, fail.
-        $maxRetries = self::TIMEOUT * 2;
+        $maxRetries = self::POLLING_TIMEOUT * 2;
         $retryCount = 0;
         $status = '';
         while ($retryCount < $maxRetries) {
