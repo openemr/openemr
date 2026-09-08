@@ -232,9 +232,12 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         if (!empty($dataRecord['report_date'])) {
             $observation->setEffectiveDateTime(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
-        } else {
-            $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
+        // Missing report_date: omit `effective[x]` entirely. See
+        // FhirObservationTrait::setObservationEffective for the full
+        // rationale — PHPFHIR primitives don't emit `_field`
+        // companions, so a data-absent-reason Extension in the
+        // primitive `effectiveDateTime` slot produces invalid JSON.
 
         $obsCategoryCoding = UtilsService::createCodeableConcept([
             self::CATEGORY => [

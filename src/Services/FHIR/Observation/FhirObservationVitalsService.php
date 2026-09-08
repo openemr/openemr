@@ -641,9 +641,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             } else {
                 $observation->setEffectiveDateTime($startDate);
             }
-        } else {
-            $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
+        // Missing effective date: omit `effective[x]` entirely. See
+        // FhirObservationTrait::setObservationEffective for the full
+        // rationale — PHPFHIR primitives don't emit `_field`
+        // companions, so a data-absent-reason Extension in the
+        // primitive `effectiveDateTime` slot produces invalid JSON.
 
         $code = $dataRecord['code'];
         $description = $dataRecord['description'] ?? $this->getDescriptionForCode($code);
