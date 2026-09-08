@@ -163,12 +163,13 @@ class PrescriptionRestController
         // the caller's chart access to that patient. Runs regardless of
         // whether the caller supplied `patient_uuid` (the query hint is
         // an additional caller-side constraint, not the authorization).
-        // findPatientForPrescription returns a row with null pid when the
-        // prescription exists but has no owner (orphaned); we skip the
-        // gate in that case — no owner to check against, and the route-
-        // level `patients/rx *` ACL already gates the endpoint.
+        // findPatientForPrescription returns null for missing prescriptions
+        // AND for prescriptions whose owning patient row cannot be
+        // resolved (orphaned) — in either case the service delete() below
+        // returns the "uuid" validation-error shape that the controller
+        // maps to 400.
         $owner = $this->prescriptionService->findPatientForPrescription($uuid);
-        if ($owner !== null && ($owner['pid'] ?? null) !== null) {
+        if ($owner !== null) {
             $denied = $this->denyIfNoChartAccess($request, $owner);
             if ($denied !== null) {
                 return $denied;
@@ -210,13 +211,13 @@ class PrescriptionRestController
     public function getOne(string $uuid, HttpRestRequest $request): ResponseInterface
     {
         // Per-patient ACL: resolve the prescription's owner and gate on
-        // the caller's chart access. When the prescription does not exist
-        // the service returns a validation-error ProcessingResult below
-        // (mapped to 400), matching the historical shape. When the
-        // prescription exists but has no resolvable owner (orphaned),
-        // skip the gate — no owner to check against.
+        // the caller's chart access. findPatientForPrescription returns
+        // null for missing prescriptions AND for prescriptions whose
+        // owning patient row cannot be resolved (orphaned) — in either
+        // case the service getOne() below returns the "uuid" validation-
+        // error shape that the controller maps to 400.
         $owner = $this->prescriptionService->findPatientForPrescription($uuid);
-        if ($owner !== null && ($owner['pid'] ?? null) !== null) {
+        if ($owner !== null) {
             $denied = $this->denyIfNoChartAccess($request, $owner);
             if ($denied !== null) {
                 return $denied;

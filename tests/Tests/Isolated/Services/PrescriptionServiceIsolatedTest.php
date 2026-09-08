@@ -118,6 +118,27 @@ class PrescriptionServiceIsolatedTest extends TestCase
         $this->assertArrayHasKey('patient.uuid', $this->extractValidationMessages($result));
     }
 
+    public function testGetAllRejectsMultiValueUuidBindingWithoutPatientBinding(): void
+    {
+        // FHIR `_id` search parameter accepts comma-separated values
+        // (?_id=uuid1,uuid2,uuid3). A `uuid` ISearchField with more than
+        // one value is NOT a single-record lookup — it is a caller-
+        // supplied enumeration keyed on uuids. Without a patient binding
+        // that shape must be rejected. Otherwise a caller can iterate
+        // prescriptions across the tenant.
+        $uuidField = new \OpenEMR\Services\Search\TokenSearchField(
+            'uuid',
+            ['first-uuid', 'second-uuid']
+        );
+        $result = $this->makeService()->getAll(['uuid' => $uuidField]);
+
+        $this->assertFalse(
+            $result->isValid(),
+            'Multi-value uuid ISearchField without patient binding must be rejected as tenant-wide enumeration'
+        );
+        $this->assertArrayHasKey('patient.uuid', $this->extractValidationMessages($result));
+    }
+
     // -------------------------------------------------------------------------
     // insert() field allowlist — INSERTABLE_FIELDS constant properties
     // -------------------------------------------------------------------------

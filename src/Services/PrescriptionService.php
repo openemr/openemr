@@ -93,8 +93,18 @@ class PrescriptionService extends BaseService
         // not enumerate and is allowed through.
         $patientUuidRaw = $search['patient.uuid'] ?? null;
         $hasFhirPuuidBinding = isset($search['puuid']);
-        $hasSingleRecordUuidBinding = isset($search['uuid']);
         $hasPatientUuidString = is_string($patientUuidRaw) && $patientUuidRaw !== '';
+        // Single-record uuid exception: FhirServiceBase::getOne invokes
+        // getAll(['_id' => $uuid]) which converts to a single-value `uuid`
+        // ISearchField. FHIR `_id` also accepts comma-separated lists,
+        // however — the ISearchField would then carry multiple values, and
+        // "single-record lookup" no longer applies (it becomes a list
+        // enumeration keyed on caller-supplied uuids). Require exactly one
+        // value on the uuid binding to keep the exception scoped to a
+        // true point-read.
+        $uuidBinding = $search['uuid'] ?? null;
+        $hasSingleRecordUuidBinding = $uuidBinding instanceof ISearchField
+            && count($uuidBinding->getValues()) === 1;
         if (!$hasFhirPuuidBinding && !$hasSingleRecordUuidBinding && !$hasPatientUuidString) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages([
@@ -795,6 +805,18 @@ class PrescriptionService extends BaseService
         }
         /** @var array<string,mixed> $row */
         $row = $rows[0];
+        // Reject orphaned records: LEFT JOIN can return a row with null
+        // pid/uuid when the prescription references a patient_data row
+        // that no longer exists. Surfacing an orphaned resource with no
+        // resolvable owner would let the REST controller skip its
+        // per-patient ACL gate (nothing to check against) and let getOne/
+        // delete treat the row as resolved. Callers see the same "not
+        // resolvable" outcome as a truly missing prescription.
+        $pid = $row['pid'] ?? null;
+        $patientUuid = $row['uuid'] ?? null;
+        if ($pid === null || $patientUuid === null) {
+            return null;
+        }
         return $row;
     }
 
