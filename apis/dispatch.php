@@ -47,9 +47,13 @@ try {
     if (!headers_sent()) {
         header('Content-Type: application/json');
         http_response_code(Response::HTTP_INTERNAL_SERVER_ERROR);
+        // The message stays out of the body. Exception text here is whatever
+        // failed deepest in the stack -- openemr#13905 put a SQLSTATE naming a
+        // missing column into this field, readable by any anonymous caller of
+        // /apis/default/fhir/metadata. It is already in the error log above,
+        // where it is useful and not disclosed.
         die(json_encode([
             'error' => 'An error occurred while processing the request.',
-            'message' => $e->getMessage(),
         ]));
     }
 }
