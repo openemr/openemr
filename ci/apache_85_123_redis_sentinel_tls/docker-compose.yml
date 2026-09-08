@@ -42,7 +42,7 @@ services:
       openssl req -x509 -new -key ca.key -days 1 -out ca.crt -subj "/CN=test-ca"
 
       # --- Server cert (covers every Redis/Sentinel hostname) ---
-      echo "subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:localhost" > /tmp/san.ext
+      echo 'subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:sentinel-3,DNS:localhost' > /tmp/san.ext
       openssl genrsa -out server.key 2048
       openssl req -new -key server.key -subj "/CN=redis" \
         | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
@@ -103,7 +103,15 @@ services:
       redis-tls-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt", "-a", "strongpassword", "ping"]
+      test:
+      - CMD
+      - redis-cli
+      - --tls
+      - --cacert
+      - /certs/ca.crt
+      - -a
+      - strongpassword
+      - ping
 
   redis-replica-1:
     command:
@@ -186,59 +194,118 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
     - |
-      printf '%s\n' \
-        'port 0' \
-        'tls-port 26379' \
-        'tls-cert-file /certs/server.crt' \
-        'tls-key-file /certs/server.key' \
-        'tls-ca-cert-file /certs/ca.crt' \
-        'tls-auth-clients no' \
-        'tls-replication yes' \
-        'daemonize no' \
-        'sentinel resolve-hostnames yes' \
-        'sentinel announce-hostnames yes' \
-        'sentinel monitor redis-master redis-master 6379 2' \
-        'sentinel auth-pass redis-master strongpassword' \
-        'sentinel down-after-milliseconds redis-master 5000' \
-        'sentinel failover-timeout redis-master 60000' \
-        'sentinel parallel-syncs redis-master 1' \
-        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+      cat > /tmp/sentinel.conf <<'EOF'
+      port 0
+      tls-port 26379
+      tls-cert-file /certs/server.crt
+      tls-key-file /certs/server.key
+      tls-ca-cert-file /certs/ca.crt
+      tls-auth-clients no
+      tls-replication yes
+      daemonize no
+      sentinel resolve-hostnames yes
+      sentinel announce-hostnames yes
+      sentinel monitor redis-master redis-master 6379 2
+      sentinel auth-pass redis-master strongpassword
+      sentinel down-after-milliseconds redis-master 5000
+      sentinel failover-timeout redis-master 10000
+      sentinel parallel-syncs redis-master 1
+      EOF
+      exec redis-sentinel /tmp/sentinel.conf
     volumes:
     - redis-certs:/certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt", "-p", "26379", "SENTINEL", "masters"]
+      test:
+      - CMD
+      - redis-cli
+      - --tls
+      - --cacert
+      - /certs/ca.crt
+      - -p
+      - "26379"
+      - SENTINEL
+      - masters
 
   sentinel-2:
     entrypoint: ["/bin/sh", "-c"]
     command:
     - |
-      printf '%s\n' \
-        'port 0' \
-        'tls-port 26379' \
-        'tls-cert-file /certs/server.crt' \
-        'tls-key-file /certs/server.key' \
-        'tls-ca-cert-file /certs/ca.crt' \
-        'tls-auth-clients no' \
-        'tls-replication yes' \
-        'daemonize no' \
-        'sentinel resolve-hostnames yes' \
-        'sentinel announce-hostnames yes' \
-        'sentinel monitor redis-master redis-master 6379 2' \
-        'sentinel auth-pass redis-master strongpassword' \
-        'sentinel down-after-milliseconds redis-master 5000' \
-        'sentinel failover-timeout redis-master 60000' \
-        'sentinel parallel-syncs redis-master 1' \
-        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+      cat > /tmp/sentinel.conf <<'EOF'
+      port 0
+      tls-port 26379
+      tls-cert-file /certs/server.crt
+      tls-key-file /certs/server.key
+      tls-ca-cert-file /certs/ca.crt
+      tls-auth-clients no
+      tls-replication yes
+      daemonize no
+      sentinel resolve-hostnames yes
+      sentinel announce-hostnames yes
+      sentinel monitor redis-master redis-master 6379 2
+      sentinel auth-pass redis-master strongpassword
+      sentinel down-after-milliseconds redis-master 5000
+      sentinel failover-timeout redis-master 10000
+      sentinel parallel-syncs redis-master 1
+      EOF
+      exec redis-sentinel /tmp/sentinel.conf
     volumes:
     - redis-certs:/certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt", "-p", "26379", "SENTINEL", "masters"]
+      test:
+      - CMD
+      - redis-cli
+      - --tls
+      - --cacert
+      - /certs/ca.crt
+      - -p
+      - "26379"
+      - SENTINEL
+      - masters
+
+  sentinel-3:
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+    - |
+      cat > /tmp/sentinel.conf <<'EOF'
+      port 0
+      tls-port 26379
+      tls-cert-file /certs/server.crt
+      tls-key-file /certs/server.key
+      tls-ca-cert-file /certs/ca.crt
+      tls-auth-clients no
+      tls-replication yes
+      daemonize no
+      sentinel resolve-hostnames yes
+      sentinel announce-hostnames yes
+      sentinel monitor redis-master redis-master 6379 2
+      sentinel auth-pass redis-master strongpassword
+      sentinel down-after-milliseconds redis-master 5000
+      sentinel failover-timeout redis-master 10000
+      sentinel parallel-syncs redis-master 1
+      EOF
+      exec redis-sentinel /tmp/sentinel.conf
+    volumes:
+    - redis-certs:/certs:ro
+    depends_on:
+      redis-tls-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - --tls
+      - --cacert
+      - /certs/ca.crt
+      - -p
+      - "26379"
+      - SENTINEL
+      - masters
 
   # ---------- OpenEMR: add TLS env vars + cert volume ----------
   openemr:
