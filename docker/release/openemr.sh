@@ -623,7 +623,7 @@ upgrade_site_schema() {
     local installed_release
     IFS=$'\t' read -r installed_schema_version installed_release <<< "${version_row}"
 
-    if [[ "${code_schema_version}" -le "${installed_schema_version}" ]]; then
+    if (( code_schema_version <= installed_schema_version )); then
         return 0
     fi
 
@@ -633,7 +633,8 @@ upgrade_site_schema() {
     # sql_upgrade.php resolves its site from $_GET['site'], so prepend the
     # assignment rather than editing the script in place.
     if ! {
-        echo "<?php \$_GET['site'] = '${sitename}'; ?>"
+        # shellcheck disable=SC2016 # $_GET is PHP source, not a shell expansion.
+        printf '<?php $_GET["site"] = "%s"; ?>\n' "${sitename}"
         cat "${OE_ROOT}/sql_upgrade.php"
     } > "${OE_ROOT}/TEMPsql_upgrade.php"; then
         echo "ERROR: could not stage sql_upgrade.php for ${sitename} (file missing?)" >&2
