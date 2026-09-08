@@ -3,14 +3,17 @@
 /**
  * UtilsServiceDataMissingExtensionIsolatedTest
  *
- * Locks the shape of {@see UtilsService::createDataMissingExtension()}.
- * The prior two-level nested shape (outer wrapper with no url + inner
- * extension carrying the url + valueCode) triggered a Ruby-side crash
- * in Inferno's `fhir_models` validator (`undefined method 'tr' for nil`)
- * because Extension.url has cardinality 1..1 in the FHIR spec — the
- * outer wrapper had none. The current shape is a single flat extension
- * with the data-absent-reason canonical url and valueCode="unknown", per
- * the US Core general-guidance "missing data" pattern.
+ * Locks the two-level nested shape of
+ * {@see UtilsService::createDataMissingExtension()}: an outer FHIRExtension
+ * wrapping an inner FHIRExtension that carries the data-absent-reason
+ * canonical URL + valueCode="unknown".
+ *
+ * The wrapper is designed for composition into
+ * {@see OpenEMRFHIRDateTime} (and other trait-enabled primitive
+ * domain-model subclasses). When the parent primitive's `value` is
+ * empty and the wrapper is attached via `addExtension()`, the trait
+ * serializes it into the FHIR primitive-extension companion slot
+ * (e.g. `_effectiveDateTime`).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -32,70 +35,60 @@ class UtilsServiceDataMissingExtensionIsolatedTest extends TestCase
 {
     /**
      * Narrows the intentionally-untyped return of
-     * `createDataMissingExtension()` for PHPStan. The source can't
-     * declare `: FHIRExtension` without surfacing ~30 latent errors on
-     * caller sites that misuse the return value (setSubject/setDate/etc.
-     * pass an Extension where a Reference/DateTime is expected). See
-     * the source docblock for the follow-up plan; these tests still lock
-     * the shape the fix produces at runtime.
+     * `createDataMissingExtension()` for PHPStan.
      */
-    private function extensionUnderTest(): FHIRExtension
+    private function outerWrapperUnderTest(): FHIRExtension
     {
         $ext = UtilsService::createDataMissingExtension();
         $this->assertInstanceOf(FHIRExtension::class, $ext);
         return $ext;
     }
 
-    public function testUrlIsDataAbsentReasonCanonical(): void
+    public function testOuterWrapperCarriesExactlyOneInnerExtension(): void
     {
-        // Extension.url cardinality is 1..1 per FHIR. A missing url
-        // triggers `undefined method 'tr' for nil` in the Inferno
-        // `fhir_models` validator's `find_extension` — the specific
-        // crash the outer-wrapper shape produced before this fix.
-        $ext = $this->extensionUnderTest();
+        $outer = $this->outerWrapperUnderTest();
+        $inner = $outer->getExtension();
 
+        $this->assertCount(
+            1,
+            $inner,
+            'Outer wrapper must carry exactly one inner extension carrying the data-absent-reason payload'
+        );
+    }
+
+    public function testInnerExtensionUrlIsDataAbsentReasonCanonical(): void
+    {
+        $outer = $this->outerWrapperUnderTest();
+        $inner = $outer->getExtension()[0] ?? null;
+
+        $this->assertInstanceOf(FHIRExtension::class, $inner);
         $this->assertSame(
             FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION,
-            (string) $ext->getUrl(),
-            'Extension url must be the FHIR data-absent-reason canonical'
+            (string) $inner->getUrl(),
+            'Inner extension url must be the FHIR data-absent-reason canonical'
         );
     }
 
-    public function testCarriesValueCodeUnknown(): void
+    public function testInnerExtensionCarriesValueCodeUnknown(): void
     {
-        $ext = $this->extensionUnderTest();
+        $outer = $this->outerWrapperUnderTest();
+        $inner = $outer->getExtension()[0] ?? null;
 
+        $this->assertInstanceOf(FHIRExtension::class, $inner);
         $this->assertSame(
             'unknown',
-            (string) $ext->getValueCode(),
+            (string) $inner->getValueCode(),
             'US Core general-guidance "missing data" pattern uses valueCode=unknown'
-        );
-    }
-
-    public function testHasNoNestedInnerExtension(): void
-    {
-        // The prior two-level shape (outer wrapper wrapping an inner
-        // extension) is the specific defect this method's fix targets.
-        // A flat single extension must not carry any inner .extension
-        // entries — otherwise the outer wrapper's missing-url problem
-        // would return.
-        $ext = $this->extensionUnderTest();
-
-        $this->assertSame(
-            [],
-            $ext->getExtension(),
-            'createDataMissingExtension() must NOT wrap the payload in a nested inner extension — the flat shape is what US Core / FHIR requires'
         );
     }
 
     public function testEachInvocationReturnsAFreshInstance(): void
     {
-        // The helper is called from ~30 sites across the FHIR services.
-        // Callers assume they can freely add the returned Extension to
-        // their parent element without side effects on other callers'
+        // The helper is called from many sites across the FHIR services.
+        // Callers assume they can attach the returned wrapper to their
+        // parent element without side effects on other callers'
         // instances. A cached/shared instance would let one caller's
-        // subsequent mutations (setValueCode, addExtension, etc.) leak
-        // into unrelated resources.
+        // subsequent mutations leak into unrelated resources.
         $a = UtilsService::createDataMissingExtension();
         $b = UtilsService::createDataMissingExtension();
 

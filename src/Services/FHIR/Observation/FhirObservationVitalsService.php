@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -641,12 +642,11 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             } else {
                 $observation->setEffectiveDateTime($startDate);
             }
+        } else {
+            $missingEffective = new OpenEMRFHIRDateTime();
+            $missingEffective->addExtension(UtilsService::createDataMissingExtension());
+            $observation->setEffectiveDateTime($missingEffective);
         }
-        // Missing effective date: omit `effective[x]` entirely. See
-        // FhirObservationTrait::setObservationEffective for the full
-        // rationale — PHPFHIR primitives don't emit `_field`
-        // companions, so a data-absent-reason Extension in the
-        // primitive `effectiveDateTime` slot produces invalid JSON.
 
         $code = $dataRecord['code'];
         $description = $dataRecord['description'] ?? $this->getDescriptionForCode($code);

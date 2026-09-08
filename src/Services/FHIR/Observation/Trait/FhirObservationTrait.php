@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR\Observation\Trait;
 use BadMethodCallException;
 use InvalidArgumentException;
 use OpenEMR\Common\Uuid\UuidMapping;
+use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
@@ -401,22 +402,15 @@ trait FhirObservationTrait
             } else {
                 $observation->setEffectiveDateTime($effectiveDateTime);
             }
+        } else {
+            // No date present: emit the FHIR primitive-extension
+            // pattern via OpenEMRFHIRDateTime, whose trait override
+            // serializes the data-absent-reason extension into the
+            // `_effectiveDateTime` companion slot US Core expects.
+            $missingEffective = new OpenEMRFHIRDateTime();
+            $missingEffective->addExtension(UtilsService::createDataMissingExtension());
+            $observation->setEffectiveDateTime($missingEffective);
         }
-        // When no date is present we omit `effective[x]` entirely.
-        // Attaching a data-absent-reason Extension to the primitive
-        // `effectiveDateTime` slot emits an Extension object where a
-        // dateTime string is expected — invalid JSON per the FHIR
-        // primitive-type schema and rejected by US Core validators.
-        // The correct primitive-extension pattern would set
-        // `_effectiveDateTime` companion property with the
-        // data-absent-reason extension, but the PHPFHIR-generated SDK
-        // this codebase uses does not emit `_field` companions on
-        // primitives — FHIRObservation::jsonSerialize emits
-        // `$json['effectiveDateTime'] = $this->effectiveDateTime`
-        // (bare) with no `_effectiveDateTime` sibling. Omission is the
-        // least-wrong option available: US Core validators emit a
-        // must-support warning on the absent element rather than a
-        // schema error on a malformed one.
     }
 
     protected function setObservationComponents(FHIRObservation $observation, array $dataRecord): void
