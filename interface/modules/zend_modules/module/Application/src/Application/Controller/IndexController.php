@@ -100,7 +100,7 @@ class IndexController extends AbstractActionController
      */
     private function listAutoSuggest($post, $limit)
     {
-        $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
+        $limitEnd = is_numeric($limit) ? (int) $limit : 0;
 
         if (OEGlobalsBag::getInstance()->has('set_autosuggest_options')) {
             $leading = OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 1 ? '%' : $post->leading;
@@ -120,7 +120,7 @@ class IndexController extends AbstractActionController
         $page = $post->page;
         $searchType = $post->searchType;
 
-        $limitStart = $page == '' ? 0 : \Application\Plugin\CommonPlugin::escapeLimit($page);
+        $limitStart = $page == '' ? 0 : (is_numeric($page) ? (int) $page : 0);
 
         $keyword = $leading . $queryString . $trailing;
         $rowCount = 0;
@@ -138,8 +138,8 @@ class IndexController extends AbstractActionController
             $params = [$keyword, $keyword, $keyword, $keyword, $keyword, $keyword];
             $countResult = QueryUtils::fetchRecords($sql, $params);
             $rowCount = count($countResult);
-            $sql .= "LIMIT $limitStart, $limitEnd";
-            $result = QueryUtils::fetchRecords($sql, $params);
+            $sql .= "LIMIT ? OFFSET ?";
+            $result = QueryUtils::fetchRecords($sql, array_merge($params, [$limitEnd, $limitStart]));
         } elseif (strtolower((string) $searchType) == 'emrdirect') {
             $sql = "SELECT fname, mname, lname,email_direct AS 'email',id FROM users
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?
@@ -151,8 +151,8 @@ class IndexController extends AbstractActionController
             $params = [$keyword, $keyword, $keyword];
             $countResult = QueryUtils::fetchRecords($sql, $params);
             $rowCount = count($countResult);
-            $sql .= "LIMIT $limitStart, $limitEnd";
-            $result = QueryUtils::fetchRecords($sql, $params);
+            $sql .= "LIMIT ? OFFSET ?";
+            $result = QueryUtils::fetchRecords($sql, array_merge($params, [$limitEnd, $limitStart]));
         }
 
         $arr = [];

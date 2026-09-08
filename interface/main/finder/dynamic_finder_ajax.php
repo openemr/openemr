@@ -19,6 +19,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
@@ -30,7 +31,11 @@ use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 //  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
-$searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['search_any'] : "";
+$getSearchAny = (string) (filter_input(INPUT_GET, 'search_any') ?? '');
+$getSSearchRaw = (string) (filter_input(INPUT_GET, 'sSearch') ?? '');
+$getSColumns = (string) (filter_input(INPUT_GET, 'sColumns') ?? '');
+$getSearchType = (string) (filter_input(INPUT_GET, 'searchType') ?? '');
+$searchAny = ($getSearchAny !== '' && $getSSearchRaw === '') ? $getSearchAny : "";
 
 // With the ColReorder or ColReorderWithResize plug-in, the expected column
 // ordering may have been changed by the user.  So we cannot depend on
@@ -51,19 +56,27 @@ if ($searchAny) {
         $aColumns[] = $row['field_id'];
     }
 } else {
-    $aColumns = explode(',', (string) $_GET['sColumns']);
+    $aColumns = explode(',', $getSColumns);
 }
 // Paging parameters.  -1 means not applicable.
 //
-$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] : -1;
-$iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
+$iDisplayStart  = filter_input(INPUT_GET, 'iDisplayStart', FILTER_VALIDATE_INT);
+$iDisplayLength = filter_input(INPUT_GET, 'iDisplayLength', FILTER_VALIDATE_INT);
+if (!is_int($iDisplayStart)) {
+    $iDisplayStart = -1;
+}
+if (!is_int($iDisplayLength)) {
+    $iDisplayLength = -1;
+}
 $limit = '';
+$limitBinds = [];
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-    $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
+    $limit = "LIMIT ? OFFSET ?";
+    $limitBinds = [$iDisplayLength, $iDisplayStart];
 }
 // Search parameter.  -1 means .
 //
-$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ] === "true";
+$searchMethodInPatientList = $getSearchType === "true";
 
 // Column sorting parameters.
 //
@@ -257,8 +270,8 @@ while ($row = sqlFetchArray($res)) {
 }
 
 $query = "SELECT $sellist FROM patient_data WHERE $where $orderby $limit";
-$res = sqlStatement($query, $srch_bind);
-while ($row = sqlFetchArray($res)) {
+$res = QueryUtils::fetchRecords($query, array_merge($srch_bind, $limitBinds));
+foreach ($res as $row) {
     // Each <tr> will have an ID identifying the patient.
     $arow = ['DT_RowId' => 'pid_' . $row['pid']];
     foreach ($aColumns as $colname) {
