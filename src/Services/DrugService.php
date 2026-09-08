@@ -81,8 +81,17 @@ class DrugService extends BaseService
      */
     public function getOne($uuid)
     {
+        // The uuid column is binary. TokenSearchValue only converts the string form to
+        // those bytes when the value is flagged as a uuid -- unflagged, the raw string is
+        // compared against a binary column and never matches, so this returned an empty
+        // result for every id. An unparseable uuid stays an empty result rather than the
+        // InvalidArgumentException the flagged constructor would throw.
+        if (!is_string($uuid) || !UuidRegistry::isValidStringUUID($uuid)) {
+            return new ProcessingResult();
+        }
+
         $search = [
-            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($uuid, null, false)])
+            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($uuid, null, true)])
         ];
         return $this->search($search);
     }

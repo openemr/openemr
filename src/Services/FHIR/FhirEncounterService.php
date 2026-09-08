@@ -479,13 +479,17 @@ class FhirEncounterService extends FhirServiceBase implements
         $puuid = $openEmrRecord['puuid'] ?? '';
         unset($openEmrRecord['puuid']);
 
-        // user and group are required by EncounterService::insertEncounter for addForm()
+        // EncounterService::insertEncounter passes user and group straight to addForm()
+        // without defaulting them, so both keys have to exist here. Outside a web request
+        // -- a CLI import, or a test driving the service directly -- there is no session
+        // to read them from, and they fall back to the empty string rather than being
+        // left undefined.
         $session = $this->getSession();
-        if ($session !== null && ($openEmrRecord['user'] ?? '') === '') {
-            $openEmrRecord['user'] = $session->get('authUser') ?? '';
+        if (($openEmrRecord['user'] ?? '') === '') {
+            $openEmrRecord['user'] = $session?->get('authUser') ?? '';
         }
-        if ($session !== null && ($openEmrRecord['group'] ?? '') === '') {
-            $openEmrRecord['group'] = $session->get('authProvider') ?? '';
+        if (($openEmrRecord['group'] ?? '') === '') {
+            $openEmrRecord['group'] = $session?->get('authProvider') ?? '';
         }
 
         $this->resolveProviderUuids($openEmrRecord);
@@ -516,13 +520,14 @@ class FhirEncounterService extends FhirServiceBase implements
         $puuid = $updatedOpenEMRRecord['puuid'] ?? '';
         unset($updatedOpenEMRRecord['puuid']);
 
-        // user and group are required by EncounterValidator for updates
+        // user and group are required by EncounterValidator for updates; as on the insert
+        // path both keys must exist even when there is no session to source them from.
         $session = $this->getSession();
-        if ($session !== null && ($updatedOpenEMRRecord['user'] ?? '') === '') {
-            $updatedOpenEMRRecord['user'] = $session->get('authUser') ?? '';
+        if (($updatedOpenEMRRecord['user'] ?? '') === '') {
+            $updatedOpenEMRRecord['user'] = $session?->get('authUser') ?? '';
         }
-        if ($session !== null && ($updatedOpenEMRRecord['group'] ?? '') === '') {
-            $updatedOpenEMRRecord['group'] = $session->get('authProvider') ?? '';
+        if (($updatedOpenEMRRecord['group'] ?? '') === '') {
+            $updatedOpenEMRRecord['group'] = $session?->get('authProvider') ?? '';
         }
 
         $this->resolveProviderUuids($updatedOpenEMRRecord);
