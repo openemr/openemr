@@ -879,7 +879,7 @@ redis_diagnostics() {
     docker compose exec -T sentinel-1 \
         redis-cli "${tls_args[@]}" -p 26379 SENTINEL master redis-master \
         > "${dest}/sentinel-master-state.txt" 2>&1 || true
-    dc logs --timestamps redis-master redis-replica-1 redis-replica-2 sentinel-1 sentinel-2 \
+    dc logs --timestamps redis-master redis-replica-1 redis-replica-2 sentinel-1 sentinel-2 sentinel-3 \
         > "${dest}/redis-container-logs.txt" 2>&1 || true
 }
 

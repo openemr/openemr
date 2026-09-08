@@ -2101,16 +2101,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "9.0.37",
+            "version": "9.0.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "1469be46ee71678270987d925b34e6bc1c440af9"
+                "reference": "ba273135702a0d0c1f5954dc7291bfc4082da4f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/1469be46ee71678270987d925b34e6bc1c440af9",
-                "reference": "1469be46ee71678270987d925b34e6bc1c440af9",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/ba273135702a0d0c1f5954dc7291bfc4082da4f0",
+                "reference": "ba273135702a0d0c1f5954dc7291bfc4082da4f0",
                 "shasum": ""
             },
             "require": {
@@ -2173,7 +2173,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2026-08-15T20:04:56+00:00"
+            "time": "2026-09-01T10:42:16+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -4989,16 +4989,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.35.3",
+            "version": "3.36.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "5fc8404762179ae514678487b23494fd69b2309c"
+                "reference": "f7fb152932f30072d573510cbd4dd657d6475b25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/5fc8404762179ae514678487b23494fd69b2309c",
-                "reference": "5fc8404762179ae514678487b23494fd69b2309c",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/f7fb152932f30072d573510cbd4dd657d6475b25",
+                "reference": "f7fb152932f30072d573510cbd4dd657d6475b25",
                 "shasum": ""
             },
             "require": {
@@ -5066,9 +5066,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.35.3"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.36.0"
             },
-            "time": "2026-08-22T12:55:54+00:00"
+            "time": "2026-09-02T08:00:27+00:00"
         },
         {
             "name": "league/flysystem-local",
@@ -14880,11 +14880,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.12",
+            "version": "2.2.13",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/174b0d88710f00a42598886504dd7a146f91ace5",
-                "reference": "174b0d88710f00a42598886504dd7a146f91ace5",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9ba9ac76ee9c5cf5b56d58eb5deec6315b7a0260",
+                "reference": "9ba9ac76ee9c5cf5b56d58eb5deec6315b7a0260",
                 "shasum": ""
             },
             "require": {
@@ -14940,7 +14940,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-31T19:09:43+00:00"
+            "time": "2026-09-03T20:38:19+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
