@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
@@ -135,14 +136,21 @@ trait FhirConditionTrait
 
     protected function populateCode($dataRecord, FHIRCondition $conditionResource, string $defaultText)
     {
-        if (!empty($dataRecord['diagnosis']) && is_array($dataRecord['diagnosis'])) {
-            $diagnosisCoding = new FHIRCoding();
+        $diagnosis = $dataRecord['diagnosis'] ?? null;
+        if (is_string($diagnosis) && $diagnosis !== '') {
+            // Services querying lists.diagnosis directly hand us the stored
+            // "ICD10:I10." string rather than a parsed array
+            $diagnosis = $this->parseDiagnosisCodes($diagnosis, $dataRecord['title'] ?? '');
+        }
+
+        if (!empty($diagnosis) && is_array($diagnosis)) {
             $diagnosisCode = new FHIRCodeableConcept();
 
-            foreach ($dataRecord['diagnosis'] as $code => $codeValues) {
+            foreach ($diagnosis as $code => $codeValues) {
                 if (!is_string($code)) {
                     $code = "$code"; // FHIR expects a string
                 }
+                $diagnosisCoding = new FHIRCoding();
                 $diagnosisCoding->setCode($code);
                 $diagnosisCoding->setDisplay($codeValues['description']);
                 $diagnosisCoding->setSystem($codeValues['system']);
@@ -155,6 +163,23 @@ trait FhirConditionTrait
             $diagnosisCode->setText($dataRecord['title'] ?? 'Problem');
             $conditionResource->setCode($diagnosisCode);
         }
+    }
+
+    /**
+     * Parse OpenEMR's stored "TYPE:CODE" diagnosis string into coding values.
+     */
+    private function parseDiagnosisCodes(string $diagnosis, string $description): array
+    {
+        $codeTypes = new CodeTypesService();
+        $parsed = [];
+        foreach (explode(';', $diagnosis) as $item) {
+            $code = $codeTypes->parseCode($item);
+            $parsed[$code['code']] = [
+                'description' => $description,
+                'system' => $codeTypes->getSystemForCodeType($code['code_type']),
+            ];
+        }
+        return $parsed;
     }
 
     protected function populateSubject($dataRecord, FHIRCondition $conditionResource)

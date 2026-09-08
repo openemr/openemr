@@ -50,6 +50,21 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
             ,'occurrence' => 0
         ];
     }
+    public function testParseOpenEMRRecordWithUnparsedDiagnosisString(): void
+    {
+        // Services that query lists.diagnosis directly pass the stored string
+        $record = $this->getDefaultOpenEMRRecord();
+        $record['diagnosis'] = 'ICD10:I10.';
+        $record['title'] = 'Essential (primary) hypertension';
+
+        $fhirResource = (new FhirConditionEncounterDiagnosisService())->parseOpenEMRRecord($record);
+
+        $coding = $fhirResource->getCode()->getCoding()[0];
+        $this->assertEquals('I10.', $coding->getCode());
+        $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $coding->getSystem());
+        $this->assertEquals('Essential (primary) hypertension', $coding->getDisplay());
+    }
+
     public function testParseOpenEMRRecord(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
