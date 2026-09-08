@@ -27,7 +27,7 @@ $updateDelay = 60; // time is seconds
 
 
 // ----- get time stamp for start of today, this is used to check for due and overdue reminders
-$today = strtotime(date('Y/m/d'));
+$today = (new DateTimeImmutable('today'))->getTimestamp();
 
 // ----- set $hasAlerts to false, this is used for auto-hiding reminders if there are no due or overdue reminders
 $hasAlerts = false;

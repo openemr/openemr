@@ -1386,7 +1386,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                 }
             } else {
                 // batching
-                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ?,?", [($start - 1),$batchSize]);
+                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ? OFFSET ?", [$batchSize, ($start - 1)]);
             }
         } else {
             // Look at an individual physician
@@ -1413,7 +1413,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     }
                 } else {
                     //batching
-                    $sql .= " LIMIT " . intval($start) - 1 . "," . intval($batchSize);
+                    $sql .= " LIMIT " . intval($batchSize) . " OFFSET " . (intval($start) - 1);
                     $rez = sqlStatementCdrEngine($sql, [$provider, $provider, $provider]);
                 }
             } else {  //$pat_prov_rel == 'primary'
@@ -1426,7 +1426,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     }
                 } else {
                     $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` " .
-                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?", [$provider,($start - 1),$batchSize]);
+                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ? OFFSET ?", [$provider, $batchSize, ($start - 1)]);
                 }
             }
         }
@@ -3096,49 +3096,52 @@ function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, 
     // Collect the correct column label for date in the table
     $date_label = collect_database_label('date', $table);
 
-    // Deal with interval
+    // Deal with interval. MySQL requires a literal after INTERVAL, so this is
+    // narrowed to an int once here rather than bound as a query parameter.
+    $intervalInt = is_numeric($intervalValue) ? (int) $intervalValue : 0;
+
     if (!empty($intervalType)) {
         switch ($intervalType) {
             case "year":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "month":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "week":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " WEEK) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "day":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " DAY) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "hour":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "minute":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "second":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "flu_season":

@@ -1,9 +1,16 @@
 ##
 # Shared Redis Sentinel cluster template.
 #
-# Defines a minimal Redis Sentinel cluster (1 master + 2 replicas + 2 sentinels)
+# Defines a minimal Redis Sentinel cluster (1 master + 2 replicas + 3 sentinels)
 # and extends the openemr service with the env vars required to activate predis-sentinel
 # session storage.
+#
+# Three sentinels (quorum 2) so a failover election always has a majority.  With
+# only two sentinels each one can vote for itself in the same epoch, the election
+# fails, and Sentinel does not retry the same master for 2 x failover-timeout —
+# longer than the failover test waits.  failover-timeout is set well below the
+# production default (180000) for the same reason: this is CI-only tuning so an
+# occasional lost election still retries inside the test window.
 #
 # Include this file in COMPOSE_FILE when you want the full test suite to run
 # against Redis-backed sessions.  Redis containers are always started (no profile
@@ -41,7 +48,12 @@ services:
     - --replica-announce-ip
     - redis-master
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "strongpassword", "ping"]
+      test:
+      - CMD
+      - redis-cli
+      - -a
+      - strongpassword
+      - ping
       interval: 5s
       timeout: 3s
       retries: 10
@@ -99,23 +111,30 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
     - |
-      printf '%s\n' \
-        'port 26379' \
-        'daemonize no' \
-        'sentinel resolve-hostnames yes' \
-        'sentinel announce-hostnames yes' \
-        'sentinel monitor redis-master redis-master 6379 2' \
-        'sentinel auth-pass redis-master strongpassword' \
-        'sentinel down-after-milliseconds redis-master 5000' \
-        'sentinel failover-timeout redis-master 60000' \
-        'sentinel parallel-syncs redis-master 1' \
-        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+      cat > /tmp/sentinel.conf <<'EOF'
+      port 26379
+      daemonize no
+      sentinel resolve-hostnames yes
+      sentinel announce-hostnames yes
+      sentinel monitor redis-master redis-master 6379 2
+      sentinel auth-pass redis-master strongpassword
+      sentinel down-after-milliseconds redis-master 5000
+      sentinel failover-timeout redis-master 10000
+      sentinel parallel-syncs redis-master 1
+      EOF
+      exec redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
     healthcheck:
       # Sentinels in this config have no requirepass, so no -a flag
-      test: ["CMD", "redis-cli", "-p", "26379", "SENTINEL", "masters"]
+      test:
+      - CMD
+      - redis-cli
+      - -p
+      - "26379"
+      - SENTINEL
+      - masters
       interval: 5s
       timeout: 3s
       retries: 10
@@ -127,23 +146,65 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
     - |
-      printf '%s\n' \
-        'port 26379' \
-        'daemonize no' \
-        'sentinel resolve-hostnames yes' \
-        'sentinel announce-hostnames yes' \
-        'sentinel monitor redis-master redis-master 6379 2' \
-        'sentinel auth-pass redis-master strongpassword' \
-        'sentinel down-after-milliseconds redis-master 5000' \
-        'sentinel failover-timeout redis-master 60000' \
-        'sentinel parallel-syncs redis-master 1' \
-        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+      cat > /tmp/sentinel.conf <<'EOF'
+      port 26379
+      daemonize no
+      sentinel resolve-hostnames yes
+      sentinel announce-hostnames yes
+      sentinel monitor redis-master redis-master 6379 2
+      sentinel auth-pass redis-master strongpassword
+      sentinel down-after-milliseconds redis-master 5000
+      sentinel failover-timeout redis-master 10000
+      sentinel parallel-syncs redis-master 1
+      EOF
+      exec redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
     healthcheck:
       # Sentinels in this config have no requirepass, so no -a flag
-      test: ["CMD", "redis-cli", "-p", "26379", "SENTINEL", "masters"]
+      test:
+      - CMD
+      - redis-cli
+      - -p
+      - "26379"
+      - SENTINEL
+      - masters
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+  sentinel-3:
+    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    # Config is written inline to avoid bind-mount directory pollution — see file header.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+    - |
+      cat > /tmp/sentinel.conf <<'EOF'
+      port 26379
+      daemonize no
+      sentinel resolve-hostnames yes
+      sentinel announce-hostnames yes
+      sentinel monitor redis-master redis-master 6379 2
+      sentinel auth-pass redis-master strongpassword
+      sentinel down-after-milliseconds redis-master 5000
+      sentinel failover-timeout redis-master 10000
+      sentinel parallel-syncs redis-master 1
+      EOF
+      exec redis-sentinel /tmp/sentinel.conf
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    healthcheck:
+      # Sentinels in this config have no requirepass, so no -a flag
+      test:
+      - CMD
+      - redis-cli
+      - -p
+      - "26379"
+      - SENTINEL
+      - masters
       interval: 5s
       timeout: 3s
       retries: 10
@@ -152,7 +213,7 @@ services:
   openemr:
     environment:
       SESSION_STORAGE_MODE: predis-sentinel
-      REDIS_SENTINELS: sentinel-1|||sentinel-2
+      REDIS_SENTINELS: sentinel-1|||sentinel-2|||sentinel-3
       REDIS_MASTER: redis-master
       # REDIS_SENTINELS_PASSWORD is intentionally omitted: the CI sentinel
       # containers have no requirepass directive.  Only the master password
@@ -162,4 +223,6 @@ services:
       sentinel-1:
         condition: service_healthy
       sentinel-2:
+        condition: service_healthy
+      sentinel-3:
         condition: service_healthy
