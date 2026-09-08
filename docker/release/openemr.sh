@@ -520,7 +520,125 @@ check_upgrade() {
         return 0
     fi
 
+    # The docker-version marker only advances at a release branch-cut, so it
+    # cannot see a schema change that lands mid-cycle: version.php's
+    # $v_database moves as soon as the upgrade SQL is merged, while the marker
+    # stays on the last release's number. Booting such an image over an
+    # existing install therefore runs new code against the previous release's
+    # schema with no migration -- see openemr#13905, where every API request
+    # died writing an api_log column that release did not have. Compare the
+    # schema revisions directly so the migration runs on version drift too,
+    # not just on marker drift.
+    # check_schema_upgrade failure aborts the entrypoint via set -e -- the
+    # same reasoning as run_upgrade above applies; do not wrap it.
+    check_schema_upgrade
+
     return 0
+}
+
+# Runs the database migration when the code's schema revision is ahead of the
+# installed one, independent of the docker-version marker.
+#
+# No-op on the ordinary paths: a fresh install is not configured yet when this
+# runs, and a release upgrade has already been migrated by fsupgrade-<N>.sh,
+# which advances the version table to the code's revision.
+check_schema_upgrade() {
+    local config_state
+    config_state=$(is_configured)
+    if [[ "${config_state}" != "1" ]]; then
+        return 0
+    fi
+
+    # version.php is a standalone file of assignments, so requiring it directly
+    # is safe here and deliberately avoids bootstrapping the application.
+    local -i code_schema_version
+    code_schema_version=$(php -r "require '${OE_ROOT}/version.php'; echo (int)\$v_database;")
+    if [[ "${code_schema_version}" -le 0 ]]; then
+        echo "ERROR: could not read \$v_database from ${OE_ROOT}/version.php." >&2
+        return 1
+    fi
+
+    wait_for_mysql
+
+    # One row, two columns: the installed schema revision and the release it
+    # belongs to. sql_upgrade.php keys its migration files on the latter.
+    #
+    # This reads the container's configured database, which is the site the
+    # image provisions. It is the trigger only -- once drift is detected the
+    # migration below covers every site under sites/.
+    local version_row
+    version_row=$(mariadb \
+        --host="${MYSQL_HOST}" \
+        --port="${MYSQL_PORT}" \
+        --user="${MYSQL_ROOT_USER}" \
+        --password="${MYSQL_ROOT_PASS}" \
+        "${MYSQL_SSL_OPTS[@]}" \
+        --skip-column-names \
+        --batch \
+        "${MYSQL_DATABASE}" \
+        -e 'SELECT v_database, CONCAT_WS(".", v_major, v_minor, v_patch) FROM version LIMIT 1') || {
+        echo "ERROR: could not read the version table from ${MYSQL_DATABASE}; cannot tell whether a schema upgrade is due." >&2
+        return 1
+    }
+
+    local -i installed_schema_version
+    local installed_release
+    IFS=$'\t' read -r installed_schema_version installed_release <<< "${version_row}"
+
+    if [[ "${code_schema_version}" -le "${installed_schema_version}" ]]; then
+        return 0
+    fi
+
+    echo "Schema upgrade detected: database is at revision ${installed_schema_version} (${installed_release}), code needs ${code_schema_version}"
+    run_schema_upgrade "${installed_release}"
+}
+
+# Applies sql_upgrade.php to every site, starting from the release the database
+# is currently at.
+#
+# Mirrors the migration half of fsupgrade-<N>.sh rather than calling it: those
+# scripts also perform filesystem work keyed to a specific release, and there is
+# no release boundary to key to here.
+run_schema_upgrade() {
+    local from_release="$1"
+
+    [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
+
+    local dirdata
+    local sitename
+    for dirdata in "${OE_ROOT}"/sites/*/; do
+        sitename="${dirdata%/}"
+        sitename="${sitename##*/}"
+
+        echo "Start: Upgrade database for ${sitename} from ${from_release}"
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
+
+        # sql_upgrade.php resolves its site from $_GET['site'], so prepend the
+        # assignment rather than editing the script in place.
+        if ! {
+            echo "<?php \$_GET['site'] = '${sitename}'; ?>"
+            cat "${OE_ROOT}/sql_upgrade.php"
+        } > "${OE_ROOT}/TEMPsql_upgrade.php"; then
+            echo "ERROR: could not stage sql_upgrade.php for ${sitename} (file missing?)" >&2
+            rm -f "${OE_ROOT}/TEMPsql_upgrade.php"
+            return 1
+        fi
+
+        # Drop privileges to apache: RootCliGuard (openemr#12267) refuses root for OpenEMR CLI scripts.
+        if ! su-exec apache php -f "${OE_ROOT}/TEMPsql_upgrade.php" -- --from="${from_release}"; then
+            echo "ERROR: Database upgrade failed for ${sitename} from ${from_release}" >&2
+            echo "The database may be partially upgraded. Review the errors above and either" >&2
+            echo "correct the underlying problem or restore your pre-upgrade backup." >&2
+            rm -f "${OE_ROOT}/TEMPsql_upgrade.php"
+            return 1
+        fi
+
+        rm -f "${OE_ROOT}/TEMPsql_upgrade.php"
+        echo "Completed: Upgrade database for ${sitename} from ${from_release}"
+    done
+
+    [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
+    echo "Schema upgrade completed successfully"
 }
 
 # Performs the actual OpenEMR upgrade by running upgrade scripts.
