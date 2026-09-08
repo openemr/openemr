@@ -13,8 +13,6 @@
 
 require_once(__DIR__ . "/../../../../globals.php");
 /** @var string $srcdir */
-require_once("$srcdir/pid.inc.php");
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;

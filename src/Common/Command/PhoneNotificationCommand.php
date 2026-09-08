@@ -135,8 +135,7 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
      */
     protected function decryptPassword(string $encrypted): string
     {
-        $decrypted = ServiceContainer::getCrypto()->decryptStandard($encrypted);
-        return is_string($decrypted) ? $decrypted : '';
+        return ServiceContainer::getCrypto()->decryptFromDatabase($encrypted);
     }
 
     /**

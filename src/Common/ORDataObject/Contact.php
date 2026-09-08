@@ -53,7 +53,7 @@ class Contact extends ORDataObject
         $this->setContactIdIfExist();
     }
 
-    public function persist()
+    public function persist(): mixed
     {
         if (empty($this->id)) {
             $this->setContactIdIfExist();

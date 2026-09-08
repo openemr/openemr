@@ -16,10 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/patient.inc.php");
-require_once(__DIR__ . "/forms.inc.php");
 require_once(__DIR__ . "/options.inc.php");
-require_once(__DIR__ . "/report_database.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
@@ -1908,7 +1905,7 @@ HR: note: currently, this logic ignores inclusion/exclusion flag. Treats all as 
 test_targets() was previously called only with a single date param, which was $dateFocus in calling function.
 I changed this to pass both $dateFocus and $dateTarget so left and right interval boundaries could be determined separately
  */
-function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus = null, $dateTarget = null)
+function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus = null, $dateTarget = null): bool
 {
 
     // -------- Interval Target ----
@@ -2957,7 +2954,7 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
  * (1) If value ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_lists_item($patient_id, $type, $value, $dateTarget)
+function exist_lists_item($patient_id, $type, $value, $dateTarget): bool
 {
     // HR: used only for filters, not targets
 
@@ -3429,7 +3426,7 @@ function dueStatusCompare(string $old, string $new): bool
  * @param int $num_items Number of items
  * @return bool Comparison results
  */
-function itemsNumberCompare($comp, $thres, $num_items)
+function itemsNumberCompare($comp, $thres, $num_items): bool
 {
 
     if (($comp == "eq") && ($num_items == $thres)) {

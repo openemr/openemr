@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -34,10 +35,7 @@ if ($patientPortalSession) {
 }
 
 require_once "../../globals.php";
-require_once "$srcdir/api.inc.php";
-require_once "$srcdir/forms.inc.php";
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/patient.inc.php";
 require_once OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
@@ -140,6 +138,10 @@ if ($patientPortalSession && !empty($formid)) {
 
 $visitid = (int)(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
 
+if ($is_core) {
+    EncounterFormAccess::assertFormBelongsToSessionPatient($formid, is_string($formname) ? $formname : '');
+}
+
 // If necessary get the encounter from the forms table entry for this form.
 if ($formid && !$visitid && $is_core) {
     $frow = sqlQuery(
@@ -148,9 +150,6 @@ if ($formid && !$visitid && $is_core) {
         [$formid, $formname]
     );
     $visitid = (int)$frow['encounter'];
-    if ($frow['pid'] != $pid) {
-        die("Internal error: patient ID mismatch!");
-    }
 }
 
 if (!$from_trend_form && !$visitid && !$from_lbf_edit && $is_core) {

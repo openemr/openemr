@@ -1,3 +1,0 @@
-parameters:
-    scanFiles:
-        - .phpstan/SignalWireStubs.php

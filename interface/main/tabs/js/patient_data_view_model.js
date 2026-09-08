@@ -19,7 +19,7 @@ function encounter_data(id,date,category)
     return this;
 }
 
-function patient_data_view_model(pname,pid,pubpid,str_dob)
+function patient_data_view_model(pname,pid,pubpid,str_dob,hasPicture)
 {
     var self=this;
     self.pname=ko.observable(pname);
@@ -27,6 +27,9 @@ function patient_data_view_model(pname,pid,pubpid,str_dob)
     self.pubpid=ko.observable(pubpid);
     self.str_dob=ko.observable(str_dob);
     self.patient_picture=ko.computed(function(){
+      if (hasPicture === false) {
+          return patient_picture_default_url;
+      }
       return webroot_url + '/controller.php' +
              '?document&retrieve' +
              '&patient_id=' + encodeURIComponent(pid) +

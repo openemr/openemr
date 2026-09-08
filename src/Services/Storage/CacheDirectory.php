@@ -105,6 +105,10 @@ final readonly class CacheDirectory
 
     private function validatePermissions(string $path): void
     {
+        if (defined('IS_WINDOWS') && IS_WINDOWS) {
+            return;
+        }
+
         $perms = fileperms($path);
         if ($perms === false) {
             // @codeCoverageIgnoreStart

@@ -17,13 +17,13 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -557,11 +557,46 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
     }
+    // Preload the user's warehouse assignments, keyed by facility ID, so the
+    // per-facility loop below stays in PHP instead of firing a query per row.
+    $whMap = [];
+    $whRows = QueryUtils::fetchRecords(
+        "SELECT facility_id, warehouse_id FROM users_facility WHERE tablename = 'users' AND table_id = ?",
+        [$_GET['id']]
+    );
+    foreach ($whRows as $whRow) {
+        if ($whRow['warehouse_id'] === '') {
+            continue;
+        }
+        $facilityId = $whRow['facility_id'];
+        if (!is_scalar($facilityId)) {
+            continue;
+        }
+        $whMap[(int) $facilityId][] = $whRow['warehouse_id'];
+    }
+    // Preload all warehouse list_options once, grouped by their option_value
+    // (which points at facility ID as a numeric value), so we can look up
+    // per-facility warehouses without a query per row of the outer loop.
+    $whOptionsByFacility = [];
+    if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions')) {
+        $whOptionRows = QueryUtils::fetchRecords(
+            "SELECT option_id, title, option_value FROM list_options WHERE list_id = ? ORDER BY seq, title",
+            ['warehouse']
+        );
+        foreach ($whOptionRows as $lrow) {
+            $optionValue = $lrow['option_value'];
+            if (!is_scalar($optionValue)) {
+                continue;
+            }
+            $whOptionsByFacility[(int) $optionValue][] = $lrow;
+        }
+    }
     $fres = sqlStatement("select * from facility order by name");
     if ($fres) {
         while ($frow = sqlFetchArray($fres)) {
-            // Get the warehouses that are linked to this user and facility.
-            $whids = getUserFacWH($_GET['id'], $frow['id']); // from calendar.inc.php
+            $facilityIdRaw = $frow['id'];
+            $facilityKey = is_scalar($facilityIdRaw) ? (int) $facilityIdRaw : 0;
+            $whids = $whMap[$facilityKey] ?? [];
             // Generate an option for just the facility with no warehouse restriction.
             echo "    <option";
             if (empty($whids) && in_array($frow['id'], $ufid)) {
@@ -571,12 +606,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
             // Then generate an option for each of the facility's warehouses.
             // Does not apply if the site does not use warehouse restrictions.
             if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions')) {
-                $lres = sqlStatement(
-                    "SELECT option_id, title FROM list_options WHERE " .
-                    "list_id = ? AND option_value = ? ORDER BY seq, title",
-                    ['warehouse', $frow['id']]
-                );
-                while ($lrow = sqlFetchArray($lres)) {
+                foreach (($whOptionsByFacility[$facilityKey] ?? []) as $lrow) {
                     echo "    <option";
                     if (in_array($lrow['option_id'], $whids)) {
                         echo ' selected';

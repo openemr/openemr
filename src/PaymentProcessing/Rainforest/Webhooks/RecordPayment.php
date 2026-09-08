@@ -54,7 +54,13 @@ readonly class RecordPayment implements ProcessorInterface
 
     public function handle(Webhook $webhook): void
     {
-        assert($webhook->eventType === 'payin.authorized');
+        if ($webhook->eventType !== 'payin.authorized') {
+            throw new \DomainException(sprintf(
+                '%s cannot handle event type "%s"',
+                self::class,
+                $webhook->eventType,
+            ));
+        }
         // This transaction should be done in a general recording service, but
         // PaymentProcessing/Recorder isn't sophisticated enough yet.
         //

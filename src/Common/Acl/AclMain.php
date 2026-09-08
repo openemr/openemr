@@ -119,6 +119,7 @@
 namespace OpenEMR\Common\Acl;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Gacl\Gacl;
 
@@ -126,6 +127,16 @@ class AclMain
 {
     // Holds the static Gacl object
     private static $gaclObject;
+
+    /**
+     * Per-request memo of the ('admin', 'super') probe result, keyed by user.
+     * Every aclCheckCore() call recursively probes admin/super, so caching that
+     * one question per user removes a large multiplier on ACL-heavy renders.
+     * Mutation paths must call clearSuperuserCache() before re-checking.
+     *
+     * @var array<string, bool>
+     */
+    private static array $superuserCache = [];
 
     // Collect the stored Gacl object (create it if it doesn't yet exist)
     //  Sharing one object will prevent opening a database connection for every call to Gacl.
@@ -136,16 +147,6 @@ class AclMain
             self::$gaclObject = new Gacl();
         }
         return self::$gaclObject;
-    }
-
-    /**
-     * Clear the GACL Cache.  We use this in Unit Tests, but this function should be avoided to prevent smashing
-     * the database.
-     */
-    public static function clearGaclCache()
-    {
-        $object = self::collectGaclObject();
-        $object->clear_cache();
     }
 
     /**
@@ -170,6 +171,17 @@ class AclMain
             $user = $session->get('authUser') ?? '';
         }
 
+        // Fast path: only the raw ('admin', 'super') probe is memoized. The
+        // general aclCheckCore result is NOT cached because $return_value's
+        // array form makes the full cache key unsafe to reason about. Cache
+        // only when $user is a string so we never coerce a non-string
+        // principal into the anonymous key.
+        $isSuperuserProbe = $section === 'admin' && $value === 'super' && $return_value === '';
+        $cacheKey = ($isSuperuserProbe && is_string($user)) ? $user : null;
+        if ($cacheKey !== null && array_key_exists($cacheKey, self::$superuserCache)) {
+            return self::$superuserCache[$cacheKey];
+        }
+
         // Superuser always gets access to everything.
         if (($section != 'admin' || $value != 'super') && self::aclCheckCore('admin', 'super', $user)) {
             return true;
@@ -180,12 +192,18 @@ class AclMain
         $gacl_object = self::collectGaclObject();
         $acl_results = $gacl_object->acl_query($section, $value, 'users', $user, null, null, null, null, null, true);
         if (empty($acl_results)) {
+            if ($cacheKey !== null) {
+                self::$superuserCache[$cacheKey] = false;
+            }
             return false; //deny access
         }
         $access = false; //flag
         $deny = false; //flag
         foreach ($acl_results as $acl_result) {
             if (empty($acl_result['acl_id'])) {
+                if ($cacheKey !== null) {
+                    self::$superuserCache[$cacheKey] = false;
+                }
                 return false; //deny access, since this happens if no pertinent ACL's are returned
             }
             if (is_array($return_value)) {
@@ -231,10 +249,16 @@ class AclMain
 
         // Now decide whether user has access
         // (Note a denial takes precedence)
-        if (!$deny && $access) {
-            return true;
+        $result = !$deny && $access;
+        if ($cacheKey !== null) {
+            self::$superuserCache[$cacheKey] = $result;
         }
-        return false;
+        return $result;
+    }
+
+    public static function clearSuperuserCache(): void
+    {
+        self::$superuserCache = [];
     }
 
     /**
@@ -332,7 +356,7 @@ class AclMain
     // Permissions check for an ACO in "section|aco" format.
     // Note $return_value may be an array of return values.
     //
-    public static function aclCheckAcoSpec($aco_spec, $user = '', $return_value = '')
+    public static function aclCheckAcoSpec($aco_spec, $user = '', $return_value = ''): bool
     {
         if (empty($aco_spec)) {
             return true;
@@ -354,7 +378,6 @@ class AclMain
     //
     public static function aclCheckForm($formdir, $user = '', $return_value = '')
     {
-        require_once(__DIR__ . '/../../../library/registry.inc.php');
         $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
         return self::aclCheckAcoSpec($tmp['aco_spec'], $user, $return_value);
     }
@@ -364,12 +387,11 @@ class AclMain
     //
     public static function aclCheckIssue($type, $user = '', $return_value = '')
     {
-        require_once(__DIR__ . '/../../../library/lists.inc.php');
-        global $ISSUE_TYPES;
-        if (empty($ISSUE_TYPES[$type][5])) {
+        $issueTypes = IssueTypeRegistry::issueTypes();
+        if (empty($issueTypes[$type][5])) {
             return true;
         }
-        return self::aclCheckAcoSpec($ISSUE_TYPES[$type][5], $user, $return_value);
+        return self::aclCheckAcoSpec($issueTypes[$type][5], $user, $return_value);
     }
 
     //Fetches aco for given postcalendar category

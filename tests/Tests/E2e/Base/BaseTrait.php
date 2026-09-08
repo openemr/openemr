@@ -21,9 +21,11 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Exception\UnexpectedAlertOpenException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
+use RuntimeException;
 use Symfony\Component\Panther\Client;
 
 trait BaseTrait
@@ -32,13 +34,13 @@ trait BaseTrait
 
     private function base(): void
     {
-        $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
+        $useGrid = getenv("SELENIUM_USE_GRID", true) ?: "false";
 
         if ($useGrid === "true") {
             // Use Selenium Grid (consistent testing environment with goal of stability)
-            $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
+            $seleniumHost = getenv("SELENIUM_HOST", true) ?: "selenium";
             $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
-            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
+            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?: "false";
             // Implicit wait must be 0 when using explicit waits (waitFor,
             // waitForVisibility, wait()->until()). A non-zero implicit wait
             // causes each findElement() call inside an explicit wait condition
@@ -66,7 +68,13 @@ trait BaseTrait
                 'args' => $chromeArgs
             ]);
 
-            $capabilities->setCapability('unhandledPromptBehavior', 'accept');
+            // Note on unhandledPromptBehavior: added defensively
+            // 2025-07-05 in #8555 during the Selenium-grid transition,
+            // never observed catching an actual alert on the source-
+            // side E2e suite. Acceptance side yanked its two copies
+            // (#13358 grid + #13364 local) after proving the CDP
+            // muzzle installed below is what actually handles the
+            // alerts we encounter. Yanked here for the same reason.
             $capabilities->setCapability('pageLoadStrategy', 'normal');
 
             $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
@@ -79,6 +87,65 @@ trait BaseTrait
             $this->client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
             $this->client->manage()->window()->maximize();
         }
+
+        $this->muzzleBrowserPrompts();
+    }
+
+    /**
+     * Install a browser-prompt muzzle via CDP for the rest of this
+     * WebDriver session. Overrides window.alert / .confirm / .prompt
+     * with no-ops (alert returns undefined; confirm returns true;
+     * prompt returns "") on every subsequent page navigation, using
+     * ChromeDriver's `Page.addScriptToEvaluateOnNewDocument` (runs
+     * before any page JS).
+     *
+     * Motivation: the Medical Record Dashboard fires a native
+     * browser alert from `library/clinical_rules.php` via
+     * `<img src="empty.gif" onload="alert(...)">` when the widget
+     * computes New Due Clinical Reminders for a newly-created
+     * patient. On slow runners the alert races test-side waits and
+     * blocks the WebDriver session with UnexpectedAlertOpenException,
+     * producing false-positive failures despite the underlying flow
+     * being fine. Muzzling `window.alert` at the source removes the
+     * popup entirely so there is no popup for the driver to race
+     * on. Same mechanism the acceptance suite adopted 2026-08-02 in
+     * #13358 after multiple wait-based / capability-based
+     * mitigations failed to zero out the flake class.
+     *
+     * Idempotent — CDP happily accepts the same script being
+     * registered multiple times; the no-ops just get installed
+     * repeatedly. Cheap.
+     *
+     * Alert-dismissal call sites in this file (goToMainMenuLink
+     * $acceptAlert branch, UnexpectedAlertOpenException catch in
+     * the retry loop, PatientAddTrait's alertIsPresent wait) become
+     * redundant on the happy path but remain as belt-and-suspenders
+     * for any residual alert emitter the muzzle doesn't cover.
+     */
+    private function muzzleBrowserPrompts(): void
+    {
+        $script = 'window.alert = function () {};'
+            . 'window.confirm = function () { return true; };'
+            . 'window.prompt = function () { return ""; };';
+        // Panther's Client::getWebDriver() returns the WebDriver
+        // interface; the CDP escape hatch lives on RemoteWebDriver
+        // (the concrete class both driver paths actually return).
+        // Narrow explicitly so phpstan sees the method.
+        $webDriver = $this->client->getWebDriver();
+        if (!$webDriver instanceof RemoteWebDriver) {
+            throw new RuntimeException(sprintf(
+                'muzzleBrowserPrompts requires a RemoteWebDriver instance for CDP execute; got %s',
+                $webDriver::class,
+            ));
+        }
+        $webDriver->executeCustomCommand(
+            '/session/:sessionId/goog/cdp/execute',
+            'POST',
+            [
+                'cmd' => 'Page.addScriptToEvaluateOnNewDocument',
+                'params' => ['source' => $script],
+            ],
+        );
     }
 
     /**

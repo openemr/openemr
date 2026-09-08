@@ -7,19 +7,19 @@ class Handler_HL7v2
 {
     public $parser;
 
-    function __construct($parser)
+    public function __construct($parser)
     {
         $this->parser = &$parser;
     }
 
-    function Type()
+    public function Type(): bool
     {
         return false;
     }
 
     //----- Internal methods
 
-    function _StripToNumeric($string)
+    public function _StripToNumeric($string)
     {
         $target = '';
         for ($pos = 0; $pos < strlen((string) $string); $pos++) {

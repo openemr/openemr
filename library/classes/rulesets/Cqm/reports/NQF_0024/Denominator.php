@@ -14,7 +14,7 @@ class NQF_0024_Denominator implements CqmFilterIF
         return "Denominator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // Same as IPP
         return true ;

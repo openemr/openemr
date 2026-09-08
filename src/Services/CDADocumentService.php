@@ -18,7 +18,6 @@ use CouchDB;
 use DOMDocument;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -84,7 +83,7 @@ class CDADocumentService extends BaseService
             $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
             if ($row['encrypted']) {
                 $cryptoGen = ServiceContainer::getCrypto();
-                $content = $cryptoGen->decryptStandard(is_string($respData) ? $respData : '', keySource: KeySource::Database);
+                $content = $cryptoGen->decryptFromFilesystem(is_string($respData) ? $respData : '');
             } else {
                 $content = base64_decode(is_string($respData) ? $respData : '');
             }
@@ -95,7 +94,7 @@ class CDADocumentService extends BaseService
             }
             if ($row['encrypted']) {
                 $cryptoGen = ServiceContainer::getCrypto();
-                $content = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
+                $content = $cryptoGen->decryptFromFilesystem($fileData);
             } else {
                 $content = $fileData;
             }

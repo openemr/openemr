@@ -1,0 +1,167 @@
+name: 'OpenEMR Dockers Test Suite'
+description: 'Run OpenEMR tests with Docker'
+inputs:
+  is_production_docker:
+    required: true
+  alpine_version:
+    required: false
+  php_version:
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Checkout OpenEMR
+    if: ${{ env.OPENEMR_SERVICE_NAME == 'openemr-dev' || env.OPENEMR_SERVICE_NAME == 'openemr-kcov-dev' }}
+    uses: actions/checkout@v6
+    with:
+      repository: openemr/openemr
+      path: openemr
+
+  - name: Verify Docker Compose Configuration
+    run: docker compose config
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Create coverage directory
+    if: ${{ env.OPENEMR_SERVICE_NAME == 'openemr-kcov-dev' || env.OPENEMR_SERVICE_NAME == 'openemr-kcov' }}
+    run: mkdir -p coverage-reports
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Build the Production Docker image
+    if: ${{ format('{0}', inputs.is_production_docker) == 'true' }}
+    run: docker compose build
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Build the Flex Docker image (Alpine ${{ inputs.alpine_version }}) (PHP ${{ inputs.php_version }})
+    if: ${{ format('{0}', inputs.is_production_docker) != 'true' }}
+    run: docker compose build --build-arg ALPINE_VERSION=${{ inputs.alpine_version }} --build-arg PHP_VERSION=${{ inputs.php_version }}
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Run the containers
+    run: docker compose up --detach --wait --wait-timeout 600 mysql "${OPENEMR_SERVICE_NAME}"
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Check container status
+    if: always()
+    run: |
+      docker compose ps
+      docker compose logs "${OPENEMR_SERVICE_NAME}"
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Get PHP Configuration
+    if: always()
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" php -i
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Test web connectivity
+    run: |
+      # Test that OpenEMR web server is responding
+      HTTP_CODE=$(curl -f -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+      echo "OpenEMR HTTP status code: $HTTP_CODE"
+      if (( HTTP_CODE == 200 || HTTP_CODE == 302 )); then
+        echo "OpenEMR web server is responding correctly!"
+        exit 0
+      fi
+      echo "OpenEMR web server is not responding correctly!"
+      exit 1
+    shell: bash
+
+  - name: Install
+    run: |
+      # Run as apache, not root: openemr/openemr#12267 added RootCliGuard,
+      # which aborts the installer when it runs as root (UID 0). apache owns
+      # the baked source in every slot's Dockerfile, so it can write sqlconf.php
+      # and generated keys. --user is portable across all slots (unlike su-exec,
+      # which #743 only added to flex/8.1.1/binary).
+      docker compose exec \
+        --user apache \
+        --env OPENEMR_ENABLE_INSTALLER_AUTO=1 \
+        --workdir /var/www/localhost/htdocs/openemr/contrib/util/installScripts \
+        "${OPENEMR_SERVICE_NAME}" sh -c 'sed -e "s@^exit;@ @" InstallerAuto.php |
+                                         php -- rootpass=root server=mysql loginhost=%'
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Initialize MySQL
+    run: |
+      docker compose exec "${OPENEMR_SERVICE_NAME}" mysql -u openemr --password="openemr" -h mysql -e '
+          INSERT INTO product_registration (opt_out) VALUES (1);
+          UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api";
+          UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api";
+          UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api";
+          UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant";
+          UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api";
+      ' openemr
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Install Dev Tools
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
+        composer install --dev --no-interaction --optimize-autoloader --ignore-platform-reqs
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Unit Test
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
+        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite unit
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Fixtures testing
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
+        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite fixtures
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Services testing
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
+        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite services
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Validators testing
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
+        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite validators
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Controllers testing
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
+        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite controllers
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Common testing
+    run: |
+      docker compose exec --workdir /var/www/localhost/htdocs/openemr "${OPENEMR_SERVICE_NAME}" \
+        php -d memory_limit=8G ./vendor/bin/phpunit --colors=always --testdox --stop-on-failure --testsuite common
+    shell: bash
+    working-directory: .github/docker
+
+  - name: Upload coverage reports
+    if: ${{ env.OPENEMR_SERVICE_NAME == 'openemr-kcov-dev' || env.OPENEMR_SERVICE_NAME == 'openemr-kcov' }}
+    uses: actions/upload-artifact@v4
+    with:
+      name: ${{ format('{0}', inputs.is_production_docker) == 'true' && 'kcov-coverage-reports-production' || (env.OPENEMR_SERVICE_NAME == 'openemr-kcov' && 'kcov-coverage-reports-flex-prod' || 'kcov-coverage-reports-flex-dev') }}
+      path: .github/docker/coverage-reports/
+      retention-days: 7
+
+  - name: Cleanup
+    if: always()
+    run: docker compose down --remove-orphans --volumes
+    shell: bash
+    working-directory: .github/docker

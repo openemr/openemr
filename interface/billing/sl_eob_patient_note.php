@@ -14,12 +14,16 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc.php");
-require_once("../../library/forms.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Patient Note", xl("EOB Posting - Patient Note"));
+}
 
 $info_msg = "";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

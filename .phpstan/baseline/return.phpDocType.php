@@ -12,16 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/TeleHealthUser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type bool\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/ClickatellSMSClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type bool\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
@@ -70,11 +60,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string\\|null is incompatible with native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/UserInterface/BaseActionButtonHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Events\\\\UserInterface\\\\UserEditRenderEvent is not subtype of native type OpenEMR\\\\Events\\\\UserInterface\\\\PageHeadingRenderEvent\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array\\|null is not subtype of native type array\\.$#',

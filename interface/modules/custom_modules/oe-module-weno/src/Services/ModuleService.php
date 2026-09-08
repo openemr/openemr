@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -86,9 +87,9 @@ class ModuleService
         }
         if ($decrypt) {
             $crypt = ServiceContainer::getCrypto();
-            $vendors['weno_encryption_key'] = $crypt->decryptStandard(is_string($vendors['weno_encryption_key']) ? $vendors['weno_encryption_key'] : null);
-            $vendors['weno_admin_password'] = $crypt->decryptStandard(is_string($vendors['weno_admin_password']) ? $vendors['weno_admin_password'] : null);
-            $vendors['weno_provider_password'] = $crypt->decryptStandard(is_string($vendors['weno_provider_password']) ? $vendors['weno_provider_password'] : null);
+            $vendors['weno_encryption_key'] = $crypt->decryptFromDatabase(is_string($vendors['weno_encryption_key']) ? $vendors['weno_encryption_key'] : null);
+            $vendors['weno_admin_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_admin_password']) ? $vendors['weno_admin_password'] : null);
+            $vendors['weno_provider_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_provider_password']) ? $vendors['weno_provider_password'] : null);
         }
 
         return $vendors;
@@ -102,13 +103,13 @@ class ModuleService
     {
         $crypt = ServiceContainer::getCrypto();
         if (!empty($items['weno_encryption_key'])) {
-            $items['weno_encryption_key'] = $crypt->encryptStandard(is_string($items['weno_encryption_key']) ? $items['weno_encryption_key'] : null);
+            $items['weno_encryption_key'] = $crypt->encryptForDatabase(is_string($items['weno_encryption_key']) ? $items['weno_encryption_key'] : null);
         }
         if (!empty($items['weno_admin_password'])) {
-            $items['weno_admin_password'] = $crypt->encryptStandard(is_string($items['weno_admin_password']) ? $items['weno_admin_password'] : null);
+            $items['weno_admin_password'] = $crypt->encryptForDatabase(is_string($items['weno_admin_password']) ? $items['weno_admin_password'] : null);
         }
         if (!empty($items['weno_provider_password'])) {
-            $items['weno_provider_password'] = $crypt->encryptStandard(is_string($items['weno_provider_password']) ? $items['weno_provider_password'] : null);
+            $items['weno_provider_password'] = $crypt->encryptForDatabase(is_string($items['weno_provider_password']) ? $items['weno_provider_password'] : null);
         }
         $vendors['weno_rx_enable'] = $items['weno_rx_enable'] ?? '0';
         $vendors['weno_rx_enable_test'] = $items['weno_rx_enable_test'] ?? '0';
@@ -150,7 +151,7 @@ class ModuleService
      * @param string $col
      * @return array
      */
-    function getModuleRegistry($modId, string $col = '*'): array
+    public function getModuleRegistry($modId, string $col = '*'): array
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ? OR `mod_directory` = ?";
@@ -238,5 +239,24 @@ class ModuleService
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$session->get('authUser')]);
         $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
+    }
+
+    /**
+     * Active OpenEMR users eligible for Weno provider configuration.
+     * Excludes Greenway migration display-only staff (username gwstaff*, info GS:tag).
+     *
+     * @return list<array<mixed>>
+     */
+    public function getWenoProviderUsers(): array
+    {
+        return QueryUtils::fetchRecords(
+            "SELECT id, username, lname, fname, weno_prov_id, facility, facility_id
+               FROM `users`
+              WHERE active = 1
+                AND `username` > ''
+                AND `username` NOT LIKE 'gwstaff%'
+                AND (`info` IS NULL OR `info` NOT LIKE 'GS:%')
+              ORDER BY lname, fname"
+        );
     }
 }

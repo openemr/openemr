@@ -14,11 +14,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\BC;
 
+use GuzzleHttp\ClientInterface as GuzzleClientInterface;
 use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\{
     RequestFactoryInterface,
     ResponseFactoryInterface,
@@ -29,6 +31,7 @@ use Psr\Http\Message\{
 };
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Twig\Environment as TwigEnvironment;
 
 /**
  * Smoke tests intentionally verify runtime types match declared types.
@@ -96,6 +99,91 @@ class ServiceContainerTest extends TestCase
         $factory = ServiceContainer::getUriFactory();
         // @phpstan-ignore method.alreadyNarrowedType
         $this->assertInstanceOf(UriFactoryInterface::class, $factory);
+    }
+
+    public function testGetTwigHonorsOverride(): void
+    {
+        ServiceContainer::reset();
+        $stub = self::createStub(TwigEnvironment::class);
+
+        ServiceContainer::override(TwigEnvironment::class, $stub);
+
+        self::assertSame($stub, ServiceContainer::getTwig());
+        ServiceContainer::reset();
+    }
+
+    public function testGetGuzzle(): void
+    {
+        $client = ServiceContainer::getGuzzle();
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertInstanceOf(GuzzleClientInterface::class, $client);
+    }
+
+    public function testGetHttpClient(): void
+    {
+        $client = ServiceContainer::getHttpClient();
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertInstanceOf(ClientInterface::class, $client);
+    }
+
+    public function testGetHttpClientFallsThroughToGuzzleByDefault(): void
+    {
+        ServiceContainer::reset();
+
+        self::assertSame(
+            ServiceContainer::getGuzzle(),
+            ServiceContainer::getHttpClient(),
+            'Without an override, the PSR-18 client should be the shared Guzzle instance',
+        );
+        ServiceContainer::reset();
+    }
+
+    public function testGetHttpClientHonorsPsr18Override(): void
+    {
+        ServiceContainer::reset();
+        $mock = self::createStub(ClientInterface::class);
+
+        ServiceContainer::override(ClientInterface::class, $mock);
+
+        self::assertSame(
+            $mock,
+            ServiceContainer::getHttpClient(),
+            'getHttpClient() must resolve under the PSR-18 key so it can be overridden independently of getGuzzle()',
+        );
+        ServiceContainer::reset();
+    }
+
+    public function testPsr18OverrideDoesNotLeakIntoGuzzle(): void
+    {
+        ServiceContainer::reset();
+        $mock = self::createStub(ClientInterface::class);
+
+        ServiceContainer::override(ClientInterface::class, $mock);
+
+        self::assertNotSame(
+            $mock,
+            ServiceContainer::getGuzzle(),
+            'Overriding the PSR-18 client must not affect the Guzzle seam',
+        );
+        ServiceContainer::reset();
+    }
+
+    public function testGetGuzzleHonorsOverride(): void
+    {
+        ServiceContainer::reset();
+        $mock = self::createStubForIntersectionOfInterfaces([
+            GuzzleClientInterface::class,
+            ClientInterface::class,
+        ]);
+
+        ServiceContainer::override(GuzzleClientInterface::class, $mock);
+
+        self::assertSame(
+            $mock,
+            ServiceContainer::getGuzzle(),
+            'getGuzzle() should return the overridden Guzzle client',
+        );
+        ServiceContainer::reset();
     }
 
     public function testOverrideReturnsCustomInstance(): void

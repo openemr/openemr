@@ -15,13 +15,13 @@
  */
 interface IRenderEngine
 {
-    function __construct($templatePath = '', $compilePath = '');
+    public function __construct($templatePath = '', $compilePath = '');
 
     /**
      * Assigns a value which will be available to the view
      *
      * @param string $key
-     * @param variant $value
+     * @param mixed $value
      */
     public function assign($key, $value);
 

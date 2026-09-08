@@ -66,7 +66,8 @@ class ExportKeyDefinitionFilterer
         ]
         , 'form_care_plan' => [
             'care_plan_type' => ['localValueOverride' => 'Plan_of_Care_Type', 'foreignKeyColumn' => 'list_id'],
-            'plan_status' => ['localValueOverride' => 'care_plan_status', 'foreignKeyColumn' => 'list_id']
+            'plan_status' => ['localValueOverride' => 'care_plan_status', 'foreignKeyColumn' => 'list_id'],
+            'plan_engagement_category' => ['localValueOverride' => 'care_plan_engagement_category', 'foreignKeyColumn' => 'list_id']
         ]
         ,'ar_session' => [
             'payment_type' => ['localValueOverride' => 'payment_type', 'foreignKeyColumn' => 'list_id'],
@@ -174,7 +175,7 @@ class ExportKeyDefinitionFilterer
         return $key;
     }
 
-    public function hasMultipleKeysForColumn(ExportKeyDefinition $key)
+    public function hasMultipleKeysForColumn(ExportKeyDefinition $key): bool
     {
         if ($key->localTable == 'lists' && $key->localColumn == 'list_option_id') {
             return true;
@@ -186,9 +187,7 @@ class ExportKeyDefinitionFilterer
     {
         $keys = [];
         if ($key->localTable == 'lists') {
-            if (!isset($this->issueTypes)) {
-                $this->issueTypes = QueryUtils::fetchTableColumn("select type from issue_types", 'type');
-            }
+            $this->issueTypes ??= QueryUtils::fetchTableColumn("select type from issue_types", 'type');
 
             if (!empty($this->issueTypes)) {
                 foreach ($this->issueTypes as $type) {

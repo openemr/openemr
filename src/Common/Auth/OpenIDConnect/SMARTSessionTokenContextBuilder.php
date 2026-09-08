@@ -9,7 +9,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -65,8 +67,20 @@ class SMARTSessionTokenContextBuilder
             if (!empty($launchToken->getIntent())) {
                 $context['intent'] = $launchToken->getIntent();
             }
+            $fhirContext = [];
             if (!empty($launchToken->getAppointmentUuid())) {
-                $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
+                // Preserve the existing appointment launch context while allowing additional FHIR references.
+                $fhirContext[] = UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid());
+            }
+            foreach ($launchToken->getFhirContext() as $fhirContextReference) {
+                $fhirContext[] = $fhirContextReference;
+            }
+            if ($fhirContext !== []) {
+                $context['fhirContext'] = $fhirContext;
+            }
+            $appContext = $launchToken->getAppContext();
+            if ($appContext !== null && $appContext !== '') {
+                $context['appContext'] = $appContext;
             }
             $context['smart_style_url'] = $this->getSmartStyleURL();
         } catch (\JsonException | \InvalidArgumentException $ex) {
@@ -93,6 +107,8 @@ class SMARTSessionTokenContextBuilder
             ];
             $populateKeys[] = 'encounter';
             $populateKeys[] = 'intent';
+            $populateKeys[] = 'fhirContext';
+            $populateKeys[] = 'appContext';
         }
 
         // populate any values we have from our orig context into our return array

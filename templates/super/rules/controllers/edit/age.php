@@ -25,7 +25,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <p class="form-row">
     <span class="left_col colhead req" data-fld="fld_timeunit"><?php echo xlt('Unit');?></span>
     <span class="end_col">
-    <?php echo RuleTemplateExtension::timeunit_select(array( "context" => "rule_age_intervals", "target" => "fld_target_interval_type", "name" => "fld_target_interval_type", "value" => $criteria->timeUnit )); ?>
+    <?php echo RuleTemplateExtension::timeunit_select([ "context" => "rule_age_intervals", "target" => "fld_target_interval_type", "name" => "fld_target_interval_type", "value" => $criteria->timeUnit ]); ?>
     </span>
 </p>
 
@@ -34,4 +34,4 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields([ "criteria" => $criteria]); ?>

@@ -37,7 +37,7 @@ class PatientDocumentCreateCCDAEvent extends Event
 
     /**
      * The output format
-     * @var xml|html|zip
+     * @var string
      */
     private $format;
 
@@ -133,7 +133,7 @@ class PatientDocumentCreateCCDAEvent extends Event
     }
 
     /**
-     * @return html|xml|zip
+     * @return string
      */
     public function getFormat()
     {
@@ -141,7 +141,7 @@ class PatientDocumentCreateCCDAEvent extends Event
     }
 
     /**
-     * @param html|xml|zip $format
+     * @param string $format
      * @return PatientDocumentCreateCCDAEvent
      */
     public function setFormat($format)

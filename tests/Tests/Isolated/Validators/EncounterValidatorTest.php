@@ -203,7 +203,7 @@ class EncounterValidatorStub extends EncounterValidator
     /**
      * Override validateId to avoid database calls
      */
-    public static function validateId($field, $table, $lookupId, $isUuid = false)
+    public static function validateId($field, $table, $lookupId, $isUuid = false): bool
     {
         // For testing purposes, assume all IDs are valid
         return true;
@@ -212,7 +212,7 @@ class EncounterValidatorStub extends EncounterValidator
     /**
      * Override validateCode to avoid database calls
      */
-    public function validateCode($code, $table, $valueset)
+    public function validateCode($code, $table, $valueset): bool
     {
         // For testing purposes, assume all codes are valid
         return true;

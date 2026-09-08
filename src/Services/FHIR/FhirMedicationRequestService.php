@@ -212,18 +212,27 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return $this->getPrescriptionService()->getAll($openEMRSearchParameters);
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string
+    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     /**
@@ -279,7 +288,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $fhirTiming = new OpenEMRFHIRTiming();
             $fhirTiming->setCode($intervalConcept);
             $dosage->setTiming($fhirTiming);
-        } else if (!empty($dataRecord['interval_notes'])) {
+        } elseif (!empty($dataRecord['interval_notes'])) {
             // if we have notes but no corresponding code, just set the text
             $intervalConcept = new FHIRCodeableConcept();
             $intervalConcept->setText($dataRecord['interval_notes']);
@@ -410,8 +419,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 $this->getSystemLogger()->error("No primary organization found for reported field population in MedicationRequest FHIR resource");
                 // as a fallback we will set reported to true
                 $medRequestResource->setReportedBoolean('0' === ($dataRecord['is_primary_record'] ?? '1'));
-            }
-            else {
+            } else {
                 $medRequestResource->setReportedReference($primaryBusinessEntity);
             }
         }
@@ -460,7 +468,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (!empty($dataRecord['drugcode'])) {
             $rxnormCode = UtilsService::createCodeableConcept($dataRecord['drugcode'], FhirCodeSystemConstants::RXNORM);
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
-        } else if (!empty($dataRecord['drug'])) {
+        } elseif (!empty($dataRecord['drug'])) {
             $textOnlyCode = new FHIRCodeableConcept();
             $textOnlyCode->setText($dataRecord['drug']);
             $medRequestResource->setMedicationCodeableConcept($textOnlyCode);
@@ -545,9 +553,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
@@ -564,9 +570,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     public function getPrescriptionService(): PrescriptionService
     {
-        if (!isset($this->prescriptionService)) {
-            $this->prescriptionService = new PrescriptionService();
-        }
+        $this->prescriptionService ??= new PrescriptionService();
         return $this->prescriptionService;
     }
 
@@ -580,9 +584,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function getFhirOrganizationService(): FhirOrganizationService
     {
-        if (!isset($this->fhirOrganizationService)) {
-            $this->fhirOrganizationService = new FhirOrganizationService();
-        }
+        $this->fhirOrganizationService ??= new FhirOrganizationService();
         return $this->fhirOrganizationService;
     }
 

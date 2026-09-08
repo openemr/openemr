@@ -17,7 +17,6 @@ use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Utils\XmlUtils;
@@ -26,7 +25,6 @@ use XSLTProcessor;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/ccr/transmitCCD.php');
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/library/amc.php');
 
 class EncountermanagerTable
 {
@@ -174,7 +172,7 @@ class EncountermanagerTable
                 $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(is_string($respData) ? $respData : '', keySource: KeySource::Database);
+                    $content = $cryptoGen->decryptFromFilesystem(is_string($respData) ? $respData : '');
                 } else {
                     $content = base64_decode(is_string($respData) ? $respData : '');
                 }
@@ -185,7 +183,7 @@ class EncountermanagerTable
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), keySource: KeySource::Database);
+                    $content = $cryptoGen->decryptFromFilesystem(fread($fccda, filesize($row['ccda_data'])));
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
@@ -255,7 +253,7 @@ class EncountermanagerTable
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
+        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable');
 
         $elec_sent = [];
         try {

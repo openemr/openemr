@@ -30,11 +30,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: IP Tracker", xl("IP Tracker"));
 }
 
-$showOnlyWithCount = !empty($_POST['showOnlyWithCount']) ? true : false;
+$showOnlyWithCount = !empty($_POST['showOnlyWithCount']);
 
-$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']) ? true : false;
+$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']);
 
-$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
+$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
 
 ?>
 <html>
@@ -106,9 +106,9 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             let failCounterElement = document.getElementById('fail-counter-' + ipId);
             failCounterElement.innerHTML = "0";
             let lastFailElement = document.getElementById('last-fail-' + ipId);
-            lastFailElement.innerHTML = jsText(xl("Not Applicable"));
+            lastFailElement.innerHTML = jsXlt("Not Applicable");
             let autoblockElement = document.getElementById('autoblock-' + ipId);
-            autoblockElement.innerHTML = jsText(xl("No"));
+            autoblockElement.innerHTML = jsXlt("No");
         }
 
     </script>

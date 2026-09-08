@@ -144,9 +144,7 @@ class FHIRChargeItemStatus extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ChargeItemStatus xmlns="http://hl7.org/fhir"></ChargeItemStatus>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ChargeItemStatus xmlns="http://hl7.org/fhir"></ChargeItemStatus>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

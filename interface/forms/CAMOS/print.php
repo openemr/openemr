@@ -15,9 +15,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -37,7 +36,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         <h1><?php echo xlt('CAMOS'); ?></h1>
         <hr>
         <input type="submit" name="submit form" value="<?php echo xla('submit form'); ?>" />
-        <?php echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('do not save') . "]</a>"; ?>
+        <?php echo "<a href='" . FormActionBarSettings::EXIT_URL . "' onclick='top.restoreSession()'>[" . xlt('do not save') . "]</a>"; ?>
         <table>
         </table>
         <h3><?php echo xlt('Computer Aided Medical Ordering System'); ?></h3>
@@ -60,7 +59,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             </tr>
         </table><input type="submit" name="submit form" value="submit form" />
         <?php
-        echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" .
+        echo "<a href='" . FormActionBarSettings::EXIT_URL . "' onclick='top.restoreSession()'>[" .
         xlt('do not save') . "]</a>";
         ?>
 

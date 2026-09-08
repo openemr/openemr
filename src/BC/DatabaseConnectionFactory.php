@@ -27,10 +27,9 @@ class DatabaseConnectionFactory
     ): ADODB_mysqli_log {
         self::loadAdodbClasses();
         $conn = ADONewConnection('mysqli_log');
-        if ($conn === false) {
-            throw new \Exception('SUPER BROKEN');
+        if (!$conn instanceof ADODB_mysqli_log) {
+            throw new RuntimeException('ADONewConnection did not return an ADODB_mysqli_log');
         }
-        assert($conn instanceof ADODB_mysqli_log);
 
         // These were settings applied throughout the app. Not 100% clear if
         // they're still required.
@@ -45,7 +44,9 @@ class DatabaseConnectionFactory
         }
 
         // Sockets? It's supported on paper but unclear now to configure.
-        assert($config->host !== null);
+        if ($config->host === null) {
+            throw new RuntimeException('ADODB driver does not yet support unix socket connections; configure host/port');
+        }
 
         $conn->port = $config->port;
         if ($persistent) {

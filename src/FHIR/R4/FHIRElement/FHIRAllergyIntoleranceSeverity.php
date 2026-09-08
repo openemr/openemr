@@ -144,9 +144,7 @@ class FHIRAllergyIntoleranceSeverity extends FHIRElement implements \JsonSeriali
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AllergyIntoleranceSeverity xmlns="http://hl7.org/fhir"></AllergyIntoleranceSeverity>');
-        }
+        $sxe ??= new \SimpleXMLElement('<AllergyIntoleranceSeverity xmlns="http://hl7.org/fhir"></AllergyIntoleranceSeverity>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

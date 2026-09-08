@@ -19,6 +19,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -26,8 +27,6 @@ use OpenEMR\Core\OEGlobalsBag;
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
-
-require_once("$srcdir/api.inc.php");
 
 formHeader("Form: bronchitis");
 $returnurl = 'encounter_top.php';
@@ -74,7 +73,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
+<a href="<?php echo FormActionBarSettings::EXIT_URL; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 <br /><br />
 <span class="text" ><?php echo xlt('Onset of Illness:'); ?> </span><input type="text" name="bronchitis_date_of_illness" value=""></input>
@@ -452,7 +451,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <br />
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
+<a href="<?php echo FormActionBarSettings::EXIT_URL; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 </form>
 

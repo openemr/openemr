@@ -3624,9 +3624,7 @@ class FHIRResourceContainer implements \JsonSerializable, \Stringable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResourceContainer xmlns="http://hl7.org/fhir"></ResourceContainer>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResourceContainer xmlns="http://hl7.org/fhir"></ResourceContainer>');
         if (isset($this->Account)) {
             $this->Account->xmlSerialize(true, $sxe->addChild('Account'));
         } elseif (isset($this->ActivityDefinition)) {

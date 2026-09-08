@@ -26,7 +26,7 @@ interface ICache
      *
      * @access public
      * @param string $key
-     * @param variant $val
+     * @param mixed $val
      * @param int $flags
      * @param int $timeout
      *          in seconds

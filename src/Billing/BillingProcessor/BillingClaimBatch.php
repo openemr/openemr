@@ -28,8 +28,8 @@ class BillingClaimBatch
     protected $bat_sendid = '';
     protected $bat_recvid = '';
     protected $bat_content = '';
-    protected $bat_gscount = 0;
-    protected $bat_stcount = 0;
+    protected int $bat_gscount = 0;
+    protected int $bat_stcount = 0;
     protected $bat_time;
     protected $bat_hhmm;
     protected $bat_yymmdd;

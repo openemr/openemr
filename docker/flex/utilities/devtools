@@ -1,0 +1,834 @@
+#!/bin/sh
+# ============================================================================
+# OpenEMR Flex Container - Development Tools Script
+# ============================================================================
+# This script provides a command-line interface for common OpenEMR development,
+# testing, and maintenance tasks within the flex container.
+#
+# Usage:
+#   docker exec <container_name> /root/devtools <command> [arguments]
+#
+# Available Commands:
+#
+# LOGGING & MONITORING:
+#   php-log                - Display PHP error log
+#   xdebug-log             - Display XDebug log
+#   list-xdebug-profiles   - List XDebug profiling output files
+#
+# CODE QUALITY & STYLING:
+#   psr2-report / psr12-report  - Generate PSR-12 code style report
+#   psr12-src-report            - Generate strict PSR-12 report for src/
+#   psr2-fix / psr12-fix        - Automatically fix PSR-12 code style issues
+#   lint-themes-report          - Generate CSS/theme linting report
+#   lint-themes-fix             - Fix CSS/theme linting issues
+#   lint-javascript-report      - Generate JavaScript linting report
+#   lint-javascript-fix         - Fix JavaScript linting issues
+#   php-parserror               - Check for PHP parse errors
+#   rector-dry-run              - Preview PHP code modernization changes
+#   rector-process              - Apply PHP code modernization changes
+#   phpstan                     - Run PHPStan static analysis
+#   phpstan-generate            - Regenerate PHPStan baseline from current errors
+#   phpstan-generate-reset      - Wipe and regenerate PHPStan baseline from scratch
+#   codespell                   - Run codespell (composer codespell)
+#   conventional-commits-check  - Validate conventional commit messages
+#   require-checker             - Run composer-require-checker
+#   composer-validate           - Validate composer.json (strict)
+#   composer-normalize          - Check composer.json normalization (dry-run)
+#   composer-normalize-fix      - Apply composer.json normalization
+#   composer-checks             - Run composer "checks" (validate + normalize dry-run)
+#   code-quality                - Run full composer "code-quality" suite
+#
+# BUILD & ASSETS:
+#   build-themes            - Build OpenEMR CSS themes
+#   build-api-docs          - Generate API Swagger documentation
+#
+# TESTING:
+#   unit-test               - Run PHP unit tests
+#   javascript-unit-test    - Run JavaScript unit tests
+#   jut-reports-build       - Build JavaScript unit test coverage reports
+#   api-test                - Run API tests
+#   e2e-test                - Run end-to-end tests
+#   fixtures-test           - Run fixture tests
+#   services-test           - Run service tests
+#   validators-test         - Run validator tests
+#   controllers-test        - Run controller tests
+#   common-test             - Run common tests
+#   phpunit-isolated        - Run PHP isolated tests (no database required)
+#   update-twig-fixtures           - Regenerate Twig render-test fixtures (mutates fixture files; review diff)
+#   update-layout-field-fixtures   - Regenerate layout field render-test fixtures (mutates fixture files; review diff)
+#   clean-sweep             - Run all code quality checks and tests
+#   clean-sweep-tests       - Run all tests only
+#
+# DEVELOPMENT SETUP:
+#   dev-reset                   - Reset OpenEMR to clean state
+#   dev-install                 - Install OpenEMR (assumes reset done)
+#   dev-reset-install           - Reset and install OpenEMR
+#   dev-reset-install-demodata  - Reset, install, and load demo data
+#   dev-sqldrive                - Import SQL data from SQL_DATA_DRIVE
+#   dev-reset-install-sqldrive  - Reset, install, and import SQL data
+#
+# MULTISITE MANAGEMENT:
+#   list-multisites                  - List all multisite instances
+#   enable-multisite                 - Enable multisite functionality
+#   disable-multisite                - Disable multisite functionality
+#   set-swagger-to-multisite <site>  - Configure Swagger for multisite
+#   generate-multisite-bank <count>  - Create multiple multisite instances
+#
+# BACKUP & RESTORE:
+#   backup <identifier>     - Create backup snapshot
+#   restore <identifier>    - Restore from backup snapshot
+#   list-snapshots          - List available backup snapshots
+#   list-capsules           - List backup files (alias for list-snapshots)
+#
+# UPGRADE & MAINTENANCE:
+#   upgrade <version>                                - Upgrade OpenEMR from specified version
+#   change-encoding-collation <charset> <collation>  - Change DB encoding
+#
+# SSL/TLS CERTIFICATES:
+#   force-https             - Enable HTTPS redirect
+#   un-force-https          - Disable HTTPS redirect
+#
+# DATABASE SSL:
+#   sql-ssl                 - Enable MySQL SSL with test CA certificate
+#   sql-ssl-off             - Disable MySQL SSL
+#   sql-ssl-client          - Enable MySQL SSL with client certificates
+#   sql-ssl-client-off      - Disable MySQL SSL client certificates
+#
+# COUCHDB SSL:
+#   couchdb-ssl             - Enable CouchDB SSL with test CA certificate
+#   couchdb-ssl-off         - Disable CouchDB SSL
+#   couchdb-ssl-client      - Enable CouchDB SSL with client certificates
+#   couchdb-ssl-client-off  - Disable CouchDB SSL client certificates
+#
+# LDAP:
+#   ldap-ssl                - Enable LDAP SSL with test CA certificate
+#   ldap-ssl-off            - Disable LDAP SSL
+#   ldap-ssl-client         - Enable LDAP SSL with client certificates
+#   ldap-ssl-client-off     - Disable LDAP SSL client certificates
+#   enable-ldap             - Enable LDAP authentication (admin:admin)
+#   disable-ldap            - Disable LDAP authentication
+#
+# DATA MANAGEMENT:
+#   import-random-patients <count> [false]  - Generate and import random patients
+#
+# OAUTH2:
+#   register-oauth2-client [site]      - Register OAuth2 client for default/multisite
+#   register-oauth2-client-demo <url>  - Register OAuth2 client for online demo
+#
+# Examples:
+#   docker exec openemr-flex /root/devtools php-log
+#   docker exec openemr-flex /root/devtools dev-reset-install-demodata
+#   docker exec openemr-flex /root/devtools backup my-backup-2024
+#   docker exec openemr-flex /root/devtools clean-sweep
+# ============================================================================
+
+source /root/devtoolsLibrary.source
+
+# Run a command from the openemr web root. Lets handlers say what they're
+# doing in one line instead of the cd-then-cmd two-step. `cd || exit 1`
+# aborts the script if the webroot is missing rather than silently invoking
+# from a wrong cwd (devtools has no `set -e`).
+run_at_openemr_root() {
+    cd /var/www/localhost/htdocs/openemr || exit 1
+    "$@"
+}
+
+# Composer-specific convenience wrapper; equivalent to
+# `run_at_openemr_root composer "$@"` but reads more naturally for the
+# many composer-based code-quality handlers.
+run_composer_at_root() {
+    run_at_openemr_root composer "$@"
+}
+
+# ============================================================================
+# LOGGING COMMANDS
+# ============================================================================
+if [ "$1" = "php-log" ]; then
+    echo "Generating PHP error log"
+    if [[ $(ls -1tc /var/log/apache2/error.log* | wc -l) -gt 0 ]]; then
+        cat $(ls -1tc /var/log/apache2/error.log* | head -n 1)
+    else
+        echo "no PHP error log found";
+    fi
+fi
+
+# ============================================================================
+# BUILD COMMANDS
+# ============================================================================
+if [ "$1" = "build-themes" ]; then
+    echo "Building OpenEMR Themes"
+    cd /var/www/localhost/htdocs/openemr
+    npm run build
+fi
+
+# ============================================================================
+# CODE QUALITY, STYLING & TESTING COMMANDS
+# ============================================================================
+# Per-task helpers -- one function per handler, so the dispatch table below
+# stays a flat name-to-action mapping and clean-sweep / clean-sweep-tests
+# can list exactly which tasks they compose.
+do_psr12_report() {
+    echo "Generating PSR12 code styling error report "
+    run_composer_at_root phpcs
+}
+
+do_psr12_src_report() {
+    echo "Generating strict PSR12 code styling error report for src directory "
+    run_composer_at_root phpcs -- --standard=PSR12 -d memory_limit=4G -p -n src
+}
+
+do_lint_themes_report() {
+    echo "Generating lint themes error report "
+    run_at_openemr_root npm run stylelint
+}
+
+do_lint_javascript_report() {
+    echo "Generating lint javascript error report "
+    run_at_openemr_root npm run lint:js
+}
+
+do_psr12_fix() {
+    echo "Fixing PSR12 code styling errors "
+    run_composer_at_root phpcbf
+}
+
+do_lint_themes_fix() {
+    echo "Fixing lint themes errors "
+    run_at_openemr_root npm run stylelint
+    run_at_openemr_root npm run stylelint-fix
+}
+
+do_lint_javascript_fix() {
+    echo "Fixing lint javascript errors "
+    run_at_openemr_root npm run lint:js-fix
+}
+
+do_php_parserror() {
+    echo "Generating PHP parse errors"
+    # Fix pre-existing typo: './ccdaservice/node_modules}/*' had a stray '}'
+    # so the exclusion silently never matched, causing php -l to be run on
+    # every .php file under ccdaservice/node_modules. Now correctly excluded.
+    run_at_openemr_root sh -c 'find . -type f \( -name "*.php" -or -name "*.inc" \) \( -not -path "./vendor/*" -and -not -path "./node_modules/*" -and -not -path "./ccdaservice/node_modules/*" \) -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"'
+}
+
+do_rector_dry_run() {
+    echo "Rector PHP process dry-run changes"
+    run_at_openemr_root php vendor/bin/rector process --dry-run
+}
+
+do_rector_process() {
+    echo "Rector PHP process changes"
+    run_at_openemr_root php vendor/bin/rector process
+}
+
+do_phpstan() {
+    echo "PHPStan diagnose"
+    run_at_openemr_root php vendor/bin/phpstan --memory-limit=8G diagnose
+    run_at_openemr_root php vendor/bin/phpstan --memory-limit=8G analyze
+}
+
+do_phpstan_generate() {
+    echo "PHPStan regenerate baseline"
+    run_composer_at_root phpstan-baseline
+}
+
+do_phpstan_generate_reset() {
+    echo "PHPStan wipe and regenerate baseline from scratch (deletes every existing baseline entry first, then rebuilds)"
+    run_composer_at_root phpstan-baseline-reset
+}
+
+do_codespell() {
+    echo "Running codespell"
+    run_composer_at_root codespell
+}
+
+do_conventional_commits_check() {
+    echo "Validating conventional commit messages"
+    run_composer_at_root conventional-commits:check
+}
+
+do_require_checker() {
+    echo "Running composer-require-checker"
+    run_composer_at_root require-checker
+}
+
+do_composer_validate() {
+    echo "Validating composer.json (strict)"
+    run_composer_at_root validate --strict
+}
+
+do_composer_normalize() {
+    echo "Checking composer.json normalization"
+    run_composer_at_root normalize --dry-run
+}
+
+do_composer_normalize_fix() {
+    echo "Applying composer.json normalization"
+    run_composer_at_root normalize
+}
+
+do_composer_checks() {
+    echo "Running composer checks (validate + normalize dry-run)"
+    run_composer_at_root checks
+}
+
+do_code_quality() {
+    echo "Running full composer code-quality suite"
+    run_composer_at_root code-quality
+}
+
+do_unit_test() {
+    echo "Running OpenEMR PHP Unit tests"
+    run_at_openemr_root vendor/bin/phpunit --testsuite unit --testdox
+}
+
+do_javascript_unit_test() {
+    echo "Running OpenEMR Javascript Unit tests"
+    run_at_openemr_root npm run test:js
+}
+
+do_jut_reports_build() {
+    echo "Building javascript unit testing reports browser user interface, which can view in web browser at HOST/coverage/js-unit/lcov-report (HOST is the server host, for example http://localhost:8300)"
+    run_at_openemr_root npm run test:js-coverage
+    echo "Done, you can view reports in web browser at HOST/coverage/js-unit/lcov-report (HOST is the server host, for example http://localhost:8300)"
+}
+
+do_api_test() {
+    echo "Running OpenEMR API tests"
+    run_at_openemr_root vendor/bin/phpunit --testsuite api --testdox
+}
+
+do_e2e_test() {
+    echo "Running OpenEMR e2e tests"
+    export PANTHER_NO_SANDBOX=1
+    export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'
+    export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver
+    run_at_openemr_root vendor/bin/phpunit --testsuite e2e --testdox
+}
+
+do_fixtures_test() {
+    echo "Running OpenEMR Fixture tests"
+    run_at_openemr_root vendor/bin/phpunit --testsuite fixtures --testdox
+}
+
+do_services_test() {
+    echo "Running OpenEMR Service tests"
+    run_at_openemr_root vendor/bin/phpunit --testsuite services --testdox
+}
+
+do_validators_test() {
+    echo "Running OpenEMR Validator tests"
+    run_at_openemr_root vendor/bin/phpunit --testsuite validators --testdox
+}
+
+do_controllers_test() {
+    echo "Running OpenEMR Controller tests"
+    run_at_openemr_root vendor/bin/phpunit --testsuite controllers --testdox
+}
+
+do_common_test() {
+    echo "Running OpenEMR Common tests"
+    run_at_openemr_root vendor/bin/phpunit --testsuite common --testdox
+}
+
+do_phpunit_isolated() {
+    echo "Running OpenEMR PHP isolated tests (no database required)"
+    run_composer_at_root phpunit-isolated
+}
+
+do_update_twig_fixtures() {
+    echo "Regenerating Twig render-test fixtures (mutates fixture files under tests/Tests/Isolated/Common/Twig/fixtures/render/ -- review the diff before committing)"
+    run_composer_at_root update-twig-fixtures
+}
+
+do_update_layout_field_fixtures() {
+    echo "Regenerating layout field render-test fixtures (mutates fixture files for FieldRenderingSnapshotTest -- review the diff before committing)"
+    run_composer_at_root update-layout-field-fixtures
+}
+
+# Dispatch -- one branch per name. clean-sweep and clean-sweep-tests list
+# exactly which tasks from this section they compose, preserving prior
+# cascading-if behavior with one intentional addition: phpunit-isolated
+# now runs as part of both aggregates.
+case "$1" in
+    psr2-report|psr12-report)   do_psr12_report ;;
+    psr12-src-report)           do_psr12_src_report ;;
+    lint-themes-report)         do_lint_themes_report ;;
+    lint-javascript-report)     do_lint_javascript_report ;;
+    psr2-fix|psr12-fix)         do_psr12_fix ;;
+    lint-themes-fix)            do_lint_themes_fix ;;
+    lint-javascript-fix)        do_lint_javascript_fix ;;
+    php-parserror)              do_php_parserror ;;
+    rector-dry-run)             do_rector_dry_run ;;
+    rector-process)             do_rector_process ;;
+    phpstan)                    do_phpstan ;;
+    phpstan-generate)           do_phpstan_generate ;;
+    phpstan-generate-reset)     do_phpstan_generate_reset ;;
+    codespell)                  do_codespell ;;
+    conventional-commits-check) do_conventional_commits_check ;;
+    require-checker)            do_require_checker ;;
+    composer-validate)          do_composer_validate ;;
+    composer-normalize)         do_composer_normalize ;;
+    composer-normalize-fix)     do_composer_normalize_fix ;;
+    composer-checks)            do_composer_checks ;;
+    code-quality)               do_code_quality ;;
+    unit-test)                  do_unit_test ;;
+    javascript-unit-test)       do_javascript_unit_test ;;
+    jut-reports-build)          do_jut_reports_build ;;
+    api-test)                   do_api_test ;;
+    e2e-test)                   do_e2e_test ;;
+    fixtures-test)              do_fixtures_test ;;
+    services-test)              do_services_test ;;
+    validators-test)            do_validators_test ;;
+    controllers-test)           do_controllers_test ;;
+    common-test)                do_common_test ;;
+    phpunit-isolated)           do_phpunit_isolated ;;
+    update-twig-fixtures)       do_update_twig_fixtures ;;
+    update-layout-field-fixtures)
+                                do_update_layout_field_fixtures ;;
+    clean-sweep)
+        do_psr12_fix
+        do_lint_themes_fix
+        do_lint_javascript_fix
+        do_php_parserror
+        do_rector_dry_run
+        do_rector_process
+        do_phpstan
+        do_codespell
+        do_conventional_commits_check
+        do_require_checker
+        do_composer_validate
+        do_composer_normalize
+        do_unit_test
+        do_javascript_unit_test
+        do_api_test
+        do_e2e_test
+        do_fixtures_test
+        do_services_test
+        do_validators_test
+        do_controllers_test
+        do_common_test
+        do_phpunit_isolated
+        ;;
+    clean-sweep-tests)
+        do_rector_dry_run
+        do_phpstan
+        do_unit_test
+        do_javascript_unit_test
+        do_api_test
+        do_e2e_test
+        do_fixtures_test
+        do_services_test
+        do_validators_test
+        do_controllers_test
+        do_common_test
+        do_phpunit_isolated
+        ;;
+    *) ;;  # unmatched input falls through to subsequent sections below
+esac
+
+# ============================================================================
+# DEVELOPMENT SETUP COMMANDS
+# ============================================================================
+if [ "$1" = "dev-reset" ]; then
+    echo "Resetting OpenEMR"
+    prepareVariables
+    resetOpenemr
+fi
+
+if [ "$1" = "dev-install" ]; then
+    echo "Installing OpenEMR (assuming reset has already been completed)"
+    prepareVariables
+    installOpenemr
+    setGlobalSettings
+fi
+
+if [ "$1" = "dev-reset-install" ]; then
+    echo "Reinstalling OpenEMR"
+    prepareVariables
+    resetOpenemr
+    installOpenemr
+    setGlobalSettings
+fi
+
+if [ "$1" = "dev-reset-install-demodata" ]; then
+    echo "Reinstalling OpenEMR with standard demo data"
+    prepareVariables
+    resetOpenemr
+    installOpenemr
+    demoData
+    setGlobalSettings
+fi
+
+if [ "$1" = "dev-sqldrive" ]; then
+    echo "Importing sql data from drive"
+    prepareVariables
+    sqlDataDrive
+fi
+
+if [ "$1" = "dev-reset-install-sqldrive" ]; then
+    echo "Reinstalling OpenEMR with sql data from drive"
+    prepareVariables
+    resetOpenemr
+    installOpenemr
+    sqlDataDrive
+    setGlobalSettings
+fi
+
+if [ "$1" = "dev-reset-install-demodata-sqldrive" ]; then
+    echo "Reinstalling OpenEMR with standard demo data and sql data from drive"
+    prepareVariables
+    resetOpenemr
+    installOpenemr
+    demoData
+    sqlDataDrive
+    setGlobalSettings
+fi
+
+# ============================================================================
+# MULTISITE MANAGEMENT COMMANDS
+# ============================================================================
+if [ "$1" = "list-multisites" ]; then
+    echo "Listing multisites:"
+    cd /var/www/localhost/htdocs/openemr/sites;
+    for i in $(ls -d */); do echo ${i%%/}; done
+fi
+
+if [ "$1" = "set-swagger-to-multisite" ]; then
+    site="default"
+    if [ ! -z "$2" ]; then
+        site="${2}"
+    fi
+    echo "Setting swagger to use site ${site}"
+    # first reset the openemr-api.yaml to go back to default
+    run_php_as_apache php /var/www/localhost/htdocs/openemr/bin/command-runner -c CreateAPIDocumentation
+    # now make the needed changes if site is not default (since already set to default in above line)
+    if [ "${site}" != "default" ]; then
+        sed -i "s@/apis/default/@/apis/${site}/@" /var/www/localhost/htdocs/openemr/swagger/openemr-api.yaml
+        sed -i "s@/oauth2/default/authorize@/oauth2/${site}/authorize@" /var/www/localhost/htdocs/openemr/swagger/openemr-api.yaml
+        sed -i "s@/oauth2/default/token@/oauth2/${site}/token@" /var/www/localhost/htdocs/openemr/swagger/openemr-api.yaml
+        # when done testing recommend reverting back to default to avoid these getting changed in repo
+        echo "When done testing recommend reverting back to default via devtools 'set-swagger-to-multisite default' command to avoid making permanent changes in repo"
+    fi
+fi
+
+if [ "$1" = "enable-multisite" ]; then
+    echo "Enabling multisite in setup.php"
+    sed -i "s@\$allow_multisite_setup = false;@\$allow_multisite_setup = true;@" /var/www/localhost/htdocs/openemr/setup.php
+    sed -i "s@\$allow_cloning_setup = false;@\$allow_cloning_setup = true;@" /var/www/localhost/htdocs/openemr/setup.php
+fi
+
+if [ "$1" = "disable-multisite" ]; then
+    echo "Disabling multisite in setup.php"
+    sed -i "s@\$allow_multisite_setup = true;@\$allow_multisite_setup = false;@" /var/www/localhost/htdocs/openemr/setup.php
+    sed -i "s@\$allow_cloning_setup = true;@\$allow_cloning_setup = false;@" /var/www/localhost/htdocs/openemr/setup.php
+fi
+
+# ============================================================================
+# BACKUP & RESTORE COMMANDS
+# ============================================================================
+if [ "$1" = "backup" ]; then
+    echo "Performing backup to ${2} snapshot"
+        if [ "$2" = "" ]; then
+        echo "Missing a backup identifier"
+        exit
+    fi
+    case $2 in
+        *[!a-zA-Z0-9-]*)
+            echo "Invalid identifier (can only contain numbers and letters)"
+            exit
+            ;;
+    esac
+    if [ -f "/snapshots/${2}.tgz" ]; then
+        echo "Identifier has already been used. Try with another identifier."
+        exit
+    fi
+    prepareVariables
+    backupOpenemr "$2"
+fi
+
+if [ "$1" = "restore" ]; then
+    echo "Performing restore from ${2} snapshot"
+    if [ "$2" = "" ]; then
+        echo "Missing a restore identifier"
+        exit
+    fi
+    case $2 in
+        *[!a-zA-Z0-9-]*)
+            echo "Invalid identifier (can only contain numbers and letters)"
+            exit
+            ;;
+    esac
+    if [ ! -f "/snapshots/${2}.tgz" ]; then
+        echo "A backup with the identifier does not exist"
+        exit
+    fi
+    prepareVariables
+    resetOpenemr
+    installOpenemr
+    restoreOpenemr "$2"
+fi
+
+if [ "$1" = "list-snapshots" ]; then
+    echo "Listing snapshots:"
+    cd /snapshots
+    for f in *; do
+        if [ -f "${f}" ]; then
+            echo "  ${f%.*}"
+        fi
+    done
+fi
+
+if [ "$1" = "list-capsules" ]; then
+    echo "Listing capsules:"
+    cd /snapshots
+    for f in *; do
+        if [ -f "${f}" ]; then
+            echo "  ${f}"
+        fi
+    done
+fi
+
+# ============================================================================
+# UPGRADE & MAINTENANCE COMMANDS
+# ============================================================================
+if [ "$1" = "upgrade" ]; then
+    echo "Performing upgrade from version ${2}"
+    upgradeOpenEMR "$2"
+fi
+
+if [ "$1" = "change-encoding-collation" ] && [ ! -z "$2" ] && [ ! -z "$3" ]; then
+    echo "Changing encoding to ${2} and collation to ${3}"
+    prepareVariables
+    changeEncodingCollation "$2" "$3"
+fi
+
+# ============================================================================
+# SSL/TLS CERTIFICATE COMMANDS
+# ============================================================================
+if [ "$1" = "force-https" ]; then
+    echo "Force https"
+    forceHttps
+    echo "Completed. Need to stop/start docker for changes to take effect"
+fi
+
+if [ "$1" = "un-force-https" ]; then
+    echo "Removing forcing of https"
+    unForceHttps
+    echo "Completed. Need to stop/start docker for changes to take effect"
+fi
+
+
+
+# ============================================================================
+# DATABASE SSL COMMANDS
+# ============================================================================
+if [ "$1" = "sql-ssl" ]; then
+    echo "Copying the testing sql SSL CA cert"
+    if [ "${OPENEMR_DOCKER_ENV_TAG}" = "insane-dev-docker" ]; then
+        #using insane dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/insane/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
+    else
+        #using easy dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/easy/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
+    fi
+fi
+
+if [ "$1" = "sql-ssl-off" ]; then
+    echo "Removing the testing sql SSL CA cert"
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
+fi
+
+if [ "$1" = "sql-ssl-client" ]; then
+    echo "Copying the testing sql SSL CA cert and testing client certs"
+    if [ "${OPENEMR_DOCKER_ENV_TAG}" = "insane-dev-docker" ]; then
+        #using insane dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/insane/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/insane/client-cert.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/insane/client-key.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key
+    else
+        #using easy dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/easy/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/easy/client-cert.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert
+        cp /var/www/localhost/htdocs/openemr/docker/library/sql-ssl-certs-keys/easy/client-key.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key
+    fi
+fi
+
+if [ "$1" = "sql-ssl-client-off" ]; then
+    echo "Removing testing sql SSL CA cert and testing client certs"
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key
+fi
+
+# ============================================================================
+# COUCHDB SSL COMMANDS
+# ============================================================================
+if [ "$1" = "couchdb-ssl" ]; then
+    echo "Copying the testing couchdb SSL CA cert"
+    if [ "${OPENEMR_DOCKER_ENV_TAG}" = "insane-dev-docker" ]; then
+        #using insane dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/insane/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
+    else
+        #using easy dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/easy/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
+    fi
+fi
+
+if [ "$1" = "couchdb-ssl-off" ]; then
+    echo "Removing the testing couchdb SSL CA cert"
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
+fi
+
+if [ "$1" = "couchdb-ssl-client" ]; then
+    echo "Copying the testing couchdb SSL CA cert and testing client certs"
+    if [ "${OPENEMR_DOCKER_ENV_TAG}" = "insane-dev-docker" ]; then
+        #using insane dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/insane/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/insane/client-cert.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/insane/client-key.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key
+    else
+        #using easy dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/easy/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/easy/client-cert.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert
+        cp /var/www/localhost/htdocs/openemr/docker/library/couchdb-config-ssl-cert-keys/easy/client-key.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key
+    fi
+fi
+
+if [ "$1" = "couchdb-ssl-client-off" ]; then
+    echo "Removing testing couchdb SSL CA cert and testing client certs"
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key
+fi
+
+# ============================================================================
+# LDAP COMMANDS
+# ============================================================================
+if [ "$1" = "ldap-ssl" ]; then
+    echo "Copying the testing ldap SSL CA cert"
+    if [ "${OPENEMR_DOCKER_ENV_TAG}" = "insane-dev-docker" ]; then
+        #using insane dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/insane/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
+    else
+        #using easy dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/easy/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
+    fi
+fi
+
+if [ "$1" = "ldap-ssl-off" ]; then
+    echo "Removing the testing ldap SSL CA cert"
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
+fi
+
+if [ "$1" = "ldap-ssl-client" ]; then
+    echo "Copying the testing ldap SSL CA cert and testing client certs"
+    if [ "${OPENEMR_DOCKER_ENV_TAG}" = "insane-dev-docker" ]; then
+        #using insane dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/insane/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/insane/client-cert.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/insane/client-key.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key
+    else
+        #using easy dev docker env
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/easy/ca.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/easy/client-cert.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert
+        cp /var/www/localhost/htdocs/openemr/docker/library/ldap-ssl-certs-keys/easy/client-key.pem /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key
+    fi
+fi
+
+if [ "$1" = "ldap-ssl-client-off" ]; then
+    echo "Removing testing ldap SSL CA cert and testing client certs"
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert
+    rm /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key
+fi
+
+if [ "$1" = "enable-ldap" ]; then
+    echo "Enabling LDAP authentication - login credentials are admin:admin"
+    prepareVariables
+    mariadb --skip-ssl -u root --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'gbl_ldap_enabled'" "${CUSTOM_DATABASE}"
+fi
+
+if [ "$1" = "disable-ldap" ]; then
+    echo "Disabling LDAP authentication - use standard login credentials"
+    prepareVariables
+    mariadb --skip-ssl -u root --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -e "UPDATE globals SET gl_value = 0 WHERE gl_name = 'gbl_ldap_enabled'" "${CUSTOM_DATABASE}"
+fi
+
+if [ "$1" = "xdebug-log" ]; then
+    echo "Generating xdebug error log"
+    cat /tmp/xdebug.log
+fi
+
+if [ "$1" = "list-xdebug-profiles" ]; then
+    echo "Listing xdebug profiles"
+    ls -al /tmp/cachegrind.out.* | awk '{print $6, $7, $8, $9}'
+fi
+
+# ============================================================================
+# DATA MANAGEMENT COMMANDS
+# ============================================================================
+if [ "$1" = "import-random-patients" ] && [ ! -z "$2" ]; then
+    if [ ! -z "$3" ] && [ "$3" = "false" ]; then
+        importRandomPatients "$2" false
+    else
+        importRandomPatients "$2" true
+    fi
+fi
+
+if [ "$1" = "generate-multisite-bank" ] && [ ! -z "$2" ]; then
+    generateMultisiteBank "$2"
+fi
+
+# ============================================================================
+# API DOCUMENTATION COMMANDS
+# ============================================================================
+if [ "$1" = "build-api-docs" ]; then
+    echo "Building and placing api swagger docs"
+    run_php_as_apache php /var/www/localhost/htdocs/openemr/bin/console openemr:create-api-documentation
+fi
+
+# ============================================================================
+# OAUTH2 COMMANDS
+# ============================================================================
+if [ "$1" = "register-oauth2-client" ]; then
+    site="default"
+    if [ ! -z "$2" ]; then
+        site="${2}"
+    fi
+    echo "Registering a oauth2 client to site ${site}"
+    # collect scopes
+    scopes=$(cat /var/www/localhost/htdocs/openemr/docker/library/api-scope-listing)
+    returnJson=$(curl -X POST -k -H 'Content-Type: application/json' -s https://localhost/oauth2/${site}/registration --data "{
+       \"application_type\": \"private\",
+       \"redirect_uris\":
+         [\"https://localhost:9300/swagger/oauth2-redirect.html\"],
+       \"client_name\": \"A Private App\",
+       \"token_endpoint_auth_method\": \"client_secret_post\",
+       \"contacts\": [\"me@example.org\", \"them@example.org\"],
+       \"scope\": \"${scopes}\"
+      }")
+    clientId=$(echo ${returnJson} | jq '.client_id')
+    clientSecret=$(echo ${returnJson} | jq '.client_secret')
+    echo "client id: ${clientId}"
+    echo "client secret: ${clientSecret}"
+fi
+
+if [ "$1" = "register-oauth2-client-demo" ] && [ ! -z "$2" ]; then
+    echo "Registering a oauth2 client on online demo at ${2}"
+    # collect scopes
+    scopes=$(cat /var/www/localhost/htdocs/openemr/docker/library/api-scope-listing)
+    returnJson=$(curl -X POST -H 'Content-Type: application/json' -s "${2}/oauth2/default/registration" --data "{
+       \"application_type\": \"private\",
+       \"redirect_uris\":
+         [\"${2}/swagger/oauth2-redirect.html\"],
+       \"client_name\": \"A Private App\",
+       \"token_endpoint_auth_method\": \"client_secret_post\",
+       \"contacts\": [\"me@example.org\", \"them@example.org\"],
+       \"scope\": \"${scopes}\"
+      }")
+    clientId=$(echo ${returnJson} | jq '.client_id')
+    clientSecret=$(echo ${returnJson} | jq '.client_secret')
+    echo "client id: ${clientId}"
+    echo "client secret: ${clientSecret}"
+fi

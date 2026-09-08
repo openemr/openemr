@@ -29,10 +29,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/forms.inc.php');
-require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/calendar.inc.php');
 require_once($srcDir . '/appointments.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

@@ -99,9 +99,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
 
@@ -120,9 +118,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
             ]);
             foreach ($listOptions as $record) {
                 $listId = $record['list_id'];
-                if (!isset($this->listOptionsByListId[$listId])) {
-                    $this->listOptionsByListId[$listId] = [];
-                }
+                $this->listOptionsByListId[$listId] ??= [];
                 $this->listOptionsByListId[$listId][$record['option_id']] = $record;
             }
         }
@@ -268,7 +264,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                 ,"ob_status" => 'final' // we always set this to final as there's no in-between state
                 ,"puuid" => $record['uuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
-                ,"user_uuid" => 'provider_uuid'
+                ,"user_uuid" => $record['provider_uuid'] ?? null
                 ,"date" => $record['date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $profiles

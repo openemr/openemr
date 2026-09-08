@@ -13,13 +13,17 @@
  */
 
 require_once("../../globals.php");
-require_once("../../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Telemetry\TelemetryService;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @gloal $incdir the include directory
@@ -43,6 +47,33 @@ if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
         AccessDeniedHelper::denyWithTemplate("ACL check failed for form: " . $formLabel, $formLabel);
     }
 }
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput > 0 ? $formIdInput : 0;
+$formnameInput = filter_input(INPUT_GET, 'formname', FILTER_UNSAFE_RAW);
+$formDir = is_string($formnameInput) ? $formnameInput : '';
+
+$sessionPid = PatientSessionUtil::getPid();
+$sensitivityEncounterId = EncounterSessionUtil::getEncounter();
+
+if ($formId > 0) {
+    $formOwner = EncounterFormAccess::fetchFormOwner($formId, $formDir);
+    if (!EncounterFormAccess::isFormOwnedBySession($formOwner['pid'] ?? null, $sessionPid)) {
+        AccessDeniedHelper::deny(
+            sprintf('Form %d/%s not accessible by session pid %d', $formId, $formDir, $sessionPid),
+            'security-access',
+            Response::HTTP_NOT_FOUND,
+        );
+    }
+    $sensitivityEncounterId = $formOwner['encounter'];
+}
+
+if ($sensitivityEncounterId > 0) {
+    $sensitivity = (new EncounterService())->getSensitivity($sessionPid, $sensitivityEncounterId);
+    if ($sensitivity !== null && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
+        AccessDeniedHelper::denyWithTemplate('Not authorized to view encounter form.', 'Not authorized');
+    }
+}
+
 $formLocator = new FormLocator();
 $file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);

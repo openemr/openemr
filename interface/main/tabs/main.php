@@ -24,11 +24,11 @@ require_once(__DIR__ . '/../../globals.php');
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php';
 
 use ESign\Api;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
@@ -92,7 +92,7 @@ if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 
 ?>
 <!DOCTYPE html>
@@ -137,7 +137,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         $sessionSiteIdString = is_string($sessionSiteId) ? $sessionSiteId : '';
         ?>
         var site_id_js = <?php echo js_escape($sessionSiteIdString); ?>;
-        var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->get('user_debug')); ?>;
+        var userDebug = <?php echo js_escape((string)OEGlobalsBag::getInstance()->getBoolean('user_debug')); ?>;
         var webroot_url = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
         var jsLanguageDirection = <?php echo js_escape($session->get('language_direction')); ?> ||
         'ltr';

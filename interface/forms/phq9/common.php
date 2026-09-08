@@ -12,8 +12,11 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+
 require_once("phq9.inc.php"); //common strings
-require_once("$srcdir/api.inc.php");
 
 /**
  * @var string $srcdir
@@ -35,9 +38,9 @@ require_once("$srcdir/api.inc.php");
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -72,7 +75,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             question.name = "tenth";
             question.appendChild(new_line);
             question.appendChild(ital);
-// populate the   the menu
+            // populate the menu
             menu.options[0] = new Option( <?php echo js_escape($str_not); ?>, "0");
             menu.options[1] = new Option( <?php echo js_escape($str_somewhat); ?>, "1");
             menu.options[2] = new Option( <?php echo js_escape($str_very); ?>, "2");
@@ -327,7 +330,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     var conf = confirm(<?php echo js_escape($str_nosave_confirm); ?>);
 
                     if (conf) {
-                        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
+                        window.location.href = "<?php echo FormActionBarSettings::EXIT_URL; ?>";
                     }
                     return (conf);
                 }

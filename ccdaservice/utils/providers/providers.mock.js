@@ -1,6 +1,6 @@
 const { NOT_INFORMED, NULL_FLAVOR } = require("../constants");
 
-const TODAY = '2021-04-10T18:55:55.301Z';
+const TODAY = '';
 
 const documentData = {
     encounter_provider: {

@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -108,6 +109,8 @@ if (!empty($_GET)) {
 
                         $form_patient = $_GET["form_patient"] ?? '';
                         $form_user = $_REQUEST['form_user'] ?? '';
+                        $form_client_id = filter_input(INPUT_GET, 'form_client_id');
+                        $form_client_id = is_string($form_client_id) ? $form_client_id : '';
                         $form_pid = $_REQUEST['form_pid'] ?? '';
                         if (empty($form_patient)) {
                             $form_pid = '';
@@ -170,6 +173,37 @@ if (!empty($_GET)) {
                                                     echo ", " . text($urow['fname']);
                                                 }
                                                 echo "</option>\n";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <label class="col-sm-1 col-form-label" for="form_client_id"><?php echo xlt('API Client'); ?>:</label>
+                                    <div class="col-sm-3">
+                                        <select name='form_client_id' id='form_client_id' class='form-control'>
+                                            <?php
+                                            echo " <option value=''>" . xlt('All') . "</option>\n";
+                                            $clientRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords("SELECT `client_id`, `client_name` FROM `oauth_clients` ORDER BY `client_name` ASC");
+                                            $clientOptionFound = false;
+                                            foreach ($clientRows as $clientRow) {
+                                                $optionClientId = is_string($clientRow['client_id'] ?? null) ? $clientRow['client_id'] : '';
+                                                if ($optionClientId === '') {
+                                                    continue;
+                                                }
+                                                $optionClientName = is_string($clientRow['client_name'] ?? null) ? $clientRow['client_name'] : '';
+                                                echo " <option value='" . attr($optionClientId) . "'";
+                                                if ($optionClientId === $form_client_id) {
+                                                    $clientOptionFound = true;
+                                                    echo " selected";
+                                                }
+                                                echo ">" . text($optionClientName !== '' ? $optionClientName : $optionClientId) . "</option>\n";
+                                            }
+                                            // A filtered client id may no longer exist in oauth_clients
+                                            // (deleted/decommissioned integration reached via a saved URL).
+                                            // Render it as a selected option so the UI reflects the active
+                                            // filter and resubmitting the form preserves it.
+                                            if ($form_client_id !== '' && !$clientOptionFound) {
+                                                echo " <option value='" . attr($form_client_id) . "' selected>"
+                                                    . text($form_client_id) . " (" . xlt('unregistered') . ")</option>\n";
                                             }
                                             ?>
                                         </select>
@@ -306,7 +340,7 @@ if (!empty($_GET)) {
                                             $gev = $getevent;
                                         }
 
-                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
+                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction'], 'client_id' => $form_client_id])) {
                                             // Set up crypto object (object will increase performance since caches used keys)
                                             $cryptoGen = ServiceContainer::getCrypto();
 
@@ -320,6 +354,7 @@ if (!empty($_GET)) {
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
                                                 $replace = [xl('success'), xl('failure'), sprintf(' %s', xl('encounter'))];
 
+                                                // Note: new data no longer written encrypted. Kept for compatibility. See #12118+12120.
                                                 $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
                                                 $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
@@ -335,10 +370,10 @@ if (!empty($_GET)) {
                                                         $comments = $encryptVersionInt < 3
                                                             ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
                                                             : $iterComments;
-                                                        $trans_comments = $cryptoGen->decryptStandard($comments);
-                                                        if (is_string($trans_comments)) {
+                                                        try {
+                                                            $trans_comments = $cryptoGen->decryptFromDatabase($comments);
                                                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                                                        } else {
+                                                        } catch (CryptoGenException) {
                                                             $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
                                                         }
                                                     }
@@ -360,8 +395,17 @@ if (!empty($_GET)) {
                                                     <td><?php echo text($iter["groupname"]); ?></td>
                                                     <td><?php echo text($iter["patient_id"]); ?></td>
                                                     <td><?php echo text($iter["success"]); ?></td>
-                                                    <?php if (!empty($iter["ip_address"])) { ?>
-                                                        <td><?php echo text($iter["ip_address"]) . ", " . text($iter["method"]) . ", " . text($iter["request"]); ?></td>
+                                                    <?php if (!empty($iter["ip_address"])) {
+                                                        // prefer the registered client name; fall back to the raw client id for
+                                                        // clients registered before the client_id column existed or since deleted
+                                                        $apiClientName = $iter["client_name"] ?? null;
+                                                        $apiClientId = $iter["client_id"] ?? null;
+                                                        $apiClient = is_string($apiClientName) ? $apiClientName : '';
+                                                        if ($apiClient === '') {
+                                                            $apiClient = is_string($apiClientId) ? $apiClientId : '';
+                                                        }
+                                                        ?>
+                                                        <td><?php echo text($iter["ip_address"]) . ", " . text($iter["method"]) . ", " . text($iter["request"]) . ($apiClient !== '' ? ", " . xlt('client') . ": " . text($apiClient) : ""); ?></td>
                                                     <?php } else { ?>
                                                         <td></td>
                                                     <?php } ?>
@@ -377,7 +421,11 @@ if (!empty($_GET)) {
                                             }
                                         }
 
-                                        if (($eventname == "disclosure") || ($gev == "")) {
+                                        // Disclosures live in extended_log, which has no API client
+                                        // attribution -- they are recorded via the UI disclosure feature,
+                                        // never by an API client. When filtering by API client, skip them
+                                        // rather than mixing unfiltered rows into a filtered view.
+                                        if ((($eventname == "disclosure") || ($gev == "")) && $form_client_id === '') {
                                             $eventname = "disclosure";
                                             if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
                                                 while ($iter = sqlFetchArray($ret)) {

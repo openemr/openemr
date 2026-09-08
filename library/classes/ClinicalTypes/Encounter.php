@@ -70,7 +70,7 @@ class Encounter extends ClinicalType
         return $dates;
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null): bool
     {
         $encounters = getEncounters($patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId());
         ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count($encounters);

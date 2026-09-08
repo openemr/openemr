@@ -1,0 +1,369 @@
+# Phase 10c (docker recovery path, 2026-07-30): docker-side parallel of
+# acceptance-only.yml — dedicated workflow_dispatch entry point that
+# re-runs the docker acceptance-gate against a preserved candidate tag
+# on Docker Hub, and (on green) publishes automatically via the same
+# reusable-docker-publish.yml docker-build-release.yml uses.
+#
+# The problem this solves: pre-Phase-10c, a docker-side acceptance flake
+# (transient chromedriver install, wizard-install fluke, etc.) on a
+# known-good multi-arch build required the operator to manually:
+#   1. dispatch acceptance-docker.yml with `to_tag=<candidate-suffix>`
+#   2. on green, run `docker buildx imagetools create -t <final> <candidate>`
+#      for EVERY expanded tag
+#   3. manually delete the candidate via the Docker Hub UI or a v2 API
+#      curl (see docker-build-release.yml's cleanup-candidate job for
+#      the JWT dance)
+#
+# Total steps: ~5-10 manual commands per recovery, with a nontrivial
+# chance of typos (candidate_tag mis-transcription) or missing an
+# expanded tag on step 2. docker-acceptance-only.yml collapses the
+# whole flow to a single dispatch.
+#
+# Recovery flow (post-Phase-10c):
+#   1. Operator sees docker-build-release.yml failed at acceptance-gate.
+#      Copies the `candidate_tag` value from the failed build job's
+#      outputs section (visible on the failed run page).
+#   2. Dispatch this workflow with `candidate_tag=<value>` (optionally
+#      also `source_run_id` for audit-trail context — not used at
+#      runtime but shown in the run-name).
+#   3. Workflow verifies candidate still exists on Docker Hub, re-runs
+#      the full acceptance-docker matrix against it, and on green
+#      publishes via the reusable — imagetools-alias onto each final
+#      tag + cleanup the candidate.
+#
+# Input-shape design call: the plan doc's preferred "derive everything
+# from source_run_id via gh api /repos/.../actions/runs/<id>/jobs"
+# path doesn't work — GitHub's jobs endpoint doesn't expose job outputs
+# (only step-level name+conclusion metadata) AND the runs endpoint
+# doesn't expose workflow_dispatch inputs either (only the display
+# title + event name + head SHA). Both verified 2026-07-30 against
+# real docker-build-release runs' API responses.
+#
+# Falling back to Option (a): explicit workflow_dispatch inputs for
+# the two operator-authoritative values (candidate_tag + docker_tags),
+# with the other three (openemr_version_ref, image_version, build_date)
+# derived from the candidate image's own OCI labels via `docker
+# inspect --format`. Reduces the operator-input burden from 5 to 3
+# while preserving reliability:
+#   * candidate_tag + docker_tags: visible on the failed docker-build-
+#     release run's page (candidate_tag as a build-job output, docker_tags
+#     as the run's dispatch input) — operator copies both.
+#   * source_run_id: informational only (48h age check + docker-build-
+#     release.yml eligibility check) — no data extracted from it.
+#   * openemr_version_ref, image_version, build_date: derived from
+#     the candidate image's OCI labels, which is:
+#       * dependency-free (no operator input)
+#       * a "candidate hasn't been tampered with post-build" smoke test
+#         (the build already validated these labels; they should still
+#         match if the tag hasn't been swapped)
+#       * self-consistent — if reusable's OCI verify passes on the
+#         final tags post-alias, it means the labels flowed through
+#         imagetools-create cleanly.
+#
+# 48h age ceiling: same as acceptance-only.yml. A candidate older
+# than 48h risks the rel-branch or the underlying build having moved
+# on, and stale-candidate recovery isn't the workflow's use case.
+#
+# See docs/RELEASE_PROCESS.md's Phase 5 step 12 recovery paragraph
+# and docs/artifact-acceptance-testing-plan.md's Phase 10c section
+# for the design rationale.
+
+name: Acceptance-only re-run + publish (docker)
+run-name: "Docker acceptance-only re-run + publish for candidate ${{ inputs.candidate_tag }} (source run ${{ inputs.source_run_id }})${{ inputs.skip_acceptance && format(' -- SKIP-ACCEPTANCE: {0}', inputs.skip_acceptance_reason) || '' }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: 'Workflow run ID of the failed docker-build-release.yml run whose preserved candidate tag to re-verify (e.g. 12345678901). Must be a docker-build-release.yml run under 48h old. Used for the eligibility guardrails; no data extracted from it (source run''s dispatch inputs aren''t exposed via the runs API).'
+        required: true
+        type: string
+      candidate_tag:
+        description: 'Preserved candidate tag suffix on Docker Hub (e.g. release-candidate-30443247578-1). Visible on the failed docker-build-release.yml run''s build job outputs section.'
+        required: true
+        type: string
+      docker_tags:
+        description: 'Same comma-separated docker tags list the source run was dispatched with (e.g. "8.2.0,latest" or "next"). Copy from the source run''s dispatch inputs, visible on the failed run''s page under the workflow_dispatch details.'
+        required: true
+        type: string
+      # Phase 14 (2026-08-04) — escape-hatch for known-good candidate
+      # images where acceptance keeps flaking on a test-side issue.
+      # Mirrors the acceptance-only.yml (tarball) surface one-for-one
+      # so operators dispatching either prong see identical UX. See
+      # the Phase 14 section of docs/artifact-acceptance-testing-plan.md
+      # for the full behavior contract + when-to-use guidance.
+      skip_acceptance:
+        description: 'ESCAPE HATCH -- skip acceptance matrix and publish directly. ONLY use for confirmed test-side flakes on a known-good candidate image. Requires non-empty skip_acceptance_reason. Do NOT use on first-time / never-validated candidates.'
+        required: false
+        type: boolean
+        default: false
+      skip_acceptance_reason:
+        description: 'REQUIRED when skip_acceptance=true. Free-text explanation for the audit trail (appears in run-name, workflow summary). Empty reason with skip=true fails the workflow immediately.'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  # Serialize per-candidate so a fat-fingered double-click doesn't race
+  # two identical publishes on the same final tags. Different candidates
+  # still fan out in parallel.
+  group: docker-acceptance-only-${{ inputs.candidate_tag }}
+  cancel-in-progress: false
+
+jobs:
+  # Job 1: validate the source run + candidate tag, and derive the
+  # 4 reusable inputs the publish path needs (candidate_tag comes
+  # straight through, expanded_tags + 3 label-derived values are
+  # looked up here).
+  fetch-source-run-outputs:
+    name: Fetch source run outputs
+    # Only dispatchable from master. reusable-docker-publish.yml's
+    # `uses:` resolves against this workflow's own ref, so a rel-
+    # branch dispatch would run against the rel-branch's copy of the
+    # reusable (which may not exist on older rel branches — see
+    # byte-identical exclusion for rel-800). Enforce master
+    # here for symmetry with acceptance-only.yml.
+    if: >-
+      github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      candidate_tag: ${{ inputs.candidate_tag }}
+      expanded_tags: ${{ steps.expand_docker_tags.outputs.list }}
+      openemr_version_ref: ${{ steps.inspect_candidate.outputs.revision }}
+      image_version: ${{ steps.inspect_candidate.outputs.version }}
+      build_date: ${{ steps.inspect_candidate.outputs.created }}
+    steps:
+    # Phase 14 guardrail: if the operator dispatched with
+    # skip_acceptance=true, they MUST supply a non-empty
+    # skip_acceptance_reason so the audit trail carries an
+    # accountable "why." Fail loudly + immediately (before doing
+    # any real work) on skip=true + empty reason. Mirrors the
+    # acceptance-only.yml pattern one-for-one.
+    - name: Validate skip-acceptance inputs
+      env:
+        SKIP: ${{ inputs.skip_acceptance }}
+        REASON: ${{ inputs.skip_acceptance_reason }}
+      run: |
+        set -euo pipefail
+        # Strip all whitespace before length check -- a reason that
+        # is only spaces / tabs / newlines is not a real audit trail
+        # entry, so treat it as empty.
+        STRIPPED_REASON="${REASON//[[:space:]]/}"
+        if [ "${SKIP}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
+          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason (whitespace-only reasons are rejected). The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
+          exit 1
+        fi
+        if [ "${SKIP}" = "true" ]; then
+          echo "::warning title=Acceptance bypassed::Acceptance matrix skipped for this run. Reason: ${REASON}"
+          {
+            echo "## :warning: Acceptance bypassed"
+            echo ""
+            echo "This run skipped the acceptance-scenario matrix and published directly."
+            echo ""
+            echo "**Reason (operator-supplied):** ${REASON}"
+            echo ""
+            echo "Skip-acceptance is intended for known-good candidate images hitting confirmed test-side flakes."
+            echo "If bypasses are repeating on the same failure class, the underlying flake needs a fix, not a bypass."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    # Guardrail A: source run must be a docker-build-release.yml run
+    # under 48h old AND the operator-supplied candidate_tag must match
+    # the run's coordinates. Delegates to the shared validate-source-
+    # run.sh (see that script's header for the per-guard rationale).
+    # Extracted from the previous inline block so acceptance-only.yml
+    # and docker-acceptance-only.yml share the same validation surface
+    # — a fix to any guard lands once instead of twice.
+    #
+    # EXPECTED_CANDIDATE_TAG is set (unlike acceptance-only.yml) to
+    # enable the candidate_tag coordinates-binding check specific to
+    # the docker-side recovery path.
+    - name: Validate source run eligibility
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+        SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        EXPECTED_WORKFLOW_PATH: .github/workflows/docker-build-release.yml
+        CANDIDATE_TAG: ${{ inputs.candidate_tag }}
+      run: |
+        set -euo pipefail
+
+        echo "==> Fetching source run metadata"
+        RUN_JSON=$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")
+        export RUN_JSON
+
+        # EXPECTED_CANDIDATE_TAG is derived from the source run
+        # coordinates and passed alongside CANDIDATE_TAG so the script
+        # can enforce operator-input == derived-coordinates. The script
+        # re-derives the same value internally as a defence-in-depth
+        # against caller drift; passing it here surfaces intent.
+        #
+        # Non-strict extraction handles BOTH missing field (`.run_attempt
+        # // ""`) AND malformed JSON payload (`|| echo ""` captures the
+        # jq-parse-failure case). Both failure shapes then flow into the
+        # script's own BATS-tested guard rather than aborting here with a
+        # raw jq error under set -euo pipefail.
+        source_run_attempt=$(printf '%s' "$RUN_JSON" | jq -r '.run_attempt // ""' 2>/dev/null || echo "")
+        EXPECTED_CANDIDATE_TAG="release-candidate-${SOURCE_RUN_ID}-${source_run_attempt}"
+        export EXPECTED_CANDIDATE_TAG
+
+        .github/scripts/validate-source-run.sh
+
+    # Guardrail B: candidate tag must still exist on Docker Hub.
+    # Delegates to verify-dockerhub-tag-exists.sh — see that script's
+    # header for the fail-fast rationale (avoiding a confusing "image
+    # pull failed" mid-matrix in acceptance-docker.yml). Kept separate
+    # from validate-source-run.sh because it's a network I/O check;
+    # the two scripts have distinct testability profiles (one needs a
+    # curl mock, the other doesn't touch the network).
+    - name: Verify candidate tag exists on Docker Hub
+      env:
+        TAG: ${{ inputs.candidate_tag }}
+      run: |
+        set -euo pipefail
+        .github/scripts/verify-dockerhub-tag-exists.sh
+
+    # Expand the operator-provided docker_tags list into the same
+    # final-tag list docker-build-release.yml's build job would have
+    # produced. Same expand-with-dated-variant logic — must stay in
+    # sync with docker-build-release.yml's `expand_docker_tags` step.
+    #
+    # BUILD_DATE for dated-variant expansion comes from the candidate
+    # image's org.opencontainers.image.created OCI label — this is
+    # exactly the date the source run's build job stamped in, so the
+    # dated-variant tags this recovery aliases match what the source
+    # run would have produced.
+    - name: Expand docker_tags list
+      id: expand_docker_tags
+      env:
+        INPUT_TAGS: ${{ inputs.docker_tags }}
+        CANDIDATE_TAG: ${{ inputs.candidate_tag }}
+      run: |
+        set -euo pipefail
+
+        # Pull the candidate here so both this step and the label-inspect
+        # step below can inspect it locally (docker inspect is a
+        # metadata-only op post-pull).
+        docker pull "openemr/openemr:${CANDIDATE_TAG}" > /dev/null
+        BUILD_DATE=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.created" }}' "openemr/openemr:${CANDIDATE_TAG}")
+        if [ -z "$BUILD_DATE" ] || [ "$BUILD_DATE" = "<no value>" ]; then
+          echo "::error::Candidate image openemr/openemr:${CANDIDATE_TAG} has no org.opencontainers.image.created label — cannot derive BUILD_DATE for dated-variant expansion."
+          exit 1
+        fi
+        echo "    candidate BUILD_DATE (from OCI label)=${BUILD_DATE}"
+
+        # Delegate to the shared expand-docker-tags.sh script so the
+        # version-number regex + dated-variant rule stays in one place
+        # (see docker-build-release.yml's expand_docker_tags step for
+        # the primary caller).
+        export BUILD_DATE
+        {
+          echo 'list<<EOF'
+          .github/scripts/expand-docker-tags.sh
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
+    # Inspect the candidate's OCI labels to derive the 3 values the
+    # reusable's verify-oci-labels.sh step wants as EXPECTED_* env vars.
+    # The candidate already passed OCI verify at build time (see docker-
+    # build-release.yml's "Verify pushed candidate image OCI labels —
+    # gated path" step), so these labels ARE what verify expects; this
+    # is essentially a "labels haven't been tampered with since build"
+    # smoke test rather than a fresh independent verification.
+    #
+    # Real independent-source verification would require pulling the
+    # source run's workflow inputs and re-computing IMAGE_VERSION from
+    # version.php at the openemr_version_ref — much more machinery for
+    # a check that only defends against Docker Hub tag mutation, which
+    # would fail loudly at pull time anyway.
+    - name: Inspect candidate labels to derive publish inputs
+      id: inspect_candidate
+      env:
+        CANDIDATE_TAG: ${{ inputs.candidate_tag }}
+      run: |
+        set -euo pipefail
+        # Image was already pulled in the previous step; re-inspect is
+        # cheap (local metadata).
+        REVISION=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "openemr/openemr:${CANDIDATE_TAG}")
+        VERSION=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "openemr/openemr:${CANDIDATE_TAG}")
+        CREATED=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.created" }}' "openemr/openemr:${CANDIDATE_TAG}")
+
+        for pair in "revision:${REVISION}" "version:${VERSION}" "created:${CREATED}"; do
+          key="${pair%%:*}"
+          value="${pair#*:}"
+          if [ -z "$value" ] || [ "$value" = "<no value>" ]; then
+            echo "::error::Candidate image is missing org.opencontainers.image.${key} label — cannot derive publish inputs."
+            exit 1
+          fi
+        done
+
+        {
+          echo "revision=${REVISION}"
+          echo "version=${VERSION}"
+          echo "created=${CREATED}"
+        } >> "$GITHUB_OUTPUT"
+        echo "==> derived: revision=${REVISION} version=${VERSION} created=${CREATED}"
+
+  # Job 2: mirrors docker-build-release.yml's acceptance-gate.
+  # workflow_call into acceptance-docker.yml with to_tag pointed at
+  # the candidate. Runs the full 3-scenario matrix on amd64 + arm64
+  # (arm64 always-on in acceptance-docker.yml as of 2026-07-29).
+  acceptance-gate:
+    name: Acceptance gate
+    needs: [fetch-source-run-outputs]
+    # Phase 14: bypass the acceptance matrix when the operator
+    # explicitly opts out. The publish-and-cleanup job's if:
+    # absorbs the skipped-result and still fires — see its comment
+    # for the needs/if interaction rationale.
+    if: ${{ inputs.skip_acceptance != true }}
+    uses: ./.github/workflows/acceptance-docker.yml
+    with:
+      to_tag: ${{ needs.fetch-source-run-outputs.outputs.candidate_tag }}
+    secrets: inherit
+
+  # Job 3: publish + cleanup via the shared reusable. Same reusable
+  # docker-build-release.yml's gated path uses — single source of
+  # truth for imagetools-alias + Docker Hub tag cleanup.
+  #
+  # Recovery-context note: the verify step inside the reusable publish
+  # workflow derives EXPECTED_* values from the candidate image's own
+  # OCI labels (via docker inspect --format), then compares against
+  # the aliased final tag's labels. Same source of "expected" and
+  # "actual" — so value-checks degenerate to a "labels preserved
+  # through imagetools alias" smoke test. The static-label presence
+  # checks (title/source/url/licenses) still work meaningfully — they
+  # catch an alias that somehow stripped a label block entirely.
+  # Independent Dockerfile-ARG verify already ran at build time in the
+  # original docker-build-release run, so recovery verify's job is
+  # narrower on purpose.
+  publish-and-cleanup:
+    name: Publish + cleanup
+    needs: [fetch-source-run-outputs, acceptance-gate]
+    # Phase 14 needs/if interaction: `acceptance-gate` is gated by
+    # `if: skip_acceptance != true`. Downstream `needs:
+    # [acceptance-gate]` auto-skips when a needed job is
+    # skipped-by-if unless the downstream uses always()/!failure()
+    # to opt out. Here we want publish to fire when acceptance
+    # passed OR was bypassed (skipped-by-if), but NOT when it ran
+    # and failed AND NOT when the workflow run itself was cancelled.
+    # See acceptance-only.yml:publish for the same pattern + full
+    # rationale.
+    if: >-
+      always() && !cancelled()
+      && needs.fetch-source-run-outputs.result == 'success'
+      && needs.acceptance-gate.result != 'failure'
+      && needs.acceptance-gate.result != 'cancelled'
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    with:
+      candidate_tag: ${{ needs.fetch-source-run-outputs.outputs.candidate_tag }}
+      expanded_tags: ${{ needs.fetch-source-run-outputs.outputs.expanded_tags }}
+      openemr_version_ref: ${{ needs.fetch-source-run-outputs.outputs.openemr_version_ref }}
+      image_version: ${{ needs.fetch-source-run-outputs.outputs.image_version }}
+      build_date: ${{ needs.fetch-source-run-outputs.outputs.build_date }}
+    secrets: inherit

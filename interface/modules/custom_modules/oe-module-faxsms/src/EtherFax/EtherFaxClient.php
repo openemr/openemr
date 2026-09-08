@@ -193,10 +193,7 @@ class EtherFaxClient
             $now = new DateTime();
             $tz = (string)($now->getOffset() / 3600);
         }
-        // set default page count
-        if (is_null($pages)) {
-            $pages = 1;
-        }
+        $pages ??= 1;
         // create post array/items
         $post = [
             'DialNumber' => $number,

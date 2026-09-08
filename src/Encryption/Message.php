@@ -22,7 +22,7 @@ final readonly class Message
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
-        if ($this->format === MessageFormat::ImplicitKey){
+        if ($this->format === MessageFormat::ImplicitKey) {
             if (!preg_match('/^00[1-7]$/', $this->keyId->id)) {
                 throw new BadMethodCallException('Only legacy key versions can use ImplicitKey format');
             }
@@ -51,7 +51,9 @@ final readonly class Message
      */
     private static function parseImplicitKey(string $encodedMessage): Message
     {
-        assert(strlen($encodedMessage) >= 3);
+        if (strlen($encodedMessage) < 3) {
+            throw new UnexpectedValueException('Encoded message is too short to contain an implicit key id');
+        }
 
         // `001`-`007`
         $numericKeyId = substr($encodedMessage, 0, 3);
@@ -80,7 +82,7 @@ final readonly class Message
 
     private function encodeImplicitKey(): string
     {
-        assert($this->format === MessageFormat::ImplicitKey);
+        // Called only from encode()'s match on $this->format === ImplicitKey.
         return sprintf('%s%s',
             $this->keyId->id,
             base64_encode($this->ciphertext->value),

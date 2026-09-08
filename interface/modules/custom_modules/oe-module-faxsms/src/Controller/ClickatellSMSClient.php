@@ -11,8 +11,9 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
 
-class ClickatellSMSClient extends AppDispatch
+class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
 {
     public function __construct()
     {
@@ -70,25 +71,9 @@ class ClickatellSMSClient extends AppDispatch
     }
 
     /**
-     * @return mixed|string
-     */
-    public function sendFax(): string|bool
-    {
-        return text("Not supported");
-    }
-
-    /**
-     * @return string
-     */
-    public function sendEmail(): string
-    {
-        return text("Not supported");
-    }
-
-    /**
      * @return string|bool
      */
-    function fetchReminderCount(): string|bool
+    public function fetchReminderCount(): string|bool
     {
         return 0;
     }
@@ -114,7 +99,7 @@ class ClickatellSMSClient extends AppDispatch
      * @param $acl
      * @return int
      */
-    function authenticate($acl = ['patients', 'appt']): int
+    public function authenticate($acl = ['patients', 'appt']): int
     {
         [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);

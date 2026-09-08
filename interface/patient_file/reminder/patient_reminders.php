@@ -17,7 +17,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/reminders.php");
 require_once($srcdir . "/clinical_rules.php");
-require_once($srcdir . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

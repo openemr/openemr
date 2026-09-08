@@ -14,7 +14,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (C) 2013 OEMR
- * @copyright Copyright (C) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -63,7 +63,7 @@ class MiscBillingOptions
         if (empty($current_value)) {
             echo " selected";
         }
-        echo ">" . text(xl('-- Select --')) . "</option>";
+        echo ">" . xlt('-- Select --') . "</option>";
 
         for ($idx = 0; $idx < count($options); $idx++) {
             echo "<option value='" . attr($options[$idx][1]) . "'";

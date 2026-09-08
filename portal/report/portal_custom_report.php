@@ -19,6 +19,7 @@ use Mpdf\Mpdf;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
@@ -29,20 +30,18 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-
-
 // kick out if patient not authenticated
-if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
-    $pid = $session->get('pid');
-    $user = $session->get('sessionUser');
-} else {
-    //landing page definition -- where to go if something goes wrong
+if (empty($session->get('pid')) || empty($session->get('patient_portal_onsite_two'))) {
+    // landing page definition -- where to go if something goes wrong
     $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit;
 }
+
+$pid = $session->get('pid');
+$user = $session->get('sessionUser');
 
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
@@ -51,14 +50,8 @@ $web_root = $globalsBag->getString('web_root');
 
 $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/../../custom/code_types.inc.php");
 require_once("$srcdir/ESign/Api.php");
 require_once("{$globalsBag->getIncludeRoot()}/orders/single_order_results.inc.php");
@@ -89,7 +82,7 @@ $auth_demo     = true; //AclMain::aclCheckCore('patients'  , 'demo');
 
 $esignApi = new Api();
 
-$printable = empty($_GET['printable']) ? false : true;
+$printable = !empty($_GET['printable']);
 if ($PDF_OUTPUT) {
     $printable = true;
 }
@@ -122,24 +115,28 @@ function postToGet($arin)
 
     return $getstring;
 }
+
+echo "<html>\n<head>\n";
+
+// $webserver_root is a filesystem path, not a URL. mPDF fopen()s these hrefs
+// verbatim, so a trailing ?v=... query string makes the path not exist on
+// disk and the stylesheet is silently dropped from the PDF. Do not add one.
+if ($PDF_OUTPUT) {
+    $pdfStylesheets = [
+        '/interface/themes/style_pdf.css',
+        '/library/ESign/css/esign_report.css',
+    ];
+    foreach ($pdfStylesheets as $pdfStylesheet) {
+        printf('<link rel="stylesheet" href="%s%s" />' . "\n", attr($webserver_root), attr($pdfStylesheet));
+    }
+}
+
+// do not show stuff from report.php in forms that is encapsulated
+// by div of navigateLink class. Specifically used for CAMOS, but
+// can also be used by other forms that require output in the
+// encounter listings output, but not in the custom report.
 ?>
-
-<?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css?v=<?php echo $v_js_includes; ?>">
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
-<?php } else {?>
-<html>
-<head>
-
-<?php } ?>
-
-<?php // do not show stuff from report.php in forms that is encapsulated
-      // by div of navigateLink class. Specifically used for CAMOS, but
-      // can also be used by other forms that require output in the
-      // encounter listings output, but not in the custom report. ?>
-
 <style>
-
 .h3,
 h3 {
     font-size: 20px;
@@ -163,7 +160,7 @@ input[type="radio"] {
 
 <?php if (!$PDF_OUTPUT) { ?>
 <link rel="stylesheet" href="<?php echo $web_root ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
-<script src="<?php echo $web_root?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $web_root?>/library/js/searchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
     <!-- Unclear where a conflict occurs but if jquery is already in scope then !!!! removed noconflict sjp 12-1-2019-->
 <script>var $j = '$';</script>
 
@@ -174,74 +171,29 @@ input[type="radio"] {
 
 <script>
 
-  // Code for search & Highlight
-  function reset_highlight(form_id,form_dir,class_name) { // Removes <span class='hilite' id=''>VAL</span> with VAL
-      $j("."+class_name).each(function(){
-      val = document.getElementById(this.id).innerHTML;
-      $j("#"+this.id).replaceWith(val);
+  // Search & highlight backed by library/js/searchHighlight.js
+  // (window.OpenEMRSearchHighlight). The previous SearchHighlight.js jQuery
+  // plugin and the hand-rolled mark_hilight() regex have been replaced by a
+  // single DOM-walking module that produces the same <mark class="hilite">
+  // output.
 
-    });
-  }
   var res_id = 0;
-  function doSearch(form_id,form_dir,exact,class_name,keys,case_sensitive) { // Uses jquery SearchHighlight Plug in
-    var options ={};
-    var keys = keys.replace(/^\s+|\s+$/g, '') ;
-    options = {
-      exact     :exact,
-      style_name :class_name,
-      style_name_suffix:false,
-      highlight:'#search_div_'+form_id+'_'+form_dir,
-      keys      :keys,
-      set_case_sensitive:case_sensitive
-      }
-      $j(document).SearchHighlight(options);
-        $j('.'+class_name).each(function(){
-        res_id = res_id+1;
-        $j(this).attr("id",'result_'+res_id);
-      });
-  }
 
-  function remove_mark(form_id,form_dir){ // Removes all <mark> and </mark> tags
-    var match1 = null;
-    var src_str = document.getElementById('search_div_'+form_id+'_'+form_dir).innerHTML;
-    var re = new RegExp('<mark>',"gi");
-    var match2 = src_str.match(re);
-    if(match2){
-      src_str = src_str.replace(re,'');
+  function mark_hilight(form_id, form_dir, keys, case_sensitive) { // Adds <mark class="hilite"> tags
+    var trimmed = keys.replace(/^\s+|\s+$/g, '');
+    if (trimmed === '') {
+      return;
     }
-    var match2 = null;
-    re = new RegExp('</mark>',"gi");
-    if(match2){
-      src_str = src_str.replace(re,'');
-    }
-    document.getElementById('search_div_'+form_id+'_'+form_dir).innerHTML=src_str;
-  }
-  function mark_hilight(form_id,form_dir,keys,case_sensitive){ // Adds <mark>match_val</mark> tags
-    keys = keys.replace(/^\s+|\s+$/g, '') ;
-    if(keys == '') return;
-    var src_str = $j('#search_div_'+form_id+'_'+form_dir).html();
-    var term = keys;
-    if((/\s+/).test(term) == true || (/['""-]{1,}/).test(term) == true){
-      term = term.replace(/(\s+)/g,"(<[^>]+>)*$1(<[^>]+>)*");
-      if(case_sensitive == true){
-        var pattern = new RegExp("("+term+")", "g");
-      }
-      else{
-        var pattern = new RegExp("("+term+")", "ig");
-      }
-      src_str = src_str.replace(/[\s\r\n]{1,}/g, ' '); // Replace text area newline or multiple spaces with single space
-      src_str = src_str.replace(pattern, "<mark class='hilite'>$1</mark>");
-      src_str = src_str.replace(/(<mark class=\'hilite\'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/g,"$1</mark>$2<mark class='hilite'>$4");
-      $j('#search_div_'+form_id+'_'+form_dir).html(src_str);
-        $j('.hilite').each(function(){
-        res_id = res_id+1;
-        $j(this).attr("id",'result_'+res_id);
-      });
-    }else{
-      if(case_sensitive == true)
-      doSearch(form_id,form_dir,'partial','hilite',keys,'true');
-      else
-      doSearch(form_id,form_dir,'partial','hilite',keys,'false');
+    var target = '#search_div_' + form_id + '_' + form_dir;
+    var inserted = window.OpenEMRSearchHighlight.search(target, trimmed, {
+      exact: 'partial',
+      caseSensitive: case_sensitive === true || case_sensitive === 'true',
+      className: 'hilite',
+      tagName: 'mark'
+    });
+    for (var i = 0; i < inserted.length; i++) {
+      res_id = res_id + 1;
+      inserted[i].id = 'result_' + res_id;
     }
   }
 
@@ -293,18 +245,13 @@ input[type="radio"] {
 
   function remove_mark_all(){ // clears previous search results if exists
     $j('.report_search_div').each(function(){
-      var id_arr = this.id.split('search_div_');
-      var re = new RegExp('_','i');
-      var new_id = id_arr[1].replace(re, "|");
-      var new_id_arr = new_id.split('|');
-      var form_id = new_id_arr[0];
-      var form_dir = new_id_arr[1];
-      reset_highlight(form_id,form_dir,'hilite');
-      reset_highlight(form_id,form_dir,'hilite2');
-      remove_mark(form_id,form_dir);
-      res_id = 0;
-      res_array =[];
+      if (window.OpenEMRSearchHighlight) {
+        window.OpenEMRSearchHighlight.unhighlight(this, 'hilite');
+        window.OpenEMRSearchHighlight.unhighlight(this, 'hilite2');
+      }
     });
+    res_id = 0;
+    res_array = [];
   }
   //
   var last_visited = -1;
@@ -389,30 +336,16 @@ input[type="radio"] {
     last_clicked = "";
   }
 
-  function get_word_count(form_id,form_dir,keys,case_sensitive){
-    keys = keys.replace(/^\s+|\s+$/g, '') ;
-    if(keys == '') return;
-    var src_str = $j('#search_div_'+form_id+'_'+form_dir).html();
-    var term = keys;
-    if((/\s+/).test(term) == true){
-      term = term.replace(/(\s+)/g,"(<[^>]+>)*$1(<[^>]+>)*");
-      if(case_sensitive == true){
-        var pattern = new RegExp("("+term+")", "");
-      }
-      else{
-        var pattern = new RegExp("("+term+")", "i");
-      }
-      src_str = src_str.replace(/[\s\r\n]{1,}/g, ' '); // Replace text area newline or multiple spaces with single space
-      src_str = src_str.replace(pattern, "<mark class='hilite'>$1</mark>");
-      src_str = src_str.replace(/(<mark class=\'hilite\'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark class='hilite'>$4");
-      var res =[];
-      res = src_str.match(/<mark class=\'hilite\'>/g);
-      if(res != null){
-        return res.length;
-      }
-    }else{
-      return 1;
+  function get_word_count(form_id, form_dir, keys, case_sensitive) {
+    var trimmed = keys.replace(/^\s+|\s+$/g, '');
+    if (trimmed === '') {
+      return;
     }
+    // w_count = number of search tokens so navigation steps past one full "result"
+    // (one mark per token) at a time. Derived from the query, not from live DOM
+    // state, so it stays correct after hilite→hilite2 class swaps in next()/prev().
+    var tokens = trimmed.split(/[\s,]+/).filter(function(t) { return t.length > 0; });
+    return tokens.length;
   }
 
   function next_prev(action){
@@ -505,7 +438,7 @@ if ($printable) {
     $plogo = glob("$OE_SITE_DIR/images/*");// let's give the user a little say in image format.
     $plogo = preg_grep('~practice_logo\.(gif|png|jpg|jpeg)$~i', $plogo);
     if (!empty($plogo)) {
-        $k = current(array_keys($plogo));
+        $k = array_key_first($plogo);
         $practice_logo = $plogo[$k];
     }
     ?>
@@ -728,12 +661,19 @@ foreach ($ar as $key => $val) {
 
             preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
             $rowid = $res[2];
-            $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
-                            "FROM lists WHERE id = ?", [$rowid]);
+            // Bind the lookup to the session patient so a supplied rowid
+            // can only surface issues belonging to this chart.
+            $irow = sqlQuery(
+                "SELECT type, title, comments, diagnosis FROM lists WHERE id = ? AND pid = ?",
+                [$rowid, $pid]
+            );
+            if (empty($irow)) {
+                continue;
+            }
             $diagnosis = $irow['diagnosis'];
             if ($prevIssueType != $irow['type']) {
                 // output a header for each Issue Type we encounter
-                $disptype = $ISSUE_TYPES[$irow['type']][0];
+                $disptype = IssueTypeRegistry::issueTypes()[$irow['type']][0] ?? '';
                 echo "<div class='issue_type'>" . attr($disptype) . ":</div>\n";
                 $prevIssueType = $irow['type'];
             }

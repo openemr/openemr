@@ -35,6 +35,11 @@ function postcalendar_pntables()
     // Initialise table array
     $pntable = [];
     $prefix = pnConfigGetVar('prefix');
+    // The variable is absent on a misconfigured site, where pnConfigGetVar
+    // returns false and the concatenations below would coerce it to '' anyway.
+    if (!is_string($prefix)) {
+        $prefix = '';
+    }
     //$prefix = 'Rogue';
 
     $pc_events = $prefix . '_postcalendar_events';

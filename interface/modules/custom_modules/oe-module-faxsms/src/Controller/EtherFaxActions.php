@@ -14,25 +14,31 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
+use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 
-class EtherFaxActions extends AppDispatch
+class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDocumentDisposalInterface
 {
+    use FaxDocumentDisposalTrait;
+
     public static $timeZone;
-    protected $baseDir;
+    protected string $baseDir = '';
     protected $uriDir;
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
     protected CryptoInterface $crypto;
     private readonly EtherFaxClient $client;
+    private readonly FaxUploadStaging $uploadStaging;
     private mixed $appSecret;
     private mixed $sid;
     private mixed $appKey;
@@ -44,6 +50,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         $this->crypto = ServiceContainer::getCrypto();
+        $this->uploadStaging = FaxUploadStaging::create();
         $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
@@ -72,31 +79,6 @@ class EtherFaxActions extends AppDispatch
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
-    }
-
-    /**
-     * @param       $email
-     * @param       $body
-     * @param       $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
-    public static function emailDocument($email, $body, $file, array $user = []): string
-    {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
     }
 
     /**
@@ -140,36 +122,10 @@ class EtherFaxActions extends AppDispatch
      */
     public function faxProcessUploads(): string
     {
-        if (empty($_FILES['fax']) || $_FILES['fax']['error'] !== UPLOAD_ERR_OK) {
-            error_log('Error: No file uploaded or upload error.');
-            return '';
-        }
-
-        $name = basename((string)$_FILES['fax']['name']);
-        $tmp_name = $_FILES['fax']['tmp_name'];
-        $targetDir = $this->baseDir . '/send';
-
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
-            error_log('Error: Failed to create directory.');
-            return '';
-        }
-
-        $filepath = $targetDir . "/" . $name;
-
-        if (!move_uploaded_file($tmp_name, $filepath)) {
-            error_log('Error: Failed to move uploaded file.');
-            return '';
-        }
-
-        return $filepath;
-    }
-
-    /**
-     * @return string
-     */
-    public function sendSMS(): string
-    {
-        return text("Not implemented");
+        $upload = $_FILES['fax'] ?? null;
+        return is_array($upload)
+            ? $this->uploadStaging->processUpload($this->baseDir, $upload)
+            : '';
     }
 
     /**
@@ -206,7 +162,15 @@ class EtherFaxActions extends AppDispatch
             }
             $realPath = realpath((string)$file);
             if ($realPath !== false) {
-                if ($allowedTempDir === false || !str_starts_with($realPath, $allowedTempDir)) {
+                $allowedRoot = $allowedTempDir !== false
+                    ? rtrim($allowedTempDir, DIRECTORY_SEPARATOR)
+                    : false;
+                // Require an exact match or a true child path; a bare prefix
+                // check would let a sibling like ".../send_evil" slip through.
+                $withinAllowed = $allowedRoot !== false
+                    && ($realPath === $allowedRoot
+                        || str_starts_with($realPath, $allowedRoot . DIRECTORY_SEPARATOR));
+                if (!$withinAllowed) {
                     error_log("Path traversal blocked: " . $realPath);
                     return xlt('Error: Invalid file location');
                 }
@@ -217,6 +181,28 @@ class EtherFaxActions extends AppDispatch
             }
         }
 
+        // Decrypt the staged upload to a per-request plaintext tempnam
+        // and continue with that as $file. Pattern guard scopes the
+        // cleanup we'll do below to files this controller staged via
+        // FaxUploadStaging, leaving caller-managed temp files alone.
+        $stagedPath = null;
+        $plainStagePath = null;
+        if (
+            empty($isContent)
+            && !$isDocuments
+            && is_string($file)
+            && is_file($file)
+            && $this->uploadStaging->isStagedUploadPath($file)
+        ) {
+            $plainStagePath = $this->uploadStaging->decryptStagedToTemp($file);
+            if ($plainStagePath === null) {
+                return xlt('Error: Failed to read fax content');
+            }
+            $stagedPath = $file;
+            $file = $plainStagePath;
+            $fileName = pathinfo($file, PATHINFO_BASENAME);
+        }
+
         // If document mode, load from Document table instead
         if ($isDocuments) {
             $doc = new Document($docId);
@@ -224,9 +210,22 @@ class EtherFaxActions extends AppDispatch
             $fileName = $doc->get_name() ?? 'document';
         }
 
-        // Optional email copy
+        // Optional email copy. $file is raw bytes when either the
+        // patient-document branch above set it from Document::get_data
+        // ($isDocuments) or the caller indicated the payload is already
+        // content ($isContent). The staged-upload branch left $file
+        // pointing at a plaintext path, so the else branch in
+        // mailUploadedDocument sends it directly.
+        $emailPath = null;
         if ($hasEmail && $smtpEnabled) {
-            self::emailDocument($email, '', $file, $user);
+            $payloadIsContent = $isDocuments || !empty($isContent);
+            $emailPath = FaxMailer::mailUploadedDocument(
+                $email,
+                '',
+                $file,
+                $user,
+                $payloadIsContent,
+            );
         }
 
         try {
@@ -288,7 +287,14 @@ class EtherFaxActions extends AppDispatch
                 $this->insertSentFaxQueue($status, $phone, $csid, $tag, $fileName);
             }
         } catch (\Throwable $e) {
-            return 'Error: ' . json_encode($e->getMessage());
+            error_log('EtherFaxActions: ' . $e->getMessage());
+            return xlt('Error: fax operation failed');
+        } finally {
+            $this->uploadStaging->removeStagedArtifacts(
+                $stagedPath,
+                $plainStagePath,
+                $emailPath
+            );
         }
         $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
         // Treat InProgress as non-error (queued for tracking)
@@ -358,42 +364,52 @@ class EtherFaxActions extends AppDispatch
         }
 
         $content = $fax->FaxImage;
-        $c_header = $fax->DocumentParams->Type;
-        $ext = $c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' || $c_header == 'image/tif' ? '.tiff' : '.txt');
-        $filepath = $this->baseDir . "/send/" . ($jobId . $ext);
-
-        if (!file_exists($this->baseDir . '/send')) {
-            mkdir($this->baseDir . '/send', 0777, true);
+        $c_header = (string)$fax->DocumentParams->Type;
+        $stagedPath = $this->uploadStaging->stageInternalPayload(
+            $this->baseDir,
+            base64_decode((string)$content),
+            (string)$jobId,
+            $c_header
+        );
+        if ($stagedPath === '') {
+            return js_escape('Error: ' . xlt('Failed to stage fax payload for forwarding'));
         }
 
-        file_put_contents($filepath, base64_decode((string)$content));
-
-        if ($hasEmail && $smtpEnabled) {
-            $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filepath, $user) . "<br />";
-        }
-
-        if ($faxNumber) {
-            try {
-                $fax = $this->client->etherFaxSend($faxNumber, $filepath, null, $facility, $csid, $tag, false);
-                if (!$fax->FaxResult) {
-                    return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
-                }
-                if ($fax->FaxResult == FaxResult::InProgress) {
-                    while (true) {
-                        $status = $this->client->getFaxStatus($fax->JobId);
-                        if (!$status || $status->FaxResult != FaxResult::InProgress) {
-                            break;
-                        }
-                        sleep(5);
-                    }
-                }
-                $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-            } catch (\Throwable $e) {
-                return js_escape('Error: ' . $e->getMessage());
+        $plainPath = null;
+        try {
+            $plainPath = $this->uploadStaging->decryptStagedToTemp($stagedPath);
+            if ($plainPath === null) {
+                return js_escape('Error: ' . xlt('Failed to prepare fax payload for forwarding'));
             }
-        }
 
-        unlink($filepath);
+            if ($hasEmail && $smtpEnabled && is_string($email)) {
+                $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $plainPath, $user) . "<br />";
+            }
+
+            if ($faxNumber) {
+                try {
+                    $fax = $this->client->etherFaxSend($faxNumber, $plainPath, null, $facility, $csid, $tag, false);
+                    if (!$fax->FaxResult) {
+                        return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
+                    }
+                    if ($fax->FaxResult == FaxResult::InProgress) {
+                        while (true) {
+                            $status = $this->client->getFaxStatus($fax->JobId);
+                            if (!$status || $status->FaxResult != FaxResult::InProgress) {
+                                break;
+                            }
+                            sleep(5);
+                        }
+                    }
+                    $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
+                } catch (\Throwable $e) {
+                    error_log('EtherFaxActions: ' . $e->getMessage());
+                    return js_escape('Error: ' . xlt('fax operation failed'));
+                }
+            }
+        } finally {
+            $this->uploadStaging->removeStagedArtifacts($stagedPath, $plainPath);
+        }
 
         return js_escape($statusMsg);
     }
@@ -524,22 +540,22 @@ class EtherFaxActions extends AppDispatch
 
     private function generateActionLinks($id, $record_id, $pid_assumed)
     {
-        return "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
+        return "<a role='button' href='#' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
                 <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($pid_assumed) . ")\">
+            <a role='button' href='#' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($pid_assumed) . ")\">
                 <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\">
+            <a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\">
                 <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\">
+            <a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\">
                 <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\">
+            <a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\">
                 <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\">
+            <a role='button' href='#' onclick=\"forwardFax(event, " . attr_js($id) . ")\">
                 <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i>
             </a>";
     }
@@ -547,7 +563,7 @@ class EtherFaxActions extends AppDispatch
     private function generateDetailLink($id, $recognized)
     {
         $showFlag = count($recognized);
-        return $showFlag ? "<a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
+        return $showFlag ? "<a role='button' href='#' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
     }
 
     /**
@@ -567,7 +583,8 @@ class EtherFaxActions extends AppDispatch
         try {
             $apiResponse = is_numeric($docId) ? $this->fetchFaxFromQueue(null, $docId) : $this->fetchFaxFromQueue($docId);
         } catch (\Throwable $e) {
-            return "Error: Retrieving Fax:\n" . $e->getMessage();
+            error_log('EtherFaxActions: ' . $e->getMessage());
+            return 'Error: ' . xlt('Could not retrieve fax');
         }
 
         if ($isDelete && !empty($apiResponse->JobId)) {
@@ -589,12 +606,16 @@ class EtherFaxActions extends AppDispatch
 
         if ($isDownload) {
             $faxStoreDir = $this->baseDir;
-            if (!file_exists($faxStoreDir) && !mkdir($faxStoreDir, 0777, true)) {
+            if (!is_dir($faxStoreDir) && !mkdir($faxStoreDir, 0700, true)) {
                 throw new Exception(sprintf('Directory "%s" was not created', $faxStoreDir));
             }
+            chmod($faxStoreDir, 0700);
 
             $file_name = "{$faxStoreDir}/Fax_{$docId}" . ($c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' ? '.tiff' : '.txt'));
-            file_put_contents($file_name, base64_decode((string)$faxImage));
+            // Write encrypted-at-rest; disposeDocument's download branch
+            // decrypts via FaxUploadStaging::decryptFileBytes when streaming
+            // the file to the browser.
+            file_put_contents($file_name, $this->crypto->encryptForFilesystem(base64_decode((string)$faxImage)));
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
 
@@ -615,170 +636,6 @@ class EtherFaxActions extends AppDispatch
         $formatted_document = $control->convertImageToPdf($encodedFax, '');
 
         return $formatted_document ? base64_encode($formatted_document) : false;
-    }
-
-    /**
-     * @return string
-     */
-
-    public function disposeDocument(): string
-    {
-        if (!$this->authenticate()) {
-            http_response_code(403);
-            return json_encode(['success' => false, 'message' => xlt('Unauthorized')]);
-        }
-
-        $response = ['success' => false, 'message' => '', 'url' => ''];
-        $where = (string)($this->getRequest('file_path') ?? $this->getSession('where') ?? '');
-
-        if (empty($where)) {
-            return json_encode(['success' => false, 'message' => xlt('No file path specified')]);
-        }
-        $allowedRoot = realpath($this->baseDir) ?: $this->baseDir;
-        $targetPath = $this->normalizePath($where);
-
-        if (!$this->isPathAllowed($targetPath, $allowedRoot)) {
-            error_log("SECURITY: Fax disposeDocument path violation: {$targetPath}");
-            http_response_code(403);
-            return json_encode(['success' => false, 'message' => xlt('Access denied')]);
-        }
-
-        $content = (string)$this->getRequest('content', '');
-        $action = (string)$this->getRequest('action', '');
-
-        if ($action === 'download') {
-            // Only allow download from allowed root
-            if (!is_file($targetPath)) {
-                return json_encode(['success' => false, 'message' => xlt('File not found')]);
-            }
-            $this->sendFile($targetPath);
-            // Best effort cleanup for temp files created by this controller
-            @unlink($targetPath);
-            return json_encode(['success' => true, 'url' => $targetPath]);
-        }
-
-        if (!empty($content) && $action === 'setup') {
-            // Only allow fax-safe extensions
-            $ext = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
-            $allowedExtensions = ['pdf', 'tif', 'tiff', 'txt'];
-            if (!in_array($ext, $allowedExtensions, true)) {
-                error_log("SECURITY: Disallowed file extension in disposeDocument: .{$ext}");
-                return json_encode(['success' => false, 'message' => xlt('Invalid file type')]);
-            }
-
-            $decoded = base64_decode($content, true);
-            if ($decoded === false) {
-                return json_encode(['success' => false, 'message' => xlt('Invalid content encoding')]);
-            }
-
-            // Simple executable content guard (PHP tags, HTML script). This is a defense-in-depth measure.
-            if ($this->containsExecutableCode($decoded)) {
-                error_log("SECURITY: Executable content blocked in disposeDocument");
-                return json_encode(['success' => false, 'message' => xlt('Malicious content detected')]);
-            }
-
-            // Ensure directory exists
-            $dir = dirname($targetPath);
-            if (!is_dir($dir) && !mkdir($dir, 0770, true)) {
-                return json_encode(['success' => false, 'message' => xlt('Failed to create directory')]);
-            }
-
-            // Write atomically
-            $tmp = tempnam($dir, 'fax_');
-            if ($tmp === false) {
-                return json_encode(['success' => false, 'message' => xlt('Failed to create temp file')]);
-            }
-            $bytes = file_put_contents($tmp, $decoded, LOCK_EX);
-            if ($bytes === false) {
-                @unlink($tmp);
-                return json_encode(['success' => false, 'message' => xlt('Failed to write file')]);
-            }
-            // Move to destination
-            if (!@rename($tmp, $targetPath)) {
-                @unlink($tmp);
-                return json_encode(['success' => false, 'message' => xlt('Failed to finalize file')]);
-            }
-            @chmod($targetPath, 0660);
-
-            $response['success'] = true;
-            $response['url'] = $targetPath;
-            return json_encode($response);
-        } elseif ($action === 'setup') {
-            // Setup without content should not create files; just acknowledge if path is allowed
-            $response['success'] = true;
-            $response['url'] = $targetPath;
-            return json_encode($response);
-        }
-
-        // Default: unsupported action
-        return json_encode(['success' => false, 'message' => xlt('Unsupported action')]);
-    }
-
-    /**
-     * Normalize a filesystem path without resolving symlinks from user input.
-     */
-    private function normalizePath(string $path): string
-    {
-        $parts = [];
-        foreach (explode(DIRECTORY_SEPARATOR, $path) as $segment) {
-            if ($segment === '' || $segment === '.') {
-                continue;
-            }
-            if ($segment === '..') {
-                array_pop($parts);
-            } else {
-                $parts[] = $segment;
-            }
-        }
-        $prefix = DIRECTORY_SEPARATOR;
-        $isWindowsDrive = strlen($path) >= 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === DIRECTORY_SEPARATOR);
-        if ($isWindowsDrive) {
-            $prefix = '';
-        }
-        return $prefix . implode(DIRECTORY_SEPARATOR, $parts);
-    }
-
-    /**
-     * Enforce that target path is at or below allowed root.
-     */
-    private function isPathAllowed(string $targetPath, string $allowedRoot): bool
-    {
-        $allowed = realpath($allowedRoot) ?: $allowedRoot;
-        $real = realpath($targetPath);
-        if ($real === false) {
-            // If file does not exist yet, check its directory
-            $real = realpath(dirname($targetPath));
-            if ($real === false) {
-                // Directory might not exist; check against intended dir under allowed
-                $intended = $this->normalizePath(dirname($targetPath));
-                return str_starts_with($intended, $allowed);
-            }
-        }
-        return str_starts_with($real, $allowed);
-    }
-
-    /**
-     * Lightweight detector for executable content we never expect for fax artifacts.
-     */
-    private function containsExecutableCode(string $data): bool
-    {
-        // Check for PHP tags or HTML/JS script tags in first 1MB to be safe.
-        $snippet = substr($data, 0, 1024 * 1024);
-        return (bool)preg_match('/<\?(php|=)|<script\b/i', $snippet);
-    }
-
-    private function sendFile(string $filePath): void
-    {
-        ob_end_clean();
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=" . basename($filePath));
-        header("Content-Type: application/pdf");
-        header("Content-Transfer-Encoding: binary");
-        header('Content-Length: ' . filesize($filePath));
-
-        readfile($filePath);
-        exit;
     }
 
     /**
@@ -813,7 +670,8 @@ class EtherFaxActions extends AppDispatch
                 $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
             }
         } catch (\Throwable $e) {
-            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
+            error_log('EtherFaxActions: ' . $e->getMessage());
+            return 'Error: ' . xlt('fax operation failed') . PHP_EOL;
         }
 
         return $responseMsgs;
@@ -1072,11 +930,4 @@ SQL;
         }
     }
 
-    /**
-     * @return mixed
-     */
-    public function sendEmail(): mixed
-    {
-        return null;
-    }
 }

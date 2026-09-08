@@ -65,7 +65,7 @@ class zipfile
      *
      * @access private
      */
-    function unix2DosTime($unixtime = 0)
+    public function unix2DosTime($unixtime = 0)
     {
         $timearray = ($unixtime == 0) ? getdate() : getdate($unixtime);
 
@@ -90,13 +90,12 @@ class zipfile
      *
      * @access public
      */
-    function addFile($data, $name, $time = 0)
+    public function addFile($data, $name, $time = 0)
     {
         $name = str_replace('\\', '/', $name);
 
-        $dtime = dechex($this->unix2DosTime($time));
-        $hexdtime = '\x' . $dtime [6] . $dtime [7] . '\x' . $dtime [4] . $dtime [5] . '\x' . $dtime [2] . $dtime [3] . '\x' . $dtime [0] . $dtime [1];
-        eval('$hexdtime = "' . $hexdtime . '";');
+        // DOS timestamp packed as a 32-bit little-endian value (4 bytes).
+        $hexdtime = pack('V', $this->unix2DosTime($time));
 
         $fr = "\x50\x4b\x03\x04";
         $fr .= "\x14\x00"; // ver needed to extract
@@ -165,7 +164,7 @@ class zipfile
      *
      * @access public
      */
-    function file()
+    public function file()
     {
         $data = implode('', $this->datasec);
         $ctrldir = implode('', $this->ctrl_dir);

@@ -44,7 +44,12 @@ final class CryptoTest extends TestCase
     {
         $this->fixtures = new CryptoFixtureManager('/dev/null');
         $this->keychain = $this->buildKeychain();
-        $this->crypto = new Crypto($this->keychain, new NullLogger());
+        $this->crypto = new Crypto(
+            keychain: $this->keychain,
+            logger: new NullLogger(),
+            shouldEncryptForFilesystem: true,
+            shouldEncryptForDatabase: true,
+        );
     }
 
     private function buildKeychain(): Keychain
@@ -66,18 +71,20 @@ final class CryptoTest extends TestCase
             ),
         );
 
-        // v4+: AES-256-CBC with HMAC-SHA384 (drive keys only)
+        // v4+: AES-256-CBC with HMAC-SHA384
         foreach (['four', 'five', 'six', 'seven'] as $version) {
-            $keychain->registerCipher(
-                Key::fromCryptoGen(
-                    KeyVersion::fromString($version),
-                    KeySource::Drive,
-                )->getId(),
-                new Aes256CbcHmacSha384(
-                    key: new KeyMaterial($this->fixtures->getTestKey($version . 'a')),
-                    hmacKey: new KeyMaterial($this->fixtures->getTestKey($version . 'b')),
-                ),
-            );
+            foreach ([KeySource::Drive, KeySource::Database] as $keySource) {
+                $keychain->registerCipher(
+                    Key::fromCryptoGen(
+                        KeyVersion::fromString($version),
+                        $keySource,
+                    )->getId(),
+                    new Aes256CbcHmacSha384(
+                        key: new KeyMaterial($this->fixtures->getTestKey($version . 'a')),
+                        hmacKey: new KeyMaterial($this->fixtures->getTestKey($version . 'b')),
+                    ),
+                );
+            }
         }
 
         return $keychain;
@@ -314,5 +321,244 @@ final class CryptoTest extends TestCase
         $decrypted = $this->crypto->decryptFromDatabase($encrypted);
 
         self::assertSame($plaintext, $decrypted);
+    }
+
+    public function testEncryptForFilesystemReturnsEncryptedString(): void
+    {
+        $plaintext = 'test data for filesystem encryption';
+
+        $encrypted = $this->crypto->encryptForFilesystem($plaintext);
+
+        self::assertNotSame($plaintext, $encrypted);
+        self::assertStringStartsWith('007', $encrypted);
+    }
+
+    public function testEncryptForFilesystemReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->encryptForFilesystem(null));
+    }
+
+    public function testEncryptForFilesystemReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->encryptForFilesystem(''));
+    }
+
+    public function testEncryptForFilesystemPassesThroughPlaintextWhenDisabled(): void
+    {
+        $crypto = new Crypto(
+            $this->keychain,
+            new NullLogger(),
+            shouldEncryptForDatabase: false,
+            shouldEncryptForFilesystem: false,
+        );
+        $plaintext = 'plaintext data that should not be encrypted';
+
+        $result = $crypto->encryptForFilesystem($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromFilesystemDecryptsEncryptedValue(): void
+    {
+        $plaintext = 'encrypted filesystem test data';
+        $encrypted = $this->crypto->encryptForFilesystem($plaintext);
+
+        $result = $this->crypto->decryptFromFilesystem($encrypted);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromFilesystemPassesThroughPlaintext(): void
+    {
+        $plaintext = 'this is not encrypted';
+
+        $result = $this->crypto->decryptFromFilesystem($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromFilesystemReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromFilesystem(null));
+    }
+
+    public function testDecryptFromFilesystemReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromFilesystem(''));
+    }
+
+    public function testDecryptFromFilesystemThrowsOnCorruptedCiphertext(): void
+    {
+        $encrypted = $this->crypto->encryptForFilesystem('test data');
+
+        $prefix = substr($encrypted, 0, 3);
+        $base64Part = substr($encrypted, 3);
+        $binary = base64_decode($base64Part, true);
+        self::assertIsString($binary);
+        $binary[10] = chr(ord($binary[10]) ^ 0x01);
+        $tampered = $prefix . base64_encode($binary);
+
+        $this->expectException(CryptoGenException::class);
+
+        $this->crypto->decryptFromFilesystem($tampered);
+    }
+
+    public function testEncryptForFilesystemRoundTrip(): void
+    {
+        $plaintext = CryptoFixtureManager::PLAINTEXT;
+
+        $encrypted = $this->crypto->encryptForFilesystem($plaintext);
+        $decrypted = $this->crypto->decryptFromFilesystem($encrypted);
+
+        self::assertSame($plaintext, $decrypted);
+    }
+
+    public function testEncryptForDatabasePassesThroughPlaintextWhenDisabled(): void
+    {
+        $crypto = new Crypto(
+            $this->keychain,
+            new NullLogger(),
+            shouldEncryptForDatabase: false,
+            shouldEncryptForFilesystem: true,
+        );
+        $plaintext = 'plaintext data that should not be encrypted';
+
+        $result = $crypto->encryptForDatabase($plaintext);
+
+        self::assertSame($plaintext, $result, 'Should pass through plaintext when database encryption is disabled');
+    }
+
+    public function testIsDatabaseValueLatestReturnsTrueForEmptyString(): void
+    {
+        self::assertTrue(
+            $this->crypto->isDatabaseValueLatest(''),
+            'Empty string is always considered latest',
+        );
+    }
+
+    public function testIsDatabaseValueLatestReturnsTrueForCurrentVersionEncrypted(): void
+    {
+        $ciphertext = $this->fixtures->getCiphertext(7);
+
+        self::assertTrue(
+            $this->crypto->isDatabaseValueLatest($ciphertext),
+            'Value encrypted with current version should be latest when encryption is enabled',
+        );
+    }
+
+    public function testIsDatabaseValueLatestReturnsFalseForOldVersionEncrypted(): void
+    {
+        $oldVersionCiphertext = $this->fixtures->getCiphertext(4);
+
+        self::assertFalse(
+            $this->crypto->isDatabaseValueLatest($oldVersionCiphertext),
+            'Value encrypted with old version should not be latest',
+        );
+    }
+
+    public function testIsDatabaseValueLatestReturnsFalseForPlaintextWhenEncryptionEnabled(): void
+    {
+        self::assertFalse(
+            $this->crypto->isDatabaseValueLatest('unencrypted plaintext'),
+            'Plaintext should not be latest when encryption is enabled',
+        );
+    }
+
+    public function testIsDatabaseValueLatestReturnsTrueForPlaintextWhenEncryptionDisabled(): void
+    {
+        $crypto = new Crypto(
+            $this->keychain,
+            new NullLogger(),
+            shouldEncryptForDatabase: false,
+            shouldEncryptForFilesystem: true,
+        );
+
+        self::assertTrue(
+            $crypto->isDatabaseValueLatest('unencrypted plaintext'),
+            'Plaintext should be latest when encryption is disabled',
+        );
+    }
+
+    public function testIsDatabaseValueLatestReturnsFalseForEncryptedWhenEncryptionDisabled(): void
+    {
+        $crypto = new Crypto(
+            $this->keychain,
+            new NullLogger(),
+            shouldEncryptForDatabase: false,
+            shouldEncryptForFilesystem: true,
+        );
+        $ciphertext = $this->fixtures->getCiphertext(7);
+
+        self::assertFalse(
+            $crypto->isDatabaseValueLatest($ciphertext),
+            'Encrypted value should not be latest when encryption is disabled',
+        );
+    }
+
+    public function testIsFilesystemValueLatestReturnsTrueForEmptyString(): void
+    {
+        self::assertTrue(
+            $this->crypto->isFilesystemValueLatest(''),
+            'Empty string is always considered latest',
+        );
+    }
+
+    public function testIsFilesystemValueLatestReturnsTrueForCurrentVersionEncrypted(): void
+    {
+        $ciphertext = $this->fixtures->getCiphertext(7);
+
+        self::assertTrue(
+            $this->crypto->isFilesystemValueLatest($ciphertext),
+            'Value encrypted with current version should be latest when encryption is enabled',
+        );
+    }
+
+    public function testIsFilesystemValueLatestReturnsFalseForOldVersionEncrypted(): void
+    {
+        $oldVersionCiphertext = $this->fixtures->getCiphertext(4);
+
+        self::assertFalse(
+            $this->crypto->isFilesystemValueLatest($oldVersionCiphertext),
+            'Value encrypted with old version should not be latest',
+        );
+    }
+
+    public function testIsFilesystemValueLatestReturnsFalseForPlaintextWhenEncryptionEnabled(): void
+    {
+        self::assertFalse(
+            $this->crypto->isFilesystemValueLatest('unencrypted plaintext'),
+            'Plaintext should not be latest when encryption is enabled',
+        );
+    }
+
+    public function testIsFilesystemValueLatestReturnsTrueForPlaintextWhenEncryptionDisabled(): void
+    {
+        $crypto = new Crypto(
+            $this->keychain,
+            new NullLogger(),
+            shouldEncryptForDatabase: true,
+            shouldEncryptForFilesystem: false,
+        );
+
+        self::assertTrue(
+            $crypto->isFilesystemValueLatest('unencrypted plaintext'),
+            'Plaintext should be latest when encryption is disabled',
+        );
+    }
+
+    public function testIsFilesystemValueLatestReturnsFalseForEncryptedWhenEncryptionDisabled(): void
+    {
+        $crypto = new Crypto(
+            $this->keychain,
+            new NullLogger(),
+            shouldEncryptForDatabase: true,
+            shouldEncryptForFilesystem: false,
+        );
+        $ciphertext = $this->fixtures->getCiphertext(7);
+
+        self::assertFalse(
+            $crypto->isFilesystemValueLatest($ciphertext),
+            'Encrypted value should not be latest when encryption is disabled',
+        );
     }
 }

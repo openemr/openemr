@@ -34,7 +34,7 @@ class Module
     {
         return [
             'factories' => [
-                AclTable::class => fn($sm) => new AclTable(),
+                AclTable::class => fn($sm): AclTable => new AclTable(),
             ],
         ];
     }

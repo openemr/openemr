@@ -8,9 +8,6 @@ describe('fdate', () => {
     });
 
     test.each([
-        ['', today.toISOString()],
-        ['0', today.toISOString()],
-        ['0000-00-00', today.toISOString()],
         ['20230514', '2023-05-14'],
         ['20230514XXXX00', '2023-05-14'],
         ['12-21-2023', '2023-12-21'],

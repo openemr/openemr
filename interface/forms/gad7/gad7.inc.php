@@ -13,8 +13,10 @@
  */
 
  require_once(__DIR__ . "/../../globals.php");
- require_once("$srcdir/api.inc.php");
- require_once("$srcdir/patient.inc.php");
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+
 
 
 // menu strings

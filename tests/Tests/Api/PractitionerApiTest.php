@@ -102,7 +102,7 @@ class PractitionerApiTest extends TestCase
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
 
         $practitionerUuid = $responseBody["data"]["uuid"];
-        assert(is_string($practitionerUuid));
+        self::assertIsString($practitionerUuid);
 
         $this->practitionerRecord["email"] = "help@pennfirm.com";
         $actualResponse = $this->testClient->put(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid, $this->practitionerRecord);
@@ -138,7 +138,7 @@ class PractitionerApiTest extends TestCase
         /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $practitionerUuid = $responseBody["data"]["uuid"];
-        assert(is_string($practitionerUuid));
+        self::assertIsString($practitionerUuid);
         $practitionerId = $responseBody["data"]["id"];
 
         $actualResponse = $this->testClient->getOne(self::PRACTITIONER_API_ENDPOINT, $practitionerUuid);

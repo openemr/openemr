@@ -1,0 +1,84 @@
+name: Generate app token
+description: >
+  Mint a GitHub App installation token via
+  actions/create-github-app-token@v3. Centralizes the boilerplate so
+  every workflow that needs a bot-scoped token wires it the same way
+  (single point to bump the underlying action version, add new inputs,
+  or adjust minted-token defaults). Used by the release-mechanism
+  workflows (RELEASE_APP), dependabot auto-merge (AUTO_MERGE_APP),
+  and the reserved-word refresh (RESERVED_WORD_BOT).
+
+inputs:
+  client-id:
+    description: GitHub App client ID (typically vars.RELEASE_APP_CLIENT_ID).
+    required: true
+  private-key:
+    description: >
+      GitHub App private key PEM (typically
+      secrets.RELEASE_APP_PRIVATE_KEY).
+    required: true
+  owner:
+    description: >
+      Owner to scope the installation token to. Defaults to unset,
+      which lets create-github-app-token@v3 pick the current repo's
+      owner. Set explicitly when scoping to sibling repositories
+      (e.g. dispatch targets like website-openemr, demo_farm_openemr).
+    required: false
+    default: ''
+  repositories:
+    description: >
+      Newline- or comma-separated repository names to scope the
+      installation token to (least-privilege). When `owner` is set,
+      leaving this unset grants access to every repository in that
+      owner's installation; when both are unset, access is limited to
+      the current repository.
+    required: false
+    default: ''
+  permission-contents:
+    description: >
+      Optional least-privilege grant for the `contents` permission
+      (read | write). Leave unset to inherit the App installation's
+      default.
+    required: false
+    default: ''
+  permission-metadata:
+    description: >
+      Optional least-privilege grant for the `metadata` permission
+      (read). Leave unset to inherit the App installation's default.
+    required: false
+    default: ''
+  permission-pull-requests:
+    description: >
+      Optional least-privilege grant for the `pull-requests`
+      permission (read | write). Leave unset to inherit the App
+      installation's default.
+    required: false
+    default: ''
+  permission-statuses:
+    description: >
+      Optional least-privilege grant for the `statuses` permission
+      (read | write). Leave unset to inherit the App installation's
+      default.
+    required: false
+    default: ''
+
+outputs:
+  token:
+    description: The minted GitHub App installation token.
+    value: ${{ steps.create-token.outputs.token }}
+
+runs:
+  using: composite
+  steps:
+  - name: Create GitHub App token
+    id: create-token
+    uses: actions/create-github-app-token@v3
+    with:
+      client-id: ${{ inputs.client-id }}
+      private-key: ${{ inputs.private-key }}
+      owner: ${{ inputs.owner }}
+      repositories: ${{ inputs.repositories }}
+      permission-contents: ${{ inputs.permission-contents }}
+      permission-metadata: ${{ inputs.permission-metadata }}
+      permission-pull-requests: ${{ inputs.permission-pull-requests }}
+      permission-statuses: ${{ inputs.permission-statuses }}

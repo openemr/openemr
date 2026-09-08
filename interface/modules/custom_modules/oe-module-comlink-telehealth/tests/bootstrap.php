@@ -12,6 +12,9 @@
 
 declare(strict_types=1);
 
+use OpenEMR\BC\Deprecation;
+use OpenEMR\BC\DeprecationMode;
+
 // make sure this can only be run on the command line.
 if (php_sapi_name() !== 'cli') {
     exit;
@@ -20,3 +23,5 @@ if (php_sapi_name() !== 'cli') {
 $_GET['site'] = 'default';
 $ignoreAuth = true;
 require_once(__DIR__ . "/../../../../globals.php");
+
+Deprecation::$mode = DeprecationMode::Error;

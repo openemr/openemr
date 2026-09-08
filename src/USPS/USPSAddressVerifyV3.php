@@ -47,10 +47,10 @@ class USPSAddressVerifyV3
         $encryptedClientSecret = $globals->getString('usps_apiv3_client_secret');
 
         $this->clientId = !empty($encryptedClientId)
-            ? $cryptoGen->decryptStandard(is_string($encryptedClientId) ? $encryptedClientId : null)
+            ? $cryptoGen->decryptFromDatabase($encryptedClientId)
             : '';
         $this->clientSecret = !empty($encryptedClientSecret)
-            ? $cryptoGen->decryptStandard(is_string($encryptedClientSecret) ? $encryptedClientSecret : null)
+            ? $cryptoGen->decryptFromDatabase($encryptedClientSecret)
             : '';
 
         $this->client = new Client([

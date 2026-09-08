@@ -30,7 +30,7 @@ interface IObservable
      * Fires the Observe event on all registered observers
      *
      * @access public
-     * @param variant $obj
+     * @param mixed $obj
      *          the $obj or message that you want to log/listen to, etc.
      * @param int $ltype
      *          the type/level

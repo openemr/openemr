@@ -38,11 +38,15 @@
             <td class='currentvalues p-2'>
         {% endif %}
 
-            <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_usa'
+            <input type="text" inputmode="decimal" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_usa'
                    value="{% if attribute(vitals, field.vitalsValue) is numeric %} {{ attribute(vitals, field.vitalsValue)|number_format(field.precision)|attr }}{% endif %}"
                    data-system="usa" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
                    data-target-input-conv="{{ field.input|attr }}_input_metric"
-                   title='{{ field.vitalsValueUSAHelpTitle|default('')|attr }}'/>
+                   title='{{ field.vitalsValueUSAHelpTitle|default('')|attr }}'
+                   {% if field.validation is defined and field.validation is not null %}data-min="{{ field.validation.min|attr }}" data-max="{{ field.validation.max|attr }}" data-warning-min="{{ field.validation.warningMin|attr }}" data-warning-max="{{ field.validation.warningMax|attr }}"{% endif %}/>
+            {% if field.validation is defined and field.validation is not null %}
+            <span class="vitals-warning-message" id="{{ field.input|attr }}_input_usa_warning"></span>
+            {% endif %}
         </td>
         <td class="editonly">
             {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input) } %}
@@ -83,10 +87,14 @@
         {% endif %}
 
             <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
-            <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_metric'
+            <input type="text" inputmode="decimal" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_metric'
                    value="{% if attribute(vitals, field.vitalsValue) is numeric %}{{ attribute(vitals, field.vitalsValueMetric)|number_format(field.precision)|attr }}{% endif %}"
                    data-system="metric" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
-                   data-target-input-conv="{{ field.input|attr }}_input_usa" />
+                   data-target-input-conv="{{ field.input|attr }}_input_usa"
+                   {% if field.validation is defined and field.validation is not null and field.validation.metricMin is defined %}data-min="{{ field.validation.metricMin|attr }}" data-max="{{ field.validation.metricMax|attr }}" data-warning-min="{{ field.validation.metricWarningMin|attr }}" data-warning-max="{{ field.validation.metricWarningMax|attr }}"{% endif %}/>
+            {% if field.validation is defined and field.validation is not null and field.validation.metricMin is defined %}
+            <span class="vitals-warning-message" id="{{ field.input|attr }}_input_metric_warning"></span>
+            {% endif %}
         </td>
         <td class="editonly">
             {% if units_of_measurement == MEASUREMENT_METRIC_ONLY %}

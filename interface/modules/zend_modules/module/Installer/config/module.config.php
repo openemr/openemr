@@ -11,6 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use Installer\Model\InstModuleTable;
 use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 
@@ -25,7 +26,7 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            Installer\Model\InstModuleTable::class => fn(ContainerInterface $container, $requestedName) => new Installer\Model\InstModuleTable($container),
+            InstModuleTable::class => fn(ContainerInterface $container, $requestedName): InstModuleTable => new InstModuleTable($container),
         ]
     ],
     'router' => [

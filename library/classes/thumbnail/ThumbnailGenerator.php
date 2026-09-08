@@ -52,7 +52,7 @@ class ThumbnailGenerator
         return $types_support;
     }
 
-    static function count_not_generated()
+    public static function count_not_generated()
     {
         $sql = "SELECT COUNT(*) AS c FROM documents
         WHERE mimetype IN (" . implode(',', self::get_types_support()) . ") AND thumb_url IS NULL";
@@ -166,9 +166,7 @@ class ThumbnailGenerator
      */
     private function generate_couch_file($doc_id, $file_name)
     {
-        if (is_null($this->couch_obj)) {
-            $this->couch_obj = new CouchDB();
-        }
+        $this->couch_obj ??= new CouchDB();
 
         $resp = $this->couch_obj->retrieve_doc($doc_id);
 

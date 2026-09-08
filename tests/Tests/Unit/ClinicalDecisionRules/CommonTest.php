@@ -22,7 +22,7 @@ class CommonTest extends TestCase
     {
         $pieces = ['apple', 'banana', 'cherry'];
         $funcs = [
-            fn($value) => strtoupper((string) $value),
+            fn($value): string => strtoupper((string) $value),
             fn($value): string => substr((string) $value, 0, 3)
         ];
         $result = Common::implode_funcs('!', $pieces, $funcs);

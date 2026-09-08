@@ -26,7 +26,6 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -77,7 +76,7 @@ class ClientAdminController
     {
         $this->kernel = $this->globalsBag->getKernel();
         $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
-        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->twig = ServiceContainer::getTwig();
         $this->webroot = $this->globalsBag->getKernel()->getWebRoot();
     }
 
@@ -93,16 +92,14 @@ class ClientAdminController
 
     public function getExternalCDRController(): RouteController
     {
-        if (!isset($this->externalCDRController)) {
-            $this->externalCDRController = new RouteController(
-                $this->session,
-                $this->clientRepo,
-                $this->logger ?? ServiceContainer::getLogger(),
-                $this->getTwig(),
-                $this->actionUrlBuilder,
-                new DecisionSupportInterventionService()
-            );
-        }
+        $this->externalCDRController ??= new RouteController(
+            $this->session,
+            $this->clientRepo,
+            $this->logger ?? ServiceContainer::getLogger(),
+            $this->getTwig(),
+            $this->actionUrlBuilder,
+            new DecisionSupportInterventionService()
+        );
         return $this->externalCDRController;
     }
 
@@ -140,7 +137,7 @@ class ClientAdminController
 
         if ($action === '' || $action === 'list/') {
             return $this->listAction();
-        } else if ($this->getExternalCDRController()->supportsRequest($request)) {
+        } elseif ($this->getExternalCDRController()->supportsRequest($request)) {
             /** @var Response */
             return $this->getExternalCDRController()->dispatch($request);
         }
@@ -312,9 +309,7 @@ class ClientAdminController
 
     private function getAccessTokenRepository(): AccessTokenRepository
     {
-        if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $this->session);
-        }
+        $this->accessTokenRepository ??= new AccessTokenRepository(new ServerConfig(), $this->session);
         return $this->accessTokenRepository;
     }
 

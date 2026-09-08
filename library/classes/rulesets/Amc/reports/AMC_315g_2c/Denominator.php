@@ -32,7 +32,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         return "AMC_315g_2c Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // dates are already filtered so we don't have to worry about that, but we do need to filter by our denom
         // criteria
@@ -103,7 +103,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_SEEN) {
             $newDetails = xl("Encounters during period") . ':' . $details['enc'];
-        } else if ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
             $newDetails = xl("Not seen");
         }
         return $newDetails;

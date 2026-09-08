@@ -14,6 +14,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$web_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot();
+
 ?>
 <script type="text/html" id="review-display">
     <link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/review/views/review.css">

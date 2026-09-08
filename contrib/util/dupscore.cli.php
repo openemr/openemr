@@ -59,9 +59,6 @@ $_GET['site'] = $args['site'];
 $ignoreAuth = 1;
 require_once($args['webdir'] . "/interface/globals.php");
 
-// Bring in the getDupScoreSQL() function.
-require_once("$srcdir/dupscore.inc.php");
-
 $endtime = time() + 365 * 24 * 60 * 60; // a year from now
 if (!empty($args['maxmins'])) {
     $endtime = time() + $args['maxmins'] * 60;

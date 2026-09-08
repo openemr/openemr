@@ -15,8 +15,17 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+
+/** @var bool $isBilled (set by including file fee_sheet/new.php) */
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!$isBilled) {
@@ -24,8 +33,8 @@ if (!$isBilled) {
     ?>
 <script>
     var webroot = <?php echo js_escape($web_root); ?>;
-    var pid = <?php echo js_escape($pid); ?>;
-    var enc = <?php echo js_escape($encounter); ?>;
+    var pid = <?php echo $pid; ?>;
+    var enc = <?php echo $encounter; ?>;
     var review_tag = <?php echo xlj('Review'); ?>;
     var justify_click_title = <?php echo xlj('Click to choose diagnoses to justify.'); ?>;
     var fee_sheet_options = [];

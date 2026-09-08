@@ -16,7 +16,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use OpenEMR\Common\Command\GeneratePhpstanTypesCommand;
+use OpenEMR\Common\Command\RootCliGuard;
 use Symfony\Component\Console\Application;
+
+// Refuse to run as root — see RootCliGuard.
+RootCliGuard::assertNotRoot();
 
 $application = new Application('openemr-phpstan-types', '1.0.0');
 $application->add(new GeneratePhpstanTypesCommand());

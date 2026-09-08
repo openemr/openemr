@@ -9,11 +9,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Right side of \\|\\| is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of \\|\\| is always false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchFieldComparableValue.php',
 ];
 

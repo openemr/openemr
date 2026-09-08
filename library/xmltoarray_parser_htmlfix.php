@@ -46,7 +46,7 @@ class xmltoarray_parser_htmlfix
     /**
      * Default constructor for xmltoarray_parser_htmlfix.
      */
-    function __construct()
+    public function __construct()
     {
         $this->values = [];
         $this->index  = [];
@@ -56,10 +56,10 @@ class xmltoarray_parser_htmlfix
 
     /**
      * xmlparser_setoption sets XML options based on xml_parser_set_option options.
-     * @param $optionName - The name of the option from the xml_parser_set_option list.
-     * @param $value - The value to set for the option.
+     * @param int $optionName - The name of the option from the xml_parser_set_option list.
+     * @param bool|int|string $value - The value to set for the option.
      */
-    function xmlparser_setoption($optionName, $value)
+    public function xmlparser_setoption(int $optionName, bool|int|string $value): void
     {
         xml_parser_set_option($this->parser, $optionName, $value);
     }
@@ -68,7 +68,7 @@ class xmltoarray_parser_htmlfix
      * xmlparser_fix_into_struct fixes the XML and passes the XML into the struct parser.
      * @param $xml - A string XML value.
      */
-    function xmlparser_fix_into_struct($xml)
+    public function xmlparser_fix_into_struct($xml)
     {
         $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
         $keys = [];
@@ -92,7 +92,7 @@ class xmltoarray_parser_htmlfix
      * createArray creates and returns the array.
      * @return array The associative XML array.
      */
-    function createArray()
+    public function createArray()
     {
         $i = 0;
         $name = $this->values[$i]['tag'] ?? '';
@@ -107,7 +107,7 @@ class xmltoarray_parser_htmlfix
      * @param int $i The index value
      * @return array The child
      */
-    function _struct_to_array($values, &$i)
+    public function _struct_to_array($values, &$i)
     {
         $child = [];
         if (isset($values[$i]['value'])) {
@@ -152,7 +152,7 @@ class xmltoarray_parser_htmlfix
      * @param string $string A string value.
      * @return string A fixed string with & instead of %and%.
      */
-    function fix_html_entities($string)
+    public function fix_html_entities($string)
     {
         $string =  str_replace("%and%", "&", $string);
         return $string;

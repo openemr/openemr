@@ -36,11 +36,7 @@ require_once(__DIR__.'/../../vendor/autoload.php');
 use OpenEMR\Gacl\GaclAdminApi;
 use OpenEMR\Services\Storage\CacheDirectory;
 
-// phpGACL Configuration file.
-if ( !isset($config_file) ) {
-#   $config_file = '../gacl.ini.php';
-    $config_file = __DIR__.'/../gacl.ini.php';
-}
+$config_file ??= __DIR__.'/../gacl.ini.php';
 
 //Values supplied in $gacl_options array overwrite those in the config file.
 if ( file_exists($config_file) ) {
@@ -55,9 +51,7 @@ if ( file_exists($config_file) ) {
 /** @var array<string, mixed>|null $gacl_options */
 $gacl_api = new GaclAdminApi(is_array($gacl_options ?? null) ? $gacl_options : null);
 
-$gacl = &$gacl_api;
-
-$db = &$gacl->db;
+$db = $gacl_api->db;
 
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);

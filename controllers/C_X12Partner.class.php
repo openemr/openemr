@@ -18,9 +18,10 @@ use OpenEMR\Core\OEGlobalsBag;
 class C_X12Partner extends Controller
 {
     public $providers;
+    /** @var X12Partner[] */
     public $x12_partners;
 
-    function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->x12_partners = [];
@@ -29,14 +30,14 @@ class C_X12Partner extends Controller
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action()
+    public function default_action(): string
     {
         return $this->list_action();
     }
 
-    function edit_action($id = "", $x_obj = null)
+    public function edit_action($id = "", $x_obj = null)
     {
-        if ($x_obj != null && $x_obj::class == "x12partner") {
+        if ($x_obj instanceof X12Partner) {
             $this->x12_partners[0] = $x_obj;
         } elseif (is_numeric($id)) {
             $this->x12_partners[0] = new X12Partner($id);
@@ -48,23 +49,22 @@ class C_X12Partner extends Controller
         $sftpPass = $this->x12_partners[0]->get_x12_sftp_pass();
         if ($sftpPass) {
             $cryptoGen = ServiceContainer::getCrypto();
-            $this->x12_partners[0]->set_x12_sftp_pass($cryptoGen->decryptStandard(is_string($sftpPass) ? $sftpPass : null));
+            $this->x12_partners[0]->set_x12_sftp_pass($cryptoGen->decryptFromDatabase(is_string($sftpPass) ? $sftpPass : null));
         }
 
         $this->assign("partner", $this->x12_partners[0]);
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_edit.html");
     }
 
-    function list_action()
+    public function list_action(): string
     {
-
         $x = new X12Partner();
         $this->assign("partners", $x->x12_partner_factory());
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_list.html");
     }
 
 
-    function edit_action_process()
+    public function edit_action_process()
     {
         if ($_POST['process'] != "true") {
             return;
@@ -79,7 +79,7 @@ class C_X12Partner extends Controller
         if (!empty($_POST['x12_sftp_pass'])) {
             $cryptoGen = ServiceContainer::getCrypto();
             $currentPass = $this->x12_partners[0]->x12_sftp_pass;
-            $this->x12_partners[0]->x12_sftp_pass = $cryptoGen->encryptStandard(is_string($currentPass) ? $currentPass : null);
+            $this->x12_partners[0]->x12_sftp_pass = $cryptoGen->encryptForDatabase(is_string($currentPass) ? $currentPass : null);
         }
 
         $this->x12_partners[0]->persist();

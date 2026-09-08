@@ -26,12 +26,18 @@
 
 require_once("../interface/globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    http_response_code(403);
+    exit;
+}
 
 $qrda_fname = $_GET['qrda_fname'];
 check_file_dir_name($qrda_fname);

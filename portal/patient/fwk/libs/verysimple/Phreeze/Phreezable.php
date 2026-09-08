@@ -138,7 +138,7 @@ abstract class Phreezable
      *
      * @deprecated use ToObject
      */
-    function GetObject($props = null, $camelCase = false)
+    public function GetObject($props = null, $camelCase = false)
     {
         return $this->ToObject([
                 'props' => $props,
@@ -159,11 +159,9 @@ abstract class Phreezable
      *          camelCase (bool) if true then first letter of each property is made lowercase
      * @return stdClass
      */
-    function ToObject($options = null)
+    public function ToObject($options = null)
     {
-        if ($options === null) {
-            $options =  [];
-        }
+        $options ??= [];
 
         $props = array_key_exists('props', $options) ? $options ['props'] : $this->GetPublicProperties();
         $omit = array_key_exists('omit', $options) ? $options ['omit'] :  [];
@@ -188,7 +186,7 @@ abstract class Phreezable
      * @param Phreezer $phreezer
      * @param Array $row
      */
-    final function __construct(Phreezer $phreezer, $row = null)
+    final public function __construct(Phreezer $phreezer, $row = null)
     {
         $this->_phreezer = $phreezer;
         $this->_cache =  [];
@@ -417,7 +415,7 @@ abstract class Phreezable
      * @param Phreezer $phreezer
      * @param Array $row
      */
-    final function Refresh(&$phreezer, $row = null)
+    final public function Refresh(&$phreezer, $row = null)
     {
         $this->_phreezer = $phreezer;
 
@@ -440,7 +438,7 @@ abstract class Phreezable
      * For sorting
      * purposes it is recommended to override this method
      */
-    function ToString()
+    public function ToString()
     {
         return serialize($this);
     }
@@ -452,7 +450,7 @@ abstract class Phreezable
      * @access public
      * @return string
      */
-    function GetPrimaryKeyName()
+    public function GetPrimaryKeyName()
     {
         $fms = $this->_phreezer->GetFieldMaps(static::class);
         foreach ($fms as $fm) {
@@ -482,7 +480,7 @@ abstract class Phreezable
      * @access public
      * @return string
      */
-    function GetPrimaryKeyValue()
+    public function GetPrimaryKeyValue()
     {
         $prop = $this->GetPrimaryKeyName();
         return $this->$prop;
@@ -495,7 +493,7 @@ abstract class Phreezable
      * @access public
      * @return array
      */
-    function GetArray()
+    public function GetArray()
     {
         $fms = $this->_phreezer->GetFieldMaps(static::class);
         $cols =  [];
@@ -516,7 +514,7 @@ abstract class Phreezable
      *          (default = false)
      * @return int auto_increment or number of records affected
      */
-    function Save($force_insert = false)
+    public function Save($force_insert = false)
     {
         return $this->_phreezer->Save($this, $force_insert);
     }
@@ -527,7 +525,7 @@ abstract class Phreezable
      * @access public
      * @return int number of records affected
      */
-    function Delete()
+    public function Delete()
     {
         return $this->_phreezer->Delete($this);
     }
@@ -538,7 +536,7 @@ abstract class Phreezable
      * @access public
      * @param Array $row
      */
-    function Load(&$row)
+    public function Load(&$row)
     {
         $fms = $this->_phreezer->GetFieldMaps(static::class);
         $this->_phreezer->Observe("Loading " . static::class, OBSERVE_DEBUG);

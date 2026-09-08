@@ -42,5 +42,6 @@ return [
     'codetext' => 'Standard chest x-ray',
     'description' => 'test-fixture-xray',
     'care_plan_type' => 'plan_of_care',
+    'plan_engagement_category' => 'active',
     ],
 ];

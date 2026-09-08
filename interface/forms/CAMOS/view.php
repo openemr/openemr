@@ -25,10 +25,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -84,7 +83,7 @@ function show_edit(t) {
 <input type="submit" name="delete" value="<?php echo xla('Delete Selected Items'); ?>" />
 <input type="submit" name="update" value="<?php echo xla('Update Selected Items'); ?>" />
 <?php
-echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "'>[" . xlt('do nothing') . "]</a>";
+echo "<a href='" . FormActionBarSettings::EXIT_URL . "'>[" . xlt('do nothing') . "]</a>";
 ?>
 <br/><br/>
 <input type='button' value='<?php echo xla('Select All'); ?>'

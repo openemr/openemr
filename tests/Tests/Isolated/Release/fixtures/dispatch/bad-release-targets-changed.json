@@ -1,0 +1,10 @@
+{
+  "event": "release-targets-changed",
+  "repo": "openemr/openemr",
+  "sha": "cafebabecafebabecafebabecafebabecafebabe",
+  "actor": "openemr-release-bot",
+  "dispatched_at": "2026-04-29T13:30:00Z",
+  "data": {
+    "stray_field": "release-targets-changed carries no event-specific data; additionalProperties:false rejects this"
+  }
+}

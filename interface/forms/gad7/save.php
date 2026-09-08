@@ -12,25 +12,39 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-if ($encounter == "") {
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'gad7');
+
+if (!$encounter) {
     $encounter = date("Ymd");
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_gad7", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_gad7", $_POST, $formId, $userauthorized);
     addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'gad7');
     $pid = $session->get('pid');
     $authProvider = $session->get('authProvider');
     $authUser = $session->get('authUser');
@@ -62,7 +76,7 @@ if ($_GET["mode"] == "new") {
             $_POST["irritable_score"],
             $_POST["fear_score"],
             $_POST["difficulty"],
-            $_GET["id"]
+            $formId
         ]
     );
 }

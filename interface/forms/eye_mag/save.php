@@ -32,38 +32,58 @@ $form_folder = "eye_mag";
 require_once(__DIR__ . "/../../globals.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
+use Symfony\Component\HttpFoundation\Request;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/api.inc.php");
-require_once($srcdir . "/forms.inc.php");
 require_once("php/" . $form_name . "_functions.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/report.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid');
 
+// Captured here, at the top, because the form-save paths below rewrite $_POST
+// and $_REQUEST in place as they normalize fields. Reading the request through
+// this object gets the values the browser actually sent.
+$request = Request::createFromGlobals();
+
+// Whitelist the mode before any downstream branch (lock flow, ACL check,
+// mutation dispatch) runs. An unknown mode does not have a valid dispatch
+// target and must not enter the pre-dispatch flow -- reject early.
+$requestMode = $request->request->get('mode', $request->query->get('mode', ''));
+$allowedModes = ['new', 'update', 'retrieve', 'show_PDF'];
+if (!in_array($requestMode, $allowedModes, true)) {
+    AccessDeniedHelper::denyWithTemplate("Unsupported mode for Eye Form Save", xl("Eye Form"));
+}
+
+// Update-mode mutations require write access; addonly is insert-only and only
+// applies to the new-mode path that creates a new form row.
+$requiredAccess = $requestMode === 'update' ? 'write' : ['write', 'addonly'];
+if (!AclMain::aclCheckCore('patients', 'med', '', $requiredAccess)) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Eye Form Save", xl("Eye Form"));
+}
+
 $returnurl = 'encounter_top.php';
 
-if (isset($_REQUEST['id'])) {
-    $id = $_REQUEST['id'];
-}
-
-if (!($id ?? '')) {
-    $id = $_REQUEST['pid'] ?? '';
-}
+// The form/dispense row id is a distinct value from pid; falling back to pid
+// when id is missing was a latent bug -- $id is only ever used with
+// formUpdate() below, which expects a form row id. Read only $_REQUEST['id'].
+$id = $_REQUEST['id'] ?? '';
 
 $encounter = $_REQUEST['encounter'] ?? '';
 
@@ -884,15 +904,31 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $Vdate = $Vdated->format('Y-m-d');
             //get eid
             $sql = "select * from patient_tracker where  `pid` = ? and `apptdate`=?";
-            $tracker = sqlFetchArray(sqlStatement($sql, [$_POST['pid'], $Vdate]));
-            sqlStatement("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?", [($tracker['lastseq'] + 1), $tracker['id']]);
-            #Add a tracker item.
-            $sql = "INSERT INTO `patient_tracker_element` " .
-                "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
-                "VALUES (?,NOW(),?,?,?,?)";
-            sqlStatement($sql, [$tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)]);
-            $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
-            sqlStatement($sql, [$_POST['new_status'], $tracker['eid']]);
+            // Scope the tracker lookup to the session pid; the previous
+            // $_POST['pid'] read is redundant with the patient context that
+            // already drives every other query in this file.
+            // QueryUtils calls throw SqlQueryException on error; funnel them
+            // through HelpfulDie so this block matches the surrounding
+            // sqlStatement()/HelpfulDie() behavior in the rest of the file.
+            try {
+                $tracker = QueryUtils::querySingleRow($sql, [$pid, $Vdate]);
+                if ($tracker !== false) {
+                    QueryUtils::sqlStatementThrowException("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?", [($tracker['lastseq'] + 1), $tracker['id']]);
+                    #Add a tracker item.
+                    $sql = "INSERT INTO `patient_tracker_element` " .
+                        "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
+                        "VALUES (?,NOW(),?,?,?,?)";
+                    QueryUtils::sqlStatementThrowException($sql, [$tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)]);
+                    $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
+                    QueryUtils::sqlStatementThrowException($sql, [$_POST['new_status'], $tracker['eid']]);
+                }
+            } catch (\OpenEMR\Common\Database\SqlQueryException $e) {
+                ServiceContainer::getLogger()->error(
+                    'eye_mag save: patient_tracker update failed',
+                    ['exception' => $e]
+                );
+                HelpfulDie("Failed to update patient tracker");
+            }
             echo "saved";
             exit;
         }
@@ -1304,8 +1340,21 @@ if ($_REQUEST['canvas'] ?? '') {
     exit;
 }
 
-if ($_REQUEST['copy']) {
-    copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], ($session->get('ID') ?? ''), $pid);
+// Both copy-forward callers post these; the typed getters hand back strings, so
+// the enums are the only thing that still has to recognize the value.
+if ($request->request->getString('copy') !== '') {
+    $requestedZone = $request->request->getString('zone');
+    $copyFrom = $request->request->getString('copy_from');
+    $copyMode = Zone::tryFrom($requestedZone) ?? CopyMode::tryFrom($requestedZone);
+
+    // A patient id reaches here as either the session's int or a request string;
+    // anything else is not a patient and must not be stringified into the query.
+    if ($copyMode !== null && (is_string($pid) || is_int($pid))) {
+        copy_forward($copyMode, $copyFrom, (string) $pid);
+    } else {
+        // The browser asked for this with dataType: 'json'; an empty body is a parse error.
+        echo json_encode([]);
+    }
     return;
 }
 

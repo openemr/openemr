@@ -18,7 +18,6 @@ class DupeCheckMergeRecordsIsDeprecated
     }
 }
 require_once("../../../interface/globals.php");
-require_once("../../../library/pnotes.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

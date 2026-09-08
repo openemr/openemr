@@ -18,8 +18,6 @@ use DOMXpath;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(__DIR__ . "/../../../../../../../../library/patient.inc.php");
-
 class CcrTable
 {
   /*

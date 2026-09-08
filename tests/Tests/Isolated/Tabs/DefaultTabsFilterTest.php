@@ -168,4 +168,28 @@ class DefaultTabsFilterTest extends TestCase
             $filter->filter($tabs, self::projectRoot()),
         );
     }
+
+    public function testPasswordExpirationTabSurvivesFilter(): void
+    {
+        $notes = 'interface/main/pwd_expires_alert.php';
+
+        self::assertFileExists(
+            self::projectRoot() . DIRECTORY_SEPARATOR . $notes,
+            'pwd_expires_alert.php is not where main_screen.php points it.'
+        );
+
+        // Legacy key shape, exactly as main_screen.php prepends it, with query string.
+        $tabs = [[
+            'id'    => 'adm',
+            'label' => 'Password Reset',
+            'notes' => $notes . '?csrf_token_form=dummy',
+        ]];
+
+        $result = (new DefaultTabsFilter())->filter($tabs, self::projectRoot());
+
+        self::assertCount(1, $result, 'Expiration tab dropped — notes path does not resolve under root.');
+        self::assertSame('adm', $result[0]['option_id']);          // normalized from 'id'
+        self::assertSame('Password Reset', $result[0]['title']);   // normalized from 'label'
+        self::assertStringStartsWith($notes, $result[0]['notes']); // notes preserved incl. query
+    }
 }

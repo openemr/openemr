@@ -815,7 +815,7 @@ class Savant3 implements \Stringable
      * @return bool True on success, false on failure.
      *
      */
-    public function assign()
+    public function assign(): bool
     {
         // get the arguments; there may be 1 or 2.
         $arg0 = @func_get_arg(0);
@@ -878,7 +878,7 @@ class Savant3 implements \Stringable
      * @return bool True on success, false on failure.
      *
      */
-    public function assignRef($key, &$val)
+    public function assignRef($key, &$val): bool
     {
         // assign by name and reference (can't assign to __config).
         if ($key != '__config') {
@@ -947,10 +947,7 @@ class Savant3 implements \Stringable
      */
     public function fetch($tpl = null)
     {
-        // make sure we have a template source to work with
-        if (is_null($tpl)) {
-            $tpl = $this->__config ['template'];
-        }
+        $tpl ??= $this->__config ['template'];
 
         // get a path to the compiled template script
         $result = $this->template($tpl);
@@ -1022,10 +1019,7 @@ class Savant3 implements \Stringable
      */
     protected function template($tpl = null)
     {
-        // set to default template if none specified.
-        if (is_null($tpl)) {
-            $tpl = $this->__config ['template'];
-        }
+        $tpl ??= $this->__config ['template'];
 
         // find the template source.
         $file = $this->findFile('template', $tpl);

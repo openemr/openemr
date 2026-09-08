@@ -27,7 +27,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     <!--         -->
     <div class="card-header">
         <p><b><?php echo xlt($rule->title); ?></b>
-            (<?php echo Common::implode_funcs(", ", $rule->getRuleTypeLabels(), ['xlt']); ?>)
+            (<?php echo Common::implode_funcs(", ", $rule->getRuleTypeLabels(), [xlt(...)]); ?>)
             <?php if ($viewBean->canEdit) : ?>
                 <input type="button" class="btn btn-sm btn-primary btn-edit-cdr-source"
                        data-rule-id="<?php echo attr($rule->id); ?>"

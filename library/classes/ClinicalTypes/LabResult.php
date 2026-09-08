@@ -21,7 +21,7 @@ class LabResult extends ClinicalType
         return 'Clinical_Rules_Lab_Res_Types';
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $data = Codes::lookup($this->getOptionId());
 

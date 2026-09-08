@@ -24,9 +24,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
     }
     public function getEventAuditLogger(): EventAuditLogger
     {
-        if (!isset($this->eventAuditLogger)) {
-            $this->eventAuditLogger = EventAuditLogger::getInstance();
-        }
+        $this->eventAuditLogger ??= EventAuditLogger::getInstance();
         return $this->eventAuditLogger;
     }
     public static function getSubscribedEvents(): array
@@ -59,9 +57,11 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
                 $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated api_log_option set to 1, skipping log and request");
                 // Do not log the response and requestBody
                 $logResponse = '';
-            } else if ($this->shouldLogResponse($response)) {
-                // If the response is a Symfony Response, we can get the content directly
-                $logResponse = $response->getContent();
+            } elseif ($this->shouldLogResponse($response)) {
+                // If the response is a Symfony Response, we can get the content directly.
+                // getContent() returns false for streamed responses, which we log as empty.
+                $content = $response->getContent();
+                $logResponse = is_string($content) ? $content : '';
             } else {
                 $logResponse = '';
                 $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated skipping log of response, not a json response");
@@ -76,6 +76,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             $userId = (int)($session->get('authUserID', 0));
             $api = [
                 'user_id' => $userId,
+                'client_id' => $request->getClientId() ?? '',
                 'patient_id' => $patientId,
                 'method' => $method,
                 'request' => $request->getResource() ?? '',

@@ -14,7 +14,6 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/immunization_helper.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
@@ -202,7 +201,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
 } else {
     if (!empty($_GET['mode']) && ($_GET['mode'] == "edit")) {
         //depends on if a cvx code is enterer already
-        $useCVX = empty($cvx_code) ? false : true;
+        $useCVX = !empty($cvx_code);
     } else { // $_GET['mode'] == "add"
         $useCVX = true;
     }

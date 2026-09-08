@@ -48,9 +48,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
      */
     public function getLogger(): LoggerInterface
     {
-        if (!isset($this->logger)) {
-            $this->logger = ServiceContainer::getLogger();
-        }
+        $this->logger ??= ServiceContainer::getLogger();
         return $this->logger;
     }
 
@@ -116,8 +114,11 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         }
         $logger->debug("oauth2 request received", ["endpoint" => $request->getRequestPathWithoutSite()]);
 
-        $authServer = new AuthorizationController($session, $kernel);
-        $authServer->setSystemLogger($logger);
+        $authServer = new AuthorizationController(
+            session: $session,
+            kernel: $kernel,
+            logger: $logger
+        );
 
 
         $end_point = (string) $request->getRequestPathWithoutSite();

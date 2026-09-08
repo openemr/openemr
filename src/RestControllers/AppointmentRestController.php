@@ -18,6 +18,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 
 class AppointmentRestController
 {
@@ -287,13 +288,26 @@ class AppointmentRestController
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function delete($eid)
+    public function delete(string $pid, string $eid): Response
     {
         try {
-            $this->appointmentService->deleteAppointmentRecord($eid);
+            // Scope deletion by pid so a leaked eid can't reach another patient's chart.
+            $service = $this->appointmentService;
+            assert($service instanceof AppointmentService);
+            $existing = $service->getAppointment($eid);
+            $existingPidRaw = (is_array($existing) && isset($existing[0]) && is_array($existing[0]))
+                ? ($existing[0]['pid'] ?? null)
+                : null;
+            if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
+                return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+            }
+            if (!$service->deleteAppointmentRecord($eid, (int) $pid)) {
+                return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+            }
             $serviceResult = ['message' => 'record deleted'];
         } catch (\Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception, 'eid' => $eid]);

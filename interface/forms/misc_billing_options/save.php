@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
@@ -32,9 +33,6 @@ $webroot = OEGlobalsBag::getInstance()->getWebRoot();
 $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
-
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -65,6 +63,7 @@ if (Utilities::isDateEmpty($_POST["hospitalization_date_from"])) {
 }
 
 $id = (int)($_GET['id'] ?? '');
+EncounterFormAccess::assertFormBelongsToSessionPatient($id, 'misc_billing_options');
 
 $sets = "pid = ?,
     groupname = ?,

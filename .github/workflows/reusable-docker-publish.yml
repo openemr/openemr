@@ -1,0 +1,172 @@
+# Reusable docker-publish workflow — the docker side of Phase 10c
+# (openemr/openemr#TBD). Extracts what was inline in docker-build-
+# release.yml's `publish` + `cleanup-candidate` jobs so both docker-
+# build-release.yml (the primary release path) and docker-acceptance-
+# only.yml (the Phase 10c recovery path) can call the same publish
+# flow without duplicating the imagetools-alias + OCI-label verify +
+# Docker Hub v2-API cleanup logic.
+#
+# Behavior is identical to docker-build-release.yml's pre-refactor
+# publish + cleanup-candidate jobs step-for-step. Inputs replace what
+# was previously read from needs.build.outputs.* at the caller site:
+#
+#   candidate_tag       - temporary Docker Hub tag suffix that carries
+#                         the tested multi-arch manifest (e.g.,
+#                         release-candidate-<run-id>-<attempt>).
+#                         Aliased onto every final tag and then
+#                         deleted by cleanup-candidate on success.
+#
+#   expanded_tags       - whitespace-separated list of full tag refs
+#                         (e.g. `openemr/openemr:8.2.0 openemr/openemr:
+#                         latest openemr/openemr:8.2.0-2026-07-29`).
+#                         The reusable aliases the candidate manifest
+#                         onto each entry.
+#
+#   openemr_version_ref - baked-in OPENEMR_VERSION for the verify-oci-
+#                         labels.sh check's EXPECTED_REVISION.
+#
+#   image_version       - baked-in IMAGE_VERSION for EXPECTED_VERSION.
+#
+#   build_date          - baked-in BUILD_DATE for EXPECTED_BUILD_DATE.
+#
+# `secrets: inherit` on the caller side forwards DOCKERHUB_USERNAME +
+# DOCKERHUB_TOKEN into this workflow — no extra secrets: block needed
+# here.
+
+name: Reusable — Publish docker release
+
+on:
+  workflow_call:
+    inputs:
+      candidate_tag:
+        description: Temporary Docker Hub tag suffix carrying the tested multi-arch manifest (e.g. release-candidate-<run-id>-<attempt>)
+        required: true
+        type: string
+      expanded_tags:
+        description: Whitespace-separated list of full `openemr/openemr:<tag>` refs to alias the candidate onto
+        required: true
+        type: string
+      openemr_version_ref:
+        description: OpenEMR git ref baked into the image (verify-oci-labels.sh EXPECTED_REVISION)
+        required: true
+        type: string
+      image_version:
+        description: Human-facing image version baked into the image (verify-oci-labels.sh EXPECTED_VERSION)
+        required: true
+        type: string
+      build_date:
+        description: Build date baked into the image (verify-oci-labels.sh EXPECTED_BUILD_DATE)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  # Phase 7c-docker publish: alias the candidate's manifest onto each
+  # final tag via `docker buildx imagetools create`. Same digest, so the
+  # bytes acceptance-gate tested ARE the bytes each final tag now points
+  # at — no rebuild, no cache-hit assumption, byte-identical guarantee.
+  # amd64 + arm64 both preserved (they were both pushed under the
+  # candidate at build time).
+  publish:
+    name: Publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+    # Needed so the "Verify pushed image OCI labels" step below can call
+    # .github/scripts/verify-oci-labels.sh. persist-credentials: false
+    # because publish uses its own DOCKERHUB_TOKEN for imagetools calls;
+    # leaving GITHUB_TOKEN in .git/config would be zero-value credential
+    # surface.
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Alias candidate manifest onto each final tag
+      env:
+        CANDIDATE_TAG: ${{ inputs.candidate_tag }}
+        TAGS_LIST: ${{ inputs.expanded_tags }}
+      run: |
+        # `docker buildx imagetools create -t <new> <src>` creates a new
+        # manifest pointing at <src>'s digest without pulling image blobs.
+        # Multi-arch is preserved (the source manifest is a manifest list).
+        # Idempotent: re-running against an existing tag rewrites its
+        # pointer (harmless if source digest is the same).
+        SRC="openemr/openemr:${CANDIDATE_TAG}"
+        for tag in $TAGS_LIST; do
+          [ -z "$tag" ] && continue
+          echo "==> aliasing ${SRC} -> ${tag}"
+          docker buildx imagetools create -t "$tag" "$SRC"
+        done
+
+    - name: Verify pushed image OCI labels
+      env:
+        EXPECTED_REVISION: ${{ inputs.openemr_version_ref }}
+        EXPECTED_VERSION: ${{ inputs.image_version }}
+        EXPECTED_BUILD_DATE: ${{ inputs.build_date }}
+        TAGS_LIST: ${{ inputs.expanded_tags }}
+      # Runs against the first published final tag as a defense-in-depth
+      # check that imagetools-create actually pointed the tag at a
+      # manifest with the expected labels (it should, by construction,
+      # but the check is essentially free). Same verify script the
+      # docker-build-release.yml build job's gated + non-gated sites use.
+      run: |
+        REF_TAG=$(echo "${TAGS_LIST}" | head -1)
+        export REF_TAG
+        .github/scripts/verify-oci-labels.sh
+
+  # Phase 7c-docker cleanup: delete the candidate tag from Docker Hub
+  # after publish. Runs only on publish success; earlier-stage failure
+  # (publish failed, publish cancelled mid-run) preserves the candidate
+  # so an operator can re-drive publish or recover manually. See
+  # docker-build-release.yml's Phase 9 preserve-on-fail note for the
+  # full recovery-path rationale.
+  #
+  # continue-on-error on the tag-delete step so cleanup failures don't
+  # fail the whole workflow run (a stale candidate tag is cosmetically
+  # annoying but not a correctness issue — the tag naming makes it
+  # obvious that release-candidate-<run-id>-<attempt> is an internal
+  # artifact).
+  cleanup-candidate:
+    name: Cleanup candidate tag
+    needs: [publish]
+    if: always() && needs.publish.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+    # Needed so the "Delete candidate tag from Docker Hub" step below can
+    # call .github/scripts/dockerhub-delete-tag.sh. persist-credentials:
+    # false because the delete step authenticates to Docker Hub with its
+    # own DOCKERHUB_USERNAME/TOKEN; leaving GITHUB_TOKEN in .git/config
+    # would be zero-value credential surface.
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Delete candidate tag from Docker Hub
+      # continue-on-error preserves the pre-extraction behavior: a stale
+      # candidate tag is cosmetically annoying but not a correctness
+      # issue (the release-candidate-<run-id>-<attempt> naming makes it
+      # obvious it's an internal artifact), so cleanup failures shouldn't
+      # fail the whole release. Orthogonal to the script's exit code —
+      # the script exits non-zero on JWT failure / unexpected HTTP so the
+      # regression is visible in logs and BATS coverage, but the workflow
+      # tolerates it.
+      continue-on-error: true
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        TAG: ${{ inputs.candidate_tag }}
+      run: .github/scripts/dockerhub-delete-tag.sh

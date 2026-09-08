@@ -29,29 +29,25 @@ class ControllerAlerts extends BaseController
         parent::__construct();
     }
 
-    function _action_listactmgr()
+    public function _action_listactmgr()
     {
         $c = new CdrAlertManager();
-        // Instantiating object if does not exist to avoid
-        //    "creating default object from empty value" warning.
-        if (!isset($this->viewBean)) {
-            $this->viewBean = new \stdClass();
-        }
+        $this->viewBean ??= new \stdClass();
 
         $this->viewBean->rules = $c->populate();
         $this->set_view("list_actmgr.php");
     }
 
 
-    function _action_submitactmgr()
+    public function _action_submitactmgr()
     {
 
 
-        $ids = filter_input(INPUT_POST, 'id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $actives = filter_input(INPUT_POST, 'active', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $passives = filter_input(INPUT_POST, 'passive', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $reminders = filter_input(INPUT_POST, 'reminder', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $access_controls = filter_input(INPUT_POST, 'access_control', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $ids = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $actives = filter_input(INPUT_POST, 'active', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $passives = filter_input(INPUT_POST, 'passive', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $reminders = filter_input(INPUT_POST, 'reminder', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $access_controls = filter_input(INPUT_POST, 'access_control', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
 
         // CdrAlertManager::update() consumes id[] and access_control[]
         // by zero-based positional offset, so reindex both via
@@ -87,11 +83,7 @@ class ControllerAlerts extends BaseController
         // Reflect the changes to the database.
         $c = new CdrAlertManager();
         $c->update($ids, $actives_final, $passives_final, $reminders_final, $access_controls);
-        // Instantiating object if does not exist to avoid
-        //    "creating default object from empty value" warning.
-        if (!isset($this->viewBean)) {
-            $this->viewBean = new \stdClass();
-        }
+        $this->viewBean ??= new \stdClass();
 
         $this->forward("listactmgr");
     }

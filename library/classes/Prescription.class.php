@@ -82,7 +82,6 @@
 //
 
 
-require_once(__DIR__ . "/../lists.inc.php");
 
 
 /**
@@ -90,6 +89,7 @@ require_once(__DIR__ . "/../lists.inc.php");
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -198,7 +198,7 @@ class Prescription extends ORDataObject
     * Constructor sets all Prescription attributes to their default value
     */
 
-    function __construct($id = "", $_prefix = "")
+    public function __construct($id = "", $_prefix = "")
     {
         $this->route_array = $this->load_drug_attributes('drug_route');
         $this->form_array = $this->load_drug_attributes('drug_form');
@@ -255,7 +255,7 @@ class Prescription extends ORDataObject
 
 
 
-    function persist(): bool
+    public function persist(): bool
     {
         $this->date_modified = date("Y-m-d H:i:s");
         if ($this->id === null || $this->id === 0) {
@@ -299,11 +299,10 @@ class Prescription extends ORDataObject
      */
     private function handle_medication_list_updates(): void
     {
-        global $ISSUE_TYPES;
-        /** @var array<string, mixed>|null $ISSUE_TYPES */
+        $issueTypes = IssueTypeRegistry::issueTypes();
 
         // Avoid making a mess if we are not using the "medication" issue type.
-        if (isset($ISSUE_TYPES) && !$ISSUE_TYPES['medication']) {
+        if (!($issueTypes['medication'] ?? false)) {
             return;
         }
 
@@ -444,7 +443,7 @@ class Prescription extends ORDataObject
     }
 
 
-    function populate(): void
+    public function populate(): void
     {
         parent::populate();
 
@@ -463,7 +462,7 @@ class Prescription extends ORDataObject
 
     }
 
-    function toString(bool $html = false): string
+    public function toString(bool $html = false): string
     {
         $fields = [
             'ID' => $this->id,
@@ -496,7 +495,7 @@ class Prescription extends ORDataObject
             'Active' => $this->active,
             'Transmitted' => $this->ntx,
         ];
-        $lines = array_map(fn(string $k, mixed $v) => "{$k}: {$v}", array_keys($fields), array_values($fields));
+        $lines = array_map(fn(string $k, mixed $v): string => "{$k}: {$v}", array_keys($fields), array_values($fields));
         $string = "\n" . implode("\n", $lines);
         return $html ? nl2br($string) : $string;
     }
@@ -514,7 +513,7 @@ class Prescription extends ORDataObject
         return $arr;
     }
 
-    function get_encounter(): ?int
+    public function get_encounter(): ?int
     {
         // this originally was the session's 'encounter' which seems really dangerous if a prescription is created when
         // one encounter is open in the session and then the prescription has any updates to the original prescription when another encounter is open in the session
@@ -522,34 +521,34 @@ class Prescription extends ORDataObject
         return $this->encounter;
     }
 
-    function get_unit_display(string $display_form = ""): string
+    public function get_unit_display(string $display_form = ""): string
     {
         return( ($this->unit_array[$this->unit] ?? '') );
     }
 
-    function get_unit(): string
+    public function get_unit(): string
     {
         return $this->unit;
     }
-    function set_unit($unit): void
+    public function set_unit($unit): void
     {
         if (is_numeric($unit)) {
             $this->unit = (string) $unit;
         }
     }
 
-    function set_id($id): void
+    public function set_id($id): void
     {
         if ($id !== null && $id !== '' && $id !== 0 && is_numeric($id)) {
             $this->id = (int) $id;
         }
     }
-    function get_id(): ?int
+    public function get_id(): ?int
     {
         return $this->id;
     }
 
-    function get_dosage_display(string $display_form = ""): string
+    public function get_dosage_display(string $display_form = ""): string
     {
         if ($this->form === '' && $this->interval === '') {
             return( $this->dosage );
@@ -558,90 +557,90 @@ class Prescription extends ORDataObject
         }
     }
 
-    function set_dosage($dosage): void
+    public function set_dosage($dosage): void
     {
         if (is_string($dosage)) {
             $this->dosage = $dosage;
         }
     }
-    function get_dosage(): string
+    public function get_dosage(): string
     {
         return $this->dosage;
     }
 
-    function set_form($form): void
+    public function set_form($form): void
     {
         if (is_numeric($form)) {
             $this->form = (string) $form;
         }
     }
-    function get_form(): string
+    public function get_form(): string
     {
         return $this->form;
     }
 
-    function set_refills($refills): void
+    public function set_refills($refills): void
     {
         if (is_numeric($refills)) {
             $this->refills = (int) $refills;
         }
     }
-    function get_refills(): int
+    public function get_refills(): int
     {
         return $this->refills;
     }
 
-    function set_size($size): void
+    public function set_size($size): void
     {
         if (is_string($size) || is_numeric($size)) {
             $this->size = preg_replace("/[^0-9\/\.\-]/", "", (string) $size) ?? '';
         }
     }
-    function get_size(): string
+    public function get_size(): string
     {
         return $this->size;
     }
 
-    function set_quantity($qty): void
+    public function set_quantity($qty): void
     {
         if (is_string($qty) || is_numeric($qty)) {
             $this->quantity = (string) $qty;
         }
     }
-    function get_quantity(): string
+    public function get_quantity(): string
     {
         return $this->quantity;
     }
 
-    function set_route($route): void
+    public function set_route($route): void
     {
         if (is_string($route)) {
             $this->route = $route;
         }
     }
-    function get_route(): string
+    public function get_route(): string
     {
         return $this->route;
     }
 
-    function set_interval($interval): void
+    public function set_interval($interval): void
     {
         if (is_numeric($interval)) {
             $this->interval = (string) $interval;
         }
     }
-    function get_interval(): string
+    public function get_interval(): string
     {
         return $this->interval;
     }
 
-    function set_substitute($sub): void
+    public function set_substitute($sub): void
     {
         if (is_numeric($sub)) {
             $this->substitute = (string) $sub;
         }
     }
-    function get_substitute(): string
+    public function get_substitute(): string
     {
         return $this->substitute;
     }
@@ -674,10 +673,7 @@ class Prescription extends ORDataObject
 
     public function set_medication($med): void
     {
-        // Store original value if not already tracked
-        if ($this->original_medication === null) {
-            $this->original_medication = $this->medication;
-        }
+        $this->original_medication ??= $this->medication;
 
         // Update the property value
         if (is_int($med)) {
@@ -691,63 +687,63 @@ class Prescription extends ORDataObject
     }
 
 
-    function get_medication(): int
+    public function get_medication(): int
     {
         return $this->medication;
     }
 
-    function set_per_refill($pr): void
+    public function set_per_refill($pr): void
     {
         if (is_numeric($pr)) {
             $this->per_refill = (int) $pr;
         }
     }
-    function get_per_refill(): int
+    public function get_per_refill(): int
     {
         return $this->per_refill;
     }
 
-    function set_patient_id($id): void
+    public function set_patient_id($id): void
     {
         if (is_numeric($id)) {
             $this->patient = new PrescriptionPatient($id);
         }
     }
-    function get_patient_id(): mixed
+    public function get_patient_id(): mixed
     {
         return $this->patient->id;
     }
 
-    function set_provider_id($id): void
+    public function set_provider_id($id): void
     {
         if (is_numeric($id)) {
             $this->provider = new Provider($id);
         }
     }
-    function get_provider_id(): ?int
+    public function get_provider_id(): ?int
     {
         $id = $this->provider->id ?? null;
         return is_numeric($id) ? (int) $id : null;
     }
 
-    function set_created_by($id): void
+    public function set_created_by($id): void
     {
         if (is_numeric($id)) {
             $this->created_by = (int) $id;
         }
     }
-    function get_created_by(): ?int
+    public function get_created_by(): ?int
     {
         return $this->created_by;
     }
 
-    function set_updated_by($id): void
+    public function set_updated_by($id): void
     {
         if (is_numeric($id)) {
             $this->updated_by = (int) $id;
         }
     }
-    function get_updated_by(): ?int
+    public function get_updated_by(): ?int
     {
         return $this->updated_by;
     }
@@ -807,41 +803,41 @@ class Prescription extends ORDataObject
         $this->usage_category = $category;
     }
 
-    function set_provider($pobj): void
+    public function set_provider($pobj): void
     {
         if ($pobj instanceof Provider) {
             $this->provider = $pobj;
         }
     }
 
-    function set_pharmacy_id($id): void
+    public function set_pharmacy_id($id): void
     {
         if (is_numeric($id)) {
             $this->pharmacy = new Pharmacy($id);
         }
     }
-    function get_pharmacy_id(): mixed
+    public function get_pharmacy_id(): mixed
     {
         return $this->pharmacy->id;
     }
 
-    function set_pharmacist_id($id): void
+    public function set_pharmacist_id($id): void
     {
         if (is_numeric($id)) {
             $this->pharmacist = new Person((int) $id);
         }
     }
-    function get_pharmacist(): int
+    public function get_pharmacist(): int
     {
         return $this->pharmacist->get_id();
     }
 
-    function get_start_date_y(): string
+    public function get_start_date_y(): string
     {
         $ymd = explode("-", $this->start_date);
         return $ymd[0];
     }
-    function set_start_date_y($year): void
+    public function set_start_date_y($year): void
     {
         if (is_numeric($year)) {
             $ymd = explode("-", $this->start_date);
@@ -849,12 +845,12 @@ class Prescription extends ORDataObject
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
-    function get_start_date_m(): string
+    public function get_start_date_m(): string
     {
         $ymd = explode("-", $this->start_date);
         return $ymd[1];
     }
-    function set_start_date_m($month): void
+    public function set_start_date_m($month): void
     {
         if (is_numeric($month)) {
             $ymd = explode("-", $this->start_date);
@@ -862,12 +858,12 @@ class Prescription extends ORDataObject
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
-    function get_start_date_d(): string
+    public function get_start_date_d(): string
     {
         $ymd = explode("-", $this->start_date);
         return $ymd[2];
     }
-    function set_start_date_d($day): void
+    public function set_start_date_d($day): void
     {
         if (is_numeric($day)) {
             $ymd = explode("-", $this->start_date);
@@ -875,11 +871,11 @@ class Prescription extends ORDataObject
             $this->start_date = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
-    function get_start_date(): string
+    public function get_start_date(): string
     {
         return $this->start_date;
     }
-    function set_start_date($date): void
+    public function set_start_date($date): void
     {
         if (is_string($date)) {
             $this->start_date = $date;
@@ -887,7 +883,7 @@ class Prescription extends ORDataObject
     }
 
     // TajEmo work by CB 2012/05/30 01:56:32 PM added encounter for auto ticking of checkboxes
-    function set_encounter($enc): void
+    public function set_encounter($enc): void
     {
         if (is_int($enc)) {
             $this->encounter = $enc;
@@ -898,46 +894,46 @@ class Prescription extends ORDataObject
         }
     }
 
-    function get_date_added(): string
+    public function get_date_added(): string
     {
         return $this->date_added;
     }
-    function set_date_added($date): void
+    public function set_date_added($date): void
     {
         if (is_string($date)) {
             $this->date_added = $date;
         }
     }
-    function set_txDate($txdate): void
+    public function set_txDate($txdate): void
     {
         $this->txDate = is_string($txdate) ? $txdate : null;
     }
-    function get_txDate(): ?string
+    public function get_txDate(): ?string
     {
         return $this->txDate;
     }
 
-    function get_date_modified(): string
+    public function get_date_modified(): string
     {
         return $this->date_modified;
     }
-    function set_date_modified($date): void
+    public function set_date_modified($date): void
     {
         if (is_string($date)) {
             $this->date_modified = $date;
         }
     }
 
-    function get_filled_date(): ?string
+    public function get_filled_date(): ?string
     {
         return $this->filled_date;
     }
-    function set_filled_date($date): void
+    public function set_filled_date($date): void
     {
         $this->filled_date = is_string($date) ? $date : null;
     }
 
-    function set_note($note): void
+    public function set_note($note): void
     {
         if (is_string($note)) {
             $this->note = $note;
@@ -949,17 +945,14 @@ class Prescription extends ORDataObject
         $this->note = $instructions ?? '';
     }
 
-    function get_note(): string
+    public function get_note(): string
     {
         return $this->note;
     }
 
     public function set_drug($drug): void
     {
-        // Store original value if not already tracked
-        if ($this->original_drug === null) {
-            $this->original_drug = $this->drug;
-        }
+        $this->original_drug ??= $this->drug;
 
         // Update the property value
         if (is_string($drug)) {
@@ -969,11 +962,11 @@ class Prescription extends ORDataObject
         // Mark that drug updates are needed during persist
         $this->needs_drug_update = true;
     }
-    function get_drug(): string
+    public function get_drug(): string
     {
         return $this->drug;
     }
-    function set_ntx($ntx): void
+    public function set_ntx($ntx): void
     {
         if (is_int($ntx)) {
             $this->ntx = $ntx;
@@ -981,34 +974,34 @@ class Prescription extends ORDataObject
             $this->ntx = (int) $ntx;
         }
     }
-    function get_ntx(): int
+    public function get_ntx(): int
     {
         return $this->ntx;
     }
 
-    function set_rxnorm_drugcode($rxnorm_drugcode): void
+    public function set_rxnorm_drugcode($rxnorm_drugcode): void
     {
         if (is_string($rxnorm_drugcode)) {
             $this->rxnorm_drugcode = $rxnorm_drugcode;
         }
     }
-    function get_rxnorm_drugcode(): string
+    public function get_rxnorm_drugcode(): string
     {
         return $this->rxnorm_drugcode;
     }
 
-    function get_filled_by_id(): int
+    public function get_filled_by_id(): int
     {
         return $this->pharmacist->get_id();
     }
-    function set_filled_by_id($id): void
+    public function set_filled_by_id($id): void
     {
         if (is_numeric($id)) {
             $this->pharmacist->set_id($id);
         }
     }
 
-    function set_drug_id($drug_id): void
+    public function set_drug_id($drug_id): void
     {
         if (is_int($drug_id)) {
             $this->drug_id = $drug_id;
@@ -1016,12 +1009,12 @@ class Prescription extends ORDataObject
             $this->drug_id = (int) $drug_id;
         }
     }
-    function get_drug_id(): int
+    public function get_drug_id(): int
     {
         return $this->drug_id;
     }
 
-    function set_active($active): void
+    public function set_active($active): void
     {
         if (is_int($active)) {
             $this->active = $active;
@@ -1029,11 +1022,11 @@ class Prescription extends ORDataObject
             $this->active = (int) $active;
         }
     }
-    function get_active(): int
+    public function get_active(): int
     {
         return $this->active;
     }
-    function get_prescription_display(): string
+    public function get_prescription_display(): string
     {
         $oerConfig = OEGlobalsBag::getInstance()->get('oer_config');
         /** @var array{prescriptions: array{format: string}} $oerConfig */
@@ -1078,7 +1071,7 @@ class Prescription extends ORDataObject
         return $string;
     }
 
-    function get_prescription_florida_display(): string
+    public function get_prescription_florida_display(): string
     {
         $ntt = new NumberToText($this->quantity);
         $ntt2 = new NumberToText($this->per_refill);
@@ -1203,7 +1196,7 @@ class Prescription extends ORDataObject
     ];
 
     /** @return list<Prescription> */
-    static function prescriptions_factory(
+    public static function prescriptions_factory(
         $patient_id,
         $order_by = "active DESC, date_modified DESC, date_added DESC"
     ): array {
@@ -1249,7 +1242,7 @@ class Prescription extends ORDataObject
         return $prescriptions;
     }
 
-    function get_dispensation_count(): int
+    public function get_dispensation_count(): int
     {
         if ($this->id === null || $this->id === 0) {
             return 0;

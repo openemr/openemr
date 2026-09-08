@@ -26,22 +26,23 @@ class AuthorizationService
 
     public function storeAuthorizationInfo(): void
     {
-        $statement = "INSERT INTO " . self::MODULE_TABLE .
-            "(`id`, `pid`, `auth_num`, `start_date`, `end_date`, `cpt`, `init_units`, `remaining_units`) " .
-            "VALUES (?,?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE " .
-            "auth_num = VALUES(auth_num), start_date = VALUES(start_date), end_date = VALUES(end_date), " .
-            "cpt = VALUES(cpt), init_units = VALUES(init_units)";
-
-        $binding = [];
-        $binding[] = $this->id;
-        $binding[] = $this->pid;
-        $binding[] = $this->auth_num;
-        $binding[] = $this->start_date;
-        $binding[] = $this->end_date;
-        $binding[] = $this->cpt;
-        $binding[] = $this->init_units;
-        $binding[] = $this->remaining_units;
-        QueryUtils::sqlInsert($statement, $binding);
+        if ($this->id !== null) {
+            $updateStatement = "UPDATE " . self::MODULE_TABLE .
+                " SET auth_num = ?, start_date = ?, end_date = ?, cpt = ?, init_units = ? " .
+                "WHERE id = ? AND pid = ?";
+            QueryUtils::sqlStatementThrowException($updateStatement, [
+                $this->auth_num, $this->start_date, $this->end_date, $this->cpt, $this->init_units,
+                $this->id, $this->pid,
+            ]);
+            return;
+        }
+        $insertStatement = "INSERT INTO " . self::MODULE_TABLE .
+            " (pid, auth_num, start_date, end_date, cpt, init_units, remaining_units) " .
+            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        QueryUtils::sqlInsert($insertStatement, [
+            $this->pid, $this->auth_num, $this->start_date, $this->end_date,
+            $this->cpt, $this->init_units, $this->remaining_units,
+        ]);
     }
 
     public static function getUnitsUsed($authnum, $pid, $cpt, $start_date, $end_date): int

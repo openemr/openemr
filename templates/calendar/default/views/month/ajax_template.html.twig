@@ -1,0 +1,223 @@
+{# month-screen ajax_template — Smarty→Twig conversion.
+
+   Input contract (consumer populates via CalendarViewModel + DB lookups +
+   pre-built HTML strings — see day_print and month_print conversions for
+   the established pattern):
+
+   Top-level vars:
+   - viewtype : 'month' (used in the hidden input)
+   - Date : current YYYYMMDD
+   - currentMonthLabel : "March 2026" style page header
+   - isToday : bool — gates the "Today" button
+   - PREV_MONTH_URL, NEXT_MONTH_URL : nav URLs
+   - chevron_icon_left / chevron_icon_right : FA class names (LTR/RTL)
+   - dowList : list<int> from CalendarViewModel::dayOfWeekList()
+   - A_SHORT_DAY_NAMES : 7 localized strings
+   - prevMonth, nextMonth : YYYYMMDD strings for the mini-cal navigation
+   - prevMonthName, nextMonthName : localized month names for the <> tooltip
+   - currentMiniCal : buildMiniCalendar() output for the displayed month;
+       hideOutOfMonth=false for screen views
+   - monthSelectorHtml : pre-rendered HTML from
+       interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php
+       (consumer output-buffers the require, passes the captured string)
+   - showFacilitySelect : bool (consumer pre-computed — true when
+       count(facilities)>1)
+   - showAllFacilitiesOption : bool (NOT $GLOBALS['restrict_user_facility'])
+   - pc_facility : int (0 = all)
+   - facilities : list of {id, name, color}
+   - provinfo : list of {username, fname, lname}
+   - selectedUsernames : list<string> of provider usernames currently
+       selected (consumer pre-extracts from $providers)
+
+   - providersGrid : list of {id, fname, lname, dateHeaderLabels, days}
+       dateHeaderLabels : list of first-7 weekday short labels for header row
+       days : list of {
+           dateYmd,                  YYYYMMDD
+           dateDisplay,              "15" (day number)
+           dateAttrTitle,            "15 Mar 2026" for the <a> alt/title attrs
+           gotoUrl,                  link to day view
+           classForWeekend,          'weekend-day' or 'work-day'
+           isStartOfWeek,            bool (opens <tr>)
+           isEndOfWeek,              bool (closes </tr>)
+           events                    list of decorated events for this cell
+       }
+       Each event: {
+           eid, eventDate (YYYYMMDD), pccattype,
+           evtClass,                 from eventClassForCategory + override
+           displayBgColor,           pre-computed for the 3-way facility filter
+           displayContentHtml,       pre-built (either buildMonthScreenEventContent's
+                                     content, OR the filtered-out span when the
+                                     event's facility != pc_facility)
+           tooltip                   from buildMonthScreenEventContent
+       }
+#}
+
+{# Include the calendar header — emits <html><head>setupHeader()</head><body>
+   that the legacy template's `[-include file="$TPL_NAME/views/header.html"-]`
+   provided. Without this, none of the external JS / CSS (jQuery, bootstrap,
+   utility.js, etc.) gets loaded. #}
+{% include 'calendar/default/views/header.html.twig' %}
+
+{# #wrapper is the toggle target the hamburger button (id menu-toggle)
+   keys off: clicking it toggles the `toggled` class here, which the
+   ajax_calendar_sass.scss rules use to slide the sidebar in/out. #}
+<div id="wrapper">
+
+<!-- main navigation -->
+<form name="theform" id="theform" action="index.php?module=PostCalendar&amp;func=view&amp;pc_category=&amp;pc_topic=" method="post" onsubmit="return top.restoreSession()">
+<div class="container-fluid sticky-top">
+<div id="topToolbarRight" class="bgcolor2">
+    <div id="functions">
+        <a id="menu-toggle" href="#" class="btn btn-outline-dark"><i class="fas fa-bars"></i></a>
+        <input type="hidden" name="jumpdate" id="jumpdate" value="" />
+        <input type="hidden" name="viewtype" id="viewtype" value="{{ viewtype|attr }}" />
+        <a href="#" title="{{ 'New Appointment'|xla }}" onclick="newEvt(1, 9, 00, {{ Date|attr_js }}, 0, 0)" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+        <a href="#" title="{{ 'Search Appointment'|xla }}" onclick='top.restoreSession();location="index.php?module=PostCalendar&amp;func=search"' class="btn btn-primary"><i class="fa fa-search"></i></a>
+        {% if not isToday %}
+            <a href="#" name="bnsubmit" value="{{ 'Today'|xla }}" onclick="GoToToday(theform);" class="btn btn-primary">{{ 'Today'|xlt }}</a>
+        {% endif %}
+    </div>
+
+    <div id="dateNAV">
+        <a id="prevmonth" href="{{ PREV_MONTH_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Previous Month'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
+        {{ currentMonthLabel|raw }}
+        <a id="nextmonth" href="{{ NEXT_MONTH_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Next Month'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
+    </div>
+
+    <div id="viewPicker">
+        <a href="#" id="printview" title="{{ 'View Printable Version'|xla }}" class="btn btn-primary"><i class="fa fa-print"></i></a>
+        <a href="#" title="{{ 'Refresh'|xla }}" onclick="javascript:refreshme()" class="btn btn-primary"><i class="fa fa-sync"></i></a>
+        <a href="#" type="button" id="dayview" title="{{ 'Day View'|xla }}" class="btn btn-primary">{{ 'Day'|xlt }}</a>
+        <a href="#" type="button" id="weekview" title="{{ 'Week View'|xla }}" class="btn btn-primary">{{ 'Week'|xlt }}</a>
+        <a href="#" type="button" id="monthview" title="{{ 'Month View'|xla }}" class="btn btn-primary">{{ 'Month'|xlt }}</a>
+    </div>
+</div>
+</div>
+
+<div class="sticky-top">
+<div id="bottomLeft" class="sidebar-wrapper">
+<div id="datePicker">
+    {{ monthSelectorHtml|raw }}
+    <div class="table-responsive">
+        <table class="table table-sm table-borderless">
+            <tbody>
+                <tr>
+                    <td class="tdDOW-small tdDatePicker tdNav" id="{{ prevMonth|attr }}" title="{{ prevMonthName|xla }}">&lt;</td>
+                    <td colspan="5" class="tdMonthName-small">{{ currentMiniCal.monthLabel|xlt }} {{ currentMiniCal.year|text }}</td>
+                    <td class="tdDOW-small tdDatePicker tdNav" id="{{ nextMonth|attr }}" title="{{ nextMonthName|xla }}">&gt;</td>
+                </tr>
+                <tr>
+                    {% for dow in dowList %}
+                        <td class="tdDOW-small">{{ A_SHORT_DAY_NAMES[dow]|text }}</td>
+                    {% endfor %}
+                </tr>
+                {% for week in currentMiniCal.weeks %}
+                    <tr>
+                        {% for day in week %}
+                            {% set tdClass = 'tdMonthDay-small' %}
+                            {% if not day.inMonth %}
+                                {% set tdClass = 'tdOtherMonthDay-small' %}
+                            {% endif %}
+                            {% if day.isWeekend %}
+                                {% set tdClass = 'tdWeekend-small' %}
+                            {% endif %}
+                            {% if day.isCurrent %}
+                                {% set tdClass = tdClass ~ ' currentDate' %}
+                            {% endif %}
+                            {% set tdClass = tdClass ~ ' tdDatePicker' %}
+                            <td class="{{ tdClass|attr }}" id="{{ day.dateYmd|attr }}" title="{{ 'Go to'|xla }} {{ day.dateYmd|attr }}"> {{ day.day|text }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="bigCalHeader"></div>
+
+<div id="providerPicker">
+    {{ 'Providers'|xlt }}
+    <div>
+        {% if showFacilitySelect %}
+            <select name="pc_facility" id="pc_facility" class="view1 form-control">
+                {% if showAllFacilitiesOption %}
+                    <option class="bg-info" value="0" {% if not pc_facility %}selected="selected"{% endif %}>{{ 'All Facilities'|xlt }}</option>
+                {% endif %}
+                {% for fa in facilities %}
+                    <option class="bg-info" value="{{ fa.id|attr }}" {% if pc_facility == fa.id %}selected="selected"{% endif %}>{{ fa.name|text }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
+    <select multiple size="5" name="pc_username[]" id="pc_username" class="view2 form-control">
+        <option value="__PC_ALL__">{{ 'All Users'|xlt }}</option>
+        {% for doc in provinfo %}
+            <option value="{{ doc.username|attr }}" {% if doc.username in selectedUsernames %}selected{% endif %}>{{ doc.lname|text }}, {{ doc.fname|text }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+{% if pc_facility == 0 %}
+    <ul class="list-group list-group-flush" id="facilityColor">
+        {% for f in facilities %}
+            <li class="list-group-item" style="border-left: 35px solid {{ f.color|attr }};">{{ f.name|text }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div id="popup" class="pop-up">
+    <img id="popupImage" alt="" />
+</div>
+</div><!-- end bottomLeft -->
+</div>
+
+<div class="page-content-wrapper">
+<div class="container-fluid calsearch_body">
+<div id="bigCal">
+{% for provider in providersGrid %}
+    <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <td colspan="7" class="providerheader">
+                    {{ provider.fname|text }} {{ provider.lname|text }}
+                </td>
+            </tr>
+            <tr>
+                {% for label in provider.dateHeaderLabels %}
+                    <td align="center" class="month_dateheader">{{ label|xlt }}</td>
+                {% endfor %}
+            </tr>
+            {% for day in provider.days %}
+                {% if day.isStartOfWeek %}<tr>{% endif %}
+                <td class="schedule {{ day.classForWeekend|attr }}">
+                    <div class="calendar_day">
+                        <div class="month_daylink">
+                            <a href="{{ day.gotoUrl|safe_href }}" alt="{{ 'Go to'|xla }} {{ day.dateAttrTitle|attr }}" title="{{ 'Go to'|xla }} {{ day.dateAttrTitle|attr }}">{{ day.dateDisplay|text }}</a>
+                        </div>
+                        {% set rendered = 0 %}
+                        {% for event in day.events %}
+                            {% set rendered = rendered + 1 %}
+                            <div data-eid="{{ event.eid|attr }}"
+                                 class="{{ event.evtClass|attr }} month_event"
+                                 style="background-color: {{ event.displayBgColor }};"
+                                 title="{{ event.tooltip|attr }}"
+                                 id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                {{ event.displayContentHtml|raw }}
+                            </div>
+                        {% endfor %}
+                        {% if rendered == 0 %}&nbsp;{% endif %}
+                    </div>
+                </td>
+                {% if day.isEndOfWeek %}</tr>{% endif %}
+            {% endfor %}
+        </table>
+    </div>
+{% endfor %}
+</div>  <!-- end bigCal DIV -->
+</div>  <!-- end bottom DIV -->
+</div>
+</form>
+</div>
+</div><!-- end #wrapper -->
+
+{% include 'calendar/default/views/_calendar_screen_js.html.twig' %}

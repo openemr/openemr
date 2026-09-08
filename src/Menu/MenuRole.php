@@ -17,8 +17,6 @@
 
 namespace OpenEMR\Menu;
 
-require_once(__DIR__ . "/../../library/registry.inc.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -199,7 +197,7 @@ abstract class MenuRole implements MenuRoleInterface
     // Permissions check for a particular acl_req array item.
     // Elements beyond the 2nd are ACL return values, one of which should be permitted.
     //
-    private function menuAclCheck($arr)
+    private function menuAclCheck($arr): bool
     {
         if (isset($arr[2])) {
             for ($i = 2; isset($arr[$i]); ++$i) {

@@ -17,7 +17,7 @@ use Document;
 
 class CdaValidateDocumentObject
 {
-    public function isCdaDocument(Document $document)
+    public function isCdaDocument(Document $document): bool
     {
 
 //        // we check the mime extension

@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Exception;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\SDK;
 
@@ -80,23 +81,40 @@ trait AuthenticateTrait
     }
 
     /**
-     * @param string $authBack
      * @return array
      */
-    private function getCachedAuth(string $authBack): array
+    private function getCachedAuth(string $file): array
     {
-        if (file_exists($authBack)) {
-            $cachedAuth = file_get_contents($authBack);
-            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth !== false ? $cachedAuth : null), true);
-
-            // Don't delete cache immediately - validate first
-            if ($this->isValidCachedAuth($cachedAuth)) {
-                return $cachedAuth;
-            }
-            // If cached auth is invalid, delete the file
-            unlink($authBack); // Only delete if invalid
+        if (!file_exists($file)) {
+            return [];
         }
-        return [];
+        try {
+            $error = false;
+
+            $contents = file_get_contents($file);
+            if ($contents === false) {
+                // exists but not readable
+                $error = true;
+                return [];
+            }
+
+            $json = $this->crypto->decryptFromFilesystem($contents);
+            $data = json_decode((string) $json, true, flags: JSON_THROW_ON_ERROR);
+
+            if (!$this->isValidCachedAuth($data)) {
+                $error = true;
+                return [];
+            }
+            return $data;
+        } catch (CryptoGenException) {
+            $error = true;
+            return [];
+        } finally {
+            // If the cache file was invalid in any way, remove the temp file
+            if ($error) {
+                unlink($file);
+            }
+        }
     }
 
     private function isValidCachedAuth(array $authData): bool
@@ -148,8 +166,8 @@ trait AuthenticateTrait
     private function cacheAuthData($platform): void
     {
         $data = $platform->auth()->data();
-        $jsonData = json_encode($data);
-        $encryptedData = $this->crypto->encryptStandard($jsonData !== false ? $jsonData : null);
+        $jsonData = json_encode($data, flags: JSON_THROW_ON_ERROR);
+        $encryptedData = $this->crypto->encryptForFilesystem($jsonData);
         file_put_contents($this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json', $encryptedData);
     }
 

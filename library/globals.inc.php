@@ -89,14 +89,10 @@ use OpenEMR\Services\Globals\GlobalsService;
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
     // MS Windows
-    $mysql_bin_dir = 'C:/xampp/mysql/bin';
-    $perl_bin_dir = 'C:/xampp/perl/bin';
     $temporary_files_dir = 'C:/windows/temp';
     $backup_log_dir = 'C:/windows/temp';
 } else {
     // Everything else
-    $mysql_bin_dir = '/usr/bin';
-    $perl_bin_dir = '/usr/bin';
     $temporary_files_dir = '/tmp';
     $backup_log_dir = '/tmp';
 }
@@ -947,13 +943,6 @@ $GLOBALS_METADATA = [
             xl('Display advance directives in the demographics page.')
         ],
 
-        'configuration_import_export' => [
-            xl('Configuration Export/Import'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Support export/import of configuration data via the Backup page.')
-        ],
-
         'restrict_user_facility' => [
             xl('Restrict Users to Facilities'),
             'bool',                           // data type
@@ -1025,18 +1014,26 @@ $GLOBALS_METADATA = [
             xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
         ],
 
+        'database_encryption' => [
+            xl('Enable Encryption of Data Stored in the Database (Keep on unless DB server is encrypted)'),
+            'bool',
+            '1',
+            xl('This will enable encryption of certain data stored in the database. This should be left enabled unless the database server itself is encrypted')
+        ],
+
         'drive_encryption' => [
-            xl('Enable Encryption of Items Stored on Drive (Strongly recommend keeping this on)'),
+            xl('Enable Encryption of Items Stored on Drive/CouchDB (Strongly recommend keeping this on)'),
             'bool',                           // data type
             '1',                              // default = true
             xl('This will enable encryption of items that are stored on the drive. Strongly recommend keeping this setting on for security purposes.')
         ],
 
+        // Unused as of #12000. Leaving in UI so people can update
         'couchdb_encryption' => [
-            xl('Enable Encryption of Items Stored on CouchDB'),
+            xl('UNUSED: Enable Encryption of Items Stored on CouchDB'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable encryption of items that are stored on CouchDB.')
+            xl('This setting has no effect! Use `drive_encryption` instead.'),
         ],
 
         'hide_document_encryption' => [
@@ -2226,34 +2223,6 @@ $GLOBALS_METADATA = [
             xl('Enable facility/warehouse restrictions in the user administration form.')
         ],
 
-        'is_client_ssl_enabled' => [
-            xl('Enable Client SSL'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable client SSL certificate authentication.')
-        ],
-
-        'certificate_authority_crt' => [
-            xl('Path to CA Certificate File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'certificate_authority_key' => [
-            xl('Path to CA Key File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'client_certificate_valid_in_days' => [
-            xl('Client Certificate Expiration Days'),
-            'num',                            // data type
-            '365',                            // default
-            xl('Number of days that the client certificate is valid.')
-        ],
-
         'Emergency_Login_email_id' => [
             xl('Emergency Login Email Address'),
             'text',                           // data type
@@ -2776,16 +2745,23 @@ $GLOBALS_METADATA = [
     //
     'Logging' => [
 
-        'user_debug' => [
-            xl('User Debugging Options'),
+        'user_php_debug' => [
+            xl('User Debug PHP Reporting Options'),
             [
-                '0' => xl('None'),
-                '1' => xl('Display Window Errors Only'),
-                '2' => xl('Display Application Errors Only'),
-                '3' => xl('All'),
+                '0' => xl('Use Server Defaults (Display off)'),
+                '2' => xl('Display Errors Only'),
+                '3' => xl('Display Errors and Warnings Only'),
+                '4' => xl('Display Current Runtime Reporting'),
             ],
-            '0',                               // default
-            xl('User Debugging Mode.')
+            '0',
+            xl('Controls PHP error display/debug behavior without overriding server defaults unless explicitly selected.')
+        ],
+
+        'user_debug' => [
+            xl('Display Window Console Errors'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Console errors')
         ],
 
         'enable_auditlog' => [
@@ -2828,13 +2804,6 @@ $GLOBALS_METADATA = [
             xl('Enable logging of security and administration activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ],
 
-        'audit_events_backup' => [
-            xl('Audit Logging Backups'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Enable logging of backup related activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
-        ],
-
         'audit_events_other' => [
             xl('Audit Logging Miscellaneous'),
             'bool',                           // data type
@@ -2845,8 +2814,10 @@ $GLOBALS_METADATA = [
         'audit_events_query' => [
             xl('Audit Logging SELECT Query'),
             'bool',                           // data type
-            '1',                              // default
+            '0',                              // default off; enable for ONC certified deployments
             xl('Enable logging of all SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
+                . ' ' . xl('Required for ONC certified deployments.')
+                . ' ' . xl('Warning: this logs every SELECT, so the audit log grows with query volume and can become far larger than the clinical data it describes.')
         ],
 
         'audit_events_cdr' => [
@@ -2903,13 +2874,6 @@ $GLOBALS_METADATA = [
             xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
         ],
 
-        'enable_auditlog_encryption' => [
-            xl('Enable Audit Log Encryption'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable Audit Log Encryption')
-        ],
-
         'api_log_option' => [
             xl('API Log Option'),
             [
@@ -2963,20 +2927,6 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '1',                              // default
             xl('Enable Database Connection Pooling')
-        ],
-
-        'mysql_bin_dir' => [
-            xl('Path to MySQL Binaries'),
-            'text',                           // data type
-            $mysql_bin_dir,                   // default
-            xl('Full path to directory containing MySQL executables.')
-        ],
-
-        'perl_bin_dir' => [
-            xl('Path to Perl Binaries'),
-            'text',                           // data type
-            $perl_bin_dir,                    // default
-            xl('Full path to directory containing Perl executables.')
         ],
 
         'temporary_files_dir' => [
@@ -3189,6 +3139,13 @@ $GLOBALS_METADATA = [
             xl('Allow Patient to make and view appointments online.')
         ],
 
+        'view_only_portal_appointments' => [
+            xl('Allow Online Appointments View Only.'),
+            'bool',                           // data type
+            '0',
+            xl('Allow Patient only to view appointments online. Overrides the above setting to allow only view of appointments.')
+        ],
+
         'allow_custom_report' => [
             xl('Allow Online Custom Content Report'),
             'bool',                           // data type
@@ -3272,6 +3229,13 @@ $GLOBALS_METADATA = [
             'bool',
             '0',
             xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ],
+
+        GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
+            xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR SMART ON FHIR Current Context Test Launches.')
         ],
 
         GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => [
@@ -4434,20 +4398,19 @@ $GLOBALS_METADATA = [
                 '2' => xl('At the top of the page and at the foot of the page'),
                 '3' => xl('Do not display the note')
             ],
-            '0' ,                          // default = display at top of form
+            '3' ,                          // default = off
             xl('Configure where LOINC statement should be displayed')
         ],
 
         'questionnaire_display_style' => [
             xl('Questionnaire Form Display Style'),
             [
-                '0' => xl('OpenEMR Auto Select Dark/Light Themed Version'),
-                '1' => xl('LForms Project Maintained Light Version(Original)'),
-                '3' => xl('OpenEMR Light Theme Version Always'),
-                '4' => xl('OpenEMR Dark Theme Version Always'),
+                '0' => xl('OpenEMR Auto Select Dark/Light Theme'),
+                '3' => xl('OpenEMR Light Theme Always'),
+                '4' => xl('OpenEMR Dark Theme Always'),
             ],
-            '0' ,                          // default = display at top of form
-            xl('Choose OpenEMR auto select based on core theme styles(OpenEMR dark theme turns on Questionnaire dark, LForms project maintained light styles(Original) or default to always dark or light regardless of core themes.')
+            '0',
+            xl('Choose automatic theme selection or always use the light or dark Questionnaire theme.')
         ],
 
         'questionnaire_display_fullscreen' => [

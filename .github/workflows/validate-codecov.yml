@@ -5,6 +5,15 @@ on:
     paths:
     - codecov.yml
   push:
+    # Dependabot pushes the branch AND opens the PR, so both events fire
+    # for the same commit — duplicate runs reporting the same check names.
+    # Worse, a push event's paths: filter is evaluated over
+    # `before..after`, and dependabot force-pushes on every rebase, so
+    # that range spans every commit master gained in the interim. A
+    # dependency bump then matches paths it never touched. Keep the
+    # pull_request run, which diffs against the PR base.
+    branches-ignore:
+    - 'dependabot/**'
     paths:
     - codecov.yml
 
@@ -17,10 +26,10 @@ concurrency:
 
 jobs:
   validate-codecov:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+    - name: Checkout code
+      uses: actions/checkout@v7
 
-      - name: Validate codecov.yml
-        run: curl -f -X POST --data-binary @codecov.yml https://codecov.io/validate
+    - name: Validate codecov.yml
+      run: curl -f -X POST --data-binary @codecov.yml https://codecov.io/validate

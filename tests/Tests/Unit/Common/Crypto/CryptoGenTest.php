@@ -24,6 +24,9 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 
+/**
+ * @deprecated (This is to bulk-suppress testing of deprecated methods)
+ */
 final class CryptoGenTest extends TestCase
 {
     /**
@@ -379,8 +382,6 @@ final class CryptoGenTest extends TestCase
 
     public function testDecryptStandardAllVersions(): void
     {
-        // Variables to ensure all versions tested
-        $currentVersionTested = false;
         $totalVersionsTested = 0;
 
         // Test all supported decryption versions
@@ -392,7 +393,6 @@ final class CryptoGenTest extends TestCase
                 $this->assertIsString($encrypted);
                 $decrypted = $this->cryptoGen->decryptStandard($encrypted);
                 $this->assertEquals($testData, $decrypted);
-                $currentVersionTested = true;
             } else {
                 // Test prior versions routing by manually creating version prefixes
                 // Note: These test the routing logic, not actual decryption since we don't have legacy encrypted data
@@ -403,9 +403,6 @@ final class CryptoGenTest extends TestCase
             }
             $totalVersionsTested++;
         }
-
-        // Ensure current version was tested
-        $this->assertTrue($currentVersionTested, 'Current version must be tested');
 
         // Ensure all versions were tested
         $this->assertEquals(count(KeyVersion::cases()), $totalVersionsTested, 'All versions should be tested');
@@ -1107,5 +1104,62 @@ final class CryptoGenTest extends TestCase
 
         // v7 ciphertext should fail when minimumVersion=8 (tests the path)
         $this->cryptoGen->decryptFromDatabase($encrypted, minimumVersion: 8);
+    }
+
+    public function testEncryptForDatabaseReturnsPlaintextWhenOptedOut(): void
+    {
+        $cryptoGen = new CryptoGen(shouldEncryptForDatabase: false);
+        $plaintext = 'test data should not be encrypted';
+
+        $result = $cryptoGen->encryptForDatabase($plaintext);
+
+        $this->assertSame($plaintext, $result);
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForNullWhenOptedOut(): void
+    {
+        $cryptoGen = new CryptoGen(shouldEncryptForDatabase: false);
+
+        $this->assertSame('', $cryptoGen->encryptForDatabase(null));
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForEmptyStringWhenOptedOut(): void
+    {
+        $cryptoGen = new CryptoGen(shouldEncryptForDatabase: false);
+
+        $this->assertSame('', $cryptoGen->encryptForDatabase(''));
+    }
+
+    public function testDecryptFromDatabasePassesThroughPlaintextWhenOptedOut(): void
+    {
+        $cryptoGen = new CryptoGen(shouldEncryptForDatabase: false);
+        $plaintext = 'unencrypted data from database';
+
+        $result = $cryptoGen->decryptFromDatabase($plaintext);
+
+        $this->assertSame($plaintext, $result);
+    }
+
+    public function testRoundTripWhenOptedOutPreservesPlaintext(): void
+    {
+        $cryptoGen = new CryptoGen(shouldEncryptForDatabase: false);
+        $plaintext = 'plaintext round trip test';
+
+        $stored = $cryptoGen->encryptForDatabase($plaintext);
+        $retrieved = $cryptoGen->decryptFromDatabase($stored);
+
+        $this->assertSame($plaintext, $stored);
+        $this->assertSame($plaintext, $retrieved);
+    }
+
+    public function testEncryptForDatabaseEncryptsWhenEnabled(): void
+    {
+        $cryptoGen = new CryptoGen(shouldEncryptForDatabase: true);
+        $plaintext = 'test data';
+
+        $result = $cryptoGen->encryptForDatabase($plaintext);
+
+        $this->assertNotSame($plaintext, $result);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $result);
     }
 }

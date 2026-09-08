@@ -19,8 +19,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/dated_reminder_functions.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $days_to_show = 30;

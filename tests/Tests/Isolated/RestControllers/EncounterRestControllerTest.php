@@ -391,7 +391,7 @@ class EncounterRestControllerTest extends TestCase
         $this->encounterService->expects($this->once())
             ->method('updateSoapNote')
             ->with('1', '2', '3', ['subjective' => 'updated'])
-            ->willReturn(true);
+            ->willReturn(1);
 
         $response = $this->controller->putSoapNote('1', '2', '3', ['subjective' => 'updated']);
 

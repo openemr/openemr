@@ -16,9 +16,7 @@
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-require_once($srcdir . "/transactions.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Core\OEGlobalsBag;
 

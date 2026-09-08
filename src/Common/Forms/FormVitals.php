@@ -467,17 +467,61 @@ class FormVitals extends ORDataObject
         }
     }
 
-    public function persist()
+    /**
+     * Validates all numeric vital properties against VitalsFieldRanges.
+     *
+     * @return array{errors: list<string>, warnings: list<string>}
+     */
+    public function validate(): array
+    {
+        $errors = [];
+        $warnings = [];
+
+        foreach (VitalsFieldRanges::getRanges() as $fieldName => $field) {
+            $value = $this->$fieldName;
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $label = $field['label'];
+
+            if (!is_numeric($value)) {
+                $errors[] = sprintf(xl('Field "%1$s" has a non-numeric value.'), $label);
+                continue;
+            }
+
+            $numericValue = (float) $value;
+
+            if ($numericValue < 0) {
+                $errors[] = sprintf(xl('Field "%1$s" cannot be negative.'), $label);
+                continue;
+            }
+
+            if ($numericValue < $field['min'] || $numericValue > $field['max']) {
+                $errors[] = sprintf(xl('Field "%1$s" is outside acceptable range (%2$s–%3$s).'), $label, $field['min'], $field['max']);
+                continue;
+            }
+
+            if ($numericValue < $field['warningMin'] || $numericValue > $field['warningMax']) {
+                $warnings[] = sprintf(xl('Field "%1$s" is outside typical clinical range (%2$s–%3$s).'), $label, $field['warningMin'], $field['warningMax']);
+            }
+        }
+
+        return ['errors' => $errors, 'warnings' => $warnings];
+    }
+
+    public function persist(): mixed
     {
         if (empty($this->uuid)) {
             $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
         }
-        parent::persist();
+        $ret = parent::persist();
 
         foreach ($this->_vitals_details as $item) {
             $item->set_form_id($this->get_id());
             $item->persist();
         }
+        return $ret;
     }
 
     public function populate_array($results)

@@ -37,7 +37,6 @@ final class EventAuditLoggerFixturesTest extends TestCase
      */
     private array $modifiedGlobalKeys = [
         'enable_auditlog',
-        'enable_auditlog_encryption',
         'enable_atna_audit'
     ];
 
@@ -55,7 +54,6 @@ final class EventAuditLoggerFixturesTest extends TestCase
 
         // Enable audit logging for comprehensive testing
         $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['enable_auditlog_encryption'] = false;
 
         $this->eventAuditLogger = EventAuditLogger::getInstance();
 

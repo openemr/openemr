@@ -139,7 +139,7 @@ if ($popup && $_POST['form_save'] ?? '') {
 
     <?php
     if ($popup) { ?>
-        <?php Header::setupAssets('topdialog'); ?>
+        <?php echo Header::setupAssets(['topdialog']); ?>
     <?php } ?>
 
 

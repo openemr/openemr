@@ -59,9 +59,7 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements
 
     public function getEventDispatcher(): EventDispatcherInterface
     {
-        if (!isset($this->dispatcher)) {
-            $this->dispatcher = new EventDispatcher();
-        }
+        $this->dispatcher ??= new EventDispatcher();
         return $this->dispatcher;
     }
 

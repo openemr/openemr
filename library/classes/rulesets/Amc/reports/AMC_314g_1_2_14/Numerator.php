@@ -29,7 +29,7 @@ class AMC_314g_1_2_14_Numerator implements AmcFilterIF
         return "AMC_314g_1_2_14 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // The number of unique patients (or their authorized representatives) in
                 // the denominator who have viewed online, downloaded, or transmitted to a

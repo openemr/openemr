@@ -102,8 +102,11 @@ class UtilsService
         return $parsed_url;
     }
 
-    public static function getUuidFromReference(FHIRReference $reference)
+    public static function getUuidFromReference(?FHIRReference $reference)
     {
+        if ($reference === null) {
+            return null;
+        }
         $uuid = null;
         if (!empty($reference->getReference())) {
             $parts = explode("/", $reference->getReference());

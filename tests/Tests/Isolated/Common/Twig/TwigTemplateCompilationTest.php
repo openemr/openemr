@@ -43,6 +43,7 @@ class TwigTemplateCompilationTest extends TestCase
      * names resolve correctly during compilation.
      */
     private const EXTRA_TEMPLATE_DIRS = [
+        'interface/forms/care_plan/templates',
         'interface/forms/clinical_notes/templates',
         'interface/forms/newpatient/templates',
         'interface/forms/observation/templates',
@@ -161,7 +162,7 @@ class TwigTemplateCompilationTest extends TestCase
         // Register stub functions that production code adds at runtime.
         // C_EncounterVisitForm registers displayOptionClass dynamically;
         // the stub lets those templates compile without the full form controller.
-        $twig->addFunction(new TwigFunction('displayOptionClass', fn () => ''));
+        $twig->addFunction(new TwigFunction('displayOptionClass', fn (): string => ''));
 
         self::$twig = $twig;
         return $twig;

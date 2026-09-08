@@ -16,8 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use Lcobucci\Clock\FrozenClock;
-use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -84,7 +83,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     private array $modifiedGlobalKeys = [
         'enable_auditlog',
-        'enable_auditlog_encryption',
         'audit_events_patient-record',
         'audit_events_security-administration',
         'audit_events_query',
@@ -108,7 +106,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
         $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
@@ -135,9 +133,7 @@ final class EventAuditLoggerTest extends TestCase
 
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
-            sinks: [],
-            crypto: ServiceContainer::getCrypto(),
-            shouldEncrypt: false,
+            sink: $this->createStub(SinkInterface::class),
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -183,13 +179,11 @@ final class EventAuditLoggerTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/test/script.php',
             'QUERY_STRING' => 'param=value',
-            'SSL_CLIENT_S_DN_CN' => 'test-client',
             'REMOTE_ADDR' => '127.0.0.1'
         ];
 
         // Setup default $GLOBALS values - disable audit logging for unit tests to prevent SQL escaping errors
         $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['enable_auditlog_encryption'] = false;
         $GLOBALS['audit_events_patient-record'] = true;
         $GLOBALS['audit_events_security-administration'] = true;
         $GLOBALS['audit_events_query'] = true;
@@ -260,11 +254,9 @@ final class EventAuditLoggerTest extends TestCase
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 
         // Return positional array matching constructor parameter order:
-        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker, clock
+        // sink, session, config, breakglassChecker, clock
         return [
-            [],                                         // sinks
-            $this->createMock(CryptoGen::class),        // cryptoGen
-            false,                                      // shouldEncrypt
+            $this->createStub(SinkInterface::class),
             $sessionMock,                               // session
             $config ?? $this->config,                   // config
             $this->breakglassChecker,                   // breakglassChecker
@@ -418,6 +410,7 @@ final class EventAuditLoggerTest extends TestCase
             '', // crt_user
             [
                 'user_id' => 1,
+                'client_id' => '',
                 'patient_id' => 1,
                 'method' => 'foo',
                 'request' => 'foo',
@@ -508,18 +501,15 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test recordLogItem method without encryption
+     * Test recordLogItem method
      */
-    public function testRecordLogItemWithoutEncryption(): void
+    public function testRecordLogItem(): void
     {
         // Keep audit logging disabled to prevent SQL escaping errors
         $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['enable_auditlog_encryption'] = false;
 
         $eventAuditLogger = new EventAuditLogger(
-            sinks: [],
-            crypto: $this->createMock(CryptoGen::class),
-            shouldEncrypt: false,
+            sink: $this->createStub(SinkInterface::class),
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -542,61 +532,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test recordLogItem method with encryption enabled (integration-style test)
-     */
-    public function testRecordLogItemWithEncryption(): void
-    {
-        // Enable audit logging and encryption for this specific test
-        $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['enable_auditlog_encryption'] = true;
-
-        // Setup database mock for this test
-        $mockAdodb = $this->createMockAdodb();
-        $this->setGlobalAdodbMock($mockAdodb);
-
-        // Create a mock CryptoGen to verify encryption calls
-        $cryptoMock = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['encryptStandard'])
-            ->getMock();
-
-        $cryptoMock->expects($this->exactly(1))
-            ->method('encryptStandard')
-            ->willReturnCallback(
-                fn(string $value): string => 'encrypted_' . $value
-            );
-
-        $eventAuditLogger = new EventAuditLogger(
-            sinks: [],
-            crypto: $cryptoMock,
-            shouldEncrypt: true,
-            session: $this->session,
-            config: $this->config,
-            breakglassChecker: $this->breakglassChecker,
-            clock: $this->clock,
-        );
-
-        try {
-            // This should execute the full recordLogItem flow including encryption
-            $eventAuditLogger->recordLogItem(
-                1,
-                'patient-record-select',
-                'testuser',
-                'testgroup',
-                'SELECT * FROM patient_data',
-                123,
-                'patient-record'
-            );
-
-            // Test passes if no exceptions are thrown
-            $this->addToAssertionCount(1);
-        } finally {
-            // Restore audit logging state
-            $GLOBALS['enable_auditlog'] = false;
-            $GLOBALS['enable_auditlog_encryption'] = false;
-        }
-    }
-
-    /**
      * Test recordLogItem method with API logging
      */
     public function testRecordLogItemWithApiLogging(): void
@@ -606,6 +541,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $apiData = [
             'user_id' => 1,
+            'client_id' => 'test-oauth-client',
             'patient_id' => 123,
             'method' => 'GET',
             'request' => '/api/patient/123',
@@ -631,76 +567,6 @@ final class EventAuditLoggerTest extends TestCase
         );
 
         // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test recordLogItem with encryption enabled and API data
-     */
-    public function testRecordLogItemWithEncryptionAndApiData(): void
-    {
-        // Enable audit logging and encryption
-        $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['enable_auditlog_encryption'] = true;
-
-        // Setup database mock
-        $mockAdodb = $this->createMockAdodb();
-        $this->setGlobalAdodbMock($mockAdodb);
-
-        // Create API data with all the fields that get encrypted
-        $apiData = [
-            'user_id' => 1,
-            'patient_id' => 123,
-            'method' => 'POST',
-            'request' => '/api/patient/123',
-            'request_url' => 'https://example.com/api/patient/123',  // Line 767: This will be encrypted
-            'request_body' => '{"name": "John Doe"}',               // Line 768: This will be encrypted
-            'response' => '{"status": "success", "id": 123}'        // Line 769: This will be encrypted
-        ];
-
-        // Create a mock CryptoGen to verify encryption calls
-        $cryptoMock = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['encryptStandard'])
-            ->getMock();
-
-        // Expect encryptStandard to be called 4 times:
-        // 1 time for comments, 3 times for API fields (request_url, request_body, response)
-        $cryptoMock->expects($this->exactly(4))
-            ->method('encryptStandard')
-            ->willReturnCallback(
-                fn(string $value): string => 'encrypted_' . $value
-            );
-
-        $eventAuditLogger = new EventAuditLogger(
-            sinks: [],
-            crypto: $cryptoMock,
-            shouldEncrypt: true,
-            session: $this->session,
-            config: $this->config,
-            breakglassChecker: $this->breakglassChecker,
-            clock: $this->clock,
-        );
-
-        // Call recordLogItem with API data - this should execute the encryption code:
-        // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
-        // Line 768: $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
-        // Line 769: $api['response'] = (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
-        $eventAuditLogger->recordLogItem(
-            1,
-            'api-create',
-            'apiuser',
-            'api',
-            'API call to create patient',
-            123,
-            'patient-record',
-            'api',
-            null,
-            null,
-            '',
-            $apiData
-        );
-
-        // Test passes if the encryption methods were called as expected
         $this->addToAssertionCount(1);
     }
 
@@ -1060,7 +926,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method
@@ -1087,7 +953,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: false,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method to ensure it's not called
@@ -1113,7 +979,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method to ensure it's not called
@@ -1139,7 +1005,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         $methods = [
@@ -1180,7 +1046,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Session with no values
@@ -1315,7 +1181,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         // Enable audit logging for this specific test
         $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['enable_auditlog_encryption'] = false;
 
         // Setup database mock for this test
         $mockAdodb = $this->createMockAdodb();
@@ -1854,7 +1719,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Create mock with newEvent - should not be called when audit logging is disabled
@@ -1879,7 +1744,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: false,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Create mock with newEvent - should not be called when http request logging is disabled

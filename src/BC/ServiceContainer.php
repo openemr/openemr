@@ -12,19 +12,27 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use GuzzleHttp\{
+    Client,
+    ClientInterface as GuzzleClientInterface,
+    RequestOptions,
+};
 use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\{
     LoggerInterface,
     NullLogger,
 };
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\Manager;
 use OpenEMR\Services\Storage\ManagerInterface;
+use Twig\Environment as TwigEnvironment;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
 use Psr\Clock\ClockInterface;
@@ -35,6 +43,10 @@ use Psr\Http\Message\{
     StreamFactoryInterface,
     UploadedFileFactoryInterface,
     UriFactoryInterface,
+};
+use Ramsey\Uuid\{
+    UuidFactory,
+    UuidFactoryInterface,
 };
 
 /**
@@ -89,6 +101,7 @@ class ServiceContainer
             ));
         }
         self::$overrides[$interface] = $instance;
+        unset(self::$cache[$interface]);
     }
 
     /**
@@ -116,7 +129,7 @@ class ServiceContainer
         return self::resolveOrCreate(
             ClockInterface::class,
             // @phpstan-ignore openemr.deprecatedSqlFunction
-            static fn() => SystemClock::fromSystemTimezone(),
+            static fn(): SystemClock => SystemClock::fromSystemTimezone(),
         );
     }
 
@@ -124,7 +137,45 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             Crypto\CryptoInterface::class,
-            static fn() => new Crypto\CryptoGen(),
+            static fn(): Crypto\CryptoGen => new Crypto\CryptoGen(),
+        );
+    }
+
+    /**
+     * Guzzle Client. This builds on the pure PSR-18 interface by adding:
+     * 1) Async request handling options
+     * 2) Request-specific options (an array keyed by RequestOptions constants)
+     *
+     * While we generally prefer binding to vendor-agnostic interfaces,
+     * pragmatism wins out here - there's often a _lot_ of boilerplate in
+     * constructing all of the PSR messages.
+     */
+    public static function getGuzzle(): GuzzleClientInterface & ClientInterface
+    {
+        $client = self::resolveOrCreate(
+            GuzzleClientInterface::class,
+            static fn(): Client => new Client([
+                // See config/services.php for details
+                RequestOptions::ALLOW_REDIRECTS => true,
+                RequestOptions::CONNECT_TIMEOUT => 5,
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::TIMEOUT => 15,
+            ]),
+        );
+        // This is just to make PHPStan happy, the native return type will
+        // flare up if this were to actually fail.
+        assert($client instanceof ClientInterface);
+        return $client;
+    }
+
+    /**
+     * Pure PSR-18 client; this will return 4xx/5xx for the caller to handle
+     */
+    public static function getHttpClient(): ClientInterface
+    {
+        return self::resolveOrCreate(
+            ClientInterface::class,
+            static fn(): ClientInterface&GuzzleClientInterface => self::getGuzzle(),
         );
     }
 
@@ -145,7 +196,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             RequestFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -153,7 +204,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             ResponseFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -161,7 +212,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             ServerRequestFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -169,7 +220,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             StreamFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -192,11 +243,20 @@ class ServiceContainer
         );
     }
 
+    public static function getTwig(): TwigEnvironment
+    {
+        return self::resolveOrCreate(
+            TwigEnvironment::class,
+            static fn(): TwigEnvironment => (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+                ->getTwig(),
+        );
+    }
+
     public static function getUploadedFileFactory(): UploadedFileFactoryInterface
     {
         return self::resolveOrCreate(
             UploadedFileFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -204,7 +264,15 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             UriFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
+        );
+    }
+
+    public static function getUuidFactory(): UuidFactoryInterface
+    {
+        return self::resolveOrCreate(
+            UuidFactoryInterface::class,
+            static fn(): UuidFactory => new UuidFactory(),
         );
     }
 }

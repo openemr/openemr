@@ -94,41 +94,23 @@ abstract class AbstractClickmapModel extends ORDataObject
      *
      * @return string The title of this form.
      */
-    abstract function getTitle();
+    abstract public function getTitle();
 
     /**
      * @brief Override this abstract function with your implementation of getCode.
      *
      * @return string A string that's a 'code' for this form.
      */
-    abstract function getCode();
-
-    /**
-     * @brief Fill in this object's members with the contents from the database representing the stored form.
-     */
-    function populate()
-    {
-        /* Run our parent's implementation. */
-        parent::populate();
-    }
-
-    /**
-     * @brief Store the current structure members representing the form into the database.
-     */
-    function persist()
-    {
-        /* Run our parent's implementation. */
-        parent::persist();
-    }
+    abstract public function getCode();
 
     /* The rest of this object consists of set_ and get_ pairs, for setting and getting the value of variables that are members of this object. */
 
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
-    function set_id($id)
+    public function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
@@ -137,12 +119,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_pid()
+    public function get_pid()
     {
         return $this->pid;
     }
 
-    function set_pid($pid)
+    public function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
@@ -151,12 +133,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_activity()
+    public function get_activity()
     {
         return $this->activity;
     }
 
-    function set_activity($tf)
+    public function set_activity($tf)
     {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
@@ -168,7 +150,7 @@ abstract class AbstractClickmapModel extends ORDataObject
     /* get_date()
      *
      */
-    function get_date()
+    public function get_date()
     {
         return $this->date;
     }
@@ -176,7 +158,7 @@ abstract class AbstractClickmapModel extends ORDataObject
     /* set_date()
      *
      */
-    function set_date($dt)
+    public function set_date($dt)
     {
         if (!empty($dt)) {
             $this->date = $dt;
@@ -185,12 +167,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_user()
+    public function get_user()
     {
         return $this->user;
     }
 
-    function set_user($u)
+    public function set_user($u)
     {
         if (!empty($u)) {
             $this->user = $u;
@@ -199,12 +181,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_data()
+    public function get_data()
     {
         return $this->data;
     }
 
-    function set_data($data)
+    public function set_data($data)
     {
         if (!empty($data)) {
             $this->data = $data;

@@ -71,7 +71,7 @@ final class SoftRequiredArgumentsRule implements Rule
             return [];
         }
 
-        $args = array_values(array_filter($call->args, fn($arg) => $arg instanceof Arg));
+        $args = array_values(array_filter($call->args, fn($arg): bool => $arg instanceof Arg));
         return $this->check($call->name->toString(), $args);
     }
 
@@ -87,7 +87,7 @@ final class SoftRequiredArgumentsRule implements Rule
             return [];
         }
 
-        $args = array_values(array_filter($call->args, fn($arg) => $arg instanceof Arg));
+        $args = array_values(array_filter($call->args, fn($arg): bool => $arg instanceof Arg));
         return $this->check($call->name->toString(), $args);
     }
 

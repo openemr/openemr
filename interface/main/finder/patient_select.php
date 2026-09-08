@@ -21,9 +21,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php");
 
 $report_id = 0;
 $itemized_test_id = 0;
@@ -138,7 +136,7 @@ form {
 </style>
 
 <?php if ($popup) { ?>
-    <?php Header::setupAssets('topdialog'); ?>
+    <?php echo Header::setupAssets(['topdialog']); ?>
 <?php } ?>
 
 <script>
@@ -274,7 +272,7 @@ if ($popup) {
     echo "<input type='hidden' name='patient' value='" . attr($patient) . "' />\n";
     echo "<input type='hidden' name='findBy'  value='" . attr($findBy) . "' />\n";
 
-    $result = match($findBy) {
+    $result = match ($findBy) {
         "Last" => getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart),
         "ID" => getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart),
         "DOB" => getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart),

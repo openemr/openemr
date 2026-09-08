@@ -128,7 +128,7 @@ class PageHeadingRenderEvent extends Event
 
     /**
      * @param array $actions
-     * @return UserEditRenderEvent
+     * @return PageHeadingRenderEvent
      */
     public function setActions(array $actions): PageHeadingRenderEvent
     {

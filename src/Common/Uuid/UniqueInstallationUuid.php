@@ -14,8 +14,8 @@
 
 namespace OpenEMR\Common\Uuid;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
-use Ramsey\Uuid\Uuid;
 
 class UniqueInstallationUuid
 {
@@ -33,8 +33,7 @@ class UniqueInstallationUuid
         }
 
         // Need to create it and store it and return it
-        $uuid4 = Uuid::uuid4();
-        $uuid = $uuid4->toString();
+        $uuid = ServiceContainer::getUuidFactory()->uuid4()->toString();
         sqlStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'unique_installation_id'", [$uuid]);
         return $uuid;
     }

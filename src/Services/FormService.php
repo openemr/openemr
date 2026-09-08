@@ -125,7 +125,7 @@ class FormService
         return $form;
     }
 
-    public function hasFormPermission($formDir)
+    public function hasFormPermission(string $formDir): bool
     {
         // get the aco spec from registry table
         $acoSpec = QueryUtils::fetchSingleValue(

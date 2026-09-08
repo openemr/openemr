@@ -17,7 +17,6 @@
  */
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
@@ -49,7 +48,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 //Display red alert if Emergency Login ACL is activated for a user.
 if ($_POST["action"] === "add") {
     if (!empty($_POST["selection"]) && is_array($_POST["selection"]) && in_array("Emergency Login", $_POST["selection"])) {
-        $error[] = (xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.'));
+        $error[] = xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.');
     }
 }
 
@@ -93,7 +92,7 @@ if ($_POST["control"] === "membership") {
 
         // check if user is protected. If so, then state message unable to remove from admin group.
         $userNametoID = (new UserService())->getIdByUsername($_POST["name"]);
-        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] === "admin" ? true : false;
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] === "admin";
 
         if ($gacl_protect && in_array("Administrators", $_POST["selection"])) {
             //unable to remove admin user from administrators group, process remove,

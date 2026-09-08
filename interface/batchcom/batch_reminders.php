@@ -17,7 +17,6 @@
 require_once(__DIR__ . "/../../interface/globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/maviq_phone_api.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/reminders.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;

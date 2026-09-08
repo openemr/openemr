@@ -246,9 +246,7 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExampleScenarioActor xmlns="http://hl7.org/fhir"></ExampleScenarioActor>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExampleScenarioActor xmlns="http://hl7.org/fhir"></ExampleScenarioActor>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->actorId)) {
             $this->actorId->xmlSerialize(true, $sxe->addChild('actorId'));

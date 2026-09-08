@@ -273,7 +273,7 @@ function pnModAPILoad($modname, $type = 'user')
  * @param mixed $directory - directory that module is in (if known)
  * @returns bool
  */
-function pnModDBInfoLoad($modname, $directory = '')
+function pnModDBInfoLoad($modname, $directory = ''): bool
 {
     static $loaded = [];
 

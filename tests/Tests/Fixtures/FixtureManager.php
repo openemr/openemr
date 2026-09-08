@@ -38,6 +38,8 @@ class FixtureManager
      */
     private $fhirAllergyIntoleranceFixtures;
 
+    private ?ConditionFixtureManager $conditionFixtureManager = null;
+
     public function __construct()
     {
         $this->addressFixtures = $this->loadPhpFile("addresses.php");
@@ -85,7 +87,7 @@ class FixtureManager
     }
 
     /**
-     * @return the next available patient pid/identifier.
+     * @return int the next available patient pid/identifier.
      */
     private function getNextPid()
     {
@@ -100,7 +102,7 @@ class FixtureManager
      *
      * @param $tableName The target OpenEMR DB table name.
      * @param $fixtures Array of fixture objects to install.
-     * @return the number of fixtures installed.
+     * @return int the number of fixtures installed.
      */
     private function installFixtures($tableName, $fixtures)
     {
@@ -221,7 +223,7 @@ class FixtureManager
     /**
      * Installs a single Patient Fixtures into the OpenEMR DB.
      * @param $patientFixture - The fixture to install.
-     * @return count of records inserted.
+     * @return int the number of records inserted.
      */
     public function installSinglePatientFixture($patientFixture)
     {
@@ -275,8 +277,39 @@ class FixtureManager
     }
 
     /**
+     * Seeds a patient and medical-problem condition for FHIR Condition API tests.
+     *
+     * @return array{patientUuid: string, conditionUuid: string}
+     */
+    public function installConditionFixtures(): array
+    {
+        $this->conditionFixtureManager = new ConditionFixtureManager();
+        $patient = $this->conditionFixtureManager->createTestPatient();
+        $condition = $this->conditionFixtureManager->createTestCondition($patient, [
+            'title' => 'Essential hypertension',
+        ]);
+
+        $patientUuid = $patient['uuid'] ?? null;
+        $conditionUuid = $condition['lists_uuid'] ?? null;
+        if (!is_string($patientUuid) || !is_string($conditionUuid)) {
+            throw new \RuntimeException('installConditionFixtures expected string UUIDs from fixtures');
+        }
+
+        return [
+            'patientUuid' => $patientUuid,
+            'conditionUuid' => $conditionUuid,
+        ];
+    }
+
+    public function removeConditionFixtures(): void
+    {
+        $this->conditionFixtureManager?->removeFixtures();
+        $this->conditionFixtureManager = null;
+    }
+
+    /**
      * Returns an unregistered/unlogged UUID for use in testing fixtures
-     * @return uuid4 string value
+     * @return string a uuid4 string value
      */
     public function getUnregisteredUuid()
     {

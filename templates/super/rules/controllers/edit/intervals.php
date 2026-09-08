@@ -61,7 +61,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
                 <input class="form-control" data-grp-tgt="<?php echo attr($type->code) ?>" type="text" name="<?php echo attr($type->code); ?>-<?php echo attr($range->code); ?>" value="<?php echo is_null($detail) ? "" : attr($detail->amount); ?>" />
             </span>
             <span class="end_col">
-            <?php echo RuleTemplateExtension::timeunit_select(array( "context" => "rule_reminder_intervals", "target" => $type->code, "name" => $type->code . "-" . $range->code . "-timeunit", "value" => $detail->timeUnit ?? null )); ?>
+            <?php echo RuleTemplateExtension::timeunit_select([ "context" => "rule_reminder_intervals", "target" => $type->code, "name" => $type->code . "-" . $range->code . "-timeunit", "value" => $detail->timeUnit ?? null ]); ?>
             </span>
         </p>
             <?php $first = false; ?>

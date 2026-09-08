@@ -40,9 +40,13 @@ class BillingLoggerTest extends TestCase
 
     private function createLogger(): BillingLogger
     {
+        $crypto = $this->createStub(CryptoInterface::class);
+        $crypto->method('encryptForFilesystem')->willReturnArgument(0);
+        $crypto->method('decryptFromFilesystem')->willReturnArgument(0);
+
         return new BillingLogger(
             $this->createStorageManager(),
-            $this->createStub(CryptoInterface::class),
+            $crypto,
         );
     }
 
@@ -212,6 +216,7 @@ class BillingLoggerTest extends TestCase
 
         $crypto = $this->createStub(CryptoInterface::class);
         $crypto->method('cryptCheckStandard')->willReturn(false);
+        $crypto->method('decryptFromFilesystem')->willReturnArgument(0);
 
         $logger = new BillingLogger($this->createStorageManager(), $crypto);
 

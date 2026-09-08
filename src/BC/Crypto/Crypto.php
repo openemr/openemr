@@ -19,6 +19,7 @@ use OpenEMR\Common\Crypto\{
     KeySource,
     KeyVersion,
 };
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
     KeyId,
     Keys\KeychainInterface,
@@ -43,9 +44,13 @@ use Throwable;
  */
 final readonly class Crypto implements CryptoInterface
 {
+    use ContextualEncryptionTrait;
+
     public function __construct(
         private KeychainInterface $keychain,
         private LoggerInterface $logger,
+        private bool $shouldEncryptForDatabase,
+        private bool $shouldEncryptForFilesystem,
     ) {
     }
 
@@ -54,7 +59,12 @@ final readonly class Crypto implements CryptoInterface
         // Note: this is NOT a singleton otherwise newly-generated keys don't
         // get picked up properly.
         $keychain = LegacyKeychainLoader::load();
-        return new Crypto($keychain, $logger);
+        return new Crypto(
+            keychain: $keychain,
+            logger: $logger,
+            shouldEncryptForDatabase: OEGlobalsBag::getInstance()->getBoolean('database_encryption'),
+            shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
+        );
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
@@ -127,28 +137,5 @@ final readonly class Crypto implements CryptoInterface
         } catch (Throwable) {
             return false;
         }
-    }
-
-    public function encryptForDatabase(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        return $this->encryptStandard($value, keySource: KeySource::Drive);
-    }
-
-    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->cryptCheckStandard($value)) {
-            return $value;
-        }
-        $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
-        if ($result === false) {
-            throw new CryptoGenException('Decryption failed');
-        }
-        return $result;
     }
 }

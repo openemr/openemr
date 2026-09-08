@@ -36,7 +36,7 @@ class CdaTemplateParseTest extends TestCase
 
         $this->codeService = $this->createMock(CodeTypesService::class);
         $this->codeService->method('resolveCode')
-            ->willReturnCallback(fn(?string $code, ?string $codeType, ?string $codeText) => [
+            ->willReturnCallback(fn(?string $code, ?string $codeType, ?string $codeText): array => [
                 'code' => $code ?? '',
                 'formatted_code' => ($code ?? '') . ':' . ($codeType ?? ''),
                 'formatted_code_type' => $codeType ?? '',

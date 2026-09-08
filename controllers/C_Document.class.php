@@ -14,17 +14,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/forms.inc.php");
-require_once(__DIR__ . "/../library/patient.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -45,19 +44,19 @@ class C_Document extends Controller
     public $patientService;
     public $_last_node;
     private $Document;
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     private bool $skip_acl_check = false;
     private readonly DocumentTemplateService $templateService;
     private bool $returnRetrieveKey = false;
 
-    public function __construct($template_mod = "general")
-    {
+    public function __construct(
+        ?CryptoInterface $crypto = null,
+    ) {
         parent::__construct();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "document&");
 
@@ -80,7 +79,7 @@ class C_Document extends Controller
         $this->Document = new Document();
 
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = ServiceContainer::getCrypto();
+        $this->cryptoGen = $crypto ?? ServiceContainer::getCrypto();
         $this->templateService = new DocumentTemplateService();
     }
 
@@ -175,15 +174,6 @@ class C_Document extends Controller
             $non_HTTP_owner = $this->manual_set_owner;
         }
 
-        $couchDB = false;
-        $harddisk = false;
-        if (OEGlobalsBag::getInstance()->get('document_storage_method') == 0) {
-            $harddisk = true;
-        }
-        if (OEGlobalsBag::getInstance()->get('document_storage_method') == 1) {
-            $couchDB = true;
-        }
-
         if ($_POST['process'] != "true") {
             return;
         }
@@ -201,9 +191,7 @@ class C_Document extends Controller
         $category_id = is_numeric($_POST['category_id']) ? $_POST['category_id'] : 1;
 
         $patient_id = 0;
-        if (isset($_GET['patient_id']) && !$couchDB) {
-            $patient_id = $_GET['patient_id'];
-        } elseif (is_numeric($_POST['patient_id'])) {
+        if (is_numeric($_POST['patient_id'])) {
             $patient_id = $_POST['patient_id'];
         }
 
@@ -433,16 +421,15 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $n->get_foreign_id());
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         return $this->list_action();
     }
 
     public function view_action(?string $patient_id, $doc_id)
     {
-        global $ISSUE_TYPES;
+        $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
-        require_once(__DIR__ . "/../library/lists.inc.php");
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $d = new Document($doc_id);
 
@@ -646,13 +633,8 @@ class C_Document extends Controller
             }
         }
 
-        switch ($context) {
-            case "patient_picture":
-                $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
-                break;
-        }
-
         // For patient_picture context, non-portal users may only request the session's active patient.
+        // Runs before the missing-photo branch so 403 vs 404 does not leak whether the patient has a photo.
         if ($context === 'patient_picture') {
             if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
                 $allowed_pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
@@ -660,6 +642,18 @@ class C_Document extends Controller
                     AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
                 }
             }
+        }
+
+        switch ($context) {
+            case "patient_picture":
+                $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
+                if ($document_id === null) {
+                    if ($disable_exit == true) {
+                        return null;
+                    }
+                    (new RequestTerminator())->error(404, '');
+                }
+                break;
         }
 
         $d = new Document($document_id);
@@ -677,8 +671,14 @@ class C_Document extends Controller
             }
 
             // Verify the document belongs to the requested patient to prevent IDOR.
+            // Internal callers that pre-validate context set returnRetrieveKey and may
+            // omit patient_id; everyone else must pass a matching non-empty numeric pid.
             $doc_pid = $d->get_foreign_id();
-            if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+            $hasPid = $patient_id !== null && $patient_id !== '' && ctype_digit($patient_id);
+            if (!$hasPid && !$this->isReturnRetrieveKey()) {
+                AccessDeniedHelper::deny("Missing or invalid patient_id for document retrieve");
+            }
+            if ($hasPid && (int)$doc_pid !== (int)$patient_id) {
                 AccessDeniedHelper::deny("Unauthorized attempt to retrieve document $document_id belonging to pid $doc_pid");
             }
         }
@@ -706,11 +706,7 @@ class C_Document extends Controller
                 $this->document_upload_download_log($d->get_foreign_id(), $log_content);
                 die(xlt("File retrieval from CouchDB failed"));
             }
-            if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard($content, KeySource::Database);
-            } else {
-                $filetext = base64_decode((string) $content);
-            }
+            $filetext = $d->is_encrypted() ? $this->cryptoGen->decryptFromFilesystem($content) : base64_decode((string) $content);
             if ($disable_exit == true) {
                 return $filetext;
             }
@@ -745,8 +741,8 @@ class C_Document extends Controller
                 //create the converted jpg
                 $couchM = new CouchDB();
                 $respM = $couchM->retrieve_doc($couch_docid);
-                if ($d->get_encrypted() == 1) {
-                    $contentM = $this->cryptoGen->decryptStandard($respM->data, KeySource::Database);
+                if ($d->is_encrypted()) {
+                    $contentM = $this->cryptoGen->decryptFromFilesystem($respM->data);
                 } else {
                     $contentM = base64_decode((string) $respM->data);
                 }
@@ -773,8 +769,8 @@ class C_Document extends Controller
                 // save the to-file if a to-file was created in above convert call
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
-                    if ($d->get_encrypted() == 1) {
-                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), KeySource::Database);
+                    if ($d->is_encrypted()) {
+                        $document = $this->cryptoGen->encryptForFilesystem(file_get_contents($to_file_tmp_name));
                     } else {
                         $document = base64_encode(file_get_contents($to_file_tmp_name));
                     }
@@ -788,15 +784,15 @@ class C_Document extends Controller
                 // now collect the newly created converted jpg
                 $couchF = new CouchDB();
                 $respF = $couchF->retrieve_doc("converted_" . $couch_docid);
-                if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($respF->data, KeySource::Database);
+                if ($d->is_encrypted()) {
+                    $content = $this->cryptoGen->decryptFromFilesystem($respF->data);
                 } else {
                     $content = base64_decode((string) $respF->data);
                 }
             } else {
                 // decrypt/decode when converted jpg already exists
-                if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($resp->data, KeySource::Database);
+                if ($d->is_encrypted()) {
+                    $content = $this->cryptoGen->decryptFromFilesystem($resp->data);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -878,8 +874,8 @@ class C_Document extends Controller
         }
         if ($original_file) {
             //normal case when serving the file referenced in database
-            if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
+            if ($d->is_encrypted()) {
+                $filetext = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
             } else {
                 if (!is_dir($url)) {
                     $filetext = file_get_contents($url);
@@ -918,9 +914,9 @@ class C_Document extends Controller
             }
             $url = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $convertedFile;
             if (!is_file($url)) {
-                if ($d->get_encrypted() == 1) {
+                if ($d->is_encrypted()) {
                     // decrypt the from-file into a temporary file
-                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), KeySource::Database);
+                    $from_file_unencrypted = $this->cryptoGen->decryptFromFilesystem(file_get_contents($originalUrl));
                     $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                     file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                     // prepare a temporary file for the unencrypted to-file
@@ -932,7 +928,7 @@ class C_Document extends Controller
                     unlink($from_file_tmp_name);
                     // make the encrypted to-file if a to-file was created in above convert call
                     if (is_file($to_file_tmp_name)) {
-                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), KeySource::Database);
+                        $to_file_encrypted = $this->cryptoGen->encryptForFilesystem(file_get_contents($to_file_tmp_name));
                         file_put_contents($url, $to_file_encrypted);
                         // remove unencrypted tmp files
                         unlink($to_file_tmp);
@@ -944,8 +940,8 @@ class C_Document extends Controller
                 }
             }
             if (is_file($url)) {
-                if ($d->get_encrypted() == 1) {
-                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
+                if ($d->is_encrypted()) {
+                    $filetext = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
                 } else {
                     $filetext = file_get_contents($url);
                 }
@@ -973,13 +969,33 @@ class C_Document extends Controller
             return;
         }
 
+        if (!is_numeric($document_id)) {
+            $this->throwAccessDenied("Invalid document id for move", xl("Documents"));
+        }
+        $docIdInt = (int) $document_id;
+
+        // Require write authorization plus per-doc access before mutating any state.
+        if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
+            $this->throwAccessDenied("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
+        }
+        $sourceDoc = new Document($docIdInt);
+        $sourceDocForeignId = $sourceDoc->get_foreign_id();
+        if (
+            !is_numeric($sourceDoc->get_id())
+            || !is_numeric($sourceDocForeignId)
+            || (int) $sourceDocForeignId <= 0
+            || !$sourceDoc->can_access()
+        ) {
+            AccessDeniedHelper::deny("Unauthorized attempt to move document $docIdInt");
+        }
+
         $messages = '';
 
         $new_category_id = $_POST['new_category_id'];
         $new_patient_id = $_POST['new_patient_id'];
 
         //move to new category
-        if (is_numeric($new_category_id) && is_numeric($document_id)) {
+        if (is_numeric($new_category_id)) {
             $sql = "UPDATE categories_to_documents set category_id = ? where document_id = ?";
             $messages .= sprintf("%s '%s' %s\n", xl('Document moved to new category'), $this->tree->_id_name[$new_category_id]['name'], xl('successfully.'));
             //echo $sql;
@@ -987,8 +1003,8 @@ class C_Document extends Controller
         }
 
         //move to new patient
-        if (is_numeric($new_patient_id) && is_numeric($document_id)) {
-            $d = new Document($document_id);
+        if (is_numeric($new_patient_id)) {
+            $d = new Document((int) $document_id);
             $sql = "SELECT pid from patient_data where pid = ?";
             $result = QueryUtils::querySingleRow($sql, [$new_patient_id]);
 
@@ -1019,8 +1035,8 @@ class C_Document extends Controller
             $url = $file_path . $d->get_url();
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($d->couch_docid);
-            if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard($resp->data, KeySource::Database);
+            if ($d->is_encrypted()) {
+                $content = $this->cryptoGen->decryptFromFilesystem($resp->data);
             } else {
                 $content = base64_decode((string) $resp->data);
             }
@@ -1057,8 +1073,8 @@ class C_Document extends Controller
                 return;
             }
 
-            if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
+            if ($d->is_encrypted()) {
+                $content = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
             } else {
                 $content = file_get_contents($url);
             }
@@ -1137,7 +1153,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function list_action($patient_id = "")
+    public function list_action($patient_id = ""): string
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->_last_node = null;
@@ -1278,16 +1294,12 @@ class C_Document extends Controller
 
         $LOG = file_get_contents($log_path . $log_file);
 
-        if ($this->cryptoGen->cryptCheckStandard($LOG)) {
-            $LOG = $this->cryptoGen->decryptStandard($LOG, KeySource::Database);
-        }
+        $LOG = $this->cryptoGen->decryptFromFilesystem($LOG);
 
         $LOG .= $content;
 
         if (!empty($LOG)) {
-            if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                $LOG = $this->cryptoGen->encryptStandard($LOG, KeySource::Database);
-            }
+            $LOG = $this->cryptoGen->encryptForFilesystem($LOG);
             file_put_contents($log_path . $log_file, $LOG);
         }
     }

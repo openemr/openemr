@@ -16,11 +16,11 @@
 
 ## Technology Stack
 
-- **PHP:** 8.2+ required
+- **PHP:** 8.3+ required
 - **Backend:** Laminas MVC, Symfony components
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
 - **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
-- **Build:** Gulp 4, SASS
+- **Build:** Webpack 5, SASS
 - **Database:** MySQL via Doctrine DBAL 4.x (ADODB surface API for legacy code)
 - **Testing:** PHPUnit 11, Jest 29
 - **Static Analysis:** PHPStan level 10, Rector, custom rules in `tests/PHPStan/Rules/`
@@ -38,33 +38,114 @@ docker compose up --detach --wait
 - **Login:** `admin` / `pass`
 - **phpMyAdmin:** http://localhost:8310/
 
+## Working in a git worktree
+
+OpenEMR supports concurrent development across branches via git worktrees
+managed by `openemr-cmd worktree` (see `CONTRIBUTING.md` for the full feature
+set). Skip this section if the working directory does not match
+`*/openemr-wt-<slug>/` — that path is the signal you are inside a managed
+worktree, where `<slug>` is the branch label. `openemr-cmd worktree list`
+confirms.
+
+**Never use raw `git worktree add`, `git worktree remove`, or
+`git worktree move` against this repo.** The `openemr-cmd worktree` script
+owns state that bare git does not: a JSON state file tracking each worktree,
+a per-worktree compose override with its assigned port offset, and a
+generated `.env`. Bypassing it leaves orphaned state files, port collisions
+between worktrees, and broken compose stacks that the script can no longer
+recover. Always use `openemr-cmd worktree` subcommands instead — `add`,
+`remove`, `up`, `down`, `start`, `stop`, `exec`, `set-env`, `list`, `regen`,
+`prune`.
+
+Even for tasks where it feels like you don't need a docker stack (docs-only
+PRs, branch checkouts for review), still use `openemr-cmd worktree add
+<branch> --start` (`-b` if the branch is new). The `git commit` hook routes
+via openemr-cmd into the worktree's container, so without a state entry
+pointing the hook at a running stack, commits fail with `Could not
+automatically determine target OpenEMR container`. Raw `git worktree add`
+skips both the state registration and the stack. If you already made that
+mistake, recovery is `git worktree remove <path>` then `openemr-cmd worktree
+add <branch> --start` (omit `-b` since the branch persists).
+
+When `-b` is supplied, the new branch is based on canonical
+`openemr/openemr` master, fetched directly from GitHub at the time of the
+command — *not* the primary repo's HEAD. Override with `--base <ref>`,
+which accepts two forms: a URL (optionally `#<ref>`, e.g.
+`https://github.com/openemr/openemr.git#rel-810`) for a freshly-fetched
+base, or any git `<commit-ish>` (local branch, `origin/master`, tag, SHA,
+`HEAD`) resolved locally with no fetch. Because the primary's HEAD is
+never read or modified on the default path, concurrent worktree creation
+by multiple agents is safe regardless of which branch happens to be
+checked out in the primary.
+
+**Never use `git fetch ... --update-head-ok` in the primary openemr repo,
+regardless of remote or URL.** It overwrites the current branch's ref
+without updating the working tree, leaving the index showing "staged
+deletions of everything new on master" — a stray `git commit` after that
+wipes recent work. Use `git pull` or plain `git fetch` (then read via
+tracking ref) instead.
+
+If `openemr-cmd worktree list` shows entries with status `missing` or
+`invalid` (and a footer `(N stale state entries — run "openemr-cmd worktree
+prune" to clean up; directories on disk are left intact)`), a worktree's
+state has drifted from disk/git reality. Run `openemr-cmd worktree prune`
+to remove those state entries — never hand-edit `.worktrees.json`. If
+instead the footer reads `(N entries have missing compose files — run
+"openemr-cmd worktree regen <branch>" to regenerate)`, the directory is
+intact but its compose files are gone; use `regen`, not `prune`.
+`openemr-cmd worktree remove <branch>` is also tolerant of an
+already-missing directory: it cleans the state entry, skips the destructive
+steps, and prints a manual hint for any leftover docker resources.
+
+When running commands against a worktree's containers, use
+`openemr-cmd worktree exec <branch> <cmd>` rather than
+`cd docker/development-easy && docker compose exec openemr ...`. The `exec`
+subcommand resolves the worktree's `openemr` container by compose project
+labels; the bare `docker compose` form will hit the wrong stack (or none)
+because each worktree has a distinct compose project name and port offset.
+Any standard `openemr-cmd` command works through `exec` — `ut`, `at`, `et`,
+`php-log`, `shell`, `drid`, etc.
+
+For short pauses, prefer `worktree stop` / `worktree start` over
+`worktree down` / `worktree up`. `stop`/`start` pause and resume existing
+containers (data preserved, much faster); `down`/`up` recreates them.
+
 ## Testing
 
-Tests run inside Docker via devtools. Run from `docker/development-easy/`:
+Tests run inside the openemr container. Invoke via `openemr-cmd` (the
+canonical CLI; see CONTRIBUTING.md for install). Works from any directory.
 
 ```bash
 # Run all tests
-docker compose exec openemr /root/devtools clean-sweep-tests
+openemr-cmd clean-sweep-tests            # alias: cst
 
 # Individual test suites
-docker compose exec openemr /root/devtools unit-test
-docker compose exec openemr /root/devtools api-test
-docker compose exec openemr /root/devtools e2e-test
-docker compose exec openemr /root/devtools services-test
+openemr-cmd unit-test                    # alias: ut
+openemr-cmd api-test                     # alias: at
+openemr-cmd e2e-test                     # alias: et
+openemr-cmd services-test                # alias: st
 
 # View PHP error log
-docker compose exec openemr /root/devtools php-log
+openemr-cmd php-log                      # alias: pl
 ```
 
-**Tip:** Install [openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd)
-for shorter commands (e.g., `openemr-cmd ut` for unit tests) from any directory.
+To target a specific worktree's container from outside it, prefix with
+`worktree exec`: `openemr-cmd worktree exec <branch> ut`.
 
-### Isolated tests (no Docker required)
+Under the hood each of these is equivalent to running
+`docker compose exec openemr /root/devtools <cmd>` from
+`docker/development-easy/` — useful as a fallback on environments where
+openemr-cmd isn't available (e.g. Windows cmd.exe without WSL2 / Git Bash).
 
-Isolated tests run on the host without a database or Docker:
+### Isolated tests
+
+Isolated tests run without a database — fast; pure-PHP logic, Twig template
+compilation/render tests, etc. Available both in-container (via openemr-cmd,
+no host PHP toolchain needed) and on the host directly:
 
 ```bash
-composer phpunit-isolated        # Run all isolated tests
+openemr-cmd phpunit-isolated        # in container (alias: pit)
+composer phpunit-isolated           # on host (requires PHP + Composer + vendor/)
 ```
 
 ### Data providers: mark as `@codeCoverageIgnore`
@@ -105,39 +186,131 @@ Twig templates have two layers of testing (both isolated):
   the full HTML output to expected fixture files in
   `tests/Tests/Isolated/Common/Twig/fixtures/render/`.
 
-When modifying a Twig template that has render test coverage, update the
-fixture files:
+When modifying a Twig template that has render test coverage, regenerate the
+fixture files. **Mutating maintenance command** — overwrites the recorded
+expected-output files. Available in-container or on host:
 
 ```bash
-composer update-twig-fixtures    # Regenerate fixture files
+openemr-cmd update-twig-fixtures    # in container (alias: utf)
+composer update-twig-fixtures       # on host
 ```
 
 Review the diff before committing. See the
 [fixtures README](tests/Tests/Isolated/Common/Twig/fixtures/render/README.md)
 for details on adding new test cases.
 
-## Code Quality
+### Layout field rendering tests
 
-These run on the host (requires local PHP/Node):
+`tests/Tests/Services/Common/Layouts/FieldRenderingSnapshotTest.php` is a
+**DB-backed** snapshot test (default suite, not isolated) that exercises
+each layout-field renderer branch (one per `data_type`/mode in
+`library/options.inc.php`) and compares the HTML to recorded fixtures.
+When intentionally changing the renderer, regenerate the fixtures:
 
 ```bash
-# Run all PHP quality checks (phpcs, phpstan, rector, etc.)
-composer code-quality
+openemr-cmd update-layout-field-fixtures    # in container (alias: ulff)
+composer update-layout-field-fixtures       # on host
+```
 
-# Individual checks (composer scripts handle memory limits)
-composer phpstan              # Static analysis (level 10)
-composer phpstan-baseline     # Regenerate PHPStan baseline
-composer phpcs                # PHP code style check
-composer phpcbf               # PHP code style auto-fix
-composer rector-check         # Code modernization (dry-run)
-composer rector-fix           # Code modernization (apply changes)
-composer require-checker      # Detect undeclared dependencies
-composer checks               # Validate composer.json and normalize
-composer codespell            # Spell-check the codebase
+Review the diff before committing.
+
+### Browser debugging via Selenium
+
+The dev stack's Selenium container (what `tests/Tests/E2e/Base/BaseTrait.php`
+connects to) is a real Chrome session against the running app — and Claude
+Code can drive it directly. Anything a logged-in user can do in their
+browser is in scope: reproducing user-reported flows, navigating to deep
+server-rendered state, exercising JS-heavy interactions, inspecting DOM /
+cookies / storage, running arbitrary JS in the page context, screenshotting
+what a user actually sees. This lets Claude Code investigate live behaviour
+by hand rather than inferring from static source.
+
+Drive it via `symfony/panther` from inside the openemr container. Panther
+is already a project dep — the same WebDriver client the E2E suite uses.
+Inside the container, the grid is at `http://selenium:4444/wd/hub` and the
+app is at `http://openemr` (docker-network aliases — no host ports, no
+host packages, no path translation).
+
+**Cross-branch comparison.** From the primary repo's master, run
+`openemr-cmd worktree add <new-worktree> -b --start` to spin up a fresh
+worktree branching off master, with its own stack on a different port
+offset. Then drive Selenium against both stacks from the same
+conversation, running the identical flow on each and diffing rendered
+HTML, screenshots, or computed state directly. Answers "regression in
+my branch or pre-existing in master?" much faster than guessing from
+git blame.
+
+Boilerplate — drop into the bind-mounted dir at `tmp/debug.php`, then run
+via openemr-cmd, quoting the command as a single string so `sh -c` sees it
+intact:
+
+```bash
+openemr-cmd worktree exec <worktree> e 'php /var/www/localhost/htdocs/openemr/tmp/debug.php'
+# or, against the primary clone's stack (non-worktree mode):
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/tmp/debug.php'
+```
+
+```php
+<?php
+use Symfony\Component\Panther\Client;
+require '/var/www/localhost/htdocs/openemr/vendor/autoload.php';
+$c = Client::createSeleniumClient('http://selenium:4444/wd/hub', null, 'http://openemr');
+// ... drive the session — see Panther / WebDriver docs for the full API ...
+$c->quit();
+```
+
+Files written under `/var/www/localhost/htdocs/openemr/tmp/` inside the
+container appear on host at `<bind-mounted-dir>/tmp/` — handy for
+`takeScreenshot()` output that Claude Code can `Read` directly to render
+the PNG inline.
+
+## Code Quality
+
+The same composer scripts back every PHP code-quality check, whether
+invoked in the openemr container via `openemr-cmd` (no host toolchain
+needed) or directly on the host. Pick whichever fits your setup; the
+container path is preferred when avoiding a host PHP/Node install.
+
+In container (only requires Docker on host):
+
+```bash
+openemr-cmd code-quality                # alias: cq -- full code-quality suite
+openemr-cmd phpstan                     # alias: pst
+openemr-cmd phpstan-generate            # alias: psg -- regenerate baseline
+openemr-cmd phpstan-generate-reset      # alias: pgr -- wipe + regenerate baseline from scratch
+openemr-cmd psr12-report                # alias: pr  (composer phpcs)
+openemr-cmd psr12-fix                   # alias: pf  (composer phpcbf)
+openemr-cmd rector-dry-run              # alias: rd
+openemr-cmd rector-process              # alias: rp  (apply changes)
+openemr-cmd require-checker             # alias: crc
+openemr-cmd composer-checks             # alias: cck (validate + normalize)
+openemr-cmd codespell                   # alias: cps
+openemr-cmd conventional-commits-check  # alias: ccc
+openemr-cmd php-parserror               # alias: pp  (php -l)
+openemr-cmd lint-javascript-report      # alias: ljr
+openemr-cmd lint-themes-report          # alias: ltr
+```
+
+Target a specific worktree's container from outside it:
+`openemr-cmd worktree exec <branch> <cmd>` works for any of the above.
+
+On the host (requires local PHP / Composer with `vendor/` populated / Node):
+
+```bash
+composer code-quality                # Run all PHP quality checks
+composer phpstan                     # Static analysis (level 10)
+composer phpstan-baseline            # Regenerate PHPStan baseline
+composer phpstan-baseline-reset      # Wipe + regenerate PHPStan baseline from scratch
+composer phpcs                       # PHP code style check
+composer phpcbf                      # PHP code style auto-fix
+composer rector-check                # Code modernization (dry-run)
+composer rector-fix                  # Code modernization (apply changes)
+composer require-checker             # Detect undeclared dependencies
+composer checks                      # Validate composer.json and normalize
+composer codespell                   # Spell-check the codebase
 composer conventional-commits:check  # Validate commit messages
-composer php-syntax-check     # Run php -l on all PHP files
+composer php-syntax-check            # Run php -l on all PHP files
 
-# JavaScript/CSS
 npm run lint:js           # ESLint check
 npm run lint:js-fix       # ESLint auto-fix
 npm run stylelint         # CSS/SCSS lint
@@ -146,9 +319,12 @@ npm run stylelint         # CSS/SCSS lint
 ## Build Commands
 
 ```bash
-npm run build        # Production build
-npm run dev          # Development with file watching
-npm run gulp-build   # Build only (no watch)
+npm run build             # Production build (webpack + CSS sync)
+npm run build:webpack     # Webpack theme compilation (caller provides --mode)
+npm run build:webpack:prod  # Webpack production build
+npm run build:webpack:dev   # Webpack development build
+npm run build:sync        # Sync static CSS to public/themes/
+npm run dev               # Dev theme build, static CSS sync, then webpack watch
 ```
 
 ## Coding Standards
@@ -188,9 +364,8 @@ messages), [PSR-15](https://www.php-fig.org/psr/psr-15/) (middleware),
 
 ### Database and Global Settings
 
-- **Database:** Use `QueryUtils` for queries. New schema changes use Doctrine
-  Migrations. Do not instantiate database connections directly — use the
-  centralized `DatabaseConnectionFactory`.
+- **Database:** Use `QueryUtils` for queries.
+- **Schema changes:** Use the sql_upgrade.php system. DO NOT use Doctrine Migrations yet, it is experimental and not fully adopted.
 - **Global settings:** Use `OEGlobalsBag` (extends Symfony `ParameterBag`) instead
   of `$GLOBALS`. Prefer typed getters over `get()` + cast:
   - `getString($key)` instead of `(string) get($key)`
@@ -309,10 +484,77 @@ dependencies.
 - **Clock injection (PSR-20):** Inject `ClockInterface` instead of calling
   `new \DateTimeImmutable()` or `time()` directly. This makes time-dependent
   code deterministically testable.
-- **No direct superglobal access** in application code. Use PSR-7 request
-  objects, framework session abstractions, and container-provided configuration.
-  In legacy code where this is unavoidable, confine superglobal reads to the
-  outermost entry point and parse into typed objects immediately.
+- **No direct superglobal access** in application code. Use the Symfony
+  `Request` object, framework session abstractions, and container-provided
+  configuration. In legacy code where this is unavoidable, confine superglobal
+  reads to the outermost entry point and parse into typed objects immediately.
+
+### Request Input
+
+Read request input through the Symfony `Request` object. Each superglobal maps
+to its own bag, and the `InputBag` getters return honest scalar types.
+
+| Superglobal | Request accessor |
+|-------------|------------------|
+| `$_GET` | `$request->query` |
+| `$_POST` | `$request->request` |
+| `$_COOKIE` | `$request->cookies` |
+| `$_FILES` | `$request->files` |
+| `$_SERVER` | `$request->server`, or a named accessor |
+| `$_REQUEST` | **no equivalent — pick a source, see below** |
+
+```php
+$request->query->getString('name');
+$request->request->getInt('id');
+$request->query->getBoolean('flag');
+$request->request->all('items');          // arrays
+$request->files->get('upload');
+$request->server->getString('SERVER_NAME');
+$request->headers->get('Content-Type');   // headers, not the raw server bag
+$request->getMethod();                    // prefer named accessors where they exist
+```
+
+Symfony deliberately keeps query and body data separate and has no merged
+`$_REQUEST` bag. Converting a `$_REQUEST` read therefore requires deciding
+which source the value actually comes from and reading that bag directly —
+`$request->query` or `$request->request`. This is not mechanical: which
+superglobals `$_REQUEST` contains, and in what precedence, depends on the
+`request_order` ini setting, so the existing behavior has to be checked per
+call site rather than assumed. (`Request::get()` does search attributes, then
+query, then body — but it is **deprecated as of Symfony 7.4** precisely because
+it hides that ambiguity. Do not reach for it to paper over the conversion.)
+
+Classes take a `Request` through the constructor — see `src/Patient/Cards/`
+for the shape. Procedural entry points that have nowhere to inject call
+`OpenEMR\Common\Http\CurrentRequest::get()`, which returns the one request
+object for the process. `CurrentRequest` is a transitional seam for legacy
+scripts, not a target architecture; do not call it from a class that could
+accept a constructor parameter instead.
+
+**Do not use `filter_input()`.** It reaches only four of the six superglobals
+(`INPUT_GET`, `INPUT_POST`, `INPUT_COOKIE`, `INPUT_SERVER` — there is no
+`INPUT_REQUEST` and no `$_FILES` equivalent), it addresses only top-level keys,
+and reading an array out of it requires an explicit `FILTER_REQUIRE_ARRAY` flag
+that is easy to omit — without it, an array input silently returns `false`.
+
+Its return type is the deeper problem. It is `mixed`, and what you actually get
+back depends on the filter you passed: a `string` by default, an `int` or
+`float` or `bool` from a validation filter, an array with `FILTER_REQUIRE_ARRAY`.
+Failure is signalled in-band by sentinel values rather than by type — `false`
+for "filter failed", `null` for "not set", and `FILTER_NULL_ON_FAILURE`
+*reverses* those two. So the caller has to know which filter was used before it
+can tell a rejected value from an absent one.
+
+Neither shorthand is safe as a fallback: `??` catches only `null` and lets
+`false` through as a value, while `?:` swallows legitimate falsy input such as
+`'0'`, `0`, and `''`. Correct handling requires an explicit `=== false` /
+`=== null` check, or a type check matching the chosen filter, at every call
+site. The `InputBag` getters have none of this: `getInt()` returns `int`,
+`getString()` returns `string`, and a missing key yields the declared default
+rather than a sentinel.
+
+Existing `filter_input()` calls are legacy to be converted, not a pattern to
+copy.
 
 ### Null Safety
 
@@ -429,9 +671,25 @@ Preserve existing authors/copyrights when editing files.
 
 - Multiple template engines: check extension (.twig, .html, .php)
 - Event system uses Symfony EventDispatcher
-- **Pre-commit hooks:** Install with `prek install` (or `pre-commit install` if
-  prek is unavailable). Run `prek run --all-files` before committing to catch
-  issues early — the hooks run phpstan, rector, phpcs, codespell, and more.
+- **Bind-mount permissions / HOST_UID:** openemr-cmd auto-exports
+  `HOST_UID`/`HOST_GID` on every `up`/`worktree up`, and the in-container
+  apache user adopts your host uid via the entrypoint. Bind-mounted files
+  apache writes are host-owned, so host-side edits (incl. `git commit`)
+  work regardless of your host uid. Use openemr-cmd consistently —
+  bypassing it skips the export and leaves apache at uid=1000, the
+  usual cause when `EACCES` shows up on bind-mount edits.
+- **Pre-commit hooks:** Install with `openemr-cmd prek-install` (alias `pi`).
+  This writes git hooks that route through the running openemr container, so
+  `git commit` validates against the project's full `.pre-commit-config.yaml`
+  suite (phpstan, rector, phpcs, codespell, actionlint, hadolint, and more)
+  without requiring PHP, Node, Python, codespell, actionlint, or hadolint on
+  the host. Manual passthrough is `openemr-cmd prek run [args...]` (use
+  `--all-files` for a whole-codebase check before pushing). See
+  CONTRIBUTING.md's "Pre-commit hooks for the docker dev environment"
+  section (Advanced Use item 2) for the full workflow.
+  If you maintain a full host PHP/Composer/Python toolchain instead, use
+  `prek install` (or `pre-commit install` if prek is unavailable) for hooks
+  that run directly on the host; `prek run --all-files` is the manual form.
 - Custom PHPStan rules in `tests/PHPStan/Rules/` enforce project conventions
   (forbidden globals, forbidden direct instantiations, namespace rules, etc.)
 - Commit messages are validated against Conventional Commits format in CI

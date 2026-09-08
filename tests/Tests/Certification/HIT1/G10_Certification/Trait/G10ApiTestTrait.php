@@ -109,7 +109,7 @@ trait G10ApiTestTrait
     private static function getDisplayName(string $test_id): string
     {
         if (isset(self::$idMap[$test_id])) {
-            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . self::$idMap[$test_id]['title'] ?? ' Unknown Test';
+            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . (self::$idMap[$test_id]['title'] ?? ' Unknown Test');
         }
         return $test_id;
     }
@@ -118,13 +118,25 @@ trait G10ApiTestTrait
 
     protected function getTestSuitePrefix(): string
     {
-        if (self::TEST_SUITE === self::TEST_SUITE_US_CORE_V311) {
-            return 'us_core_v311-us_core_v311_fhir_api-us_core_v311_';
-        } elseif (self::TEST_SUITE === self::TEST_SUITE_G10_CERTIFICATION) {
-            return 'g10_certification-';
-        } else {
-            throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
-        }
+        return self::prefixForSuite(self::TEST_SUITE);
+    }
+
+    /**
+     * Suite-name → id-prefix mapping. Extracted from getTestSuitePrefix() so
+     * the branching runs against a `string` parameter rather than the class-
+     * scoped `self::TEST_SUITE` constant. PHPStan can narrow a constant to a
+     * literal per consuming class, which produces environment-dependent
+     * always-true / always-false diagnostics (the specific class attribution
+     * changes with scan order). A string parameter stays opaque, so no
+     * always-anything report fires.
+     */
+    private static function prefixForSuite(string $suite): string
+    {
+        return match ($suite) {
+            self::TEST_SUITE_US_CORE_V311 => 'us_core_v311-us_core_v311_fhir_api-us_core_v311_',
+            self::TEST_SUITE_G10_CERTIFICATION => 'g10_certification-',
+            default => throw new \Exception("Unknown test suite: $suite"),
+        };
     }
     protected function renderResults(array $results, string $assertMessage, array $testIdsToSkipFailures = []): void
     {

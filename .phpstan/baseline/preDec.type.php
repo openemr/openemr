@@ -31,10 +31,5 @@ $ignoreErrors[] = [
     'count' => 2,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\-\\- on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -304,9 +304,14 @@ class DrugSalesService extends BaseService
         $total_on_hand = 0;
         $gotexpired = false;
 
-        // If the user has a default warehouse, sort those lots first.
+        // If the user has a default warehouse, sort those lots first.  The
+        // warehouse value is attacker-controllable (it originates from Fee Sheet
+        // POST data), so it must be bound as a parameter rather than interpolated
+        // into the ORDER BY clause.  Its placeholder is appended to $sqlarr below,
+        // after any WHERE-clause warehouse filter, so the parameter order matches
+        // the placeholder order in the final SQL string.
         $orderby = ($default_warehouse === '') ?
-            "" : "di.warehouse_id != '$default_warehouse', ";
+            "" : "di.warehouse_id != ?, ";
         $orderby .= "lo.seq, di.expiration, di.lot_number, di.inventory_id";
 
         // Retrieve lots in order of expiration date within warehouse preference.
@@ -323,6 +328,9 @@ class DrugSalesService extends BaseService
         }
 
         $query .= "ORDER BY $orderby";
+        if ($default_warehouse !== '') {
+            $sqlarr[] = $default_warehouse;
+        }
         $res = QueryUtils::sqlStatementThrowException($query, $sqlarr);
 
         // First pass.  Pick out lots to be used in filling this order, figure out

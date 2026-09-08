@@ -46,7 +46,7 @@ class FhirOperationDocRefRestController
     /**
      * Queries for FHIR location resources using various search parameters.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @return \Psr\Http\Message\ResponseInterface FHIR bundle with query results, if found
      */
     #[OA\Post(
         path: '/fhir/DocumentReference/$docref',
@@ -109,7 +109,7 @@ class FhirOperationDocRefRestController
             }
             $bundleSearchResult = $this->fhirService->createBundle('DocumentReference', $bundleEntries, false);
             $response = $this->createResponseForCode(StatusCode::OK);
-            $response->getBody()->write(json_encode($bundleSearchResult));
+            $response->getBody()->write(json_encode($bundleSearchResult, JSON_THROW_ON_ERROR));
         } catch (SearchFieldException $exception) {
             $systemLogger = ServiceContainer::getLogger();
             $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
@@ -117,11 +117,11 @@ class FhirOperationDocRefRestController
             // put our exception information here
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage(), self::OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING);
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
-            $response->getBody()->write(json_encode($operationOutcome));
+            $response->getBody()->write(json_encode($operationOutcome, JSON_THROW_ON_ERROR));
         } catch (\Throwable $exception) {
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage(), self::OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING);
-            $response->getBody()->write(json_encode($operationOutcome));
+            $response->getBody()->write(json_encode($operationOutcome, JSON_THROW_ON_ERROR));
         }
 
         return $response;
@@ -132,7 +132,7 @@ class FhirOperationDocRefRestController
     /**
      * Create a response object for the given status code with our default set of headers.
      * @param $statusCode
-     * @return ResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
     private function createResponseForCode($statusCode)
     {

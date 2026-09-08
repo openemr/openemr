@@ -17,16 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#1 \\$group \\(false\\) of method Hashed_Cache_Lite\\:\\:clean\\(\\) is incompatible with type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#1 \\$group \\(false\\) of method Cache_Lite\\:\\:clean\\(\\) is incompatible with type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$PMSFH \\(string\\) of function send_json_values\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -60,11 +50,6 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$id \\(string\\) of method Document\\:\\:__construct\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#1 \\$foreign_id \\(string\\) of method Note\\:\\:notes_factory\\(\\) is incompatible with type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Note.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$id \\(string\\) of method Note\\:\\:__construct\\(\\) is incompatible with type int\\.$#',

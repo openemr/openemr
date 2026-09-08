@@ -14,12 +14,12 @@
 namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
 use InvalidArgumentException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -51,7 +51,7 @@ class ObservationController
         ?Environment $twig = null,
         private ?PatientService $patientService = new PatientService()
     ) {
-        $this->twig = $twig ?? (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+        $this->twig = $twig ?? ServiceContainer::getTwig();
         $this->codeTypeService = new CodeTypesService();
     }
 
@@ -205,11 +205,11 @@ class ObservationController
                 $templateData['statusMessage'] = xl('Observation saved successfully.');
                 $templateData['statusType'] = 'success';
                 $templateData['refreshParent'] = true;
-            } else if ($request->query->get('status') === 'delete_success') {
+            } elseif ($request->query->get('status') === 'delete_success') {
                 $templateData['statusMessage'] = xl('Observation deleted successfully.');
                 $templateData['statusType'] = 'success';
                 $templateData['refreshParent'] = true;
-            } else if ($request->query->get('status') === 'delete_failed') {
+            } elseif ($request->query->get('status') === 'delete_failed') {
                 $templateData['statusMessage'] = xl('Failed to delete observation. Please try again.');
                 $templateData['statusType'] = 'danger';
             }
@@ -253,7 +253,10 @@ class ObservationController
             );
         }
 
-        $formId = $request->query->getInt('id');
+        // The edit template renders `?id=` (empty) for a fresh observation, so
+        // use get()+cast rather than InputBag::getInt() which throws on
+        // present-but-non-int values.
+        $formId = (int) $request->query->get('id', 0);
         $postData = $request->request->all();
 
         try {
@@ -682,7 +685,7 @@ class ObservationController
             // no id provided and no form_id provided
             // show new / edit view
             return false;
-        } else if ($request->query->getInt('form_id') <= 0) {
+        } elseif ($request->query->getInt('form_id') <= 0) {
             // if we only have an id(form_id) provided we show the list view as data exists for this form
             return true;
         } else {

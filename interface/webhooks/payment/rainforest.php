@@ -39,7 +39,7 @@ if ($mid === '') {
 $crypto = ServiceContainer::getCrypto();
 $whv = new Verifier(
     clock: SystemClock::fromSystemTimezone(),
-    webhookSecret: $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'))
+    webhookSecret: $crypto->decryptFromDatabase($gb->getString('rainforest_webhook_secret'))
 );
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();

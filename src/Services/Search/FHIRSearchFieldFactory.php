@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Services\Search;
 
-use Laminas\Mvc\Exception\BadMethodCallException;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
 use OpenEMR\Services\Search\SearchFieldType;
 
@@ -145,22 +144,22 @@ class FHIRSearchFieldFactory
         $isUUID = false;
         if ($field instanceof ServiceField) {
             $fieldName = $field->getField();
-            $isUUID = $field->getType() == ServiceField::TYPE_UUID ? true : false;
+            $isUUID = $field->getType() == ServiceField::TYPE_UUID;
         } else {
             $fieldName = $field;
         }
 
         if ($type == SearchFieldType::TOKEN) {
             return $this->createTokenSearchField($fieldName, $fhirSearchValues, $modifier, $isUUID);
-        } else if ($type == SearchFieldType::URI) {
+        } elseif ($type == SearchFieldType::URI) {
             throw new \BadMethodCallException("URI Search Parameter not implemented yet");
-        } else if ($type == SearchFieldType::DATE) {
+        } elseif ($type == SearchFieldType::DATE) {
             return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATE);
-        } else if ($type == SearchFieldType::DATETIME) {
+        } elseif ($type == SearchFieldType::DATETIME) {
             return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATETIME);
-        } else if ($type == SearchFieldType::NUMBER) {
+        } elseif ($type == SearchFieldType::NUMBER) {
             throw new \BadMethodCallException("Number search parameter not implemented yet");
-        } else if ($type == SearchFieldType::REFERENCE) {
+        } elseif ($type == SearchFieldType::REFERENCE) {
             return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifier, $isUUID);
         } else {
             // default is a string token
@@ -198,7 +197,7 @@ class FHIRSearchFieldFactory
     /**
      * Returns the relative url
      * @param $urlToResolve
-     * @throws BadMethodCallException if the FhirUrlResolver is not setup for this class
+     * @throws \BadMethodCallException if the FhirUrlResolver is not setup for this class
      * @throws \InvalidArgumentException if the URL does not match the server base URL
      * @return string
      */

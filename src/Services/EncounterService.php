@@ -36,9 +36,6 @@ use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 use OpenEMR\BC\ServiceContainer;
 
-require_once __DIR__ . "/../../library/forms.inc.php";
-require_once __DIR__ . "/../../library/encounter.inc.php";
-
 class EncounterService extends BaseService
 {
     use ServiceEventTrait;
@@ -532,29 +529,42 @@ class EncounterService extends BaseService
         return [$soapResults, $formResults];
     }
 
-    public function updateSoapNote($pid, $eid, $sid, $data)
+    public function updateSoapNote($pid, $eid, $sid, $data): int
     {
-        $sql = " UPDATE form_soap SET";
-        $sql .= "     date=NOW(),";
-        $sql .= "     activity=1,";
-        $sql .= "     pid=?,";
-        $sql .= "     subjective=?,";
-        $sql .= "     objective=?,";
-        $sql .= "     assessment=?,";
-        $sql .= "     plan=?";
-        $sql .= "     where id=?";
+        // Scope by pid+eid so a leaked sid can't rewrite another record.
+        // Returns affected-row count so the REST caller can distinguish 200 from 404.
+        $existingSoapNote = $this->getSoapNote($pid, $eid, $sid);
+        if (!is_array($existingSoapNote) || ($existingSoapNote === [])) {
+            return 0;
+        }
 
-        return sqlStatement(
+        // form_soap has no encounter column; join forms.form_id and filter
+        // through forms.encounter (matches getSoapNote).
+        $sql = " UPDATE form_soap AS fs";
+        $sql .= " JOIN forms AS fo ON fo.form_id = fs.id AND fo.formdir = 'soap'";
+        $sql .= " SET fs.date=NOW(),";
+        $sql .= "     fs.activity=1,";
+        $sql .= "     fs.subjective=?,";
+        $sql .= "     fs.objective=?,";
+        $sql .= "     fs.assessment=?,";
+        $sql .= "     fs.plan=?";
+        $sql .= " WHERE fs.id=? AND fo.encounter=? AND fs.pid=?";
+
+        QueryUtils::sqlStatementThrowException(
             $sql,
             [
-                $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"],
-                $sid
+                $sid,
+                $eid,
+                $pid,
             ]
         );
+        // Pre-check confirmed the row exists; treat as success even if MySQL
+        // reports 0 changed rows (client resubmitted identical values).
+        return 1;
     }
 
     public function updateVital($pid, $eid, $vid, $data)
@@ -709,18 +719,19 @@ class EncounterService extends BaseService
 
     /**
      * Returns the sensitivity level for the encounter matching the patient and encounter identifier.
-     *
-     * @param  $pid          The legacy identifier of particular patient
-     * @param  $encounter_id The identifier of a particular encounter
-     * @return string         sensitivity_level of first row of encounter data
+     * Returns null when no matching encounter row exists.
      */
-    public function getSensitivity($pid, $encounter_id)
+    public function getSensitivity(mixed $pid, mixed $encounter_id): ?string
     {
-        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
-        if ($encounterResult->hasData()) {
-            return $encounterResult->getData()[0]['sensitivity'];
+        $encounterResult = $this->search(
+            ['pid' => $pid, 'eid' => $encounter_id],
+            options: ['limit' => 1],
+        );
+        if (!$encounterResult->hasData()) {
+            return null;
         }
-        return [];
+        $sensitivity = $encounterResult->getData()[0]['sensitivity'] ?? null;
+        return is_string($sensitivity) ? $sensitivity : null;
     }
 
     /**

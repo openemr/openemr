@@ -15,7 +15,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-require_once($srcdir . "/transactions.inc.php");
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -104,9 +103,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <tbody>
                                 <?php
                                 foreach ($result as $item) {
-                                    if (!isset($item['body'])) {
-                                        $item['body'] = '';
-                                    }
+                                    $item['body'] ??= '';
 
                                     // Collect date
                                     if (!empty($item['refer_date'])) {

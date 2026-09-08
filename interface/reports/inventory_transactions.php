@@ -13,7 +13,6 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -161,16 +160,16 @@ if ($form_action == 'export') {
     header("Content-Disposition: attachment; filename=inventory_transactions.csv");
     header("Content-Description: File Transfer");
     // CSV headers:
-    echo csvEscape(xl('Date')) . ',';
-    echo csvEscape(xl('Transaction')) . ',';
-    echo csvEscape(xl('Product')) . ',';
-    echo csvEscape(xl('Lot')) . ',';
-    echo csvEscape(xl('Warehouse')) . ',';
-    echo csvEscape(xl('Who')) . ',';
-    echo csvEscape(xl('Qty')) . ',';
-    echo csvEscape(xl('Amount')) . ',';
-    echo csvEscape(xl('Billed')) . ',';
-    echo csvEscape(xl('Notes')) . "\n";
+    echo xlc('Date') . ',';
+    echo xlc('Transaction') . ',';
+    echo xlc('Product') . ',';
+    echo xlc('Lot') . ',';
+    echo xlc('Warehouse') . ',';
+    echo xlc('Who') . ',';
+    echo xlc('Qty') . ',';
+    echo xlc('Amount') . ',';
+    echo xlc('Billed') . ',';
+    echo xlc('Notes') . "\n";
 } else { // end export
     ?>
 <html>

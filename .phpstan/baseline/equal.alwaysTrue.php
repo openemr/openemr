@@ -37,6 +37,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/soap/report.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'\\-patient\\-\' and \'\\-patient\\-\' will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'child\' and \'child\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
@@ -65,16 +70,6 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'claims\' and \'claims\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between \'down\' and \'down\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between \'right\' and \'right\' will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0 and 0 will always evaluate to true\\.$#',

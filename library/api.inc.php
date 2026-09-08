@@ -15,8 +15,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-OEGlobalsBag::getInstance()->set('form_exit_url', "javascript:parent.closeTab(window.name, false)");
-
 function formHeader($title = "My Form"): void
 {
     ?>
@@ -114,7 +112,7 @@ function formFetch($tableName, $id, $cols = "*", $activity = "1")
     return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from " . escape_table_name($tableName) . " where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,OEGlobalsBag::getInstance()->get('pid'),$activity]) ;
 }
 
-function formDisappear($tableName, $id)
+function formDisappear($tableName, $id): bool
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
     if (sqlStatement("update " . escape_table_name($tableName) . " set activity = '0' where id=? and pid=?", [$id, $pid])) {
@@ -124,7 +122,7 @@ function formDisappear($tableName, $id)
     return false;
 }
 
-function formReappear($tableName, $id)
+function formReappear($tableName, $id): bool
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
     if (sqlStatement("update " . escape_table_name($tableName) . " set activity = '1' where id=? and pid=?", [$id, $pid])) {
@@ -133,4 +131,3 @@ function formReappear($tableName, $id)
 
     return false;
 }
-?>

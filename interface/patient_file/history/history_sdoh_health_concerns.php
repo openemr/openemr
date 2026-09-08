@@ -30,6 +30,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientIssuesService;
@@ -37,18 +39,26 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
 
-$pid = (int)($_GET['pid'] ?? 0);
-$sdoh_id = (int)($_GET['sdoh_id'] ?? 0);
+$query = CurrentRequest::get()->query;
+$pid = $query->getInt('pid');
+$sdoh_id = $query->getInt('sdoh_id');
 $logger = ServiceContainer::getLogger();
 
 // TODO: @adunsulag all of this needs to be wrapped into a Response and Controller for better structure
-if (!$pid || !$sdoh_id) {
+if ($pid <= 0 || $sdoh_id <= 0) {
     $logger->error("history_sdoh_health_concerns: Missing required parameters pid={pid} sdoh_id={sdoh_id}", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
     die(xlt("Missing required parameters."));
 }
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH health concerns');
+}
+
+// Deep-linked page: align session pid with the URL patient so the wrapping
+// chart header and menu render for the same patient (local $pid drives every
+// query below). Early die above already rejects $pid <= 0.
+if ($pid !== PatientSessionUtil::getPid()) {
+    setpid($pid);
 }
 
 $sdohService = new HistorySdohService();

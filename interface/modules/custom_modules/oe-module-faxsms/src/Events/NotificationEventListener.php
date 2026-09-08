@@ -91,11 +91,20 @@ class NotificationEventListener implements EventSubscriberInterface
         }
     }
 
+    /**
+     * Inject the RingCentral Embeddable softphone into every page.
+     *
+     * This is the execution path for the voice feature — the server-side
+     * `VoiceClient::send*` methods are stubs and are not used. The twig
+     * template (`templates/phone_widget.html.twig`) loads RingCentral
+     * Embeddable and runs the entire softphone client-side using the
+     * credentials passed in here. See {@see VoiceClient} for full context
+     * and #12230 for the open work to make this path testable.
+     */
     public function renderPhoneWidget(RenderEvent $event): void
     {
         $serviceType = 'voice';
         $loginCred = $this->getRCCredentials($serviceType);
-        $moduleBaseUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-faxsms";
         $context = [
             'clientId' => $loginCred['appKey'],
             'clientSecret' => $loginCred['appSecret'],

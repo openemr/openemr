@@ -32,6 +32,7 @@ use OpenEMR\Services\Background\BackgroundServiceDefinition;
 use OpenEMR\Services\Background\BackgroundServiceRegistry;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
 use function OpenEMR\Tests\Services\Background\Probe\cliProbeSentinelPath;
@@ -157,8 +158,35 @@ class BackgroundServicesCliIntegrationTest extends TestCase
      */
     private function runConsole(array $args): array
     {
+        $command = [PHP_BINARY, $this->projectDir . '/bin/console', 'background:services', ...$args];
+
+        // bin/console refuses to run as root (see RootCliGuard). When the
+        // test process is root (typical of CI containers and the docker
+        // dev stack), drop privileges to the web-server user for the
+        // subprocess. This mirrors the production invocation pattern
+        // (web user shelling out from cron) and keeps the guard honest;
+        // bypassing it would hide the same root-CLI failure mode the
+        // guard exists to catch. `-p` preserves the env the bootstrap
+        // needs (HOME, PATH, MYSQL_*). Probe a small list of known
+        // web-user names so the same test works against any web stack
+        // — apache on the apache image, www-data on the nginx +
+        // php-fpm image. Owning-uid detection from the project
+        // directory is not reliable in CI: the source is bind-mounted
+        // from the host, so the in-container owner is whoever runs the
+        // GH Actions job (typically uid 1001 `runner`), which may or
+        // may not map to a named user inside the container.
+        if (self::currentEffectiveUid() === 0) {
+            $webUser = self::firstExistingUser(['apache', 'www-data']);
+            if ($webUser !== null) {
+                $command = [
+                    'su', '-p', '-s', '/bin/sh', $webUser, '-c',
+                    implode(' ', array_map(escapeshellarg(...), $command)),
+                ];
+            }
+        }
+
         $process = new Process(
-            [PHP_BINARY, $this->projectDir . '/bin/console', 'background:services', ...$args],
+            $command,
             $this->projectDir,
             // Inherit the parent env rather than scrubbing it: the
             // console bootstrap needs HOME, PATH, and (in the services
@@ -180,6 +208,60 @@ class BackgroundServicesCliIntegrationTest extends TestCase
         if (is_file($this->sentinelPath)) {
             unlink($this->sentinelPath);
         }
+    }
+
+    /**
+     * Return the first username in `$candidates` that exists on this
+     * system, or null if none do. Existence is probed via `id <name>`
+     * (Symfony Process) — the same single-path approach RootCliGuard
+     * uses, since the openemr docker images don't ship the posix
+     * extension.
+     *
+     * @param list<string> $candidates
+     */
+    private static function firstExistingUser(array $candidates): ?string
+    {
+        foreach ($candidates as $name) {
+            if (self::userExists($name)) {
+                return $name;
+            }
+        }
+        return null;
+    }
+
+    private static function userExists(string $name): bool
+    {
+        try {
+            $process = new Process(['id', $name]);
+            $process->run();
+            return $process->isSuccessful();
+        } catch (ProcessExceptionInterface) {
+            return false;
+        }
+    }
+
+    /**
+     * Resolve the current process's effective UID via `id -u` (Symfony
+     * Process). Mirrors RootCliGuard's resolver, which uses the same
+     * single-path approach since posix isn't loaded in the openemr
+     * docker images.
+     */
+    private static function currentEffectiveUid(): ?int
+    {
+        try {
+            $process = new Process(['id', '-u']);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $trimmed = trim($process->getOutput());
+            if ($trimmed !== '' && ctype_digit($trimmed)) {
+                return (int) $trimmed;
+            }
+        } catch (ProcessExceptionInterface) {
+            return null;
+        }
+        return null;
     }
 
     private function sentinelLineCount(): int

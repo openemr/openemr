@@ -20,15 +20,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once(__DIR__ . "/../../orders/qoe.inc.php");
-require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
@@ -36,6 +35,17 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
+require_once("$srcdir/options.inc.php");
+require_once(__DIR__ . "/../../orders/qoe.inc.php");
+require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -155,6 +165,9 @@ $reqStr = "";
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if ($formid) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'procedure_order');
+    }
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
         if (!empty($_POST['form_account_facility'])) {
@@ -1140,8 +1153,7 @@ if (!empty($row['lab_id'])) {
 
         function createLabels(e) {
             e.preventDefault();
-            let prmt = <?php echo js_escape(xla("How many sets of specimen labels to create?") .
-                "\n" . xla("Each test in order gets a label.")); ?>;
+            let prmt = <?php echo xlj("How many sets of specimen labels to create?"); ?> + "\n" + <?php echo xlj("Each test in order gets a label."); ?>;
             let count = prompt(prmt, '1');
             if (!count) return false;
             let tarray = "";
@@ -1894,7 +1906,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-cancel"
-                                        onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                        onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'"><?php echo xlt('Cancel/Exit'); ?>
                                     </button>
                                 </div>
                             </div>

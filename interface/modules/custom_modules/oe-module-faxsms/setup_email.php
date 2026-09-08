@@ -12,6 +12,7 @@
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
@@ -21,6 +22,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $site_id = $session->get('site_id');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $credentials = [
         'sender_name' => $_POST['sender_name'],
         'sender_email' => $_POST['sender_email'],
@@ -87,6 +89,7 @@ if (empty($credentials['email_message'] ?? '') || strlen((string) $credentials['
         </div>
         <form class="form" id="setup-form" method="POST" role="form">
             <div class="messages"></div>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">

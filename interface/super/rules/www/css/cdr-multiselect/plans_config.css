@@ -13,7 +13,8 @@
  speak for themselves. Background we set to 80% white with
  our animation centered, and no-repeating */
 .modal {
-  background: rgba(255, 255, 255, 0.8) url("ajax_wait.gif") 50% 50% no-repeat;
+  /* stylelint-disable-next-line color-function-notation */
+  background: rgba(255, 255, 255, 80%) url('ajax_wait.gif') 50% 50% no-repeat;
   display: none;
   height: 100%;
   left: 0;
@@ -37,7 +38,7 @@ body.loading .modal {
 
 .delete_button {
   background-color: transparent;
-  background-image: url("trash_icon.png");
+  background-image: url('trash_icon.png');
   background-position: 0 0;
   background-repeat: no-repeat;
   border: 0;
@@ -53,6 +54,7 @@ body.loading .modal {
 
 .overlay {
   background-color: transparent;
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   filter: alpha(opacity=00);
   opacity: 0.7;
   pointer-events: none;

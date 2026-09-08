@@ -21,6 +21,8 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\BC\ServiceContainer;
+
 $result = getResultData();
 $row = sqlFetchArray($result);
 
@@ -33,7 +35,7 @@ do {
     $e_Result = $ccr->createElement('Result');
     $e_Results->appendChild($e_Result);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());//, $row['immunization_id']);
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());//, $row['immunization_id']);
     $e_Result->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');
@@ -65,7 +67,7 @@ do {
     $e_Test = $ccr->createElement('Test');
     $e_Result->appendChild($e_Test);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     $e_Test->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');
@@ -155,7 +157,7 @@ do {
     //$e_Test = $ccr->createElement('Test');
     //$e_Result->appendChild($e_Test);
     //
-    //$e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+    //$e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     //$e_Test->appendChild($e_CCRDataObjectID);
     //
     //$e_DateTime = $ccr->createElement('DateTime');

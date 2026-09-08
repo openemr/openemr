@@ -1,0 +1,99 @@
+# Install a matched Chrome + ChromeDriver pair on both amd64 and arm64
+# GitHub-hosted runners so Symfony Panther can drive a headless browser.
+#
+# Delegates by runner arch:
+#
+#   amd64 (ubuntu-24.04, x86_64) — hand off to `nanasess/setup-chromedriver@v2`.
+#   The runner ships with google-chrome pre-installed; nanasess reads that
+#   version and installs the matching ChromeDriver from Chrome for Testing.
+#   Matches the existing pattern documented in the "Panther-in-CI gotchas"
+#   memory reference: nanasess over browser-actions/setup-chrome because
+#   the latter drifts Chrome + ChromeDriver from independent release
+#   channels.
+#
+#   arm64 (ubuntu-24.04-arm, aarch64) — install chromium + chromium-driver
+#   from the xtradeb PPA. Rationale for that specific source:
+#     * Google Chrome ships amd64-only debs from Google's apt repo. No arm64.
+#     * Chrome for Testing does NOT publish a `linux-arm64` platform variant
+#       as of 2026-07 (only linux64 / mac-arm64 / mac-x64 / win32 / win64).
+#       Tracking: GoogleChromeLabs/chrome-for-testing#1 (open, promised
+#       Q2 2026 → slipped to July, crbug/374811603 still unshipped).
+#     * Ubuntu noble's own `chromium` / `chromium-browser` are snap-
+#       transitional stubs that don't work headlessly in CI.
+#     * browser-actions/setup-chrome@v2 (as of v2.1.2, 2026-05-06) still
+#       marks all Linux ARM64 columns as unsupported in its own README.
+#     * xtradeb/apps PPA publishes native arm64 debs for both chromium
+#       + chromium-driver as a byte-matched-version pair — eliminates
+#       the drift risk that killed the browser-actions path.
+#
+# When Chrome for Testing eventually ships linux-arm64, the arm64 branch
+# below becomes a drop-in swap to a manual CFT install (or, ideally,
+# nanasess grows arm64 support and both arches use it).
+#
+# Symlinks the chromium binary to /usr/local/bin/google-chrome + /chrome
+# so downstream code that autodetects a browser binary (Panther defaults,
+# Selenium capabilities without an explicit `binary` path, tests written
+# for amd64 that assume `google-chrome` exists) works unchanged on arm64.
+name: Set up ChromeDriver (multi-arch)
+description: >-
+  Install a matched Chrome + ChromeDriver pair on amd64 or arm64 GitHub-
+  hosted runners. Delegates to nanasess/setup-chromedriver@v2 on amd64
+  and to the xtradeb PPA chromium install on arm64.
+
+runs:
+  using: composite
+  steps:
+  - name: Detect runner arch
+    id: arch
+    shell: bash
+    run: |
+      case "$(uname -m)" in
+        x86_64)  echo "arch=amd64" >> "$GITHUB_OUTPUT" ;;
+        aarch64) echo "arch=arm64" >> "$GITHUB_OUTPUT" ;;
+        *)
+          echo "::error::unsupported runner arch $(uname -m); expected x86_64 or aarch64."
+          exit 1
+          ;;
+      esac
+
+  - name: Install ChromeDriver via nanasess (amd64)
+    if: steps.arch.outputs.arch == 'amd64'
+    uses: nanasess/setup-chromedriver@v2
+
+  - name: Install Chromium + chromium-driver via xtradeb PPA (arm64)
+    if: steps.arch.outputs.arch == 'arm64'
+    shell: bash
+    run: |
+      set -euxo pipefail
+      # Add PPA + install matched-pair native arm64 debs.
+      sudo add-apt-repository -y ppa:xtradeb/apps
+      sudo apt-get update
+      sudo apt-get install -y chromium chromium-driver
+
+      # xtradeb ships chromedriver as /usr/bin/chromedriver — fail loudly
+      # if that assumption drifts (packaging rename, install-path change)
+      # rather than silently falling back to whatever chromedriver an
+      # earlier setup step happened to leave in $PATH. Force-symlink into
+      # /usr/local/bin (higher $PATH priority than /usr/bin) so callers
+      # that resolve `chromedriver` always land on the freshly-installed
+      # xtradeb copy, even if some other step pre-created the target.
+      if [ ! -x /usr/bin/chromedriver ]; then
+        echo "::error::chromium-driver package did not install /usr/bin/chromedriver — xtradeb PPA may have restructured its packaging."
+        dpkg -L chromium-driver 2>&1 | head -20 || true
+        exit 1
+      fi
+      sudo ln -sf /usr/bin/chromedriver /usr/local/bin/chromedriver
+
+      # Panther + most Chrome-driving code autodetects a browser binary
+      # by looking for `google-chrome` first. On arm64 we have chromium
+      # at /usr/bin/chromium; symlink so autodetect finds it without
+      # each test having to know the arch.
+      sudo ln -sf /usr/bin/chromium /usr/local/bin/google-chrome
+      sudo ln -sf /usr/bin/chromium /usr/local/bin/chrome
+
+      # Surface installed versions in the log — quick diagnostic when
+      # a future upstream Chromium release breaks Panther selector
+      # behavior or driver protocol expectations.
+      chromium --version
+      chromedriver --version
+      google-chrome --version

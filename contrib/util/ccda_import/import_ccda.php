@@ -14,7 +14,10 @@
  *      will directly import the new patient data from the ccda. This will also turn off the audit log during
  *      the import.
  *   3, NOTE THAT THIS SCRIPT IS NOT WORKING AT THIS TIME IF THE DEVELOPMENT MODE IS TURNED OFF
- *   4. Note that a log.txt file is created with log/stats of the run.
+ *   4. Note that a log file with run stats is written to /tmp/ccda_import.log.
+ *      An absolute path is used so the script works under su-exec apache
+ *      (which has no writable cwd when invoked via run_php_as_apache from
+ *      docker/<image>/utilities/devtoolsLibrary.source's importRandomPatients).
  *
  * Description of what this script automates (for unlimited number of ccda documents):
  *  1. import ccda document (bypassed in development-mode)
@@ -92,7 +95,11 @@ function outputMessage($message): void
 {
     echo("\n");
     echo $message;
-    file_put_contents("log.txt", $message, FILE_APPEND);
+    // Absolute path so the write works regardless of cwd. The previous
+    // relative 'log.txt' produced "Permission denied" warnings on every
+    // call when this script ran via su-exec apache (apache has no
+    // writable cwd in the openemr container).
+    file_put_contents('/tmp/ccda_import.log', $message, FILE_APPEND);
 }
 
 // collect parameters (need to do before globals)

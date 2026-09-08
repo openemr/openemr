@@ -13,9 +13,9 @@
 require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
@@ -42,9 +42,9 @@ $disabled = (!empty($resPBE) && count($resPBE) > 0) ? 'disabled' : '';
 
 $args = [
     'collectThis' => (empty($rules)) ? "undefined" : json_sanitize($rules["facility-add"]["rules"]),
-    'forceClose' => (isset($_POST["mode"]) && $_POST["mode"] == "facility") ? true : false,
+    'forceClose' => isset($_POST["mode"]) && $_POST["mode"] == "facility",
     'erxEnabled' => OEGlobalsBag::getInstance()->getBoolean('erx_enable'),
-    'alertMsg' => trim($alertmsg) ? true : false,
+    'alertMsg' => (bool) trim($alertmsg),
     'disablePBE' => $disabled,
     'pos_code' => $pc->get_pos_ref(),
     'mode' => 'edit',
@@ -53,6 +53,5 @@ $args = [
     'facility' => $facilityService->getById($my_fid),
 ];
 
-$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$t = $twig->getTwig();
+$t = ServiceContainer::getTwig();
 echo $t->render("super/facilities/form.html.twig", $args);

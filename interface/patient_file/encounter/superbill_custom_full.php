@@ -38,7 +38,7 @@ if (!($thisauthwrite || $thisauthview)) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/superbill: Codes", xl("Codes"));
 }
 // For revenue codes
-$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support') ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
 
 // Translation for form fields.
 function ffescape($field)

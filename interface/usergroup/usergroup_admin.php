@@ -381,9 +381,9 @@ if (isset($_POST["mode"])) {
                 'supervisor_id'        => ['supervisor_id', 0],
             ];
 
-            $filters = array_fill_keys(array_keys($stringFields), FILTER_DEFAULT)
+            $filters = array_fill_keys(array_keys($stringFields), FILTER_UNSAFE_RAW)
                 + array_fill_keys(array_keys($intFields), FILTER_VALIDATE_INT)
-                + ['google_signin_email' => FILTER_DEFAULT];
+                + ['google_signin_email' => FILTER_UNSAFE_RAW];
             $input = filter_input_array(INPUT_POST, $filters);
 
             $userData = ['password' => 'NoLongerUsed'];

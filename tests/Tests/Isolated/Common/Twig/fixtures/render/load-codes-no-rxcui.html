@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Install Code Set</title>
+    <!-- setupHeader stub -->
+
+    <style>
+        .dehead {
+            color: var(--black);
+            font-family: sans-serif;
+            font-size: 0.8125rem;
+            font-weight: bold;
+        }
+        .detail {
+            color: var(--black);
+            font-family: sans-serif;
+            font-size: 0.8125rem;
+            font-weight: normal;
+        }
+    </style>
+
+</head>
+
+<body class="body_top">
+<div class="container">
+        <form method='post' action='load_codes.php' enctype='multipart/form-data'
+          onsubmit='return top.restoreSession()'>
+
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr class="dehead">
+                    <th colspan="2" class='text-center'>Install Code Set</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        Code Type
+                    </td>
+                    <td>
+                        <select name='form_code_type'>
+                                                            <option value='ICPC2'                                 >ICPC2</option>
+                                                    </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="detail">
+                        Source File
+                        <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
+                    </td>
+                    <td class="detail">
+                        <input type="file" name="form_file" size="40" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="detail">
+                        Replace entire code set
+                    </td>
+                    <td class="detail">
+                        <input type='checkbox' name='form_replace' value='1' checked />
+                    </td>
+                </tr>
+                <tr class="bg-secondary">
+                    <td colspan="2" class="text-center detail">
+                        <input type='submit' class='btn btn-primary' name='bn_upload' value='Upload and Install' />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class='font-weight-bold text-center'>
+            Be patient, some files can take several minutes to process!
+        </p>
+
+        <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
+                <div class="alert alert-info"><p>
+                <i class="fa fa-circle-info"></i> If your code sets are not loading, verify your php.ini post_max_size value and your upload_max_filesize has been set large enough to handle the file size you are uploading.
+            </p>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -18,7 +18,7 @@
  */
 class fee_sheet_option
 {
-    function __construct(public $code, public $code_type, public $description, public $price, public $category)
+    public function __construct(public $code, public $code_type, public $description, public $price, public $category)
     {
         if ($this->price == null) {
             $this->price = xl("Not Specified");
@@ -30,9 +30,9 @@ class fee_sheet_option
  * get a list of fee sheet options
  *
  * @param string $pricelevel which pricing level to retrieve
- * @return an array containing the options
+ * @return fee_sheet_option[] containing the options
  */
-function load_fee_sheet_options($pricelevel)
+function load_fee_sheet_options(string $pricelevel): array
 {
     $clFSO_code_type = 'substring_index(fso.fs_codes,"|",1)';
     $clFSO_code = 'replace(substring_index(fso.fs_codes,"|",-2),"|","")';

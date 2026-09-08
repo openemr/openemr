@@ -180,10 +180,9 @@ function update_taskman($task, $action, $value): void
  *      Some suggest the fax server to fax machine portion of efaxing is not HIPPA compliant, no matter how it is done.
  *      Thus faxing is not HIPPA compliant, and if that affects you, don't deliver this way.
  */
-function deliver_document($task)
+function deliver_document($task): bool
 {
-    global $facilityService;
-    $facility_data  = $facilityService->getPrimaryBillingLocation();
+    $facility_data  = (new FacilityService())->getPrimaryBillingLocation();
 
     $query          = "SELECT * FROM users WHERE id=?";
     $from_data      = sqlQuery($query, [$task['FROM_ID']]);
@@ -245,7 +244,6 @@ function make_document($task)
 {
     global $providerNAME;
     global $encounter;
-    global $facilityService;
 
     // Resolve the eye_mag form row for this (patient, encounter). The taskman
     // entry points (AJAX from js/eye_base.php and CLI cron) do not set $form_id
@@ -261,7 +259,7 @@ function make_document($task)
      * We want to store the current PDF version of this task.
      */
 
-    $facility_data  = $facilityService->getPrimaryBillingLocation();
+    $facility_data  = (new FacilityService())->getPrimaryBillingLocation();
 
     $query          = "SELECT * FROM users WHERE id=?";
     $from_data      = sqlQuery($query, [$task['FROM_ID']]);

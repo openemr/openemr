@@ -61,9 +61,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
 
     public function getADIService(): PatientAdvanceDirectiveService
     {
-        if (!isset($this->service)) {
-            $this->service = new PatientAdvanceDirectiveService();
-        }
+        $this->service ??= new PatientAdvanceDirectiveService();
         return $this->service;
     }
 
@@ -74,7 +72,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
 
         return false;

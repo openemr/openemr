@@ -1,6 +1,5 @@
 <?php
 
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\InsuranceCompanyService;
 
@@ -9,7 +8,7 @@ class C_InsuranceCompany extends Controller
     public $icompanies;
     public $InsuranceCompany;
 
-    public function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->icompanies = [];
@@ -22,7 +21,7 @@ class C_InsuranceCompany extends Controller
         $this->InsuranceCompany = new InsuranceCompany();
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         return $this->list_action();
     }
@@ -40,10 +39,8 @@ class C_InsuranceCompany extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "insurance_companies/" . $this->template_mod . "_edit.html");
     }
 
-    public function list_action()
+    public function list_action(): string
     {
-        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-
         $insuranceCompanyService = new InsuranceCompanyService();
         $results = $insuranceCompanyService->search([]);
         $iCompanies = [];
@@ -72,7 +69,7 @@ class C_InsuranceCompany extends Controller
             ,'icompanies' => $iCompanies
         ];
 
-        return $twig->getTwig()->render('insurance_companies/general_list.html.twig', $templateVars);
+        return $this->twig->render('insurance_companies/general_list.html.twig', $templateVars);
     }
 
 

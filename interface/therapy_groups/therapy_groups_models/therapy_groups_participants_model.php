@@ -69,7 +69,7 @@ class Therapy_groups_participants
 
         $data = array_merge($participant, [$patientId, $groupId]);
         $result = sqlStatement($sql, $data);
-        return !$result ? false : true;
+        return (bool) $result;
     }
 
     public function removeParticipant($groupId, $pid)
@@ -77,7 +77,7 @@ class Therapy_groups_participants
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ? AND pid = ?";
         $result = sqlStatement($sql, [$groupId, $pid]);
-        return !$result ? false : true;
+        return (bool) $result;
     }
 
     public function isAlreadyRegistered($pid, $groupId)
@@ -88,7 +88,7 @@ class Therapy_groups_participants
 //        $result = sqlStatement($sql, array($pid, $groupId));
 //        $count = sqlFetchArray($result);
         $count = sqlQuery($sql, [$pid, $groupId]);
-        return($count['count'] > 0) ? true : false;
+        return$count['count'] > 0;
     }
 
     public function saveParticipant($participantData)
@@ -104,6 +104,6 @@ class Therapy_groups_participants
 
         $result = sqlStatement($sql, $data);
 
-        return !$result ? false : true;
+        return (bool) $result;
     }
 }

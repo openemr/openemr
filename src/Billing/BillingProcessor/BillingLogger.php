@@ -35,7 +35,6 @@ namespace OpenEMR\Billing\BillingProcessor;
 use League\Flysystem\FilesystemOperator;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\ManagerInterface;
@@ -86,9 +85,7 @@ class BillingLogger
             if ($this->filesystem->fileExists(self::LOG_PATH)) {
                 $this->hlog = $this->filesystem->read(self::LOG_PATH);
             }
-            if ($this->cryptoGen->cryptCheckStandard($this->hlog)) {
-                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, keySource: KeySource::Database);
-            }
+            $this->hlog = $this->cryptoGen->decryptFromFilesystem($this->hlog);
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $this->hlog = '';
         }
@@ -108,9 +105,7 @@ class BillingLogger
     {
         // If the hlog isn't empty, write the log to disk
         if (!empty($this->hlog)) {
-            if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, keySource: KeySource::Database);
-            }
+            $this->hlog = $this->cryptoGen->encryptForFilesystem($this->hlog);
             $this->filesystem->write(self::LOG_PATH, $this->hlog);
         }
 

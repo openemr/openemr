@@ -780,9 +780,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Patient xmlns="http://hl7.org/fhir"></Patient>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Patient xmlns="http://hl7.org/fhir"></Patient>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

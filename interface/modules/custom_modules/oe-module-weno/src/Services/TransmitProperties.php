@@ -8,15 +8,16 @@
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -458,7 +459,11 @@ class TransmitProperties
     public function cipherPayload(): string
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
-        $enc_key = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key'));
+        try {
+            $enc_key = $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_encryption_key'));
+        } catch (CryptoGenException) {
+            return "error";
+        }
 
         if (!$enc_key) {
             return "error";
@@ -477,11 +482,11 @@ class TransmitProperties
     public function getProviderPassword(): mixed
     {
         if (!empty(OEGlobalsBag::getInstance()->get('weno_provider_password'))) {
-            $ret = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_provider_password'));
-            if (!$ret) {
+            try {
+                return $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_provider_password'));
+            } catch (CryptoGenException) {
                 return ("REQED:{user_settings}" . xlt('Your Weno Prescriber Password fails decryption. Go to User Settings Weno Tab and reenter your Weno User Password'));
             }
-            return $ret;
         } else {
             return "REQED:{user_settings}" . xlt('Your Weno Prescriber Password is missing. Go to User Settings Weno Tab and enter your Weno User Password');
         }
@@ -586,42 +591,60 @@ class TransmitProperties
      */
     public function getWenoProviderId($id = null): mixed
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserId = $session->get('authUserID') ?? '';
         if (empty($id)) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $id = $session->get('authUserID') ?? '';
+            $id = $authUserId;
         }
-        // get the Weno User id from the user table (weno_prov_id)
+        // weno_provider_uid is an in-memory value for whoever is logged in, so it
+        // is only a valid fallback when the target user is the session user.
+        // Compared as strings: a loose == would treat 0 == '' as a match.
+        $targetId = is_scalar($id) ? (string) $id : '';
+        $sessionId = is_scalar($authUserId) ? (string) $authUserId : '';
+        $isSessionUser = $targetId !== '' && $targetId === $sessionId;
+        // Read all known sources for Weno UID.
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
+        $userSetting = sqlQuery(
+            "SELECT setting_value FROM user_settings WHERE setting_label = 'global:weno_provider_uid' AND setting_user = ? LIMIT 1",
+            [$id]
+        );
 
-        if ((!empty(OEGlobalsBag::getInstance()->get('weno_provider_uid'))) && !empty($provider['weno_prov_id'])) {
-            $doIt = (OEGlobalsBag::getInstance()->get('weno_provider_uid')) != trim((string) $provider['weno_prov_id']);
-            if ($doIt) {
-                $provider['weno_prov_id'] = OEGlobalsBag::getInstance()->get('weno_provider_uid');
-                $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`)
-                    VALUES (?, ?, 'global:weno_provider_uid')
-                    ON DUPLICATE KEY UPDATE `setting_value` = ?";
-                sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
-            }
-            OEGlobalsBag::getInstance()->set('weno_provider_uid', OEGlobalsBag::getInstance()->set('weno_prov_id', $provider['weno_prov_id'])); // update users
-            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
-            sqlQuery($sql, [OEGlobalsBag::getInstance()->get('weno_provider_uid'), $id, OEGlobalsBag::getInstance()->get('weno_provider_uid')]);
-            return $provider['weno_prov_id'];
-        } elseif (!empty($provider['weno_prov_id'] ?? '') && empty(OEGlobalsBag::getInstance()->get('weno_provider_uid'))) {
-            $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`)
-                VALUES (?, ?, 'global:weno_provider_uid')
-                ON DUPLICATE KEY UPDATE `setting_value` = ?";
-            sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
+        $settingValue = $userSetting['setting_value'] ?? '';
+        $globalValue = OEGlobalsBag::getInstance()->get('weno_provider_uid') ?? '';
 
-            OEGlobalsBag::getInstance()->set('weno_provider_uid', OEGlobalsBag::getInstance()->set('weno_prov_id', $provider['weno_prov_id']));
-            return $provider['weno_prov_id'];
-        } elseif (empty($provider['weno_prov_id'] ?? '') && !empty(OEGlobalsBag::getInstance()->get('weno_provider_uid'))) {
-            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
-            sqlQuery($sql, [OEGlobalsBag::getInstance()->get('weno_provider_uid'), $id, OEGlobalsBag::getInstance()->get('weno_provider_uid')]);
+        $userUid = trim((string) ($provider['weno_prov_id'] ?? ''));
+        $settingsUid = trim(is_scalar($settingValue) ? (string) $settingValue : '');
+        $globalUid = trim(is_scalar($globalValue) ? (string) $globalValue : '');
 
-            $provider['weno_prov_id'] = OEGlobalsBag::getInstance()->set('weno_prov_id', OEGlobalsBag::getInstance()->get('weno_provider_uid'));
-            return $provider['weno_prov_id'];
-        } else {
+        // Priority: users table -> user_settings -> in-memory global.
+        // Never allow a blank source to overwrite a populated one.
+        $resolvedUid = $userUid;
+        if ($resolvedUid === '' && $settingsUid !== '') {
+            $resolvedUid = $settingsUid;
+        }
+        if ($resolvedUid === '' && $isSessionUser && $globalUid !== '') {
+            $resolvedUid = $globalUid;
+        }
+
+        if ($resolvedUid === '') {
             return "REQED:{users}" . xlt("Weno User Id missing. Select Admin then Users and edit the user to add Weno User Id");
         }
+
+        if ($userUid !== $resolvedUid) {
+            sqlQuery("UPDATE users SET weno_prov_id = ? WHERE id = ?", [$resolvedUid, $id]);
+        }
+
+        if ($settingsUid !== $resolvedUid) {
+            sqlQuery(
+                "INSERT INTO user_settings (setting_value, setting_user, setting_label)
+                VALUES (?, ?, 'global:weno_provider_uid')
+                ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)",
+                [$resolvedUid, $id]
+            );
+        }
+
+        OEGlobalsBag::getInstance()->set('weno_prov_id', $resolvedUid);
+        OEGlobalsBag::getInstance()->set('weno_provider_uid', $resolvedUid);
+        return $resolvedUid;
     }
 }

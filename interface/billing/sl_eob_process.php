@@ -11,7 +11,7 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -25,11 +25,17 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: ERA Posting", xl("ERA Posting"));
+}
 
 /** @var int $debug */
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -592,9 +598,12 @@ function eob_process_era_callback(array &$out): void
 
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
+            /** @var array<string, mixed> $adj */
             foreach ($svc['adj'] as $adj) {
                 $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
+                $isContractualWriteoff = $adj['group_code'] === 'CO'
+                    && in_array($adj['reason_code'], ['45', '59'], true);
                 if ($adj['group_code'] === 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -628,17 +637,11 @@ function eob_process_era_callback(array &$out): void
                         );
                     }
 
-                    echo getMessageLine($bgcolor, $class, $description . ' ' .
-                    sprintf("%.2f", $adj['amount']));
+                    $amount = is_numeric($adj['amount']) ? (float)$adj['amount'] : 0.0;
+                    echo getMessageLine($bgcolor, $class, $description . ' ' . sprintf("%.2f", $amount));
                 } elseif (
-                    $svc['paid'] === 0
-                    && !(
-                        $adj['group_code'] === "CO"
-                        && (
-                            $adj['reason_code'] === '45'
-                            || $adj['reason_code'] === '59'
-                        )
-                    )
+                    $svc['paid'] === 0.0
+                    && !$isContractualWriteoff
                 ) {
                     $class = 'errdetail';
                     $error = true;
@@ -738,11 +741,15 @@ $info_msg = "";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-$eraname = $_REQUEST['eraname'];
-
-if (!$eraname) {
-    die(xlt("You cannot access this page directly."));
+$eraname = filter_input(INPUT_GET, 'eraname') ?? '';
+if (
+    !$eraname
+    || !preg_match('/^[A-Za-z0-9._-]+$/', $eraname)
+    || str_contains($eraname, '..')
+) {
+    die(xlt("Invalid ERA name"));
 }
+$eraname = basename($eraname);
 
 // Open the output file early so that in case it fails, we do not post a
 // bunch of stuff without saving the report.  Also be sure to retain any old
@@ -753,6 +760,19 @@ $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/er
 if (!is_dir($eraDir) && !mkdir($eraDir, 0755, true) && !is_dir($eraDir)) {
     die(xlt("Cannot create ERA directory") . " '" . text($eraDir) . "'");
 }
+
+// Containment check mirroring era_payments.php: the resolved read target must
+// sit inside $eraDir. The .edi is read/parsed; the .html write target is
+// protected by basename() above (realpath() can't validate a not-yet-created file).
+$realEraDir = realpath($eraDir);
+$realEraFile = realpath("$eraDir/$eraname.edi");
+if (
+    $realEraFile !== false && $realEraDir !== false
+    && !str_starts_with($realEraFile, $realEraDir . DIRECTORY_SEPARATOR)
+) {
+    die(xlt("Invalid ERA name"));
+}
+
 $nameprefix = "$eraDir/$eraname";
 $eraFilePath = $nameprefix . '.edi';
 

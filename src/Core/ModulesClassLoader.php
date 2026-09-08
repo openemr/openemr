@@ -58,7 +58,7 @@ class ModulesClassLoader
      * @throws \InvalidArgumentException
      *
      */
-    public function registerNamespaceIfNotExists($namespace, $paths)
+    public function registerNamespaceIfNotExists($namespace, $paths): bool
     {
         $prefixes = $this->classLoader->getPrefixesPsr4();
         if (empty($prefixes[$namespace])) {

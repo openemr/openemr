@@ -66,9 +66,7 @@ class BaseMenuItem implements MenuItemInterface
             }
         }
 
-        if ($this->children === null) {
-            $this->children = new MenuItems();
-        }
+        $this->children ??= new MenuItems();
     }
 
     /**

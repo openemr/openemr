@@ -39,7 +39,7 @@ class BasicSearchField implements ISearchField, \Stringable
         $this->setModifier($modifier);
         $values ??= [];
         $values = is_array($values) ? $values : [$values];
-        $isAnd = count($values) > 0 ? false : true;
+        $isAnd = count($values) <= 0;
         $this->setIsAnd($isAnd);
         $this->setValues($values);
     }

@@ -68,7 +68,7 @@ var id = exports.id = {
     key: "id",
     attributes: {
         root: leafLevel.inputProperty("identifier"),
-        extension: leafLevel.inputProperty("extension")
+        extension: leafLevel.nonEmptyInputProperty("extension")
     },
     dataKey: 'identifiers',
     existsWhen: condition.keyExists('identifier'),
@@ -144,34 +144,24 @@ var timeNow = exports.timeNow = {
 
 var timeDocumentTime = exports.timeDocumentTime = {
     key: "time",
-    attributes: {
-        "value": leafLevel.time
-    }
+    attributes: leafLevel.timeAttr
 };
 
 var effectiveTime = exports.effectiveTime = {
     key: "effectiveTime",
-    attributes: {
-        "value": leafLevel.time,
-    },
+    attributes: leafLevel.timeAttr,
     attributeKey: 'point',
     content: [{
         key: "low",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'low',
     }, {
         key: "high",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'high',
     }, {
         key: "center",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'center',
     }],
     dataKey: 'date_time',
@@ -186,21 +176,15 @@ var effectiveTimeIVL_TS = exports.effectiveTimeIVL_TS = {
     //attributeKey: 'point',
     content: [{
         key: "low",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'low',
     }, {
         key: "high",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'high',
     }, {
         key: "center",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'center',
     }],
     dataKey: 'date_time',
@@ -238,15 +222,11 @@ var useablePeriod = exports.useablePeriod = {
     },
     content: [{
         key: "low",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'low',
     }, {
         key: "high",
-        attributes: {
-            "value": leafLevel.time
-        },
+        attributes: leafLevel.timeAttr,
         dataKey: 'high',
     }],
     dataKey: 'date_time',
@@ -313,6 +293,44 @@ var telecom = exports.telecom = {
     dataTransform: translate.telecom
 };
 
+// True when a plain text node (already navigated to via dataKey) has content.
+// Used to suppress empty <name/> organization names (empty ST/ON).
+var nonEmptyText = function (input) {
+    return (input !== null) && (input !== undefined) && (input.toString().trim() !== "");
+};
+
+// True when an organization carries a usable identifier or name, so an empty
+// <representedOrganization/> (no id, no name) is suppressed rather than emitted.
+var organizationHasContent = function (input) {
+    if (!input) {
+        return false;
+    }
+    var idHasContent = function (id) {
+        return id && (nonEmptyText(id.root) || nonEmptyText(id.extension));
+    };
+    var identity = input.identity;
+    if (Array.isArray(identity)) {
+        for (var i = 0; i < identity.length; ++i) {
+            if (idHasContent(identity[i])) {
+                return true;
+            }
+        }
+    } else if (idHasContent(identity)) {
+        return true;
+    }
+    var name = input.name;
+    if (Array.isArray(name)) {
+        for (var j = 0; j < name.length; ++j) {
+            if (nonEmptyText(name[j])) {
+                return true;
+            }
+        }
+    } else if (nonEmptyText(name)) {
+        return true;
+    }
+    return false;
+};
+
 var representedOrganization = {
     key: "representedOrganization",
     content: [
@@ -320,18 +338,20 @@ var representedOrganization = {
             key: "id",
             attributes: {
                 root: leafLevel.inputProperty("root"),
-                extension: leafLevel.inputProperty("extension"),
+                extension: leafLevel.nonEmptyInputProperty("extension"),
             },
             dataKey: "identity"
         }, {
             key: "name",
             text: leafLevel.input,
-            dataKey: "name"
+            dataKey: "name",
+            existsWhen: nonEmptyText
         },
         //usRealmAddress,
         //telecom
     ],
-    dataKey: "organization"
+    dataKey: "organization",
+    existsWhen: organizationHasContent
 };
 
 var assignedEntity = exports.assignedEntity = {
@@ -378,6 +398,74 @@ var associatedEntity = exports.associatedEntity = {
     ]
 };
 
+// True when a (post-translate.name) name object carries at least one usable
+// person name part. Used to decide between a fielded name and a nullFlavor name
+// for the Author Participation assignedPerson.
+var authorPersonNameHasContent = function (input) {
+    if (!input) {
+        return false;
+    }
+    var hasValue = function (value) {
+        return (value !== null) && (value !== undefined) && (value.toString().trim() !== "");
+    };
+    if (hasValue(input.family)) {
+        return true;
+    }
+    var given = input.given;
+    if (Array.isArray(given)) {
+        for (var i = 0; i < given.length; ++i) {
+            if (hasValue(given[i])) {
+                return true;
+            }
+        }
+    } else if (hasValue(given)) {
+        return true;
+    }
+    return hasValue(input.prefix) || hasValue(input.suffix);
+};
+
+// US Realm Person Name for an author, emitting only populated name parts so an
+// absent last name never produces an empty <family/> (MDHT validateST on the
+// ENXP; CDA R2 datatypes). Fires only when a usable name part is present.
+var authorPersonName = {
+    key: "name",
+    content: [{
+        key: "family",
+        text: leafLevel.inputProperty("family"),
+        existsWhen: condition.propertyNotEmpty("family")
+    }, {
+        key: "given",
+        text: leafLevel.input,
+        dataKey: "given"
+    }, {
+        key: "prefix",
+        text: leafLevel.inputProperty("prefix"),
+        existsWhen: condition.propertyNotEmpty("prefix")
+    }, {
+        key: "suffix",
+        text: leafLevel.inputProperty("suffix"),
+        existsWhen: condition.propertyNotEmpty("suffix")
+    }],
+    dataKey: "name",
+    dataTransform: translate.name,
+    existsWhen: authorPersonNameHasContent
+};
+
+// When the author has no usable person name, the name is unknown rather than
+// empty: emit <name nullFlavor="UNK"/> so the PN/ENXP datatype requirement is
+// satisfied. Author Participation urn:oid:2.16.840.1.113883.10.20.22.4.119.
+var authorPersonNameNullFlavor = {
+    key: "name",
+    attributes: {
+        nullFlavor: "UNK"
+    },
+    dataKey: "name",
+    dataTransform: translate.name,
+    existsWhen: function (input) {
+        return !authorPersonNameHasContent(input);
+    }
+};
+
 exports.author = {
     key: "author",
     attributes: {
@@ -395,7 +483,7 @@ exports.author = {
                     dataKey: "code"
                 }, {
                     key: "assignedPerson",
-                    content: usRealmName
+                    content: [authorPersonName, authorPersonNameNullFlavor]
                 },
                 representedOrganization
             ]
@@ -424,10 +512,12 @@ var linkedRepresentedOrganization = {
         }, {
             key: "name",
             text: leafLevel.input,
-            dataKey: "name"
+            dataKey: "name",
+            existsWhen: nonEmptyText
         }
     ],
-    dataKey: "organization"
+    dataKey: "organization",
+    existsWhen: organizationHasContent
 };
 
 exports.actAuthor = {
@@ -439,7 +529,7 @@ exports.actAuthor = {
             content: [
                 id, {
                     key: "assignedPerson",
-                    content: usRealmName
+                    content: [authorPersonName, authorPersonNameNullFlavor]
                 },
                 linkedRepresentedOrganization
             ]

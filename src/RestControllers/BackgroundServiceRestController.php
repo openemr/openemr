@@ -66,7 +66,7 @@ class BackgroundServiceRestController
         $definitions = $this->registry->list();
         // Return only client-safe fields, omitting function/require_once
         $data = array_map(
-            fn($def) => [
+            fn($def): array => [
                 'name' => $def->name,
                 'title' => $def->title,
                 'active' => $def->active,

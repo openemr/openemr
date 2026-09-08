@@ -13,10 +13,10 @@
  */
 
 require_once("../interface/globals.php");
-require_once "$srcdir/report_database.inc.php";
 require_once("$srcdir/options.inc.php");
 require_once("qrda_category1.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -24,6 +24,11 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    http_response_code(403);
+    exit;
+}
 
 $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
 $provider_id = (isset($_GET['provider_id'])) ? trim((string) $_GET['provider_id']) : "";

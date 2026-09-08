@@ -214,9 +214,7 @@ class FHIRCapabilityStatementSoftware extends FHIRBackboneElement implements \Js
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementSoftware xmlns="http://hl7.org/fhir"></CapabilityStatementSoftware>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CapabilityStatementSoftware xmlns="http://hl7.org/fhir"></CapabilityStatementSoftware>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

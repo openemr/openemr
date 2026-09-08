@@ -111,16 +111,34 @@ trait PatientAddTrait
             )
         );
 
-        sleep(5); // wait for the form to be ready (sometimes it takes a bit longer)
+        // Note: this sleep looks like it should be redundant given
+        // the elementToBeClickable wait above, but empirically it
+        // isn't -- the confirm-create button becomes WebDriver-
+        // clickable slightly before its click handler is fully
+        // wired (dlgclose -> srcConfirmSave -> document.forms[0]
+        // .submit()). Without this pause on faster CI runners the
+        // click races the wiring, the click no-ops, and the form
+        // never submits -- symptoms cascade downstream as "Medical
+        // Record Dashboard header never appears" + all patient-
+        // dependent tests fail with "Patient does not exist so
+        // FAIL". Kept explicit here since it's the exact anti-race
+        // fix for a real flake, not defensive padding. The
+        // acceptance suite side-steps this race entirely by calling
+        // document.forms[0].submit() directly (see #13372); porting
+        // that pattern to source-side is a separate follow-up.
+        sleep(5);
 
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
 
-        // ensure the patient summary screen is shown
-        $alert = $this->client->getWebDriver()->wait(10)->until(
-            WebDriverExpectedCondition::alertIsPresent()
-        );
-        $alert->accept();
+        // Prior shape had a wait(10)->until(alertIsPresent())->accept()
+        // block here for the clinical-reminders alert emitted on
+        // the newly-created patient's dashboard load. The
+        // BaseTrait::muzzleBrowserPrompts() CDP install now
+        // overrides window.alert to a no-op globally on every
+        // navigation, so the alert never fires and the wait+accept
+        // are no longer needed (and would time out returning null
+        // if kept). Dropped.
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);

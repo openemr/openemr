@@ -12,6 +12,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\PHPUnit;
 
+use OpenEMR\BC\Deprecation;
+use OpenEMR\BC\DeprecationMode;
+use OpenEMR\PHPUnit\Timeline\TestErroredSubscriber;
+use OpenEMR\PHPUnit\Timeline\TestFailedSubscriber;
+use OpenEMR\PHPUnit\Timeline\TestFinishedSubscriber;
+use OpenEMR\PHPUnit\Timeline\TestPreparedSubscriber;
+use OpenEMR\PHPUnit\Timeline\TestSkippedSubscriber;
+use OpenEMR\PHPUnit\Timeline\TimelineRecorder;
 use PHPUnit\Runner\Extension\Extension as PHPUnitExtension;
 use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
@@ -33,9 +41,20 @@ class Extension implements PHPUnitExtension
         Facade $facade,
         ParameterCollection $parameters
     ): void {
+        Deprecation::$mode = DeprecationMode::Error;
+
         $shutdownTracker = new ShutdownTracker();
         $shutdownTracker->install();
         $facade->registerSubscriber($shutdownTracker);
+
+        // Records when each E2e test ran so CI can chapter the video
+        // recording of the suite. Writes nothing for any other suite.
+        $timeline = new TimelineRecorder();
+        $facade->registerSubscriber(new TestPreparedSubscriber($timeline));
+        $facade->registerSubscriber(new TestFinishedSubscriber($timeline));
+        $facade->registerSubscriber(new TestFailedSubscriber($timeline));
+        $facade->registerSubscriber(new TestErroredSubscriber($timeline));
+        $facade->registerSubscriber(new TestSkippedSubscriber($timeline));
 
         self::$isBootstrapped = true;
     }

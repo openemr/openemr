@@ -7,7 +7,6 @@
  * @link https://www.open-emr.org/wiki
  * @author Robert Down <robertdown@live.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 
 // Software version identification.
@@ -16,8 +15,8 @@
 // upgrade file is the starting point for the next upgrade.
 
 $v_major = '8';
-$v_minor = '1';
-$v_patch = '1';
+$v_minor = '4';
+$v_patch = '0';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
@@ -31,7 +30,7 @@ $v_realpatch = '0';
 //
 // Keep in sync with the v_database comment in sql/database.sql.
 // CI will fail if they don't match.
-$v_database = 538;
+$v_database = 543;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -46,7 +45,7 @@ $v_acl = 13;
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
-if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 'dev')) {
+if (($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev') {
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping

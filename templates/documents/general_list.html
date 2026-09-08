@@ -197,7 +197,7 @@ $(function () {
         if (!popsrc.includes('&view&')) {
             return false;
         } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
-            popsrc = "{$GLOBALS.webroot}/library/dicom_frame.php?web_path=" + popsrc;
+            popsrc = "{$GLOBALS.webroot}/library/dicom_frame.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}&web_path=" + popsrc;
             dflg = true;
         }
         popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';

@@ -59,7 +59,7 @@ function addWarning($msg): void
 
 // Check if a product needs to be re-ordered, optionally for a given warehouse.
 //
-function checkReorder($drug_id, $min, $warehouse = '')
+function checkReorder($drug_id, $min, $warehouse = ''): bool
 {
     global $form_days;
 
@@ -198,9 +198,7 @@ function zeroDays($product_id, $begdate, int $facility_id = 0, string $warehouse
     $res = sqlStatement($destroySql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = substr((string) $row['destroy_date'], 0, 10);
-        if (!isset($qtys[$thisdate])) {
-            $qtys[$thisdate] = 0;
-        }
+        $qtys[$thisdate] ??= 0;
         $qtys[$thisdate] += $row['on_hand'];
     }
 
@@ -218,9 +216,7 @@ function zeroDays($product_id, $begdate, int $facility_id = 0, string $warehouse
     $res = sqlStatement($salesSql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = $row['sale_date'];
-        if (!isset($qtys[$thisdate])) {
-            $qtys[$thisdate] = 0;
-        }
+        $qtys[$thisdate] ??= 0;
         $qtys[$thisdate] += $row['quantity'];
     }
 
@@ -238,9 +234,7 @@ function zeroDays($product_id, $begdate, int $facility_id = 0, string $warehouse
     $res = sqlStatement($xferSql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = (string) $row['sale_date'];
-        if (!isset($qtys[$thisdate])) {
-            $qtys[$thisdate] = 0;
-        }
+        $qtys[$thisdate] ??= 0;
         $qtys[$thisdate] -= $row['quantity'];
     }
 
@@ -696,26 +690,26 @@ if ($form_action == 'export') {
     echo "\xEF\xBB\xBF";
 
     // CSV headers:
-    echo csvEscape(xl('Name'))              . ',';
-    echo csvEscape(xl('Relates To'))        . ',';
-    echo csvEscape(xl('NDC'))               . ',';
-    echo csvEscape(xl('Active'))            . ',';
-    echo csvEscape(xl('Consumable'))        . ',';
-    echo csvEscape(xl('Form'))              . ',';
+    echo xlc('Name')              . ',';
+    echo xlc('Relates To')        . ',';
+    echo xlc('NDC')               . ',';
+    echo xlc('Active')            . ',';
+    echo xlc('Consumable')        . ',';
+    echo xlc('Form')              . ',';
     if ($form_details) {
-        echo csvEscape(xl('Facility'))      . ',';
+        echo xlc('Facility')      . ',';
         if ($form_details == 2) {
-            echo csvEscape(xl('Warehouse')) . ',';
+            echo xlc('Warehouse') . ',';
         }
         echo csvEscape($mmtype . xl('Min')) . ',';
         echo csvEscape($mmtype . xl('Max')) . ',';
     }
-    echo csvEscape(xl('QOH'))               . ',';
-    echo csvEscape(xl('Zero Stock Days'))   . ',';
-    echo csvEscape(xl('Avg Monthly'))       . ',';
-    echo csvEscape(xl('Stock Months'))      . ',';
-    echo csvEscape(xl('Reorder Qty'))       . ',';
-    echo csvEscape(xl('Warnings'))          . '';
+    echo xlc('QOH')               . ',';
+    echo xlc('Zero Stock Days')   . ',';
+    echo xlc('Avg Monthly')       . ',';
+    echo xlc('Stock Months')      . ',';
+    echo xlc('Reorder Qty')       . ',';
+    echo xlc('Warnings')          . '';
     echo "\n";
 } else { // not exporting
     ?>

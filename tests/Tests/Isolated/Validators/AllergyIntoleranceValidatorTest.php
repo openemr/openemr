@@ -154,7 +154,7 @@ class AllergyIntoleranceValidatorStub extends AllergyIntoleranceValidator
     /**
      * Override validateId to avoid database calls
      */
-    public static function validateId($field, $table, $lookupId, $isUuid = false)
+    public static function validateId($field, $table, $lookupId, $isUuid = false): bool
     {
         // For testing purposes, assume all IDs are valid
         // In real tests, you could add logic to simulate different scenarios

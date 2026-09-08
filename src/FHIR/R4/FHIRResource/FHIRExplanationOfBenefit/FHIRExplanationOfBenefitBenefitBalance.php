@@ -383,9 +383,7 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitBenefitBalance xmlns="http://hl7.org/fhir"></ExplanationOfBenefitBenefitBalance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExplanationOfBenefitBenefitBalance xmlns="http://hl7.org/fhir"></ExplanationOfBenefitBenefitBalance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->category)) {
             $this->category->xmlSerialize(true, $sxe->addChild('category'));

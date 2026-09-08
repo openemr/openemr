@@ -19,7 +19,7 @@ class AMC_302h_Denominator implements AmcFilterIF
         return "AMC_302h Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // All labs within report date, which have already been collected
         return true;
