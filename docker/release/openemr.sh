@@ -601,7 +601,10 @@ if (!isset($config) || !$config) {
     echo 'unconfigured';
     exit(0);
 }
-echo implode("\t", [$host, $port, $login, $pass, $dbase]);
+// Unit separator, not a tab: tab is IFS whitespace, so read would collapse a
+// run of them and an empty field -- a site with no database password -- would
+// shift every later value one position left.
+echo implode("\x1f", [$host, $port, $login, $pass, $dbase]);
 PHP
     ) || {
         echo "ERROR: could not read database parameters from ${sqlconf}." >&2
@@ -615,7 +618,7 @@ PHP
 
     wait_for_mysql
     local db_host db_port db_login db_pass db_name
-    IFS=$'\t' read -r db_host db_port db_login db_pass db_name <<< "${db_params}"
+    IFS=$'\x1f' read -r db_host db_port db_login db_pass db_name <<< "${db_params}"
 
     # One row, two columns: the installed schema revision and the release it
     # belongs to. sql_upgrade.php keys its migration files on the latter.
