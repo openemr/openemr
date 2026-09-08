@@ -456,11 +456,14 @@ class PrescriptionService extends BaseService
      * writable here — passing one of those uuids returns a validation error.
      *
      * @param string $uuid The prescription uuid in string format.
-     * @param array<string, mixed> $data Column => value pairs to update. The `uuid` key,
-     *                                   if present, is ignored.
+     * @param array<string, mixed> $data Column => value pairs to update. The `uuid` and
+     *                                   `patient_id` keys, if present, are ignored.
+     * @param int|null $expectedPatientId If provided, the stored prescription's patient_id
+     *     must match -- ownership check so a leaked uuid cannot be used to mutate a
+     *     prescription belonging to a patient other than the caller's resolved subject.
      * @return ProcessingResult The refreshed record on success, or validation errors.
      */
-    public function update(string $uuid, array $data): ProcessingResult
+    public function update(string $uuid, array $data, ?int $expectedPatientId = null): ProcessingResult
     {
         $isValid = $this->patientValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
         if ($isValid instanceof ProcessingResult) {
@@ -473,9 +476,49 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
-        // The update payload should never carry the uuid itself; buildUpdateColumns
-        // ignores it but stripping here keeps callers honest.
-        unset($data['uuid']);
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $rowPatientIdRaw = QueryUtils::fetchSingleValue(
+            "SELECT patient_id FROM " . self::PRESCRIPTION_TABLE . " WHERE uuid = ?",
+            'patient_id',
+            [$uuidBytes]
+        );
+        if (!is_numeric($rowPatientIdRaw)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
+            return $processingResult;
+        }
+        $rowPatientId = (int) $rowPatientIdRaw;
+
+        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
+            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
+            // existence of another patient's prescription.
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
+            return $processingResult;
+        }
+
+        // An encounter reference has to belong to the prescription's own patient, otherwise a
+        // PUT could file the medication against another patient's visit.
+        $encounterRaw = $data['encounter'] ?? null;
+        if (is_numeric($encounterRaw) && (int) $encounterRaw !== 0) {
+            $encounterPid = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM form_encounter WHERE encounter = ?",
+                'pid',
+                [(int) $encounterRaw]
+            );
+            if (!is_numeric($encounterPid) || (int) $encounterPid !== $rowPatientId) {
+                $processingResult = new ProcessingResult();
+                $processingResult->setValidationMessages([
+                    'encounter' => 'Encounter reference does not belong to this patient',
+                ]);
+                return $processingResult;
+            }
+        }
+
+        // Neither the uuid nor the owning patient is mutable. BaseService::buildUpdateColumns()
+        // skips `pid`, but this table names its owner column `patient_id`, so it would otherwise
+        // pass straight into the SET clause and move the prescription to another chart.
+        unset($data['uuid'], $data['patient_id']);
 
         $data['date_modified'] = date('Y-m-d H:i:s');
         $query = $this->buildUpdateColumns($data);
@@ -491,8 +534,12 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
-        $sql = "UPDATE " . self::PRESCRIPTION_TABLE . " SET " . $setClause . " WHERE uuid = ?";
-        $binds[] = UuidRegistry::uuidToBytes($uuid);
+        // patient_id is part of the WHERE for belt-and-braces protection if $expectedPatientId
+        // was not supplied by the caller.
+        $sql = "UPDATE " . self::PRESCRIPTION_TABLE . " SET " . $setClause
+            . " WHERE uuid = ? AND patient_id = ?";
+        $binds[] = $uuidBytes;
+        $binds[] = $rowPatientId;
         QueryUtils::sqlStatementThrowException($sql, $binds);
 
         return $this->getOne($uuid);

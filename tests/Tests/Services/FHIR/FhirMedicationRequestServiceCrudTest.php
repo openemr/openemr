@@ -150,6 +150,67 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
     }
 
     /**
+     * `prescriptions` names its owner column `patient_id`, and BaseService::buildUpdateColumns()
+     * only skips `pid` -- so without an ownership check a PUT body's subject would be written
+     * straight into the row. A subject naming a different patient has to be rejected rather than
+     * silently moving the prescription into that patient's chart.
+     */
+    #[Test]
+    public function testUpdateCannotRebindPrescriptionToAnotherPatient(): void
+    {
+        $this->fhirMedicationRequestFixture->setId(new FHIRId());
+        $insert = $this->fhirMedicationRequestService->insert($this->fhirMedicationRequestFixture);
+        $this->assertTrue(
+            $insert->isValid(),
+            "Insert should succeed: " . json_encode($insert->getValidationMessages())
+        );
+
+        $fhirId = $this->firstDataRow($insert)['uuid'];
+        $this->assertIsString($fhirId);
+        $uuidBytes = UuidRegistry::uuidToBytes($fhirId);
+
+        $ownerPid = QueryUtils::fetchSingleValue(
+            "SELECT patient_id FROM prescriptions WHERE uuid = ?",
+            'patient_id',
+            [$uuidBytes]
+        );
+        $this->assertIsNumeric($ownerPid);
+
+        $payload = $this->fhirMedicationRequestFixture->jsonSerialize();
+        $payload['id'] = $fhirId;
+        $payload['subject'] = ['reference' => 'Patient/' . $this->secondPatientUuid()];
+
+        $result = $this->fhirMedicationRequestService->update($fhirId, new FHIRMedicationRequest($payload));
+        $this->assertFalse($result->isValid(), 'A PUT whose subject is a different patient must be rejected');
+
+        $ownerPidAfter = QueryUtils::fetchSingleValue(
+            "SELECT patient_id FROM prescriptions WHERE uuid = ?",
+            'patient_id',
+            [$uuidBytes]
+        );
+        $this->assertIsNumeric($ownerPidAfter);
+        $this->assertSame((int) $ownerPid, (int) $ownerPidAfter, 'The prescription must stay with its owner');
+    }
+
+    /**
+     * Uuid of a second installed patient fixture, used to prove a PUT cannot move a record
+     * from the patient that owns it to someone else's chart.
+     */
+    private function secondPatientUuid(): string
+    {
+        $patients = $this->fixtureManager->getPatientFixtures();
+        $patientFixture = $patients[1];
+        $this->assertIsArray($patientFixture);
+        $record = QueryUtils::querySingleRow(
+            "SELECT uuid FROM patient_data WHERE pubpid = ?",
+            [$patientFixture['pubpid']]
+        );
+        $this->assertIsArray($record);
+
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
      * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
      * failed insert surfaces as a test failure rather than a type error downstream.
      *

@@ -298,10 +298,13 @@ class ImmunizationService extends BaseService
      *
      * @param $uuid - The immunization uuid identifier in string format used for update.
      * @param mixed $data - The updated immunization data fields
+     * @param int|null $expectedPatientId If provided, the stored immunization's patient_id must
+     *     match -- ownership check so a leaked uuid cannot be used to mutate an immunization
+     *     belonging to a patient other than the caller's resolved subject.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function update($uuid, $data)
+    public function update($uuid, $data, ?int $expectedPatientId = null)
     {
         if (!is_array($data) || $data === []) {
             $processingResult = new ProcessingResult();
@@ -318,12 +321,56 @@ class ImmunizationService extends BaseService
             return $processingResult;
         }
 
-        [$set, $bind] = $this->splitColumnQuery($this->buildUpdateColumns($data));
-        $sql = " UPDATE immunizations SET ";
-        $sql .= $set;
-        $sql .= " WHERE `uuid` = ?";
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $rowPatientIdRaw = QueryUtils::fetchSingleValue(
+            "SELECT patient_id FROM " . self::IMMUNIZATION_TABLE . " WHERE uuid = ?",
+            'patient_id',
+            [$uuidBytes]
+        );
+        if (!is_numeric($rowPatientIdRaw)) {
+            $processingResult->setValidationMessages(['uuid' => 'Immunization not found']);
+            return $processingResult;
+        }
+        $rowPatientId = (int) $rowPatientIdRaw;
 
-        $bind[] = UuidRegistry::uuidToBytes($uuid);
+        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
+            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
+            // existence of another patient's immunization.
+            $processingResult->setValidationMessages(['uuid' => 'Immunization not found']);
+            return $processingResult;
+        }
+
+        // An encounter reference has to belong to the immunization's own patient, otherwise a
+        // PUT could file the vaccination against another patient's visit.
+        $encounterRaw = $data['encounter_id'] ?? null;
+        if (is_numeric($encounterRaw) && (int) $encounterRaw !== 0) {
+            $encounterPid = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM form_encounter WHERE encounter = ?",
+                'pid',
+                [(int) $encounterRaw]
+            );
+            if (!is_numeric($encounterPid) || (int) $encounterPid !== $rowPatientId) {
+                $processingResult->setValidationMessages([
+                    'encounter' => 'Encounter reference does not belong to this patient',
+                ]);
+                return $processingResult;
+            }
+        }
+
+        // The owning patient is not mutable. BaseService::buildUpdateColumns() skips `pid`, but
+        // this table names its owner column `patient_id`, so it would otherwise pass straight
+        // into the SET clause and move the immunization to another chart.
+        unset($data['patient_id']);
+
+        [$set, $bind] = $this->splitColumnQuery($this->buildUpdateColumns($data));
+        $sql = " UPDATE " . self::IMMUNIZATION_TABLE . " SET ";
+        $sql .= $set;
+        // patient_id is part of the WHERE for belt-and-braces protection if $expectedPatientId
+        // was not supplied by the caller.
+        $sql .= " WHERE `uuid` = ? AND `patient_id` = ?";
+
+        $bind[] = $uuidBytes;
+        $bind[] = $rowPatientId;
 
         try {
             QueryUtils::sqlStatementThrowException($sql, $bind);

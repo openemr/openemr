@@ -477,10 +477,17 @@ class CarePlanService extends BaseService
     }
 
     /**
-     * Replaces the items in an existing care_plan form. Locates the form by (encounter, form_id),
-     * deletes its existing form_care_plan rows, and inserts the new set. Transactional.
+     * Replaces the items in an existing care_plan form. Locates the form by
+     * (encounter, form_id, care_plan_type), deletes its existing form_care_plan rows of this
+     * service's type, and inserts the new set. Transactional.
      *
      * FHIR PUT semantics replace the resource as a whole; this matches that.
+     *
+     * CarePlan and Goal share the `form_care_plan` table and the same {euuid}-SK-{formId}
+     * surrogate key, separated only by `care_plan_type`. Both the lookup and the delete are
+     * therefore scoped by type: without it a CarePlan PUT would delete the form's Goal rows
+     * (and vice versa), and a Goal surrogate key -- which the CarePlan read hands out in
+     * `related_goal_uuids` -- would be a valid CarePlan PUT target.
      *
      * @param int $encounterId form_encounter.encounter.
      * @param int $formId form_care_plan form id (already validated to exist by caller).
@@ -494,8 +501,12 @@ class CarePlanService extends BaseService
 
         $existing = QueryUtils::querySingleRow(
             "SELECT f.pid, f.encounter FROM forms f
-             WHERE f.encounter = ? AND f.form_id = ? AND f.formdir = 'care_plan' AND f.deleted = 0",
-            [$encounterId, $formId]
+             JOIN form_care_plan fcp
+                ON fcp.id = f.form_id AND fcp.encounter = f.encounter AND fcp.pid = f.pid
+             WHERE f.encounter = ? AND f.form_id = ? AND f.formdir = 'care_plan' AND f.deleted = 0
+               AND fcp.care_plan_type = ?
+             LIMIT 1",
+            [$encounterId, $formId, $this->carePlanType]
         );
         if (!is_array($existing) || $existing === []) {
             $result->setValidationMessages(['uuid' => 'Care plan form not found for given encounter and form id']);
@@ -530,8 +541,9 @@ class CarePlanService extends BaseService
                 $items
             ): string {
                 QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM form_care_plan WHERE id = ? AND pid = ? AND encounter = ?",
-                    [$formId, $pid, $encounterId]
+                    "DELETE FROM form_care_plan
+                     WHERE id = ? AND pid = ? AND encounter = ? AND care_plan_type = ?",
+                    [$formId, $pid, $encounterId, $this->carePlanType]
                 );
 
                 foreach ($items as $item) {

@@ -448,7 +448,12 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        return $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord);
+        // The patient the caller asserts has to be the immunization's actual owner. Without this
+        // the resolved patient_id would simply be written, moving the record to another chart.
+        $patientId = $updatedOpenEMRRecord['patient_id'] ?? null;
+        $expectedPatientId = is_numeric($patientId) ? (int) $patientId : null;
+
+        return $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord, $expectedPatientId);
     }
 
     /**

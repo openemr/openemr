@@ -6,9 +6,11 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGoal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\Services\FHIR\FhirCarePlanService;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Services\FHIR\FhirGoalService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -187,6 +189,60 @@ class FhirGoalServiceCrudTest extends TestCase
         $result = $this->fhirGoalService->insert($fixture);
         $this->assertFalse($result->isValid());
         $this->assertSame([], $result->getData());
+    }
+
+    /**
+     * CarePlan and Goal live in the same `form_care_plan` table, separated only by
+     * `care_plan_type`, and share the {encounter-uuid}-SK-{form-id} surrogate key. A CarePlan PUT
+     * aimed at a Goal's id must not resolve: CarePlan writes are gated on patients/med while Goal
+     * writes require admin/super, and CarePlanService::replace() deletes before it inserts.
+     */
+    #[Test]
+    public function testCarePlanUpdateCannotReplaceGoalRows(): void
+    {
+        $this->fhirGoalFixture->setId(new FHIRId());
+        $insert = $this->fhirGoalService->insert($this->fhirGoalFixture);
+        $this->assertTrue(
+            $insert->isValid(),
+            'Goal insert (setup) failed: ' . json_encode($insert->getValidationMessages())
+        );
+
+        $goalUuid = $this->firstDataRow($insert)['uuid'];
+        $this->assertIsString($goalUuid);
+        $parts = explode('-SK-', $goalUuid);
+        $this->assertCount(2, $parts);
+        $formId = (int) $parts[1];
+        $this->assertGreaterThan(0, $formId);
+
+        $goalRowsBefore = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS goalRows FROM form_care_plan WHERE id = ? AND care_plan_type = 'goal'",
+            'goalRows',
+            [$formId]
+        );
+        $this->assertIsNumeric($goalRowsBefore);
+        $this->assertGreaterThan(0, (int) $goalRowsBefore);
+
+        $carePlanPayload = (array) $this->fixtureManager->getSingleFhirCarePlanFixture();
+        $carePlanPayload['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
+        $carePlanPayload['encounter'] = ['reference' => 'Encounter/' . $this->encounterUuid];
+
+        $carePlanService = new FhirCarePlanService();
+        $carePlanService->setLogger($this->createMock(LoggerInterface::class));
+        $result = $carePlanService->update($goalUuid, new FHIRCarePlan($carePlanPayload));
+
+        $this->assertFalse($result->isValid(), 'A CarePlan PUT against a Goal id must be rejected');
+
+        $goalRowsAfter = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS goalRows FROM form_care_plan WHERE id = ? AND care_plan_type = 'goal'",
+            'goalRows',
+            [$formId]
+        );
+        $this->assertIsNumeric($goalRowsAfter);
+        $this->assertSame(
+            (int) $goalRowsBefore,
+            (int) $goalRowsAfter,
+            'Goal rows must survive a CarePlan PUT aimed at their surrogate key'
+        );
     }
 
     /**

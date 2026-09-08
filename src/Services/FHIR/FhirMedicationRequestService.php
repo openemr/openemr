@@ -410,10 +410,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             return $resolveResult;
         }
 
-        return $this->getPrescriptionService()->update(
-            $fhirResourceId,
-            FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
-        );
+        $record = FhirPayloadReader::stringKeyed($updatedOpenEMRRecord);
+
+        // The subject the caller asserts has to be the prescription's actual owner. Without this
+        // the resolved patient_id would simply be written, moving the record to another chart.
+        $patientId = $record['patient_id'] ?? null;
+        $expectedPatientId = is_numeric($patientId) ? (int) $patientId : null;
+
+        return $this->getPrescriptionService()->update($fhirResourceId, $record, $expectedPatientId);
     }
 
     /**
