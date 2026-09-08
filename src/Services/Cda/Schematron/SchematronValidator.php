@@ -25,6 +25,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -40,6 +42,13 @@ use RuntimeException;
 
 final readonly class SchematronValidator
 {
+    /**
+     * Stable message used for assertions we could not evaluate. Matches the JS
+     * engine's "Assertion skipped or malformed." tone and deliberately avoids
+     * exposing exception messages, which may leak internal detail.
+     */
+    private const IGNORED_MESSAGE = 'Assertion skipped or malformed.';
+
     private DocumentPredicateRewriter $rewriter;
 
     public function __construct(
@@ -55,10 +64,13 @@ final readonly class SchematronValidator
         $schematron = (new SchematronParser())->parse($schematronXml);
 
         $doc = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $ok = $doc->loadXML($targetXml, LIBXML_PARSEHUGE);
-        libxml_clear_errors();
-        libxml_use_internal_errors(false);
+        $prevErrorMode = libxml_use_internal_errors(true);
+        try {
+            $ok = $doc->loadXML($targetXml, LIBXML_PARSEHUGE);
+            libxml_clear_errors();
+        } finally {
+            libxml_use_internal_errors($prevErrorMode);
+        }
         if (!$ok) {
             throw new RuntimeException('failed to parse target XML');
         }
@@ -162,14 +174,14 @@ final readonly class SchematronValidator
                 $originalTest = $item->test;
                 try {
                     $test = $this->rewriter->rewrite($originalTest);
-                } catch (RuntimeException $e) {
+                } catch (RuntimeException) {
                     $results[] = [
                         'type' => $item->level,
                         'assertionId' => $item->id,
                         'test' => $originalTest,
                         'simplifiedTest' => null,
                         'description' => $item->description,
-                        'results' => ['ignored' => true, 'errorMessage' => $e->getMessage()],
+                        'results' => ['ignored' => true, 'errorMessage' => self::IGNORED_MESSAGE],
                     ];
                     continue;
                 }
@@ -235,8 +247,8 @@ final readonly class SchematronValidator
                     'path' => $this->buildXPath($node),
                     'xml' => $xmlSnippet,
                 ];
-            } catch (RuntimeException $e) {
-                return ['ignored' => true, 'errorMessage' => $e->getMessage()];
+            } catch (RuntimeException) {
+                return ['ignored' => true, 'errorMessage' => self::IGNORED_MESSAGE];
             }
         }
         return $results;

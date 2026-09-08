@@ -205,11 +205,15 @@ class CdaValidateDocuments
      */
     private function validateSchematron(string $xml, string $type = SchemaRegistry::TYPE_CCDA): array
     {
+        // Matches ValidationResult::toArray() shape so downstream renderers get
+        // the same keys whether validation succeeds or fails.
         $defaults = [
             'errorCount' => 0,
             'warningCount' => 0,
             'ignoredCount' => 0,
             'errors' => [],
+            'warnings' => [],
+            'ignored' => [],
         ];
         try {
             return array_merge($defaults, $this->schematronValidateDocument($xml, $type));

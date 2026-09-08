@@ -13,6 +13,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,10 +35,13 @@ final class SchematronParser
     public function parse(string $schematronXml): ParsedSchematron
     {
         $doc = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $ok = $doc->loadXML($schematronXml, LIBXML_PARSEHUGE);
-        libxml_clear_errors();
-        libxml_use_internal_errors(false);
+        $prevErrorMode = libxml_use_internal_errors(true);
+        try {
+            $ok = $doc->loadXML($schematronXml, LIBXML_PARSEHUGE);
+            libxml_clear_errors();
+        } finally {
+            libxml_use_internal_errors($prevErrorMode);
+        }
         if (!$ok) {
             throw new RuntimeException('failed to parse schematron document');
         }
