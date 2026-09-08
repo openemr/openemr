@@ -163,17 +163,52 @@ class UtilsService
         return $diagnosisCode;
     }
 
+    /**
+     * Build the US-Core / FHIR "data missing" extension — a single flat
+     * extension with `url` = the data-absent-reason canonical and
+     * `valueCode` = "unknown".
+     *
+     * @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+     *
+     * The prior implementation returned a two-level nested extension —
+     * an OUTER FHIRExtension with no `url` set, wrapping an inner
+     * extension that carried the url + valueCode. That shape violated
+     * the FHIR requirement that every Extension has a `url` (Extension.url
+     * cardinality is 1..1), which:
+     *
+     *   - caused a Ruby-side crash in Inferno's `fhir_models` validator:
+     *     `find_extension` iterates `resource.extension` calling
+     *     `.tr('-', '_')` on each `extension.url` — nil triggers
+     *     `undefined method 'tr' for nil` and the entire test errors out
+     *     before profile scoring runs
+     *   - failed US Core profile validation on the outer wrapper's
+     *     missing url when the profile validator did continue
+     *
+     * The single flat shape is what the general-guidance page specifies:
+     * one extension on the parent element, url = data-absent-reason,
+     * valueCode = "unknown". Callers attach it via `->addExtension($ext)`
+     * on the parent element they own.
+     *
+     * Note on the intentionally-loose return type: ~30 legacy call sites
+     * pass the returned Extension straight to setters that expect a
+     * Reference / DateTime / HumanName / CodeableConcept (setSubject,
+     * setDate, setEffectiveDateTime, setName, etc.) — a latent bug that
+     * emits an Extension object where the JSON schema expects a bare
+     * primitive or complex type. Adding a `: FHIRExtension` return type
+     * would surface those 92 type errors in PHPStan (level 10) and
+     * pull the fix scope from "one Inferno regression" to a
+     * project-wide refactor of every data-absent site. The return type
+     * stays untyped here; the follow-up is to tighten it once each
+     * caller wraps the extension into the correct FHIR element type
+     * (Reference-with-extension, HumanName-with-extension, etc.) or
+     * simply omits the field.
+     */
     public static function createDataMissingExtension()
     {
-        // @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
-        // for some reason in order to get this to work we have to wrap our inner exception
-        // into an outer exception.  This might be just a PHPism with the way JSON encodes things
         $extension = new FHIRExtension();
         $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
         $extension->setValueCode(new FHIRCode("unknown"));
-        $outerExtension = new FHIRExtension();
-        $outerExtension->addExtension($extension);
-        return $outerExtension;
+        return $extension;
     }
 
     public static function getExtensionsByUrl($url, $object)
