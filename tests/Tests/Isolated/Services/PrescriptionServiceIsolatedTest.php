@@ -402,6 +402,26 @@ class PrescriptionServiceIsolatedTest extends TestCase
         $this->assertArrayHasKey('uuid', $messages);
     }
 
+    public function testFindPatientForPrescriptionListsFilterMatchesGetBaseSql(): void
+    {
+        // findPatientForPrescription accepts UUIDs from `lists` medication
+        // rows, but must apply the SAME filter the getBaseSql UNION uses
+        // — `lists_medication.prescription_id IS NULL` — otherwise a UUID
+        // for a `lists` row that IS linked to a prescription would be
+        // considered "exists" by findPatientForPrescription but NOT
+        // surfaced by the SELECT, and getOne would return an empty 200
+        // instead of the documented uuid validation failure.
+        $resolved = realpath(__DIR__ . '/../../../../src/Services/PrescriptionService.php');
+        $this->assertIsString($resolved, 'PrescriptionService.php not found');
+        $source = file_get_contents($resolved);
+        $this->assertIsString($source);
+        $this->assertMatchesRegularExpression(
+            '/findPatientForPrescription[\s\S]{0,2000}?FROM\s+lists[\s\S]{0,400}?LEFT\s+JOIN\s+lists_medication[\s\S]{0,400}?WHERE\s+lists\.type\s*=\s*[\'"]medication[\'"]\s+AND\s+lists_medication\.prescription_id\s+IS\s+NULL/i',
+            $source,
+            'findPatientForPrescription lists-side query must join lists_medication and exclude rows with a non-null prescription_id, matching the getBaseSql UNION'
+        );
+    }
+
     // -------------------------------------------------------------------------
     // delete() rejects unknown / malformed prescription UUIDs with a
     // validation-error ProcessingResult (matches the getOne shape).

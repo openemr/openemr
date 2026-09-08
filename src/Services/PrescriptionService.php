@@ -778,9 +778,12 @@ class PrescriptionService extends BaseService
         $rows = QueryUtils::fetchRecords(
             "SELECT patient_data.pid, patient_data.squad, patient_data.uuid"
             . " FROM (
-                    SELECT uuid, patient_id AS owner_pid FROM prescriptions
+                    SELECT prescriptions.uuid, prescriptions.patient_id AS owner_pid FROM prescriptions
                     UNION
-                    SELECT uuid, pid AS owner_pid FROM lists WHERE type = 'medication'
+                    SELECT lists.uuid, lists.pid AS owner_pid
+                    FROM lists
+                    LEFT JOIN lists_medication ON lists_medication.list_id = lists.id
+                    WHERE lists.type = 'medication' AND lists_medication.prescription_id IS NULL
                 ) combined"
             . " LEFT JOIN " . self::PATIENT_TABLE
             . " ON " . self::PATIENT_TABLE . ".pid = combined.owner_pid"
