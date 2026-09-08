@@ -3,7 +3,7 @@
 /**
  * Generated schematron vocabulary lookup - do not edit.
  *
- * Rebuild with bin/regen-schematron-vocab.php.
+ * Rebuild with the `openemr:regen-schematron-vocab` console command.
  * source .sch:    Consolidation.sch
  * source voc.xml: voc.xml
  *

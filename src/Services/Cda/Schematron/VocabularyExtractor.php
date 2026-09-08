@@ -4,7 +4,7 @@
  * VocabularyExtractor - build-time helper that turns a schematron .sch +
  * external voc.xml catalog into a compact OID => values array.
  *
- * Not called at runtime. Invoked by bin/regen-schematron-vocab.php whenever
+ * Not called at runtime. Invoked by the `openemr:regen-schematron-vocab` console command whenever
  * the upstream schematron IG revision changes. The generated vocab.php files
  * are committed and shipped, so runtime never needs to touch voc.xml.
  *
@@ -94,7 +94,7 @@ final class VocabularyExtractor
             . "/**\n"
             . " * Generated schematron vocabulary lookup - do not edit.\n"
             . " *\n"
-            . " * Rebuild with bin/regen-schematron-vocab.php.\n"
+            . " * Rebuild with the `openemr:regen-schematron-vocab` console command.\n"
             . " * source .sch:    " . basename($sourceSch) . "\n"
             . " * source voc.xml: " . basename($sourceVoc) . "\n"
             . " *\n"
