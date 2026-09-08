@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Cda\Schematron;
 
 use OpenEMR\Services\Cda\Schematron\ArrayVocabularyLookup;
 use OpenEMR\Services\Cda\Schematron\SchematronValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class SchematronValidatorTest extends TestCase
@@ -96,9 +97,7 @@ XML;
         self::assertCount(2, $result->errors);
     }
 
-    /**
-     * @dataProvider goldenFixtureProvider
-     */
+    #[DataProvider('goldenFixtureProvider')]
     public function testGoldenParityAgainstNodeService(string $fixture, string $schemaType, string $schPath, string $vocabPath): void
     {
         $fixtureDir = __DIR__ . '/fixtures';

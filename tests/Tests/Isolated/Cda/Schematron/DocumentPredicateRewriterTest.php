@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Isolated\Cda\Schematron;
 
 use OpenEMR\Services\Cda\Schematron\ArrayVocabularyLookup;
 use OpenEMR\Services\Cda\Schematron\DocumentPredicateRewriter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -84,9 +85,7 @@ final class DocumentPredicateRewriterTest extends TestCase
         $this->rewriter->rewrite($test);
     }
 
-    /**
-     * @dataProvider xpathLiteralProvider
-     */
+    #[DataProvider('xpathLiteralProvider')]
     public function testXpathLiteralEscaping(string $input, string $expected): void
     {
         self::assertSame($expected, DocumentPredicateRewriter::xpathLit($input));
