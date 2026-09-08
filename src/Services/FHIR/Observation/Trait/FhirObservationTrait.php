@@ -401,9 +401,22 @@ trait FhirObservationTrait
             } else {
                 $observation->setEffectiveDateTime($effectiveDateTime);
             }
-        } else {
-            $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
+        // When no date is present we omit `effective[x]` entirely.
+        // Attaching a data-absent-reason Extension to the primitive
+        // `effectiveDateTime` slot emits an Extension object where a
+        // dateTime string is expected — invalid JSON per the FHIR
+        // primitive-type schema and rejected by US Core validators.
+        // The correct primitive-extension pattern would set
+        // `_effectiveDateTime` companion property with the
+        // data-absent-reason extension, but the PHPFHIR-generated SDK
+        // this codebase uses does not emit `_field` companions on
+        // primitives — FHIRObservation::jsonSerialize emits
+        // `$json['effectiveDateTime'] = $this->effectiveDateTime`
+        // (bare) with no `_effectiveDateTime` sibling. Omission is the
+        // least-wrong option available: US Core validators emit a
+        // must-support warning on the absent element rather than a
+        // schema error on a malformed one.
     }
 
     protected function setObservationComponents(FHIRObservation $observation, array $dataRecord): void
