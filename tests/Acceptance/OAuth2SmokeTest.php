@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
+use OpenEMR\Tests\Acceptance\Support\JsonBody;
 use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -94,10 +95,11 @@ final class OAuth2SmokeTest extends TestCase
             'API-disabled response must be served as application/json — a text/html response means an unhandled framework exception rendered the default HTML error page instead of the RestConfig-shaped JSON error body',
         );
 
-        $body = json_decode($response->getContent(), true);
+        $body = JsonBody::decode($response);
         self::assertIsArray(
             $body,
-            'API-disabled response should be a JSON error object — a non-JSON body (raw HTML, empty response, redirect) means the response shape has regressed and machine-readable error handling is broken',
+            'API-disabled response should be a JSON error object — a non-JSON body (raw HTML, empty response, redirect) means the response shape has regressed and machine-readable error handling is broken. '
+                . JsonBody::describe($response),
         );
         self::assertArrayHasKey('message', $body, 'API-disabled response must carry a machine-readable "message" field');
         self::assertIsString($body['message']);
@@ -148,8 +150,11 @@ final class OAuth2SmokeTest extends TestCase
             'API-disabled DCR response must be served as application/json for machine-readable error handling',
         );
 
-        $body = json_decode($response->getContent(), true);
-        self::assertIsArray($body, 'API-disabled DCR response should be a JSON error object');
+        $body = JsonBody::decode($response);
+        self::assertIsArray(
+            $body,
+            'API-disabled DCR response should be a JSON error object. ' . JsonBody::describe($response),
+        );
         self::assertArrayHasKey('message', $body);
         self::assertIsString($body['message']);
         self::assertStringContainsString(
