@@ -110,22 +110,41 @@ class RegenSchematronVocabCommand extends Command
             }
 
             // Write both outputs to temp files first, then swap into place, so a
-            // failed second write cannot leave the shipped .sch and vocab.php out of sync.
+            // failed write or second rename cannot leave the shipped .sch and
+            // vocab.php out of sync. Snapshot the existing pair (if any) so a
+            // failure on the second rename can restore the prior schema.
             $schDest = "$outSchDir/$schFile";
             $vocabDest = "$outSchDir/vocab.php";
             $schTmp = $schDest . '.tmp';
             $vocabTmp = $vocabDest . '.tmp';
             $vocabBody = $extractor->renderPhpFile($result['resolved'], $schFile, 'voc.xml');
+            $schBackup = is_file($schDest) ? file_get_contents($schDest) : null;
 
             if (
                 file_put_contents($schTmp, $sch) !== strlen($sch)
                 || file_put_contents($vocabTmp, $vocabBody) !== strlen($vocabBody)
-                || !rename($schTmp, $schDest)
-                || !rename($vocabTmp, $vocabDest)
             ) {
                 @unlink($schTmp);
                 @unlink($vocabTmp);
-                $io->error("$type: failed to write output files atomically");
+                $io->error("$type: failed to write temp files");
+                return Command::FAILURE;
+            }
+            if (!rename($schTmp, $schDest)) {
+                @unlink($schTmp);
+                @unlink($vocabTmp);
+                $io->error("$type: failed to swap in new .sch");
+                return Command::FAILURE;
+            }
+            if (!rename($vocabTmp, $vocabDest)) {
+                // Vocab swap failed after .sch was already updated - restore prior
+                // .sch (or remove it if there wasn't one) so the pair stays coherent.
+                if ($schBackup !== null) {
+                    file_put_contents($schDest, $schBackup);
+                } else {
+                    @unlink($schDest);
+                }
+                @unlink($vocabTmp);
+                $io->error("$type: failed to swap in new vocab.php; prior .sch restored");
                 return Command::FAILURE;
             }
 
