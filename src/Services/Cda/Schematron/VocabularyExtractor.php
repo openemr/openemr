@@ -1,0 +1,119 @@
+<?php
+
+/**
+ * VocabularyExtractor - build-time helper that turns a schematron .sch +
+ * external voc.xml catalog into a compact OID => values array.
+ *
+ * Not called at runtime. Invoked by the `openemr:regen-schematron-vocab` console command whenever
+ * the upstream schematron IG revision changes. The generated vocab.php files
+ * are committed and shipped, so runtime never needs to touch voc.xml.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Services\Cda\Schematron;
+
+use DOMDocument;
+use DOMXPath;
+use RuntimeException;
+
+final class VocabularyExtractor
+{
+    private const VOC_NAMESPACE = 'http://www.lantanagroup.com/voc';
+
+    /**
+     * @return array{oids: list<string>, resolved: array<string, list<string>>, missing: list<string>}
+     */
+    public function extract(string $schematronXml, string $vocabXml): array
+    {
+        $oids = $this->collectOids($schematronXml);
+        $lookup = [];
+        $missing = [];
+
+        $doc = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $ok = $doc->load('data://text/plain;base64,' . base64_encode($vocabXml), LIBXML_PARSEHUGE | LIBXML_NOBLANKS | LIBXML_COMPACT);
+        libxml_clear_errors();
+        libxml_use_internal_errors(false);
+        if (!$ok) {
+            throw new RuntimeException('failed to parse voc.xml');
+        }
+        $xpath = new DOMXPath($doc);
+        $xpath->registerNamespace('voc', self::VOC_NAMESPACE);
+
+        foreach ($oids as $oid) {
+            $codes = $xpath->query(
+                '/voc:systems/voc:system[@valueSetOid=' . DocumentPredicateRewriter::xpathLit($oid) . ']/voc:code/@value'
+            );
+            if ($codes === false || $codes->length === 0) {
+                $missing[] = $oid;
+                continue;
+            }
+            $vals = [];
+            foreach ($codes as $attr) {
+                /** @var \DOMAttr $attr */
+                $vals[] = $attr->value;
+            }
+            $lookup[$oid] = $vals;
+        }
+
+        return ['oids' => $oids, 'resolved' => $lookup, 'missing' => $missing];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectOids(string $schematronXml): array
+    {
+        preg_match_all(
+            "/document\(['\"]voc\.xml['\"]\)\/voc:systems\/voc:system\[@valueSetOid=['\"]([0-9.]+)['\"]\]/",
+            $schematronXml,
+            $matches
+        );
+        $oids = array_values(array_unique($matches[1]));
+        sort($oids);
+        return $oids;
+    }
+
+    /**
+     * Render the resolved map as a PHP file body (starts with `<?php` and returns an array).
+     * Uses short-array syntax to match project style and var_export for values so any
+     * legal string content stays as a valid PHP literal when reloaded via require.
+     *
+     * @param array<string, list<string>> $lookup
+     */
+    public function renderPhpFile(array $lookup, string $sourceSch, string $sourceVoc): string
+    {
+        $body = "<?php\n\n"
+            . "/**\n"
+            . " * Generated schematron vocabulary lookup - do not edit.\n"
+            . " *\n"
+            . " * Rebuild with the `openemr:regen-schematron-vocab` console command.\n"
+            . " * source .sch:    " . basename($sourceSch) . "\n"
+            . " * source voc.xml: " . basename($sourceVoc) . "\n"
+            . " *\n"
+            . " * @package   OpenEMR\n"
+            . " * @link      https://www.open-emr.org\n"
+            . " * @author    Brady Miller <brady.g.miller@gmail.com>\n"
+            . " * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>\n"
+            . " * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3\n"
+            . " */\n\n"
+            . "declare(strict_types=1);\n\n"
+            . "return [\n";
+        foreach ($lookup as $oid => $values) {
+            $body .= "    " . var_export((string) $oid, true) . " => [\n";
+            foreach ($values as $v) {
+                $body .= "        " . var_export($v, true) . ",\n";
+            }
+            $body .= "    ],\n";
+        }
+        $body .= "];\n";
+        return $body;
+    }
+}

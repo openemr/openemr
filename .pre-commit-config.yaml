@@ -66,7 +66,10 @@ repos:
   rev: v6.0.0
   hooks:
   - id: trailing-whitespace
+    # Preserve upstream CCDA/QRDA schematron files (HL7 IG deliverables) verbatim.
+    exclude: ^src/Services/Cda/Schematron/schemas/.*\.sch$
   - id: end-of-file-fixer
+    exclude: ^src/Services/Cda/Schematron/schemas/.*\.sch$
   - id: check-yaml
     # Strict YAML validation for everything except the two docker-compose
     # files that use the non-standard !override tag. PyYAML rejects
@@ -82,6 +85,10 @@ repos:
     args:
     - --unsafe
   - id: check-added-large-files
+    # Upstream CCDA/QRDA schematron files (HL7 IG deliverables). Consolidation.sch
+    # is ~1MB; the QRDA I sch is ~574KB. Shipped verbatim so we don't need a
+    # runtime Node service to fetch them.
+    exclude: ^src/Services/Cda/Schematron/schemas/.*\.sch$
   - id: check-merge-conflict
   - id: check-json
   # Two pretty-format-json instances split by ecosystem -- the same pattern
