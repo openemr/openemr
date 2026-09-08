@@ -789,3 +789,55 @@ generateMultisiteBank() {
     sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php
     echo "Completed setting up a multisite bank with following number of multisites (labeled run1, run2, run3, ...): run1...run${1}"
 }
+
+# ============================================================================
+# VENDOR INSTALLATION HOOKS
+# ============================================================================
+#
+# Environment Variables Used:
+#   - HOOKS_ROOT: Path to directory containing vendor hook directories
+#                 Defaults to /root/hooks
+#
+# Provides vendors with defined spots to interact with container startup. The hooks
+# will check their assigned directories for run-parts-compatible script content.
+# Use a Docker volume to provide those scripts to these locations:
+#
+# ${HOOKS_ROOT}/postconfig      after first-time configuration is complete
+#                               runs once, and never again
+# ${HOOKS_ROOT}/postupgrade     after an upgrade process completes
+#                               runs every time an upgrade happens
+#                               runs on leader only
+# ${HOOKS_ROOT}/prelaunch       runs after all container setup
+#                               runs every launch
+# ${HOOKS_ROOT}/tooearly        before any container work has started
+#                               runs every launch, but you shouldn't use it
+#
+# postconfig and postupgrade run inside the envelope of the config and upgrade task,
+# after OpenEMR's completed its own work. Because these upgrades can't be rolled
+# back, these tasks will only have one opportunity to run, and although failure will
+# stop the container launch, on next launch the hook will be skipped.
+#
+# tooearly is mostly for debugging hooks or rescuing a problem like a missed upgrade
+# hook. You probably should make sure these hooks fail and stop container launch so
+# you can remove them before letting a container resume normal operations.
+#
+# Note: Maintainers should never use these entrypoints, they're strictly for
+# end-user support.
+
+run_vendor_hook() {
+    : "${HOOKS_ROOT:=/root/hooks}"
+    [[ -d "${HOOKS_ROOT}/$1" ]] || return 0
+    local f
+    for f in "${HOOKS_ROOT}/$1"/*; do
+        if [[ -f "${f}" && ! -x "${f}" && "$(head -c2 "${f}" || true)" = '#!' ]]; then
+            echo "WARNING: ${f} has a shebang but is not executable; run-parts will skip it"
+        fi
+    done
+    # shellcheck disable=SC2312
+    if [[ "$(run-parts --test "${HOOKS_ROOT}/$1" | wc -l)" -eq 0 ]]; then
+        echo "$1 hook: run-parts can't find executable scripts, expected?"
+        return 0
+    fi
+    run-parts --exit-on-error "${HOOKS_ROOT}/$1" || return 1
+    echo "$1 hook OK"
+}

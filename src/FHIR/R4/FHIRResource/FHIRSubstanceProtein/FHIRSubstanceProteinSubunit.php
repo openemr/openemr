@@ -374,9 +374,7 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceProteinSubunit xmlns="http://hl7.org/fhir"></SubstanceProteinSubunit>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceProteinSubunit xmlns="http://hl7.org/fhir"></SubstanceProteinSubunit>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->subunit)) {
             $this->subunit->xmlSerialize(true, $sxe->addChild('subunit'));

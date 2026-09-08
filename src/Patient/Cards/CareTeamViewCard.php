@@ -51,9 +51,7 @@ class CareTeamViewCard extends CardModel
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
     public function setListService(ListService $service): void
@@ -63,9 +61,7 @@ class CareTeamViewCard extends CardModel
 
     public function getCareTeamService(): CareTeamService
     {
-        if (!isset($this->careTeamService)) {
-            $this->careTeamService = new CareTeamService();
-        }
+        $this->careTeamService ??= new CareTeamService();
         return $this->careTeamService;
     }
 

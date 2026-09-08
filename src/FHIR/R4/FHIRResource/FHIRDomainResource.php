@@ -290,9 +290,7 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DomainResource xmlns="http://hl7.org/fhir"></DomainResource>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DomainResource xmlns="http://hl7.org/fhir"></DomainResource>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));

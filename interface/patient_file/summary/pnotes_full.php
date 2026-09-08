@@ -12,7 +12,6 @@
 
 require_once('../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . '/patient.inc.php');
 require_once($srcdir . '/options.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -88,13 +87,9 @@ if (!empty($_REQUEST['s']) && ($_REQUEST['s'] == '1')) {
     $outbox_style = "style='display:none;border:5px solid var(--white);'";
 }
 
-if (!isset($offset)) {
-    $offset = 0;
-}
+$offset ??= 0;
 
-if (!isset($offset_sent)) {
-    $offset_sent = 0;
-}
+$offset_sent ??= 0;
 
 // Collect active variable and applicable html code for links
 if ($form_active) {

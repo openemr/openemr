@@ -54,7 +54,6 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
-require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 require_once(__DIR__ . "/../library/appointments.inc.php");
 
 

@@ -14,7 +14,6 @@
  */
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc.php");
 require_once("$srcdir/group.inc.php");
 
 use OpenEMR\BC\Utilities;

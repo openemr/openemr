@@ -538,7 +538,7 @@ class InstallerController extends AbstractActionController
      * @param $modId
      * @return false|string
      */
-    function getModuleVersionFromFile($modId)
+    public function getModuleVersionFromFile($modId)
     {
         //SQL version of Module
         $dirModule = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");

@@ -29,7 +29,7 @@ class SavantRenderEngine implements IRenderEngine
      * @param string $compilePath
      *          (not used for this render engine)
      */
-    function __construct($templatePath = '', $compilePath = '')
+    public function __construct($templatePath = '', $compilePath = '')
     {
         $this->savant = new Savant3([
                 'exceptions' => true
@@ -94,7 +94,7 @@ class SavantRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clear()
      */
-    function clear($key)
+    public function clear($key)
     {
         if (property_exists($this->savant, $key)) {
             unset($this->savant [$key]);
@@ -105,7 +105,7 @@ class SavantRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clearAll()
      */
-    function clearAll(): never
+    public function clearAll(): never
     {
         throw new Exception('clearAll not implemented for SavantRenderEngine');
     }
@@ -114,7 +114,7 @@ class SavantRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::getAll()
      */
-    function getAll()
+    public function getAll()
     {
         return get_object_vars($this->savant);
     }

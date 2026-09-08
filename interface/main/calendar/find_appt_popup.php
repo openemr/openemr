@@ -26,7 +26,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\HolidayService;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 // check access controls

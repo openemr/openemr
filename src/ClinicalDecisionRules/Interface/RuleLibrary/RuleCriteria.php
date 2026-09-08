@@ -61,7 +61,7 @@ abstract class RuleCriteria
 
     public $groupId;
 
-    function getCharacteristics()
+    public function getCharacteristics()
     {
         // HR: reverse this to match logic behavior
         $characteristics = $this->optional ? xl("Required") : xl("Optional");
@@ -71,13 +71,13 @@ abstract class RuleCriteria
         return $characteristics;
     }
 
-    abstract function getRequirements();
+    abstract public function getRequirements();
 
-    abstract function getTitle();
+    abstract public function getTitle();
 
-    abstract function getView();
+    abstract public function getView();
 
-    function getInterval()
+    public function getInterval()
     {
         if (is_null($this->interval) || is_null($this->intervalType)) {
             return null;
@@ -112,7 +112,7 @@ abstract class RuleCriteria
     /**
      * @return RuleCriteriaDbView
      */
-    function getDbView()
+    public function getDbView()
     {
         $dbView = new RuleCriteriaDbView();
         $dbView->inclusion = $this->inclusion;
@@ -123,7 +123,7 @@ abstract class RuleCriteria
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         $inclusion = "yes" === Common::postString("fld_inclusion");
         $optional = "yes" === Common::postString("fld_optional");

@@ -26,7 +26,6 @@
 //         that does not require sessions
 $sessionAllowWrite = true;
 require_once("../globals.php");
-require_once("../../library/patient.inc.php");
 /**
  * @global $srcdir
  */

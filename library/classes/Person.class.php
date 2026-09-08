@@ -22,11 +22,11 @@ class Person
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct(public $id = "")
+    public function __construct(public $id = "")
     {
     }
 
-    function populate()
+    public function populate()
     {
     }
 } // end of Person

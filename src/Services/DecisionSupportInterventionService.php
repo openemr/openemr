@@ -47,10 +47,7 @@ class DecisionSupportInterventionService extends BaseService
 
     public function getClientRepository(): ClientRepository
     {
-        // lazy load the client repository
-        if ($this->clientRepository === null) {
-            $this->clientRepository = new ClientRepository();
-        }
+        $this->clientRepository ??= new ClientRepository();
         return $this->clientRepository;
     }
 
@@ -74,7 +71,7 @@ class DecisionSupportInterventionService extends BaseService
             if (!$isSummary) {
                 $attributes = $this->getPredictiveDSIAttributes($clientEntity->getIdentifier());
             }
-        } else if ($clientEntity->hasEvidenceDSI()) {
+        } elseif ($clientEntity->hasEvidenceDSI()) {
             $service = new EvidenceBasedDSIServiceEntity($clientEntity);
             if (!$isSummary) {
                 $attributes = $this->getEvidenceDSIAttributes($clientEntity->getIdentifier());

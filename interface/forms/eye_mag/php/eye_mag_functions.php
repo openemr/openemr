@@ -16,6 +16,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyForward;
@@ -2681,7 +2682,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 function show_PMSFH_report($PMSFH): void
 {
     global $pid;
-    global $ISSUE_TYPES;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
     $count = [];
     $total_PMSFH = 0;
 
@@ -3874,24 +3875,16 @@ function menu_overhaul_bottom($pid, $encounter): void
  */
 function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
-    $all = [];
     $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
       "unpackaged, date FROM registry WHERE " .
       "state LIKE ? ORDER BY category, priority, name";
+    $sqlBindArray = [$state];
     if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
+        $sql .= " LIMIT ? OFFSET ?";
+        array_push($sqlBindArray, is_numeric($limit) ? (int) $limit : 0, is_numeric($offset) ? (int) $offset : 0);
     }
 
-    $res = sqlStatement($sql, [$state]);
-    if ($res) {
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-    } else {
-        return false;
-    }
-
-    return $all;
+    return QueryUtils::fetchRecords($sql, $sqlBindArray);
 }
 /**
  * This prints a header for documents.  Keeps the brand uniform...
@@ -3903,7 +3896,6 @@ function report_header($pid, $direction = 'shell')
 {
     global $encounter;
     global $visit_date;
-    global $facilityService;
     global $OE_SITE_DIR;
 
     /*******************************************************************
@@ -3914,6 +3906,7 @@ function report_header($pid, $direction = 'shell')
     $titleres = getPatientData($pid, "fname,lname,providerID,DOB");
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $pc_facility = $session->get('pc_facility');
+    $facilityService = new FacilityService();
     $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
 
     $DOB = oeFormatShortDate($titleres['DOB']);

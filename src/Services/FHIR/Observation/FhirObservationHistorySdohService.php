@@ -143,7 +143,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
                     if ($category === self::CATEGORY_SOCIAL_HISTORY) {
                         $observationCodesToReturn[self::PREGNANCY_INTENT_LOINC_CODE] = self::PREGNANCY_INTENT_LOINC_CODE;
                         $observationCodesToReturn[self::PREGNANCY_STATUS_LOINC_CODE] = self::PREGNANCY_STATUS_LOINC_CODE;
-                    } else if ($category === 'survey') { // base category for SDOH is 'survey' but supplemental category is 'sdoh'
+                    } elseif ($category === 'survey') { // base category for SDOH is 'survey' but supplemental category is 'sdoh'
                         // grab everything, but social-history codes are handled by the social-history category
                         $codes = $this->getSupportedCodes();
                         $codes = array_diff($codes, [self::PREGNANCY_INTENT_LOINC_CODE, self::PREGNANCY_STATUS_LOINC_CODE]);

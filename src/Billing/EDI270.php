@@ -900,9 +900,7 @@ HTML;
                 // Check if the field is an array (i.e., name ends with "[]")
                 if (str_ends_with($name, '[]')) {
                     $name = substr($name, 0, -2);
-                    if (!isset($mimeData[$name])) {
-                        $mimeData[$name] = [];
-                    }
+                    $mimeData[$name] ??= [];
                     $mimeData[$name][] = $content;
                 } else {
                     $mimeData[$name] = $content;

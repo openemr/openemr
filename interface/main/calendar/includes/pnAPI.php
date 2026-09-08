@@ -361,9 +361,7 @@ function pnVarPrepHTMLDisplay()
 
     static $allowedhtml;
 
-    if (!isset($allowedhtml)) {
-        $allowedhtml = [];
-    }
+    $allowedhtml ??= [];
 
     $resarray = [];
     foreach (func_get_args() as $ourvar) {

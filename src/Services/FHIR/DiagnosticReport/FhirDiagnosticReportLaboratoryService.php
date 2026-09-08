@@ -220,7 +220,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
                     $values = [new TokenSearchValue(true)];
                     $modifier = SearchModifier::MISSING;
                     break;
-                } else if ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
+                } elseif ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
                     // remove the system as procedure service only cares about the code itself
                     $values[] = new TokenSearchValue($value->getCode());
                 } else {

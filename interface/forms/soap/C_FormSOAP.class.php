@@ -11,7 +11,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
 use OpenEMR\Common\Forms\EncounterFormAccess;
@@ -34,7 +33,7 @@ class C_FormSOAP extends Controller
      * @throws \Twig\Error\SyntaxError
      * @throws \Twig\Error\LoaderError
      */
-    function default_action(): string
+    public function default_action(): string
     {
         $form = new FormSOAP();
         return $this->twig->render(
@@ -64,7 +63,7 @@ class C_FormSOAP extends Controller
         );
     }
 
-    function default_action_process()
+    public function default_action_process()
     {
         if ($_POST['process'] != "true") {
             return;

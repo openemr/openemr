@@ -71,7 +71,7 @@ class ScopeEntity implements ScopeEntityInterface
             $operationOrPermission = $matches[3] ?? '';
             if (str_contains($operationOrPermission, '$')) {
                 $scope->operation = $operationOrPermission;
-            } else if (!empty($operationOrPermission)) {
+            } elseif (!empty($operationOrPermission)) {
                 $permissionString = $operationOrPermission;
                 if (!empty($matches[4])) {
                     $permissionString .= "?" . $matches[4];

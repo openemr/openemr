@@ -14,8 +14,6 @@
 
 namespace OpenEMR\Billing;
 
-require_once(__DIR__ . "/../../library/patient.inc.php");
-
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\PaymentProcessing\Recorder;
 

@@ -102,9 +102,7 @@ class JWTClientAuthenticationService
      */
     public function getHttpClient(): ClientInterface
     {
-        if (!isset($this->httpClient)) {
-            $this->httpClient = new Client();
-        }
+        $this->httpClient ??= new Client();
         return $this->httpClient;
     }
 

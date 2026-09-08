@@ -34,10 +34,7 @@ $globalsBag = OEGlobalsBag::getInstance();
 require_once("verify_session.php");
 require_once("./../library/report.inc.php");
 require_once("./../library/options.inc.php");
-require_once("./../library/lists.inc.php");
 require_once("./../custom/code_types.inc.php");
-require_once("./../library/forms.inc.php");
-require_once("./../library/patient.inc.php");
 
 require_once("./lib/appsql.class.php");
 

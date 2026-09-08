@@ -665,14 +665,7 @@ class ReceiveHl7Results
                     $code_seq_array = [];
                 }
 
-                // Find the order line item (procedure code) that matches this result.
-                // If there is more than one, then we select the one whose sequence number
-                // is next after the last sequence number encountered for this procedure
-                // code; this assumes that result OBRs are returned in the same sequence
-                // as the corresponding OBRs in the order.
-                if (!isset($code_seq_array[$in_procedure_code])) {
-                    $code_seq_array[$in_procedure_code] = 0;
-                }
+                $code_seq_array[$in_procedure_code] ??= 0;
 
                 $pcquery = "SELECT pc.* FROM procedure_order_code AS pc " .
                     "WHERE pc.procedure_order_id = ? AND pc.procedure_code = ? " .
@@ -1649,9 +1642,7 @@ class ReceiveHl7Results
         $employer_data = [];
         $tmp = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
         $ptid = empty($tmp['pid']) ? 1 : intval($tmp['pid']);
-        if (!isset($patient_data['pubpid'])) {
-            $patient_data['pubpid'] = $ptid;
-        }
+        $patient_data['pubpid'] ??= $ptid;
 
         updatePatientData($ptid, $patient_data, true);
         updateEmployerData($ptid, $employer_data, true);

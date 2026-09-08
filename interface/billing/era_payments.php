@@ -30,7 +30,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
@@ -111,10 +110,8 @@ if ($confirm_overwrite === 'yes' && $validEraName) {
         unlink($realTempFile);
     }
     $alertmsg .= xl("Upload cancelled.") . ' ';
-}
-//===============================================================================
-  // Handle X12 835 file upload.
-elseif (!empty($_FILES['form_erafile']['size'])) {
+} elseif (!empty($_FILES['form_erafile']['size'])) {
+    // Handle X12 835 file upload.
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;

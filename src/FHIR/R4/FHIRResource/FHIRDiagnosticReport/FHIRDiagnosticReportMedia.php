@@ -182,9 +182,7 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DiagnosticReportMedia xmlns="http://hl7.org/fhir"></DiagnosticReportMedia>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DiagnosticReportMedia xmlns="http://hl7.org/fhir"></DiagnosticReportMedia>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->comment)) {
             $this->comment->xmlSerialize(true, $sxe->addChild('comment'));

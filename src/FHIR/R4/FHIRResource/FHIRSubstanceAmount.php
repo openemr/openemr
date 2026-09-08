@@ -303,9 +303,7 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceAmount xmlns="http://hl7.org/fhir"></SubstanceAmount>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceAmount xmlns="http://hl7.org/fhir"></SubstanceAmount>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->amountQuantity)) {
             $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));

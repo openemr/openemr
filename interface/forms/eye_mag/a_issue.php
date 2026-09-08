@@ -25,6 +25,9 @@ TODO: Code cleanup */
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -35,22 +38,21 @@ $form_folder = "eye_mag";
 require_once('../../globals.php');
 
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = (int) ($_REQUEST['pid'] ?? $session->get('pid', 0));
+// Deep-linked page opened via URL with ?pid=X; use the query bag (typed int,
+// no in-band sentinel). Falls back to the current session pid when the URL
+// omits pid (in-encounter navigation).
+$requestPid = CurrentRequest::get()->query->getInt('pid');
+$pid = $requestPid > 0 ? $requestPid : PatientSessionUtil::getPid();
 $info_msg = "";
 
-// $ISSUE_TYPES and $ISSUE_CLASSIFICATIONS are populated by lists.inc.php
-// (required above) at file scope; declare defaults so PHPStan can verify the
-// reads below.
-$ISSUE_TYPES ??= [];
-$ISSUE_CLASSIFICATIONS ??= [];
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
+$ISSUE_CLASSIFICATIONS = IssueTypeRegistry::issueClassifications();
 
 // A nonempty thisenc means we are to link the issue to the encounter.
 // ie. we are going to use this as a billing issue?
@@ -76,6 +78,15 @@ if (
     ])
 ) {
     AccessDeniedHelper::deny('Adding eye exam issue is not authorized');
+}
+
+// Align session pid with the URL patient so the wrapping chart header and
+// menu render for the same patient the queries below load. Placed after the
+// ACL check above so an unauthorized caller cannot pollute session pid.
+// Fires on bootstrap (empty session) AND on context switch (bookmark for a
+// different patient while another chart is open).
+if ($requestPid > 0 && $requestPid !== PatientSessionUtil::getPid()) {
+    setpid($requestPid);
 }
 
 $PMSFH = build_PMSFH($pid);

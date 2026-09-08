@@ -182,9 +182,7 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<OperationDefinitionReferencedFrom xmlns="http://hl7.org/fhir"></OperationDefinitionReferencedFrom>');
-        }
+        $sxe ??= new \SimpleXMLElement('<OperationDefinitionReferencedFrom xmlns="http://hl7.org/fhir"></OperationDefinitionReferencedFrom>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->source)) {
             $this->source->xmlSerialize(true, $sxe->addChild('source'));

@@ -766,9 +766,12 @@ class Events extends Base
                     $count_clinical_reminders++;
                 }
             } elseif ($event['M_group'] == 'GOGREEN') {
+                // Both are read below the appt_stats block, so they need a value
+                // even when that block does not run.
+                $no_fu = '';
+                $no_interval = 0;
                 if (!empty($event['appt_stats'])) {
                     $prepare_me = '';
-                    $no_fu = '';
                     if ($event['appt_stats'] == "?") {
                         $no_fu = $event['E_fire_time'];
                         $no_interval = "30";
@@ -935,7 +938,7 @@ class Events extends Base
                     if ($no_fu) {
                         $sql_NoFollowUp = "SELECT COUNT(*) AS num FROM openemr_postcalendar_events WHERE
                             pc_pid = ? AND
-                            pc_eventDate > ( ? + INTERVAL " . escape_limit($no_interval) . " DAY)";
+                            pc_eventDate > ( ? + INTERVAL " . (int) $no_interval . " DAY)";
                         $result = sqlQuery($sql_NoFollowUp, [$appt['pc_pid'], $appt['pc_eventDate']]);
                         if ($result['num'] > 0) {
                             continue;
