@@ -158,10 +158,13 @@ final readonly class SchematronValidator
         if (!isset($contextCache[$cacheKey])) {
             if ($context !== null) {
                 $ctxQuery = str_starts_with($context, '/') ? $context : '//' . $context;
-                libxml_use_internal_errors(true);
-                $sel = $xpath->query($ctxQuery);
-                libxml_clear_errors();
-                libxml_use_internal_errors(false);
+                $prevErrorMode = libxml_use_internal_errors(true);
+                try {
+                    $sel = $xpath->query($ctxQuery);
+                    libxml_clear_errors();
+                } finally {
+                    libxml_use_internal_errors($prevErrorMode);
+                }
                 $contextCache[$cacheKey] = self::toNodeList($sel);
             } else {
                 $contextCache[$cacheKey] = [$doc];
@@ -215,11 +218,14 @@ final readonly class SchematronValidator
         $results = [];
         foreach ($selected as $node) {
             try {
-                libxml_use_internal_errors(true);
-                $result = $xpath->evaluate('boolean(' . $test . ')', $node);
-                $lastError = libxml_get_last_error();
-                libxml_clear_errors();
-                libxml_use_internal_errors(false);
+                $prevErrorMode = libxml_use_internal_errors(true);
+                try {
+                    $result = $xpath->evaluate('boolean(' . $test . ')', $node);
+                    $lastError = libxml_get_last_error();
+                    libxml_clear_errors();
+                } finally {
+                    libxml_use_internal_errors($prevErrorMode);
+                }
                 if ($result === false && $lastError !== false) {
                     return ['ignored' => true, 'errorMessage' => 'xpath evaluation failed'];
                 }
