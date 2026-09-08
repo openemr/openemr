@@ -63,6 +63,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertEquals('I10.', $coding->getCode());
         $this->assertEquals(FhirCodeSystemConstants::HL7_ICD10, $coding->getSystem());
         $this->assertEquals('Essential (primary) hypertension', $coding->getDisplay());
+        $this->assertEquals('Essential (primary) hypertension', $fhirResource->getCode()->getText());
     }
 
     public function testParseOpenEMRRecord(): void
