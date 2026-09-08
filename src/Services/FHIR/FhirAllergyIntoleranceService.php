@@ -5,6 +5,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -167,13 +168,17 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         // cardinality is 0..*
         // however in OpenEMR we currently only track a single reaction, we will populate it if we have it.
         // if a reaction is unassigned, it has no codes and so we will skip over this as it has no meaning in FHIR.
-        if (!empty($dataRecord['reaction']) && $dataRecord['reaction'] !== 'unassigned') {
+        // AllergyIntoleranceService only expands `reaction` into a coding array when the row
+        // carries reaction_codes; without them it stays the raw list_options string, which
+        // has no FHIR meaning and must not be iterated.
+        $reactionCodings = $dataRecord['reaction'] ?? null;
+        if (is_array($reactionCodings) && $reactionCodings !== []) {
             $reaction = new FHIRAllergyIntoleranceReaction();
             $reactionConcept = new FHIRCodeableConcept();
             $conceptText = $dataRecord['reaction_title'] ?? "";
             $reactionConcept->setText($conceptText);
 
-            foreach ($dataRecord['reaction'] as $code => $codeValues) {
+            foreach ($reactionCodings as $code => $codeValues) {
                 $reactionCoding = new FHIRCoding();
                 // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
                 // strings
@@ -181,7 +186,9 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                     $code = "$code";
                 }
 
-                $reactionCoding->setCode($code);
+                // setCode() is declared as taking a FHIRCode; FHIRCode::jsonSerialize() returns
+                // the raw value, so the emitted resource is unchanged.
+                $reactionCoding->setCode(new FHIRCode($code));
                 $display = !empty($display) ? $codeValues['description'] : $dataRecord['reaction_title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $reactionCoding->setDisplay(trim((string) $display));

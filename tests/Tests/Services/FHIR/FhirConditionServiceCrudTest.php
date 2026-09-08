@@ -12,6 +12,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -140,21 +141,36 @@ class FhirConditionServiceCrudTest extends TestCase
     }
 
     /**
-     * FHIR R4 dateTime permits partial values (YYYY, YYYY-MM). Those cannot be
-     * represented faithfully as a calendar date, so the parser drops the field
-     * rather than silently truncating to a wrong day.
+     * FHIR R4 dateTime permits partial values (YYYY, YYYY-MM). lists.begdate is a DATE
+     * column, so a year-only onset cannot be stored faithfully. FhirDateTimeParser
+     * throws rather than dropping the element: parseFhirResource() runs inside the
+     * try/catch in FhirGenericRestController, so the caller gets a 400 OperationOutcome
+     * instead of a silently discarded onset date.
      */
     #[Test]
-    public function testParseRejectsPartialOnsetDateTime(): void
+    #[DataProvider('partialOnsetDateTimeProvider')]
+    public function testParseRejectsPartialOnsetDateTime(string $onsetDateTime): void
     {
         $fixture = $this->fhirConditionFixture->jsonSerialize();
-        $fixture['onsetDateTime'] = '2020';
-        $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
-        $this->assertArrayNotHasKey('begdate', $parsed);
+        $fixture['onsetDateTime'] = $onsetDateTime;
 
-        $fixture['onsetDateTime'] = '2020-03';
-        $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
-        $this->assertArrayNotHasKey('begdate', $parsed);
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/partial-precision/');
+
+        $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function partialOnsetDateTimeProvider(): array
+    {
+        return [
+            'year only' => ['2020'],
+            'year and month' => ['2020-03'],
+        ];
     }
 
     /**

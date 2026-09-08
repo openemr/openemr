@@ -1002,16 +1002,19 @@ class ProcedureService extends BaseService
                 }
             });
 
-            $result->addData([
-                'procedure_order_id' => $orderId,
-                'uuid' => $uuid,
-            ]);
         } catch (\RuntimeException | SqlQueryException $e) {
             $this->getLogger()->error('ServiceRequest updateOrder failed', ['uuid' => $uuid, 'error' => $e->getMessage()]);
             $result->addInternalError($e->getMessage());
+            return $result;
         }
 
-        return $result;
+        // Read the order back through the search path rather than returning the ids the
+        // transaction produced. FhirServiceBase::update() feeds this result straight into
+        // parseOpenEMRRecord(), which reads order_uuid (and the joined patient, encounter
+        // and code rows) -- none of which a hand-built ['uuid' => ...] row carries.
+        return $this->search([
+            'order_uuid' => new TokenSearchField('order_uuid', $uuid, true),
+        ]);
     }
 
     public function getOne($uuid, $puuidBind = null): ProcessingResult

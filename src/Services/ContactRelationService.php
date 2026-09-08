@@ -624,6 +624,7 @@ class ContactRelationService extends BaseService
             ,ct.telecom_period_start
             ,ct.telecom_period_end
             ,ct.telecom_system
+            ,ca.address_id
             ,addr.address_line1
             ,addr.address_line2
             ,addr.address_city
@@ -1419,7 +1420,7 @@ class ContactRelationService extends BaseService
             'use' => $record['telecom_use'],
             'system' => $record['telecom_system'],
             'value' => $record['telecom_value'],
-            'status' => $record['telecom_active']
+            'status' => $record['telecom_status']
         ];
     }
 
@@ -1431,8 +1432,8 @@ class ContactRelationService extends BaseService
             'line2' => $record['address_line2'],
             'city' => $record['address_city'],
             'state' => $record['address_state'],
-            'postal_code' => $record['address_postalcode'],
-            'postal_code_plus_four' => $record['address_postalcode_plus_four'],
+            'postal_code' => $record['address_postal_code'],
+            'postal_code_plus_four' => $record['address_postal_code_plus_four'],
             'country' => $record['address_country'],
             'priority' => $record['address_priority'],
             'type' => $record['address_type'],

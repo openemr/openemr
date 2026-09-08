@@ -284,8 +284,9 @@ class DrugService extends BaseService
             $updatedCodes = [];
             foreach ($codes as $code => $codeValues) {
                 if (empty($codeValues['description'])) {
-                    // use the drug name if for some reason we have no rxnorm description from the lookup
-                    $codeValues['description'] = $row['drug'];
+                    // use the drug name if for some reason we have no rxnorm description from the
+                    // lookup. The search query selects drug_table.name -- there is no `drug` column.
+                    $codeValues['description'] = $row['name'] ?? '';
                 }
                 $updatedCodes[$code] = $codeValues;
             }

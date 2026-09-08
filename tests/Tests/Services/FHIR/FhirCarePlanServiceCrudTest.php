@@ -157,8 +157,9 @@ class FhirCarePlanServiceCrudTest extends TestCase
 
         $surrogateUuid = $this->firstDataRow($insertResult)['uuid'];
         $this->assertIsString($surrogateUuid);
+        // CarePlanService::create() derives form_id in PHP (MAX(id) + 1), so it is an int.
         $formId = $this->firstDataRow($insertResult)['form_id'];
-        $this->assertIsString($formId);
+        $this->assertIsInt($formId);
 
         // Update with a single activity (was 2)
         $payload = $this->fhirCarePlanFixture->jsonSerialize();

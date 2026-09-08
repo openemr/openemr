@@ -114,8 +114,9 @@ class FhirServiceRequestServiceCrudTest extends TestCase
         );
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
         $this->assertIsString($fhirId);
+        // ProcedureService::createOrder() casts the new id to int before returning it.
         $orderId = $this->firstDataRow($insertResult)['procedure_order_id'];
-        $this->assertIsString($orderId);
+        $this->assertIsInt($orderId);
 
         // Update with TWO codings instead of one
         $payload = $this->fhirServiceRequestFixture->jsonSerialize();
@@ -174,7 +175,7 @@ class FhirServiceRequestServiceCrudTest extends TestCase
             'Insert should succeed: ' . json_encode($result->getValidationMessages())
         );
         $procedureOrderId = $this->firstDataRow($result)['procedure_order_id'];
-        $this->assertIsString($procedureOrderId);
+        $this->assertIsInt($procedureOrderId);
 
         $intent = QueryUtils::fetchSingleValue(
             "SELECT order_intent FROM procedure_order WHERE procedure_order_id = ?",

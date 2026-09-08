@@ -33,6 +33,7 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
@@ -477,11 +478,18 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             'uuid',
             [$teamId ?? $pid]
         );
-        $result->addData([
-            'uuid' => is_string($uuid) ? UuidRegistry::uuidToString($uuid) : null,
-            'pid' => $pid,
-        ]);
-        return $result;
+        if (!is_string($uuid)) {
+            $result->addInternalError('CareTeam row could not be located after save');
+            return $result;
+        }
+
+        // Read the team back through the search path. FhirServiceBase::update() feeds this
+        // result into parseOpenEMRRecord(), which reads care_team_status and puuid unguarded
+        // -- neither of which a hand-built ['uuid', 'pid'] row carries.
+        return $this->careTeamService->getAll(
+            ['uuid' => new TokenSearchField('uuid', UuidRegistry::uuidToString($uuid), true)],
+            true
+        );
     }
 
     /**
