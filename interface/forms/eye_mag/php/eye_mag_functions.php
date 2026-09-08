@@ -3879,16 +3879,13 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
     $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
       "unpackaged, date FROM registry WHERE " .
       "state LIKE ? ORDER BY category, priority, name";
+    $sqlBindArray = [$state];
     if ($limit != "unlimited") {
         $sql .= " LIMIT ? OFFSET ?";
-        $res = sqlStatement($sql, [
-            $state,
-            is_numeric($limit) ? (int) $limit : 0,
-            is_numeric($offset) ? (int) $offset : 0,
-        ]);
-    } else {
-        $res = sqlStatement($sql, [$state]);
+        array_push($sqlBindArray, is_numeric($limit) ? (int) $limit : 0, is_numeric($offset) ? (int) $offset : 0);
     }
+
+    $res = sqlStatement($sql, $sqlBindArray);
     if ($res) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
