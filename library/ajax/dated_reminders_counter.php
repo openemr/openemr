@@ -42,11 +42,11 @@ if (!empty($_POST['isServicesOther'])) {
     $total_counts = array_merge($total_counts, $other_count);
 }
 //Collect number of due reminders
-$dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
+$dueReminders = GetDueReminderCount(5, (new DateTimeImmutable('today'))->getTimestamp());
 //Collect number of active messages
 $activeMessages = getPnotesByUser("1", "no", $session->get('authUser'), true);
 // Below for Message Button count display.
 $totalNumber = $dueReminders + $activeMessages;
-$total_counts['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
+$total_counts['reminderText'] = ($totalNumber > 0 ? text((string)$totalNumber) : '');
 
 echo json_encode($total_counts);
