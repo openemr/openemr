@@ -12367,6 +12367,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function getDisclosureByDate\\(\\) has parameter \\$limit with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/disc_fragment.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getDisclosureByDate\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/disc_fragment.php',
@@ -21278,26 +21283,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function GetAllReminderCount\\(\\) has parameter \\$userID with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function GetDueReminderCount\\(\\) has parameter \\$today with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function GetDueReminderCount\\(\\) has parameter \\$userID with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function RemindersArray\\(\\) has parameter \\$today with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function RemindersArray\\(\\) has parameter \\$userID with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];

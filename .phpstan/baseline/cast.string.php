@@ -1199,11 +1199,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
 ];
 $ignoreErrors[] = [

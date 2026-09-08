@@ -13288,22 +13288,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, mixed given\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, int\\<1, 30\\> given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
 ];
 $ignoreErrors[] = [
@@ -19450,11 +19440,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$code of function return_code_information expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/dated_reminders_counter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$user of function getPnotesByUser expects string, mixed given\\.$#',

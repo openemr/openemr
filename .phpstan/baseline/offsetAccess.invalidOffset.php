@@ -429,11 +429,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/select_codes.php',
 ];
 $ignoreErrors[] = [

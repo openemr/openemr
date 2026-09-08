@@ -5502,11 +5502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'%%\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between 0 and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
@@ -8115,11 +8110,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between 0 and mixed results in an error\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and int results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/dated_reminders_counter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'%%\' and mixed results in an error\\.$#',
