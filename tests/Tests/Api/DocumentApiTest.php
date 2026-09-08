@@ -40,6 +40,7 @@ class DocumentApiTest extends TestCase
     private ApiTestClient $testClient;
     private FixtureManager $fixtureManager;
     private int $pid;
+    private int $documentIdBoundary = 0;
 
     protected function setUp(): void
     {
@@ -296,35 +297,110 @@ class DocumentApiTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * Pre-existing bug: `GET /api/patient/:pid/document/:did` is unusable over the REST API.
-     *
-     * DocumentService::getFile() constructs C_Document, whose constructor calls
-     * CsrfUtils::collectCsrfToken() against the active session. OAuth2AuthorizationListener only
-     * seeds `csrf_private_key` for `/oauth2/...` requests (its shouldProcessRequest() matches on a
-     * `/oauth2` base path), and AuthorizationController strips the key from the API session, so a
-     * bearer token request to `/apis/...` has no key. The constructor therefore throws and the
-     * request fails with a 500 before the document is ever read.
-     *
-     * This is not reachable through the UI download path (controller.php), which runs under a
-     * fully bootstrapped browser session. Once the API session carries a CSRF key, this endpoint
-     * serves the file correctly, so when that is fixed this test should assert a 200 with the
-     * uploaded bytes and a `Content-Disposition` attachment header carrying the stored filename.
-     */
     #[Test]
-    public function testDownloadFileFailsBecauseTheApiSessionHasNoCsrfKey(): void
+    public function testDownloadFile(): void
     {
         $this->assertEquals(200, $this->postDocument()->getStatusCode());
         $documentId = $this->getUploadedDocumentId();
 
         $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
 
-        $this->assertEquals(500, $response->getStatusCode());
-        $this->assertNotEquals(
-            self::FILE_CONTENTS,
-            (string)$response->getBody(),
-            "The endpoint fails before it reads the document"
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(self::FILE_CONTENTS, (string)$response->getBody());
+        $contentType = explode(';', $response->getHeaderLine('Content-Type'), 2)[0];
+        $this->assertSame('text/plain', strtolower(trim($contentType)));
+        $this->assertSame(
+            self::FILE_NAME,
+            $this->contentDispositionParameter($response, 'filename')
         );
+        $this->assertStringContainsString('private', strtolower($response->getHeaderLine('Cache-Control')));
+        $this->assertStringContainsString('no-store', strtolower($response->getHeaderLine('Cache-Control')));
+    }
+
+    #[Test]
+    public function testDownloadFileUsesSafeAttachmentFilename(): void
+    {
+        $this->assertEquals(200, $this->postDocument()->getStatusCode());
+        $documentId = $this->getUploadedDocumentId();
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `documents` SET `name` = ? WHERE `id` = ?",
+            ["..\\unsafe/\r\ndocument-api-test.txt", $documentId]
+        );
+
+        $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(
+            self::FILE_NAME,
+            $this->contentDispositionParameter($response, 'filename')
+        );
+    }
+
+    #[Test]
+    public function testDownloadFileSupportsUnicodeStoredFilename(): void
+    {
+        $this->assertEquals(200, $this->postDocument()->getStatusCode());
+        $documentId = $this->getUploadedDocumentId();
+        $filename = 'résumé-文書.txt';
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `documents` SET `name` = ? WHERE `id` = ?",
+            [$filename, $documentId]
+        );
+
+        $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $encodedFilename = $this->contentDispositionParameter($response, 'filename*');
+        $this->assertSame($filename, rawurldecode($encodedFilename));
+        $fallback = $this->contentDispositionParameter($response, 'filename');
+        $this->assertMatchesRegularExpression('/^[\x20-\x7E]+$/D', $fallback);
+        $this->assertStringEndsWith('.txt', $fallback);
+    }
+
+    #[Test]
+    public function testDownloadFileWithDeletedDocumentId(): void
+    {
+        $this->assertEquals(200, $this->postDocument()->getStatusCode());
+        $documentId = $this->getUploadedDocumentId();
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `documents` SET `deleted` = 1 WHERE `id` = ?",
+            [$documentId]
+        );
+
+        $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertNotEquals(self::FILE_CONTENTS, (string)$response->getBody());
+    }
+
+    #[Test]
+    public function testDownloadFileWithNonexistentDocumentId(): void
+    {
+        $document = $this->fetchRow("SELECT MAX(`id`) AS `max_id` FROM `documents`", []);
+        $maxDocumentId = $document['max_id'] ?? null;
+        $documentId = (is_numeric($maxDocumentId) ? (int)$maxDocumentId : 0) + 1;
+
+        $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function testDownloadFileFallsBackForInvalidMimeTypes(): void
+    {
+        foreach ([null, "text/plain\r\nX-Injected: true"] as $mimetype) {
+            $this->assertEquals(200, $this->postDocument()->getStatusCode());
+            $documentId = $this->getUploadedDocumentId();
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `documents` SET `mimetype` = ? WHERE `id` = ?",
+                [$mimetype, $documentId]
+            );
+
+            $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
+
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertSame('application/octet-stream', $response->getHeaderLine('Content-Type'));
+        }
     }
 
     #[Test]
@@ -380,6 +456,10 @@ class DocumentApiTest extends TestCase
      */
     private function postDocument(?array $query = null): ResponseInterface
     {
+        $document = $this->fetchRow("SELECT MAX(`id`) AS `max_id` FROM `documents`", []);
+        $maxDocumentId = $document['max_id'] ?? null;
+        $this->documentIdBoundary = is_numeric($maxDocumentId) ? (int)$maxDocumentId : 0;
+
         return $this->testClient->postMultipart(
             $this->documentEndpoint(),
             [
@@ -396,12 +476,32 @@ class DocumentApiTest extends TestCase
 
     private function getUploadedDocumentId(): int
     {
-        $document = $this->fetchRow("SELECT `id` FROM `documents` WHERE `foreign_id` = ?", [$this->pid]);
+        $document = $this->fetchRow(
+            "SELECT `id` FROM `documents`
+             WHERE `foreign_id` = ? AND `name` = ? AND `id` > ?
+             ORDER BY `id` ASC LIMIT 1",
+            [$this->pid, self::FILE_NAME, $this->documentIdBoundary]
+        );
         if ($document === null) {
             self::fail("Expected an uploaded document for the fixture patient");
         }
 
         return $this->intColumn($document, 'id');
+    }
+
+    private function contentDispositionParameter(ResponseInterface $response, string $name): string
+    {
+        $header = $response->getHeaderLine('Content-Disposition');
+        $pattern = '/(?:^|;\s*)' . preg_quote($name, '/') . '=(?:"((?:[^"\\\\]|\\\\.)*)"|([^;]*))/i';
+        if (preg_match($pattern, $header, $matches) !== 1) {
+            self::fail("Expected Content-Disposition parameter $name in: $header");
+        }
+        $value = $matches[1] !== '' ? stripcslashes($matches[1]) : trim($matches[2]);
+        if (strtolower($name) === 'filename*') {
+            $value = preg_replace("/^utf-8''/i", '', $value) ?? $value;
+        }
+
+        return $value;
     }
 
     private function createEncounter(): int
