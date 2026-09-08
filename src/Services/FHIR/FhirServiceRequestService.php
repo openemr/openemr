@@ -939,12 +939,14 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 'procedure_order_title' => is_string($display) ? $display : '',
             ];
         }
-        if ($codes === [] && $codeText !== null) {
-            $codes[] = [
-                'procedure_code' => $codeText,
-                'procedure_name' => $codeText,
-                'procedure_order_title' => $codeText,
-            ];
+        // No usable coding: procedure_order_code.procedure_code is varchar(64) NOT NULL and
+        // ProcedureService requires it non-empty, so code.text cannot stand in for a code --
+        // a long display string would be truncated on the way to the column. Surface the
+        // gap instead; insertOpenEMRRecord/updateOpenEMRRecord turn it into a 422.
+        if ($codes === []) {
+            $data['__validation_error__'] = $codeText !== null
+                ? 'ServiceRequest.code requires a coding with a code; code.text alone cannot be stored'
+                : 'ServiceRequest.code is required and must carry a coding with a code';
         }
 
         // reasonCode[0].coding -> diagnoses on the first procedure code row (string form)
@@ -969,6 +971,13 @@ class FhirServiceRequestService extends FhirServiceBase implements
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR ServiceRequest record array');
+        }
+
+        $validationError = $openEmrRecord['__validation_error__'] ?? null;
+        if (is_string($validationError)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['code' => $validationError]);
+            return $result;
         }
 
         $puuid = $openEmrRecord['puuid'] ?? null;
@@ -1028,29 +1037,46 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
+        $validationError = $updatedOpenEMRRecord['__validation_error__'] ?? null;
+        if (is_string($validationError)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['code' => $validationError]);
+            return $result;
+        }
+
         $header = FhirPayloadReader::stringKeyed($updatedOpenEMRRecord['header'] ?? null);
         // PUT cannot rebind patient/encounter/requester; drop those resolved ids.
         unset($header['patient_id']);
 
         $codes = FhirPayloadReader::rows($updatedOpenEMRRecord['codes'] ?? null);
 
-        // Defense-in-depth: resolve the body's subject to a pid and require it
-        // to match the stored procedure_order.patient_id. Prevents an attacker
-        // from mutating another patient's order via a leaked uuid.
-        $expectedPatientId = null;
+        // Resolve the body's subject to a pid and require it to match the stored
+        // procedure_order.patient_id, so a leaked order uuid cannot be used to mutate
+        // another patient's order. The subject is required rather than optional: leaving
+        // it out would resolve to no expected pid and skip the check entirely, which is
+        // the same as not having it. ServiceRequest.subject is 1..1 in R4 regardless.
         $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
-        if (is_string($puuid) && $puuid !== '') {
-            $pid = QueryUtils::fetchSingleValue(
-                'SELECT pid FROM patient_data WHERE uuid = ?',
-                'pid',
-                [UuidRegistry::uuidToBytes($puuid)]
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(
+                ['subject' => 'FHIR ServiceRequest requires a Patient reference']
             );
-            if (is_numeric($pid)) {
-                $expectedPatientId = (int) $pid;
-            }
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(
+                ['subject' => 'Patient reference could not be resolved: ' . $puuid]
+            );
+            return $result;
         }
 
-        return $this->procedureService->updateOrder($fhirResourceId, $header, $codes, $expectedPatientId);
+        return $this->procedureService->updateOrder($fhirResourceId, $header, $codes, (int) $pid);
     }
 
     /**

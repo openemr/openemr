@@ -576,6 +576,10 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             'completed' => 'completed',
             'on-hold' => 'on-hold',
             'cancelled' => 'revoked',
+            // parseFhirResource() stores CarePlan.status verbatim, so a client that sent
+            // the R4 value 'revoked' must read back as 'revoked' rather than 'unknown'.
+            // 'cancelled' stays mapped for rows written before the write path existed.
+            'revoked' => 'revoked',
             'entered-in-error' => 'entered-in-error',
             'draft' => 'draft',
             'unknown' => 'unknown'

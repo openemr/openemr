@@ -221,13 +221,19 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
 
         // Remaining standard_elements: companyName, manufacturingDate, expirationDate,
         // lotNumber, serialNumber, donationId
+        // Both are FHIR dateTime. The read side re-emits whatever is stored, so validate
+        // here rather than letting a malformed value round-trip into the resource.
+        // toDateTimeImmutable() is used instead of toDbDate() so a legal value keeps any
+        // time component it carried; partial precision stays acceptable for a device.
         $manufactureDate = $json['manufactureDate'] ?? null;
-        if (is_string($manufactureDate) && $manufactureDate !== '') {
-            $standardElements['manufacturingDate'] = $manufactureDate;
+        if (is_string($manufactureDate) && trim($manufactureDate) !== '') {
+            FhirDateTimeParser::toDateTimeImmutable($manufactureDate, 'Device.manufactureDate', true);
+            $standardElements['manufacturingDate'] = trim($manufactureDate);
         }
         $expirationDate = $json['expirationDate'] ?? null;
-        if (is_string($expirationDate) && $expirationDate !== '') {
-            $standardElements['expirationDate'] = $expirationDate;
+        if (is_string($expirationDate) && trim($expirationDate) !== '') {
+            FhirDateTimeParser::toDateTimeImmutable($expirationDate, 'Device.expirationDate', true);
+            $standardElements['expirationDate'] = trim($expirationDate);
         }
         $lotNumber = $json['lotNumber'] ?? null;
         if (is_string($lotNumber) && $lotNumber !== '') {

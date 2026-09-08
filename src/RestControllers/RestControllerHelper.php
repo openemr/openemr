@@ -199,18 +199,24 @@ class RestControllerHelper
      * too large, not valid JSON, or cannot be read. This prevents malformed JSON
      * from silently becoming an empty array.
      *
+     * @param HttpRestRequest $request The request whose headers carry the declared body size
      * @param bool $isFhir If true, returns a FHIR OperationOutcome on error
      * @param int $maxBytes Maximum allowed body size in bytes
-     * @return array<mixed, mixed>|Response The parsed JSON array or an error response
-     */
-    /**
      * @return array<string, mixed>|Response The decoded JSON object, or an error Response
      */
-    public static function parseJsonRequestBody(bool $isFhir = false, int $maxBytes = self::MAX_REQUEST_BODY_SIZE): array|Response
-    {
-        // Check Content-Length header first for early rejection
-        $contentLengthHeader = filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT);
-        if ($contentLengthHeader !== null && $contentLengthHeader !== false && $contentLengthHeader > $maxBytes) {
+    public static function parseJsonRequestBody(
+        HttpRestRequest $request,
+        bool $isFhir = false,
+        int $maxBytes = self::MAX_REQUEST_BODY_SIZE
+    ): array|Response {
+        // Check the declared Content-Length first for early rejection. The header is
+        // client-supplied and may be absent or a lie, so the real size is checked again
+        // after the read below.
+        $contentLengthHeader = $request->headers->get('Content-Length');
+        $declaredLength = is_string($contentLengthHeader) && ctype_digit($contentLengthHeader)
+            ? (int) $contentLengthHeader
+            : null;
+        if ($declaredLength !== null && $declaredLength > $maxBytes) {
             $message = 'Request body too large';
             if ($isFhir) {
                 return self::responseHandler(

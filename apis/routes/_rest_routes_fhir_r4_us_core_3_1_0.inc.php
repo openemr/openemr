@@ -139,7 +139,7 @@ return [
      */
     "POST /fhir/AllergyIntolerance" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -187,7 +187,7 @@ return [
      */
     "PUT /fhir/AllergyIntolerance/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -226,7 +226,7 @@ return [
      */
     "POST /fhir/Appointment" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "appt");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -383,7 +383,7 @@ return [
      */
     "POST /fhir/CarePlan" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -431,7 +431,7 @@ return [
      */
     "PUT /fhir/CarePlan/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -484,7 +484,7 @@ return [
      */
     "POST /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -512,7 +512,7 @@ return [
      */
     "PUT /fhir/CareTeam/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -562,7 +562,7 @@ return [
      */
     "POST /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -610,7 +610,7 @@ return [
      */
     "PUT /fhir/Condition/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -752,7 +752,7 @@ return [
      */
     "POST /fhir/Coverage" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -800,7 +800,7 @@ return [
      */
     "PUT /fhir/Coverage/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -853,7 +853,7 @@ return [
      */
     "POST /fhir/Device" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -884,7 +884,7 @@ return [
      */
     "PUT /fhir/Device/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1023,7 +1023,7 @@ return [
      */
     "POST /fhir/Encounter" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1071,7 +1071,7 @@ return [
      */
     "PUT /fhir/Encounter/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1193,7 +1193,7 @@ return [
      */
     "POST /fhir/Goal" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1221,7 +1221,7 @@ return [
      */
     "PUT /fhir/Goal/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1336,7 +1336,7 @@ return [
      */
     "POST /fhir/Immunization" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1384,7 +1384,7 @@ return [
      */
     "PUT /fhir/Immunization/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1489,7 +1489,7 @@ return [
         // add/edit on `admin/drugs`, so the FHIR write surface must require the
         // same privilege, not the broader `patients/med` clinical-staff ACL.
         RestConfig::request_authorization_check($request, "admin", "drugs");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1538,7 +1538,7 @@ return [
     "PUT /fhir/Medication/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         // See POST /fhir/Medication — master drug edits require admin/drugs.
         RestConfig::request_authorization_check($request, "admin", "drugs");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1624,7 +1624,7 @@ return [
      */
     "POST /fhir/MedicationRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1672,7 +1672,7 @@ return [
      */
     "PUT /fhir/MedicationRequest/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1737,7 +1737,7 @@ return [
     },
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1747,7 +1747,7 @@ return [
     },
     "PUT /fhir/Organization/:uuid" => function (string $uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1757,7 +1757,7 @@ return [
     },
     "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1769,7 +1769,7 @@ return [
     },
     "PUT /fhir/Patient/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1881,7 +1881,7 @@ return [
      */
     "POST /fhir/Person" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1929,7 +1929,7 @@ return [
      */
     "PUT /fhir/Person/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1968,7 +1968,7 @@ return [
     },
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -1978,7 +1978,7 @@ return [
     },
     "PUT /fhir/Practitioner/:uuid" => function (string $uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -2016,7 +2016,7 @@ return [
      */
     "POST /fhir/PractitionerRole" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -2044,7 +2044,7 @@ return [
      */
     "PUT /fhir/PractitionerRole/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -2093,7 +2093,7 @@ return [
      */
     "POST /fhir/RelatedPerson" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -2121,7 +2121,7 @@ return [
      */
     "PUT /fhir/RelatedPerson/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -2171,7 +2171,7 @@ return [
      */
     "POST /fhir/ServiceRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
@@ -2199,7 +2199,7 @@ return [
      */
     "PUT /fhir/ServiceRequest/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $data = RestControllerHelper::parseJsonRequestBody(true);
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
