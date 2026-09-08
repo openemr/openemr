@@ -68,16 +68,33 @@ class RegenSchematronVocabCommand extends Command
         $sourceRoot = rtrim($sourceRootArg, '/');
         $outputRoot = dirname(__DIR__, 2) . '/Services/Cda/Schematron/schemas';
 
+        // Preflight: fail before writing anything if any expected input is missing,
+        // so the shipped set stays internally consistent.
+        $missingSources = [];
+        foreach (self::TARGETS as $type => $schFile) {
+            $schPath = "$sourceRoot/schematron/$type/$schFile";
+            $vocPath = "$sourceRoot/schematron/$type/voc.xml";
+            if (!is_file($schPath)) {
+                $missingSources[] = $schPath;
+            }
+            if (!is_file($vocPath)) {
+                $missingSources[] = $vocPath;
+            }
+        }
+        if ($missingSources !== []) {
+            $io->error(array_merge(
+                ['Missing required source files under ' . $sourceRoot . ':'],
+                $missingSources,
+            ));
+            return Command::FAILURE;
+        }
+
         $extractor = new VocabularyExtractor();
-        $anyMissing = false;
+        $anyMissingOid = false;
 
         foreach (self::TARGETS as $type => $schFile) {
             $schPath = "$sourceRoot/schematron/$type/$schFile";
             $vocPath = "$sourceRoot/schematron/$type/voc.xml";
-            if (!is_file($schPath) || !is_file($vocPath)) {
-                $io->warning("$type: missing $schPath or $vocPath - skipping");
-                continue;
-            }
 
             $sch = file_get_contents($schPath);
             $voc = file_get_contents($vocPath);
@@ -91,11 +108,26 @@ class RegenSchematronVocabCommand extends Command
                 $io->error("$type: failed to create output directory $outSchDir");
                 return Command::FAILURE;
             }
-            file_put_contents("$outSchDir/$schFile", $sch);
-            file_put_contents(
-                "$outSchDir/vocab.php",
-                $extractor->renderPhpFile($result['resolved'], $schFile, 'voc.xml'),
-            );
+
+            // Write both outputs to temp files first, then swap into place, so a
+            // failed second write cannot leave the shipped .sch and vocab.php out of sync.
+            $schDest = "$outSchDir/$schFile";
+            $vocabDest = "$outSchDir/vocab.php";
+            $schTmp = $schDest . '.tmp';
+            $vocabTmp = $vocabDest . '.tmp';
+            $vocabBody = $extractor->renderPhpFile($result['resolved'], $schFile, 'voc.xml');
+
+            if (
+                file_put_contents($schTmp, $sch) !== strlen($sch)
+                || file_put_contents($vocabTmp, $vocabBody) !== strlen($vocabBody)
+                || !rename($schTmp, $schDest)
+                || !rename($vocabTmp, $vocabDest)
+            ) {
+                @unlink($schTmp);
+                @unlink($vocabTmp);
+                $io->error("$type: failed to write output files atomically");
+                return Command::FAILURE;
+            }
 
             $io->text(sprintf(
                 '[%s] %d OIDs (%d resolved, %d missing), wrote %s + vocab.php',
@@ -106,14 +138,14 @@ class RegenSchematronVocabCommand extends Command
                 $schFile,
             ));
             if ($result['missing'] !== []) {
-                $anyMissing = true;
+                $anyMissingOid = true;
                 foreach ($result['missing'] as $oid) {
                     $io->text("    missing OID: $oid");
                 }
             }
         }
 
-        if ($anyMissing) {
+        if ($anyMissingOid) {
             $io->note('Some OIDs were referenced by .sch but not found in the corresponding voc.xml. This is expected when an OID lives in a different schema type\'s voc.xml.');
         }
 
