@@ -3,6 +3,7 @@
 //these are the functions used to access the forms registry database
 //
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
@@ -63,16 +64,7 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encou
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0));
     }
 
-    $res = sqlStatement($sql, $sqlBindArray);
-    if ($res) {
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-    } else {
-        return false;
-    }
-
-    return $all;
+    return QueryUtils::fetchRecords($sql, $sqlBindArray);
 }
 
 function getRegistryEntry($id, $cols = "*")

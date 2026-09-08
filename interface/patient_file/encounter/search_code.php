@@ -16,6 +16,8 @@ $pid = $session->get('pid', 0);
 require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -87,68 +89,78 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     " LIMIT ?" .
     "";
 
-    if ($res = sqlStatement($sql, [$pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id'], $M + 1])) {
-        $result = [];
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $result[$iter] = $row;
-        }
+    $searchText = CurrentRequest::get()->request->getString('text');
+    $codeTypeKey = is_string($code_type) ? $code_type : '';
+    $result = QueryUtils::fetchRecords($sql, [
+        $pid,
+        '%' . $searchText . '%',
+        '%' . $searchText . '%',
+        $code_types[$codeTypeKey]['id'] ?? null,
+        $M + 1,
+    ]);
 
-        echo "<div id='resultsummary bg-success'>";
-        if (count($result) > $M) {
-            echo "Showing the first " . text($M) . " results";
-        } elseif (count($result) == 0) {
-            echo "No results found";
-        } else {
-            echo "Showing all " . text(count($result)) . " results";
-        }
+    echo "<div id='resultsummary bg-success'>";
+    if (count($result) > $M) {
+        echo "Showing the first " . text((string) $M) . " results";
+    } elseif (count($result) == 0) {
+        echo "No results found";
+    } else {
+        echo "Showing all " . text((string) count($result)) . " results";
+    }
 
-        echo "</div>";
-        ?>
+    echo "</div>";
+    ?>
 <div id="results">
 <table>
   <tr class='text'>
     <td class='align-top'>
-        <?php
-        $count = 0;
-        $total = 0;
+    <?php
+    $count = 0;
+    $total = 0;
 
-        if ($result) {
-            foreach ($result as $iter) {
-                if ($count == $N) {
-                    echo "</td><td class='align-top'>\n";
-                    $count = 0;
-                }
+    if ($result) {
+        foreach ($result as $iter) {
+            if ($count == $N) {
+                echo "</td><td class='align-top'>\n";
+                $count = 0;
+            }
 
-                echo "<div class='oneresult' style='padding: 3px 0 3px 0;'>";
-                echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
-                    "&type="     . attr_url($code_type) .
-                    "&code="     . attr_url($iter["code"]) .
-                    "&modifier=" . attr_url($iter["modifier"]) .
-                    "&units="    . attr_url($iter["units"]) .
-                    // "&fee="      . attr_url($iter["fee"]) .
-                    "&fee="      . attr_url($iter['pr_price']) .
-                    "&text="     . attr_url($iter["code_text"]) .
-                    "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
-                    "' onclick='top.restoreSession()'>";
-                echo ucwords("<b>" . text(strtoupper((string) $iter["code"])) . "&nbsp;" . text($iter['modifier']) .
-                    "</b>" . " " . text(strtolower((string) $iter["code_text"])));
-                echo "</a><br />\n";
-                echo "</div>";
+            // Row values arrive from the database as mixed; narrow each one
+            // before it reaches an escaper.
+            $code = is_scalar($iter['code']) ? (string) $iter['code'] : '';
+            $modifier = is_scalar($iter['modifier']) ? (string) $iter['modifier'] : '';
+            $units = is_scalar($iter['units']) ? (string) $iter['units'] : '';
+            $price = is_scalar($iter['pr_price']) ? (string) $iter['pr_price'] : '';
+            $codeText = is_scalar($iter['code_text']) ? (string) $iter['code_text'] : '';
 
-                $count++;
-                $total++;
+            echo "<div class='oneresult' style='padding: 3px 0 3px 0;'>";
+            echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
+                "&type="     . attr_url($codeTypeKey) .
+                "&code="     . attr_url($code) .
+                "&modifier=" . attr_url($modifier) .
+                "&units="    . attr_url($units) .
+                "&fee="      . attr_url($price) .
+                "&text="     . attr_url($codeText) .
+                "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
+                "' onclick='top.restoreSession()'>";
+            echo ucwords("<b>" . text(strtoupper($code)) . "&nbsp;" . text($modifier) .
+                "</b>" . " " . text(strtolower($codeText)));
+            echo "</a><br />\n";
+            echo "</div>";
 
-                if ($total == $M) {
-                    echo "</span><span class='alert-custom'>" . xlt('Some codes were not displayed.') . "</span>\n";
-                    break;
-                }
+            $count++;
+            $total++;
+
+            if ($total == $M) {
+                echo "</span><span class='alert-custom'>" . xlt('Some codes were not displayed.') . "</span>\n";
+                break;
             }
         }
-        ?>
+    }
+    ?>
 </td></tr></table>
 </div>
-        <?php
-    }
+    <?php
 }
 ?>
 

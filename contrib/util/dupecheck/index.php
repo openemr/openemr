@@ -23,6 +23,7 @@ require_once("../../../interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -145,8 +146,8 @@ if ($parameters['go'] == "Go") {
         $sqlBindArray[] = is_numeric($parameters['limit']) ? (int) $parameters['limit'] : 100;
     }
 
-    $qResults = sqlStatement($sqlstmt, $sqlBindArray);
-    while ($row = sqlFetchArray($qResults)) {
+    $qResults = QueryUtils::fetchRecords($sqlstmt, $sqlBindArray);
+    foreach ($qResults as $row) {
         if ($dupelist[$row['id']] == 1) {
             continue;
         }

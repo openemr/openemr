@@ -3875,7 +3875,6 @@ function menu_overhaul_bottom($pid, $encounter): void
  */
 function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
-    $all = [];
     $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
       "unpackaged, date FROM registry WHERE " .
       "state LIKE ? ORDER BY category, priority, name";
@@ -3885,16 +3884,7 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
         array_push($sqlBindArray, is_numeric($limit) ? (int) $limit : 0, is_numeric($offset) ? (int) $offset : 0);
     }
 
-    $res = sqlStatement($sql, $sqlBindArray);
-    if ($res) {
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-    } else {
-        return false;
-    }
-
-    return $all;
+    return QueryUtils::fetchRecords($sql, $sqlBindArray);
 }
 /**
  * This prints a header for documents.  Keeps the brand uniform...

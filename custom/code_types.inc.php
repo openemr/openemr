@@ -1028,9 +1028,11 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
 {
     if (!is_null($start) && !is_null($number)) {
         // For pagination of results
-        $limit_query = " LIMIT " . (int)$number . " OFFSET " . (int)$start . " ";
+        // The @param int docblocks are not enforced at every call site, so clamp
+        // rather than trust them: MySQL rejects a negative LIMIT or OFFSET.
+        $limit_query = " LIMIT " . max(0, (int)$number) . " OFFSET " . max(0, (int)$start) . " ";
     } elseif (!is_null($limit)) {
-        $limit_query = " LIMIT " . (int)$limit . " ";
+        $limit_query = " LIMIT " . max(0, (int)$limit) . " ";
     } else {
         // No pagination and no limit
         $limit_query = '';

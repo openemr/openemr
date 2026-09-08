@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -232,15 +233,10 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
 	ORDER BY `date` desc
 	$limitSql
 	";
-    $all = $row = [];
     $data = [$owner];
     array_push($data, ...$limitBind);
-    $res = sqlStatement($sql, $data);
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    }
 
-    return $all;
+    return QueryUtils::fetchRecords($sql, $data);
 }
 
 /**
@@ -286,15 +282,10 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 	ORDER BY `date` desc
 	$limitSql
 	";
-    $all = $row = [];
     $data = [$owner,$owner];
     array_push($data, ...$limitBind);
-    $res = sqlStatement($sql, $data);
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    }
 
-    return $all;
+    return QueryUtils::fetchRecords($sql, $data);
 }
 
 /**

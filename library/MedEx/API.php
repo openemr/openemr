@@ -766,9 +766,12 @@ class Events extends Base
                     $count_clinical_reminders++;
                 }
             } elseif ($event['M_group'] == 'GOGREEN') {
+                // Both are read below the appt_stats block, so they need a value
+                // even when that block does not run.
+                $no_fu = '';
+                $no_interval = 0;
                 if (!empty($event['appt_stats'])) {
                     $prepare_me = '';
-                    $no_fu = '';
                     if ($event['appt_stats'] == "?") {
                         $no_fu = $event['E_fire_time'];
                         $no_interval = "30";

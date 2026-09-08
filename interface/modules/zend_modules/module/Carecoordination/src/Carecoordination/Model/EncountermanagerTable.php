@@ -97,8 +97,10 @@ class EncountermanagerTable
         }
 
         $query .= " LIMIT ? OFFSET ?";
-        $query_data[] = is_numeric($data['results']) ? (int) $data['results'] : 0;
-        $query_data[] = is_numeric($data['limit_start']) ? (int) $data['limit_start'] : 0;
+        $resultLimit = is_array($data) ? ($data['results'] ?? null) : null;
+        $resultOffset = is_array($data) ? ($data['limit_start'] ?? null) : null;
+        $query_data[] = is_numeric($resultLimit) ? (int) $resultLimit : 0;
+        $query_data[] = is_numeric($resultOffset) ? (int) $resultOffset : 0;
         return QueryUtils::fetchRecords($query, $query_data);
     }
 

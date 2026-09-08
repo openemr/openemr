@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../../globals.php");
@@ -335,7 +336,7 @@ if ($what == 'fields' && $source == 'V') {
      * @global $code_external_tables
      */
     $stopEmptySearch = $externalTableId && $code_external_tables[$externalTableId][SKIP_TOTAL_TABLE_COUNT] ?? false;
-    if (empty(trim($searchTerm)) && $stopEmptySearch) {
+    if (trim($searchTerm) === '' && $stopEmptySearch) {
         $out['iSearchEmptyError'] = xl('Search term is required for this code type.');
         echo json_encode($out);
         exit;
@@ -391,8 +392,8 @@ if ($what == 'fields' && $source == 'V') {
     $out['iTotalRecords'] = min($maxCount, $start + $count);
 } else {
     $query = "SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby $limit";
-    $res = sqlStatement($query, $limitBinds);
-    while ($row = sqlFetchArray($res)) {
+    $res = QueryUtils::fetchRecords($query, $limitBinds);
+    foreach ($res as $row) {
         $arow = ['DT_RowId' => genFieldIdString($row)];
         if ($what == 'fields') {
             $arow[] = $row['field_id'];

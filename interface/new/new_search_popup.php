@@ -17,6 +17,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
@@ -27,7 +28,11 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-$fstartRequest = $_REQUEST['fstart'] ?? null;
+// The form posts fstart, but the pager links pass it on the query string.
+$request = CurrentRequest::get();
+$fstartRequest = $request->request->has('fstart')
+    ? $request->request->get('fstart')
+    : $request->query->get('fstart');
 $fstart = is_numeric($fstartRequest) ? (int) $fstartRequest : 0;
 
 $searchcolor = empty(OEGlobalsBag::getInstance()->get('layout_search_color')) ? 'var(--yellow)' : OEGlobalsBag::getInstance()->get('layout_search_color');

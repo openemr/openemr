@@ -84,13 +84,16 @@ function GetPortalAlertCounts(): array
 /**
  * RemindersArray function
  *
- * @returns array reminders for specified user, defaults to current user if none specified
+ * @param int      $today  Unix timestamp for the start of today.
+ * @param int|null $userID Defaults to the authenticated user when null.
+ * @return array<int, array<string, mixed>> reminders for specified user
  */
-function RemindersArray(int $days_to_show, $today, int $alerts_to_show, $userID = null)
+function RemindersArray(int $days_to_show, int $today, int $alerts_to_show, ?int $userID = null): array
 {
     if (!$userID) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $userID = $session->get('authUserID');
+        $sessionUserID = $session->get('authUserID');
+        $userID = is_numeric($sessionUserID) ? (int) $sessionUserID : null;
     }
 
     global $hasAlerts;
@@ -147,16 +150,16 @@ function RemindersArray(int $days_to_show, $today, int $alerts_to_show, $userID 
  * This function is used to get a count of the number of reminders due for a specified
  * user.
  *
- * @param $days_to_show
- * @param $today
- * @param $userID
- * @returns int with number of due reminders for specified user
+ * @param int      $today  Unix timestamp for the start of today. Unused, kept for call compatibility.
+ * @param int|null $userID Defaults to the authenticated user when null.
+ * @return int number of due reminders for specified user
  */
-function GetDueReminderCount(int $days_to_show, $today, $userID = false)
+function GetDueReminderCount(int $days_to_show, int $today, ?int $userID = null): int
 {
     if (!$userID) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $userID = $session->get('authUserID');
+        $sessionUserID = $session->get('authUserID');
+        $userID = is_numeric($sessionUserID) ? (int) $sessionUserID : null;
     }
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
@@ -172,7 +175,11 @@ function GetDueReminderCount(int $days_to_show, $today, $userID = false)
     );
 
     $drRow = sqlFetchArray($drSQL);
-    return $drRow['c'];
+    if (!is_array($drRow) || !is_numeric($drRow['c'] ?? null)) {
+        return 0;
+    }
+
+    return (int) $drRow['c'];
 }
 
 // ------------------------------------------------

@@ -20,6 +20,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -125,8 +126,8 @@ $active = $_GET['active'] ?? '';
             " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
             " ORDER BY date DESC LIMIT ? OFFSET ?";
 
-            $r1 = sqlStatement($disclInnerQry, [$pid, $N, $offset]);
-            $n = sqlNumRows($r1);
+            $result2 = QueryUtils::fetchRecords($disclInnerQry, [$pid, $N, $offset]);
+            $n = count($result2);
             $noOfRecordsLeft = ($totalRecords - $offset);
             if ($n > 0) {?>
             <div class="table-responsive">
@@ -145,11 +146,6 @@ $active = $_GET['active'] ?? '';
                             <th><?php echo xlt('Provider'); ?></th>
                         </tr>
                     <?php
-                    $result2 = [];
-                    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
-                        $result2[$iter] = $frow;
-                    }
-
                     foreach ($result2 as $iter) { ?>
                         <!-- List the recipient name, description, date and edit and delete options-->
                         <tr class="noterow" height='25'>

@@ -19,6 +19,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
@@ -269,8 +270,8 @@ while ($row = sqlFetchArray($res)) {
 }
 
 $query = "SELECT $sellist FROM patient_data WHERE $where $orderby $limit";
-$res = sqlStatement($query, array_merge($srch_bind, $limitBinds));
-while ($row = sqlFetchArray($res)) {
+$res = QueryUtils::fetchRecords($query, array_merge($srch_bind, $limitBinds));
+foreach ($res as $row) {
     // Each <tr> will have an ID identifying the patient.
     $arow = ['DT_RowId' => 'pid_' . $row['pid']];
     foreach ($aColumns as $colname) {
