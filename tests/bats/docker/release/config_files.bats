@@ -20,6 +20,12 @@ setup() {
     assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'openemr.sh'
 }
 
+@test "Dockerfile: composer install retries GitHub zipball 504s" {
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'COMPOSER_MAX_RETRIES'
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'composer install --no-dev --optimize-autoloader'
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'retrying in 15s'
+}
+
 @test "openemr.conf: LoadModule rewrite" {
     assert_file_contains "${SCRIPT_DIR}/openemr.conf" 'LoadModule'
     assert_file_contains "${SCRIPT_DIR}/openemr.conf" 'rewrite'
