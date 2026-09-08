@@ -63,17 +63,25 @@ jobs:
       run: |
         set -euo pipefail
 
-        # Every check run on the commit that is not ignored must be green
-        # (success, neutral, or skipped). Anything still running or concluded
-        # red means the aggregate is not stale, just correctly red or early.
-        blockers=$(gh api "repos/${REPO}/commits/${SHA}/check-runs?per_page=100" --paginate \
+        # Every check run on the commit that is not ignored must have a
+        # conclusion the aggregate's wait-on-check-action accepts (its
+        # allowed-conclusions default: success, skipped). Anything still
+        # running or concluded otherwise means the aggregate is not stale,
+        # just correctly red or early. Warn instead of failing when the read
+        # fails: this job's check run lands on the same commit and is not in
+        # the aggregate's ignore list, so a red healer would itself fail the
+        # next aggregate evaluation.
+        if ! blockers=$(gh api "repos/${REPO}/commits/${SHA}/check-runs?per_page=100" --paginate \
             --jq '.check_runs[] | {name, status, conclusion}' \
           | jq -rs --arg ignored "$IGNORED_CHECKS" '
               ($ignored | split(",")) as $skip
               | map(select(.name as $n | $skip | index($n) | not))
               | map(select(.status != "completed"
-                           or (.conclusion | IN("success", "neutral", "skipped") | not)))
-              | .[] | "\(.name): \(.status)/\(.conclusion)"')
+                           or (.conclusion | IN("success", "skipped") | not)))
+              | .[] | "\(.name): \(.status)/\(.conclusion)"'); then
+            echo '::warning::Could not list check runs for the commit; skipping this evaluation.'
+            exit 0
+        fi
         if [[ -n "${blockers}" ]]; then
             printf 'Not rerunning the aggregate; blocking check runs remain:\n%s\n' "${blockers}"
             exit 0
@@ -82,8 +90,11 @@ jobs:
         # A commit can carry several aggregate runs (push and pull_request
         # events each create one). Rerun every failed one, with an attempt
         # cap so a repeatedly failing aggregate surfaces instead of cycling.
-        stale_runs=$(gh api "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=20" \
-            --jq '.workflow_runs[] | select(.conclusion == "failure") | "\(.id) \(.run_attempt)"')
+        if ! stale_runs=$(gh api "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=20" \
+            --jq '.workflow_runs[] | select(.conclusion == "failure") | "\(.id) \(.run_attempt)"'); then
+            echo '::warning::Could not list All Checks Passed runs for the commit; skipping this evaluation.'
+            exit 0
+        fi
         if [[ -z "${stale_runs}" ]]; then
             echo 'No failed All Checks Passed run on this commit; nothing to do.'
             exit 0
