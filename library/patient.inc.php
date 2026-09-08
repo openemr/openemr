@@ -546,6 +546,8 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
     }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    // Snapshot the WHERE binds; the count query has no pagination placeholders.
+    $countBindArray = $sqlBindArray;
     if ($limit != "all") {
         $sql .= " LIMIT ? OFFSET ?";
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
@@ -559,7 +561,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
     }
 
     if (is_countable($returnval)) {
-        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+        _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     }
 
     return $returnval;
@@ -631,6 +633,8 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    // Snapshot the WHERE binds; the count query has no pagination placeholders.
+    $countBindArray = $sqlBindArray;
     if ($limit != "all") {
         $sql .= " LIMIT ? OFFSET ?";
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
@@ -642,7 +646,7 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     return $returnval;
 }
 
@@ -667,6 +671,8 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
     }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    // Snapshot the WHERE binds; the count query has no pagination placeholders.
+    $countBindArray = $sqlBindArray;
     if ($limit != "all") {
         $sql .= " LIMIT ? OFFSET ?";
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
@@ -678,7 +684,7 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
     }
 
     if (is_countable($returnval)) {
-        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+        _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     }
     return $returnval;
 }
@@ -739,6 +745,8 @@ function getByPatientDemographicsFilter(
     }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    // Snapshot the WHERE binds; the count query has no pagination placeholders.
+    $countBindArray = $sqlBindArray;
     if ($limit != "all") {
         $sql .= " LIMIT ? OFFSET ?";
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
@@ -750,7 +758,7 @@ function getByPatientDemographicsFilter(
     }
 
     if (is_countable($returnval)) {
-        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+        _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     }
     return $returnval;
 }
@@ -908,6 +916,8 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
 
+    // Snapshot the WHERE binds; the count query has no pagination placeholders.
+    $countBindArray = $sqlBindArray;
     if ($limit != "all") {
         $sql .= " LIMIT ? OFFSET ?";
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
@@ -919,7 +929,7 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
     }
 
     if (is_countable($returnval)) {
-        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+        _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     }
     return $returnval;
 }
@@ -933,6 +943,8 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
     $where = "ss LIKE ?";
     array_push($sqlBindArray, $ss . "%");
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    // Snapshot the WHERE binds; the count query has no pagination placeholders.
+    $countBindArray = $sqlBindArray;
     if ($limit != "all") {
         $sql .= " LIMIT ? OFFSET ?";
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
@@ -944,7 +956,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
     }
 
     if (is_countable($returnval)) {
-        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+        _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     }
     return $returnval;
 }
@@ -959,6 +971,8 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ?";
     array_push($sqlBindArray, $phone);
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    // Snapshot the WHERE binds; the count query has no pagination placeholders.
+    $countBindArray = $sqlBindArray;
     if ($limit != "all") {
         $sql .= " LIMIT ? OFFSET ?";
         array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($start) ? (int) $start : 0));
@@ -970,7 +984,7 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     }
 
     if (is_countable($returnval)) {
-        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+        _set_patient_inc_count($limit, count($returnval), $where, $countBindArray);
     }
     return $returnval;
 }
