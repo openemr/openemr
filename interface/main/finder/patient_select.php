@@ -227,8 +227,10 @@ if ($popup) {
     $where = empty($where) ? $customWhere : "$customWhere AND $where";
 
     $sql = "SELECT $given FROM patient_data " .
-    "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    "WHERE $where ORDER BY $orderby LIMIT ? OFFSET ?";
 
+    $sqlBindArray[] = $sqllimit;
+    $sqlBindArray[] = (is_numeric($fstart) ? (int) $fstart : 0);
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = [];
     while ($row = sqlFetchArray($rez)) {
@@ -449,9 +451,9 @@ if ($result) {
             $query = "select max(form_encounter.date) as mydate," .
                   " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
                   " (max(form_encounter.date) + interval " .
-                  escape_limit($add_days) .
+                  (int) $add_days .
                   " day) as next_appt, dayname(max(form_encounter.date) + interval " .
-                  escape_limit($add_days) .
+                  (int) $add_days .
                   " day) as next_appt_day from form_encounter " .
                   "join billing on billing.encounter = form_encounter.encounter and " .
                   "billing.pid = form_encounter.pid and billing.activity = 1 and " .
@@ -468,9 +470,9 @@ if ($result) {
             $query = "select max(form_encounter.date) as mydate," .
                   " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
                   " (max(form_encounter.date) + interval " .
-                  escape_limit($add_days) .
+                  (int) $add_days .
                   " day) as next_appt, dayname(max(form_encounter.date) + interval " .
-                  escape_limit($add_days) .
+                  (int) $add_days .
                   " day) as next_appt_day from form_encounter " .
                   " where form_encounter.pid = ?";
             $statement = sqlStatement($query, [$iter["pid"]]);

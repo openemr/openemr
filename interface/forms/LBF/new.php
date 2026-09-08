@@ -1107,6 +1107,19 @@ if (
                         } // End "P" option logic.
                     }
 
+                    // A new form has no stored data, so fall back to the field's
+                    // configured default value. Restrict this to fields stored with
+                    // the form: patient, history and visit fields belong to records
+                    // that already exist, and saving writes them straight back, so a
+                    // default there would overwrite a stored blank. An existing form
+                    // is left alone as well, so a value the user deliberately cleared
+                    // stays cleared.
+                    $is_form_field = !in_array($source, ['D', 'H', 'E', 'V'], true);
+                    $default_value = is_array($frow) ? ($frow['default_value'] ?? '') : '';
+                    if (!$formid && $is_form_field && $default_value !== '' && ($currvalue === '' || $currvalue === null)) {
+                        $currvalue = $default_value;
+                    }
+
                     $this_levels = $this_group;
                     $i = 0;
                     $mincount = min(strlen((string) $this_levels), strlen($group_levels));

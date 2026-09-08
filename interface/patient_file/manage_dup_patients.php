@@ -24,6 +24,7 @@ require_once($srcdir . "/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -166,9 +167,9 @@ function calculateScores(): int
         $query = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
             " FROM patient_data AS p1, patient_data AS p2" .
             " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
-            " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . escape_limit($query_limit);
-        $results = sqlStatementNoLog($query);
-        while ($row1 = sqlFetchArray($results)) {
+            " GROUP BY p1.pid ORDER BY p1.pid LIMIT ?";
+        $results = QueryUtils::fetchRecordsNoLog($query, [$query_limit]);
+        foreach ($results as $row1) {
             $scores[$row1['pid']] = $row1['dupscore'];
         }
         foreach ($scores as $pid => $score) {

@@ -8,8 +8,10 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -90,45 +93,47 @@ if (isset($_POST['generate_thumbnails'])) {
  */
 
 if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) {
-    $mime_types  = ['image/*', 'text/*', 'audio/*', 'video/*'];
+    // Seed the "Black list" picker with wildcard categories plus the document
+    // types uploads commonly need. This pool only populates the picker: the
+    // "Add manually" box accepts any type name, and isWhiteFile() in
+    // library/sanitize.inc.php enforces whatever list the admin saves.
+    $mime_types = [
+        'image/*',
+        'text/*',
+        'audio/*',
+        'video/*',
+        'application/dicom',
+        'application/dicom+zip',
+        'application/json',
+        'application/msword',
+        'application/pdf',
+        'application/rtf',
+        'application/vnd.ms-excel',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.oasis.opendocument.presentation',
+        'application/vnd.oasis.opendocument.spreadsheet',
+        'application/vnd.oasis.opendocument.text',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/xml',
+        'application/zip',
+        'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/tiff',
+        'text/csv',
+        'text/plain',
+        'text/xml',
+    ];
 
-    $responseError = false;
-    $responseErrorAsString = "";
-    try {
-        $resp = (new GuzzleHttp\Client())->get('https://cdn.rawgit.com/jshttp/mime-db/master/db.json', [
-            'timeout' => 5
-        ]);
-    } catch (GuzzleHttp\Exception\ClientException $e) {
-        $responseErrorAsString = $e->getResponse()->getBody()->getContents();
-        $responseError = true;
-    }
-
-    if (!$responseError && empty($responseErrorAsString) && !empty($resp) && ($resp->getStatusCode() == 200) && $resp->getBody()) {
-        $all_mime_types = json_decode($resp->getBody(), true);
-        foreach ($all_mime_types as $name => $value) {
-            $mime_types[] = $name;
-        }
-    } else {
-        if (!empty($resp)) {
-            $errorStatusCode = $resp->getStatusCode();
-        }
-        error_log('Get list of mime-type error: "' . errorLogEscape($responseErrorAsString) . '" - Code: ' . errorLogEscape($errorStatusCode ?? 0));
-        $mime_types_list = [
-            'application/pdf',
-            'image/jpeg',
-            'image/png',
-            'image/gif',
-            'application/msword',
-            'application/vnd.oasis.opendocument.spreadsheet',
-            'text/plain'
-        ];
-        $mime_types = array_merge($mime_types, $mime_types_list);
-    }
-
-    if (isset($_POST['submit_form'])) {
+    $request = CurrentRequest::get();
+    if ($request->request->has('submit_form')) {
         CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-        $new_white_list = empty($_POST['white_list']) ? [] : $_POST['white_list'];
+        // The multi-select submits nothing when the admin clears the whole
+        // list; all() returns [] for a missing key and rejects a scalar.
+        $new_white_list = $request->request->all('white_list');
 
         // truncate white list from list_options table
         sqlStatement("DELETE FROM `list_options` WHERE `list_id` = 'files_white_list'");

@@ -580,6 +580,7 @@ run_upgrade() {
     # Final heartbeat update
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    run_vendor_hook postupgrade
     echo "OpenEMR upgrade completed successfully"
 }
 
@@ -653,6 +654,8 @@ run_auto_configure() {
         return 1
     fi
 
+    # shellcheck disable=SC2310
+    run_vendor_hook postconfig || exit 1
     echo "OpenEMR configured successfully"
 }
 
@@ -681,6 +684,9 @@ cleanup_setup_scripts() {
 # ============================================================================
 # MAIN EXECUTION FLOW
 # ============================================================================
+
+# recovery entrypoint for vendor hook
+run_vendor_hook tooearly
 
 # Initialize timing for performance analysis
 SCRIPT_START_TIME=$(date +%s.%N 2>/dev/null || date +%s)
@@ -970,6 +976,8 @@ echo
 echo "Love OpenEMR? You can now support the project via the open collective:"
 echo " > https://opencollective.com/openemr/donate"
 echo
+
+run_vendor_hook prelaunch
 
 # Step 15: Start Apache (if this container is an operator)
 log_timing "15-PreApache"

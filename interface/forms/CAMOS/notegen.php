@@ -18,11 +18,17 @@ $depth = '../../../';
 require_once($depth . 'interface/globals.php');
 require_once("content_parser.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: CAMOS Note Generator", xl("CAMOS Note Generator"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
