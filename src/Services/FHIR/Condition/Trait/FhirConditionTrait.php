@@ -156,6 +156,7 @@ trait FhirConditionTrait
                 $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
+            $diagnosisCode->setText($dataRecord['title'] ?? 'Problem');
             $conditionResource->setCode($diagnosisCode);
         } else {
             // Fallback to title if no structured diagnosis
