@@ -34,11 +34,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Right side of && is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/manage_site_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of && is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
