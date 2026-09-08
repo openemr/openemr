@@ -445,8 +445,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             }
                         }
 
-                        // This form only ever creates a patient, so any field without
-                        // a value takes the layout's configured default.
+                        // This page never loads an existing patient, so a field with
+                        // no value takes the layout's configured default.
                         $default_value = is_array($frow) ? ($frow['default_value'] ?? '') : '';
                         if ($currvalue === null && $default_value !== '') {
                             $currvalue = $default_value;
