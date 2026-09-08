@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
@@ -337,7 +338,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             $data['verification'] = $verification;
         }
 
-        // Recorder -> practitioner reference
+        // Recorder -> lists.user. The read side joins the practitioner on
+        // `users.username = lists.user` (see AllergyIntoleranceService::getAll), and
+        // `practitioner_uuid` is only a read alias -- not a `lists` column -- so storing the
+        // uuid under that key would be silently dropped by the BaseService column builders
+        // and the recorder would be lost. Resolve it to the username here instead.
         $recorderRef = FhirPayloadReader::reference($json['recorder'] ?? null);
         if ($recorderRef !== null) {
             $recorderUuid = UtilsService::parseReferenceString($recorderRef, 'Practitioner')['uuid'] ?? null;
@@ -345,7 +350,14 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 is_string($recorderUuid) && $recorderUuid !== ''
                 && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($recorderUuid)
             ) {
-                $data['practitioner_uuid'] = $recorderUuid;
+                $username = QueryUtils::fetchSingleValue(
+                    'SELECT username FROM users WHERE uuid = ?',
+                    'username',
+                    [\OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($recorderUuid)]
+                );
+                if (is_string($username) && $username !== '') {
+                    $data['user'] = $username;
+                }
             }
         }
 

@@ -54,7 +54,7 @@ class FhirAppointmentServiceCrudTest extends TestCase
         // Location reference rather than silently defaulting to the first row.
         $this->facilityFixtureManager->installFacilityFixtures();
         $facilityRow = QueryUtils::querySingleRow(
-            "SELECT uuid FROM facility ORDER BY id DESC LIMIT 1",
+            "SELECT uuid FROM facility WHERE name LIKE 'test-fixture%' ORDER BY id DESC LIMIT 1",
             []
         );
         $this->assertIsArray($facilityRow);

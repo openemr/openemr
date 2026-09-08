@@ -613,12 +613,6 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     {
         $updatedOpenEMRRecord['uuid'] = $fhirResourceId;
 
-        $statusError = $this->validateStatusAgainstDates($updatedOpenEMRRecord);
-        if ($statusError !== null) {
-            return $statusError;
-        }
-        unset($updatedOpenEMRRecord['__fhir_status__']);
-
         $resolveResult = $this->resolveReferences($updatedOpenEMRRecord);
         if ($resolveResult !== null) {
             return $resolveResult;
@@ -636,6 +630,16 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             return $result;
         }
         $updatedOpenEMRRecord = array_merge($existing, $updatedOpenEMRRecord);
+
+        // Validated after the overlay, not before: a PUT that carries `status` but omits
+        // `period` has no dates of its own, so checking the request body alone would compare
+        // the caller's status against an empty period and accept -- or reject -- the wrong
+        // thing. The merged record is what actually gets written, so it is what gets checked.
+        $statusError = $this->validateStatusAgainstDates($updatedOpenEMRRecord);
+        if ($statusError !== null) {
+            return $statusError;
+        }
+        unset($updatedOpenEMRRecord['__fhir_status__']);
 
         $this->applyDefaults($updatedOpenEMRRecord);
 

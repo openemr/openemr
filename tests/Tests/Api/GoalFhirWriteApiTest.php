@@ -68,6 +68,10 @@ class GoalFhirWriteApiTest extends TestCase
 
         $encounterService = new FhirEncounterService();
         $encounterInsert = $encounterService->insert($encounterResource);
+        $this->assertTrue(
+            $encounterInsert->isValid(),
+            'Encounter insert (setup) failed: ' . json_encode($encounterInsert->getValidationMessages())
+        );
         $encounterInsertData = $encounterInsert->getData();
         $this->assertIsArray($encounterInsertData);
         $encounterData = $encounterInsertData[0];

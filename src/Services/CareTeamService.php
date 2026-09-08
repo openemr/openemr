@@ -366,13 +366,17 @@ class CareTeamService extends BaseService
         return ($result['count'] ?? 0) > 0;
     }
 
-    public function saveCareTeam($pid, ?int $teamId, string $teamName, array $team, string $status = 'active'): void
+    public function saveCareTeam($pid, ?int $teamId, string $teamName, array $team, string $status = 'active'): int
     {
         // Create UUIDs for the table if not already present
         UuidRegistry::createMissingUuidsForTables([self::CARE_TEAM_TABLE]);
 
         // Create or update main care team record
-        $careTeamId = $this->createOrUpdateCareTeam($pid, $teamId, $teamName, $status);
+        $careTeamIdRaw = $this->createOrUpdateCareTeam($pid, $teamId, $teamName, $status);
+        if (!is_numeric($careTeamIdRaw)) {
+            throw new \RuntimeException('care_teams row id could not be resolved after save');
+        }
+        $careTeamId = (int) $careTeamIdRaw;
 
         // Get existing members keyed by user_id for comparison
         $existingMembers = $this->getExistingCareTeamMembers($careTeamId);
@@ -433,6 +437,8 @@ class CareTeamService extends BaseService
         foreach ($existingMembers as $member) {
             $this->markMemberAsInactive($member['id']);
         }
+
+        return $careTeamId;
     }
 
     /**

@@ -269,6 +269,16 @@ class ImmunizationService extends BaseService
             return $processingResult;
         }
 
+        $patientIdRaw = $data['patient_id'] ?? null;
+        if (!is_numeric($patientIdRaw)) {
+            $processingResult->setValidationMessages(['patient_id' => 'This field is required']);
+            return $processingResult;
+        }
+        $encounterError = $this->encounterOwnershipError($data['encounter_id'] ?? null, (int) $patientIdRaw);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
         $uuid = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
         $data['uuid'] = $uuid;
 
@@ -340,21 +350,9 @@ class ImmunizationService extends BaseService
             return $processingResult;
         }
 
-        // An encounter reference has to belong to the immunization's own patient, otherwise a
-        // PUT could file the vaccination against another patient's visit.
-        $encounterRaw = $data['encounter_id'] ?? null;
-        if (is_numeric($encounterRaw) && (int) $encounterRaw !== 0) {
-            $encounterPid = QueryUtils::fetchSingleValue(
-                "SELECT pid FROM form_encounter WHERE encounter = ?",
-                'pid',
-                [(int) $encounterRaw]
-            );
-            if (!is_numeric($encounterPid) || (int) $encounterPid !== $rowPatientId) {
-                $processingResult->setValidationMessages([
-                    'encounter' => 'Encounter reference does not belong to this patient',
-                ]);
-                return $processingResult;
-            }
+        $encounterError = $this->encounterOwnershipError($data['encounter_id'] ?? null, $rowPatientId);
+        if ($encounterError !== null) {
+            return $encounterError;
         }
 
         // The owning patient is not mutable. BaseService::buildUpdateColumns() skips `pid`, but
@@ -399,5 +397,31 @@ class ImmunizationService extends BaseService
             is_string($set) ? $set : '',
             is_array($bind) ? array_values($bind) : [],
         ];
+    }
+
+    /**
+     * Rejects an encounter reference that belongs to a different patient.
+     *
+     * The FHIR adapters resolve the subject and the encounter independently, so without this
+     * a write could file an immunization for patient A against patient B's visit. Returns null when
+     * there is nothing to check or the encounter checks out.
+     */
+    private function encounterOwnershipError(mixed $encounter, int $patientId): ?ProcessingResult
+    {
+        if (!is_numeric($encounter) || (int) $encounter === 0) {
+            return null;
+        }
+        $encounterPid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM form_encounter WHERE encounter = ?",
+            'pid',
+            [(int) $encounter]
+        );
+        if (is_numeric($encounterPid) && (int) $encounterPid === $patientId) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages(['encounter' => 'Encounter reference does not belong to this patient']);
+
+        return $result;
     }
 }

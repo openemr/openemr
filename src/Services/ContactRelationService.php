@@ -121,7 +121,9 @@ class ContactRelationService extends BaseService
                 $relation->set_target_table('person');
                 $relation->set_target_id($personId);
                 $relation->set_relationship($relationship);
-                $relation->set_active(isset($data['active']) && (bool) $data['active'] ? 1 : 0);
+                // RelatedPerson.active is optional; an omitted flag means the relationship is
+                // in use. Storing 0 would hide it from the active-filtered reads.
+                $relation->set_active(!isset($data['active']) || (bool) $data['active'] ? 1 : 0);
                 if (!$relation->persist()) {
                     throw new \RuntimeException('Failed to persist contact_relation');
                 }
@@ -147,9 +149,9 @@ class ContactRelationService extends BaseService
             });
 
             $result->addData($out);
-        } catch (\RuntimeException | SqlQueryException $e) {
-            $this->getLogger()->error('RelatedPerson insert failed', ['error' => $e->getMessage()]);
-            $result->addInternalError($e->getMessage());
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            $this->getLogger()->error('RelatedPerson insert failed', ['exception' => $e]);
+            $result->addInternalError('RelatedPerson could not be created');
         }
 
         return $result;
@@ -182,34 +184,36 @@ class ContactRelationService extends BaseService
             return $result;
         }
 
-        $personIdValue = QueryUtils::fetchSingleValue(
-            'SELECT id FROM person WHERE uuid = ?',
-            'id',
-            [UuidRegistry::uuidToBytes($uuid)]
-        );
-        if (!is_numeric($personIdValue)) {
-            $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
-            return $result;
-        }
-        $personId = (int) $personIdValue;
-
-        // Resolve the owner's contact id and verify the relationship row exists for
-        // *this* patient — if not, treat as not-found (avoids leaking existence of
-        // other-patient relationships).
-        $ownerContact = $this->contactService->getOrCreateForEntity('patient_data', $ownerPid);
-        $ownerContactId = (int) $ownerContact->get_id();
-        $relationExists = QueryUtils::fetchSingleValue(
-            "SELECT 1 AS x FROM contact_relation "
-            . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
-            'x',
-            [$personId, $ownerContactId]
-        );
-        if ($relationExists === null) {
-            $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
-            return $result;
-        }
-
+        // The lookups below hit the database and getOrCreateForEntity() can write, so they
+        // sit inside the try alongside the transaction rather than ahead of it.
         try {
+            $personIdValue = QueryUtils::fetchSingleValue(
+                'SELECT id FROM person WHERE uuid = ?',
+                'id',
+                [UuidRegistry::uuidToBytes($uuid)]
+            );
+            if (!is_numeric($personIdValue)) {
+                $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
+                return $result;
+            }
+            $personId = (int) $personIdValue;
+
+            // Resolve the owner's contact id and verify the relationship row exists for
+            // *this* patient — if not, treat as not-found (avoids leaking existence of
+            // other-patient relationships).
+            $ownerContact = $this->contactService->getOrCreateForEntity('patient_data', $ownerPid);
+            $ownerContactId = (int) $ownerContact->get_id();
+            $relationExists = QueryUtils::fetchSingleValue(
+                "SELECT 1 AS x FROM contact_relation "
+                . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
+                'x',
+                [$personId, $ownerContactId]
+            );
+            if ($relationExists === null) {
+                $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
+                return $result;
+            }
+
             QueryUtils::inTransaction(function () use ($personId, $ownerContactId, $uuid, $data): array {
                 $personService = new PersonService();
                 $personUpdate = array_filter([
@@ -272,9 +276,9 @@ class ContactRelationService extends BaseService
 
                 return ['uuid' => $uuid, 'person_id' => $personId];
             });
-        } catch (\RuntimeException | SqlQueryException $e) {
-            $this->getLogger()->error('RelatedPerson update failed', ['uuid' => $uuid, 'error' => $e->getMessage()]);
-            $result->addInternalError($e->getMessage());
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            $this->getLogger()->error('RelatedPerson update failed', ['uuid' => $uuid, 'exception' => $e]);
+            $result->addInternalError('RelatedPerson could not be updated');
             return $result;
         }
 
@@ -283,8 +287,23 @@ class ContactRelationService extends BaseService
         // straight into parseOpenEMRRecord(), which expects the read-side shape built by
         // getPersonFromRecord() -- uuid, puuid, active, relationship, name, telecom,
         // addresses -- not just the identifiers.
+        // Scoped to the owning patient as well as the person: one `person` row can be linked
+        // to several patients, and searchPatientRelationships() collapses rows by person_uuid
+        // and takes puuid/relationship from the first match -- so an unscoped read-back can
+        // hand another patient's puuid to the caller.
+        $ownerPatientUuidBytes = QueryUtils::fetchSingleValue(
+            'SELECT uuid FROM patient_data WHERE pid = ?',
+            'uuid',
+            [$ownerPid]
+        );
+        if (!is_string($ownerPatientUuidBytes)) {
+            $result->addInternalError('RelatedPerson could not be read back');
+            return $result;
+        }
+
         return $this->searchPatientRelationships([
             'person_uuid' => new TokenSearchField('person_uuid', $uuid, true),
+            'puuid' => new TokenSearchField('puuid', UuidRegistry::uuidToString($ownerPatientUuidBytes), true),
         ]);
     }
 

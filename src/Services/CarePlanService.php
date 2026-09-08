@@ -394,15 +394,33 @@ class CarePlanService extends BaseService
             return $result;
         }
 
+        // The FHIR adapters resolve the subject and the encounter independently, so an
+        // encounter belonging to a different patient has to be rejected before a form is
+        // anchored to it.
+        $encounterPid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM form_encounter WHERE encounter = ?",
+            'pid',
+            [$encounterId]
+        );
+        if (!is_numeric($encounterPid) || (int) $encounterPid !== $pid) {
+            $result->setValidationMessages([
+                'encounter' => 'Encounter reference does not belong to this patient',
+            ]);
+            return $result;
+        }
+
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = $context['user'] ?? $session->get('authUser') ?? '';
         $group = $context['groupname'] ?? $session->get('authProvider') ?? '';
         $authorized = (string) ($context['authorized'] ?? 0);
 
-        // form_care_plan has no AUTO_INCREMENT (legacy schema). Compute the next id
-        // inside the transaction and retry on duplicate-key under concurrent writers.
-        // The proper fix is the AUTO_INCREMENT schema migration tracked separately —
-        // this loop closes the silent-overwrite race window in the meantime.
+        // form_care_plan has no AUTO_INCREMENT and no unique key on `id` (legacy schema:
+        // one id spans every item row of a form). Duplicate-key can therefore never fire,
+        // so the retry loop below cannot be what makes allocation safe — the SELECT ...
+        // FOR UPDATE inside the transaction is. It serializes concurrent allocators so two
+        // requests cannot read the same MAX(id) and both insert under it. The proper fix
+        // remains the AUTO_INCREMENT schema migration tracked separately; the retry stays
+        // for the case where that migration lands and starts raising duplicate-key.
         $maxAttempts = 5;
         $lastError = null;
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
@@ -416,7 +434,7 @@ class CarePlanService extends BaseService
                     $items
                 ): array {
                     $maxId = QueryUtils::fetchSingleValue(
-                        "SELECT MAX(id) AS largestId FROM form_care_plan",
+                        "SELECT MAX(id) AS largestId FROM form_care_plan FOR UPDATE",
                         'largestId',
                         []
                     );

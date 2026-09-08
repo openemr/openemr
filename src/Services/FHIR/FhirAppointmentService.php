@@ -497,7 +497,18 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
         $processingResult = new ProcessingResult();
 
-        $pid = $openEmrRecord['pid'] ?? 0;
+        // parseFhirResource() sets pid only when a Patient participant reference resolves.
+        // Falling back to 0 would create an appointment orphaned from every patient and
+        // invisible to patient-scoped reads, so this is rejected the same way a missing
+        // serviceProvider is below.
+        $pidRaw = $openEmrRecord['pid'] ?? null;
+        if (!is_numeric($pidRaw) || (int) $pidRaw <= 0) {
+            $processingResult->setValidationMessages([
+                'participant' => 'Appointment requires a resolvable Patient participant reference',
+            ]);
+            return $processingResult;
+        }
+        $pid = (int) $pidRaw;
         unset($openEmrRecord['pid']);
         unset($openEmrRecord['puuid']);
 

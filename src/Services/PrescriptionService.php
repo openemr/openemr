@@ -424,6 +424,16 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
+        $patientIdRaw = $data['patient_id'];
+        if (!is_numeric($patientIdRaw)) {
+            $processingResult->setValidationMessages(['patient_id' => 'This field must be numeric']);
+            return $processingResult;
+        }
+        $encounterError = $this->encounterOwnershipError($data['encounter'] ?? null, (int) $patientIdRaw);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::PRESCRIPTION_TABLE)->createUuid();
 
         $query = $this->buildInsertColumns($data);
@@ -497,22 +507,9 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
-        // An encounter reference has to belong to the prescription's own patient, otherwise a
-        // PUT could file the medication against another patient's visit.
-        $encounterRaw = $data['encounter'] ?? null;
-        if (is_numeric($encounterRaw) && (int) $encounterRaw !== 0) {
-            $encounterPid = QueryUtils::fetchSingleValue(
-                "SELECT pid FROM form_encounter WHERE encounter = ?",
-                'pid',
-                [(int) $encounterRaw]
-            );
-            if (!is_numeric($encounterPid) || (int) $encounterPid !== $rowPatientId) {
-                $processingResult = new ProcessingResult();
-                $processingResult->setValidationMessages([
-                    'encounter' => 'Encounter reference does not belong to this patient',
-                ]);
-                return $processingResult;
-            }
+        $encounterError = $this->encounterOwnershipError($data['encounter'] ?? null, $rowPatientId);
+        if ($encounterError !== null) {
+            return $encounterError;
         }
 
         // Neither the uuid nor the owning patient is mutable. BaseService::buildUpdateColumns()
@@ -566,5 +563,31 @@ class PrescriptionService extends BaseService
         $processingResult = new ProcessingResult();
         $processingResult->addData(['message' => 'record deleted']);
         return $processingResult;
+    }
+
+    /**
+     * Rejects an encounter reference that belongs to a different patient.
+     *
+     * The FHIR adapters resolve the subject and the encounter independently, so without this
+     * a write could file a prescription for patient A against patient B's visit. Returns null when
+     * there is nothing to check or the encounter checks out.
+     */
+    private function encounterOwnershipError(mixed $encounter, int $patientId): ?ProcessingResult
+    {
+        if (!is_numeric($encounter) || (int) $encounter === 0) {
+            return null;
+        }
+        $encounterPid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM form_encounter WHERE encounter = ?",
+            'pid',
+            [(int) $encounter]
+        );
+        if (is_numeric($encounterPid) && (int) $encounterPid === $patientId) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages(['encounter' => 'Encounter reference does not belong to this patient']);
+
+        return $result;
     }
 }

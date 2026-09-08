@@ -12,6 +12,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
@@ -220,6 +221,16 @@ class FhirGenericRestController implements IGlobalsAware {
                 $e,
                 'post'
             );
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            // Anything else out of the service layer (SqlQueryException, TypeError, a domain
+            // RuntimeException) would otherwise reach the global handler with its raw message.
+            return $this->respondWithSafeError(
+                'exception',
+                'The resource could not be created: see server logs for details',
+                500,
+                $e,
+                'post'
+            );
         }
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
@@ -287,6 +298,16 @@ class FhirGenericRestController implements IGlobalsAware {
                 'invalid',
                 'Invalid FHIR resource: see server logs for details',
                 400,
+                $e,
+                'put'
+            );
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            // Anything else out of the service layer (SqlQueryException, TypeError, a domain
+            // RuntimeException) would otherwise reach the global handler with its raw message.
+            return $this->respondWithSafeError(
+                'exception',
+                'The resource could not be updated: see server logs for details',
+                500,
                 $e,
                 'put'
             );
@@ -391,17 +412,49 @@ class FhirGenericRestController implements IGlobalsAware {
     private static function extractPatientUuidFromFhirJson(array $fhirJson): ?string
     {
         foreach (['subject', 'patient', 'beneficiary'] as $field) {
-            $element = $fhirJson[$field] ?? null;
-            if (!is_array($element)) {
-                continue;
+            $uuid = self::patientUuidFromReferenceElement($fhirJson[$field] ?? null);
+            if ($uuid !== null) {
+                return $uuid;
             }
-            $reference = $element['reference'] ?? null;
-            if (!is_string($reference) || $reference === '') {
-                continue;
+        }
+
+        // Not every compartment resource binds its patient through a top-level reference.
+        // Appointment carries it in participant[].actor and CareTeam in participant[].member,
+        // so a body-level check that only looked at subject/patient/beneficiary would silently
+        // pass those writes through.
+        $participants = $fhirJson['participant'] ?? null;
+        if (is_array($participants)) {
+            foreach ($participants as $participant) {
+                if (!is_array($participant)) {
+                    continue;
+                }
+                foreach (['actor', 'member', 'individual'] as $field) {
+                    $uuid = self::patientUuidFromReferenceElement($participant[$field] ?? null);
+                    if ($uuid !== null) {
+                        return $uuid;
+                    }
+                }
             }
-            if (preg_match('#(?:^|/)Patient/([A-Za-z0-9\-]+)$#', $reference, $matches) === 1) {
-                return $matches[1];
-            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Pulls the uuid out of a FHIR Reference element when, and only when, it points at a
+     * Patient. Returns null for a non-Patient reference or a malformed element.
+     */
+    private static function patientUuidFromReferenceElement(mixed $element): ?string
+    {
+        if (!is_array($element)) {
+            return null;
+        }
+        $reference = $element['reference'] ?? null;
+        if (!is_string($reference) || $reference === '') {
+            return null;
+        }
+        if (preg_match('#(?:^|/)Patient/([A-Za-z0-9\-]+)$#', $reference, $matches) === 1) {
+            return $matches[1];
         }
         return null;
     }

@@ -29,7 +29,15 @@ class RestControllerHelperCapabilityTest extends TestCase
 
     protected function setUp(): void
     {
+        // The not-implemented registry is static, so a registration from an earlier test in
+        // this process would otherwise strip create/update from this test's expectations.
+        RestControllerHelper::resetUnimplementedFhirWrites();
         $this->helper = new RestControllerHelper();
+    }
+
+    protected function tearDown(): void
+    {
+        RestControllerHelper::resetUnimplementedFhirWrites();
     }
 
     public function testFhirWriteNotImplementedRegistersTheInteraction(): void

@@ -67,9 +67,11 @@ class FhirValidationService
         unset($data['resourceType']);
         try {
             $patientResource = new $class($data);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
+            // The message can carry internal detail (class names, offsets); the client
+            // gets a fixed diagnostic and the detail stays in the server log.
             return $this->
-            operationOutcomeResourceService('fatal', 'invalid', $e->getMessage());
+            operationOutcomeResourceService('fatal', 'invalid', 'Invalid FHIR resource');
         } catch (\Error) {
             return $this->
             operationOutcomeResourceService('fatal', 'invalid', 'resourceType Not Found');

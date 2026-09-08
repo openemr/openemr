@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -464,19 +465,20 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
         try {
             $careTeamService = new CareTeamService();
-            $careTeamService->saveCareTeam($pid, $teamId, $teamName, $resolvedMembers, $status);
-        } catch (\RuntimeException | SqlQueryException $e) {
-            $result->addInternalError($e->getMessage());
+            $savedTeamId = $careTeamService->saveCareTeam($pid, $teamId, $teamName, $resolvedMembers, $status);
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            ServiceContainer::getLogger()->error('CareTeam save failed', ['pid' => $pid, 'exception' => $e]);
+            $result->addInternalError('CareTeam could not be saved');
             return $result;
         }
 
-        // saveCareTeam returns void; look up the newly-created or just-updated uuid
+        // Keyed on the id saveCareTeam() actually wrote. Selecting the patient's newest row
+        // instead would let two concurrent POSTs for one patient both read back the later
+        // insert.
         $uuid = QueryUtils::fetchSingleValue(
-            $teamId === null
-                ? "SELECT uuid FROM care_teams WHERE pid = ? ORDER BY id DESC LIMIT 1"
-                : "SELECT uuid FROM care_teams WHERE id = ?",
+            "SELECT uuid FROM care_teams WHERE id = ?",
             'uuid',
-            [$teamId ?? $pid]
+            [$savedTeamId]
         );
         if (!is_string($uuid)) {
             $result->addInternalError('CareTeam row could not be located after save');

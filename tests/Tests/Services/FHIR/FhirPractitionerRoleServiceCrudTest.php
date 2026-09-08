@@ -48,10 +48,10 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
         $this->practitionerFixtureManager = new PractitionerFixtureManager();
         $this->facilityFixtureManager = new FacilityFixtureManager();
 
-        // Install one practitioner and one facility; capture their uuids.
-        // Practitioner fixtures require npi (per the PractitionerValidator); they
-        // also share `users.fname` with patient fixtures' pubpid prefix on a
-        // shared DB, so we look up by npi range rather than fname pattern.
+        // Install one practitioner and one facility; capture their uuids. Both lookups are
+        // scoped to the fixture prefix so a pre-existing row with a higher id cannot be
+        // picked up on a shared database. The practitioner lookup additionally requires a
+        // non-empty npi, which PractitionerValidator makes mandatory for these fixtures.
         $this->practitionerFixtureManager->installPractitionerFixtures();
         $practitionerRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM users WHERE fname LIKE 'test-fixture-%' "
@@ -66,7 +66,7 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
 
         $this->facilityFixtureManager->installFacilityFixtures();
         $facilityRow = QueryUtils::querySingleRow(
-            "SELECT uuid FROM facility ORDER BY id DESC LIMIT 1",
+            "SELECT uuid FROM facility WHERE name LIKE 'test-fixture%' ORDER BY id DESC LIMIT 1",
             []
         );
         $this->assertIsArray($facilityRow);

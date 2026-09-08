@@ -950,6 +950,23 @@ class ProcedureService extends BaseService
             return $result;
         }
 
+        // Replacing the code rows renumbers procedure_order_seq, and procedure_answers,
+        // procedure_specimen and procedure_report are all keyed by
+        // (procedure_order_id, procedure_order_seq). Once results have been reported those
+        // rows cannot be renumbered without silently reattaching them to a different code,
+        // so the replacement is refused rather than guessed at.
+        $reportCount = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS reportCount FROM procedure_report WHERE procedure_order_id = ?",
+            'reportCount',
+            [$orderId]
+        );
+        if (is_numeric($reportCount) && (int) $reportCount > 0) {
+            $result->setValidationMessages([
+                'code' => 'ServiceRequest codes cannot be replaced once results have been reported for the order',
+            ]);
+            return $result;
+        }
+
         // patient_id and uuid are not mutable; strip them before building update SQL
         unset($orderData['patient_id'], $orderData['uuid']);
 
@@ -975,6 +992,18 @@ class ProcedureService extends BaseService
                     }
                 }
 
+                // Answers and specimens hang off (procedure_order_id, procedure_order_seq)
+                // too, so they go with the codes -- the same order deleteOrderCode() uses.
+                // Leaving them behind would point them at a sequence number that now
+                // describes a different code. Reported results are ruled out above.
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM procedure_answers WHERE procedure_order_id = ?",
+                    [$orderId]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM procedure_specimen WHERE procedure_order_id = ?",
+                    [$orderId]
+                );
                 QueryUtils::sqlStatementThrowException(
                     "DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
                     [$orderId]
@@ -1002,9 +1031,9 @@ class ProcedureService extends BaseService
                 }
             });
 
-        } catch (\RuntimeException | SqlQueryException $e) {
-            $this->getLogger()->error('ServiceRequest updateOrder failed', ['uuid' => $uuid, 'error' => $e->getMessage()]);
-            $result->addInternalError($e->getMessage());
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            $this->getLogger()->error('ServiceRequest updateOrder failed', ['uuid' => $uuid, 'exception' => $e]);
+            $result->addInternalError('ServiceRequest could not be updated');
             return $result;
         }
 

@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -78,24 +79,28 @@ class PractitionerRoleService extends BaseService
         $providerId = (int) $providerId;
         $facilityId = (int) $facilityId;
 
-        // Disallow duplicate role rows for the same (uid, facility_id). PractitionerRole
-        // is identified externally by the marker uuid, so creating a second one would
-        // shadow the existing record on read.
-        $existing = QueryUtils::fetchSingleValue(
-            "SELECT id FROM facility_user_ids "
-            . "WHERE uid = ? AND facility_id = ? AND field_id = 'provider_id'",
-            'id',
-            [$providerId, $facilityId]
-        );
-        if ($existing !== null) {
-            $result->setValidationMessages([
-                'role' => 'A PractitionerRole already exists for this practitioner/facility pair',
-            ]);
-            return $result;
-        }
-
         try {
-            $out = QueryUtils::inTransaction(function () use ($providerId, $facilityId, $data): array {
+            $out = QueryUtils::inTransaction(function () use ($providerId, $facilityId, $data): ?array {
+                // Disallow duplicate marker rows for the same (uid, facility_id).
+                // PractitionerRole is identified externally by the marker uuid, so a second
+                // one would shadow the existing record on read.
+                //
+                // The check runs inside the transaction with FOR UPDATE rather than ahead of
+                // it: `facility_user_ids` carries only a non-unique KEY on
+                // (uid, facility_id, field_id) -- and it cannot be made unique, since
+                // role_code and specialty_code legitimately repeat for one pair -- so a
+                // duplicate-key error can never fire. The locking read on that index range is
+                // what serializes two concurrent creates for the same pair.
+                $existing = QueryUtils::fetchSingleValue(
+                    "SELECT id FROM facility_user_ids "
+                    . "WHERE uid = ? AND facility_id = ? AND field_id = 'provider_id' FOR UPDATE",
+                    'id',
+                    [$providerId, $facilityId]
+                );
+                if ($existing !== null) {
+                    return null;
+                }
+
                 $uuid = (new UuidRegistry(['table_name' => self::PRACTITIONER_ROLE_TABLE]))->createUuid();
 
                 // Marker row: this carries the FHIR uuid
@@ -136,10 +141,17 @@ class PractitionerRoleService extends BaseService
                 return ['uuid' => UuidRegistry::uuidToString($uuid)];
             });
 
+            if ($out === null) {
+                $result->setValidationMessages([
+                    'role' => 'A PractitionerRole already exists for this practitioner/facility pair',
+                ]);
+                return $result;
+            }
+
             $result->addData($out);
-        } catch (\RuntimeException | \OpenEMR\Common\Database\SqlQueryException $e) {
-            $this->getLogger()->error('PractitionerRole insert failed', ['error' => $e->getMessage()]);
-            $result->addInternalError($e->getMessage());
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            $this->getLogger()->error('PractitionerRole insert failed', ['exception' => $e]);
+            $result->addInternalError('PractitionerRole could not be created');
         }
 
         return $result;

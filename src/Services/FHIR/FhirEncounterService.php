@@ -344,22 +344,22 @@ class FhirEncounterService extends FhirServiceBase implements
             $data['date'] = $encounterDate;
         }
 
-        // Participant -> provider_uuid and referrer_uuid. FHIR R4 requires that
-        // unresolvable references be rejected — silently skipping creates a
-        // partial Encounter and tells the caller the write succeeded. We throw
-        // InvalidArgumentException so the controller emits a 400 with a clear
-        // OperationOutcome.
+        // Participant -> provider_uuid and referrer_uuid. A participant that supplies a
+        // reference we cannot resolve is rejected — silently skipping it creates a partial
+        // Encounter while telling the caller the write succeeded — so we throw
+        // InvalidArgumentException and the controller emits a 400 with a clear
+        // OperationOutcome. A participant with no individual at all is a different case and
+        // is skipped; see below.
         $participants = $json['participant'] ?? null;
         if (is_array($participants)) {
             foreach ($participants as $idx => $participant) {
                 $individual = is_array($participant) ? ($participant['individual'] ?? null) : null;
                 $reference = is_array($individual) ? ($individual['reference'] ?? null) : null;
                 if (!is_string($reference) || $reference === '') {
-                    // No reference at all on a participant entry is a malformed
-                    // resource — reject rather than silently dropping the entry.
-                    throw new \InvalidArgumentException(
-                        'Encounter.participant[' . (int) $idx . '].individual.reference is required'
-                    );
+                    // Encounter.participant.individual is 0..1 in R4, so a type-only
+                    // participant is conformant. It carries no attribution for us to map,
+                    // so skip it rather than rejecting the whole resource with a 400.
+                    continue;
                 }
                 $practitionerUuid = UtilsService::parseReferenceString($reference, 'Practitioner')['uuid'] ?? null;
                 if (
@@ -432,9 +432,6 @@ class FhirEncounterService extends FhirServiceBase implements
             $data['discharge_disposition'] = $dischargeCode;
         }
 
-        // Default pc_catid for new encounters (required by EncounterValidator)
-        $data['pc_catid'] = $this->getDefaultEncounterCategoryId();
-
         return $data;
     }
 
@@ -478,6 +475,12 @@ class FhirEncounterService extends FhirServiceBase implements
 
         $puuid = $openEmrRecord['puuid'] ?? '';
         unset($openEmrRecord['puuid']);
+
+        // Default pc_catid for new encounters (required by EncounterValidator). This is
+        // deliberately not applied in parseFhirResource(): the update path shares that
+        // parser, and FHIR Encounter carries no element that maps to the category, so a
+        // default there would silently reset the stored category on every PUT.
+        $openEmrRecord['pc_catid'] ??= $this->getDefaultEncounterCategoryId();
 
         // EncounterService::insertEncounter passes user and group straight to addForm()
         // without defaulting them, so both keys have to exist here. Outside a web request

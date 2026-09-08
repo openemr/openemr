@@ -105,7 +105,7 @@ class DeviceService extends BaseService
         if (isset($data['udi_data']) && is_array($data['udi_data'])) {
             $data['udi_data'] = json_encode($data['udi_data']);
         }
-        if (empty($data['date'])) {
+        if (!isset($data['date']) || $data['date'] === '') {
             $data['date'] = date('Y-m-d H:i:s');
         }
 

@@ -193,6 +193,18 @@ class RestControllerHelper
     }
 
     /**
+     * Clears the not-implemented registry.
+     *
+     * The registry is process-wide static state populated at route-map build time, so a
+     * registration made by one test leaks into every later test in the same PHP process.
+     * Intended for test isolation only; the route map repopulates it on the next include.
+     */
+    public static function resetUnimplementedFhirWrites(): void
+    {
+        self::$unimplementedFhirWrites = [];
+    }
+
+    /**
      * Parses the JSON request body with proper error handling.
      *
      * Returns an array on success, or a Response (400/413) if the body is empty,

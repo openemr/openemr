@@ -10,6 +10,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -189,7 +190,14 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
             $data['active'] = $status === 'active' ? 1 : 0;
         }
 
-        // code.coding[] -> drug_code (prefer RxNorm) + name (display)
+        // code.coding[] -> drug_code (prefer RxNorm) + name (display).
+        //
+        // The value is stored in OpenEMR's typed `TYPE:CODE` form rather than as a bare code.
+        // DrugService::createResultRecordFromDatabaseResult() reads drug_code back through
+        // addCoding(), which derives the FHIR system from that prefix and treats an unprefixed
+        // value as RxNorm -- so a bare SNOMED or NDC code would come back out claiming to be
+        // RXCUI.
+        $codeTypesService = new CodeTypesService();
         $codeConcept = $json['code'] ?? null;
         $codings = FhirPayloadReader::codings($codeConcept);
         $primaryDisplay = null;
@@ -205,7 +213,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
                 && $code !== null
                 && !isset($data['drug_code'])
             ) {
-                $data['drug_code'] = $code;
+                $data['drug_code'] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $code);
             }
         }
         // Fall back: first coding with any code value if no RxNorm found
@@ -213,7 +221,11 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
             foreach ($codings as $coding) {
                 $fallbackCode = FhirPayloadReader::getString($coding, 'code');
                 if ($fallbackCode !== null) {
-                    $data['drug_code'] = $fallbackCode;
+                    $fallbackSystem = $coding['system'] ?? null;
+                    $data['drug_code'] = $codeTypesService->getOpenEMRCodeForSystemAndCode(
+                        is_string($fallbackSystem) ? $fallbackSystem : null,
+                        $fallbackCode
+                    );
                     break;
                 }
             }

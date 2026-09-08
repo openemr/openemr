@@ -481,7 +481,12 @@ class UtilsService
             return $parsed;
         }
 
+        // parse_url() returns false on a severely malformed URL (e.g. "http://:80"), and the
+        // reference string comes straight off a client payload, so it has to be guarded.
         $parts = parse_url($referenceString);
+        if (!is_array($parts)) {
+            $parts = [];
+        }
         $path = $parts['path'] ?? $referenceString;
 
         // Check if this is a local resource
@@ -498,6 +503,14 @@ class UtilsService
         if (count($splitParts) >= 2) {
             $parsed['uuid'] = array_pop($splitParts);
             $parsed['type'] = array_pop($splitParts);
+        }
+
+        // An absolute reference to another server names a resource we do not hold. Most
+        // callers read ['uuid'] without consulting ['localResource'], so returning the
+        // trailing segment would let a remote reference bind to a local record whose uuid
+        // happens to collide.
+        if (!$parsed['localResource']) {
+            $parsed['uuid'] = null;
         }
 
         // If expectedType is provided, return null uuid if type doesn't match
