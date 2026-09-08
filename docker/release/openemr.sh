@@ -579,26 +579,41 @@ upgrade_site_schema() {
     local -i code_schema_version="$2"
     local sqlconf="${OE_ROOT}/sites/${sitename}/sqlconf.php"
 
-    # An unconfigured site has nothing to migrate. This also covers the fresh
-    # install case, where check_upgrade runs before auto-configuration.
+    # A site directory without a sqlconf.php has no database to migrate.
     if [[ ! -f "${sqlconf}" ]]; then
         return 0
     fi
-    local site_config_state
-    site_config_state=$(php -r "require '${sqlconf}'; echo isset(\$config) && \$config ? 1 : 0;" 2>/dev/null || echo 0)
-    if [[ "${site_config_state}" != "1" ]]; then
+
+    # Connect as the site's own user against the site's own database, which is
+    # the only way to read a non-default site's version table.
+    #
+    # The path reaches PHP through the environment rather than interpolated into
+    # the source. A site directory name is an arbitrary filesystem string -- it
+    # may hold a quote, a backslash, a dollar sign or a newline -- so pasting one
+    # into a PHP literal would make the site list an eval surface.
+    local db_params
+    db_params=$(OPENEMR_SQLCONF="${sqlconf}" php <<'PHP'
+<?php
+require getenv('OPENEMR_SQLCONF');
+// An unconfigured site has nothing to migrate, which is not a failure: report
+// it in band so a nonzero status still means the file could not be read.
+if (!isset($config) || !$config) {
+    echo 'unconfigured';
+    exit(0);
+}
+echo implode("\t", [$host, $port, $login, $pass, $dbase]);
+PHP
+    ) || {
+        echo "ERROR: could not read database parameters from ${sqlconf}." >&2
+        return 1
+    }
+
+    # Fresh install: check_upgrade runs before auto-configuration.
+    if [[ "${db_params}" = 'unconfigured' ]]; then
         return 0
     fi
 
     wait_for_mysql
-
-    # Connect as the site's own user against the site's own database, which is
-    # the only way to read a non-default site's version table.
-    local db_params
-    db_params=$(php -r "require '${sqlconf}'; echo implode(\"\t\", [\$host, \$port, \$login, \$pass, \$dbase]);") || {
-        echo "ERROR: could not read database parameters from ${sqlconf}." >&2
-        return 1
-    }
     local db_host db_port db_login db_pass db_name
     IFS=$'\t' read -r db_host db_port db_login db_pass db_name <<< "${db_params}"
 
@@ -631,10 +646,13 @@ upgrade_site_schema() {
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
     # sql_upgrade.php resolves its site from $_GET['site'], so prepend the
-    # assignment rather than editing the script in place.
+    # assignment rather than editing the script in place. The name is read from
+    # the environment at run time rather than written into the generated source,
+    # so the prologue is a fixed string no site name can reshape.
     if ! {
-        # shellcheck disable=SC2016 # $_GET is PHP source, not a shell expansion.
-        printf '<?php $_GET["site"] = "%s"; ?>\n' "${sitename}"
+        cat <<'PHP'
+<?php $_GET['site'] = getenv('OPENEMR_UPGRADE_SITE'); ?>
+PHP
         cat "${OE_ROOT}/sql_upgrade.php"
     } > "${OE_ROOT}/TEMPsql_upgrade.php"; then
         echo "ERROR: could not stage sql_upgrade.php for ${sitename} (file missing?)" >&2
@@ -643,7 +661,7 @@ upgrade_site_schema() {
     fi
 
     # Drop privileges to apache: RootCliGuard (openemr#12267) refuses root for OpenEMR CLI scripts.
-    if ! su-exec apache php -f "${OE_ROOT}/TEMPsql_upgrade.php" -- --from="${installed_release}"; then
+    if ! OPENEMR_UPGRADE_SITE="${sitename}" su-exec apache php -f "${OE_ROOT}/TEMPsql_upgrade.php" -- --from="${installed_release}"; then
         echo "ERROR: Database upgrade failed for ${sitename} from ${installed_release}" >&2
         echo "The database may be partially upgraded. Review the errors above and either" >&2
         echo "correct the underlying problem or restore your pre-upgrade backup." >&2
