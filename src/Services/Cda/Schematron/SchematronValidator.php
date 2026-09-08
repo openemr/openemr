@@ -36,6 +36,7 @@ namespace OpenEMR\Services\Cda\Schematron;
 
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMNode;
 use DOMXPath;
 use RuntimeException;
@@ -177,7 +178,7 @@ final readonly class SchematronValidator
                 $originalTest = $item->test;
                 try {
                     $test = $this->rewriter->rewrite($originalTest);
-                } catch (RuntimeException) {
+                } catch (RuntimeException | DOMException) {
                     $results[] = [
                         'type' => $item->level,
                         'assertionId' => $item->id,
@@ -253,7 +254,7 @@ final readonly class SchematronValidator
                     'path' => $this->buildXPath($node),
                     'xml' => $xmlSnippet,
                 ];
-            } catch (RuntimeException) {
+            } catch (RuntimeException | DOMException) {
                 return ['ignored' => true, 'errorMessage' => self::IGNORED_MESSAGE];
             }
         }
