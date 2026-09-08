@@ -1,0 +1,105 @@
+# The "All Checks Passed" aggregate (all-checks-passed.yml) polls a commit's
+# check runs and fails as soon as any of them concludes failure. When the
+# failed jobs were transient (registry pulls, artifact-service 403s) and
+# someone reruns them green, the aggregate stays red: it is its own workflow
+# run, already concluded, and rerunning the underlying workflow does not
+# re-trigger it. On PRs the aggregate is the only required check, so the
+# stale red blocks the merge until someone reruns it by hand.
+#
+# This workflow closes that gap. It fires when one of the heavy workflows
+# completes (which is what a "re-run failed jobs" click produces), and reruns
+# any failed "All Checks Passed" run for the same commit once every other
+# check run on that commit is green. It only ever acts on that exact state,
+# so a legitimately red commit stays red.
+name: Rerun Stale All Checks Passed
+
+on:
+  workflow_run:
+    types: [completed]
+    # Only workflows that produce the transient failures people rerun. A
+    # completion of anything not listed here cannot fire the healer, so if a
+    # new workflow becomes a frequent rerun target, add it.
+    workflows:
+    - Test All Configurations
+    - Acceptance test (docker)
+    - Acceptance test (package)
+    - Integration tests
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Commit SHA to evaluate
+        required: true
+        type: string
+
+# One evaluation per commit at a time; a second completion for the same
+# commit waits rather than racing the first to the rerun call.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_sha || inputs.sha }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  checks: read
+  contents: read
+
+jobs:
+  rerun-stale-aggregate:
+    name: Rerun stale All Checks Passed
+    runs-on: ubuntu-24.04
+    # A failed or cancelled run cannot have healed anything, so only a
+    # successful completion (or a manual dispatch) is worth evaluating.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    steps:
+    - name: Rerun failed aggregate if every other check is green
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        SHA: ${{ github.event.workflow_run.head_sha || inputs.sha }}
+        # This job's own check run is in_progress while it evaluates, and the
+        # aggregate itself ignores the codecov contexts, so neither may count
+        # as a blocker. Keep this list in sync with all-checks-passed.yml.
+        IGNORED_CHECKS: 'Rerun stale All Checks Passed,All Checks Passed,codecov/project,codecov/patch'
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        # Every check run on the commit that is not ignored must be green
+        # (success, neutral, or skipped). Anything still running or concluded
+        # red means the aggregate is not stale, just correctly red or early.
+        blockers=$(gh api "repos/${REPO}/commits/${SHA}/check-runs?per_page=100" --paginate \
+            --jq '.check_runs[] | {name, status, conclusion}' \
+          | jq -rs --arg ignored "$IGNORED_CHECKS" '
+              ($ignored | split(",")) as $skip
+              | map(select(.name as $n | $skip | index($n) | not))
+              | map(select(.status != "completed"
+                           or (.conclusion | IN("success", "neutral", "skipped") | not)))
+              | .[] | "\(.name): \(.status)/\(.conclusion)"')
+        if [[ -n "${blockers}" ]]; then
+            printf 'Not rerunning the aggregate; blocking check runs remain:\n%s\n' "${blockers}"
+            exit 0
+        fi
+
+        # A commit can carry several aggregate runs (push and pull_request
+        # events each create one). Rerun every failed one, with an attempt
+        # cap so a repeatedly failing aggregate surfaces instead of cycling.
+        stale_runs=$(gh api "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=20" \
+            --jq '.workflow_runs[] | select(.conclusion == "failure") | "\(.id) \(.run_attempt)"')
+        if [[ -z "${stale_runs}" ]]; then
+            echo 'No failed All Checks Passed run on this commit; nothing to do.'
+            exit 0
+        fi
+
+        while read -r run_id attempt; do
+            if (( attempt >= 5 )); then
+                echo "::warning::Aggregate run ${run_id} has already been attempted ${attempt} times; leaving it red for a human."
+                continue
+            fi
+            # Warn instead of failing on API errors: this job's check run
+            # lands on the same commit, and a red healer would itself block
+            # the aggregate it exists to unblock.
+            if gh api -X POST "repos/${REPO}/actions/runs/${run_id}/rerun" > /dev/null; then
+                echo "Reran stale All Checks Passed run ${run_id} (attempt ${attempt} -> $((attempt + 1)))."
+            else
+                echo "::warning::Could not rerun aggregate run ${run_id}; it may already be running."
+            fi
+        done <<< "${stale_runs}"
