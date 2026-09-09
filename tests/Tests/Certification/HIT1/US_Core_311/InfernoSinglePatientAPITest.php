@@ -91,12 +91,13 @@ final class InfernoSinglePatientAPITest extends TestCase
     /**
      * Max wall time (seconds) to wait for an async Inferno test_run to
      * reach `status = 'done'`. Set generously so slow test groups
-     * (patient ~180s, allergy_intolerance can run much longer) have
-     * room to complete. A single test that exceeds this fails on its
-     * own — session-per-test isolation prevents the miss from
-     * cascading into 409 conflicts on the following tests.
+     * (patient ~180s, allergy_intolerance and the vitals suites can
+     * run much longer) have room to complete. A single test that
+     * exceeds this fails on its own — session-per-test isolation
+     * prevents the miss from cascading into 409 conflicts on the
+     * following tests.
      */
-    public const POLLING_TIMEOUT = 300;
+    public const POLLING_TIMEOUT = 600;
 
     private static ApiTestClient $testClient;
     private static string $baseUrl;
