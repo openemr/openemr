@@ -507,9 +507,6 @@ class RestControllerHelper
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
             return new JsonResponse($httpResponseBody, Response::HTTP_BAD_REQUEST);
-        } elseif (count($processingResult->getData()) <= 0) {
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
-            return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } elseif ($processingResult->hasInternalErrors()) {
             // Internal errors carry raw exception text from domain services
             // (often SQL fragments, table/column names, file paths). Do not
@@ -528,6 +525,13 @@ class RestControllerHelper
                 'An internal error occurred (incident ' . $correlationId . ')',
             ];
             return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
+        } elseif (count($processingResult->getData()) <= 0) {
+            // Checked after the internal-error branch: a service that fails and returns no
+            // data (addInternalError() with an empty payload, which is what the write paths
+            // do on a caught SqlQueryException) would otherwise be reported to the client as
+            // a 404 rather than the correlated 500 it is.
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
+            return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } else {
             $dataResult = $processingResult->getData();
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);

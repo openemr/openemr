@@ -371,6 +371,18 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                 }
 
                 if ($referenceType === 'Patient') {
+                    // An appointment stores exactly one pid, and the controller's
+                    // patient-compartment check reads the first Patient reference in the
+                    // payload. Letting a later participant overwrite the earlier one would
+                    // mean a patient-scoped caller could list their own patient first to
+                    // satisfy that check and have the appointment written for a second,
+                    // unauthorized patient. Conflicting references are rejected instead.
+                    $existingPuuid = $data['puuid'] ?? null;
+                    if (is_string($existingPuuid) && strcasecmp($existingPuuid, $referenceUuid) !== 0) {
+                        throw new \InvalidArgumentException(
+                            'Appointment.participant carries more than one distinct Patient reference'
+                        );
+                    }
                     $data['puuid'] = $referenceUuid;
                     // Resolve patient uuid to pid
                     $puuidBytes = UuidRegistry::uuidToBytes($referenceUuid);

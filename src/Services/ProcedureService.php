@@ -950,87 +950,118 @@ class ProcedureService extends BaseService
             return $result;
         }
 
-        // Replacing the code rows renumbers procedure_order_seq, and procedure_answers,
-        // procedure_specimen and procedure_report are all keyed by
-        // (procedure_order_id, procedure_order_seq). Once results have been reported those
-        // rows cannot be renumbered without silently reattaching them to a different code,
-        // so the replacement is refused rather than guessed at.
-        $reportCount = QueryUtils::fetchSingleValue(
-            "SELECT COUNT(*) AS reportCount FROM procedure_report WHERE procedure_order_id = ?",
-            'reportCount',
-            [$orderId]
-        );
-        if (is_numeric($reportCount) && (int) $reportCount > 0) {
-            $result->setValidationMessages([
-                'code' => 'ServiceRequest codes cannot be replaced once results have been reported for the order',
-            ]);
-            return $result;
-        }
 
         // patient_id and uuid are not mutable; strip them before building update SQL
         unset($orderData['patient_id'], $orderData['uuid']);
 
         try {
-            QueryUtils::inTransaction(function () use ($orderId, $rowPatientId, $orderData, $codes): void {
-                if ($orderData !== []) {
-                    $query = $this->buildUpdateColumns($orderData);
-                    /** @var string $setClause */
-                    $setClause = $query['set'];
-                    /** @var array<int, mixed> $binds */
-                    $binds = $query['bind'];
-                    if ($setClause !== '') {
-                        // Use procedure_order_id + patient_id as the scope.
-                        // patient_id is part of the WHERE for belt-and-braces
-                        // protection if expectedPatientId was not supplied.
-                        $binds[] = $orderId;
-                        $binds[] = $rowPatientId;
+            $replaced = QueryUtils::inTransaction(
+                function () use ($orderId, $rowPatientId, $orderData, $codes): bool {
+                    // Take the order row exclusively first. procedure_order.procedure_order_id
+                    // is the primary key, so this is a plain row lock -- it holds under READ
+                    // COMMITTED as well as REPEATABLE READ, where a COUNT(*) ... FOR UPDATE
+                    // would rely on gap locks that READ COMMITTED does not take.
+                    QueryUtils::fetchSingleValue(
+                        "SELECT procedure_order_id FROM " . self::PROCEDURE_TABLE
+                        . " WHERE procedure_order_id = ? FOR UPDATE",
+                        'procedure_order_id',
+                        [$orderId]
+                    );
+
+                    // Replacing the code rows renumbers procedure_order_seq, and
+                    // procedure_answers, procedure_specimen and procedure_report are all keyed
+                    // by (procedure_order_id, procedure_order_seq). Once results have been
+                    // reported those rows cannot be renumbered without silently reattaching
+                    // them to a different code, so the replacement is refused.
+                    //
+                    // Checked here rather than before the transaction so the check and the
+                    // replacement are atomic with respect to anything else that locks the
+                    // order row. Report writers that do not take that lock
+                    // (controllers/C_Document.class.php, Services/Cda/CdaTemplateImportDispose)
+                    // are still able to interleave; closing that fully needs the same lock on
+                    // those paths and is tracked separately.
+                    $reportCount = QueryUtils::fetchSingleValue(
+                        "SELECT COUNT(*) AS reportCount FROM procedure_report"
+                        . " WHERE procedure_order_id = ?",
+                        'reportCount',
+                        [$orderId]
+                    );
+                    if (is_numeric($reportCount) && (int) $reportCount > 0) {
+                        return false;
+                    }
+
+                    if ($orderData !== []) {
+                        $query = $this->buildUpdateColumns($orderData);
+                        /** @var string $setClause */
+                        $setClause = $query['set'];
+                        /** @var array<int, mixed> $binds */
+                        $binds = $query['bind'];
+                        if ($setClause !== '') {
+                            // Use procedure_order_id + patient_id as the scope.
+                            // patient_id is part of the WHERE for belt-and-braces
+                            // protection if expectedPatientId was not supplied.
+                            $binds[] = $orderId;
+                            $binds[] = $rowPatientId;
+                            QueryUtils::sqlStatementThrowException(
+                                "UPDATE " . self::PROCEDURE_TABLE . " SET " . $setClause
+                                . " WHERE procedure_order_id = ? AND patient_id = ?",
+                                $binds
+                            );
+                        }
+                    }
+
+                    // Answers and specimens hang off (procedure_order_id, procedure_order_seq)
+                    // too, so they go with the codes -- the same order deleteOrderCode() uses.
+                    // Leaving them behind would point them at a sequence number that now
+                    // describes a different code. Reported results are ruled out above.
+                    QueryUtils::sqlStatementThrowException(
+                        "DELETE FROM procedure_answers WHERE procedure_order_id = ?",
+                        [$orderId]
+                    );
+                    QueryUtils::sqlStatementThrowException(
+                        "DELETE FROM procedure_specimen WHERE procedure_order_id = ?",
+                        [$orderId]
+                    );
+                    QueryUtils::sqlStatementThrowException(
+                        "DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
+                        [$orderId]
+                    );
+
+                    foreach ($codes as $index => $code) {
+                        $procedureCode = is_string($code['procedure_code'] ?? null)
+                            ? $code['procedure_code']
+                            : '';
+                        if ($procedureCode === '') {
+                            throw new \RuntimeException("procedure_code is required (entry $index)");
+                        }
                         QueryUtils::sqlStatementThrowException(
-                            "UPDATE " . self::PROCEDURE_TABLE . " SET " . $setClause
-                            . " WHERE procedure_order_id = ? AND patient_id = ?",
-                            $binds
+                            "INSERT INTO procedure_order_code "
+                            . "(procedure_order_id, procedure_order_seq, procedure_code, "
+                            . "procedure_name, procedure_source, diagnoses, procedure_order_title) "
+                            . "VALUES (?, ?, ?, ?, '1', ?, ?)",
+                            [
+                                $orderId,
+                                $index + 1,
+                                $procedureCode,
+                                is_string($code['procedure_name'] ?? null) ? $code['procedure_name'] : '',
+                                is_string($code['diagnoses'] ?? null) ? $code['diagnoses'] : '',
+                                is_string($code['procedure_order_title'] ?? null)
+                                    ? $code['procedure_order_title']
+                                    : '',
+                            ]
                         );
                     }
+
+                    return true;
                 }
+            );
 
-                // Answers and specimens hang off (procedure_order_id, procedure_order_seq)
-                // too, so they go with the codes -- the same order deleteOrderCode() uses.
-                // Leaving them behind would point them at a sequence number that now
-                // describes a different code. Reported results are ruled out above.
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM procedure_answers WHERE procedure_order_id = ?",
-                    [$orderId]
-                );
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM procedure_specimen WHERE procedure_order_id = ?",
-                    [$orderId]
-                );
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
-                    [$orderId]
-                );
-
-                foreach ($codes as $index => $code) {
-                    $procedureCode = is_string($code['procedure_code'] ?? null) ? $code['procedure_code'] : '';
-                    if ($procedureCode === '') {
-                        throw new \RuntimeException("procedure_code is required (entry $index)");
-                    }
-                    QueryUtils::sqlStatementThrowException(
-                        "INSERT INTO procedure_order_code "
-                        . "(procedure_order_id, procedure_order_seq, procedure_code, "
-                        . "procedure_name, procedure_source, diagnoses, procedure_order_title) "
-                        . "VALUES (?, ?, ?, ?, '1', ?, ?)",
-                        [
-                            $orderId,
-                            $index + 1,
-                            $procedureCode,
-                            is_string($code['procedure_name'] ?? null) ? $code['procedure_name'] : '',
-                            is_string($code['diagnoses'] ?? null) ? $code['diagnoses'] : '',
-                            is_string($code['procedure_order_title'] ?? null) ? $code['procedure_order_title'] : '',
-                        ]
-                    );
-                }
-            });
-
+            if ($replaced === false) {
+                $result->setValidationMessages([
+                    'code' => 'ServiceRequest codes cannot be replaced once results have been reported for the order',
+                ]);
+                return $result;
+            }
         } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
             $this->getLogger()->error('ServiceRequest updateOrder failed', ['uuid' => $uuid, 'exception' => $e]);
             $result->addInternalError('ServiceRequest could not be updated');
