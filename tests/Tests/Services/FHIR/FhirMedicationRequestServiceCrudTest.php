@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -31,9 +32,23 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
     private FHIRMedicationRequest $fhirMedicationRequestFixture;
     private FhirMedicationRequestService $fhirMedicationRequestService;
     private string $patientUuid;
+    private ?string $previousAuthUser = null;
 
     protected function setUp(): void
     {
+        // PrescriptionService::insert() applies OpenEMR's per-patient ACL policy, which reads
+        // the caller from the active session. tests/bootstrap.php runs interface/globals.php
+        // with $ignoreAuth = true, so no user is authenticated and
+        // AclMain::aclCheckCore('patients', 'demo') denies -- the insert then fails with
+        // "User does not have access to this patient." rather than exercising the write path.
+        // admin is the superuser the development and CI installs create, and aclCheckCore()
+        // short-circuits on admin/super, so binding it here gives the service a caller the
+        // ACL layer can resolve.
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $existingAuthUser = $session->get('authUser');
+        $this->previousAuthUser = is_string($existingAuthUser) ? $existingAuthUser : null;
+        $session->set('authUser', 'admin');
+
         $this->fixtureManager = new FixtureManager();
 
         $this->fixtureManager->installPatientFixtures();
@@ -57,6 +72,13 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
 
     protected function tearDown(): void
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($this->previousAuthUser === null) {
+            $session->remove('authUser');
+        } else {
+            $session->set('authUser', $this->previousAuthUser);
+        }
+
         $this->fixtureManager->removeMedicationRequestFixtures();
         $this->fixtureManager->removePatientFixtures();
     }
