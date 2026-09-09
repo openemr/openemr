@@ -71801,4 +71801,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../tests/eventdispatcher/oe-modify-patient-menu-example/openemr.bootstrap.php',
 ];
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

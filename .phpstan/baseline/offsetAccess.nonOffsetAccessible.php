@@ -48131,4 +48131,5 @@ $ignoreErrors[] = [
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Validators/PatientValidatorTest.php',
 ];
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
