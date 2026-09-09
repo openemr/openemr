@@ -28,6 +28,18 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * FhirPersonService is backed by the `users` table (staff records only —
+ * patients live in `patient_data` and never appear here). No US Core profile
+ * covers Person, and patient callers reach ONC-shaped provider directory
+ * information via {@see FhirPractitionerService} and
+ * {@see FhirPractitionerRoleService} instead. This service therefore does
+ * NOT declare a marker interface: a patient-scoped call reaching
+ * {@see FhirServiceBase} without one of the two compartment markers is
+ * handled by the base fail-closed path (denied result, no rows). The route
+ * layer also branches on `isPatientRequest()` and returns 403 with a
+ * clearer error shape rather than a silent empty bundle.
+ */
 class FhirPersonService extends FhirServiceBase implements IFhirExportableResourceService
 {
     use BulkExportSupportAllOperationsTrait;

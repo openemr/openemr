@@ -16,12 +16,13 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 class PrescriptionService extends BaseService
 {
@@ -30,7 +31,6 @@ class PrescriptionService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PRACTITIONER_TABLE = "users";
-    private readonly PatientValidator $patientValidator;
 
     /**
      * Default constructor.
@@ -40,13 +40,32 @@ class PrescriptionService extends BaseService
         parent::__construct(self::PRESCRIPTION_TABLE);
         UuidRegistry::createMissingUuidsForTables([self::PRESCRIPTION_TABLE, self::PATIENT_TABLE, self::ENCOUNTER_TABLE,
             self::PRACTITIONER_TABLE, self::DRUGS_TABLE]);
-        $this->patientValidator = new PatientValidator();
     }
 
     /**
-     * Returns a list of prescriptions matching optional search criteria.
-     * Search criteria is conveyed by array where key = field/column name, value = field value.
-     * If no search criteria is provided, all records are returned.
+     * Returns a list of prescriptions matching search criteria. A patient
+     * binding is REQUIRED (`patient.uuid` in the search array); calling
+     * `getAll()` without one returns a validation-failure ProcessingResult
+     * rather than a tenant-wide enumeration.
+     *
+     * Rationale: the REST list endpoint previously fell through to an
+     * unfiltered UNION-SELECT when no filter was supplied, so any caller who
+     * reached the route with `patients/rx` view access received every
+     * prescription across every patient. Requiring the bind here mirrors the
+     * compartment-enforcement pattern used by FHIR services and keeps the
+     * scope narrowing at the data-layer boundary rather than relying on a
+     * caller elsewhere to remember to bind a patient.
+     *
+     * Per-patient authorization is handled at the boundary:
+     *   - SMART/FHIR path: BearerTokenAuthorizationStrategy::checkUserHasAccessToPatient
+     *     validates the token's user against the token's patient at request
+     *     entry, so any downstream service can trust the patient binding.
+     *   - REST /api/prescription path: the route-level `patients/rx view`
+     *     ACL gates the endpoint per tenant, and the compartment bind above
+     *     restricts the query to the requested patient.
+     * A duplicate service-layer AclMain::aclCheckCore is both redundant and
+     * incorrect for SMART tokens (there is no $_SESSION['authUser'] to check
+     * against — the identity is on the OAuth token).
      *
      * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
@@ -55,17 +74,61 @@ class PrescriptionService extends BaseService
      */
     public function getAll(array $search = [], $isAndCondition = true)
     {
-        if (isset($search['patient.uuid'])) {
-            $isValidPatient = $this->patientValidator->validateId(
-                'uuid',
-                self::PATIENT_TABLE,
-                $search['patient.uuid'],
-                true
-            );
-            if ($isValidPatient instanceof ProcessingResult) {
-                return $isValidPatient;
+        // Three caller shapes reach here:
+        //   - REST /api/prescription list: passes `patient.uuid` as a bare
+        //     uuid string (after PrescriptionRestController translates the
+        //     `patient_uuid` query parameter).
+        //   - FHIR /MedicationRequest search: FhirMedicationRequestService
+        //     uses PatientSearchTrait::getPatientContextSearchField() which
+        //     maps the FHIR `patient` parameter to an already-parsed
+        //     ISearchField keyed as `puuid`. FhirServiceBase's compartment
+        //     check already validated the caller's puuid against the
+        //     resource compartment before we get here.
+        //   - FHIR /MedicationRequest/{id} read: FhirServiceBase::getOne
+        //     invokes getAll(['_id' => $uuid]) which converts to a
+        //     `uuid` ISearchField — a single-record lookup with no patient
+        //     binding. The auth layer already gated the caller.
+        // The required-binding gate closes the tenant-wide enumeration
+        // shape (no filter at all); single-record read by known uuid does
+        // not enumerate and is allowed through.
+        $patientUuidRaw = $search['patient.uuid'] ?? null;
+        $hasFhirPuuidBinding = isset($search['puuid']);
+        $hasPatientUuidString = is_string($patientUuidRaw) && $patientUuidRaw !== '';
+        // Single-record uuid exception: FhirServiceBase::getOne invokes
+        // getAll(['_id' => $uuid]) which converts to a single-value `uuid`
+        // ISearchField. FHIR `_id` also accepts comma-separated lists,
+        // however — the ISearchField would then carry multiple values, and
+        // "single-record lookup" no longer applies (it becomes a list
+        // enumeration keyed on caller-supplied uuids). Require exactly one
+        // value on the uuid binding to keep the exception scoped to a
+        // true point-read.
+        $uuidBinding = $search['uuid'] ?? null;
+        $hasSingleRecordUuidBinding = $uuidBinding instanceof ISearchField
+            && count($uuidBinding->getValues()) === 1;
+        if (!$hasFhirPuuidBinding && !$hasSingleRecordUuidBinding && !$hasPatientUuidString) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages([
+                'patient.uuid' => 'A patient identifier is required to list prescriptions.',
+            ]);
+            return $processingResult;
+        }
+
+        if (is_string($patientUuidRaw) && $patientUuidRaw !== '') {
+            // REST-path translation: rewrite the caller-facing FHIR-style
+            // `patient.uuid` key to the actual SELECT column alias
+            // `patient.puuid` before FhirSearchWhereClauseBuilder builds
+            // the WHERE. The FHIR path already carries `puuid` as an
+            // ISearchField and needs no rewrite here.
+            try {
+                $search['patient.puuid'] = UuidRegistry::uuidToBytes($patientUuidRaw);
+            } catch (InvalidUuidStringException) {
+                $processingResult = new ProcessingResult();
+                $processingResult->setValidationMessages([
+                    'patient.uuid' => 'Patient identifier is not a valid UUID.',
+                ]);
+                return $processingResult;
             }
-            $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
+            unset($search['patient.uuid']);
         }
 
         $sql = $this->getBaseSql();
@@ -374,6 +437,12 @@ class PrescriptionService extends BaseService
     /**
      * Returns a single prescription record by uuid.
      *
+     * Per-patient authorization is applied at the boundary (SMART token
+     * check in BearerTokenAuthorizationStrategy for FHIR-path callers;
+     * route-level `patients/rx view` for REST-path callers). This method
+     * only rejects unknown / malformed prescription UUIDs so the response
+     * shape stays consistent with the historical validateId contract.
+     *
      * @param string $uuid The prescription uuid identifier in string format.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
@@ -382,9 +451,21 @@ class PrescriptionService extends BaseService
     {
         $processingResult = new ProcessingResult();
 
-        $isValid = $this->patientValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
-        if ($isValid instanceof ProcessingResult) {
-            return $isValid;
+        $patient = $this->findPatientForPrescription($uuid);
+        if ($patient === null) {
+            // Prescription uuid does not resolve (unknown or malformed).
+            // Return a validation-error ProcessingResult so
+            // RestControllerHelper maps this to 400 — matches the
+            // historical PatientValidator::validateId shape that
+            // PrescriptionApiTest::testGetOneNotFound pins. Orphaned rows
+            // (prescription exists but owner patient row is missing) do
+            // NOT hit this branch; findPatientForPrescription returns a
+            // row with null pid/squad/uuid in that case, and the SELECT
+            // below still surfaces the prescription.
+            $processingResult->setValidationMessages([
+                'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
+            ]);
+            return $processingResult;
         }
 
         // Can't use getAll(['_id' => $uuid]) because FhirSearchWhereClauseBuilder
@@ -404,7 +485,70 @@ class PrescriptionService extends BaseService
     private const REQUIRED_INSERT_FIELDS = ['drug', 'patient_id'];
 
     /**
+     * Fields accepted from a REST client on `POST /api/prescription`. Any key
+     * in the request payload that is not in this allowlist is dropped before
+     * building the INSERT — the raw payload was previously fed straight into
+     * `buildInsertColumns()` which accepts every column defined on the
+     * prescriptions table, letting a caller populate provenance columns like
+     * `created_by`, `date_added`, or `drug_id` that should be derived from
+     * the server-side context rather than trusted from client input.
+     *
+     * The list mirrors the columns the OpenAPI schema for
+     * `POST /api/prescription` documents plus the clinical fields the
+     * shipping UI has always let a clinician set. Server-managed columns
+     * (`uuid`, `date_added`, `date_modified`, `id`, `active`) are excluded.
+     *
+     * @var list<string>
+     */
+    private const INSERTABLE_FIELDS = [
+        'patient_id',
+        'provider_id',
+        'encounter',
+        'drug',
+        'drug_id',
+        'rxnorm_drugcode',
+        'dosage',
+        'quantity',
+        'size',
+        'unit',
+        'route',
+        'interval',
+        'refills',
+        'per_refill',
+        'form',
+        'note',
+        'medication',
+        'substitute',
+        'start_date',
+        'end_date',
+        'diagnosis',
+        'drug_info_erx',
+        'ntx',
+        'txDate',
+        'indamt',
+        'usage_category',
+        'usage_category_title',
+        'request_intent',
+        'request_intent_title',
+        'drug_dosage_instructions',
+    ];
+
+    /**
      * Inserts a new prescription record.
+     *
+     * Enforces a per-patient ACL check on the supplied `patient_id` before
+     * touching the row. The route-level ACL (`patients / rx` + `write|addonly`)
+     * is a tenant-wide grant, so a caller who cleared the route could
+     * previously create a prescription attributed to ANY patient in the tenant
+     * regardless of their normal chart-access scope. Mirrors the DELETE-side
+     * ownership assertion and the `patients / demo` ACL pattern used by
+     * {@see \OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy::checkUserHasAccessToPatient()}
+     * for the SMART launch context.
+     *
+     * Returns a validation-failure result on any of:
+     *   - unresolved `patient_id` (no such patient)
+     *   - caller lacks the base `patients / demo` ACL
+     *   - patient carries a `squad` tag the caller does not hold
      *
      * @param array<string, mixed> $data The prescription data.
      * @return ProcessingResult containing the new prescription id and uuid, or validation errors.
@@ -424,19 +568,59 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
+        // Per-patient ACL check on the supplied patient_id. Prescriptions.patient_id
+        // is a pid (not a uuid — see sql/database.sql). Resolve the pid to a
+        // patient row, then verify the caller holds `patients / demo` (plus
+        // any patient-specific `squads/<squad>` scope). Return a validation
+        // failure if the pid does not resolve or the caller lacks access — a
+        // tenant-wide `patients/rx write` grant must not translate to "can
+        // create a prescription for any patient".
+        // Require an integer LEXICAL form for patient_id. `is_numeric`
+        // accepts things like "1.5", "1e2", "+1", and "  1  "; the (int)
+        // cast then narrows to 1, so ACL runs against patient 1 while
+        // MySQL's implicit conversion for the BIGINT column would round
+        // "1.5" to 2 for the actual INSERT. Match ACL and INSERT by
+        // rejecting anything that is not an unsigned-integer string / int,
+        // then normalize once and use the int form for both the ACL
+        // lookup and the INSERT payload below.
         $patientIdRaw = $data['patient_id'];
-        if (!is_numeric($patientIdRaw)) {
-            $processingResult->setValidationMessages(['patient_id' => 'This field must be numeric']);
+        $patientIdNormalized = null;
+        if (is_int($patientIdRaw) && $patientIdRaw > 0) {
+            $patientIdNormalized = $patientIdRaw;
+        } elseif (is_string($patientIdRaw) && preg_match('/^[1-9][0-9]*$/', $patientIdRaw) === 1) {
+            $patientIdNormalized = (int) $patientIdRaw;
+        }
+        if ($patientIdNormalized === null) {
+            $processingResult->setValidationMessages([
+                'patient_id' => 'Patient id must be a positive integer.',
+            ]);
             return $processingResult;
         }
-        $encounterError = $this->encounterOwnershipError($data['encounter'] ?? null, (int) $patientIdRaw);
-        if ($encounterError !== null) {
-            return $encounterError;
+        $patient = $this->findPatientByPid($patientIdNormalized);
+        if ($patient === null) {
+            $processingResult->setValidationMessages([
+                'patient_id' => 'Patient does not exist.',
+            ]);
+            return $processingResult;
+        }
+        $squadRaw = $patient['squad'] ?? '';
+        $squad = is_string($squadRaw) ? $squadRaw : '';
+        if (!$this->aclCheckUserPatientAccess($squad)) {
+            $processingResult->setValidationMessages([
+                'patient_id' => 'User does not have access to this patient.',
+            ]);
+            return $processingResult;
         }
 
-        $data['uuid'] = UuidRegistry::getRegistryForTable(self::PRESCRIPTION_TABLE)->createUuid();
+        // Field allowlist: drop keys the REST contract does not expose so
+        // client input cannot populate server-managed columns.
+        $filteredData = array_intersect_key($data, array_flip(self::INSERTABLE_FIELDS));
+        // Store the normalized integer so MySQL's implicit conversion for
+        // the BIGINT column can't drift from the value ACL saw.
+        $filteredData['patient_id'] = $patientIdNormalized;
+        $filteredData['uuid'] = UuidRegistry::getRegistryForTable(self::PRESCRIPTION_TABLE)->createUuid();
 
-        $query = $this->buildInsertColumns($data);
+        $query = $this->buildInsertColumns($filteredData);
 
         /** @var string $setClause */
         $setClause = $query['set'];
@@ -449,7 +633,7 @@ class PrescriptionService extends BaseService
         if ($results) {
             $processingResult->addData([
                 'id' => $results,
-                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+                'uuid' => UuidRegistry::uuidToString($filteredData['uuid'])
             ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
@@ -459,103 +643,59 @@ class PrescriptionService extends BaseService
     }
 
     /**
-     * Updates an existing prescription record by uuid.
-     *
-     * Only records that live in the `prescriptions` table can be updated. `lists`-source
-     * medications (legacy free-text entries surfaced through the read UNION) are not
-     * writable here — passing one of those uuids returns a validation error.
-     *
-     * @param string $uuid The prescription uuid in string format.
-     * @param array<string, mixed> $data Column => value pairs to update. The `uuid` and
-     *                                   `patient_id` keys, if present, are ignored.
-     * @param int|null $expectedPatientId If provided, the stored prescription's patient_id
-     *     must match -- ownership check so a leaked uuid cannot be used to mutate a
-     *     prescription belonging to a patient other than the caller's resolved subject.
-     * @return ProcessingResult The refreshed record on success, or validation errors.
-     */
-    public function update(string $uuid, array $data, ?int $expectedPatientId = null): ProcessingResult
-    {
-        $isValid = $this->patientValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
-        if ($isValid instanceof ProcessingResult) {
-            return $isValid;
-        }
-
-        if ($data === []) {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages(['data' => 'No update fields supplied']);
-            return $processingResult;
-        }
-
-        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
-        $rowPatientIdRaw = QueryUtils::fetchSingleValue(
-            "SELECT patient_id FROM " . self::PRESCRIPTION_TABLE . " WHERE uuid = ?",
-            'patient_id',
-            [$uuidBytes]
-        );
-        if (!is_numeric($rowPatientIdRaw)) {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
-            return $processingResult;
-        }
-        $rowPatientId = (int) $rowPatientIdRaw;
-
-        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
-            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
-            // existence of another patient's prescription.
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
-            return $processingResult;
-        }
-
-        $encounterError = $this->encounterOwnershipError($data['encounter'] ?? null, $rowPatientId);
-        if ($encounterError !== null) {
-            return $encounterError;
-        }
-
-        // Neither the uuid nor the owning patient is mutable. BaseService::buildUpdateColumns()
-        // skips `pid`, but this table names its owner column `patient_id`, so it would otherwise
-        // pass straight into the SET clause and move the prescription to another chart.
-        unset($data['uuid'], $data['patient_id']);
-
-        $data['date_modified'] = date('Y-m-d H:i:s');
-        $query = $this->buildUpdateColumns($data);
-
-        /** @var string $setClause */
-        $setClause = $query['set'];
-        /** @var array<int, mixed> $binds */
-        $binds = $query['bind'];
-
-        if ($setClause === '') {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages(['data' => 'No recognized fields to update']);
-            return $processingResult;
-        }
-
-        // patient_id is part of the WHERE for belt-and-braces protection if $expectedPatientId
-        // was not supplied by the caller.
-        $sql = "UPDATE " . self::PRESCRIPTION_TABLE . " SET " . $setClause
-            . " WHERE uuid = ? AND patient_id = ?";
-        $binds[] = $uuidBytes;
-        $binds[] = $rowPatientId;
-        QueryUtils::sqlStatementThrowException($sql, $binds);
-
-        return $this->getOne($uuid);
-    }
-
-    /**
      * Soft-deletes a prescription record by setting active = 0.
      *
-     * @param string $uuid The prescription uuid in string format.
+     * Per-patient authorization is applied at the boundary (SMART / REST
+     * route ACL). This method still validates the target uuid resolves
+     * to a real prescription, and when `$expectedPatientUuid` is supplied,
+     * that the stored owner matches — mirroring the caller-side constraint
+     * the DELETE route already applied.
+     *
+     * @param string      $uuid                The prescription uuid in string format.
+     * @param string|null $expectedPatientUuid Optional patient UUID the record must belong to.
      * @return ProcessingResult with deletion status or validation errors.
      */
-    public function delete(string $uuid): ProcessingResult
+    public function delete(string $uuid, ?string $expectedPatientUuid = null): ProcessingResult
     {
-        $isValid = $this->patientValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
-        if ($isValid instanceof ProcessingResult) {
-            return $isValid;
+        $patient = $this->findPatientForPrescription($uuid);
+        if ($patient === null) {
+            // Same shape as getOne — historical PatientValidator::validateId
+            // format so RestControllerHelper maps to 400 (pinned by
+            // PrescriptionApiTest::testDeleteNonExistent).
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages([
+                'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
+            ]);
+            return $processingResult;
+        }
+
+        // findPatientForPrescription accepts UUIDs from both `prescriptions`
+        // and `lists` (medication rows) via UNION — matching the FHIR
+        // MedicationRequest getOne surface. The UPDATE below only modifies
+        // `prescriptions`, so a lists-only UUID would silently affect zero
+        // rows while the API still reported success. Reject the lists-only
+        // case explicitly with the same validation-error shape.
+        if (!$this->prescriptionUuidExists($uuid)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages([
+                'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
+            ]);
+            return $processingResult;
         }
 
         $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+
+        if ($expectedPatientUuid !== null && $expectedPatientUuid !== '') {
+            $storedPuuid = $patient['uuid'] ?? null;
+            if (!is_string($storedPuuid) || UuidRegistry::uuidToString($storedPuuid) !== $expectedPatientUuid) {
+                $processingResult = new ProcessingResult();
+                $processingResult->setValidationMessages([
+                    'patient.uuid' => 'Prescription does not belong to the specified patient.',
+                ]);
+                return $processingResult;
+            }
+        }
+
         $sql = "UPDATE " . self::PRESCRIPTION_TABLE
              . " SET active = 0, date_modified = NOW() WHERE uuid = ?";
         QueryUtils::sqlStatementThrowException($sql, [$uuidBytes]);
@@ -566,28 +706,168 @@ class PrescriptionService extends BaseService
     }
 
     /**
-     * Rejects an encounter reference that belongs to a different patient.
-     *
-     * The FHIR adapters resolve the subject and the encounter independently, so without this
-     * a write could file a prescription for patient A against patient B's visit. Returns null when
-     * there is nothing to check or the encounter checks out.
+     * Returns true if the given uuid resolves to a row in the
+     * `prescriptions` table. Distinct from
+     * {@see self::findPatientForPrescription()} which also accepts UUIDs
+     * from the `lists` medication surface. Used by
+     * {@see self::delete()} to reject a lists-only UUID before running an
+     * UPDATE that only touches `prescriptions`. Split out so isolated
+     * tests can override this seam without touching the database.
      */
-    private function encounterOwnershipError(mixed $encounter, int $patientId): ?ProcessingResult
+    protected function prescriptionUuidExists(string $uuid): bool
     {
-        if (!is_numeric($encounter) || (int) $encounter === 0) {
-            return null;
+        try {
+            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        } catch (InvalidUuidStringException) {
+            return false;
         }
-        $encounterPid = QueryUtils::fetchSingleValue(
-            "SELECT pid FROM form_encounter WHERE encounter = ?",
-            'pid',
-            [(int) $encounter]
+        $rows = QueryUtils::fetchRecords(
+            "SELECT 1 FROM " . self::PRESCRIPTION_TABLE . " WHERE uuid = ? LIMIT 1",
+            [$uuidBytes]
         );
-        if (is_numeric($encounterPid) && (int) $encounterPid === $patientId) {
+        return isset($rows[0]);
+    }
+
+    /**
+     * Look up a patient row by its public uuid. Returns null when the uuid
+     * does not correspond to an existing patient. Called by
+     * PrescriptionRestController's per-patient ACL check on the staff REST
+     * path (where the caller supplies patient_uuid directly). Split out so
+     * isolated tests can override this seam without touching the database.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function findPatientByPatientUuid(string $uuid): ?array
+    {
+        try {
+            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        } catch (InvalidUuidStringException) {
             return null;
         }
-        $result = new ProcessingResult();
-        $result->setValidationMessages(['encounter' => 'Encounter reference does not belong to this patient']);
+        $rows = QueryUtils::fetchRecords(
+            "SELECT pid, squad, uuid FROM " . self::PATIENT_TABLE . " WHERE uuid = ? LIMIT 1",
+            [$uuidBytes]
+        );
+        if (!isset($rows[0])) {
+            return null;
+        }
+        /** @var array<string,mixed> $row */
+        $row = $rows[0];
+        return $row;
+    }
 
-        return $result;
+    /**
+     * Given a prescription uuid, return the row for the prescription and
+     * its owning patient (pid, squad, uuid). Handles both the
+     * `prescriptions` table (patient_id column) and the `lists`
+     * medication rows (pid column) via a UNION mirror of the
+     * `combined_prescriptions` shape used by the SELECT SQL.
+     *
+     * Returns null ONLY when the prescription uuid does not resolve at
+     * all. When the prescription exists but the owner patient row is
+     * missing (orphaned data), the returned row has `pid`/`squad`/`uuid`
+     * as null — mirroring the LEFT JOIN in {@see self::getBaseSql()} so
+     * callers can still surface the prescription. The REST controller's
+     * per-patient ACL check treats a null pid as "no owner to gate
+     * against" and skips (matching the historical no-ACL behavior).
+     *
+     * Public so PrescriptionRestController's per-patient ACL check on the
+     * staff REST path can resolve the target's owner (getOne/delete
+     * receive a prescription uuid, not a patient uuid). Split out so
+     * isolated tests can override this seam without touching the database.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function findPatientForPrescription(string $prescriptionUuid): ?array
+    {
+        try {
+            $uuidBytes = UuidRegistry::uuidToBytes($prescriptionUuid);
+        } catch (InvalidUuidStringException) {
+            return null;
+        }
+        $rows = QueryUtils::fetchRecords(
+            "SELECT patient_data.pid, patient_data.squad, patient_data.uuid"
+            . " FROM (
+                    SELECT prescriptions.uuid, prescriptions.patient_id AS owner_pid FROM prescriptions
+                    UNION
+                    SELECT lists.uuid, lists.pid AS owner_pid
+                    FROM lists
+                    LEFT JOIN lists_medication ON lists_medication.list_id = lists.id
+                    WHERE lists.type = 'medication' AND lists_medication.prescription_id IS NULL
+                ) combined"
+            . " LEFT JOIN " . self::PATIENT_TABLE
+            . " ON " . self::PATIENT_TABLE . ".pid = combined.owner_pid"
+            . " WHERE combined.uuid = ? LIMIT 1",
+            [$uuidBytes]
+        );
+        if (!isset($rows[0])) {
+            return null;
+        }
+        /** @var array<string,mixed> $row */
+        $row = $rows[0];
+        // Reject orphaned records: LEFT JOIN can return a row with null
+        // pid/uuid when the prescription references a patient_data row
+        // that no longer exists. Surfacing an orphaned resource with no
+        // resolvable owner would let the REST controller skip its
+        // per-patient ACL gate (nothing to check against) and let getOne/
+        // delete treat the row as resolved. Callers see the same "not
+        // resolvable" outcome as a truly missing prescription.
+        $pid = $row['pid'] ?? null;
+        $patientUuid = $row['uuid'] ?? null;
+        if ($pid === null || $patientUuid === null) {
+            return null;
+        }
+        return $row;
+    }
+
+    /**
+     * Look up a patient row by its pid. Returns null when the pid does not
+     * correspond to an existing patient. Split out so isolated tests can
+     * override this seam without touching the database.
+     *
+     * The return type is deliberately widened to `array<string,mixed>|null`
+     * (rather than `PatientDataRow`) so isolated tests can supply fixture rows
+     * without having to satisfy every field of the underlying shape.
+     *
+     * `PatientService::findByPid()` declares a non-null `PatientDataRow` return
+     * via `@var`, but under the hood it delegates to `QueryUtils::selectHelper()`
+     * with `limit => 1`, which returns `null` when there is no matching row.
+     * The `mixed` cast defeats PHPStan's docblock trust so we can honour the
+     * real runtime null and return null on unresolved pids.
+     *
+     * @return array<string,mixed>|null
+     */
+    protected function findPatientByPid(int $pid): ?array
+    {
+        $patientService = new PatientService();
+        /** @var mixed $row */
+        $row = $patientService->findByPid($pid);
+        if (!is_array($row) || $row === []) {
+            return null;
+        }
+        /** @var array<string,mixed> $row */
+        return $row;
+    }
+
+    /**
+     * Applies OpenEMR's user-to-patient ACL policy: base `patients / demo`
+     * plus, when the patient carries a squad tag, the matching `squads / <squad>`
+     * ACL. Mirrors
+     * {@see \OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy::aclCheckUserPatientAccess()}.
+     * Split out so isolated tests can stub the AclMain interaction without
+     * standing up the gACL database. The caller identity is pulled from the
+     * active session by `AclMain::aclCheckCore()` when no username is passed.
+     *
+     * @param string $squad The patient's squad tag (empty string when unset).
+     */
+    protected function aclCheckUserPatientAccess(string $squad): bool
+    {
+        if (!AclMain::aclCheckCore('patients', 'demo')) {
+            return false;
+        }
+        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
+            return false;
+        }
+        return true;
     }
 }

@@ -28,7 +28,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirQuestionnaireService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService
+class FhirQuestionnaireService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, INonPatientCompartmentResourceService
 {
     /**
      * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait

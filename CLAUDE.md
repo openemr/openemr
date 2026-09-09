@@ -649,6 +649,45 @@ class ExampleService extends BaseService
 }
 ```
 
+## Module/Core Boundaries
+
+Dependencies point one way: a module reaches core by subscribing to an event,
+and core reaches a module by dispatching one.
+
+- **Core must not name a class from a module's namespace.** A module namespace
+  (`OpenEMR\Modules\...`, or a vendor-prefixed variant such as
+  `Acme\OpenEMR\Modules\...`) must not appear in a `use` statement, a type
+  declaration, or a static call under `src/`, `library/`, `templates/`, or
+  `interface/` outside `interface/modules/`. Some modules ship in-tree under
+  `interface/modules/custom_modules/` and others arrive through Composer, so a
+  name that resolves in a development checkout is not guaranteed to resolve in
+  a given deployment — and a bundled module can still be removed or disabled.
+  Wrapping the reference in an "is this module installed" check does not fix
+  it: core's source still names a symbol it does not own, which is what static
+  analysis, `composer-require-checker`, and the test suite see. A probe that
+  assembles the class name as a string and passes it to `class_exists()` is
+  the exception, because no analyzer resolves a string as a dependency.
+- **Core robustness fixes must not be gated on a module being present.** If
+  core has a bug (null handling, escaping, error paths), fix it
+  unconditionally — the fix must hold whether or not any module is installed.
+- **Module-specific UI belongs in the module,** emitted via events
+  (`MenuEvent`, `RenderEvent`, `EncounterMenuEvent`) or module controllers,
+  not hardcoded into a core template behind a module check.
+
+When core needs a value only a module can supply, dispatch an event that
+carries the inputs, let listeners contribute, and use whatever came back.
+`OpenEMR\Events\Core\StyleFilterEvent` is the shape: core constructs the event
+with its inputs, listeners fill an accumulator, core uses the result. With no
+listener subscribed the accumulator is empty and core behaves exactly as it
+does without the module, which is also how to verify the seam — exercise it
+both ways and diff. Give the event a slot per insertion point rather than one
+trailing slot; code with early-exit paths cannot express "contribute before
+the first return" with a single append.
+
+`library/dated_reminder_functions.php` predates this rule and imports
+`OpenEMR\Modules\FaxSMS\Controller\AppDispatch` directly. Treat it as
+something to migrate to an event, not as precedent.
+
 ## File Headers
 
 When modifying PHP files, ensure proper docblock:
