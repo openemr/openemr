@@ -33,10 +33,12 @@ use OpenEMR\Core\OEGlobalsBag;
 function smarty_function_assetVersionNumber($params, &$smarty): string
 {
     // version.php sets v_js_includes to an int for a release and to an md5
-    // string in dev, but interface/globals.php stores null when version.php was
-    // already included in another scope. Narrow the raw value rather than
-    // calling getString(): the key is present-but-null in that case, so
-    // getString() would skip its default and throw UnexpectedValueException.
+    // string in dev. interface/globals.php publishes it through VersionFile,
+    // whose $jsIncludes is int|string and which throws rather than yielding
+    // null, so a bootstrapped request always has a usable value here.
+    //
+    // Narrow the raw value anyway: Smarty templates can render before
+    // globals.php has run, and an absent key reads back as null.
     $configured = OEGlobalsBag::getInstance()->get('v_js_includes');
 
     // Any unusable value falls back to the current timestamp. A constant
