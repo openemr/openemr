@@ -196,8 +196,8 @@ class PractitionerRoleService extends BaseService
 
             $result->addData(['uuid' => $uuid]);
         } catch (\RuntimeException | \OpenEMR\Common\Database\SqlQueryException $e) {
-            $this->getLogger()->error('PractitionerRole update failed', ['uuid' => $uuid, 'error' => $e->getMessage()]);
-            $result->addInternalError($e->getMessage());
+            $this->getLogger()->error('PractitionerRole update failed', ['uuid' => $uuid, 'exception' => $e]);
+            $result->addInternalError('PractitionerRole could not be updated');
         }
 
         return $result;

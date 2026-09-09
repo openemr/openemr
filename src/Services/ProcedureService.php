@@ -889,8 +889,8 @@ class ProcedureService extends BaseService
 
             $result->addData($out);
         } catch (\RuntimeException | SqlQueryException $e) {
-            $this->getLogger()->error('ServiceRequest createOrder failed', ['error' => $e->getMessage()]);
-            $result->addInternalError($e->getMessage());
+            $this->getLogger()->error('ServiceRequest createOrder failed', ['exception' => $e]);
+            $result->addInternalError('ServiceRequest could not be created');
         }
 
         return $result;

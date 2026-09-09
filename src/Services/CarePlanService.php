@@ -479,18 +479,21 @@ class CarePlanService extends BaseService
                 if (str_contains($e->getMessage(), 'Duplicate entry')) {
                     continue;
                 }
-                $result->addInternalError($e->getMessage());
+                $this->getLogger()->error('Care plan insert failed', ['pid' => $pid, 'exception' => $e]);
+                $result->addInternalError('Care plan could not be created');
                 return $result;
             } catch (\RuntimeException $e) {
-                $result->addInternalError($e->getMessage());
+                $this->getLogger()->error('Care plan insert failed', ['pid' => $pid, 'exception' => $e]);
+                $result->addInternalError('Care plan could not be created');
                 return $result;
             }
         }
 
-        $result->addInternalError(
-            'form_care_plan id allocation failed after ' . $maxAttempts . ' attempts'
-            . ($lastError !== null ? ': ' . $lastError->getMessage() : '')
+        $this->getLogger()->error(
+            'form_care_plan id allocation exhausted its retries',
+            ['pid' => $pid, 'attempts' => $maxAttempts, 'exception' => $lastError]
         );
+        $result->addInternalError('Care plan could not be created');
         return $result;
     }
 
@@ -581,7 +584,11 @@ class CarePlanService extends BaseService
                 'uuid' => $surrogateUuid,
             ]);
         } catch (\RuntimeException | SqlQueryException $e) {
-            $result->addInternalError($e->getMessage());
+            $this->getLogger()->error(
+                'Care plan replace failed',
+                ['encounter' => $encounterId, 'form_id' => $formId, 'exception' => $e]
+            );
+            $result->addInternalError('Care plan could not be updated');
         }
 
         return $result;
