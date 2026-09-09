@@ -59,15 +59,31 @@ use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
+use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
+use OpenEMR\Services\FHIR\FhirAppointmentService;
+use OpenEMR\Services\FHIR\FhirCarePlanService;
+use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirConditionService;
+use OpenEMR\Services\FHIR\FhirCoverageService;
+use OpenEMR\Services\FHIR\FhirDeviceService;
+use OpenEMR\Services\FHIR\FhirEncounterService;
+use OpenEMR\Services\FHIR\FhirGoalService;
+use OpenEMR\Services\FHIR\FhirImmunizationService;
+use OpenEMR\Services\FHIR\FhirMedicationRequestService;
+use OpenEMR\Services\FHIR\FhirMedicationService;
 use OpenEMR\Services\FHIR\FhirObservationService;
+use OpenEMR\Services\FHIR\FhirPersonService;
+use OpenEMR\Services\FHIR\FhirPractitionerRoleService;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
+use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 // Note that the fhir route includes both user role and patient role
@@ -86,7 +102,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/AllergyIntolerance/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/AllergyIntolerance/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirAllergyIntoleranceRestController($request))->getOne($uuid, $request->getPatientUUIDString());
@@ -97,6 +113,204 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/AllergyIntolerance",
+     *      description="Creates a new AllergyIntolerance resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="AllergyIntolerance resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/AllergyIntolerance" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("AllergyIntolerance");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/AllergyIntolerance/{uuid}",
+     *      description="Modifies an AllergyIntolerance resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the AllergyIntolerance resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="AllergyIntolerance resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/AllergyIntolerance/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("AllergyIntolerance");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Appointment",
+     *      description="Creates a new Appointment resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Appointment resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Appointment" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "appt");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirAppointmentService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Appointment");
+        $controller->addAclRestrictions("patients", "appt");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Appointment",
+     *      description="Returns a list of Appointment resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Appointment resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/AllergyIntolerance"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
     "GET /fhir/Appointment" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -109,7 +323,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Appointment/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Appointment/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirAppointmentRestController($request))->getOne($uuid, $request->getPatientUUIDString());
@@ -132,7 +346,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/CarePlan/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/CarePlan/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirCarePlanRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -143,6 +357,94 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/CarePlan",
+     *      description="Creates a new CarePlan resource. The CarePlan must reference an existing encounter; one CarePlan corresponds to one care_plan form on that encounter, with each FHIR activity.detail becoming a form_care_plan row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR's form_care_plan schema has no column for it; the read side hardcodes intent='plan', so any other intent value supplied on write is silently treated as 'plan' on round-trip.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="CarePlan resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/CarePlan" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCarePlanService(), $globalsBag);
+        $controller->setExpectedResourceType("CarePlan");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/CarePlan/{uuid}",
+     *      description="Replaces an existing CarePlan resource. The uuid is the surrogate key encounter-uuid + '-SK-' + form-id. PUT replaces all activity items on the form (DELETE+INSERT transactional).",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The surrogate key for the CarePlan resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="CarePlan resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/CarePlan/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCarePlanService(), $globalsBag);
+        $controller->setExpectedResourceType("CarePlan");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $getParams = $request->getQueryParams();
         $restController = new FhirCareTeamRestController();
@@ -157,7 +459,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/CareTeam/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/CareTeam/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirCareTeamRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -168,16 +470,240 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/CareTeam",
+     *      description="Creates a new CareTeam (patient-scoped). Practitioner participants are resolved to users; non-Practitioner participants (Organization, RelatedPerson) are currently not persisted on write.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="CareTeam resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCareTeamService(), $globalsBag);
+        $controller->setExpectedResourceType("CareTeam");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/CareTeam/{uuid}",
+     *      description="Modifies a CareTeam. Practitioner participants are diffed against existing members (saveCareTeam handles updates/inserts/inactivations).",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="CareTeam resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/CareTeam/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCareTeamService(), $globalsBag);
+        $controller->setExpectedResourceType("CareTeam");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->getAll();
     },
-    "GET /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+    "GET /fhir/Condition/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->getOne($uuid);
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Condition",
+     *      description="Creates a new Condition resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Condition resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->setExpectedResourceType("Condition");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Condition/{uuid}",
+     *      description="Modifies a Condition resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Condition resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Condition resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Condition/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->setExpectedResourceType("Condition");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Coverage",
+     *      description="Returns a list of Coverage resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Coverage resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="payor",
+     *          in="query",
+     *          description="The payor of the Coverage resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Coverage"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
     "GET /fhir/Coverage" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -189,7 +715,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Coverage/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Coverage/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirCoverageRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -200,6 +726,94 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Coverage",
+     *      description="Creates a new Coverage resource. Note: FHIR R4 allows the `payor` reference to target Organization, Patient, or RelatedPerson; OpenEMR only resolves Organization (the `insurance_companies` table). Patient/RelatedPerson payor references in the payload will fail with a 422 since they cannot be persisted to `insurance_data.provider`.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Coverage resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Coverage" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCoverageService(), $globalsBag);
+        $controller->setExpectedResourceType("Coverage");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Coverage/{uuid}",
+     *      description="Modifies a Coverage resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Coverage resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Coverage resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Coverage/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCoverageService(), $globalsBag);
+        $controller->setExpectedResourceType("Coverage");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Device" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -211,7 +825,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Device/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Device/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirDeviceRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -222,6 +836,68 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Device",
+     *      description="Creates a new Device resource (medical device association with a patient).",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(response="201", description="Device resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Device" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirDeviceService(), $globalsBag);
+        $controller->setExpectedResourceType("Device");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Device/{uuid}",
+     *      description="Modifies a Device resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(response="200", description="Device resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Device/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirDeviceService(), $globalsBag);
+        $controller->setExpectedResourceType("Device");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         $controller = new FhirDiagnosticReportRestController($request);
@@ -235,7 +911,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/DiagnosticReport/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/DiagnosticReport/:uuid" => function (string $uuid, HttpRestRequest $request) {
         $controller = new FhirDiagnosticReportRestController($request);
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -278,7 +954,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/DocumentReference/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/DocumentReference/:uuid" => function (string $uuid, HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -314,7 +990,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Encounter/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Encounter/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirEncounterRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -325,6 +1001,165 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Encounter",
+     *      description="Creates a new Encounter resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Encounter resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Encounter" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "encounters", "auth_a");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
+        $controller->setExpectedResourceType("Encounter");
+        $controller->addAclRestrictions("encounters", "auth_a");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Encounter/{uuid}",
+     *      description="Modifies an Encounter resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Encounter resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Encounter resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Encounter/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "encounters", "auth_a");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
+        $controller->setExpectedResourceType("Encounter");
+        $controller->addAclRestrictions("encounters", "auth_a");
+        return $controller->put($uuid, $data);
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Goal",
+     *      description="Returns a list of Condition resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Goal resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Goal"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
     "GET /fhir/Goal" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -337,7 +1172,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Goal/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Goal/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirGoalRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -348,6 +1183,62 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Goal",
+     *      description="Creates a new Goal. Stored in form_care_plan with care_plan_type='goal'. Requires both a Patient subject and an encounter context (supplied via the encounter-associatedEncounter FHIR extension).",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="Goal resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Goal" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirGoalService(), $globalsBag);
+        $controller->setExpectedResourceType("Goal");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Goal/{uuid}",
+     *      description="Modifies a Goal. The uuid is the surrogate key encounter-uuid + '-SK-' + form-id, matching the GET response shape.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="Goal resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Goal/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirGoalService(), $globalsBag);
+        $controller->setExpectedResourceType("Goal");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->put($uuid, $data);
+    },
+
     'GET /fhir/Group' => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $getParams = $request->getQueryParams();
@@ -360,7 +1251,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Group/:uuid" => function (string $uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -385,6 +1276,21 @@ return [
 
         return $return;
     },
+
+    // Group writes are not implemented. OpenEMR's FHIR Group is a virtual/computed
+    // aggregation of patients by provider; there is no persistent group table to
+    // write to. POST/PUT return 405 with a FHIR OperationOutcome.
+    "POST /fhir/Group" => RestControllerHelper::fhirWriteNotImplemented(
+        'POST',
+        'Group',
+        'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
+    ),
+    "PUT /fhir/Group/:uuid" => RestControllerHelper::fhirWriteNotImplemented(
+        'PUT',
+        'Group',
+        'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
+    ),
+
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -397,7 +1303,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Immunization/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirImmunizationRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -408,16 +1314,122 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Immunization",
+     *      description="Creates a new Immunization resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/FHIRImmunization")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Immunization resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Immunization" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Immunization");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Immunization/{uuid}",
+     *      description="Modifies an Immunization resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Immunization resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/FHIRImmunization")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Immunization resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Immunization/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Immunization");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Location" => function (HttpRestRequest $request) {
         $return = (new FhirLocationRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
 
         return $return;
     },
-    "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Location/:uuid" => function (string $uuid, HttpRestRequest $request) {
         $return = (new FhirLocationRestController($request))->getOne($uuid, $request->getPatientUUIDString());
 
         return $return;
     },
+
+    // Location writes are deliberately not implemented. In OpenEMR, Location is a virtual
+    // projection over patient_data, users, and facility — there is no single underlying
+    // entity to write to. A POST or PUT here would either need to discriminate the target
+    // table based on identifier conventions (fragile and unspecified by FHIR) or duplicate
+    // patient/user/facility write paths. Both options are out of scope for this PR.
+    // See PR #11507 follow-up tracking.
+    "POST /fhir/Location" => RestControllerHelper::fhirWriteNotImplemented(
+        'POST',
+        'Location',
+        'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Create the underlying Patient, Practitioner, or Organization instead.'
+    ),
+    "PUT /fhir/Location/:uuid" => RestControllerHelper::fhirWriteNotImplemented(
+        'PUT',
+        'Location',
+        'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Update the underlying Patient, Practitioner, or Organization instead.'
+    ),
+
     "GET /fhir/Media" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         $controller = new FhirMediaRestController($request);
@@ -431,7 +1443,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Media/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Media/:uuid" => function (string $uuid, HttpRestRequest $request) {
         // Mirror the sibling `GET /fhir/Media` list route (:413-424) so the
         // non-patient (user-scope / core-session) branch runs an explicit
         // ACL check and the patient-scope branch explicitly binds the
@@ -456,7 +1468,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Medication/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirMedicationRestController())->getOne($uuid);
@@ -467,6 +1479,98 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Medication",
+     *      description="Creates a new Medication (drugs master data) resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Medication resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Medication" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        // Medication writes touch the global `drugs` master table — the UI gates
+        // add/edit on `admin/drugs`, so the FHIR write surface must require the
+        // same privilege, not the broader `patients/med` clinical-staff ACL.
+        RestConfig::request_authorization_check($request, "admin", "drugs");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirMedicationService(), $globalsBag);
+        $controller->setExpectedResourceType("Medication");
+        $controller->addAclRestrictions("admin", "drugs");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Medication/{uuid}",
+     *      description="Modifies a Medication resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Medication resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Medication resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Medication/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        // See POST /fhir/Medication — master drug edits require admin/drugs.
+        RestConfig::request_authorization_check($request, "admin", "drugs");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirMedicationService(), $globalsBag);
+        $controller->setExpectedResourceType("Medication");
+        $controller->addAclRestrictions("admin", "drugs");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/MedicationDispense" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -479,7 +1583,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/MedicationDispense/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/MedicationDispense/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirMedicationDispenseRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -502,7 +1606,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/MedicationRequest/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/MedicationRequest/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirMedicationRequestRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -513,12 +1617,100 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/MedicationRequest",
+     *      description="Creates a new MedicationRequest resource. Note: FHIR R4 allows medication via either `medicationCodeableConcept` (inline coding) or `medicationReference` (link to a Medication resource). OpenEMR only handles the `medicationCodeableConcept` path; `medicationReference` is silently dropped on write. Use medicationCodeableConcept with an RxNorm coding for round-trip compatibility.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="MedicationRequest resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/MedicationRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirMedicationRequestService(), $globalsBag);
+        $controller->setExpectedResourceType("MedicationRequest");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/MedicationRequest/{uuid}",
+     *      description="Modifies a MedicationRequest resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the MedicationRequest resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="MedicationRequest resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/MedicationRequest/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirMedicationRequestService(), $globalsBag);
+        $controller->setExpectedResourceType("MedicationRequest");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Observation" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->getAll();
     },
-    "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+    "GET /fhir/Observation/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
         $controller->addAclRestrictions("patients", "med");
         return $controller->getOne($uuid);
@@ -531,7 +1723,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Organization/:uuid" => function (string $uuid, HttpRestRequest $request) {
         $patientUUID = null;
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "admin", "users");
@@ -555,7 +1747,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Specimen/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Specimen/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirSpecimenRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -568,30 +1760,42 @@ return [
     },
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
         $return = (new FhirOrganizationRestController())->post($data);
 
         return $return;
     },
-    "PUT /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "PUT /fhir/Organization/:uuid" => function (string $uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
         $return = (new FhirOrganizationRestController())->patch($uuid, $data);
 
         return $return;
     },
     "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
         $restController = new FhirPatientRestController();
         $restController->setOEGlobals($globalsBag);
         $return = $restController->post($data);
 
         return $return;
     },
-    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+    "PUT /fhir/Patient/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
         $restController = new FhirPatientRestController();
         $restController->setOEGlobals($globalsBag);
         $return = $restController->put($uuid, $data);
@@ -630,13 +1834,13 @@ return [
 
         return $return;
     },
-    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+    "GET /fhir/Patient/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             if (empty($uuid) || ($uuid != $request->getPatientUUIDString())) {
                 throw new AccessDeniedException("patients", "demo", "patient id invalid");
             }
-            $uuid = $request->getPatientUUIDString();
+            $uuid = $request->getPatientUUIDString() ?? '';
         } else {
             RestConfig::request_authorization_check($request, "patients", "demo");
         }
@@ -658,7 +1862,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Person/:uuid" => function (string $uuid, HttpRestRequest $request) {
         // The self-branch is retained for staff tokens whose requestUserUUID
         // is a `users` row (so their own Person lookup resolves). For
         // patient-scoped callers the request user is not in `users`, so the
@@ -673,6 +1877,94 @@ return [
         RestConfig::request_authorization_check($request, "admin", "users");
         return (new FhirPersonRestController())->getOne($uuid);
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Person",
+     *      description="Creates a new Person resource. Person writes back the same users-table row that the Practitioner endpoint writes; an NPI identifier (system http://hl7.org/fhir/sid/us-npi) is required.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Person resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Person" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirPersonService(), $globalsBag);
+        $controller->setExpectedResourceType("Person");
+        $controller->addAclRestrictions("admin", "users");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Person/{uuid}",
+     *      description="Modifies a Person resource. Writes to the same users-table row as the Practitioner endpoint.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Person resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Person resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Person/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirPersonService(), $globalsBag);
+        $controller->setExpectedResourceType("Person");
+        $controller->addAclRestrictions("admin", "users");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Practitioner" => function (HttpRestRequest $request) {
         // Patient-scoped callers legitimately need care-team lookups (name +
         // NPI + work phone) via US Core Practitioner. The service applies
@@ -687,7 +1979,7 @@ return [
         $service->setPatientCallerView(true);
         return (new FhirPractitionerRestController($service))->getAll($request->getQueryParams());
     },
-    "GET /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Practitioner/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "admin", "users");
             return (new FhirPractitionerRestController())->getOne($uuid);
@@ -698,14 +1990,20 @@ return [
     },
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
         $return = (new FhirPractitionerRestController())->post($data);
 
         return $return;
     },
-    "PUT /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "PUT /fhir/Practitioner/:uuid" => function (string $uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
         $return = (new FhirPractitionerRestController())->patch($uuid, $data);
 
         return $return;
@@ -721,12 +2019,68 @@ return [
         }
         return (new FhirPractitionerRoleRestController())->getAll($request->getQueryParams());
     },
-    "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/PractitionerRole/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "admin", "users");
         }
         return (new FhirPractitionerRoleRestController())->getOne($uuid);
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/PractitionerRole",
+     *      description="Creates a new PractitionerRole. Practitioner and Organization references are required.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="PractitionerRole resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/PractitionerRole" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirPractitionerRoleService(), $globalsBag);
+        $controller->setExpectedResourceType("PractitionerRole");
+        $controller->addAclRestrictions("admin", "users");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/PractitionerRole/{uuid}",
+     *      description="Modifies a PractitionerRole. Practitioner and Organization references cannot be rebound; only role and specialty are mutable.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="PractitionerRole resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/PractitionerRole/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirPractitionerRoleService(), $globalsBag);
+        $controller->setExpectedResourceType("PractitionerRole");
+        $controller->addAclRestrictions("admin", "users");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -748,6 +2102,62 @@ return [
         $controller->addAclRestrictions("patients", "demo");
         return $controller->getOne($uuid);
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/RelatedPerson",
+     *      description="Creates a new RelatedPerson (patient's family/caregiver). The patient reference is required. OpenEMR also requires a relationship.coding entry under HL7 v3 RoleCode (or its FhirCodeSystemConstants::HL7_ROLE_CODE alias) — this is an OpenEMR deviation from R4 (which makes relationship 0..*) because the read JOIN binds into list_options on a non-null relationship.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="RelatedPerson resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/RelatedPerson" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirRelatedPersonService(), $globalsBag);
+        $controller->setExpectedResourceType("RelatedPerson");
+        $controller->addAclRestrictions("patients", "demo");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/RelatedPerson/{uuid}",
+     *      description="Modifies a RelatedPerson resource. Telecoms and addresses are replaced per FHIR PUT semantics.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="RelatedPerson resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/RelatedPerson/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirRelatedPersonService(), $globalsBag);
+        $controller->setExpectedResourceType("RelatedPerson");
+        $controller->addAclRestrictions("patients", "demo");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/ServiceRequest" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -759,7 +2169,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/ServiceRequest/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/ServiceRequest/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirServiceRequestRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -770,7 +2180,63 @@ return [
 
         return $return;
     },
-    "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/ServiceRequest",
+     *      description="Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row. The FHIR R4 1..1 `intent` field is persisted to procedure_order.order_intent; OpenEMR supports the values order/plan/directive/proposal/option directly, and other R4 intents (original-order, reflex-order, filler-order, instance-order) fall back to 'order' since OpenEMR's order workflow has no distinction for those.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="ServiceRequest resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/ServiceRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirServiceRequestService(), $globalsBag);
+        $controller->setExpectedResourceType("ServiceRequest");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/ServiceRequest/{uuid}",
+     *      description="Modifies a ServiceRequest. PUT replaces the procedure_order_code rows (FHIR PUT replace semantics). Patient reference cannot be rebound.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="ServiceRequest resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/ServiceRequest/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirServiceRequestService(), $globalsBag);
+        $controller->setExpectedResourceType("ServiceRequest");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
+    "GET /fhir/Procedure/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirProcedureRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -781,7 +2247,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Provenance/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirProvenanceRestController($request))->getOne($uuid, $request->getPatientUUIDString());
@@ -792,6 +2258,73 @@ return [
 
         return $return;
     },
+
+    // Federated multi-service resources: DiagnosticReport, DocumentReference,
+    // MedicationDispense, Procedure. Each is read as a union over multiple sub-services
+    // (e.g. DiagnosticReport reads from both Laboratory and ClinicalNotes domains).
+    // Writes need an explicit routing strategy per sub-service which is out of scope
+    // for this PR; deferred to follow-up work. POST/PUT return 405 with a FHIR
+    // OperationOutcome explaining the unsupported state.
+
+    "POST /fhir/DiagnosticReport" => RestControllerHelper::fhirWriteNotImplemented(
+        'POST',
+        'DiagnosticReport',
+        'FHIR DiagnosticReport writes are not yet supported. The OpenEMR read path federates Laboratory and ClinicalNotes sub-services; writing requires choosing a target sub-service per request (typically via category code) which is being designed in a follow-up PR.'
+    ),
+    "PUT /fhir/DiagnosticReport/:uuid" => RestControllerHelper::fhirWriteNotImplemented(
+        'PUT',
+        'DiagnosticReport',
+        'FHIR DiagnosticReport writes are not yet supported. See POST /fhir/DiagnosticReport for the rationale.'
+    ),
+
+    "POST /fhir/DocumentReference" => RestControllerHelper::fhirWriteNotImplemented(
+        'POST',
+        'DocumentReference',
+        'FHIR DocumentReference writes are not yet supported. The OpenEMR read path federates three sub-services (clinical notes, patient documents, advance care directives); writing requires routing per sub-service which is being designed in a follow-up PR. The existing $docref operation remains available.'
+    ),
+    "PUT /fhir/DocumentReference/:uuid" => RestControllerHelper::fhirWriteNotImplemented(
+        'PUT',
+        'DocumentReference',
+        'FHIR DocumentReference writes are not yet supported. See POST /fhir/DocumentReference for the rationale.'
+    ),
+
+    "POST /fhir/MedicationDispense" => RestControllerHelper::fhirWriteNotImplemented(
+        'POST',
+        'MedicationDispense',
+        'FHIR MedicationDispense writes are not yet supported. Pharmacy dispensary persistence in OpenEMR varies by deployment (drug_inventory, pharmacy module, external dispensary integrations); writing needs a per-deployment design that is being scoped in a follow-up PR.'
+    ),
+    "PUT /fhir/MedicationDispense/:uuid" => RestControllerHelper::fhirWriteNotImplemented(
+        'PUT',
+        'MedicationDispense',
+        'FHIR MedicationDispense writes are not yet supported. See POST /fhir/MedicationDispense for the rationale.'
+    ),
+
+    "POST /fhir/Procedure" => RestControllerHelper::fhirWriteNotImplemented(
+        'POST',
+        'Procedure',
+        'FHIR Procedure writes are not yet supported. The OpenEMR read path federates clinical procedures (procedure_order/procedure_order_code) with surgery procedures; writing overlaps with ServiceRequest writes already provided. Use POST /fhir/ServiceRequest with intent=order for procedure orders; standalone Procedure writes are being designed in a follow-up PR.'
+    ),
+    "PUT /fhir/Procedure/:uuid" => RestControllerHelper::fhirWriteNotImplemented(
+        'PUT',
+        'Procedure',
+        'FHIR Procedure writes are not yet supported. See POST /fhir/Procedure for the rationale.'
+    ),
+
+    // FHIR Provenance in OpenEMR is synthesized at read time from other domain
+    // resources; there is no underlying provenance table to write to. The FHIR
+    // spec itself permits Provenance writes — this is an OpenEMR implementation
+    // limitation, not a spec restriction. POST/PUT return 405 with a FHIR
+    // OperationOutcome.
+    "POST /fhir/Provenance" => RestControllerHelper::fhirWriteNotImplemented(
+        'POST',
+        'Provenance',
+        'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
+    ),
+    "PUT /fhir/Provenance/:uuid" => RestControllerHelper::fhirWriteNotImplemented(
+        'PUT',
+        'Provenance',
+        'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
+    ),
 
     // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
     // property to support which is why this endpoint exists.
@@ -846,7 +2379,7 @@ return [
 
         return $return;
     },
-    "GET /fhir/ValueSet/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/ValueSet/:uuid" => function (string $uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
         $return = (new FhirValueSetRestController())->getOne($uuid);
 
