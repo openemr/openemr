@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
+use OpenEMR\Tests\Acceptance\Support\JsonBody;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -58,10 +59,11 @@ final class FhirSmokeTest extends TestCase
             'FHIR /metadata must return 200 without auth per FHIR spec — 401/403 means the routing added an auth check',
         );
 
-        $body = json_decode($response->getContent(), true);
+        $body = JsonBody::decode($response);
         self::assertIsArray(
             $body,
-            'FHIR /metadata should return a JSON object; a non-JSON body means the response is an HTML error page',
+            'FHIR /metadata should return a JSON object; a non-JSON body means the response is an HTML error page. '
+                . JsonBody::describe($response),
         );
         self::assertSame(
             'CapabilityStatement',
@@ -95,10 +97,10 @@ final class FhirSmokeTest extends TestCase
             'SMART .well-known/smart-configuration must return 200 without auth per the SMART conformance spec',
         );
 
-        $body = json_decode($response->getContent(), true);
+        $body = JsonBody::decode($response);
         self::assertIsArray(
             $body,
-            'SMART well-known should return a JSON object',
+            'SMART well-known should return a JSON object. ' . JsonBody::describe($response),
         );
         // authorization_endpoint + token_endpoint are the minimum
         // signals a SMART client uses to bootstrap the auth flow. If
