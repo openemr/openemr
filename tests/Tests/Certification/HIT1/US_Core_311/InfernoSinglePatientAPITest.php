@@ -99,6 +99,19 @@ final class InfernoSinglePatientAPITest extends TestCase
      */
     public const POLLING_TIMEOUT = 600;
 
+    /**
+     * Extended polling budget for test groups that pull large
+     * multi-entry result sets. Every US Core search mandates
+     * `_revinclude=Provenance:target`, so validator cost scales
+     * roughly linearly with entry count, and the resources that
+     * accumulate many entries per patient (allergy_intolerance,
+     * diagnostic_report_note, document_reference, medication_request,
+     * observation_lab, pulse_oximetry) regularly need 10-30 minutes
+     * on CI. Explicitly opt each of those test methods into this
+     * budget rather than raising the class-wide default.
+     */
+    public const POLLING_TIMEOUT_LONG = 1800;
+
     private static ApiTestClient $testClient;
     private static string $baseUrl;
     private static Client $infernoClient;
@@ -190,7 +203,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testAllergyIntolerance(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'allergy_intolerance', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'allergy_intolerance',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'AllergyIntolerance Resource test failed');
     }
 
@@ -214,7 +231,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testDiagnosticReportNote(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'diagnostic_report_note', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'diagnostic_report_note',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'DiagnosticReport and Note exchange test failed');
     }
 
@@ -226,7 +247,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testDocumentReference(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'document_reference', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'document_reference',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'Document Reference Resource test failed');
     }
 
@@ -244,7 +269,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testMedicationRequest(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'medication_request', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'medication_request',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'MedicationRequest Resource test failed');
     }
 
@@ -262,7 +291,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testObservationLab(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'observation_lab', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'observation_lab',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'Observation Laboratory Resource test failed');
     }
 
@@ -274,7 +307,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testPulseOximetry(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'pulse_oximetry', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'pulse_oximetry',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'Us Core Pulse Oximetry Observation Resource test failed');
     }
 
@@ -453,8 +490,12 @@ final class InfernoSinglePatientAPITest extends TestCase
     /**
      * @return array{results: TestResult[]}
      */
-    protected function getTestGroupResponse(string $testGroupId, string $credentialsKeyName = 'smart_credentials'): array
-    {
+    protected function getTestGroupResponse(
+        string $testGroupId,
+        string $credentialsKeyName = 'smart_credentials',
+        ?int $pollingTimeout = null,
+    ): array {
+        $pollingTimeout ??= self::POLLING_TIMEOUT;
         $accessToken = self::$testClient->getAccessToken();
         $this->assertNotNull($accessToken, 'Access token must be set before running test groups');
         $testRunData = [
@@ -472,7 +513,7 @@ final class InfernoSinglePatientAPITest extends TestCase
 
         // Poll /test_runs/$testRunId?include_results=false every 500 ms until the
         // status is 'done'; if it never reaches 'done' before the timeout, fail.
-        $maxRetries = self::POLLING_TIMEOUT * 2;
+        $maxRetries = $pollingTimeout * 2;
         $retryCount = 0;
         $status = '';
         while ($retryCount < $maxRetries) {
@@ -490,7 +531,7 @@ final class InfernoSinglePatientAPITest extends TestCase
 
         // Once status is 'done', request the final run with include_results=true
         // and verify the results.
-        $this->assertSame('done', $status, 'Test run did not complete in time');
+        $this->assertSame('done', $status, "Test run did not complete within {$pollingTimeout}s");
         $finalTestRunResponse = self::$infernoClient->get("test_runs/{$testRunId}?include_results=true");
         $this->assertSame(200, $finalTestRunResponse->getStatusCode(), 'Failed to get final test run results for ' . $testGroupId);
         $finalTestRunJson = json_decode((string) $finalTestRunResponse->getBody(), true, flags: JSON_THROW_ON_ERROR);
