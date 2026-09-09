@@ -1047,7 +1047,7 @@ if [[ "${AUTHORITY}" = "yes" ]] &&
         # This section only runs once after above configuration since auto_configure.php gets removed after this script
         echo "Setting file/dir permissions to 400/500 (optimized batch operations)"
 
-        PERM_START=$(date +%s.%N 2>/dev/null || date +%s)
+        PERM_START=$(current_time_us)
 
         # Optimized: Set all directories to 500 (batch operation using {} +)
         # Exclude sites/default/documents as it needs different permissions
@@ -1065,14 +1065,10 @@ if [[ "${AUTHORITY}" = "yes" ]] &&
             find sites/default/documents -not -perm 700 -exec chmod 700 {} + 2>/dev/null || true
         fi
 
-        PERM_END=$(date +%s.%N 2>/dev/null || date +%s)
-        PERM_DURATION=0
-        if command -v python3 >/dev/null 2>&1; then
-            PERM_DURATION=$(python3 -c "print(round(${PERM_END} - ${PERM_START}, 2))" 2>/dev/null || echo "0")
-        else
-            PERM_DURATION=$((PERM_END - PERM_START))
-        fi
-        if [[ "${PERM_DURATION}" != "0" ]]; then
+        PERM_END=$(current_time_us)
+        PERM_DURATION_US=$(elapsed_time_us "${PERM_START}" "${PERM_END}")
+        if [[ "${PERM_DURATION_US}" -ne 0 ]]; then
+            PERM_DURATION=$(format_elapsed_seconds "${PERM_DURATION_US}")
             echo "[TIMING] File permissions took ${PERM_DURATION}s"
         fi
 
