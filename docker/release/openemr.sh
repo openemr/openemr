@@ -38,9 +38,14 @@ SQLCONF_FILE="${OE_ROOT}/sites/default/sqlconf.php"
 # ============================================================================
 # Load helper functions from devtoolsLibrary.source
 # This provides utility functions for database operations, configuration, etc.
+#
+# The Dockerfile copies the library to /root/devtoolsLibrary.source, which is
+# where it lives in every image we ship. DEVTOOLS_LIB overrides that path so
+# tests can source the in-repo copy; without it a test runner has no way to get
+# past this line, and nothing below it can be exercised outside a container.
 
 # shellcheck source=SCRIPTDIR/utilities/devtoolsLibrary.source
-. /root/devtoolsLibrary.source
+. "${DEVTOOLS_LIB:-/root/devtoolsLibrary.source}"
 
 # ============================================================================
 # DATABASE CONFIGURATION

@@ -25,6 +25,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -174,5 +175,46 @@ class AuthorizationClientRegistrationNegativeTest extends TestCase
             "scope" => "openid",
         ], 'text/plain');
         $this->assertRejected($status, $body, "non-JSON content type");
+    }
+
+    /**
+     * 5. A jwks_uri pointing at loopback / RFC1918 / cloud-metadata /
+     *    non-http scheme must be rejected before it is persisted to the
+     *    oauth_clients table. Covers each of the primary rejection categories
+     *    (scheme, loopback, private-network, cloud metadata) end-to-end
+     *    through the HTTP response, not just the validator unit.
+     *
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unsafeJwksUriProvider(): array
+    {
+        return [
+            'loopback name'    => ['http://localhost/jwks'],
+            'loopback ipv4'    => ['http://127.0.0.1/jwks'],
+            'loopback ipv6'    => ['http://[::1]/jwks'],
+            'private ipv4'     => ['http://10.0.0.1/jwks'],
+            'private ipv4 192.168' => ['http://192.168.1.1/jwks'],
+            'aws metadata ip'  => ['http://169.254.169.254/latest/meta-data/'],
+            'gcp metadata name' => ['http://metadata.google.internal/'],
+            'file scheme'      => ['file:///etc/passwd'],
+            'gopher scheme'    => ['gopher://example.com/'],
+        ];
+    }
+
+    #[DataProvider('unsafeJwksUriProvider')]
+    public function testUnsafeJwksUriIsRejected(string $jwksUri): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Outbound URL Rejection Test",
+            "token_endpoint_auth_method" => "private_key_jwt",
+            "contacts" => ["test@open-emr.org"],
+            "scope" => "openid",
+            "jwks_uri" => $jwksUri,
+        ]);
+        $this->assertRejected($status, $body, "unsafe jwks_uri: $jwksUri");
     }
 }

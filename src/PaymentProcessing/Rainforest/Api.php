@@ -2,6 +2,7 @@
 
 /**
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      https://www.open-emr.org
@@ -14,6 +15,7 @@ namespace OpenEMR\PaymentProcessing\Rainforest;
 
 use OpenEMR\BC\ServiceContainer;
 use GuzzleHttp\{Client, ClientInterface};
+use InvalidArgumentException;
 use Money\Money;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Http\Message\ResponseInterface;
@@ -54,6 +56,7 @@ readonly class Api
      */
     public function getPaymentComponentParameters(Money $amount, string $patientId, array $encounters): array
     {
+        self::ensureEncountersSumToAmount($amount, $encounters);
         // TODO: This should leverage Guzzle's abilities to make parallel
         // requests.
         $sessionPayload = [
@@ -170,5 +173,42 @@ readonly class Api
         /** @var array<string, mixed> */
         $parsed = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         return $parsed;
+    }
+
+    /**
+     * Reject payin configs whose per-encounter amounts do not sum to the
+     * authorized payment amount. Complementary to the composite-key binding
+     * check in `Apis\GetPayinComponentParameters::parseRawRequest`: the
+     * binding check rejects encounters that do not belong to the patient,
+     * this check rejects mismatched-total configs where the per-encounter
+     * amounts would spread the authorized amount across arbitrary encounters
+     * (attributing the credit however the caller chooses, provided the total
+     * still matches).
+     *
+     * Runs before any network traffic to Rainforest so a mismatched total
+     * cannot create a payin_config at all.
+     *
+     * @param EncounterData[] $encounters
+     */
+    private static function ensureEncountersSumToAmount(
+        Money $amount,
+        array $encounters,
+    ): void {
+        $sum = new Money('0', $amount->getCurrency());
+        foreach ($encounters as $encounter) {
+            $sum = $sum->add($encounter->amount);
+        }
+        if (!$sum->equals($amount)) {
+            $difference = $amount->subtract($sum);
+            throw new InvalidArgumentException(sprintf(
+                'Encounter total (%s %s) does not match payment amount (%s %s); difference: %s %s',
+                $sum->getAmount(),
+                $sum->getCurrency()->getCode(),
+                $amount->getAmount(),
+                $amount->getCurrency()->getCode(),
+                $difference->getAmount(),
+                $difference->getCurrency()->getCode(),
+            ));
+        }
     }
 }

@@ -14,7 +14,7 @@
     "winston": "3.19.0"
   },
   "devDependencies": {
-    "mocha": "^11.8.0"
+    "mocha": "^12.0.0"
   },
   "deprecated": false,
   "license": "MIT",

@@ -26,6 +26,7 @@ class PrescriptionApiTest extends TestCase
     private ApiTestClient $testClient;
     private FixtureManager $fixtureManager;
     private int $testPatientPid;
+    private string $testPatientUuid;
 
     protected function setUp(): void
     {
@@ -39,9 +40,10 @@ class PrescriptionApiTest extends TestCase
         $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $response = $this->testClient->post(self::PATIENT_API_ENDPOINT, $patientFixture);
         $this->assertEquals(201, $response->getStatusCode(), "Failed to create test patient");
-        /** @var array{data: array{pid: int}} $responseBody */
+        /** @var array{data: array{pid: int, uuid: string}} $responseBody */
         $responseBody = json_decode((string) $response->getBody(), true);
         $this->testPatientPid = $responseBody["data"]["pid"];
+        $this->testPatientUuid = $responseBody["data"]["uuid"];
     }
 
     protected function tearDown(): void
@@ -102,7 +104,12 @@ class PrescriptionApiTest extends TestCase
         $this->createPrescription($this->buildPrescriptionData('Drug Alpha'));
         $this->createPrescription($this->buildPrescriptionData('Drug Beta'));
 
-        $getResponse = $this->testClient->get(self::PRESCRIPTION_API_ENDPOINT);
+        // The list endpoint REQUIRES a patient_uuid query parameter —
+        // tenant-wide enumeration is not supported.
+        $getResponse = $this->testClient->get(
+            self::PRESCRIPTION_API_ENDPOINT,
+            ['patient_uuid' => $this->testPatientUuid]
+        );
 
         $this->assertEquals(200, $getResponse->getStatusCode());
         $responseBody = $this->decodeResponse($getResponse);
@@ -114,6 +121,22 @@ class PrescriptionApiTest extends TestCase
         $drugs = array_column($data, 'drug');
         $this->assertContains('Drug Alpha', $drugs);
         $this->assertContains('Drug Beta', $drugs);
+    }
+
+    /**
+     * `GET /api/prescription` without a patient_uuid must return 400 rather
+     * than tenant-wide records.
+     */
+    public function testGetAllWithoutPatientUuidIsRejected(): void
+    {
+        $this->createPrescription($this->buildPrescriptionData('Should Not Return Without Bind'));
+
+        $getResponse = $this->testClient->get(self::PRESCRIPTION_API_ENDPOINT);
+
+        $this->assertEquals(400, $getResponse->getStatusCode());
+        $body = $this->decodeResponse($getResponse);
+        $this->assertIsArray($body["validationErrors"]);
+        $this->assertArrayHasKey('patient.uuid', $body["validationErrors"]);
     }
 
     public function testRoundTrip(): void

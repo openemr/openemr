@@ -56,8 +56,8 @@ $site_id = $session->get('site_id');
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
-    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/dropzone/dist/dropzone.css">
-    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/utif2/UTIF.js"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/dropzone/dist/dropzone.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/utif2/UTIF.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -67,8 +67,8 @@ $site_id = $session->get('site_id');
         ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . ";let csrfToken=" . js_escape(CsrfUtils::collectCsrfToken($session, 'contact-form')) . "</script>";
     echo ServiceType::renderJsConstants();
     ?>
-    <script type="text/javascript" src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/dropzone/dist/dropzone.js"></script>
-    <script type="text/javascript" src="<?php echo $assetBase; ?>/js/messageUI.js"></script>
+    <script type="text/javascript" src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/dropzone/dist/dropzone.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script type="text/javascript" src="<?php echo $assetBase; ?>/js/messageUI.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
     <script>
         $(function () {

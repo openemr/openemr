@@ -812,6 +812,18 @@ generateMultisiteBank() {
 # ${HOOKS_ROOT}/tooearly        before any container work has started
 #                               runs every launch, but you shouldn't use it
 #
+# Name hook scripts using only letters, digits, underscores, and hyphens. No
+# dots, which means no .sh extension. run-parts executes them in name order, so
+# prefix with a number to sequence them: 10-restore-config, 20-warm-cache.
+#
+# The no-dots rule is not cosmetic. The two run-parts implementations disagree:
+# busybox, which the Alpine-based production image ships, runs every executable
+# file in the directory, while Debian's debianutils run-parts silently skips any
+# filename containing a dot. A hook named 10-backup.sh therefore runs in
+# production today purely because the base image is Alpine, and would disappear
+# without a word if that base ever moved to a Debian derivative. Stick to the
+# stricter rule and the hook runs the same way under either.
+#
 # postconfig and postupgrade run inside the envelope of the config and upgrade task,
 # after OpenEMR's completed its own work. Because these upgrades can't be rolled
 # back, these tasks will only have one opportunity to run, and although failure will
