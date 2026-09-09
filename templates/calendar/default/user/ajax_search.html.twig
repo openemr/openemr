@@ -7,9 +7,9 @@
 {% include 'calendar/default/views/header.html.twig' %}
 
 {# include our stylesheet for this view #}
-<link rel="stylesheet" href="{{ assets_dir }}/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="{{ assets_dir }}/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v={{ assetVersion|attr_url }}">
 
-<script src="{{ assets_dir }}/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script src="{{ assets_dir }}/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js?v={{ assetVersion|attr_url }}"></script>
 
 <!-- main navigation -->
 
