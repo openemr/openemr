@@ -37,9 +37,13 @@ require_entrypoint_tools() {
         timeout 10 "$OPENEMR"
 
     # 01ok's output proves execution actually reached the call site, so the
-    # non-zero status below cannot be the script dying on its way there.
+    # exit status below cannot be the script dying on its way there.
     assert_output --partial 'reached-01'
-    assert_failure
+    # Exactly 1, not merely non-zero: openemr.sh runs under `set -e`, so
+    # run_vendor_hook's `return 1` propagates as the script's exit status. A
+    # bare assert_failure would also accept timeout's 124, letting a hang after
+    # the hook masquerade as a clean abort.
+    assert_failure 1
 
     # The load-bearing assertion: "[TIMING] Step 0-Start" is the first thing
     # openemr.sh emits after `run_vendor_hook tooearly`. Its absence is what
@@ -63,7 +67,7 @@ require_entrypoint_tools() {
     # Positive control, as above: without it every assertion below would also
     # hold for a script that died before it ever reached the call site.
     assert_output --partial 'tooearly-ran'
-    assert_failure
+    assert_failure 1
     # tooearly is documented as running "before any container work has
     # started". Nothing downstream of the call site may have run: no swarm
     # coordination, no certificate generation, no database contact.
