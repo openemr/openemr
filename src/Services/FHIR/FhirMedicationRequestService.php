@@ -79,7 +79,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     const MEDICATION_REQUEST_CATEGORY_COMMUNITY = "community";
 
-    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Home/Community";
+    // Canonical display for `community` in
+    // http://terminology.hl7.org/CodeSystem/medicationrequest-category is
+    // "Community" (not "Home/Community" — that string is OpenEMR's internal
+    // menu label and does not match the code system's canonical display).
+    const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Community";
 
 
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
@@ -277,12 +281,17 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
         // Dose and Rate
         if (!empty($dataRecord['interval_codes'])) {
+            // Omit Coding.display here — interval_notes is a user-editable
+            // description that rarely matches the canonical display in the
+            // HL7 timing abbreviation code system (e.g. BID's canonical
+            // display is "Twice a day"). Inferno rejects Coding.display
+            // values that do not match the canonical. CodeableConcept.text
+            // set below still carries the human-readable form.
             $intervalConcept = UtilsService::createCodeableConcept([
                 $dataRecord['interval_codes'] => [
                     'code' => $dataRecord['interval_codes'],
-                    'description' => $dataRecord['interval_notes'],
-                    'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION
-                ]
+                    'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION,
+                ],
             ]);
             $intervalConcept->setText($dataRecord['interval_notes'] ?? $dataRecord['interval_title']);
             $fhirTiming = new OpenEMRFHIRTiming();
@@ -477,28 +486,27 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateCategory(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
-        if (isset($dataRecord['category'])) {
-            $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
-            $medRequestResource->addCategory(UtilsService::createCodeableConcept(
-                [
-                    $dataRecord['category'] =>
-                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
-                            ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
-                ]
-            ));
+        // Default to community when no category provided. For the `community`
+        // code use the canonical display from the code system rather than any
+        // user-provided category_title — Inferno rejects Coding.display values
+        // that do not match the canonical display in the source code system.
+        $code = $dataRecord['category'] ?? self::MEDICATION_REQUEST_CATEGORY_COMMUNITY;
+        if ($code === self::MEDICATION_REQUEST_CATEGORY_COMMUNITY) {
+            $display = xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE);
         } else {
-            // if no category has been sent then the default is home usage
-            $medRequestResource->addCategory(UtilsService::createCodeableConcept(
-                [
-                    self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => [
-                        'code' => self::MEDICATION_REQUEST_CATEGORY_COMMUNITY,
-                        'description' => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE),
-                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
-                    ]
-                ],
-            ));
+            $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $display = xl($categoryTitle);
         }
+        $medRequestResource->addCategory(UtilsService::createCodeableConcept(
+            [
+                $code => [
+                    'code' => $code,
+                    'description' => $display,
+                    'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY,
+                ],
+            ]
+        ));
     }
 
     public function populateIntent(FHIRMedicationRequest $medRequestResource, array $dataRecord)
