@@ -90,13 +90,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     /**
      * Max wall time (seconds) to wait for an async Inferno test_run to
-     * reach `status = 'done'`. Individual test groups can take a while
-     * — observed patient-group runtime ~186s on the worker — and
-     * because every test in this class shares a single Inferno session
-     * (see setUpBeforeClass), a timeout here leaves the previous run
-     * mid-execution and the next test's POST /test_runs returns 409
-     * (session busy), cascading a single slow test into ~30 failures.
-     * 300s gives comfortable margin over the longest observed run.
+     * reach `status = 'done'`. Set generously so slow test groups
+     * (patient ~180s, allergy_intolerance can run much longer) have
+     * room to complete. A single test that exceeds this fails on its
+     * own — session-per-test isolation prevents the miss from
+     * cascading into 409 conflicts on the following tests.
      */
     public const POLLING_TIMEOUT = 300;
 
@@ -128,6 +126,20 @@ final class InfernoSinglePatientAPITest extends TestCase
             // by a Guzzle ClientException / ServerException.
             'http_errors' => false,
         ]);
+    }
+
+    /**
+     * Fresh Inferno session per test method. Sharing a session across
+     * every test in the class means a single slow test group whose
+     * run outlasts POLLING_TIMEOUT leaves that run mid-execution on
+     * the Inferno side — every following test's POST /test_runs then
+     * returns 409 (session busy) and cascades a single failure into
+     * ~30. Creating a session per test isolates each one; a slow test
+     * only fails itself.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
         $response = self::$infernoClient->post('test_sessions?test_suite_id=' . self::currentSuite());
         $body = (string) $response->getBody();
         if ($response->getStatusCode() !== 200) {
