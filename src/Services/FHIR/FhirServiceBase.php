@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
@@ -224,11 +225,72 @@ abstract class FhirServiceBase implements
     {
         // every FHIR resource must support the _id search parameter so we will just piggy bag on
         $searchParam = ['_id' => $fhirResourceId];
-        if (isset($puuidBind) && $this instanceof IPatientCompartmentResourceService) {
-            $searchField = $this->getPatientContextSearchField();
-            $searchParam[$searchField->getName()] = $puuidBind;
+        if (isset($puuidBind)) {
+            // Patient-compartment enforcement: a patient-scoped request that
+            // reaches a service without an IPatientCompartmentResourceService
+            // implementation is treated as an unrecognized shape rather than
+            // a design opt-out: return an empty ProcessingResult so another
+            // patient's data cannot be returned. Resources that legitimately
+            // have no patient compartment must opt out explicitly via
+            // INonPatientCompartmentResourceService.
+            if (!$this->assertPatientCompartmentBind(is_string($puuidBind) ? $puuidBind : null)) {
+                return $this->buildDeniedPatientCompartmentResult();
+            }
+            if ($this instanceof IPatientCompartmentResourceService) {
+                $searchField = $this->getPatientContextSearchField();
+                $searchParam[$searchField->getName()] = $puuidBind;
+            }
         }
         return $this->getAll($searchParam, $puuidBind);
+    }
+
+    /**
+     * Returns true when it is safe to apply the given patient-context bind to
+     * this service, false when the request must be denied. A service must
+     * either implement {@see IPatientCompartmentResourceService} (patient-data
+     * services) or {@see INonPatientCompartmentResourceService} (resources
+     * outside any patient compartment per FHIR spec — conformance resources
+     * plus practitioners/organizations/locations/etc.). Anything else is a
+     * bug — we log and deny.
+     */
+    protected function assertPatientCompartmentBind(?string $puuidBind): bool
+    {
+        if ($this instanceof IPatientCompartmentResourceService) {
+            return true;
+        }
+        if ($this instanceof INonPatientCompartmentResourceService) {
+            // Non-patient-compartment resources legitimately don't accept a
+            // patient scope, but the caller shouldn't have supplied one either.
+            // Rather than returning data unfiltered, we drop the bind and let
+            // the request proceed as an unscoped read (which is what patient
+            // tokens would already receive from a non-patient-compartment
+            // endpoint per FHIR spec).
+            return true;
+        }
+        ($this->logger ?? ServiceContainer::getLogger())->error(
+            'FhirServiceBase: patient-scoped request rejected — service does not implement IPatientCompartmentResourceService',
+            ['service' => static::class, 'puuidBindPresent' => $puuidBind !== null]
+        );
+        return false;
+    }
+
+    /**
+     * Builds the {@see ProcessingResult} returned when a patient-scoped request
+     * hits a service that hasn't declared a compartment implementation. Both
+     * internalErrors and validationMessages are populated so downstream
+     * consumers using either isValid() or hasErrors() will recognise the
+     * denial.
+     */
+    protected function buildDeniedPatientCompartmentResult(): ProcessingResult
+    {
+        $denied = new ProcessingResult();
+        $denied->setInternalErrors([
+            'Patient-scoped access to this resource is not permitted.',
+        ]);
+        $denied->setValidationMessages([
+            'patient' => 'Patient-scoped access to this resource is not permitted.',
+        ]);
+        return $denied;
     }
 
     /**

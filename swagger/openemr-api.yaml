@@ -4073,7 +4073,15 @@ paths:
     get:
       tags:
         - standard
-      description: 'Retrieves a list of all prescriptions'
+      description: 'Retrieves a list of prescriptions for a patient. A `patient_uuid` query parameter is REQUIRED — tenant-wide enumeration is no longer supported.'
+      parameters:
+        -
+          name: patient_uuid
+          in: query
+          description: 'REQUIRED. UUID of the patient whose prescriptions should be listed.'
+          required: true
+          schema:
+            type: string
       responses:
         200:
           $ref: '#/components/responses/standard'
@@ -4131,6 +4139,13 @@ paths:
           in: path
           description: 'The uuid for the prescription.'
           required: true
+          schema:
+            type: string
+        -
+          name: patient_uuid
+          in: query
+          description: 'Optional. When supplied, the prescription must belong to this patient — otherwise the request is rejected with 400. Callers driving from a patient chart should always supply this to enforce per-patient ownership.'
+          required: false
           schema:
             type: string
       responses:

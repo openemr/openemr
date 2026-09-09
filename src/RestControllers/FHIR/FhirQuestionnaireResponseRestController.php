@@ -7,7 +7,9 @@
  * @link    https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -111,11 +113,11 @@ class FhirQuestionnaireResponseRestController
             // only allow access to data of binded patient
             $result = $this->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
-            /**
-             * If you need to check the API against any kind of ACL the RestConfig object will do an authorization check
-             * and handle the API result back to the HTTP client
-             */
-            // RestConfig::authorization_check("patients", "med");
+            // Non-patient ACL enforcement (`patients/med`) lives at the FHIR
+            // route callback for GET /fhir/QuestionnaireResponse so it runs
+            // uniformly regardless of whether a caller invokes the controller
+            // directly. Do not add a second check here — the route is the
+            // single source of truth.
             $result = $this->getAll($request->getQueryParams());
         }
         return RestControllerHelper::returnSingleObjectResponse($result);
