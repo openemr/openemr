@@ -1691,10 +1691,5 @@ $ignoreErrors[] = [
     'count' => 2,
     'path' => __DIR__ . '/../../src/Tabs/TabsWrapper.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$code_types\\)\\. Use dependency injection instead\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/Services/CodeTypesServiceTest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
