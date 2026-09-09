@@ -109,14 +109,6 @@ final class InfernoSinglePatientAPITest extends TestCase
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: self::DEFAULT_OPENEMR_BASE_URL_API;
         self::$testClient = new ApiTestClient($baseUrl, false);
         self::$baseUrl = $baseUrl;
-        // For now this uses the admin user to authenticate.
-        // TODO: @adunsulag implement this using a test practitioner user so we can
-        // test the inferno single patient API from a regular provider.
-        self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $accessToken = self::$testClient->getAccessToken();
-        if (!is_string($accessToken) || $accessToken === '') {
-            throw new \RuntimeException('Failed to obtain access token for Inferno Single Patient API tests');
-        }
         $infernoUrl = getenv('INFERNO_BASE_URL', true) ?: self::DEFAULT_INFERNO_BASE_URL;
         self::$infernoClient = new Client([
             'timeout' => self::TIMEOUT,
@@ -129,17 +121,33 @@ final class InfernoSinglePatientAPITest extends TestCase
     }
 
     /**
-     * Fresh Inferno session per test method. Sharing a session across
-     * every test in the class means a single slow test group whose
-     * run outlasts POLLING_TIMEOUT leaves that run mid-execution on
-     * the Inferno side — every following test's POST /test_runs then
-     * returns 409 (session busy) and cascades a single failure into
-     * ~30. Creating a session per test isolates each one; a slow test
-     * only fails itself.
+     * Fresh OAuth access token and Inferno session per test method.
+     *
+     * The class runs long enough (~90 min observed with the full test
+     * matrix) that a single access token obtained at setUpBeforeClass
+     * expires part-way through — every test after that point sees 401
+     * on its FHIR calls from the Inferno worker.
+     *
+     * The session-per-test half exists for a similar reason: sharing
+     * a session across every test means a single slow test group whose
+     * async run outlasts POLLING_TIMEOUT leaves that run mid-execution
+     * on the Inferno side, and every following test's POST /test_runs
+     * returns 409 (session busy), cascading one failure into roughly
+     * 30. Fresh session per method isolates each one.
      */
     protected function setUp(): void
     {
         parent::setUp();
+
+        // For now this uses the admin user to authenticate.
+        // TODO: @adunsulag implement this using a test practitioner user so we can
+        // test the inferno single patient API from a regular provider.
+        self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $accessToken = self::$testClient->getAccessToken();
+        if (!is_string($accessToken) || $accessToken === '') {
+            throw new \RuntimeException('Failed to obtain access token for Inferno Single Patient API tests');
+        }
+
         $response = self::$infernoClient->post('test_sessions?test_suite_id=' . self::currentSuite());
         $body = (string) $response->getBody();
         if ($response->getStatusCode() !== 200) {
