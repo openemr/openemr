@@ -237,7 +237,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
                 'incomplete','active' => 'in-progress',
                 default => 'in-progress'
             });
-        } else if (is_string($fhirResource->getStatus())) {
+        } elseif (is_string($fhirResource->getStatus())) {
             // otherwise we use the status in the original questionnaire response status
             $responseStatus = new FHIRQuestionnaireResponseStatus();
             $responseStatus->setValue($fhirResource->getStatus());

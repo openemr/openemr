@@ -20,8 +20,6 @@ require_once(__DIR__ . "/../../globals.php");
  * @global string $srcdir defined in globals.php
  */
 global $srcdir;
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\CurrentRequest;

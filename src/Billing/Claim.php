@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -185,7 +185,10 @@ class Claim
 
     public function getReferrerId()
     {
-        if ($this->billing_options['provider_id'] ?? '') {
+        if (
+            ($this->billing_options['provider_id'] ?? '')
+            && in_array($this->box17Qualifier(), ['', 'DN'], true)
+        ) {
             $referrer_id = $this->billing_options['provider_id'];
         } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
             $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
@@ -197,15 +200,16 @@ class Claim
         return $referrer_id;
     }
 
-    public function getOrdererId(): string|int|null
+    public function getOrdererId(): string|int
     {
-        if ($this->billing_options['provider_id'] ?? '') {
-            $orderer_id = $this->billing_options['provider_id'];
-        } elseif ($this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id) ?? '') {
-            $orderer_id = $this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id);
+        $mboProviderId = $this->billing_options['provider_id'] ?? '';
+        if ($mboProviderId && $this->box17Qualifier() === 'DK') {
+            return is_int($mboProviderId) || is_string($mboProviderId) ? $mboProviderId : '';
         }
 
-        return $orderer_id ?? '';
+        $ordererId = $this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id);
+
+        return is_int($ordererId) || is_string($ordererId) ? $ordererId : '';
     }
 
     /**
@@ -577,11 +581,7 @@ class Claim
         $amount = 0;
         foreach ($this->invoice as $codeval) {
             foreach ($codeval['dtl'] as $value) {
-                // plv exists to indicate the payer level.
-
-                if (!isset($value['pmt'])) {
-                    $value['pmt'] = 0;
-                }
+                $value['pmt'] ??= 0;
 
                 if (empty($value['plv'])) { // 0 indicates patient
                     $amount += $value['pmt'];
@@ -1735,12 +1735,30 @@ class Claim
             $this->billing_options['box_15_date_qual'];
     }
 
-    public function box17Qualifier()
+    /**
+     * CMS-1500 Box 17 qualifier: DN referring, DK ordering, DQ supervising.
+     *
+     * Box 17 holds a single provider whose role is declared by this qualifier.
+     * The 837 expresses role by loop placement instead, so the qualifier decides
+     * which loop the misc billing options provider feeds: DN (or empty) routes it
+     * to Loop 2310A as the referring provider, DK to Loop 2420E as the ordering
+     * provider. Empty is treated as DN to match the provider_qualifier_code list
+     * default and the pre-existing paper fallback in Hcfa1500.
+     *
+     * DQ is accepted for the paper claim but has no 837 equivalent here. The
+     * supervising provider is emitted at Loop 2310D from
+     * form_encounter.supervisor_id, independent of this qualifier; the line-level
+     * Loop 2420D is not generated. A DQ selection therefore feeds neither the
+     * referring nor the ordering loop.
+     *
+     * @return string One of DN, DK, DQ, or '' — values originate as
+     *                provider_qualifier_code option_ids, so callers can compare
+     *                with === against those literals.
+     */
+    public function box17Qualifier(): string
     {
-        //If no box qualifier specified use "DK" for ordering provider
-        //someday might make mbo form the place to set referring instead of demographics under choices
-        return empty($this->billing_options['provider_qualifier_code']) ? '' :
-            $this->billing_options['provider_qualifier_code'];
+        $qual = $this->billing_options['provider_qualifier_code'] ?? '';
+        return is_string($qual) ? $qual : '';
     }
 
   // Returns an array of unique diagnoses.  Periods are stripped by default

@@ -56,10 +56,10 @@ on:
         type: string
         default: ''
       to_version:
-        description: 'Target openemr version (release tag suffix, e.g. 8.2.0)'
-        required: true
+        description: 'Target openemr version (release tag suffix, e.g. 8.2.0). Leave empty to use detect-acceptance-mode.sh emit_to_version defaults — 99.99.99 label on build_locally=true, 8.2.0 shipped-tarball fallback otherwise. Explicit value here still wins over both defaults (DISPATCH_TO_VERSION takes precedence). Matches the workflow_call variant''s shape (required: false, default: empty) — the two triggers used to diverge, which caused `-f build_locally=true` dispatches to accidentally test-against-8.2.0-shipped-tarball semantics instead of the 99.99.99 label the build_locally branch was designed for.'
+        required: false
         type: string
-        default: '8.2.0'
+        default: ''
       build_locally:
         description: 'Build target tarball from the PR checkout via PackageAssembler instead of downloading to_version from the GitHub release page (Phase 3.5 PR-tarball validation)'
         type: boolean
@@ -108,6 +108,15 @@ on:
     - 'patch-prep/**'
     - 'release-prep/**'
     - 'release-finalize/**'
+    # Same duplicate-run problem, different bot: dependabot pushes the
+    # branch AND opens the PR, so both events fire. Worse, dependabot
+    # force-pushes on every rebase, and a push event's paths: filter is
+    # evaluated over `before..after` — which after a rebase spans every
+    # commit master gained in the interim. A composer.lock bump therefore
+    # matches paths it never touched, and detect-mode diffs that same
+    # inflated range. Keep the pull_request run, which diffs against the
+    # PR base and sees only the bump itself.
+    - 'dependabot/**'
     paths:
     - '.github/workflows/acceptance-package.yml'
     - '.github/docker/acceptance-package-compose.yml'
@@ -189,6 +198,19 @@ jobs:
       # resulting version is guaranteed to be in the branch's
       # sql_upgrade.php wizard dropdown (openemr/openemr#13573).
       from_version: ${{ steps.decide.outputs.from_version }}
+      # expected_version is the version the running artifact will
+      # self-report post-install/post-upgrade (i.e. what
+      # sql_upgrade.php writes to the DB `version` table), consumed
+      # via ACCEPTANCE_EXPECTED_VERSION by the version-display /
+      # version-api acceptance groups. Equals to_version on the
+      # shipped-tarball path (label = actual, since a shipped tarball
+      # has --release-version baked in). On the build_locally path
+      # the to_version label is intentionally cosmetic (99.99.99
+      # default; PackageAssembler ships the checked-out version.php
+      # as-is), so the acceptance groups must compare against the
+      # checkout's version.php value instead of the label — otherwise
+      # they can never pass. See openemr/openemr#13753.
+      expected_version: ${{ steps.decide.outputs.expected_version }}
     steps:
     - uses: actions/checkout@v7
       with:
@@ -369,6 +391,26 @@ jobs:
       # detect-mode.outputs.to_version comment for why the auto-fire
       # path resolves this to 99.99.99.
       TO_VERSION: ${{ needs.detect-mode.outputs.to_version }}
+      # Actual version the running artifact will self-report — used
+      # by ACCEPTANCE_EXPECTED_VERSION in the version-display /
+      # version-api groups below. Decoupled from TO_VERSION because
+      # on build_locally the TO_VERSION label is cosmetic (99.99.99)
+      # while sql_upgrade.php writes the checkout's version.php value
+      # into the DB `version` table. See openemr/openemr#13753 for
+      # the failure trace when these two were coupled.
+      EXPECTED_VERSION: ${{ needs.detect-mode.outputs.expected_version }}
+      # ACCEPTANCE_EXPECTED_VERSION at job level so every step can
+      # read it: the PHPUnit version-display / version-api groups
+      # (the six per-step assignments below still exist for readability
+      # + intent; they resolve to the same value so are effectively
+      # no-op overrides), AND the boot-package.sh / upgrade-package.sh
+      # post-install/post-upgrade DB-version guards. Those two shell
+      # guards previously compared DB_VERSION against the positional
+      # VERSION/TO_VERSION arg (i.e. the label), which on build_locally
+      # can never equal the DB value. Making them read this env
+      # completes the #13753 fix; the shell scripts fall back to their
+      # positional arg when the env is unset (dev-time standalone use).
+      ACCEPTANCE_EXPECTED_VERSION: ${{ needs.detect-mode.outputs.expected_version }}
       ACCEPTANCE_ARTIFACT_URL: http://localhost:8680
     name: ${{ matrix.scenario }} (${{ matrix.format }})
     steps:
@@ -541,16 +583,19 @@ jobs:
       if: matrix.scenario == 'fresh-install'
       run: composer acceptance -- --group=fresh-install
 
-    # Version-display check: About page shows TO_VERSION. Own group
-    # (not piggybacking fresh-install) so this doesn't leak into
+    # Version-display check: About page shows EXPECTED_VERSION. Own
+    # group (not piggybacking fresh-install) so this doesn't leak into
     # acceptance-docker.yml — that workflow uses floating tags
     # (`latest`, `next`) and doesn't resolve them into X.Y.Z at
     # runtime, so it can't set ACCEPTANCE_EXPECTED_VERSION. See
     # openemr/openemr#13634 for the full signal-source rationale.
-    - name: Run version-display check (fresh-install, expect ${{ env.TO_VERSION }})
+    # EXPECTED_VERSION rather than TO_VERSION because the label and
+    # the shipped self-reported version diverge on build_locally
+    # (label=99.99.99, tree=version.php); see openemr/openemr#13753.
+    - name: Run version-display check (fresh-install, expect ${{ env.EXPECTED_VERSION }})
       if: matrix.scenario == 'fresh-install'
       env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=version-display
 
     # api-enable bootstrap fires AFTER the fresh-install group. Order
@@ -568,13 +613,13 @@ jobs:
       if: matrix.scenario == 'fresh-install'
       run: composer acceptance -- --group=api-enabled
 
-    # Version-api check: /api/version returns TO_VERSION. Own group
-    # for the same reason as version-display above (avoid leaking
-    # into acceptance-docker.yml's api-enabled invocation).
-    - name: Run version-api check (fresh-install, expect ${{ env.TO_VERSION }})
+    # Version-api check: /api/version returns EXPECTED_VERSION. Own
+    # group for the same reason as version-display above (avoid
+    # leaking into acceptance-docker.yml's api-enabled invocation).
+    - name: Run version-api check (fresh-install, expect ${{ env.EXPECTED_VERSION }})
       if: matrix.scenario == 'fresh-install'
       env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=version-api
 
     # ==== wizard-install scenario ====
@@ -592,10 +637,10 @@ jobs:
       if: matrix.scenario == 'wizard-install'
       run: composer acceptance -- --group=wizard-install
 
-    - name: Run version-display check (wizard-install, expect ${{ env.TO_VERSION }})
+    - name: Run version-display check (wizard-install, expect ${{ env.EXPECTED_VERSION }})
       if: matrix.scenario == 'wizard-install'
       env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=version-display
 
     # ==== upgrade scenario ====
@@ -607,6 +652,14 @@ jobs:
     # empty string when build-tarball didn't run).
     - name: Boot tarball artifact (from_version)
       if: matrix.scenario == 'upgrade'
+      # Override ACCEPTANCE_EXPECTED_VERSION from its job-level default
+      # (which points at the TO-side expected version) to FROM_VERSION —
+      # this step boots the from-side artifact, so the DB will contain
+      # FROM_VERSION at this point, not the TO-side expected. Without
+      # this override boot-package.sh's DB-version guard hard-fails
+      # comparing DB=<from> against expected=<to>.
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
       run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
 
     - name: Run acceptance suite (fresh-install of from_version)
@@ -629,12 +682,14 @@ jobs:
       if: matrix.scenario == 'upgrade'
       run: composer acceptance -- --group=post-upgrade
 
-    # Post-upgrade the artifact is running TO_VERSION; version-display
-    # check asserts against that.
-    - name: Run version-display check (post-upgrade, expect ${{ env.TO_VERSION }})
+    # Post-upgrade the artifact is running EXPECTED_VERSION;
+    # version-display check asserts against that. See the
+    # fresh-install version-display block above for why the label
+    # (TO_VERSION) is not the right signal on build_locally.
+    - name: Run version-display check (post-upgrade, expect ${{ env.EXPECTED_VERSION }})
       if: matrix.scenario == 'upgrade'
       env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=version-display
 
     # api-enable bootstrap fires AFTER post-upgrade so both the
@@ -659,10 +714,10 @@ jobs:
       if: matrix.scenario == 'upgrade'
       run: composer acceptance -- --group=api-enabled
 
-    - name: Run version-api check (post-upgrade, expect ${{ env.TO_VERSION }})
+    - name: Run version-api check (post-upgrade, expect ${{ env.EXPECTED_VERSION }})
       if: matrix.scenario == 'upgrade'
       env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=version-api
 
     # ==== wizard-upgrade scenario ====
@@ -675,6 +730,10 @@ jobs:
     # select → submit → verify / redirects to login).
     - name: Boot tarball artifact (from_version)
       if: matrix.scenario == 'wizard-upgrade'
+      # Same override as the upgrade scenario's from-side boot: the DB
+      # will contain FROM_VERSION at this point, not the TO expected.
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
       run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
 
     - name: Swap bind mount to to_version without running CLI upgrade
@@ -685,10 +744,10 @@ jobs:
       if: matrix.scenario == 'wizard-upgrade'
       run: composer acceptance -- --group=wizard-upgrade
 
-    - name: Run version-display check (wizard-upgrade, expect ${{ env.TO_VERSION }})
+    - name: Run version-display check (wizard-upgrade, expect ${{ env.EXPECTED_VERSION }})
       if: matrix.scenario == 'wizard-upgrade'
       env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=version-display
 
     # ==== debug + teardown (all scenarios) ====

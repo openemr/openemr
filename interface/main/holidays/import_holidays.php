@@ -20,12 +20,12 @@ set_time_limit(0);
 
 require_once('../../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\HolidayService;
 use OpenEMR\Services\InvalidHolidayCsvException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -81,7 +81,7 @@ try {
     $errorMessage = $e->getMessage();
 }
 
-$twig = (new TwigContainer())->getTwig();
+$twig = ServiceContainer::getTwig();
 echo $twig->render('holidays/import.html.twig', [
     'status' => $status,
     'errorMessage' => $errorMessage,

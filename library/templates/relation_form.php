@@ -18,7 +18,6 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
@@ -221,6 +220,5 @@ $logger->debug("Sending to TWIG", [
                 ]);
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$twig = $twigContainer->getTwig();
+$twig = ServiceContainer::getTwig();
 echo $twig->render('patient/demographics/relation_form.html.twig', $templateVars);

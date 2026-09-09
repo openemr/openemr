@@ -307,21 +307,35 @@ done
 
 # Post-upgrade DB version assertion (openemr/openemr#13634).
 # sql_upgrade.php bumps the `version` row as its final step, so a
-# successful upgrade leaves DB=TO_VERSION. Catches the exact bug
-# class fixed in #13586/#13587 (fsupgrade sed pattern targeted a
-# refactored-away line → silent no-op → version row never advanced,
-# upgrade replayed from 2.9.0 on every run). Skipped in
-# --skip-sql-upgrade mode: that path exits before this point (line
-# ~281) because the Panther wizard test runs the upgrade later.
+# successful upgrade leaves DB matching the to-side tarball's
+# version.php. Catches the exact bug class fixed in #13586/#13587
+# (fsupgrade sed pattern targeted a refactored-away line → silent
+# no-op → version row never advanced, upgrade replayed from 2.9.0
+# on every run). Skipped in --skip-sql-upgrade mode: that path exits
+# before this point (line ~281) because the Panther wizard test runs
+# the upgrade later.
+#
+# Assertion source: ACCEPTANCE_EXPECTED_VERSION env if set, else
+# TO_VERSION. The env variant is set by the acceptance workflow to
+# the same value it feeds the PHPUnit version-display / version-api
+# groups — on the build_locally path this reads the checkout's
+# version.php (the actual shipped self-reported version), NOT the
+# cosmetic `--release-version` label passed to PackageAssembler
+# (99.99.99 default). TO_VERSION as fallback keeps this script usable
+# standalone (dev-time upgrade without the workflow's env-plumbing)
+# and on the shipped-tarball path where label == actual anyway. See
+# openemr/openemr#13753 for the full failure trace when the two
+# diverged.
 # `mariadb` (not `mysql`) — the mariadb 11.8 image ships only the
 # `mariadb` client binary; `mysql` is not on $PATH.
-echo "==> Asserting DB version matches ${TO_VERSION}"
+EXPECTED="${ACCEPTANCE_EXPECTED_VERSION:-${TO_VERSION}}"
+echo "==> Asserting DB version matches ${EXPECTED}"
 DB_VERSION="$(docker compose exec -T mysql \
     mariadb -uroot -proot openemr -sN \
     -e "SELECT CONCAT(v_major,'.',v_minor,'.',v_patch) FROM version" \
     2>/dev/null || echo "query-failed")"
-if [[ "${DB_VERSION}" != "${TO_VERSION}" ]]; then
-    echo "::error::post-upgrade DB version '${DB_VERSION}' does not match expected '${TO_VERSION}' (see openemr/openemr#13634)" >&2
+if [[ "${DB_VERSION}" != "${EXPECTED}" ]]; then
+    echo "::error::post-upgrade DB version '${DB_VERSION}' does not match expected '${EXPECTED}' (see openemr/openemr#13634)" >&2
     exit 1
 fi
 echo "    DB version=${DB_VERSION}"

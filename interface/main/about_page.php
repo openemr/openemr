@@ -22,15 +22,14 @@
 
 require_once("../globals.php");
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 
-$twig = new TwigContainer();
-$t = $twig->getTwig();
+$t = ServiceContainer::getTwig();
 
 $versionService = new VersionService();
 

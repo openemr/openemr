@@ -59,7 +59,7 @@ class OnsiteDocumentReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    static function GetCustomQuery($criteria)
+    public static function GetCustomQuery($criteria)
     {
         $sql = "select
 			'custom value here...' as CustomFieldExample
@@ -102,7 +102,7 @@ class OnsiteDocumentReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    static function GetCustomCountQuery($criteria)
+    public static function GetCustomCountQuery($criteria)
     {
         $sql = "select count(1) as counter from `onsite_documents`";
 

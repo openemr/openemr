@@ -44,9 +44,7 @@ class FhirCareTeamRestController
 
     public function getOEGlobals(): OEGlobalsBag
     {
-        if (!isset($this->oeGlobalsBag)) {
-            $this->oeGlobalsBag = new OEGlobalsBag();
-        }
+        $this->oeGlobalsBag ??= new OEGlobalsBag();
         return $this->oeGlobalsBag;
     }
 

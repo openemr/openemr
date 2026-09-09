@@ -15,11 +15,8 @@
 
 
 use OpenEMR\BC\Utilities;
-use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-
 function misc_billing_options_report($pid, $encounter, $cols, $id): void
 {
     $MBO = new OpenEMR\Billing\MiscBillingOptions();
@@ -45,13 +42,13 @@ function misc_billing_options_report($pid, $encounter, $cols, $id): void
                 $pqe = $data['provider_qualifier_code'];
                 if (!empty($pqe)) {
                     switch ($pqe) {
-                        case ($pqe == "DN"):
+                        case "DN":
                             $value = "Referring";
                             break;
-                        case ($pqe == "DK"):
+                        case "DK":
                             $value = "Ordering";
                             break;
-                        case ($pqe == "DQ"):
+                        case "DQ":
                             $value = "Supervising";
                             break;
                     }

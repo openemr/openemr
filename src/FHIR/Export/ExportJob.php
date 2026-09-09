@@ -266,7 +266,7 @@ class ExportJob
     {
         if (\is_string($resources)) {
             $this->resources = explode(",", $resources);
-        } else if (\is_array($resources)) {
+        } elseif (\is_array($resources)) {
             $this->resources = $resources;
         } else {
             throw new \InvalidArgumentException("Resources must be a valid string or array");

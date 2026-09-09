@@ -16,9 +16,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
-require_once("$srcdir/patientvalidation.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -445,6 +443,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             if (isset($result[$field_id])) {
                                 $currvalue = $result[$field_id];
                             }
+                        }
+
+                        // This page never loads an existing patient, so a field with
+                        // no value takes the layout's configured default.
+                        $default_value = is_array($frow) ? ($frow['default_value'] ?? '') : '';
+                        if ($currvalue === null && $default_value !== '') {
+                            $currvalue = $default_value;
                         }
 
                         // Handle a data category (group) change.

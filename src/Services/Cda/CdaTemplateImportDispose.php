@@ -27,8 +27,6 @@ use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientIssuesService;
 
-require_once __DIR__ . '/../../../library/forms.inc.php';
-
 class CdaTemplateImportDispose
 {
     use CommandLineDebugStylerTrait;

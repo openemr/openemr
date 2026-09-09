@@ -13,7 +13,6 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;

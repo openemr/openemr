@@ -24,7 +24,6 @@ require_once("../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\PatientFile\ManageDuplicatePatientsController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Patient\DuplicatePatientCsvWriter;
@@ -40,7 +39,7 @@ $clock = ServiceContainer::getClock();
 $controller = new ManageDuplicatePatientsController(
     new DuplicatePatientService($clock),
     new DuplicatePatientCsvWriter(),
-    (new TwigContainer(null, $kernel))->getTwig(),
+    ServiceContainer::getTwig(),
     SessionWrapperFactory::getInstance()->getActiveSession(),
     $clock,
     $kernel->getEventDispatcher(),

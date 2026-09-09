@@ -169,9 +169,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
 
@@ -381,14 +379,14 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // 7.0.0 birthSex -> https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1021.24/expansion
         //      F,M,UNK,OTH,UNK,ASKU,asked-declined
         // 8.0.0 birthSex dropped as mandatory field
-        $birthSex = match($this->getHighestCompatibleUSCoreProfileVersion()) {
-            self::PROFILE_VERSION_3_1_1 => match($genderValue) {
+        $birthSex = match ($this->getHighestCompatibleUSCoreProfileVersion()) {
+            self::PROFILE_VERSION_3_1_1 => match ($genderValue) {
                 'male' => 'M'
                 ,'female' => 'F'
                 ,default => 'UNK'
             },
             // self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0, and future
-            default => match($genderValue) {
+            default => match ($genderValue) {
                 'male' => 'M'
                 ,'female' => 'F'
                 ,'oth' => 'OTH'
@@ -404,7 +402,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // http://hl7.org/fhir/R4/valueset-administrative-gender.html
         // 3.1.1,7.0.0 gender -> male | female | other | unknown
 
-        $genderValue = match($genderValue) {
+        $genderValue = match ($genderValue) {
             'male','female' => $genderValue
             // unk -> 'unknown' per HL7 spec
             ,'unk' => 'unknown'
@@ -537,9 +535,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if ($option_id === null) {
             return null;
         }
-        if (!isset($this->cachedListOptions[$list_id])) {
-            $this->cachedListOptions[$list_id] = [];
-        }
+        $this->cachedListOptions[$list_id] ??= [];
         if (!isset($this->cachedListOptions[$list_id][$option_id])) {
             $options = $this->getListService()->getOptionsByListName($list_id);
             foreach ($options as $option) {
@@ -607,11 +603,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
             if ($dataRecord['gender_identity'] == 'asked-declined') {
                 $genderIdentityExtension->setValueCodeableConcept(UtilsService::createDataAbsentUnknownCodeableConcept());
-            } else if ($dataRecord['gender_identity'] == 'OTH') {
+            } elseif ($dataRecord['gender_identity'] == 'OTH') {
                 $code = 'OTH';
                 $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
                 $display = 'Other';
-            } else if ($dataRecord['gender_identity'] === 'UNK') {
+            } elseif ($dataRecord['gender_identity'] === 'UNK') {
                 $code = 'UNK';
                 $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
                 $display = 'Unknown';
@@ -990,9 +986,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 

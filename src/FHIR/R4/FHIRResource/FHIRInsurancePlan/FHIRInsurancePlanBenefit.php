@@ -223,9 +223,7 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<InsurancePlanBenefit xmlns="http://hl7.org/fhir"></InsurancePlanBenefit>');
-        }
+        $sxe ??= new \SimpleXMLElement('<InsurancePlanBenefit xmlns="http://hl7.org/fhir"></InsurancePlanBenefit>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

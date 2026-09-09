@@ -75,13 +75,6 @@ class PatientService extends BaseService
     ];
 
     /**
-     * In the case where a patient doesn't have a picture uploaded,
-     * this value will be returned so that the document controller
-     * can return an empty response.
-     */
-    private $patient_picture_fallback_id = -1;
-
-    /**
      * @var PatientValidator
      */
     private $patientValidator;
@@ -665,10 +658,15 @@ class PatientService extends BaseService
         return $patientRow;
     }
 
-    /**
-     * @return number
-     */
-    public function getPatientPictureDocumentId($pid)
+    public function hasPictureForPid(mixed $pid): bool
+    {
+        if (!is_numeric($pid)) {
+            return false;
+        }
+        return $this->getPatientPictureDocumentId((string) $pid) !== null;
+    }
+
+    public function getPatientPictureDocumentId(string $pid): ?int
     {
         $sql = "SELECT doc.id AS id
                  FROM documents doc
@@ -680,11 +678,76 @@ class PatientService extends BaseService
 
         $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
-        if (empty($result) || empty($result['id'])) {
-            return $this->patient_picture_fallback_id;
+        if (!is_array($result) || !array_key_exists('id', $result)) {
+            return null;
         }
 
-        return $result['id'];
+        $id = $result['id'];
+        if (!is_numeric($id)) {
+            return null;
+        }
+
+        return (int) $id;
+    }
+
+    /**
+     * Annotate each event with a `patient_has_picture` bool using one
+     * batched query. The event's patient id is read from `$pidKey`.
+     *
+     * @param  array<int|string, array<string, mixed>> $events
+     * @return array<int|string, array<string, mixed>>
+     */
+    public static function annotateEventsWithPatientHasPicture(array $events, string $pidKey = 'pid'): array
+    {
+        $pids = [];
+        foreach ($events as $event) {
+            $pid = $event[$pidKey] ?? null;
+            if (is_numeric($pid) && (int) $pid > 0) {
+                $pids[(int) $pid] = (int) $pid;
+            }
+        }
+        $withPhoto = $pids === []
+            ? []
+            : array_flip((new self())->getPatientsWithPictures(array_values($pids)));
+        foreach ($events as $index => $event) {
+            $pid = $event[$pidKey] ?? null;
+            $events[$index]['patient_has_picture'] = is_numeric($pid) && isset($withPhoto[(int) $pid]);
+        }
+        return $events;
+    }
+
+    /**
+     * @param  list<int> $pids
+     * @return list<int> subset of $pids that have a photo document
+     */
+    public function getPatientsWithPictures(array $pids): array
+    {
+        if ($pids === []) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $sql = "SELECT DISTINCT doc.foreign_id AS pid
+                 FROM documents doc
+                 JOIN categories_to_documents cate_to_doc
+                   ON doc.id = cate_to_doc.document_id
+                 JOIN categories cate
+                   ON cate.id = cate_to_doc.category_id
+                WHERE cate.name LIKE ? AND doc.foreign_id IN ($placeholders)";
+
+        $params = array_merge(
+            [OEGlobalsBag::getInstance()->getString('patient_photo_category_name')],
+            $pids,
+        );
+
+        $rows = QueryUtils::fetchRecords($sql, $params);
+        $result = [];
+        foreach ($rows as $row) {
+            $pid = $row['pid'] ?? null;
+            if (is_numeric($pid)) {
+                $result[] = (int) $pid;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -920,9 +983,7 @@ class PatientService extends BaseService
 
     private function getPatientSuffixKeys()
     {
-        if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
-        }
+        $this->patientSuffixKeys ??= [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
         return $this->patientSuffixKeys;
     }
 

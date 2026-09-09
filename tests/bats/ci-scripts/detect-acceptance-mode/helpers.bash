@@ -87,6 +87,18 @@ setup_test_dir() {
     export PUSH_HEAD_SHA=""
     export PUSH_REF=""
     export MOCK_GIT_DIFF_OUTPUT=""
+
+    # Seed a default version.php in the working dir. The script's
+    # read_tree_version (called by emit_expected_version on the
+    # build_locally=true path) requires this file to exist and to
+    # contain parseable $v_major/$v_minor/$v_patch declarations.
+    # Default is a distinctive-looking `8.4.99` so assertions on the
+    # emitted expected_version can't be silently satisfied by the
+    # to_version default (99.99.99) or by real shipped versions.
+    # Tests that want a specific value re-call seed_version_php;
+    # tests exercising the missing-file / malformed-parse failure
+    # modes rm -f version.php or overwrite it directly.
+    seed_version_php 8 4 99
 }
 
 # Populate the test's temp working dir with a set of empty
@@ -100,6 +112,22 @@ seed_sql_upgrade_fixtures() {
     for pair in "$@"; do
         touch "sql/${pair}_upgrade.sql"
     done
+}
+
+# Write a minimal version.php to the working dir with the given
+# major/minor/patch. Matches the shape the real openemr version.php
+# uses (bash-quoting of PHP-single-quoted strings) so
+# read_tree_version's awk pattern parses it correctly.
+seed_version_php() {
+    local major="$1"
+    local minor="$2"
+    local patch="$3"
+    cat > version.php <<PHP
+<?php
+\$v_major = '${major}';
+\$v_minor = '${minor}';
+\$v_patch = '${patch}';
+PHP
 }
 
 teardown_test_dir() {

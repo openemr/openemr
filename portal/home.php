@@ -20,7 +20,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
@@ -39,7 +38,6 @@ $srcdir = $globalsBag->getString('srcdir');
 $web_root = $globalsBag->getString('web_root');
 
 require_once('verify_session.php');
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
@@ -343,7 +341,7 @@ $styleArray = collectStyles();
 $isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
 
 // Render Home Page
-$twig = (new TwigContainer('', $globalsBag->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 try {
     $healthSnapshot = [
         'immunizationRecords' => $immunRecords,

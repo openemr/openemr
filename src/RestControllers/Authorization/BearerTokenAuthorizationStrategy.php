@@ -52,10 +52,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     public function getTrustedUserService(): TrustedUserService
     {
-        if (!isset($this->trustedUserService)) {
-            // Initialize the trusted user service if not already set.
-            $this->trustedUserService = new TrustedUserService();
-        }
+        $this->trustedUserService ??= new TrustedUserService();
         return $this->trustedUserService;
     }
 
@@ -103,21 +100,13 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
      */
     public function getUuidUserAccountFactory(): callable
     {
-        if (!isset($this->uuidUserAccountFactory)) {
-            // If the factory is not set, we can initialize it here.
-            // This is a placeholder for the actual factory logic.
-            $this->uuidUserAccountFactory = (fn($userUuid): \OpenEMR\Common\Auth\UuidUserAccount => new UuidUserAccount($userUuid));
-        }
+        $this->uuidUserAccountFactory ??= fn($userUuid): \OpenEMR\Common\Auth\UuidUserAccount => new UuidUserAccount($userUuid);
         return $this->uuidUserAccountFactory;
     }
 
     public function getAccessTokenRepositoryForSession(SessionInterface $session): AccessTokenRepository
     {
-        if (!isset($this->accessTokenRepository)) {
-            // If the access token repository is not set, we can create it here.
-            // This is a placeholder for the actual repository logic.
-            $this->accessTokenRepository = $this->createAccessTokenRepository($session);
-        }
+        $this->accessTokenRepository ??= $this->createAccessTokenRepository($session);
         return $this->accessTokenRepository;
     }
 
@@ -418,10 +407,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     public function getUserService(): UserService
     {
-        if (!isset($this->userService)) {
-            // Initialize the user service if not already set.
-            $this->userService = new UserService();
-        }
+        $this->userService ??= new UserService();
         return $this->userService;
     }
 

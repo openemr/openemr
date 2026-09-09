@@ -162,7 +162,7 @@ repos:
 
 # shellcheck
 - repo: https://github.com/shellcheck-py/shellcheck-py
-  rev: v0.9.0.6   # shellcheck 0.9.0 — matches ubuntu-24.04's package, which CI uses
+  rev: v0.11.0.1   # shellcheck 0.9.0 — matches ubuntu-24.04's package, which CI uses
   hooks:
   - id: shellcheck
       # Match CI's invocation (.github/workflows/shellcheck.yml). enable=all
@@ -190,7 +190,7 @@ repos:
 # briefly when upstream ships a new version. Dependabot bumps the hook rev
 # to close that window.
 - repo: https://github.com/AleksaC/hadolint-py
-  rev: v2.14.0
+  rev: v2.15.1
   hooks:
   - id: hadolint
     args:

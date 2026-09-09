@@ -69,7 +69,7 @@ vendor/bin/phpunit tests/Tests/E2e/KkEditGlobalsTest.php --filter testEditGlobal
 ### Option 4: Run with Selenium Grid (Recommended for CI)
 ```bash
 # Start the selenium service
-cd ci/apache_84_118  # or your preferred environment
+cd ci/apache_84_123  # or your preferred environment
 docker-compose --profile selenium up -d
 
 # Run tests inside the container

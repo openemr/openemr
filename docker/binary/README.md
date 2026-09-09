@@ -25,11 +25,22 @@ docker build -t openemr-binary:latest .
 ### Build Arguments
 
 - `OPENEMR_VERSION`: OpenEMR version (default: `7_0_4`)
-- `BINARY_RELEASE_DATE`: Release date for binary package (default: `12282025`)
+- `BINARY_RELEASE_DATE`: Release date for binary package (default: `12292025`)
 - `PHP_VERSION`: PHP version used in binaries (default: `8.5`)
 - `ALPINE_VERSION`: Alpine Linux version (default: `3.22`)
 
-Example:
+`OPENEMR_VERSION`, `BINARY_RELEASE_DATE`, and `ALPINE_VERSION` are maintained
+by `.github/workflows/updatecli-docker-pins.yml`, which opens a pull request
+when a newer Alpine minor or a fully published
+[openemr-static-binary-forge](https://github.com/Jmevorach/openemr-static-binary-forge)
+release becomes available. The defaults listed above are updated in the same
+pull request, so this list and the `ARG` lines cannot drift apart. Merging is
+always a human decision; see `.github/updatecli/binary-image.yaml` for what the
+bot verifies before proposing a forge bump.
+
+Override any of them to build an older combination — for example the
+December 2025 forge release:
+
 ```bash
 docker build \
   --build-arg OPENEMR_VERSION=7_0_4 \
@@ -46,7 +57,7 @@ version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:11.8
+    image: mariadb:12.3
     command: ['mariadbd','--character-set-server=utf8mb4']
     volumes:
     - databasevolume:/var/lib/mysql

@@ -31,9 +31,9 @@
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
@@ -55,8 +55,7 @@ require_once("../globals.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$twig = new TwigContainer(null, $globalsBag->getKernel());
-$t = $twig->getTwig();
+$t = ServiceContainer::getTwig();
 
 $logoService = new LogoService();
 $primaryLogo = $logoService->getLogo("core/login/primary");

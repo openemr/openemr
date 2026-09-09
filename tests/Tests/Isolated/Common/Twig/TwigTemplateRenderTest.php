@@ -53,9 +53,19 @@ class TwigTemplateRenderTest extends TestCase
     /** Mirrors DuplicatePatientService::HIGHLIGHT_THRESHOLD; kept local so fixtures stay stable. */
     private const HIGHLIGHT = 17;
 
+    /**
+     * Stand-in for the release value version.php assigns to v_js_includes.
+     *
+     * Pinned so fixtures render a stable cache-buster: a template that drops
+     * `?v={{ assetVersion|attr_url }}` shows up as a fixture diff rather than
+     * rendering an empty `?v=` that asserts nothing.
+     */
+    private const ASSET_VERSION = 82;
+
     protected function setUp(): void
     {
         self::applyRenderingGlobals();
+        self::applyAssetVersion();
     }
 
     /**
@@ -97,7 +107,7 @@ class TwigTemplateRenderTest extends TestCase
 
         if (self::$globalsSnapshot === null) {
             self::$globalsSnapshot = [];
-            foreach (['fileroot', 'date_display_format', 'disable_translation'] as $key) {
+            foreach (['fileroot', 'date_display_format', 'disable_translation', 'v_js_includes'] as $key) {
                 self::$globalsSnapshot[$key] = [
                     'present' => $globals->has($key),
                     'value' => $globals->get($key),
@@ -112,6 +122,20 @@ class TwigTemplateRenderTest extends TestCase
             $globals->set('date_display_format', 0);
         }
         $globals->set('disable_translation', true);
+    }
+
+    /**
+     * Pin the asset cache-buster to ASSET_VERSION.
+     *
+     * Deliberately not folded into applyRenderingGlobals(): renderCaseProvider() calls that, and
+     * PHPUnit resolves every data provider before any test runs, so setting v_js_includes there
+     * pins it for the whole process before this class's tests -- and before unrelated ones.
+     * TwigExtensionIsolatedTest::testGetGlobals asserts assetVersion is null and would fail.
+     * applyRenderingGlobals() still snapshots the key, so tearDownAfterClass restores it.
+     */
+    private static function applyAssetVersion(): void
+    {
+        OEGlobalsBag::getInstance()->set('v_js_includes', self::ASSET_VERSION);
     }
 
     /**
@@ -273,6 +297,34 @@ class TwigTemplateRenderTest extends TestCase
                 'resNotNull'          => true,
             ],
             $fixtureDir . '/appointments-future-empty.html',
+        ];
+
+        // The dashboard preference/care-team cards render the Edit pencil with
+        // linkMethod 'javascript': the href stays '#' and the expression goes
+        // in an onclick. A literal 'javascript:' href would be stripped to '#'
+        // by |safe_href and lose the behavior entirely.
+        yield 'patient/card/appointments edit button via javascript linkMethod' => [
+            'patient/card/appointments.html.twig',
+            [
+                'title'               => 'Appointments',
+                'id'                  => 'appointments_ps_expand',
+                'initiallyCollapsed'  => false,
+                'btnLabel'            => 'Edit',
+                'btnClass'            => 'js-card-toggle-edit',
+                'btnLink'             => 'event.preventDefault();',
+                'linkMethod'          => 'javascript',
+                'appts'               => [],
+                'recurrAppts'         => [],
+                'pastAppts'           => [],
+                'displayAppts'        => false,
+                'displayRecurrAppts'  => false,
+                'displayPastAppts'    => false,
+                'extraApptDate'       => '',
+                'therapyGroupCategories' => [],
+                'auth'                => true,
+                'resNotNull'          => false,
+            ],
+            $fixtureDir . '/appointments-edit-javascript-link.html',
         ];
 
         // Calendar render cases — see CalendarRenderDataBuilder for the
@@ -774,6 +826,7 @@ class TwigTemplateRenderTest extends TestCase
         }
 
         self::applyRenderingGlobals();
+        self::applyAssetVersion();
 
         // Also load interface/ so encounter form templates resolve under the same
         // names they use in production, e.g. /forms/care_plan/templates/x.html.twig.

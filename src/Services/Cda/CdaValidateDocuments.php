@@ -15,9 +15,9 @@ namespace OpenEMR\Services\Cda;
 use CURLFile;
 use DOMDocument;
 use Exception;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 class CdaValidateDocuments
@@ -328,7 +328,7 @@ class CdaValidateDocuments
         $errors = $this->fetchValidationLog($amid);
 
         if (count($errors ?? [])) {
-            $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+            $twig = ServiceContainer::getTwig();
             $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         } else {
             $html = xlt("No Errors or Validation service is disabled in Admin Config Connectors 'Disable All CDA Validation Reporting'.");

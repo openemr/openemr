@@ -2,6 +2,11 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthVideoRegistrationController\\:\\:\\$userRepository \\(Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\TeleHealthUserRepository\\) on left side of \\?\\?\\= is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthVideoRegistrationController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\Dorn\\\\Bootstrap\\:\\:\\$moduleDirectoryName \\(string\\) on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/Bootstrap.php',
@@ -772,6 +777,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResourceContainer.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Static property OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRResponseParser\\:\\:\\$sxeArgs \\(int\\) on left side of \\?\\?\\= is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRResponseParser.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SpherePayment\\:\\:\\$mainUrlRetail \\(string\\) on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SpherePayment.php',
@@ -958,7 +968,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationCareExperiencePreferenceService\\:\\:\\$highestUSCoreProfileVersion \\(string\\) on left side of \\?\\? is not nullable\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationCareExperiencePreferenceService.php',
 ];
 $ignoreErrors[] = [
@@ -968,12 +978,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationHistorySdohService\\:\\:\\$highestUSCoreProfileVersion \\(string\\) on left side of \\?\\? is not nullable\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationLaboratoryService\\:\\:\\$highestUSCoreProfileVersion \\(string\\) on left side of \\?\\? is not nullable\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
 ];
 $ignoreErrors[] = [
@@ -998,7 +1008,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationTreatmentInterventionPreferenceService\\:\\:\\$highestUSCoreProfileVersion \\(string\\) on left side of \\?\\? is not nullable\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
 ];
 $ignoreErrors[] = [

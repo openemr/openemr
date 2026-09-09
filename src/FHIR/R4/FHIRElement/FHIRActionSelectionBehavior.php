@@ -144,9 +144,7 @@ class FHIRActionSelectionBehavior extends FHIRElement implements \JsonSerializab
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ActionSelectionBehavior xmlns="http://hl7.org/fhir"></ActionSelectionBehavior>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ActionSelectionBehavior xmlns="http://hl7.org/fhir"></ActionSelectionBehavior>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

@@ -25,5 +25,8 @@
     "oe-schematron-service": "github:openemr/oe-schematron-service#v2.0.2",
     "uuid": "14.0.2",
     "xml2js": "0.6.2"
+  },
+  "allowScripts": {
+    "libxmljs2@0.37.0": true
   }
 }

@@ -24,7 +24,7 @@ class ExportUtility
      *
      * @param int $columnNumber
      */
-    static function GetColumnLetter($columnNumber)
+    public static function GetColumnLetter($columnNumber)
     {
         // work with 1-based number
         $colNum = $columnNumber + 1;

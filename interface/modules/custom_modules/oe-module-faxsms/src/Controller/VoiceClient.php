@@ -132,7 +132,7 @@ class VoiceClient extends AppDispatch
         return $this->getSetup();
     }
 
-    function fetchReminderCount(): string|bool
+    public function fetchReminderCount(): string|bool
     {
         return '';
         // TODO: Implement fetchReminderCount() method.

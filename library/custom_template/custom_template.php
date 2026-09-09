@@ -28,14 +28,15 @@
 // +------------------------------------------------------------------------------+
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 // mdsupport : li code
 function listitemCode($strDisp, $strInsert, $ref = ''): void
 {
@@ -88,7 +89,7 @@ if ($isNN) {
 }
     Header::setupHeader(['common', 'opener', 'select2', 'ckeditor', $ckeditorConfig]);
 ?>
-<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajax_functions_writer.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
     // note these variables are set on backend server side, leaving comment for server side readers

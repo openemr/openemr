@@ -220,7 +220,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param string $col
      * @return array
      */
-    function getModuleRegistry($modId, $col = '*'): array
+    public function getModuleRegistry($modId, $col = '*'): array
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";

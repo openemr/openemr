@@ -144,9 +144,7 @@ class FHIRDeviceNameType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceNameType xmlns="http://hl7.org/fhir"></DeviceNameType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceNameType xmlns="http://hl7.org/fhir"></DeviceNameType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

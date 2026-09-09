@@ -18,6 +18,7 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -595,13 +596,11 @@ function hl7Zip($s)
  *
  * @param string $tstr The issue type string
  * @return int The index of the issue type
- * @global array $ISSUE_TYPES The array of issue types
  */
 function issueTypeIndex($tstr)
 {
-    global $ISSUE_TYPES;
     $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
+    foreach (IssueTypeRegistry::issueTypes() as $key => $value) {
         if ($key == $tstr) {
             break;
         }

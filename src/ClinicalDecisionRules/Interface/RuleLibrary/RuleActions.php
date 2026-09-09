@@ -19,14 +19,14 @@ class RuleActions
 {
     public $actions = [];
 
-    function __construct()
+    public function __construct()
     {
     }
 
     /**
      * @param RuleAction $action
      */
-    function add($action)
+    public function add($action)
     {
         array_push($this->actions, $action);
     }

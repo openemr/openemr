@@ -33,7 +33,6 @@ if (
 }
 
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/patient.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;

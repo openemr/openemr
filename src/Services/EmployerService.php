@@ -167,9 +167,7 @@ class EmployerService extends BaseService
 
     public function getUuidRegistry(): UuidRegistry
     {
-        if (!isset($this->uuidRegistry)) {
-            $this->uuidRegistry = new UuidRegistry(['table_name' => self::TABLE_NAME]);
-        }
+        $this->uuidRegistry ??= new UuidRegistry(['table_name' => self::TABLE_NAME]);
         return $this->uuidRegistry;
     }
 

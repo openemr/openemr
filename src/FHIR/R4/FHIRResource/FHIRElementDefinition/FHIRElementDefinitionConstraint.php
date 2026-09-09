@@ -343,9 +343,7 @@ class FHIRElementDefinitionConstraint extends FHIRBackboneElement implements \Js
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionConstraint xmlns="http://hl7.org/fhir"></ElementDefinitionConstraint>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ElementDefinitionConstraint xmlns="http://hl7.org/fhir"></ElementDefinitionConstraint>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->key)) {
             $this->key->xmlSerialize(true, $sxe->addChild('key'));

@@ -4,11 +4,6 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../apis/dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
 ];
 $ignoreErrors[] = [
@@ -128,18 +123,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/messages/validate_messages_document_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../library/deletedrug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../oauth2/authorize.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',

@@ -42,6 +42,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
                            mysqli \
                            pcov \
                            pdo_mysql \
+                           redis \
                            soap \
                            sockets \
                            tokenizer \
@@ -52,8 +53,9 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
 # Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
 RUN usermod -u 1000 www-data
 
-# Copy over the php.ini conf
-COPY php.ini /usr/local/etc/php/php.ini
+# Copy over the php.ini conf (default: plain; insane bind-mounts php-ini/redis/php.ini
+# for the redis-flavored fpm sidecars to flip session storage to redis)
+COPY php-ini/php.ini /usr/local/etc/php/php.ini
 
 # Copy xdebug installation script for CI coverage support
 # Script is placed at /usr/share/nginx/html/xdebug.sh so CI can call ../xdebug.sh

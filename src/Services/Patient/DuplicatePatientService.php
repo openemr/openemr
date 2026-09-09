@@ -178,8 +178,8 @@ class DuplicatePatientService
                 "SELECT p1.pid, MAX(" . self::dupScoreSql() . ") AS dupscore" .
                 " FROM patient_data AS p1, patient_data AS p2" .
                 " WHERE p1.dupscore = ? AND p2.pid < p1.pid AND p2.dupscore != ?" .
-                " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . QueryUtils::escapeLimit(self::RESCORE_BATCH_SIZE),
-                [self::SCORE_PENDING, self::SCORE_UNIQUE]
+                " GROUP BY p1.pid ORDER BY p1.pid LIMIT ?",
+                [self::SCORE_PENDING, self::SCORE_UNIQUE, self::RESCORE_BATCH_SIZE]
             );
 
             foreach ($rows as $row) {
@@ -218,8 +218,8 @@ class DuplicatePatientService
 
         $candidates = QueryUtils::fetchRecords(
             "SELECT * FROM patient_data WHERE dupscore > ? ORDER BY dupscore DESC, pid DESC"
-            . " LIMIT " . QueryUtils::escapeLimit($limit ?? $this->maxGroups),
-            [$this->displayThreshold]
+            . " LIMIT ?",
+            [$this->displayThreshold, $limit ?? $this->maxGroups]
         );
 
         /** @var array<int, true> $listed */

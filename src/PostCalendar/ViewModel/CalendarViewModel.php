@@ -435,6 +435,23 @@ final readonly class CalendarViewModel
      * For those views this predicate is consulted only if a caller
      * explicitly invokes detectEventOverlap, which they shouldn't.
      */
+    /**
+     * URL for the on-hover ShowImage popup. Points at the doc-controller
+     * photo route when the event's `patient_has_picture` flag is true or
+     * missing (unknown → try, preserving legacy behavior). When the flag
+     * is explicitly false, points at the default silhouette so no 404
+     * fires against controller.php.
+     *
+     * @param array<string, mixed> $event
+     */
+    private function patientPhotoHoverHref(array $event, string $patientIdAttr, string $webroot): string
+    {
+        if (($event['patient_has_picture'] ?? null) === false) {
+            return $webroot . '/public/images/patient-picture-default.png';
+        }
+        return $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
+    }
+
     private function shouldSkipForOverlap(int $categoryId): bool
     {
         if ($categoryId === 2) {
@@ -1163,7 +1180,7 @@ final readonly class CalendarViewModel
 
             $content .= "<a class='link_title' data-pid='" . attr($patientIdAttr) . "' href='javascript:goPid(" . attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
 
-            $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
+            $imageHref = $this->patientPhotoHoverHref($event, $patientIdAttr, $webroot);
             $content .= "<img src='" . $tplImagePath . "/user-green.gif' onmouseover=\"javascript:ShowImage(" . attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='" . $linkTitle . "' alt='View Patient' />";
 
             if ($catid === 1) {
@@ -1410,7 +1427,7 @@ final readonly class CalendarViewModel
 
             $content .= "<a class='link_title' data-pid='" . attr($patientIdAttr) . "' href='javascript:goPid(" . attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
 
-            $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
+            $imageHref = $this->patientPhotoHoverHref($event, $patientIdAttr, $webroot);
             $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" title='" . $linkTitle . "'></i>";
 
             if ($catid === 1) {
@@ -1640,7 +1657,7 @@ final readonly class CalendarViewModel
 
             $content .= "<a class='link_title' data-pid='" . attr($patientIdAttr) . "' href='javascript:goPid(" . attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
 
-            $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
+            $imageHref = $this->patientPhotoHoverHref($event, $patientIdAttr, $webroot);
             $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" title='" . $linkTitle . "'></i>";
 
             // Week-specific: the show-appointment toggle anchor between

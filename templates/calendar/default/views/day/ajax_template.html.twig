@@ -157,10 +157,16 @@
                             <tr><td class="timeslot providerXbtn" data-username="__PC_ALL__"><i class="fa fa-lg fa-user-md"></i></td></tr>
                             {% for slot in timeRows %}
                                 <tr>
-                                    <td class="timeslot">
-                                        <a href="javascript:newEvt({{ slot.startampm|attr_js }},{{ slot.hour|attr_js }},{{ slot.minute|attr_js }},{{ Date|attr_js }},0,0)" title="{{ 'New Appointment'|xla }}" alt="{{ 'New Appointment'|xla }}">
-                                            {{ slot.displayLabel|text }}
-                                        </a>
+                                    <td class="timeslot{% if isHolidayDay %} timeslot-holiday{% endif %}">
+                                        {% if isHolidayDay %}
+                                            <span class="timeslot-label timeslot-holiday-label" title="{{ 'Clinic closed for holiday — new appointments are blocked'|xla }}">
+                                                {{ slot.displayLabel|text }}
+                                            </span>
+                                        {% else %}
+                                            <a href="javascript:newEvt({{ slot.startampm|attr_js }},{{ slot.hour|attr_js }},{{ slot.minute|attr_js }},{{ Date|attr_js }},0,0)" title="{{ 'New Appointment'|xla }}" alt="{{ 'New Appointment'|xla }}">
+                                                {{ slot.displayLabel|text }}
+                                            </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -169,7 +175,7 @@
                 </td>
 
                 {% for provider in providers %}
-                    <td class="schedule {{ provider.classForWeekend|attr }}" title="{{ provider.fname|attr }} {{ provider.lname|attr }}" date="{{ Date|attr }}" provider="{{ provider.id|attr }}">
+                    <td class="schedule {{ provider.classForWeekend|attr }}{% if isHolidayDay %} schedule-holiday{% endif %}" title="{{ provider.fname|attr }} {{ provider.lname|attr }}" date="{{ Date|attr }}" provider="{{ provider.id|attr }}"{% if isHolidayDay %} data-holiday="1"{% endif %}>
                         <div class="providerheader providerday">
                             {{ provider.fname|text }} {{ provider.lname|text }}
                             <a class="providerXbtn userClose" data-username="{{ provider.username|attr }}"></a>

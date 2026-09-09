@@ -36,6 +36,15 @@ name: Docker release test
 
 on:
   push:
+    # Dependabot pushes the branch AND opens the PR, so both events fire
+    # for the same commit — duplicate runs reporting the same check names.
+    # Worse, a push event's paths: filter is evaluated over
+    # `before..after`, and dependabot force-pushes on every rebase, so
+    # that range spans every commit master gained in the interim. A
+    # dependency bump then matches paths it never touched. Keep the
+    # pull_request run, which diffs against the PR base.
+    branches-ignore:
+    - 'dependabot/**'
     paths:
     - '.github/workflows/docker-test-release.yml'
     - 'docker/release/**'

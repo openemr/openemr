@@ -1613,8 +1613,7 @@ class X125010837P
             $SEFLAG == true
             || !OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co')
         ) {
-            ++$edicount; //todo: This might have to go into the SE flag spot //***MS Modify
-
+            ++$edicount;
             $out .= "SE" .        // SE Trailer
             "*" . $edicount .
             "*" . "0021" .

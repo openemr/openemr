@@ -25,7 +25,6 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\PatientFile\MergePatientsController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Patient\DuplicatePatientService;
@@ -47,7 +46,7 @@ $mergeService = new PatientMergeService(
 
 $controller = new MergePatientsController(
     $mergeService,
-    (new TwigContainer(null, $globalsBag->getKernel()))->getTwig(),
+    ServiceContainer::getTwig(),
     $session
 );
 

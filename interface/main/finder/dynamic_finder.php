@@ -16,9 +16,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
@@ -413,7 +413,7 @@ function rp()
     foreach ($pd_dtCols as $v) {
         if ($v['data_type'] == "datetime") {
             $datetime_cols[] = $v['column_name'];
-        } else if ($v['data_type'] == "date") {
+        } elseif ($v['data_type'] == "date") {
             $date_cols[] = $v['column_name'];
         }
     }
@@ -472,8 +472,7 @@ $templateVars = [
     'rp' => $rp['rp'],
 ];
 
-$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$t = $twig->getTwig();
+$t = ServiceContainer::getTwig();
 echo $t->render('patient_finder/finder.html.twig', $templateVars);
 
 ?>
