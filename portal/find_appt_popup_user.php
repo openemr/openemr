@@ -25,6 +25,7 @@
 // Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
 // This issue no longer exists - epsdky 2019
 
+use OpenEMR\Common\Calendar\ConfiguredScheduleHours;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -59,6 +60,8 @@ require_once(__DIR__ . "/../library/appointments.inc.php");
 
 
 $input_catid = $_REQUEST['catid'];
+$providerid = '';
+$slots = [];
 
 /**
  * Record an event into the slots array for a specified day.
@@ -117,43 +120,21 @@ function portal_doOneDay($catid, $udate, $starttime, $duration, $prefcatid): voi
 }
 
 // seconds per time slot
-$slotsecs = $globalsBag->get('calendar_interval') * 60;
+$slotsecs = $globalsBag->getInt('calendar_interval') * 60;
 
 // Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
-// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM => last
-// 30-min start is 4:30).
-$scheduleStartHour = (int) $globalsBag->get('schedule_start');
-$scheduleEndHour = (int) $globalsBag->get('schedule_end');
-if ($scheduleStartHour < 0 || $scheduleStartHour > 23) {
-    $scheduleStartHour = 8;
-}
-if ($scheduleEndHour < 1 || $scheduleEndHour > 24) {
-    $scheduleEndHour = 17;
-}
-if ($scheduleEndHour <= $scheduleStartHour) {
-    $scheduleEndHour = min(24, $scheduleStartHour + 1);
-}
-
-/**
- * True when the slot start is within configured clinic hours and the
- * appointment duration fits before schedule_end.
- */
-$isWithinConfiguredScheduleHours = static function (int $utime, int $durationSlots, int $slotsecs) use ($scheduleStartHour, $scheduleEndHour): bool {
-    $minuteOfDay = ((int) date('G', $utime) * 60) + (int) date('i', $utime);
-    $windowStartMinute = $scheduleStartHour * 60;
-    $windowEndMinute = $scheduleEndHour * 60;
-    if ($minuteOfDay < $windowStartMinute || $minuteOfDay >= $windowEndMinute) {
-        return false;
-    }
-    $endMinuteOfDay = $minuteOfDay + (int) max(1, $durationSlots) * (int) max(1, (int) ($slotsecs / 60));
-    return $endMinuteOfDay <= $windowEndMinute;
-};
+// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM =>
+// last 30-min start is 4:30).
+[$scheduleStartHour, $scheduleEndHour] = ConfiguredScheduleHours::normalizeWindow(
+    $globalsBag->getInt('schedule_start'),
+    $globalsBag->getInt('schedule_end')
+);
 
 $catslots = 1;
 if ($input_catid) {
     $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
-    if ($srow['pc_duration']) {
-        $catslots = ceil($srow['pc_duration'] / $slotsecs);
+    if (isset($srow['pc_duration']) && is_numeric($srow['pc_duration']) && (float) $srow['pc_duration'] > 0) {
+        $catslots = (int) ceil((float) $srow['pc_duration'] / $slotsecs);
     }
 }
 
@@ -369,7 +350,13 @@ if ($_REQUEST['providerid']) {
 
                         $utime = ($slotbase + $i) * $slotsecs;
                         // Honor Admin -> Config -> Calendar start/end hours.
-                        if (!$isWithinConfiguredScheduleHours($utime, (int) $catslots, (int) $slotsecs)) {
+                        if (!ConfiguredScheduleHours::containsSlot(
+                            $utime,
+                            $catslots,
+                            $slotsecs,
+                            $scheduleStartHour,
+                            $scheduleEndHour
+                        )) {
                             continue;
                         }
                         $thisdate = date("Y-m-d", $utime);

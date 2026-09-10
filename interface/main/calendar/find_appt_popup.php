@@ -21,6 +21,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Calendar\ConfiguredScheduleHours;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -96,35 +97,12 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 $slotsecs = OEGlobalsBag::getInstance()->getInt('calendar_interval') * 60;
 
 // Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
-// schedule_end is treated as exclusive of slot start times (Ending Hour 5 PM
-// allows slots that start before 17:00, e.g. last 30-min start is 4:30).
-$scheduleStartHour = OEGlobalsBag::getInstance()->getInt('schedule_start');
-$scheduleEndHour = OEGlobalsBag::getInstance()->getInt('schedule_end');
-if ($scheduleStartHour < 0 || $scheduleStartHour > 23) {
-    $scheduleStartHour = 8;
-}
-if ($scheduleEndHour < 1 || $scheduleEndHour > 24) {
-    $scheduleEndHour = 17;
-}
-if ($scheduleEndHour <= $scheduleStartHour) {
-    $scheduleEndHour = min(24, $scheduleStartHour + 1);
-}
-
-/**
- * True when the slot start is within configured clinic hours and the
- * appointment duration fits before schedule_end.
- */
-$isWithinConfiguredScheduleHours = static function (int $utime, int $durationSlots, int $slotsecs) use ($scheduleStartHour, $scheduleEndHour): bool {
-    $minuteOfDay = ((int) date('G', $utime) * 60) + (int) date('i', $utime);
-    $windowStartMinute = $scheduleStartHour * 60;
-    $windowEndMinute = $scheduleEndHour * 60;
-    if ($minuteOfDay < $windowStartMinute || $minuteOfDay >= $windowEndMinute) {
-        return false;
-    }
-    // Duration must also finish by ending hour (exclusive end boundary).
-    $endMinuteOfDay = $minuteOfDay + (int) max(1, $durationSlots) * (int) max(1, (int) ($slotsecs / 60));
-    return $endMinuteOfDay <= $windowEndMinute;
-};
+// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM =>
+// last 30-min start is 4:30).
+[$scheduleStartHour, $scheduleEndHour] = ConfiguredScheduleHours::normalizeWindow(
+    OEGlobalsBag::getInstance()->getInt('schedule_start'),
+    OEGlobalsBag::getInstance()->getInt('schedule_end')
+);
 
 $catslots = 1;
 if ($input_catid) {
@@ -291,7 +269,7 @@ if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
     $ckindex = (int) ($cktime * 60 / $slotsecs);
     $ckUtime = ($slotbase + $ckindex) * $slotsecs;
-    if (!$isWithinConfiguredScheduleHours($ckUtime, $evslots, $slotsecs)) {
+    if (!ConfiguredScheduleHours::containsSlot($ckUtime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
         $ckavail = false;
     }
     for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
@@ -424,7 +402,7 @@ if (isset($_REQUEST['cktime'])) {
 
                 $utime = ($slotbase + $i) * $slotsecs;
                 // Honor Admin -> Config -> Calendar start/end hours (e.g. no slots after 5 PM).
-                if (!$isWithinConfiguredScheduleHours($utime, $evslots, $slotsecs)) {
+                if (!ConfiguredScheduleHours::containsSlot($utime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
                     continue;
                 }
                 $thisdate = date("Y-m-d", $utime);
