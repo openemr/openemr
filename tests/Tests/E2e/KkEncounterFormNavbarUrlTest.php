@@ -13,7 +13,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    OpenEMR Contributors
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenEMR Contributors
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,8 +23,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
+use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\JavaScriptExecutor;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
@@ -143,15 +149,86 @@ class KkEncounterFormNavbarUrlTest extends PantherTestCase
         }
     }
 
+    /**
+     * Log in and wait for the application shell to initialize.
+     *
+     * Mirrors LoginTrait::login(): when the shell's scripts fail to load,
+     * waiting longer does not help, so detect that quickly and retry once
+     * with a fresh browser session before giving up.
+     */
     private function doLogin(): void
     {
-        $crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
-        $form = $crawler->filter('#login_form')->form();
+        $this->submitLoginForm();
+        if ($this->mainMenuRendered(5)) {
+            return;
+        }
+
+        $this->client->quit();
+        $this->initClient();
+        $this->submitLoginForm();
+        if (!$this->mainMenuRendered(30)) {
+            $this->fail('Main menu "#mainMenu" did not render within 30s after login, even with a fresh session: the JavaScript application failed to initialize');
+        }
+    }
+
+    /**
+     * Submit the login form and wait for the post-login redirect to land.
+     *
+     * Mirrors LoginTrait::performLogin().
+     */
+    private function submitLoginForm(): void
+    {
+        $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
+
+        // filter() snapshots the DOM at one instant, and under CI load that
+        // instant can precede the login page finishing its render. Wait for
+        // the form explicitly, with a message, because a bare waitFor() would
+        // time out with an empty TimeoutException.
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#login_form')),
+            "Login form '#login_form' did not appear within 10s: page still rendering under load, or the webserver served an error page instead of login.php"
+        );
+        $form = $this->client->refreshCrawler()->filter('#login_form')->form();
         $form['authUser'] = LoginTestData::username;
         $form['clearPass'] = LoginTestData::password;
         $this->client->submit($form);
-        $title = $this->client->getTitle();
-        $this->assertSame('OpenEMR', $title, 'Login FAILED');
+
+        // The post-login redirect is asynchronous: submit() returns once the
+        // POST responds, but the browser still has to follow the redirect and
+        // load the main shell before document.title changes from
+        // 'OpenEMR Login' to 'OpenEMR'. Under CI load that lag is long enough
+        // that reading getTitle() immediately races the redirect. Wait for the
+        // transition first; on timeout fall through so the assertion below
+        // reports the actual title.
+        try {
+            $this->client->wait(10)->until(
+                static fn(WebDriver $driver): bool => $driver->getTitle() === 'OpenEMR'
+            );
+        } catch (TimeoutException) {
+            // Fall through to the assertion for a diagnostic message.
+        }
+        $this->assertSame('OpenEMR', $this->client->getTitle(), 'Login FAILED');
+    }
+
+    /**
+     * Wait for the Knockout-rendered main menu so the patient search that
+     * follows never runs against a shell whose JS has not initialized.
+     *
+     * Mirrors BaseTrait::waitForAppReady().
+     */
+    private function mainMenuRendered(int $timeout): bool
+    {
+        try {
+            $this->client->wait($timeout)->until(
+                static fn(JavaScriptExecutor $driver): bool => $driver->executeScript(
+                    'return document.getElementById("mainMenu")?.children.length > 0'
+                ) === true
+            );
+        } catch (TimeoutException) {
+            return false;
+        }
+
+        return true;
     }
 
     private function openPatient(): void

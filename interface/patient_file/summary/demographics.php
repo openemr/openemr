@@ -34,8 +34,6 @@ $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 // fetchNextXAppts() (in library/appointments.inc.php) writes $resNotNull via the
 // global keyword to signal whether the appointments query returned a non-null result.
 $resNotNull = false;
-require_once($srcdir . "/lists.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../history/history.inc.php");
 require_once($srcdir . "/clinical_rules.php");
@@ -77,9 +75,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // for one itself.
 $request = CurrentRequest::get();
 
-if (!isset($pid)) {
-    $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
-}
+$pid ??= $session->get('pid') ?? $_GET['pid'] ?? null;
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
@@ -201,7 +197,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT " . escape_limit($limit), [$pid, $doc_catg]);
+            ORDER BY d.date DESC LIMIT ?", [$pid, $doc_catg, $limit]);
         while ($result = sqlFetchArray($query)) {
             $results[] = $result['id'];
         }

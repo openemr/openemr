@@ -310,9 +310,7 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractContentDefinition xmlns="http://hl7.org/fhir"></ContractContentDefinition>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContractContentDefinition xmlns="http://hl7.org/fhir"></ContractContentDefinition>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

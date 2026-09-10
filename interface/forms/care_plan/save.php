@@ -33,9 +33,6 @@ use OpenEMR\Services\FormService;
 $globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getSrcDir();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-
 if (!EncounterSessionUtil::getEncounter()) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }

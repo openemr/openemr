@@ -99,6 +99,21 @@ jobs:
     - uses: ./.github/actions/test-actions-core
       with:
         is_production_docker: ${{ inputs.is_production_docker }}
+        # The binary image ships ccdaservice's source but never installs
+        # its dependencies, so everything that shells out to that service
+        # fails there: CCDA validation and generation cannot reach the
+        # schematron/ccda service on port 6662, and QRDA cannot find
+        # oe-cqm-parsers' measure JSON. Release installs those deps in its
+        # Dockerfile and flex does it at container start, so both must
+        # keep running these tests -- weakening the assertions for
+        # everybody would hide a real gap. That gap is tracked in
+        # openemr/openemr#13851; drop this line when it is resolved.
+        # These all live in tests/Tests/Services, hence the services
+        # suite rather than the unit one.
+        services_exclude_filter: >-
+          ${{ matrix.docker_dir == 'binary'
+          && 'CdaValidateDocumentsTest|QrdaReportServiceTest|CcdaGeneratorTest|CcdaServiceDocumentRequestorTest'
+          || '' }}
 
   development-test:
     name: "Development Docker Alpine-${{ inputs.alpine_version }} (PHP ${{ matrix.php_version }}, ${{ matrix.mode }})"

@@ -17,7 +17,6 @@ require_once(__DIR__ . "/../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 
 require_once("phq9.inc.php"); //common strings
-require_once("$srcdir/api.inc.php");
 
 /**
  * @var string $srcdir
@@ -59,7 +58,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     </script>
     <?php $qno = 0; ?>
 
-    <script src="<?php echo $rootdir; ?>/forms/phq9/phq9_javasrc.js"></script>
+    <script src="<?php echo $rootdir; ?>/forms/phq9/phq9_javasrc.js?v=<?php echo attr_url(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
     <script>
         // stuff that uses embedded php must go here, not in the include javascript file -

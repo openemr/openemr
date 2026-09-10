@@ -58,7 +58,7 @@ class QrdaReportService
      * @param $scope
      * @return array
      */
-    function fetchCurrentMeasures($scope = 'active'): array
+    public function fetchCurrentMeasures($scope = 'active'): array
     {
         $measures = [];
         $year = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?: '2022');
@@ -75,7 +75,7 @@ class QrdaReportService
      * @param  $measures
      * @return array
      */
-    function resolveMeasuresPath($measures): array
+    public function resolveMeasuresPath($measures): array
     {
         $resolved = [];
         $result = [];

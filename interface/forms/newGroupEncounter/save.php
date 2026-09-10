@@ -33,9 +33,6 @@ use OpenEMR\Services\FacilityService;
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/encounter.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

@@ -58,6 +58,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Http\SsrfSafeUrlValidator;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -201,16 +202,14 @@ class AuthorizationController implements LoggerAwareInterface
 
     private function getSmartAuthController(): SMARTAuthorizationController
     {
-        if (!isset($this->smartAuthController)) {
-            $this->smartAuthController = new SMARTAuthorizationController(
-                $this->session,
-                $this->kernel,
-                $this->authBaseFullUrl,
-                $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
-                __DIR__ . "/../../oauth2/",
-                $this->getTwig()
-            );
-        }
+        $this->smartAuthController ??= new SMARTAuthorizationController(
+            $this->session,
+            $this->kernel,
+            $this->authBaseFullUrl,
+            $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
+            __DIR__ . "/../../oauth2/",
+            $this->getTwig()
+        );
         return $this->smartAuthController;
     }
 
@@ -344,7 +343,7 @@ class AuthorizationController implements LoggerAwareInterface
                 if ($data->has($key)) {
                     if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
-                    } else if (in_array($key, ['dsi_source_attributes'])) {
+                    } elseif (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
                         $payload = $data->all();
@@ -381,6 +380,43 @@ class AuthorizationController implements LoggerAwareInterface
                             }
                         }
                         $params[$key] = json_encode($jwks, JSON_THROW_ON_ERROR);
+                    } elseif ($key === 'jwks_uri') {
+                        // Reject jwks_uri values that point at loopback /
+                        // private / cloud-metadata endpoints. The value is
+                        // fetched later by JWTClientAuthenticationService
+                        // during introspect and token-endpoint flows, so it
+                        // MUST be validated before it is persisted.
+                        $rawJwksUri = $data->get($key);
+                        if (!is_string($rawJwksUri)) {
+                            throw new OAuthServerException(
+                                'jwks_uri must be a string',
+                                0,
+                                'invalid_client_metadata'
+                            );
+                        }
+                        // Https-only allowlist for jwks_uri; matches the
+                        // fetch-path validator (JWTClientAuthenticationService::getJwksUriValidator).
+                        $rejectionReason = (new SsrfSafeUrlValidator(['https']))->validate($rawJwksUri);
+                        if ($rejectionReason !== null) {
+                            // Audit-log the rejection with the specific reason
+                            // (host, scheme, DNS) so an operator can spot
+                            // registration-time probes. The client-facing
+                            // error stays deliberately generic to avoid
+                            // exposing internal network topology.
+                            EventAuditLogger::getInstance()->newEvent(
+                                'oauth-jwks-uri-rejected',
+                                '',
+                                '',
+                                0,
+                                'jwks_uri rejected at client registration: ' . $rejectionReason
+                            );
+                            throw new OAuthServerException(
+                                'jwks_uri is not an acceptable URL',
+                                0,
+                                'invalid_client_metadata'
+                            );
+                        }
+                        $params[$key] = $rawJwksUri;
                     } else {
                         $params[$key] = $data->get($key);
                     }
@@ -1051,9 +1087,7 @@ class AuthorizationController implements LoggerAwareInterface
 
     public function getServerConfig(): ServerConfig
     {
-        if (!isset($this->serverConfig)) {
-            $this->serverConfig = new ServerConfig();
-        }
+        $this->serverConfig ??= new ServerConfig();
         return $this->serverConfig;
     }
 
@@ -1143,7 +1177,7 @@ class AuthorizationController implements LoggerAwareInterface
             // Hidden scopes
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
-            } else if (in_array($scope, $fhirRequiredSmartScopes)) {
+            } elseif (in_array($scope, $fhirRequiredSmartScopes)) {
                 $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }
         }
@@ -1361,8 +1395,7 @@ class AuthorizationController implements LoggerAwareInterface
                 ) {
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->logger->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]

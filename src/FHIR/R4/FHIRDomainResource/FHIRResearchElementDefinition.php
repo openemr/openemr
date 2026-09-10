@@ -1319,9 +1319,7 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchElementDefinition xmlns="http://hl7.org/fhir"></ResearchElementDefinition>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResearchElementDefinition xmlns="http://hl7.org/fhir"></ResearchElementDefinition>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

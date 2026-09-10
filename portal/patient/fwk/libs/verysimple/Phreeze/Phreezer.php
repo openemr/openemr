@@ -99,7 +99,7 @@ class Phreezer extends Observable
 *
 * @return string
 */
-    static function PharPath()
+    public static function PharPath()
     {
         return class_exists("Phar") ? Phar::running() : '';
     }
@@ -208,9 +208,7 @@ class Phreezer extends Observable
 */
     public function SetValueCache($key, $val, $timeout = null)
     {
-        if (is_null($timeout)) {
-            $timeout = $this->ValueCacheTimeout;
-        }
+        $timeout ??= $this->ValueCacheTimeout;
 
         if ($timeout <= 0) {
             return false;
@@ -270,9 +268,7 @@ class Phreezer extends Observable
 */
     public function SetCache($objectclass, $id, Phreezable $val, $includeCacheLevel2 = true, $timeout = null)
     {
-        if (is_null($timeout)) {
-            $timeout = $this->ObjectCacheTimeout;
-        }
+        $timeout ??= $this->ObjectCacheTimeout;
 
         if ($val->NoCache() || $timeout <= 0) {
             return false;
@@ -357,7 +353,7 @@ class Phreezer extends Observable
 * @param mixed $b
 * @return int
 */
-    static function Compare($a, $b)
+    public static function Compare($a, $b)
     {
         return strcmp((string) $a->ToString(), (string) $b->ToString());
     }
@@ -371,7 +367,7 @@ class Phreezer extends Observable
 * @param array $objects
 *          array of objects
 */
-    static function Sort(&$objects)
+    public static function Sort(&$objects)
     {
         usort($objects, [
         "Phreezer",
@@ -397,9 +393,7 @@ class Phreezer extends Observable
 */
     public function GetByCriteria($objectclass, $criteria, $crash_if_multiple_found = true, $cache_timeout = null)
     {
-        if (is_null($cache_timeout)) {
-            $cache_timeout = $this->ValueCacheTimeout;
-        }
+        $cache_timeout ??= $this->ValueCacheTimeout;
 
         if (strlen($objectclass) < 1) {
             throw new Exception("\$objectclass argument is required");
@@ -433,18 +427,13 @@ class Phreezer extends Observable
 */
     public function Query($objectclass, $criteria = null, $cache_timeout = null)
     {
-        if (is_null($cache_timeout)) {
-            $cache_timeout = $this->ValueCacheTimeout;
-        }
+        $cache_timeout ??= $this->ValueCacheTimeout;
 
         if (strlen($objectclass) < 1) {
             throw new Exception("\$objectclass argument is required");
         }
 
-    // if criteria is null, then create a generic one
-        if (is_null($criteria)) {
-            $criteria = new Criteria();
-        }
+        $criteria ??= new Criteria();
 
     // see if this object has a custom query designated
         $custom = $this->GetCustomQuery($objectclass, $criteria);
@@ -486,9 +475,7 @@ class Phreezer extends Observable
 */
     public function Get($objectclass, $id, $cache_timeout = null)
     {
-        if (is_null($cache_timeout)) {
-            $cache_timeout = $this->ObjectCacheTimeout;
-        }
+        $cache_timeout ??= $this->ObjectCacheTimeout;
 
         if (strlen($objectclass) < 1) {
             throw new Exception("\$objectclass argument is required");

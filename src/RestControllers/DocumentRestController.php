@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,9 +18,10 @@ use OpenApi\Attributes as OA;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\PatientService;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentRestController
 {
@@ -224,22 +227,59 @@ class DocumentRestController
 
         $results = $this->documentService->getFile($pid, $did);
 
-        if (!empty($results)) {
-            $response = new BinaryFileResponse($results['file'], Response::HTTP_OK, [], true);
-            $response->setContentDisposition('attachment', $results['filename']);
-            // we no longer use pre-check and post-check headers as they are not needed and microsoft even discourages
-            // their use at this point.
-            $response->setCache([
-                'must_revalidate' => true
-            ]);
-            // this used to be Expires: 0 but that is not recommended anymore, we set it to be 1 hour ago so that
-            // the browser will not cache the file.
-            $response->setExpires(new \DateTimeImmutable("-1 HOUR"));
-            return $response;
-        } else {
+        if (!is_array($results) || $results === []) {
             // TODO: @adunsulag we should return a 404 here if the file does not exist... but prior behavior was to return a 400
             return new Response(null, Response::HTTP_BAD_REQUEST);
         }
+
+        // Emit the document body via StreamedResponse rather than BinaryFileResponse.
+        // BinaryFileResponse's first constructor argument is a filesystem path --
+        // when the stored document body happens to look like an absolute path
+        // (e.g. `/var/www/localhost/htdocs/openemr/sites/default/sqlconf.php`)
+        // Symfony streams the local file at that path rather than the bytes the caller
+        // uploaded. Handing bytes to a callback keeps the response class out of the
+        // filesystem entirely.
+        $storedBody = $results['file'] ?? null;
+        $bytes = is_string($storedBody) ? $storedBody : '';
+        $storedMime = $results['mimetype'] ?? null;
+        $mimeType = is_string($storedMime) && $storedMime !== ''
+            ? $storedMime
+            : 'application/octet-stream';
+        // Derive the download filename from stored metadata only; use basename() as
+        // an additional check in case a stored name ever contains path separators.
+        $storedFilename = $results['filename'] ?? null;
+        $storedName = is_string($storedFilename) && $storedFilename !== ''
+            ? $storedFilename
+            : 'document';
+        $downloadName = basename($storedName);
+        if ($downloadName === '' || $downloadName === '.' || $downloadName === '..') {
+            $downloadName = 'document';
+        }
+
+        $response = new StreamedResponse(
+            function () use ($bytes): void {
+                echo $bytes;
+            },
+            Response::HTTP_OK,
+            [
+                'Content-Type' => $mimeType,
+                'Content-Length' => (string) strlen($bytes),
+                'Content-Disposition' => HeaderUtils::makeDisposition(
+                    HeaderUtils::DISPOSITION_ATTACHMENT,
+                    $downloadName
+                ),
+            ]
+        );
+        // Non-cacheable response. no_store blocks storage; must_revalidate
+        // pairs for older caches that pre-date no_store handling.
+        $response->setCache([
+            'no_store' => true,
+            'must_revalidate' => true,
+        ]);
+        // Backstop expiry for the same legacy-cache case.
+        $response->setExpires(new \DateTimeImmutable("-1 HOUR"));
+
+        return $response;
     }
 
     public function setSession(SessionInterface $getSession)

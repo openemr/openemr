@@ -232,9 +232,7 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceProperty xmlns="http://hl7.org/fhir"></DeviceProperty>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceProperty xmlns="http://hl7.org/fhir"></DeviceProperty>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

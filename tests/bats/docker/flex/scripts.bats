@@ -15,6 +15,14 @@ setup() {
     assert_script_syntax "${SCRIPT_DIR}/openemr.sh"
 }
 
+@test "flex: openemr.sh is executable" {
+    # A functional test that invokes openemr.sh directly gets exit 126 and
+    # "Permission denied" without the mode bit, which is quiet enough to
+    # satisfy a loose assertion and leave the test passing for the wrong
+    # reason. Pin the bit so the next such test measures what it claims to.
+    [[ -x "${SCRIPT_DIR}/openemr.sh" ]]
+}
+
 @test "flex: openemr.sh uses bash and sources devtoolsLibrary" {
     assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'devtoolsLibrary.source'
     assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'set -euo pipefail'

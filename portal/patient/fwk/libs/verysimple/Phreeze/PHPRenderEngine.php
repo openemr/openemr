@@ -38,7 +38,7 @@ class PHPRenderEngine implements IRenderEngine
      * @param string $compilePath
      *          (not used for this render engine)
      */
-    function __construct($templatePath = '', $compilePath = '')
+    public function __construct($templatePath = '', $compilePath = '')
     {
         $this->templatePath = $templatePath;
 
@@ -111,7 +111,7 @@ class PHPRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clear()
      */
-    function clear($key)
+    public function clear($key)
     {
         if (array_key_exists($key, $this->model)) {
             unset($this->model [$key]);
@@ -122,7 +122,7 @@ class PHPRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clearAll()
      */
-    function clearAll()
+    public function clearAll()
     {
         $this->model ==  [];
     }
@@ -131,7 +131,7 @@ class PHPRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::getAll()
      */
-    function getAll()
+    public function getAll()
     {
         return $this->model;
     }

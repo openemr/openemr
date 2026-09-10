@@ -196,8 +196,8 @@ class ParseERA
             } elseif ($segid == 'REF' && $out['loopid'] == '1000A') {
                 // Other types of REFs may be given to identify the payer, but we
                 // ignore them.
-                if (trim($seg[1] == '2U')) {
-                    $out['payer_id'] = trim($seg[2]);
+                if (trim($seg[1]) == '2U') {
+                    $out['payer_id'] = trim($seg[2] ?? '');
                 }
             } elseif ($segid == 'PER' && $out['loopid'] == '1000A') {
                 // TBD: Report payer contact information as a note.

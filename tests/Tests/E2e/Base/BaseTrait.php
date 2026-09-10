@@ -94,10 +94,13 @@ trait BaseTrait
     /**
      * Install a browser-prompt muzzle via CDP for the rest of this
      * WebDriver session. Overrides window.alert / .confirm / .prompt
-     * with no-ops (alert returns undefined; confirm returns true;
-     * prompt returns "") on every subsequent page navigation, using
-     * ChromeDriver's `Page.addScriptToEvaluateOnNewDocument` (runs
-     * before any page JS).
+     * with recording stubs (alert returns undefined; confirm returns
+     * true; prompt returns "") on every subsequent page navigation,
+     * using ChromeDriver's `Page.addScriptToEvaluateOnNewDocument`
+     * (runs before any page JS). Each stub pushes the message it
+     * swallowed onto `window.__e2eMuzzledPrompts` on the window that
+     * received the call, so diagnostics can read back what the page
+     * tried to say (see UserAddTrait::gatherModalDiagnostics).
      *
      * Motivation: the Medical Record Dashboard fires a native
      * browser alert from `library/clinical_rules.php` via
@@ -113,7 +116,7 @@ trait BaseTrait
      * mitigations failed to zero out the flake class.
      *
      * Idempotent — CDP happily accepts the same script being
-     * registered multiple times; the no-ops just get installed
+     * registered multiple times; the stubs just get installed
      * repeatedly. Cheap.
      *
      * Alert-dismissal call sites in this file (goToMainMenuLink
@@ -124,9 +127,20 @@ trait BaseTrait
      */
     private function muzzleBrowserPrompts(): void
     {
-        $script = 'window.alert = function () {};'
-            . 'window.confirm = function () { return true; };'
-            . 'window.prompt = function () { return ""; };';
+        $script = <<<'JS_WRAP'
+            window.__e2eMuzzledPrompts = [];
+            window.alert = function (message) {
+                window.__e2eMuzzledPrompts.push({type: 'alert', message: String(message)});
+            };
+            window.confirm = function (message) {
+                window.__e2eMuzzledPrompts.push({type: 'confirm', message: String(message)});
+                return true;
+            };
+            window.prompt = function (message) {
+                window.__e2eMuzzledPrompts.push({type: 'prompt', message: String(message)});
+                return '';
+            };
+            JS_WRAP;
         // Panther's Client::getWebDriver() returns the WebDriver
         // interface; the CDP escape hatch lives on RemoteWebDriver
         // (the concrete class both driver paths actually return).

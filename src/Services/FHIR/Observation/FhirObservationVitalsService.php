@@ -365,9 +365,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     public function getVitalsCalculatedService(): VitalsCalculatedService
     {
-        if (!isset($this->calculatedService)) {
-            $this->calculatedService = new VitalsCalculatedService();
-        }
+        $this->calculatedService ??= new VitalsCalculatedService();
         return $this->calculatedService;
     }
     /**
@@ -853,10 +851,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             if ($unit === 'in') {
                 $unit = 'in_i';
                 $code = "[" . $unit . "]";
-            } else if ($unit === 'lb') {
+            } elseif ($unit === 'lb') {
                 $unit = 'lb_av';
                 $code = "[" . $unit . "]";
-            } else if ($unit === 'degF') {
+            } elseif ($unit === 'degF') {
                 $code = "[" . $unit . "]";
             }
             $quantity->setCode($code);
@@ -1036,7 +1034,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     protected function convertComponentCodeToBaseCode(string $code): string
     {
-        return match($code) {
+        return match ($code) {
             self::VITALS_CODE_SYSTOLIC_BLOOD_PRESSURE, self::VITALS_CODE_DIASTOLIC_BLOOD_PRESSURE => self::VITALS_CODE_BLOOD_PRESSURE,
             self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE, self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION => self::VITALS_CODE_PULSE_OXIMETRY,
             default => $code,

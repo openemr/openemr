@@ -879,7 +879,7 @@ redis_diagnostics() {
     docker compose exec -T sentinel-1 \
         redis-cli "${tls_args[@]}" -p 26379 SENTINEL master redis-master \
         > "${dest}/sentinel-master-state.txt" 2>&1 || true
-    dc logs --timestamps redis-master redis-replica-1 redis-replica-2 sentinel-1 sentinel-2 \
+    dc logs --timestamps redis-master redis-replica-1 redis-replica-2 sentinel-1 sentinel-2 sentinel-3 \
         > "${dest}/redis-container-logs.txt" 2>&1 || true
 }
 
@@ -928,6 +928,23 @@ _await_core_for_pid() {
     return 1
 }
 
+##
+# Remove the core(s) belonging to pid $1 so capture_coredumps only reports
+# real crashes, then verify they are gone. A survivor gets named here, in a
+# warning, instead of surfacing later as a crash-diagnostics artifact for a
+# crash that never happened. $2 labels the canary in that warning.
+_remove_core_for_pid() {
+    local pid=$1 label=$2
+    local leftover
+    # One container round trip: remove, then list whatever survived.
+    # shellcheck disable=SC2310  # an unmatched glob makes ls fail; that is the clean case, not an error
+    leftover=$(dc exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.*.${pid}.*; ls -1 '${COREDUMP_DIR}'/core.*.${pid}.* 2>/dev/null") || leftover=''
+    leftover=${leftover//[$'\r\n']/ }
+    if [[ -n "${leftover}" ]]; then
+        echo "::warning::${label} coredump canary cleanup failed: ${leftover} survived removal and capture_coredumps will report it as a crash"
+    fi
+}
+
 enable_coredumps() {
     # Create the in-container target up front so the kernel has somewhere to
     # write the core. World-writable + sticky: Apache workers run as the
@@ -974,13 +991,26 @@ enable_coredumps() {
     # the root->apache setuid path the workers take) and require ITS core:
     # the check and the cleanup are scoped to the canary's own pid, so a
     # pre-existing file in the directory cannot fake a pass and the cleanup
-    # cannot remove cores that are not the canary's. The pid is emitted on
-    # stderr — unbuffered — because the process dies before stdout's block
-    # buffer would flush.
+    # cannot remove cores that are not the canary's. The canary writes its
+    # pid to a file in COREDUMP_DIR rather than to stderr: php's startup
+    # warnings (`Module "pcov" is already loaded`, the JIT notice) are
+    # E_CORE_WARNINGs that ignore error_reporting and land on stderr ahead
+    # of the pid, so the old stderr capture read "0144" for pid 144, the
+    # pid-scoped glob never matched, the canary core was never removed, and
+    # capture_coredumps later backtraced that stale core as a real crash.
+    # The path reaches php as $argv[1], which keeps the PHP free of string
+    # literals and the shell free of a third quoting layer. The write
+    # completes before the kill, so no buffering is in play.
     local canary_pid canary_core_ok=0
-    canary_pid=$(docker compose exec -T openemr \
-        su -s /bin/sh apache -c 'php -d error_reporting=0 -r "fwrite(STDERR, posix_getpid()); posix_kill(posix_getpid(), 11);"' \
-        2>&1 >/dev/null) || true
+    local canary_pid_file="${COREDUMP_DIR}/canary.pid"
+    # shellcheck disable=SC2016  # $argv[1] is PHP's argv, evaluated by php inside the container, not a shell variable
+    local canary_php='file_put_contents($argv[1], posix_getpid()); posix_kill(posix_getpid(), 11);'
+    # shellcheck disable=SC2310  # the canary dies by SIGSEGV, so a nonzero exit is the expected outcome
+    dc exec -T openemr \
+        su -s /bin/sh apache -c "php -d display_startup_errors=0 -r '${canary_php}' '${canary_pid_file}'" \
+        >/dev/null 2>&1 || true
+    # shellcheck disable=SC2310  # a missing pid file selects the inconclusive message below; never fatal
+    canary_pid=$(dc exec -T openemr sh -c "cat '${canary_pid_file}' && rm -f '${canary_pid_file}'" 2>/dev/null) || canary_pid=''
     canary_pid=${canary_pid//[!0-9]/}
     if [[ -n "${canary_pid}" ]]; then
         # shellcheck disable=SC2310  # poll outcome selects the message; never fatal
@@ -989,11 +1019,10 @@ enable_coredumps() {
         fi
     fi
     if [[ -z "${canary_pid}" ]]; then
-        echo "coredump canary inconclusive: could not capture the canary php pid"
+        echo "coredump canary inconclusive: ${canary_pid_file} was not written, so the canary php pid is unknown"
     elif [[ "${canary_core_ok}" == "1" ]]; then
         echo "coredump canary OK: core for pid ${canary_pid} present in ${COREDUMP_DIR}"
-        # Remove the canary's own core so capture_coredumps only reports real crashes.
-        docker compose exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.*.${canary_pid}.*" 2>/dev/null || true
+        _remove_core_for_pid "${canary_pid}" 'CLI'
     else
         echo "::warning::coredump canary produced no core in ${COREDUMP_DIR} — worker segfaults in this job will NOT be debuggable; check ulimits.core, kernel.core_pattern, and fs.suid_dumpable"
     fi
@@ -1020,10 +1049,22 @@ enable_coredumps() {
     fi
     if [[ "${worker_core_ok}" == "1" ]]; then
         echo "worker coredump canary OK: core for worker pid ${worker_pid} present"
-        docker compose exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.*.${worker_pid}.*" 2>/dev/null || true
+        _remove_core_for_pid "${worker_pid}" 'worker'
     else
         echo "::warning::worker coredump canary FAILED: SIGSEGV to worker ${worker_pid} left no core in ${COREDUMP_DIR} — real worker segfaults will not be debuggable in this job"
     fi
+}
+
+##
+# Resolve an executable inside the openemr container for gdb: run the probe
+# command $1 in the container's shell and print its first output line, or
+# nothing when no candidate resolves (gdb then runs core-only).
+_container_exe() {
+    local exe
+    # shellcheck disable=SC2310  # missing binary is tolerated; gdb runs core-only as last resort
+    exe=$(dc exec -T openemr sh -c "$1") || exe=''
+    exe=${exe%$'\r'}
+    printf '%s' "${exe%%$'\n'*}"
 }
 
 ##
@@ -1064,7 +1105,14 @@ capture_coredumps() {
         'command -v gdb >/dev/null 2>&1 || { (apk add --no-cache gdb 2>/dev/null) || { apt-get update -qq && apt-get install -y -qq gdb; }; }' \
         || echo 'WARNING: gdb install failed; no backtrace will be produced. The raw core is retained in the container; set COREDUMP_MAX_MB > 0 to upload it for offline analysis.' >&2
 
-    # The faulting process is an Apache worker (AH00051 in the job log).
+    # gdb needs the executable that produced each core, and the core name
+    # says which one: core_pattern is core.%e.%p.%t, so the field after
+    # "core." is the crashing binary's comm — httpd for an Apache worker
+    # (AH00051 in the job log), php for a CLI crash such as a canary core
+    # that outlived its cleanup. Backtracing a php core against httpd yields
+    # "core file may not match specified executable file" and frames that
+    # mean nothing, which is what the former unconditional httpd choice
+    # produced. Resolve both candidates once, up front.
     # NB: busybox ash's `command -v` only honors its FIRST operand, so the
     # previous single call `command -v apache2 httpd` printed nothing on
     # Alpine (apache2 does not exist there) — gdb then received only the
@@ -1072,12 +1120,9 @@ capture_coredumps() {
     # latent bug for as long as this code existed, unexercisable until a core
     # first survived to reach it (#12438). Probe each candidate separately,
     # httpd first (Alpine), with a path fallback.
-    local exe
-    # shellcheck disable=SC2310  # missing binary is tolerated; gdb runs core-only as last resort
-    exe=$(dc exec -T openemr sh -c \
-        'command -v httpd 2>/dev/null || command -v apache2 2>/dev/null || ls /usr/sbin/httpd /usr/sbin/apache2 2>/dev/null | head -n1') || true
-    exe=${exe%$'\r'}
-    exe=${exe%%$'\n'*}
+    local httpd_exe php_exe
+    httpd_exe=$(_container_exe 'command -v httpd 2>/dev/null || command -v apache2 2>/dev/null || ls /usr/sbin/httpd /usr/sbin/apache2 2>/dev/null | head -n1')
+    php_exe=$(_container_exe 'command -v php 2>/dev/null || ls /usr/bin/php 2>/dev/null')
 
     # Cap the number of cores backtraced: a single #12438 e2e run produced
     # 184 cores of ~290MB each (49GB, runner disk at 78%), all sharing ONE
@@ -1085,7 +1130,7 @@ capture_coredumps() {
     # duplicates, and 184 gdb passes over 290MB cores would eat the job.
     local max_backtraces=${COREDUMP_MAX_BACKTRACES:-5}
     local processed=0
-    local core base
+    local core base comm exe exe_note exe_desc backtrace_file
     while IFS= read -r core; do
         [[ -n "${core}" ]] || continue
         if (( processed >= max_backtraces )); then
@@ -1095,7 +1140,21 @@ capture_coredumps() {
         fi
         processed=$(( processed + 1 ))
         base=$(basename "${core}")
-        echo "Backtracing ${base} (exe=${exe:-auto})..."
+        backtrace_file="${dest_dir}/${base}.backtrace.txt"
+        # Pick the executable from the core's %e field (see above).
+        comm=${base#core.}
+        comm=${comm%%.*}
+        exe_note=''
+        case ${comm} in
+            php|php[0-9]*) exe=${php_exe} ;;
+            httpd|apache2) exe=${httpd_exe} ;;
+            *)
+                exe=${httpd_exe}
+                exe_note=' (comm is neither php nor httpd; frames may not resolve)'
+                ;;
+        esac
+        exe_desc="${exe:-none (gdb ran core-only)}${exe_note}"
+        echo "Backtracing ${base} (comm=${comm} exe=${exe_desc})..."
         # `bt` (not `bt full`): a stack-only trace names the faulting frames
         # and `info sharedlibrary` the faulting .so without printing locals or
         # function arguments, which can hold request data / credentials. This
@@ -1108,14 +1167,18 @@ capture_coredumps() {
         )
         [[ -n "${exe}" ]] && gdb_args+=("${exe}")
         gdb_args+=("${core}")
+        # One redirect for the whole file: a header naming the binary gdb was
+        # given (so a mismatched backtrace explains itself), then gdb's output.
         # </dev/null on every exec inside this loop: `docker compose exec -T`
         # forwards (and thereby consumes) the loop's stdin — the herestring
         # feeding `read` — so without it the loop exits after ONE core
         # (observed: 184 cores in the inventory, one backtrace produced).
-        # shellcheck disable=SC2310  # a gdb failure is logged, not fatal — keep processing cores
-        dc "${gdb_args[@]}" < /dev/null \
-            > "${dest_dir}/${base}.backtrace.txt" 2>&1 \
-            || echo "gdb failed for ${base}; see ${base}.backtrace.txt" >&2
+        {
+            printf 'core: %s\ncomm: %s\nexe: %s\n\n' "${base}" "${comm}" "${exe_desc}"
+            # shellcheck disable=SC2310  # a gdb failure is logged, not fatal — keep processing cores
+            dc "${gdb_args[@]}" < /dev/null 2>&1 \
+                || echo "gdb failed for ${base}; see ${base}.backtrace.txt" >&2
+        } > "${backtrace_file}"
         # Raw core upload is opt-in (COREDUMP_MAX_MB > 0) and size-gated, since
         # a core can contain in-memory secrets. The backtrace above is the
         # default deliverable and is safe to publish.

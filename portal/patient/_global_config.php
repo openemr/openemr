@@ -94,7 +94,7 @@ class GlobalConfig
     /**
      * Initialize the GlobalConfig object
      */
-    static function Init()
+    public static function Init()
     {
         if (!self::$IS_INITIALIZED) {
             require_once 'verysimple/HTTP/RequestUtil.php';
@@ -112,7 +112,7 @@ class GlobalConfig
      * Returns an instance of the GlobalConfig singleton
      * @return GlobalConfig
      */
-    static function GetInstance()
+    public static function GetInstance()
     {
         if (!self::$IS_INITIALIZED) {
             self::Init();
@@ -129,7 +129,7 @@ class GlobalConfig
      * Returns the context, used for storing session information
      * @return Context
      */
-    function GetContext()
+    public function GetContext()
     {
         if ($this->context == null) {
         }
@@ -141,7 +141,7 @@ class GlobalConfig
      * Returns a URL Writer used to parse/generate URLs
      * @return UrlWriter
      */
-    function GetRouter()
+    public function GetRouter()
     {
         if ($this->router == null) {
             require_once("verysimple/Phreeze/GenericRouter.php");
@@ -156,7 +156,7 @@ class GlobalConfig
      * Returns the requested action requested by the user
     * @return string
     */
-    function GetAction()
+    public function GetAction()
     {
         [$controller, $method] = $this->GetRouter()->GetRoute();
         return $controller . '.' . $method;
@@ -166,7 +166,7 @@ class GlobalConfig
      * Returns the default action if none is specified by the user
      * @return string
      */
-    function GetDefaultAction()
+    public function GetDefaultAction()
     {
         return self::$DEFAULT_ACTION;
     }
@@ -175,7 +175,7 @@ class GlobalConfig
      * Returns the Phreezer persistence layer
      * @return Phreezer
      */
-    function GetPhreezer()
+    public function GetPhreezer()
     {
         if ($this->phreezer == null) {
             if (!self::$CONVERT_NULL_TO_EMPTYSTRING) {
@@ -203,7 +203,7 @@ class GlobalConfig
     /**
      * @return IRenderEngine
      */
-    function GetRenderEngine()
+    public function GetRenderEngine()
     {
         if ($this->render_engine == null) {
             $engine_class = self::$TEMPLATE_ENGINE;

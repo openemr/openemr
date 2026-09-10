@@ -19,8 +19,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\VersionService;
 
-$facilityService = new FacilityService();
-
 function getErxPath()
 {
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path');
@@ -194,8 +192,8 @@ function destination($doc, $r, ?string $page = null, $pid = null): void
 
 function account($doc, $r): void
 {
-    global $msg, $facilityService;
-    $erxSiteID = $facilityService->getPrimaryBusinessEntity();
+    global $msg;
+    $erxSiteID = (new FacilityService())->getPrimaryBusinessEntity();
     if (!$erxSiteID['federal_ein']) {
         echo xlt("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.");
         die;
@@ -802,7 +800,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     }
 
     $res_med = sqlStatement("select * from lists where type='medication' and pid=? and title<>''
-	and erx_uploaded='0' $active order by enddate limit 0," . escape_limit($med_limit), [$pid]);
+	and erx_uploaded='0' $active order by enddate limit 0, ?", [$pid, (is_numeric($med_limit) ? (int) $med_limit : 0)]);
     $uploaded_med_arr = [];
     while ($row_med = sqlFetchArray($res_med)) {
         $uploaded_med_arr[] = $row_med['id'];

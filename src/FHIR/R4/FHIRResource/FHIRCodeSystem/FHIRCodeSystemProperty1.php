@@ -353,9 +353,7 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CodeSystemProperty1 xmlns="http://hl7.org/fhir"></CodeSystemProperty1>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CodeSystemProperty1 xmlns="http://hl7.org/fhir"></CodeSystemProperty1>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

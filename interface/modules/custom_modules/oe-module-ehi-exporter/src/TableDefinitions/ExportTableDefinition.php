@@ -75,9 +75,7 @@ class ExportTableDefinition
     {
         $hasValue = $this->keyColumnsHashmap[$key][$value] ?? null;
         if (!isset($hasValue)) {
-            if (!isset($this->keyColumnsHashmap[$key])) {
-                $this->keyColumnsHashmap[$key] = [];
-            }
+            $this->keyColumnsHashmap[$key] ??= [];
             $this->keyColumnsHashmap[$key][$value] = $value;
             $this->hasNewData = true;
         }

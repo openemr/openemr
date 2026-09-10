@@ -41,7 +41,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirLocationService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
+class FhirLocationService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService, INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -84,9 +84,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     }
 
     public function getOrganizationService(): FhirOrganizationService {
-        if (!isset($this->fhirOrganizationService)) {
-            $this->fhirOrganizationService = new FhirOrganizationService();
-        }
+        $this->fhirOrganizationService ??= new FhirOrganizationService();
         return $this->fhirOrganizationService;
     }
 
@@ -367,7 +365,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         if ($type == 'patient' && !$isPatientBoundUuid) {
             // only those with access to a patient's demographic information can get their data
             return AclMain::aclCheckCore("patients", "demo",$this->getSession()->get("authUser")) !== false;
-        } else if ($type == 'user') {
+        } elseif ($type == 'user') {
             // only those with access to the user information can get address information about a user.
             return $this->hasAccessToUserLocationData();
         } else {

@@ -32,10 +32,6 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(__DIR__ . "/../../../library/api.inc.php");
-require_once(__DIR__ . "/../../../library/lists.inc.php");
-require_once(__DIR__ . "/../../../library/forms.inc.php");
-require_once(__DIR__ . "/../../../library/patient.inc.php");
 require_once(__DIR__ . "/../../../controllers/C_Document.class.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -206,7 +202,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 {
     global $form_folder;
     global $PDF_OUTPUT;
-    global $facilityService;
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
@@ -312,7 +307,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     ?>
 
     <?php Header::setupHeader(['no_dialog', 'no_jquery', 'fontawesome']); ?>
-    <link rel="stylesheet" href="../../forms/eye_mag/css/report.css">
+    <link rel="stylesheet" href="../../forms/eye_mag/css/report.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
     <style>
         <?php if ($PDF_OUTPUT) { ?>
         .mot {
@@ -339,6 +334,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
         $pc_facility = $session->get('pc_facility');
+        $facilityService = new FacilityService();
         $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
     }
 

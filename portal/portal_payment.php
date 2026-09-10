@@ -67,8 +67,6 @@ if (!$isPortal) {
 
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
@@ -363,7 +361,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     ?>
 
     <title><?php echo xlt('Receipt for Payment'); ?></title>
-    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery/dist/jquery.min.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <script>
 
         function goHome() {
@@ -468,7 +466,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             font-weight: normal
         }
     </style>
-    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="portal_payment.js?v=<?=$v_js_includes?>"></script>
     <script>

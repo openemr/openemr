@@ -849,8 +849,8 @@
                         "children": [],
                         "requirement": 0,
                         "acl_req": [
-                            "admin",
-                            "super"
+                            "patients",
+                            "merge"
                         ]
                     },
                     {
@@ -861,8 +861,8 @@
                         "children": [],
                         "requirement": 0,
                         "acl_req": [
-                            "admin",
-                            "super"
+                            "patients",
+                            "merge"
                         ]
                     }
                 ],
@@ -871,6 +871,10 @@
                     [
                         "admin",
                         "super"
+                    ],
+                    [
+                        "patients",
+                        "merge"
                     ]
                 ]
             },

@@ -21,7 +21,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $results = [];

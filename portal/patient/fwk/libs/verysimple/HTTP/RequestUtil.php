@@ -47,7 +47,7 @@ class RequestUtil
      * @see http://en.wikipedia.org/wiki/X-Forwarded-For
      * @return string
      */
-    static function GetRemoteHost()
+    public static function GetRemoteHost()
     {
         if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', $_SERVER)) {
             return $_SERVER ['HTTP_X_CLUSTER_CLIENT_IP'];
@@ -71,7 +71,7 @@ class RequestUtil
     /**
      * Returns true if the current session is running in SSL
      */
-    static function IsSSL()
+    public static function IsSSL()
     {
         return isset($_SERVER ['HTTPS']) && $_SERVER ['HTTPS'] != "" && $_SERVER ['HTTPS'] != "off";
     }

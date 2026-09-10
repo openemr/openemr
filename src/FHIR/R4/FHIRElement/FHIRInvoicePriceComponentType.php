@@ -144,9 +144,7 @@ class FHIRInvoicePriceComponentType extends FHIRElement implements \JsonSerializ
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<InvoicePriceComponentType xmlns="http://hl7.org/fhir"></InvoicePriceComponentType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<InvoicePriceComponentType xmlns="http://hl7.org/fhir"></InvoicePriceComponentType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

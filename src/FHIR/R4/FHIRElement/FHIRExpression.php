@@ -279,9 +279,7 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Expression xmlns="http://hl7.org/fhir"></Expression>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Expression xmlns="http://hl7.org/fhir"></Expression>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

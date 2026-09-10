@@ -39,6 +39,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation\UniqueID;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Http\SsrfSafeUrlValidator;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -102,10 +104,59 @@ class JWTClientAuthenticationService
      */
     public function getHttpClient(): ClientInterface
     {
-        if (!isset($this->httpClient)) {
-            $this->httpClient = new Client();
-        }
+        $this->httpClient ??= new Client();
         return $this->httpClient;
+    }
+
+    /**
+     * @var SsrfSafeUrlValidator|null Additional validator applied to
+     * jwks_uri values loaded from storage before they are handed to
+     * JsonWebKeySet. Overridable for unit testing.
+     */
+    private ?SsrfSafeUrlValidator $jwksUriValidator = null;
+
+    /**
+     * Override the outbound-URL validator applied to persisted jwks_uri values.
+     * Useful for unit testing.
+     */
+    public function setJwksUriValidator(SsrfSafeUrlValidator $validator): void
+    {
+        $this->jwksUriValidator = $validator;
+    }
+
+    public function getJwksUriValidator(): SsrfSafeUrlValidator
+    {
+        // Https-only allowlist for jwks_uri fetch; matches the
+        // registration-write-path allowlist (see
+        // AuthorizationController::clientRegistration) so relaxing
+        // one path does not open the other.
+        $this->jwksUriValidator ??= new SsrfSafeUrlValidator(['https']);
+        return $this->jwksUriValidator;
+    }
+
+    /**
+     * Build a per-request Guzzle client whose curl transport binds the JWKS
+     * hostname to the addresses that passed validation. Uses CURLOPT_RESOLVE
+     * so the outbound TCP connect targets the same IP the validator saw,
+     * while the TLS SNI and Host header keep the original hostname (so
+     * certificate validation and virtual hosting continue to work).
+     *
+     * Overridable so isolated tests can substitute a client without exercising
+     * the real Guzzle curl handler.
+     *
+     * @param array{reason: string|null, host: string, port: int, scheme: string, ips: list<string>} $pin
+     */
+    protected function buildPinnedHttpClient(array $pin): ClientInterface
+    {
+        $resolveEntries = [];
+        foreach ($pin['ips'] as $ip) {
+            $resolveEntries[] = sprintf('%s:%d:%s', $pin['host'], $pin['port'], $ip);
+        }
+        return new Client([
+            'curl' => [
+                CURLOPT_RESOLVE => $resolveEntries,
+            ],
+        ]);
     }
 
 
@@ -238,13 +289,58 @@ class JWTClientAuthenticationService
             throw OAuthServerException::invalidClient($request);
         }
 
+        // Additional outbound-URL check on the persisted jwks_uri. The write
+        // path (AuthorizationController::clientRegistration) validates on
+        // registration, but a client row may pre-date that check or have been
+        // mutated out-of-band, so we re-validate before every outbound fetch.
+        // Reject-and-audit rather than fetching a URL that resolves into
+        // internal / metadata address space. validateAndPin() also returns
+        // the resolved addresses so the subsequent fetch can bind to the
+        // same IP the check saw, closing the gap between validate() and the
+        // connect step.
+        $storedJwksUri = (string) $client->getJwksUri();
+        $pinResult = null;
+        if ($storedJwksUri !== '') {
+            $pinResult = $this->getJwksUriValidator()->validateAndPin($storedJwksUri);
+            $rejectionReason = $pinResult['reason'];
+            if ($rejectionReason !== null) {
+                $clientIdForLog = is_scalar($clientId) ? (string) $clientId : '';
+                $this->logger->error(
+                    'Rejected persisted jwks_uri as unsafe outbound target',
+                    [
+                        'client_id' => $clientIdForLog,
+                        'reason' => $rejectionReason,
+                    ]
+                );
+                EventAuditLogger::getInstance()->newEvent(
+                    'oauth-jwks-uri-rejected',
+                    '',
+                    '',
+                    0,
+                    sprintf(
+                        'jwks_uri rejected at read path for client_id=%s: %s',
+                        $clientIdForLog,
+                        $rejectionReason
+                    )
+                );
+                throw OAuthServerException::invalidClient($request);
+            }
+        }
+
         $params = (array) $request->getParsedBody();
         $jwt = $params['client_assertion'] ?? '';
 
         try {
-            // Get the JSON Web Key Set for signature validation
+            // Get the JSON Web Key Set for signature validation. When the
+            // validator returned resolved addresses (hostname URL, not an IP
+            // literal), hand JsonWebKeySet a client whose curl transport is
+            // pinned to those addresses so the connect step targets the same
+            // IP the validator classified.
+            $jwksClient = ($pinResult !== null && $pinResult['ips'] !== [])
+                ? $this->buildPinnedHttpClient($pinResult)
+                : $this->getHttpClient();
             $jsonWebKeySet = new JsonWebKeySet(
-                $this->getHttpClient(),
+                $jwksClient,
                 $client->getJwksUri(),
                 $client->getJwks()
             );

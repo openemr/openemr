@@ -30,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceCreatableService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
@@ -46,7 +47,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService
+class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService, IPatientCompartmentResourceService
 {
     /**
      * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait
@@ -237,7 +238,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
                 'incomplete','active' => 'in-progress',
                 default => 'in-progress'
             });
-        } else if (is_string($fhirResource->getStatus())) {
+        } elseif (is_string($fhirResource->getStatus())) {
             // otherwise we use the status in the original questionnaire response status
             $responseStatus = new FHIRQuestionnaireResponseStatus();
             $responseStatus->setValue($fhirResource->getStatus());

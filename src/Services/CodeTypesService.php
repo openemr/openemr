@@ -121,9 +121,7 @@ class CodeTypesService
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
 

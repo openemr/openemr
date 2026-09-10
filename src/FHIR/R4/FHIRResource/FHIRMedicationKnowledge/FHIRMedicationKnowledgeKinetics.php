@@ -232,9 +232,7 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgeKinetics xmlns="http://hl7.org/fhir"></MedicationKnowledgeKinetics>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgeKinetics xmlns="http://hl7.org/fhir"></MedicationKnowledgeKinetics>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->areaUnderCurve)) {
             foreach ($this->areaUnderCurve as $areaUnderCurve) {

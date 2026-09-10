@@ -68,9 +68,7 @@ trait FhirObservationTrait
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
@@ -222,7 +220,7 @@ trait FhirObservationTrait
         $valueType = "string";
         if (is_string($value) && !empty($codeDescription) && str_contains($value, ':')) {
             $valueType = 'CodeableConcept';
-        } else if (is_numeric($value)) {
+        } elseif (is_numeric($value)) {
             $valueType = 'Quantity';
         }
 
@@ -268,7 +266,7 @@ trait FhirObservationTrait
                     $observation->setValueQuantity($valueQuantity);
                     break;
             }
-        } else if (empty($children)) {
+        } elseif (empty($children)) {
             // Set dataAbsentReason (mustSupport)
             // If no value and no children (not a panel), dataAbsentReason is required (us-core-2)
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
@@ -433,7 +431,7 @@ trait FhirObservationTrait
             // if the value is null we set dataAbsentReason
             if (empty($component['value'])) {
                 $comp->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
-            } else if (is_numeric($component['value'])) {
+            } elseif (is_numeric($component['value'])) {
                 $valueQuantity = new FHIRQuantity();
                 // must be an integer or decimal
                 $valueQuantity->setValue(floatval($component['value']));
@@ -447,7 +445,7 @@ trait FhirObservationTrait
                     }
                 }
                 $comp->setValueQuantity($valueQuantity);
-            } else if (!empty($component['value_code_description']) && str_contains((string) $component['value'], ':')) {
+            } elseif (!empty($component['value_code_description']) && str_contains((string) $component['value'], ':')) {
                 $parsedCode = $this->getCodeTypesService()->parseCode($component['value']);
                 $code = $parsedCode['code'];
                 $comp->setValueCodeableConcept(UtilsService::createCodeableConcept([
@@ -609,9 +607,7 @@ trait FhirObservationTrait
 
     public function getProvenanceService(): FhirProvenanceService
     {
-        if (!isset($this->fhirProvenanceService)) {
-            $this->fhirProvenanceService = new FhirProvenanceService();
-        }
+        $this->fhirProvenanceService ??= new FhirProvenanceService();
         return $this->fhirProvenanceService;
     }
 

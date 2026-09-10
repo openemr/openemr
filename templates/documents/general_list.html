@@ -14,7 +14,7 @@
 
 {headerTemplate assets='datetime-picker|select2'}
 
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css?v={assetVersionNumber}">
 
 <style>
 .select2-selection {
@@ -36,8 +36,8 @@ border-radius: 4px 0 0 4px!important;
 	min-width: 20vw !important;
 }
 </style>
-<script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
-<script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
+<script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js?v={assetVersionNumber}"></script>
+<script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js?v={assetVersionNumber}"></script>
 
 <script>
 	function callTemplateModule(patient_id, cuser, templateName, id, edit) {

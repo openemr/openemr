@@ -296,9 +296,7 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<QuestionnaireResponseItem xmlns="http://hl7.org/fhir"></QuestionnaireResponseItem>');
-        }
+        $sxe ??= new \SimpleXMLElement('<QuestionnaireResponseItem xmlns="http://hl7.org/fhir"></QuestionnaireResponseItem>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->linkId)) {
             $this->linkId->xmlSerialize(true, $sxe->addChild('linkId'));

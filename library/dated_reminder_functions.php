@@ -84,13 +84,16 @@ function GetPortalAlertCounts(): array
 /**
  * RemindersArray function
  *
- * @returns array reminders for specified user, defaults to current user if none specified
+ * @param int      $today  Unix timestamp for the start of today.
+ * @param int|null $userID Defaults to the authenticated user when null.
+ * @return array<int, array<string, mixed>> reminders for specified user
  */
-function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
+function RemindersArray(int $days_to_show, int $today, int $alerts_to_show, ?int $userID = null): array
 {
     if (!$userID) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $userID = $session->get('authUserID');
+        $sessionUserID = $session->get('authUserID');
+        $userID = is_numeric($sessionUserID) ? (int) $sessionUserID : null;
     }
 
     global $hasAlerts;
@@ -103,8 +106,8 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
             JOIN `users` u ON dr.dr_from_ID = u.id
             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
             WHERE drl.to_id = ? AND dr.`message_processed` = 0
-            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY)
-            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0," . escape_limit($alerts_to_show), [$userID]);
+            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . $days_to_show . " DAY)
+            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT ?", [$userID, $alerts_to_show]);
 
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
@@ -147,16 +150,16 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
  * This function is used to get a count of the number of reminders due for a specified
  * user.
  *
- * @param $days_to_show
- * @param $today
- * @param $userID
- * @returns int with number of due reminders for specified user
+ * @param int      $today  Unix timestamp for the start of today. Unused, kept for call compatibility.
+ * @param int|null $userID Defaults to the authenticated user when null.
+ * @return int number of due reminders for specified user
  */
-function GetDueReminderCount($days_to_show, $today, $userID = false)
+function GetDueReminderCount(int $days_to_show, int $today, ?int $userID = null): int
 {
     if (!$userID) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $userID = $session->get('authUserID');
+        $sessionUserID = $session->get('authUserID');
+        $userID = is_numeric($sessionUserID) ? (int) $sessionUserID : null;
     }
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
@@ -167,12 +170,16 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
                             WHERE drl.to_id = ?
                             AND dr.`message_processed` = 0
-                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY)",
+                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . $days_to_show . " DAY)",
         [$userID]
     );
 
     $drRow = sqlFetchArray($drSQL);
-    return $drRow['c'];
+    if (!is_array($drRow) || !is_numeric($drRow['c'] ?? null)) {
+        return 0;
+    }
+
+    return (int) $drRow['c'];
 }
 
 // ------------------------------------------------

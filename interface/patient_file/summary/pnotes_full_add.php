@@ -15,7 +15,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -66,9 +65,7 @@ $form_inactive = $_REQUEST['form_inactive'] ?? null;
 $noteid = $_REQUEST['noteid'] ?? null;
 $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1) : 1;
 
-if (!isset($offset)) {
-    $offset = 0;
-}
+$offset ??= 0;
 
 // if (!isset($active)) $active = "all";
 

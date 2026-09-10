@@ -368,9 +368,7 @@ class SmartLaunchController
         $intent = null
     ): SMARTLaunchToken {
         $token = new SMARTLaunchToken($patientUUID, $encounterId);
-        if ($intent === null) {
-            $intent = SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG;
-        }
+        $intent ??= SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG;
         $token->setIntent($intent);
         return $token;
     }

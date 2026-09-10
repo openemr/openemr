@@ -144,9 +144,7 @@ class FHIREligibilityRequestPurpose extends FHIRElement implements \JsonSerializ
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EligibilityRequestPurpose xmlns="http://hl7.org/fhir"></EligibilityRequestPurpose>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EligibilityRequestPurpose xmlns="http://hl7.org/fhir"></EligibilityRequestPurpose>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

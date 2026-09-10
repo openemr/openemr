@@ -255,9 +255,7 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstancePolymerRepeat xmlns="http://hl7.org/fhir"></SubstancePolymerRepeat>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstancePolymerRepeat xmlns="http://hl7.org/fhir"></SubstancePolymerRepeat>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->numberOfUnits)) {
             $this->numberOfUnits->xmlSerialize(true, $sxe->addChild('numberOfUnits'));

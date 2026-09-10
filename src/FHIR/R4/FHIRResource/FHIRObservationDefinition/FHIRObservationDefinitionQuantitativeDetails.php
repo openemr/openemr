@@ -246,9 +246,7 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ObservationDefinitionQuantitativeDetails xmlns="http://hl7.org/fhir"></ObservationDefinitionQuantitativeDetails>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ObservationDefinitionQuantitativeDetails xmlns="http://hl7.org/fhir"></ObservationDefinitionQuantitativeDetails>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->customaryUnit)) {
             $this->customaryUnit->xmlSerialize(true, $sxe->addChild('customaryUnit'));

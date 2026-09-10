@@ -22,8 +22,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
-require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/encounter_events.inc.php");
@@ -694,7 +692,7 @@ function toencounter(enc, datestr, topframe) {
 
     <?php echo Header::setupAssets(['topdialog']); ?>
 
-<script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;

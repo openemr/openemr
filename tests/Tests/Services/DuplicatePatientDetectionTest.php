@@ -19,8 +19,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../../../library/patient.inc.php';
-
 class DuplicatePatientDetectionTest extends TestCase
 {
     /** @var list<int> PIDs to clean up after tests */

@@ -16,7 +16,6 @@
 
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
@@ -130,9 +129,8 @@ while ($frow = sqlFetchArray($fres)) {
                 'error' => $e->getMessage()
             ]);
         }
-    }
-    // Handle telecom list fields (data_type 55)
-    elseif ($data_type == 55) {
+    } elseif ($data_type == 55) {
+        // Handle telecom list fields (data_type 55)
         try {
             $telecomFieldsToSave[$field_id] = get_layout_form_value($frow);
 
@@ -156,9 +154,8 @@ while ($frow = sqlFetchArray($fres)) {
                 'error' => $e->getMessage()
             ]);
         }
-    }
-    // Handle relation list fields (data_type 56)
-    elseif ($data_type == 56) {
+    } elseif ($data_type == 56) {
+        // Handle relation list fields (data_type 56)
         try {
             $relationFieldsToSave[$field_id] = get_layout_form_value($frow);
 
