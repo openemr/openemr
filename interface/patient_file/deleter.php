@@ -433,8 +433,10 @@ function popup_close() {
             }
 
         // Close this window and tell our opener that it's done.
-        // Not sure yet if the callback can be used universally.
+        // If SQL debugging is enabled, preserve the output in the dialog but
+        // still notify the caller immediately so its view can refresh.
             echo "<script>\n";
+            $hideSql = OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen');
             if (!$encounterid) {
                 if ($info_msg) {
                     echo "let message = " . js_escape($info_msg) . ";
@@ -442,21 +444,27 @@ function popup_close() {
                     await asyncAlertMsg(message, time, 'success', 'lg');
                     })(message, 2000)
                     .then(res => {";
-                    // auto close on msg timeout with just enough time to show success or errors.
-                    if (OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
+                    if ($hideSql) {
                         echo "dlgclose();";
+                    } else {
+                        echo "if (opener && typeof opener.imdeleted === 'function') { opener.imdeleted(false); }";
                     }
-                    echo "});"; // close function.
-                    // any close will call below.
-                    echo " opener.dlgSetCallBack('imdeleted', false);\n";
+                    echo "});";
+                    if ($hideSql) {
+                        echo " opener.dlgSetCallBack('imdeleted', false);\n";
+                    }
                 } else {
-                    echo " dlgclose('imdeleted', false);\n";
+                    if ($hideSql) {
+                        echo " dlgclose('imdeleted', false);\n";
+                    } else {
+                        echo " if (opener && typeof opener.imdeleted === 'function') { opener.imdeleted(false); }\n";
+                    }
                 }
             } else {
-                if (OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
+                if ($hideSql) {
                     echo " dlgclose('imdeleted', " . js_escape($encounterid) . ");\n";
-                } else { // this allows dialog to stay open then close with button or X.
-                    echo " opener.dlgSetCallBack('imdeleted', " . js_escape($encounterid) . ");\n";
+                } else {
+                    echo " if (opener && typeof opener.imdeleted === 'function') { opener.imdeleted(" . js_escape($encounterid) . "); }\n";
                 }
             }
             echo "</script></body></html>\n";
