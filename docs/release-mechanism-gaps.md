@@ -58,7 +58,7 @@ acceptance-testing owns the *verification that they work*.
   permission bug; see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
 - **Next expected release event:** first ship of `8.4.0` from
   `rel-840` (patch-cadence — no fixed date; happens when the QA
-  team signs off + ship-release.yml is triggered). A `8.3.1` patch
+  team signs off + ship-release.yml is triggered). An `8.3.1` patch
   from `rel-830` could ship first if any 8.3.0-line issues surface.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
