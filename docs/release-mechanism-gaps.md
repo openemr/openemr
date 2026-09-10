@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-08-14
+**Last updated:** 2026-09-10
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -39,16 +39,27 @@ acceptance-testing owns the *verification that they work*.
   correct when those entries were written. It never shipped; the
   first release after the migration completed was 8.2.0 (shipped
   2026-07-08 to 2026-07-09 from `rel-820`).
-- **Latest rel-branch cut:** `rel-830` cut from master on 2026-08-12
-  — second exercise of `branch-cut-automation.yml` (rel-820 was the
-  first on 2026-07-02) and first exercise after ~6 weeks of
-  infrastructure refactors. Surfaced 6 latent regressions in the
-  release-mechanism surface; all shipped same-day. See [G31](#g31--rel-830-cut-surfaced-6-latent-release-mechanism-regressions-in-cascade--discovered-2026-08-12-all-shipped-2026-08-12)
-  for the full forensic + the systemic lesson (smoketest coverage
-  gaps around the branch-cut workflow shape).
-- **Next expected release event:** first ship of `8.3.0` from
-  `rel-830` (patch-cadence — no fixed date; happens when the QA
-  team signs off + ship-release.yml is triggered).
+- **Latest rel-branch cut:** `rel-840` cut from master on 2026-09-10
+  — third exercise of `branch-cut-automation.yml` (rel-820 was the
+  first on 2026-07-02, rel-830 the second on 2026-08-12). Surfaced 1
+  latent bug in the `docker/container_benchmarking/` upgrade test
+  (recreate wipes the writable-layer writeback that syncs code
+  version to `/root/`, so the recreate-boot `check_upgrade` guard
+  now fails — root cause landed in openemr/openemr#13614 on
+  2026-08-25 as the restart→recreate change and hadn't been
+  exercised by a branch-cut PR before rel-840); took a false-start
+  fix + revert + correct-fix cascade same day. See
+  [G34](#g34--rel-840-cut-surfaced-docker-upgrade-process-test-recreate-bug--discovered-2026-09-10-all-shipped-2026-09-10)
+  for the full forensic + systemic lesson. G31 remains the anchor
+  for rel-830-cut regressions.
+- **Recent releases:** `8.3.0` shipped 2026-08-18 from `rel-830` —
+  first-ever end-to-end automated ship via `ship-release.yml`.
+  Surfaced 7 latent preflight-deadlock gates + a merge-API
+  permission bug; see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
+- **Next expected release event:** first ship of `8.4.0` from
+  `rel-840` (patch-cadence — no fixed date; happens when the QA
+  team signs off + ship-release.yml is triggered). A `8.3.1` patch
+  from `rel-830` could ship first if any 8.3.0-line issues surface.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -2733,6 +2744,29 @@ Historical context: 8.2.0 shipped 2026-07-08/09 via manual click-through — `sh
 **Systemic lesson:** every real ship-release execution is an integration event that exercises multiple GitHub API surfaces + token-permission behaviors + branch-protection interactions not covered by dispatch tests that fail earlier. The `release-mechanism-smoketest.yml` covers `openemr:release-prep` against a shipped tag but not the ship-release merge-API path (which needs a live PR + live merge to exercise). Adding a periodic smoke-test dispatch of ship-release against a throwaway PR would catch this bug class at land time; deferred as follow-up. In the meantime, treat every first real ship after significant ship-release-code churn as a cascade-discovery event similar to G31 for cuts.
 
 **Also surfaced (deferred):** cosmetic gap in the forum announcement post — the `openemr_email_logo.png` referenced by `forum.md.twig` is designed to sit on the OpenEMR-blue `#00509d` email header block; it's white-on-transparent artwork that renders invisible against Discourse's default light theme. Additionally `|500x0` in the Discourse dimension syntax collapsed the image render box to zero height regardless of artwork. Durable fix: pre-composite an `openemr_forum_logo.png` (blue-background, padded) as a website asset on open-emr.org, update `forum.md.twig` to reference it. For 8.3.0 today the paster manually swapped in a `weserv.nl`-proxied composited variant; template still holds the broken reference for future releases.
+
+### G34 — rel-840 cut surfaced Docker Upgrade Process test recreate bug  *(discovered 2026-09-10, all SHIPPED 2026-09-10)*
+
+**STATUS: SHIPPED 2026-09-10** as a false-start + revert + correct-fix cascade of 4 PRs same day. Consolidated here because the findings share a single trigger event (first branch-cut PR CI to exercise the `docker/container_benchmarking/` upgrade test's post-#13614 recreate shape) and one shared root cause (writable-layer wipe on recreate breaks the check_upgrade guard when `/root/docker-version` is ahead of the git-cloned code copy).
+
+Historical context: rel-830 cut on 2026-08-12 with a passing Container Functionality release check because the upgrade test at that time used `docker-compose restart` — the writable layer survived, so openemr.sh's setup-time writeback of `${OE_ROOT}/docker-version = /root/docker-version` value carried across into the check_upgrade evaluation and the guard passed. openemr/openemr#13614 (Stephen Waite, merged 2026-08-25) changed the test's Step 3 from `restart` to `stop + rm + up` (recreate) so the test would exercise the real production-upgrade shape (new image → new container → setup-removed files like `sql_upgrade.php` are restored from the image). That change was validated against master's daily CI shape where `/root/docker-version` == the code copy from the start, so the guard never depended on the writeback and the change looked green. rel-840 was the first branch-cut PR CI to run against the post-#13614 test — 16 days after #13614 landed.
+
+**Findings + fixes (in the order they surfaced during rel-840 cut):**
+
+1. **Broken test on branch-cut PRs.** Both branch-cut PRs (openemr/openemr#13924 rel-side and openemr/openemr#13926 master-side) failed the Container Functionality release check with `FAIL: Docker Upgrade Process - Upgrade started: 0`. Diagnosis: the built branch-cut PR image has `/root/docker-version = N` (14, from PR's Dockerfile `COPY docker/release/upgrade/docker-version`) but `${OE_ROOT}/docker-version = N-1` (13, from the Dockerfile's git clone which snapshots the target branch's pre-PR state). On Step 1 (fresh install), openemr.sh's setup writeback (openemr.sh lines 992-995) syncs `${OE_ROOT}/docker-version` and `${OE_ROOT}/sites/default/docker-version` to `/root/`'s 14 in the writable layer + upgrade_sites volume. Step 2 sets sites=1 to stage the upgrade trigger. Step 3's recreate (post-#13614) wipes the writable layer, so `${OE_ROOT}/docker-version` reverts to the git-cloned 13 while sites=1 survives on the volume. Recreate-boot check_upgrade sees `root=14, code=13, sites=1`; the guard requires `root == code AND root > sites`, first clause fails, no upgrade fires, test asserts `Upgrade started: 0`. Not a production bug — production images always have `root == code` (both baked from the same build) — but exposed on every future branch-cut PR until fixed.
+
+2. **False-start fix (openemr/openemr#13928 master + openemr/openemr#13929 rel-840, MERGED then REVERTED).** First fix attempt bind-mounted a host-side `code-version-override` file over `${OE_ROOT}/docker-version` with `/root/`'s value, active from Step 1 of the test. That pinned the code copy across the recreate wipe, satisfying the guard on the recreate boot. But it also active from Step 1's initial `docker-compose up`, so on the fresh-install boot check_upgrade saw `root=14, code=14 (from pin), sites=13 (git-cloned to fresh volume)` — the guard passed and `run_upgrade` fired before openemr was configured. openemr.sh's run_upgrade exited with `Error: Cannot upgrade - OpenEMR is not configured yet`, leaving the container unhealthy. Result: Docker Upgrade Process test now failed at Step 1 on **every** PR touching `docker/release/**` or `docker/container_benchmarking/**` — regression scope wider than the branch-cut-only original bug the fix targeted.
+
+3. **Correct fix (openemr/openemr#13934 master + openemr/openemr#13935 rel-840, MERGED).** Reverted #13928/#13929 and reapplied the bind-mount scoped to Step 3's recreate only. Between Step 2 and Step 3, the test writes a `docker-compose.recreate.yml` override file with only the bind-mount volume, and Step 3's `up` command merges it via a second `-f`. Step 1's initial fresh install uses the base compose file only, so setup completes normally. The recreate then pins `${OE_ROOT}/docker-version = /root/`'s value across the writable-layer wipe, and check_upgrade fires as intended: `root=14, code=14 (from bind-mount), sites=1 (test-staged)` → guard passes → upgrade runs → sites advances 1→14. Verified on both master and rel-840 sides + on the previously-failing branch-cut PRs after their close/reopen re-triggered CI against the merged fix.
+
+**Also observed (GitHub Actions gotcha, not a code fix):** GitHub's `refs/pull/N/merge` ref is recomputed asynchronously after base-branch pushes. When the fix PRs merged to master/rel-840 and the branch-cut PRs were closed/reopened seconds later to force fresh CI, the reopens fired against a stale `merge_commit_sha` frozen in the `pull_request.reopened` event payload — actions/checkout fetched the pre-fix merge SHA and the test failed again (same symptom pre-fix). A second close/reopen ~15 minutes later fetched the correct fresh merge (parent = current base tip = fix merge) and the test passed. Practical rule: after a base-branch push affecting a PR's merge, wait a few minutes before triggering PR CI re-runs so GitHub's merge-ref cache catches up. No code fix — a GitHub-side quirk to remember.
+
+**Root causes:**
+- **#13614 landed the restart→recreate change** with validation limited to master's daily CI (where `root == code` from image build, so the writeback wasn't load-bearing for the guard). The branch-cut-PR test scenario — where PR's Dockerfile COPY bumps `/root/` ahead of what the git clone will find in the source tree — was not exercised by anything between 2026-08-25 and rel-840 cut. Only branch-cut PRs create this mismatch; only branch-cut PRs would surface the bug.
+- **Coverage gap.** `docker/container_benchmarking/test_suite.sh` runs only in the Container Functionality workflow, which fires on PRs touching `docker/release/**` or `docker/container_benchmarking/**`. Neither `release-mechanism-smoketest.yml` nor `acceptance-docker.yml` exercises this test path. Daily-master CI runs it, but daily-master has no `/root/` vs code drift (same-build invariant), so the specific test scenario the recreate change broke was never a daily-CI concern.
+- **False-start-fix root cause.** The first fix's designer (me, this session) reasoned about the Step 3 recreate boot in isolation and missed that the Step 1 fresh-install boot also runs check_upgrade — with the bind-mount active from Step 1, the fresh-boot check_upgrade fires prematurely. Correct fix required scoping the override to the recreate step only, which needed the two-compose (`-f` merge) mechanism.
+
+**Systemic lesson:** every rel-branch cut is an integration event that exercises workflow shapes not routinely covered — G31 covered branch-cut-automation, byte-identical, and release-prep conductor surfaces. G34 adds the `docker/container_benchmarking/` test surface to the list. The specific pattern (a change to a test's core mechanism validated only against the daily-CI shape, then breaking a distinct PR-time shape that fires only on branch-cut PRs weeks later) recurs: **any change to `docker/container_benchmarking/test_suite.sh`'s Step 3 mechanism should be validated against a synthetic branch-cut-PR scenario before landing**, e.g. by manually bumping `docker/release/upgrade/docker-version` in the same PR to simulate the `/root/` vs code drift. Not automatable without infrastructure (which would essentially rebuild what branch-cut-PR CI already does after the fact); realistic mitigation is a comment in test_suite.sh calling out the invariant and any future test-mechanism changer to think through it. Also worth noting: medium-term the release image build is planned to migrate to a package-style source (respects `.gitattributes`), at which point the `/root/` vs code drift no longer exists — the bind-mount override in #13934/#13935 becomes a no-op that can be removed then.
 
 ## Timing picture: who does what, when
 
