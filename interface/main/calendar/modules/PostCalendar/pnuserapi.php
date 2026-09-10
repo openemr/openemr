@@ -13,6 +13,7 @@
 */
 
 use OpenEMR\Common\Calendar\Month;
+use OpenEMR\Common\Calendar\ProviderCategoryType;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -1329,7 +1330,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // Provider categories (IN/OUT/LUNCH/etc. use pc_cattype=1) must open
         // add_edit_event with prov=true — legacy templates set this as the
         // third segment of the event DOM id after a per-event category lookup.
-        $events[$i]['pccattype']   = (is_numeric($tmp['cattype']) && (int) $tmp['cattype'] === 1) ? 'true' : '';
+        $events[$i]['pccattype']   = ProviderCategoryType::toDomMarker($tmp['cattype']);
         $events[$i]['pid']         = $tmp['pid'];
         $events[$i]['apptstatus']  = $tmp['apptstatus'];
         $events[$i]['pubpid']      = $tmp['pubpid'];

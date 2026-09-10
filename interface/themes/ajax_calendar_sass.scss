@@ -465,21 +465,22 @@ $side-calendar-date-padding: 0.3rem !default;
       text-overflow: ellipsis;
       white-space: nowrap;
       width: 100%;
-      z-index: 2;
+      /* Above OUT/IN labels so appointments remain the pointer target. */
+      z-index: 3;
     }
 
     &_noshow {
       @extend %highlight;
       border-radius: 0.25rem;
       overflow: hidden;
-      z-index: 2;
+      z-index: 3;
     }
 
     &_reserved {
       @extend %highlight;
       border-radius: 0.25rem;
       overflow: hidden;
-      z-index: 2;
+      z-index: 3;
     }
 
     &_holiday {
@@ -487,7 +488,7 @@ $side-calendar-date-padding: 0.3rem !default;
       border-radius: 0.25rem;
       overflow: hidden;
       width: 100% !important;
-      z-index: 2;
+      z-index: 3;
     }
 
     &_time {
@@ -546,7 +547,7 @@ $side-calendar-date-padding: 0.3rem !default;
     font-weight: bold;
     margin: 0;
     opacity: 1;
-    z-index: 2;
+    z-index: 4;
   }
 
   .pop-up img {
