@@ -29,6 +29,8 @@ ccdaservice/node_modules
 .DS_Store
 .buildpath
 .project
+.claude/
+
 .settings
 
 # testing
