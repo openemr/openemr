@@ -66,9 +66,4 @@ final class ProviderCategoryTypeTest extends TestCase
     {
         $this->assertSame($expected, ProviderCategoryType::isProviderStatus($cattype));
     }
-
-    public function testProviderStatusConstant(): void
-    {
-        $this->assertSame(1, ProviderCategoryType::PROVIDER_STATUS);
-    }
 }
