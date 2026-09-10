@@ -19,6 +19,7 @@
 */
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 
 // These variables are used to compute the service with highest CYP.
 //
@@ -31,8 +32,8 @@ $contraception_billing_prov = 0;
 //
 function _contraception_billing_check($code_type, $code, $provider): void
 {
-    global $code_types;
     global $contraception_billing_code, $contraception_billing_cyp, $contraception_billing_prov;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     if ($code_type != 'MA') {
         return;

@@ -27,8 +27,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-require_once(__DIR__  . '/../../custom/code_types.inc.php');
-
 class BaseService implements BaseServiceInterface
 {
     private $fields;

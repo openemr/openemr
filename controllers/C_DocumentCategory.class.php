@@ -1,7 +1,5 @@
 <?php
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
-
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;

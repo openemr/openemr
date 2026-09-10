@@ -25,7 +25,6 @@
 
 require_once('../globals.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
 // for the "Clinic" column as opposed to receipts for the practitioner.  Each
 // practice will have its own policies in this regard, so you'll probably

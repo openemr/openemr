@@ -21,7 +21,6 @@
 
 
 require_once("../globals.php");
-require_once("../../custom/code_types.inc.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

@@ -17,7 +17,6 @@
 require_once '../../globals.php';
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once $srcdir . '/options.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

@@ -32,7 +32,6 @@ $globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getSrcDir();
 
 require_once("$srcdir/options.inc.php");
-require_once($globalsBag->getProjectDir() . '/custom/code_types.inc.php');
 
 $formService = new FormService();
 // resolves to openemr/interface/ so that templates are found in /forms/care_plan/templates

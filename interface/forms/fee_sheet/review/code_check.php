@@ -12,9 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
+
 function diag_code_types($format = 'json', $sqlEscape = false)
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     $diagCodes = [];
     foreach ($code_types as $key => $ct) {
         if ($ct['active'] && $ct['diag']) {

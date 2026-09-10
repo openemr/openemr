@@ -1747,11 +1747,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/XmlExtended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\CodeTypesService\\:\\:\\$installedCodeTypes \\(array\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$Body \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DrugSalesService.php',

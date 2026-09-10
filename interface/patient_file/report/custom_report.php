@@ -20,7 +20,6 @@ $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActi
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/report.inc.php");
-require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 require_once $srcdir . '/ESign/Api.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/orders/single_order_results.inc.php");
 require_once($srcdir . "/appointments.inc.php");
