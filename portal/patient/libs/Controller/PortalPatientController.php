@@ -10,12 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/**
- * import supporting libraries
- */
-require_once("AppBasePortalController.php");
-require_once("Model/Patient.php");
-
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 
 /**

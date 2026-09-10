@@ -10,9 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/Criteria.php");
-
 /**
  * OnsiteActivityViewCriteria allows custom querying for the OnsiteActivityView object.
  *

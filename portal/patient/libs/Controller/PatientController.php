@@ -15,11 +15,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
- * import supporting libraries
- */
-require_once("AppBasePortalController.php");
-require_once("Model/Patient.php");
-/**
  * PatientController is the controller class for the Patient object.
  * The
  * controller is responsible for processing input from the user, reading/updating

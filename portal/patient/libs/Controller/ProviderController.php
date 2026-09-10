@@ -14,11 +14,6 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-/** import supporting libraries */
-
-
-require_once("AppBasePortalController.php");
-
 /**
  * DefaultController is the entry point to the application
  *

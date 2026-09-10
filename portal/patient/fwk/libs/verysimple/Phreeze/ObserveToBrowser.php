@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("IObserver.php");
-
-/**
  * ObserverToBrowser is an implementation of IObserver that prints all
  * messages to the browser
  *

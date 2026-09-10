@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("IObservable.php");
-
-/**
  * Observable is an abstract implementation of IObservable
  *
  * @package verysimple::Phreeze

@@ -13,10 +13,6 @@
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Core\OEGlobalsBag;
 
-/** import supporting libraries */
-require_once("AppBasePortalController.php");
-require_once("Model/OnsitePortalActivity.php");
-
 /**
  * OnsitePortalActivityController is the controller class for the OnsitePortalActivity object.  The
  * controller is responsible for processing input from the user, reading/updating
