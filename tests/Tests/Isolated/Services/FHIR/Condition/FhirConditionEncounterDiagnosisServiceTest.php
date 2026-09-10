@@ -67,6 +67,23 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $this->assertEquals('Essential (primary) hypertension', $fhirResource->getCode()->getText());
     }
 
+    public function testParseOpenEMRRecordKeepsSameCodeFromDifferentSystems(): void
+    {
+        // A code value can repeat across systems; both codings must survive
+        $record = $this->getDefaultOpenEMRRecord();
+        $record['diagnosis'] = 'ICD10:123;SNOMED:123';
+        $record['title'] = 'Shared code value';
+
+        $fhirResource = (new FhirConditionEncounterDiagnosisService())->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
+
+        $codings = $fhirResource->getCode()->getCoding();
+        $this->assertCount(2, $codings);
+        $systems = [(string)$codings[0]->getSystem(), (string)$codings[1]->getSystem()];
+        $this->assertContains(FhirCodeSystemConstants::HL7_ICD10, $systems);
+        $this->assertContains(FhirCodeSystemConstants::SNOMED_CT, $systems);
+    }
+
     public function testParseOpenEMRRecord(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
