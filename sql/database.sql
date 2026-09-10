@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 543
+-- v_database: 544
 --
 
 --
@@ -9894,6 +9894,7 @@ CREATE TABLE `users_secure` (
   `login_fail_counter` INT(11) DEFAULT '0',
   `last_login_fail` datetime DEFAULT NULL,
   `auto_block_emailed` tinyint DEFAULT 0,
+  `force_new_password` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'When 1, the user must change their password at next login',
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
