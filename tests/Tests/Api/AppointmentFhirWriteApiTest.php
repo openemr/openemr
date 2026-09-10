@@ -3,9 +3,12 @@
 /**
  * FHIR Appointment API (HTTP write) tests.
  *
- * Drives real HTTP POST/PUT through OAuth against /apis/default/fhir/Appointment
- * so routing, scope enforcement, and serialization are exercised end to end —
- * the path the service-layer CRUD tests bypass.
+ * Drives real HTTP POST through OAuth against /apis/default/fhir/Appointment so
+ * routing, scope enforcement, and serialization are exercised end to end — the path
+ * the service-layer CRUD tests bypass.
+ *
+ * Create only: there is no PUT /fhir/Appointment/{uuid} route, and FhirAppointmentService
+ * implements no update path. Add a PUT test here when that route lands.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -42,7 +45,7 @@ class AppointmentFhirWriteApiTest extends TestCase
     {
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
         $this->testClient = new ApiTestClient($baseUrl, false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setAuthTokenOrFail(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FixtureManager();
         $this->facilityFixtureManager = new FacilityFixtureManager();
@@ -113,7 +116,7 @@ class AppointmentFhirWriteApiTest extends TestCase
             'POST ' . self::RESOURCE_URL . ' should return 201. Body: ' . $body
         );
         $contents = json_decode($body, true);
-        $this->assertIsArray($contents);
+        $this->assertIsArray($contents, 'Create response should be a JSON object. Body: ' . $body);
         $this->assertArrayHasKey(self::ID_KEY, $contents, 'Create response should carry the new resource id');
         $this->assertIsString($contents[self::ID_KEY]);
     }

@@ -25,6 +25,8 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -331,12 +333,27 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     /**
      * Updates an existing `users` row via PractitionerService.
      *
+     * PractitionerService::update() reads the row back through PractitionerService::search(),
+     * which only returns `users` rows carrying an NPI *and* either a username or one of the
+     * address-book types. A Person written through this service has the NPI but neither of
+     * the others, so the read-back came back empty and a successful update answered 404 with
+     * an empty body. Person reads come from UserService (see searchForOpenEMRRecords), so the
+     * read-back does too. A genuinely missing uuid still yields no data here, which is the
+     * 404 the caller should get.
+     *
      * @param string $fhirResourceId The users.uuid string
      * @param array<array-key, mixed> $updatedOpenEMRRecord
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        return $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
+        $processingResult = $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
+        if ($processingResult->hasErrors() || $processingResult->hasData()) {
+            return $processingResult;
+        }
+
+        return $this->searchForOpenEMRRecords([
+            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($fhirResourceId, null, true)]),
+        ]);
     }
 
     /**

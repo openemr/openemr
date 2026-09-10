@@ -98,6 +98,15 @@ class ServerScopeListEntity
                 'PractitionerRole',
                 'Procedure',
                 'Provenance',
+                // These four are writable (see $fhirWriteResources) but had no v1 read scope, so
+                // a client could hold user/<Resource>.write or user/<Resource>.rs but never both:
+                // the scope-authorize form groups its checkboxes by resource and reconstructs one
+                // version per resource, so mixing a v1 write with a v2 read silently drops the
+                // write from the approved set.
+                'Questionnaire',
+                'QuestionnaireResponse',
+                'RelatedPerson',
+                'ServiceRequest',
                 'ValueSet',
                 'OperationDefinition',
             ];
@@ -119,6 +128,8 @@ class ServerScopeListEntity
                 'Person',
                 'Practitioner',
                 'PractitionerRole',
+                'Questionnaire',
+                'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
             ];

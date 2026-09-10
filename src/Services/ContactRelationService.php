@@ -89,8 +89,14 @@ class ContactRelationService extends BaseService
         $rawAddresses = $data['addresses'] ?? null;
         $addresses = is_array($rawAddresses) ? $rawAddresses : [];
 
+        // PersonService rejects some records on business rules rather than on anything being
+        // broken -- its duplicate check (first_name + last_name + birth_date) is the common one.
+        // Those come back as validation messages, and the caller has to be able to tell them
+        // apart from a genuine failure, or the client gets a 500 for a request it could fix.
+        $personValidationMessages = [];
+
         try {
-            $out = QueryUtils::inTransaction(function () use ($pid, $relationship, $data, $telecoms, $addresses): array {
+            $out = QueryUtils::inTransaction(function () use ($pid, $relationship, $data, $telecoms, $addresses, &$personValidationMessages): array {
                 $personService = new PersonService();
                 $personResult = $personService->create([
                     'first_name' => $data['first_name'] ?? '',
@@ -100,9 +106,13 @@ class ContactRelationService extends BaseService
                     'birth_date' => $data['birth_date'] ?? '',
                 ]);
                 if (!$personResult->isValid() || !$personResult->hasData()) {
-                    throw new \RuntimeException(
-                        'Failed to create person: ' . json_encode($personResult->getValidationMessages())
-                    );
+                    $messages = $personResult->getValidationMessages();
+                    $personValidationMessages = is_array($messages) && $messages !== []
+                        ? $messages
+                        : ['person' => 'Person could not be created'];
+                    // Unwinds the transaction; the messages captured above are what the caller
+                    // reports, so this message is never shown to a client.
+                    throw new \RuntimeException('Person validation failed');
                 }
                 $personRows = $personResult->getData();
                 $personRow = is_array($personRows) ? ($personRows[0] ?? null) : null;
@@ -150,6 +160,12 @@ class ContactRelationService extends BaseService
 
             $result->addData($out);
         } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            if ($personValidationMessages !== []) {
+                // A rejected resource, not a server fault. Reporting it as an internal error
+                // would answer 500 and hide the reason behind a correlation id.
+                $result->setValidationMessages($personValidationMessages);
+                return $result;
+            }
             $this->getLogger()->error('RelatedPerson insert failed', ['exception' => $e]);
             $result->addInternalError('RelatedPerson could not be created');
         }
@@ -184,6 +200,10 @@ class ContactRelationService extends BaseService
             return $result;
         }
 
+        // As on the insert path: a demographics update PersonService rejects on business rules
+        // is a rejected resource, not a server fault, and has to be reported as such.
+        $personValidationMessages = [];
+
         // The lookups below hit the database and getOrCreateForEntity() can write, so they
         // sit inside the try alongside the transaction rather than ahead of it.
         try {
@@ -214,7 +234,7 @@ class ContactRelationService extends BaseService
                 return $result;
             }
 
-            QueryUtils::inTransaction(function () use ($personId, $ownerContactId, $uuid, $data): array {
+            QueryUtils::inTransaction(function () use ($personId, $ownerContactId, $uuid, $data, &$personValidationMessages): array {
                 $personService = new PersonService();
                 $personUpdate = array_filter([
                     'first_name' => $data['first_name'] ?? null,
@@ -224,7 +244,17 @@ class ContactRelationService extends BaseService
                     'birth_date' => $data['birth_date'] ?? null,
                 ], static fn($v): bool => $v !== null);
                 if ($personUpdate !== []) {
-                    $personService->update($personId, $personUpdate);
+                    // The result was previously discarded, so a rejected demographics update
+                    // (an invalid gender, a death date before the birth date) was swallowed and
+                    // the PUT still answered 200.
+                    $personResult = $personService->update($personId, $personUpdate);
+                    if (!$personResult->isValid()) {
+                        $messages = $personResult->getValidationMessages();
+                        $personValidationMessages = is_array($messages) && $messages !== []
+                            ? $messages
+                            : ['person' => 'Person could not be updated'];
+                        throw new \RuntimeException('Person validation failed');
+                    }
                 }
 
                 $targetContact = $this->contactService->getOrCreateForEntity('person', $personId);
@@ -277,6 +307,10 @@ class ContactRelationService extends BaseService
                 return ['uuid' => $uuid, 'person_id' => $personId];
             });
         } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            if ($personValidationMessages !== []) {
+                $result->setValidationMessages($personValidationMessages);
+                return $result;
+            }
             $this->getLogger()->error('RelatedPerson update failed', ['uuid' => $uuid, 'exception' => $e]);
             $result->addInternalError('RelatedPerson could not be updated');
             return $result;

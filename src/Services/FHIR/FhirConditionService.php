@@ -46,13 +46,31 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      */
     private $conditionService;
 
+    private FhirConditionProblemListItemService $problemListItemService;
+
     public function __construct()
     {
         parent::__construct();
+        $this->problemListItemService = new FhirConditionProblemListItemService();
         $this->addMappedService(new FhirConditionEncounterDiagnosisService());
-        $this->addMappedService(new FhirConditionProblemListItemService());
+        $this->addMappedService($this->problemListItemService);
         $this->addMappedService(new FhirConditionHealthConcernService());
         $this->conditionService = new ConditionService();
+    }
+
+    /**
+     * Re-emits a stored row as a FHIR resource. FhirServiceBase::update() calls this to build
+     * the body of a PUT response, so leaving it on the empty trait answers a successful update
+     * with a null body. The write path runs through ConditionService, which only ever writes
+     * `lists` rows of type 'medical_problem', so the problem-list-item mapping is the one that
+     * re-emits them.
+     *
+     * @param array<array-key, mixed> $dataRecord
+     * @param bool $encode
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    {
+        return $this->problemListItemService->parseOpenEMRRecord($dataRecord, $encode);
     }
 
     public function setSystemLogger(LoggerInterface $systemLogger): void

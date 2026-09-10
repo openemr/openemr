@@ -1340,6 +1340,42 @@ return [
         $return = (new FhirQuestionnaireRestController($logger, $fhirQuestionnaireService))->list($request);
         return $return;
     },
+    "GET /fhir/Questionnaire/:uuid" => function (string $uuid, HttpRestRequest $request) {
+        // Matches the sibling list route's posture: Questionnaire is definitional rather than
+        // patient data, and the list route carries no ACL of its own.
+        $logger = ServiceContainer::getLogger();
+        $fhirQuestionnaireService = new FhirQuestionnaireService();
+        $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireFormService());
+        $return = (new FhirQuestionnaireRestController($logger, $fhirQuestionnaireService))->one($request, $uuid);
+        return $return;
+    },
+
+    "POST /fhir/Questionnaire" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        // The questionnaire repository is a definitional resource shared by every patient, so
+        // authoring one is gated the same way the other definitional writes are.
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirQuestionnaireService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Questionnaire");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->post($data);
+    },
+
+    "PUT /fhir/Questionnaire/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirQuestionnaireService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Questionnaire");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request) {
         // Non-patient callers (user-scope OAuth tokens or APICSRFTOKEN
         // core-session paths) previously reached the controller with no
@@ -1365,6 +1401,32 @@ return [
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->one($request, $uuid);
         return $return;
     },
+    "POST /fhir/QuestionnaireResponse" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        // Same gate the sibling read routes use; the generic controller rejects patient-scope
+        // tokens for writes outright.
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirQuestionnaireResponseService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("QuestionnaireResponse");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    "PUT /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirQuestionnaireResponseService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("QuestionnaireResponse");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/ValueSet" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
         $return = (new FhirValueSetRestController())->getAll($request->getQueryParams());

@@ -109,6 +109,12 @@ class FhirConditionServiceCrudTest extends TestCase
         $this->fhirConditionFixture->setId(self::fhirId($fhirId));
         $actualResult = $this->fhirConditionService->update($fhirId, $this->fhirConditionFixture);
         $this->assertTrue($actualResult->isValid(), "Update should succeed: " . json_encode($actualResult->getValidationMessages()));
+
+        // FhirServiceBase::update() re-shapes the stored row through parseOpenEMRRecord(); an
+        // aggregator that leaves that on the empty trait answers a successful PUT with a null body.
+        $resource = $actualResult->getFirstDataResult();
+        $this->assertInstanceOf(FHIRCondition::class, $resource);
+        $this->assertSame($fhirId, $resource->getId()->getValue());
     }
 
     #[Test]

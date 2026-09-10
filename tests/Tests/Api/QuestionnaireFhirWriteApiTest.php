@@ -1,16 +1,16 @@
 <?php
 
 /**
- * FHIR CarePlan API (HTTP write) tests.
+ * FHIR Questionnaire API (HTTP write) tests.
  *
- * Drives real HTTP POST/PUT through OAuth against /apis/default/fhir/CarePlan
+ * Drives real HTTP POST/PUT through OAuth against /apis/default/fhir/Questionnaire
  * so routing, scope enforcement, and serialization are exercised end to end —
  * the path the service-layer CRUD tests bypass.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,24 +19,18 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
-use OpenEMR\Services\FHIR\FhirEncounterService;
-use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class CarePlanFhirWriteApiTest extends TestCase
+class QuestionnaireFhirWriteApiTest extends TestCase
 {
-    private const RESOURCE_URL = '/apis/default/fhir/CarePlan';
-    private const RESOURCE_TYPE = 'CarePlan';
+    private const RESOURCE_URL = '/apis/default/fhir/Questionnaire';
+    private const RESOURCE_TYPE = 'Questionnaire';
+    private const TITLE_PREFIX = 'test-fixture Questionnaire';
 
     private ApiTestClient $testClient;
-    private FixtureManager $fixtureManager;
     /** @var array<string, mixed> */
     private array $fhirFixture;
-    private string $patientUuid;
-    private string $encounterUuid;
 
     protected function setUp(): void
     {
@@ -44,52 +38,17 @@ class CarePlanFhirWriteApiTest extends TestCase
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthTokenOrFail(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
-        $this->fixtureManager = new FixtureManager();
-        $this->fixtureManager->installPatientFixtures();
-        $patients = $this->fixtureManager->getPatientFixtures();
-        $firstPatient = $patients[0];
-        $this->assertIsArray($firstPatient);
-        $patientRecord = QueryUtils::querySingleRow(
-            'SELECT uuid FROM patient_data WHERE pubpid = ?',
-            [$firstPatient['pubpid']]
-        );
-        $this->assertIsArray($patientRecord);
-        $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
-
-        // Create an encounter to host the care plan.
-        $encounterFixtureData = json_decode(
-            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/encounter.json'),
-            true
-        );
-        $this->assertIsArray($encounterFixtureData);
-        $encounterFixture = $encounterFixtureData[0];
-        $this->assertIsArray($encounterFixture);
-        $encounterFixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
-        $encounterResource = new FHIREncounter($encounterFixture);
-
-        $encounterService = new FhirEncounterService();
-        $encounterResult = $encounterService->insert($encounterResource);
-        $this->assertTrue(
-            $encounterResult->isValid(),
-            'Encounter insert (setup) failed: ' . json_encode($encounterResult->getValidationMessages())
-        );
-        $encounterResultData = $encounterResult->getData();
-        $this->assertIsArray($encounterResultData);
-        $encounterData = $encounterResultData[0];
-        $this->assertIsArray($encounterData);
-        $this->assertIsString($encounterData['euuid']);
-        $this->encounterUuid = $encounterData['euuid'];
-
         $fixtureData = json_decode(
-            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/care-plan.json'),
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/questionnaire.json'),
             true
         );
         $this->assertIsArray($fixtureData);
         $fixture = $fixtureData[0];
         $this->assertIsArray($fixture);
-        $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
-        $fixture['encounter'] = ['reference' => 'Encounter/' . $this->encounterUuid];
-        unset($fixture['id']);
+        // the repository keys questionnaires by title, so each run gets its own
+        $fixture['title'] = self::TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        unset($fixture['id'], $fixture['url']);
+
         $stringKeyedFixture = [];
         foreach ($fixture as $key => $value) {
             $this->assertIsString($key);
@@ -100,16 +59,19 @@ class CarePlanFhirWriteApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeCarePlanFixtures();
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%'"
+            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name LIKE ?)",
+            [self::TITLE_PREFIX . '%']
         );
-        $this->fixtureManager->removePatientFixtures();
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM questionnaire_repository WHERE name LIKE ?",
+            [self::TITLE_PREFIX . '%']
+        );
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }
 
-    public function testPostCreatesCarePlan(): void
+    public function testPostCreatesQuestionnaire(): void
     {
         $response = $this->testClient->post(self::RESOURCE_URL, $this->fhirFixture);
         $body = $response->getBody()->getContents();
@@ -124,7 +86,7 @@ class CarePlanFhirWriteApiTest extends TestCase
         $this->assertIsString($contents['uuid']);
     }
 
-    public function testPutUpdatesCarePlan(): void
+    public function testPutUpdatesQuestionnaire(): void
     {
         $createResponse = $this->testClient->post(self::RESOURCE_URL, $this->fhirFixture);
         $createBody = $createResponse->getBody()->getContents();
@@ -141,6 +103,7 @@ class CarePlanFhirWriteApiTest extends TestCase
 
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
+        $updated['status'] = 'retired';
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
         $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
@@ -158,17 +121,31 @@ class CarePlanFhirWriteApiTest extends TestCase
         );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
+
+        // GET /fhir/Questionnaire/{uuid} — the resource was list-only until this route landed,
+        // so a client could create one and then have no way to read it back by id.
+        $readResponse = $this->testClient->get(self::RESOURCE_URL . '/' . $id);
+        $readBody = $readResponse->getBody()->getContents();
+        $this->assertSame(
+            Response::HTTP_OK,
+            $readResponse->getStatusCode(),
+            'GET ' . self::RESOURCE_URL . '/{id} should return 200. Body: ' . $readBody
+        );
+        $readContents = json_decode($readBody, true);
+        $this->assertIsArray($readContents, 'Body: ' . $readBody);
+        $this->assertSame(self::RESOURCE_TYPE, $readContents['resourceType'] ?? null);
+        $this->assertSame($id, $readContents['id'] ?? null);
     }
 
-    public function testPostWithoutSubjectReturnsError(): void
+    public function testPostWithoutStatusReturnsError(): void
     {
         $invalid = $this->fhirFixture;
-        unset($invalid['subject']);
+        unset($invalid['status']);
         $response = $this->testClient->post(self::RESOURCE_URL, $invalid);
         $this->assertSame(
             Response::HTTP_BAD_REQUEST,
             $response->getStatusCode(),
-            'POST without subject should return 400. Body: ' . $response->getBody()->getContents()
+            'POST without status should return 400. Body: ' . $response->getBody()->getContents()
         );
     }
 }

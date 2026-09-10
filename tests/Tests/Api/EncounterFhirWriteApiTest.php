@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 class EncounterFhirWriteApiTest extends TestCase
 {
     private const RESOURCE_URL = '/apis/default/fhir/Encounter';
+    private const RESOURCE_TYPE = 'Encounter';
     private const ID_KEY = 'euuid';
 
     private ApiTestClient $testClient;
@@ -39,7 +40,7 @@ class EncounterFhirWriteApiTest extends TestCase
     {
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
         $this->testClient = new ApiTestClient($baseUrl, false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setAuthTokenOrFail(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installPatientFixtures();
@@ -90,30 +91,45 @@ class EncounterFhirWriteApiTest extends TestCase
             'POST ' . self::RESOURCE_URL . ' should return 201. Body: ' . $body
         );
         $contents = json_decode($body, true);
-        $this->assertIsArray($contents);
+        $this->assertIsArray($contents, 'Create response should be a JSON object. Body: ' . $body);
         $this->assertArrayHasKey(self::ID_KEY, $contents, 'Create response should carry the new resource id');
         $this->assertIsString($contents[self::ID_KEY]);
     }
 
     public function testPutUpdatesEncounter(): void
     {
-        $created = json_decode(
-            $this->testClient->post(self::RESOURCE_URL, $this->fhirFixture)->getBody()->getContents(),
-            true
+        $createResponse = $this->testClient->post(self::RESOURCE_URL, $this->fhirFixture);
+        $createBody = $createResponse->getBody()->getContents();
+        $this->assertSame(
+            Response::HTTP_CREATED,
+            $createResponse->getStatusCode(),
+            'POST ' . self::RESOURCE_URL . ' should return 201. Body: ' . $createBody
         );
-        $this->assertIsArray($created);
-        $this->assertArrayHasKey(self::ID_KEY, $created);
+        $created = json_decode($createBody, true);
+        $this->assertIsArray($created, 'Create response should be a JSON object. Body: ' . $createBody);
+        $this->assertArrayHasKey(self::ID_KEY, $created, 'Create response should carry the new resource id. Body: ' . $createBody);
         $id = $created[self::ID_KEY];
         $this->assertIsString($id);
 
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
+        $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
             Response::HTTP_OK,
             $putResponse->getStatusCode(),
-            'PUT ' . self::RESOURCE_URL . '/{id} should return 200. Body: ' . $putResponse->getBody()->getContents()
+            'PUT ' . self::RESOURCE_URL . '/{id} should return 200. Body: ' . $putBody
         );
+        // FhirServiceBase::update() re-shapes the stored row through parseOpenEMRRecord()
+        // to build this body. A service that leaves that on FhirServiceBaseEmptyTrait
+        // answers a successful PUT with null, which the status code alone does not reveal.
+        $putContents = json_decode($putBody, true);
+        $this->assertIsArray(
+            $putContents,
+            'PUT should answer with the updated resource, not a null body. Body: ' . $putBody
+        );
+        $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
+        $this->assertSame($id, $putContents['id'] ?? null);
     }
 
     public function testPostWithoutSubjectReturnsError(): void

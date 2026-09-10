@@ -1,16 +1,16 @@
 <?php
 
 /**
- * FHIR CarePlan API (HTTP write) tests.
+ * FHIR QuestionnaireResponse API (HTTP write) tests.
  *
- * Drives real HTTP POST/PUT through OAuth against /apis/default/fhir/CarePlan
+ * Drives real HTTP POST/PUT through OAuth against /apis/default/fhir/QuestionnaireResponse
  * so routing, scope enforcement, and serialization are exercised end to end —
  * the path the service-layer CRUD tests bypass.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,23 +20,22 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
-use OpenEMR\Services\FHIR\FhirEncounterService;
+use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class CarePlanFhirWriteApiTest extends TestCase
+class QuestionnaireResponseFhirWriteApiTest extends TestCase
 {
-    private const RESOURCE_URL = '/apis/default/fhir/CarePlan';
-    private const RESOURCE_TYPE = 'CarePlan';
+    private const RESOURCE_URL = '/apis/default/fhir/QuestionnaireResponse';
+    private const RESOURCE_TYPE = 'QuestionnaireResponse';
+    private const QUESTIONNAIRE_TITLE_PREFIX = 'test-fixture QR Questionnaire';
 
     private ApiTestClient $testClient;
     private FixtureManager $fixtureManager;
     /** @var array<string, mixed> */
     private array $fhirFixture;
-    private string $patientUuid;
-    private string $encounterUuid;
+    private string $questionnaireUuid;
 
     protected function setUp(): void
     {
@@ -54,42 +53,21 @@ class CarePlanFhirWriteApiTest extends TestCase
             [$firstPatient['pubpid']]
         );
         $this->assertIsArray($patientRecord);
-        $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
+        $patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
 
-        // Create an encounter to host the care plan.
-        $encounterFixtureData = json_decode(
-            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/encounter.json'),
-            true
-        );
-        $this->assertIsArray($encounterFixtureData);
-        $encounterFixture = $encounterFixtureData[0];
-        $this->assertIsArray($encounterFixture);
-        $encounterFixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
-        $encounterResource = new FHIREncounter($encounterFixture);
-
-        $encounterService = new FhirEncounterService();
-        $encounterResult = $encounterService->insert($encounterResource);
-        $this->assertTrue(
-            $encounterResult->isValid(),
-            'Encounter insert (setup) failed: ' . json_encode($encounterResult->getValidationMessages())
-        );
-        $encounterResultData = $encounterResult->getData();
-        $this->assertIsArray($encounterResultData);
-        $encounterData = $encounterResultData[0];
-        $this->assertIsArray($encounterData);
-        $this->assertIsString($encounterData['euuid']);
-        $this->encounterUuid = $encounterData['euuid'];
+        $this->questionnaireUuid = $this->installQuestionnaire();
 
         $fixtureData = json_decode(
-            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/care-plan.json'),
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/questionnaire-response.json'),
             true
         );
         $this->assertIsArray($fixtureData);
         $fixture = $fixtureData[0];
         $this->assertIsArray($fixture);
-        $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
-        $fixture['encounter'] = ['reference' => 'Encounter/' . $this->encounterUuid];
+        $fixture['questionnaire'] = 'Questionnaire/' . $this->questionnaireUuid;
+        $fixture['subject'] = ['reference' => 'Patient/' . $patientUuid];
         unset($fixture['id']);
+
         $stringKeyedFixture = [];
         foreach ($fixture as $key => $value) {
             $this->assertIsString($key);
@@ -100,16 +78,28 @@ class CarePlanFhirWriteApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeCarePlanFixtures();
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%'"
+            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_name LIKE ?)",
+            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM questionnaire_response WHERE questionnaire_name LIKE ?",
+            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name LIKE ?)",
+            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM questionnaire_repository WHERE name LIKE ?",
+            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
         );
         $this->fixtureManager->removePatientFixtures();
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }
 
-    public function testPostCreatesCarePlan(): void
+    public function testPostCreatesQuestionnaireResponse(): void
     {
         $response = $this->testClient->post(self::RESOURCE_URL, $this->fhirFixture);
         $body = $response->getBody()->getContents();
@@ -124,7 +114,7 @@ class CarePlanFhirWriteApiTest extends TestCase
         $this->assertIsString($contents['uuid']);
     }
 
-    public function testPutUpdatesCarePlan(): void
+    public function testPutUpdatesQuestionnaireResponse(): void
     {
         $createResponse = $this->testClient->post(self::RESOURCE_URL, $this->fhirFixture);
         $createBody = $createResponse->getBody()->getContents();
@@ -141,6 +131,7 @@ class CarePlanFhirWriteApiTest extends TestCase
 
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
+        $updated['status'] = 'amended';
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
         $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
@@ -170,5 +161,27 @@ class CarePlanFhirWriteApiTest extends TestCase
             $response->getStatusCode(),
             'POST without subject should return 400. Body: ' . $response->getBody()->getContents()
         );
+    }
+
+    /**
+     * Installs a questionnaire in the repository and returns its uuid.
+     */
+    private function installQuestionnaire(): string
+    {
+        $questionnaireData = json_decode(
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/questionnaire.json'),
+            true
+        );
+        $this->assertIsArray($questionnaireData);
+        $questionnaire = $questionnaireData[0];
+        $this->assertIsArray($questionnaire);
+        $questionnaire['title'] = self::QUESTIONNAIRE_TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        unset($questionnaire['id'], $questionnaire['url']);
+
+        $rowId = (new QuestionnaireService())->saveQuestionnaireResource($questionnaire);
+        $this->assertNotEmpty($rowId);
+        $binUuid = QueryUtils::fetchSingleValue('SELECT uuid FROM questionnaire_repository WHERE id = ?', 'uuid', [$rowId]);
+
+        return UuidRegistry::uuidToString($binUuid);
     }
 }
