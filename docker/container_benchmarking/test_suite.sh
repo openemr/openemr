@@ -1319,6 +1319,28 @@ test_docker_upgrade() {
     local flex_env_vars
     flex_env_vars=$(get_flex_env_vars)
 
+    # Pre-write the code-version bind-mount source (see openemr volumes below).
+    # openemr.sh's check_upgrade requires /root/docker-version to equal the code
+    # copy at ${OE_ROOT}/docker-version for an upgrade to fire. In a production
+    # image both come from the same build so they always match; in a locally-
+    # built branch-cut PR image the /root/ copy is ahead (bumped by the PR)
+    # while the code copy came from a fresh git clone of the target branch
+    # that predates the PR merge. openemr.sh resyncs at fresh-install but that
+    # write lives in the writable layer and is wiped by Step 3's recreate.
+    # Bind-mounting a host file over the code copy makes the value survive.
+    if ! docker run --rm --entrypoint cat "${IMAGE_TAG}" /root/docker-version \
+            > "${test_dir}/code-version-override" 2>/dev/null; then
+        log_test_result "${test_name}" "FAIL" "Could not read /root/docker-version from image for bind-mount override"
+        return 1
+    fi
+    if [[ ! -s "${test_dir}/code-version-override" ]]; then
+        log_test_result "${test_name}" "FAIL" "/root/docker-version was empty in image; cannot prepare bind-mount override"
+        return 1
+    fi
+    local override_version
+    override_version=$(cat "${test_dir}/code-version-override" 2>/dev/null || echo "?")
+    log_info "Code-version bind-mount override pinned to: ${override_version}"
+
     cat > "${test_dir}/docker-compose.yml" <<EOF
 
 services:
@@ -1357,6 +1379,10 @@ services:
       - "8088:80"
     volumes:
       - upgrade_sites:/var/www/localhost/htdocs/openemr/sites
+      # Bind-mount pins the code-version file so it survives Step 3's recreate.
+      # Prepared above from /root/docker-version inside the built image; see
+      # the comment on that block for the full rationale.
+      - ${test_dir}/code-version-override:/var/www/localhost/htdocs/openemr/docker-version:ro
     healthcheck:
       test: ["CMD", "curl", "-fsSLo", "/dev/null", "http://localhost/"]
       start_period: 10m
