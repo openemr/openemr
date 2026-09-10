@@ -13,12 +13,6 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
- * import supporting libraries
- */
-require_once("AppBasePortalController.php");
-require_once("Model/OnsiteActivityView.php");
-
-/**
  * OnsiteActivityViewController is the controller class for the OnsiteActivityView object.
  * The
  * controller is responsible for processing input from the user, reading/updating

@@ -97,10 +97,8 @@ class GlobalConfig
     public static function Init()
     {
         if (!self::$IS_INITIALIZED) {
-            require_once 'verysimple/HTTP/RequestUtil.php';
             RequestUtil::NormalizeUrlRewrite();
 
-            require_once 'verysimple/Phreeze/PortalController.php';
             PortalController::$SmartyViewPrefix = '';
             PortalController::$DefaultRedirectMode = 'header';
 
@@ -144,7 +142,6 @@ class GlobalConfig
     public function GetRouter()
     {
         if ($this->router == null) {
-            require_once("verysimple/Phreeze/GenericRouter.php");
             $this->router = new GenericRouter(self::$ROOT_URL, self::GetDefaultAction(), self::$ROUTE_MAP);
         }
 
@@ -179,12 +176,10 @@ class GlobalConfig
     {
         if ($this->phreezer == null) {
             if (!self::$CONVERT_NULL_TO_EMPTYSTRING) {
-                require_once("verysimple/DB/DatabaseConfig.php");
                 DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING = false;
             }
 
             if (self::$DEBUG_MODE) {
-                require_once("verysimple/Phreeze/ObserveToSmarty.php");
                 $observer = new ObserveToSmarty($this->GetRenderEngine());
                 $this->phreezer = new Phreezer(self::$CONNECTION_SETTING, $observer);
             } else {
@@ -207,10 +202,6 @@ class GlobalConfig
     {
         if ($this->render_engine == null) {
             $engine_class = self::$TEMPLATE_ENGINE;
-            if (!class_exists($engine_class)) {
-                require_once 'verysimple/Phreeze/' . $engine_class  . '.php';
-            }
-
             $engine = new $engine_class(self::$TEMPLATE_PATH, self::$TEMPLATE_CACHE_PATH);
             if (!$engine instanceof IRenderEngine) {
                 throw new \LogicException(sprintf('Template engine %s must implement %s', $engine_class, IRenderEngine::class));

@@ -2,8 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-require_once("IRenderEngine.php");
-require_once('savant/Savant3.php');
 
 /**
  * Implementation of IRenderEngine that uses Savant as the template language

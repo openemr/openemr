@@ -3,15 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
-* import supporting libraries
-*/
-require_once("Observable.php");
-require_once("Criteria.php");
-require_once("DataAdapter.php");
-require_once("CacheRam.php");
-require_once("CacheNoCache.php");
-require_once("verysimple/IO/Includer.php");
-/**
 * The Phreezer class is a factory for obtaining and working with Phreezable (persistable)
 * objects.
 * The Phreezer is generally the starting point for the application where you
@@ -402,7 +393,6 @@ class Phreezer extends Observable
         $obj = null;
         $objs = $this->Query($objectclass, $criteria, $cache_timeout)->ToObjectArray();
         if (count($objs) == 0) {
-            require_once("NotFoundException.php");
             throw new NotFoundException("$objectclass with specified criteria not found");
         }
 
@@ -448,14 +438,12 @@ class Phreezer extends Observable
         // the first-level fieldmaps should be from the primary table
             $fms = $this->GetFieldMaps($objectclass);
         // the query builder will handle creating the SQL for us
-            require_once("QueryBuilder.php");
             $builder = new QueryBuilder($this);
             $builder->RecurseFieldMaps($objectclass, $fms);
             $sql = $builder->GetSQL($criteria);
             $count_sql = $builder->GetCountSQL($criteria);
         }
 
-        require_once("DataSet.php");
         $ds = new DataSet($this, $objectclass, $sql, $cache_timeout);
         $ds->CountSQL = $count_sql;
         $ds->UnableToCache = $cache_timeout === 0;
@@ -503,7 +491,6 @@ class Phreezer extends Observable
     // this is cacheable
         $ds->UnableToCache = false;
         if (! $obj = $ds->Next()) {
-            require_once("NotFoundException.php");
             throw new NotFoundException("$objectclass with primary key of $id not found");
         }
 
