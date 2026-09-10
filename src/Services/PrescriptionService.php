@@ -631,6 +631,7 @@ class PrescriptionService extends BaseService
         $results = QueryUtils::sqlInsert($sql, $binds);
 
         if ($results) {
+            $this->syncMedicationList((int) $results, $filteredData);
             $processingResult->addData([
                 'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($filteredData['uuid'])
@@ -640,6 +641,36 @@ class PrescriptionService extends BaseService
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Mirror a newly created prescription onto the patient medication list.
+     *
+     * `prescriptions.medication` means "this drug also belongs on the patient's
+     * medication list". The UI honours that: {@see \Prescription::persist()}
+     * inserts the `lists` row and links it through
+     * `lists_medication.prescription_id`. This service accepted the field,
+     * wrote the column, and did none of that work, so a prescription created
+     * over the API claimed to be on the medication list while nothing had put
+     * it there.
+     *
+     * The link is not cosmetic. FHIR `MedicationRequest` reads
+     * `prescriptions UNION lists`, and the `lists` half of that union excludes
+     * rows whose `lists_medication.prescription_id` is set. Writing the `lists`
+     * row WITHOUT the link would return the same drug twice. Delegating to the
+     * legacy class keeps both writes in one place rather than duplicating them.
+     *
+     * @param int                  $prescriptionId The id of the row just inserted.
+     * @param array<string, mixed> $data           The filtered insert payload.
+     */
+    private function syncMedicationList(int $prescriptionId, array $data): void
+    {
+        $flag = $data['medication'] ?? null;
+        if (!is_scalar($flag) || (int) $flag === 0) {
+            return;
+        }
+
+        (new \Prescription($prescriptionId))->syncMedicationList();
     }
 
     /**

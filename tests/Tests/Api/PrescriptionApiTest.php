@@ -22,11 +22,14 @@ class PrescriptionApiTest extends TestCase
 {
     private const PRESCRIPTION_API_ENDPOINT = "/apis/default/api/prescription";
     private const PATIENT_API_ENDPOINT = "/apis/default/api/patient";
+    private const MEDICATION_LIST_ENDPOINT = "/apis/default/api/patient/%d/medication";
+    private const FHIR_MEDICATION_REQUEST_ENDPOINT = "/apis/default/fhir/MedicationRequest";
 
     private ApiTestClient $testClient;
     private FixtureManager $fixtureManager;
     private int $testPatientPid;
     private string $testPatientUuid;
+    private string $drugSuffix;
 
     protected function setUp(): void
     {
@@ -35,6 +38,10 @@ class PrescriptionApiTest extends TestCase
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FixtureManager();
+        // Prescriptions and list rows outlive removePatientFixtures(), and pids
+        // are reused, so a fixed drug name would let one run see the previous
+        // run's rows. Make every drug name unique to this test instance.
+        $this->drugSuffix = ' ' . bin2hex(random_bytes(4));
 
         // Create a patient via API for prescriptions
         $patientFixture = $this->fixtureManager->getSinglePatientFixture();
@@ -207,6 +214,113 @@ class PrescriptionApiTest extends TestCase
 
     /**
      * @param array<string, mixed> $data
+     * @return array{id: int, uuid: string}
+     */
+    /**
+     * `prescriptions.medication` means "this drug also belongs on the patient's
+     * medication list". The UI honours that by inserting the `lists` row and
+     * linking it. The API accepted the field, wrote the column, and did none of
+     * that work, so the row claimed a list entry that did not exist.
+     */
+    public function testPostWithMedicationFlagAddsToMedicationList(): void
+    {
+        $data = $this->buildPrescriptionData($this->drugName('Medication List Drug'));
+        $data['medication'] = 1;
+        $this->createPrescription($data);
+
+        $entries = $this->medicationListEntries();
+        $titles = array_column($entries, 'title');
+        $this->assertContains($this->drugName('Medication List Drug'), $titles, 'drug should appear on the medication list');
+
+        $entry = null;
+        foreach ($entries as $candidate) {
+            if (($candidate['title'] ?? null) === $this->drugName('Medication List Drug')) {
+                $entry = $candidate;
+                break;
+            }
+        }
+        $this->assertIsArray($entry);
+        // The list row is read back through the service layer, which needs a
+        // uuid. A row inserted without one fails on read until the
+        // missing-uuid backfill happens to run.
+        $this->assertIsString($entry['uuid'] ?? null);
+        $this->assertNotEmpty($entry['uuid']);
+    }
+
+    /**
+     * FHIR MedicationRequest reads `prescriptions UNION lists`, and the `lists`
+     * half excludes rows that carry `lists_medication.prescription_id`. Writing
+     * the list row WITHOUT that link returns the same drug twice, which is a
+     * worse outcome than the missing list entry it would fix.
+     */
+    public function testPostWithMedicationFlagDoesNotDuplicateMedicationRequest(): void
+    {
+        $data = $this->buildPrescriptionData($this->drugName('No Duplicate Drug'));
+        $data['medication'] = 1;
+        $this->createPrescription($data);
+
+        $response = $this->testClient->get(
+            self::FHIR_MEDICATION_REQUEST_ENDPOINT,
+            ['patient' => $this->testPatientUuid]
+        );
+        $this->assertEquals(200, $response->getStatusCode());
+        /** @var array{entry?: array<int, array{resource?: array<string, mixed>}>} $bundle */
+        $bundle = json_decode((string) $response->getBody(), true);
+
+        $matches = 0;
+        foreach ($bundle['entry'] ?? [] as $bundleEntry) {
+            $concept = $bundleEntry['resource']['medicationCodeableConcept'] ?? [];
+            if (is_array($concept) && ($concept['text'] ?? null) === $this->drugName('No Duplicate Drug')) {
+                $matches++;
+            }
+        }
+        $this->assertSame(1, $matches, 'one prescription must not produce two MedicationRequest resources');
+    }
+
+    public function testPostWithoutMedicationFlagLeavesItOffTheMedicationList(): void
+    {
+        $data = $this->buildPrescriptionData($this->drugName('Prescription Only Drug'));
+        $data['medication'] = 0;
+        $this->createPrescription($data);
+
+        $titles = array_column($this->medicationListEntries(), 'title');
+        $this->assertNotContains($this->drugName('Prescription Only Drug'), $titles);
+    }
+
+    private function drugName(string $base): string
+    {
+        return $base . $this->drugSuffix;
+    }
+
+    /**
+     * The medication list endpoint answers 404 rather than an empty array when
+     * the patient has no medications, so treat anything but 200 as empty.
+     *
+     * @return list<array<mixed>>
+     */
+    private function medicationListEntries(): array
+    {
+        $response = $this->testClient->get(sprintf(self::MEDICATION_LIST_ENDPOINT, $this->testPatientPid));
+        if ($response->getStatusCode() !== 200) {
+            return [];
+        }
+        $decoded = json_decode((string) $response->getBody(), true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $entries = [];
+        foreach ($decoded as $row) {
+            if (is_array($row)) {
+                $entries[] = $row;
+            }
+        }
+
+        return $entries;
+    }
+
+    /**
+     * @param  array<string, mixed> $data
      * @return array{id: int, uuid: string}
      */
     private function createPrescription(array $data): array
