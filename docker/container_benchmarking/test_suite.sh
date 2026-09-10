@@ -1455,6 +1455,38 @@ EOF
         return 1
     fi
 
+    # Prepare code-version bind-mount used only for the recreate below.
+    #
+    # openemr.sh's check_upgrade guard requires /root/docker-version to equal
+    # the code copy at ${OE_ROOT}/docker-version before it fires. In a normal
+    # production image both come from the same build so they always match; in
+    # a locally-built branch-cut PR image the /root/ copy is ahead (bumped by
+    # the PR) while the code copy came from a fresh git clone of the target
+    # branch that predates the PR merge. openemr.sh's setup writeback syncs
+    # them in the writable layer during Step 1, but the recreate in Step 3
+    # wipes the writable layer, so the code copy reverts to the git-cloned
+    # value and the guard fails again — the recreate boot skips the upgrade
+    # and the test asserts "Upgrade started: 0".
+    #
+    # The bind-mount pins the code-version file to the /root/ value across
+    # the recreate. We can't apply it during Step 1 because with the pin in
+    # place on a fresh install, the fresh-boot check_upgrade fires before
+    # openemr is configured (root == code from the pin, sites still at the
+    # git-cloned value → guard passes → run_upgrade → "Cannot upgrade -
+    # OpenEMR is not configured yet" → unhealthy container). Passing the
+    # override compose file only to the recreate's up command scopes the
+    # bind-mount to Step 3 alone.
+    log_info "Preparing code-version bind-mount for recreate..."
+    echo -n "${current_version}" > "${test_dir}/code-version-override"
+    cat > "${test_dir}/docker-compose.recreate.yml" <<EOF
+
+services:
+  openemr:
+    volumes:
+      - ${test_dir}/code-version-override:/var/www/localhost/htdocs/openemr/docker-version:ro
+EOF
+    log_info "Bind-mount override pinned to: ${current_version}"
+
     # Step 4: Recreate container to trigger upgrade check.
     # A real upgrade always ships as a new image -> new container; recreating
     # (rather than restarting) also restores setup-removed files such as
@@ -1470,7 +1502,7 @@ EOF
     # shellcheck disable=SC2310  # rm may no-op if container was never created
     run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml rm -f openemr 2>&1 | tee -a "${LOG_FILE}" || true
     # shellcheck disable=SC2310  # Error handling is explicit via if/return
-    if ! run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml up -d openemr 2>&1 | tee -a "${LOG_FILE}"; then
+    if ! run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml -f docker-compose.recreate.yml up -d openemr 2>&1 | tee -a "${LOG_FILE}"; then
         log_test_result "${test_name}" "FAIL" "Failed to recreate container"
         # shellcheck disable=SC2310  # Cleanup should not fail the test
         run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml down --volumes >/dev/null 2>&1 || true
