@@ -71,7 +71,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
             'Observation' => true
         ];
         foreach ($mappedRecords as $record) {
-            if (in_array($record['resource'], $resourceRecordsToCreate)) {
+            if (is_string($record['resource']) && array_key_exists($record['resource'], $resourceRecordsToCreate)) {
                 $resourceRecordsToCreate[$record['resource']] = false;
             }
         }
