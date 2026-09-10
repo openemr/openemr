@@ -136,26 +136,34 @@ trait FhirConditionTrait
 
     protected function populateCode($dataRecord, FHIRCondition $conditionResource, string $defaultText)
     {
-        $title = $dataRecord['title'] ?? 'Problem';
+        $title = $dataRecord['title'] ?? $defaultText;
         $diagnosis = $dataRecord['diagnosis'] ?? null;
+
+        $codings = [];
         if (is_string($diagnosis) && $diagnosis !== '') {
             // Services querying lists.diagnosis directly hand us the stored
             // "ICD10:I10." string rather than a parsed array
-            $diagnosis = $this->parseDiagnosisCodes($diagnosis, is_string($title) ? $title : '');
-        }
-
-        $diagnosisCode = new FHIRCodeableConcept();
-        if (!empty($diagnosis) && is_array($diagnosis)) {
+            $codings = $this->parseDiagnosisCodes($diagnosis, is_string($title) ? $title : '');
+        } elseif (!empty($diagnosis) && is_array($diagnosis)) {
             foreach ($diagnosis as $code => $codeValues) {
                 if (!is_string($code)) {
                     $code = "$code"; // FHIR expects a string
                 }
-                $diagnosisCoding = new FHIRCoding();
-                $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($codeValues['description']);
-                $diagnosisCoding->setSystem($codeValues['system']);
-                $diagnosisCode->addCoding($diagnosisCoding);
+                $codings[] = [
+                    'code' => $code,
+                    'description' => $codeValues['description'],
+                    'system' => $codeValues['system'],
+                ];
             }
+        }
+
+        $diagnosisCode = new FHIRCodeableConcept();
+        foreach ($codings as $coding) {
+            $diagnosisCoding = new FHIRCoding();
+            $diagnosisCoding->setCode($coding['code']);
+            $diagnosisCoding->setDisplay($coding['description']);
+            $diagnosisCoding->setSystem($coding['system']);
+            $diagnosisCode->addCoding($diagnosisCoding);
         }
         $diagnosisCode->setText($title);
         $conditionResource->setCode($diagnosisCode);
@@ -164,7 +172,9 @@ trait FhirConditionTrait
     /**
      * Parse OpenEMR's stored "TYPE:CODE" diagnosis string into coding values.
      *
-     * @return array<string, array{description: string, system: string|null}>
+     * A code value can repeat across systems, so the parsed entries stay a list.
+     *
+     * @return list<array{code: string, description: string, system: string|null}>
      */
     private function parseDiagnosisCodes(string $diagnosis, string $description): array
     {
@@ -173,7 +183,8 @@ trait FhirConditionTrait
         foreach (explode(';', $diagnosis) as $item) {
             $code = $codeTypes->parseCode($item);
             $codeType = is_string($code['code_type'] ?? null) ? $code['code_type'] : '';
-            $parsed[is_string($code['code'] ?? null) ? $code['code'] : ''] = [
+            $parsed[] = [
+                'code' => is_string($code['code'] ?? null) ? $code['code'] : '',
                 'description' => $description,
                 'system' => $codeTypes->getSystemForCodeType($codeType),
             ];
