@@ -136,16 +136,16 @@ trait FhirConditionTrait
 
     protected function populateCode($dataRecord, FHIRCondition $conditionResource, string $defaultText)
     {
+        $title = $dataRecord['title'] ?? 'Problem';
         $diagnosis = $dataRecord['diagnosis'] ?? null;
         if (is_string($diagnosis) && $diagnosis !== '') {
             // Services querying lists.diagnosis directly hand us the stored
             // "ICD10:I10." string rather than a parsed array
-            $diagnosis = $this->parseDiagnosisCodes($diagnosis, $dataRecord['title'] ?? '');
+            $diagnosis = $this->parseDiagnosisCodes($diagnosis, is_string($title) ? $title : '');
         }
 
+        $diagnosisCode = new FHIRCodeableConcept();
         if (!empty($diagnosis) && is_array($diagnosis)) {
-            $diagnosisCode = new FHIRCodeableConcept();
-
             foreach ($diagnosis as $code => $codeValues) {
                 if (!is_string($code)) {
                     $code = "$code"; // FHIR expects a string
@@ -156,18 +156,15 @@ trait FhirConditionTrait
                 $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
-            $diagnosisCode->setText($dataRecord['title'] ?? 'Problem');
-            $conditionResource->setCode($diagnosisCode);
-        } else {
-            // Fallback to title if no structured diagnosis
-            $diagnosisCode = new FHIRCodeableConcept();
-            $diagnosisCode->setText($dataRecord['title'] ?? 'Problem');
-            $conditionResource->setCode($diagnosisCode);
         }
+        $diagnosisCode->setText($title);
+        $conditionResource->setCode($diagnosisCode);
     }
 
     /**
      * Parse OpenEMR's stored "TYPE:CODE" diagnosis string into coding values.
+     *
+     * @return array<string, array{description: string, system: string|null}>
      */
     private function parseDiagnosisCodes(string $diagnosis, string $description): array
     {
@@ -175,9 +172,10 @@ trait FhirConditionTrait
         $parsed = [];
         foreach (explode(';', $diagnosis) as $item) {
             $code = $codeTypes->parseCode($item);
-            $parsed[$code['code']] = [
+            $codeType = is_string($code['code_type'] ?? null) ? $code['code_type'] : '';
+            $parsed[is_string($code['code'] ?? null) ? $code['code'] : ''] = [
                 'description' => $description,
-                'system' => $codeTypes->getSystemForCodeType($code['code_type']),
+                'system' => $codeTypes->getSystemForCodeType($codeType),
             ];
         }
         return $parsed;

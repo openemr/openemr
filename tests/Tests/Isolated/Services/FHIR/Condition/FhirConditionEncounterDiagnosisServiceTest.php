@@ -58,6 +58,7 @@ class FhirConditionEncounterDiagnosisServiceTest extends TestCase
         $record['title'] = 'Essential (primary) hypertension';
 
         $fhirResource = (new FhirConditionEncounterDiagnosisService())->parseOpenEMRRecord($record);
+        $this->assertInstanceOf(FHIRCondition::class, $fhirResource);
 
         $coding = $fhirResource->getCode()->getCoding()[0];
         $this->assertEquals('I10.', $coding->getCode());
