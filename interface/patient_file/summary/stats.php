@@ -225,6 +225,8 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         }
 
         if ($id == "medication_ps_expand") {
+            $viewArgs['printHref'] = OEGlobalsBag::getInstance()->getWebRoot()
+                . "/interface/patient_file/summary/active_medications_print.php";
             echo $t->render('patient/card/medication.html.twig', $viewArgs);
         } else {
             echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
