@@ -577,7 +577,7 @@ services:
       COUCHDB_PASSWORD: password
   orthanc:
     restart: always
-    image: jodogne/orthanc-plugins:1.13.0@sha256:1731024fc7cc700a5fc39dc9f5073b670ec55e84f5b2f952a4d93e34d1af2f27
+    image: jodogne/orthanc-plugins:1.13.0@sha256:f02a20b72ab45311c5177e4647af0cfa2d0745b9c608694461756bf71a6e3ea9
     ports:
     - 4242:4242
     - 8042:8042
