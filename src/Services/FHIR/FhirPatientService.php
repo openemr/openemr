@@ -640,13 +640,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     protected function parseOpenEMRPatientSexExtension(FHIRPatient $patientResource, array $dataRecord)
     {
-        // us-core-sex was introduced in US Core 6.1.1 and is unknown to 3.1.1
-        // validators. Skip emission when the target profile version is 3.1.1
-        // to avoid an "unknown extension" slice error on the Patient resource.
-        if ($this->getHighestCompatibleUSCoreProfileVersion() === self::PROFILE_VERSION_3_1_1) {
-            return;
-        }
-
         // we have two different implementations based upon the highest US Core version we are supporting.
         // US Core 8.0.0 implemented a breaking change by switching from using a Code datatype to a Coding datatype.
 
@@ -715,13 +708,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      */
     protected function parseOpenEMRPatientInterpreterNeededExtension(FHIRPatient $patientResource, array $dataRecord)
     {
-        // us-core-interpreter-needed was introduced in US Core 8.0.0. Skip
-        // emission on 3.1.1 and 7.0.0 profile targets to avoid an "unknown
-        // extension" slice error on the Patient resource.
-        if ($this->getHighestCompatibleUSCoreProfileVersion() !== self::PROFILE_VERSION_8_0_0) {
-            return;
-        }
-
         $interpreterExtension = new FHIRExtension();
         $interpreterExtension->setUrl('http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed');
         // default to unknown
