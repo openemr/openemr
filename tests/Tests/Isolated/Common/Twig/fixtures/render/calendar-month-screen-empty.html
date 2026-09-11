@@ -276,7 +276,40 @@
 </script>
 
 <style>
-<<<<<<< HEAD
+    /* IN body fill stays under appointments and does not capture clicks so
+       open hours remain creatable. The in_start label is the edit target. */
+    #bigCal .calendar_day .event_in {
+        pointer-events: none;
+        z-index: 1;
+    }
+    /* OUT/IN-label above the create-slot marker (z-index 0), below appointments. */
+    #bigCal .calendar_day .event_out {
+        cursor: pointer;
+        pointer-events: auto;
+        z-index: 2;
+    }
+    #bigCal .calendar_day .in_start {
+        cursor: pointer;
+        pointer-events: auto;
+        z-index: 2;
+    }
+    #bigCal .calendar_day .event_appointment,
+    #bigCal .calendar_day .event_reserved,
+    #bigCal .calendar_day .event_noshow,
+    #bigCal .calendar_day .event_holiday {
+        cursor: pointer;
+        z-index: 3;
+    }
+    #bigCal .calendar_day a.apptMarker {
+        z-index: 0;
+    }
+    #bigCal .calendar_day .event_out.event_highlight,
+    #bigCal .calendar_day .in_start.event_highlight {
+        z-index: 4;
+    }
+</style>
+
+<style>
     #bigCal td#times,
     #bigCal td.calendar-times-col {
         box-sizing: border-box;
@@ -319,37 +352,5 @@
         opacity: 0.75;
         text-decoration: none;
         user-select: none;
-=======
-    /* IN body fill stays under appointments and does not capture clicks so
-       open hours remain creatable. The in_start label is the edit target. */
-    #bigCal .calendar_day .event_in {
-        pointer-events: none;
-        z-index: 1;
-    }
-    /* OUT/IN-label above the create-slot marker (z-index 0), below appointments. */
-    #bigCal .calendar_day .event_out {
-        cursor: pointer;
-        pointer-events: auto;
-        z-index: 2;
-    }
-    #bigCal .calendar_day .in_start {
-        cursor: pointer;
-        pointer-events: auto;
-        z-index: 2;
-    }
-    #bigCal .calendar_day .event_appointment,
-    #bigCal .calendar_day .event_reserved,
-    #bigCal .calendar_day .event_noshow,
-    #bigCal .calendar_day .event_holiday {
-        cursor: pointer;
-        z-index: 3;
-    }
-    #bigCal .calendar_day a.apptMarker {
-        z-index: 0;
-    }
-    #bigCal .calendar_day .event_out.event_highlight,
-    #bigCal .calendar_day .in_start.event_highlight {
-        z-index: 4;
->>>>>>> 0865c30b96 (fix(calendar): allow double-click edit of IN/OUT/LUNCH events)
     }
 </style>
