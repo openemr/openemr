@@ -516,7 +516,13 @@ class CarePlanService extends BaseService
      * @param array<string, mixed> $context Optional user/groupname overrides.
      * @return ProcessingResult
      */
-    public function replace(int $encounterId, int $formId, array $items, array $context = []): ProcessingResult
+    public function replace(
+        int $encounterId,
+        int $formId,
+        array $items,
+        array $context = [],
+        ?int $expectedPid = null
+    ): ProcessingResult
     {
         $result = new ProcessingResult();
 
@@ -544,6 +550,16 @@ class CarePlanService extends BaseService
             return $result;
         }
         $pid = (int) $existingPid;
+
+        // The surrogate id in the URL decides which form is rewritten, so a caller who names a
+        // different patient in the body must not be able to replace this one's care plan. The
+        // row located above is the authority on ownership; compare against it before writing.
+        if ($expectedPid !== null && $pid !== $expectedPid) {
+            $result->setValidationMessages(
+                ['subject' => 'Care plan does not belong to the referenced patient']
+            );
+            return $result;
+        }
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = $context['user'] ?? $session->get('authUser') ?? '';

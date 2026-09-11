@@ -466,15 +466,18 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $pruuid = $record['pruuid'] ?? null;
         if (is_string($pruuid) && $pruuid !== '') {
-            $pruuidBytes = UuidRegistry::uuidToBytes($pruuid);
-            $providerId = QueryUtils::fetchSingleValue(
-                "SELECT id FROM users WHERE uuid = ?",
-                'id',
-                [$pruuidBytes]
-            );
-            if (is_numeric($providerId)) {
-                $record['provider_id'] = (int) $providerId;
-            }
+            // prescriptions.provider_id is the prescriber of record. A caller may only name
+            // themselves unless they hold admin/users -- see PractitionerAttributionPolicy.
+            $record['provider_id'] = (new PractitionerAttributionPolicy($this->getSession()))
+                ->resolveAndAssert(
+                    $pruuid,
+                    'MedicationRequest.requester',
+                    static fn(string $bytes) => QueryUtils::fetchSingleValue(
+                        "SELECT id FROM users WHERE uuid = ?",
+                        'id',
+                        [$bytes]
+                    )
+                );
             unset($record['pruuid']);
         }
 

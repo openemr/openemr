@@ -12,7 +12,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\Utilities;
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -330,19 +329,13 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             ? $typeDisplay
             : \xl_appt_category(self::DEFAULT_CATEGORY_TITLE);
 
-        // Authorization context for provider/facility attribution. Only callers
-        // holding admin/users may attribute an appointment to a different
-        // provider; only admin/super may set an arbitrary facility. Otherwise
-        // the client-supplied references are dropped (and the upstream service
-        // falls back to its own defaults), matching the policy used by
-        // FhirEncounterService::resolveProviderUuids.
-        $session = $this->getSession();
-        $authUserRaw = $session?->get('authUser');
-        $authUser = is_string($authUserRaw) ? $authUserRaw : '';
-        $authUserIdRaw = $session?->get('authUserID');
-        $authUserId = is_scalar($authUserIdRaw) ? (string) $authUserIdRaw : '';
-        $canAssignAnyProvider = $authUser !== ''
-            && AclMain::aclCheckCore('admin', 'users', $authUser) !== false;
+        // Authorization context for provider attribution: only callers holding admin/users may
+        // attribute an appointment to a different provider. The check itself lives in
+        // PractitionerAttributionPolicy, shared with Encounter, Immunization, MedicationRequest
+        // and ServiceRequest. Unlike those, a rejected reference here is dropped rather than
+        // thrown: pc_aid is optional and the upstream service supplies its own default, so a
+        // scheduling client that names a colleague still gets its appointment.
+        $attribution = new PractitionerAttributionPolicy($this->getSession());
 
         // Parse participants - Patient, Practitioner, Location
         $participants = $json['participant'] ?? null;
@@ -395,11 +388,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                     $providerId = BaseService::getIdByUuid($providerUuidBytes, 'users', 'id');
                     // Only honour the assignment if the caller has admin/users
                     // OR is assigning the appointment to themselves.
-                    if (
-                        $providerId !== false
-                        && ($canAssignAnyProvider
-                            || ($authUserId !== '' && (string) $providerId === $authUserId))
-                    ) {
+                    if ($providerId !== false && $attribution->mayAttributeTo($providerId)) {
                         $data['pc_aid'] = $providerId;
                     }
                 } elseif ($referenceType === 'Location') {

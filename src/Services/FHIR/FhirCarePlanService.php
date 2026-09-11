@@ -925,10 +925,20 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             return $result;
         }
 
+        // The URL's surrogate id chooses the form to rewrite; the body's subject says whose care
+        // plan the caller believes they are editing. If those disagree the write is rejected
+        // rather than silently rewriting whichever patient the id happened to point at.
+        $expectedPid = $this->resolvePatientId($updatedOpenEMRRecord);
+        if ($expectedPid instanceof ProcessingResult) {
+            return $expectedPid;
+        }
+
         return $this->service->replace(
             (int) $encounterId,
             $formId,
-            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null)
+            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null),
+            [],
+            $expectedPid
         );
     }
 

@@ -347,7 +347,10 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $data['note'] = $noteText;
         }
 
-        // Performer -> administered_by_id (resolve Practitioner uuid to id)
+        // Performer -> administered_by_id (resolve Practitioner uuid to id).
+        // administered_by_id is a clinical-accountability field, so the caller may only name
+        // themselves unless they hold admin/users -- the same policy Encounter and Appointment
+        // apply to their participant references. See PractitionerAttributionPolicy.
         $performers = $json['performer'] ?? null;
         foreach (is_array($performers) ? $performers : [] as $performer) {
             $practitionerUuid = $this->referenceUuid(
@@ -357,15 +360,12 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             if ($practitionerUuid === '') {
                 continue;
             }
-            $practitionerUuidBytes = UuidRegistry::uuidToBytes($practitionerUuid);
-            $practitionerId = BaseService::getIdByUuid(
-                $practitionerUuidBytes,
-                'users',
-                'id'
-            );
-            if ($practitionerId !== false) {
-                $data['administered_by_id'] = $practitionerId;
-            }
+            $data['administered_by_id'] = (new PractitionerAttributionPolicy($this->getSession()))
+                ->resolveAndAssert(
+                    $practitionerUuid,
+                    'Immunization.performer',
+                    static fn(string $bytes) => BaseService::getIdByUuid($bytes, 'users', 'id')
+                );
             break;
         }
 

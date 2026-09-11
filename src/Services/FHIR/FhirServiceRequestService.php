@@ -1013,17 +1013,21 @@ class FhirServiceRequestService extends FhirServiceBase implements
             }
         }
 
-        // Optional requester resolution
+        // Optional requester resolution. procedure_order.provider_id is the ordering provider of
+        // record, so a caller may only name themselves unless they hold admin/users -- see
+        // PractitionerAttributionPolicy.
         $pruuid = $openEmrRecord['pruuid'] ?? null;
         if (is_string($pruuid) && $pruuid !== '') {
-            $providerId = QueryUtils::fetchSingleValue(
-                'SELECT id FROM users WHERE uuid = ?',
-                'id',
-                [UuidRegistry::uuidToBytes($pruuid)]
-            );
-            if (is_numeric($providerId)) {
-                $header['provider_id'] = (int) $providerId;
-            }
+            $header['provider_id'] = (new PractitionerAttributionPolicy($this->getSession()))
+                ->resolveAndAssert(
+                    $pruuid,
+                    'ServiceRequest.requester',
+                    static fn(string $bytes) => QueryUtils::fetchSingleValue(
+                        'SELECT id FROM users WHERE uuid = ?',
+                        'id',
+                        [$bytes]
+                    )
+                );
         }
 
         $codes = FhirPayloadReader::rows($openEmrRecord['codes'] ?? null);

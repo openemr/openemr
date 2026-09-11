@@ -580,11 +580,50 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             return $result;
         }
 
+        // Goal shares the care_plan form, so it shares CarePlan's ownership concern: the URL's
+        // surrogate id chooses the form to rewrite, and a body naming a different patient must
+        // not be able to replace this one's goals. Resolve the body's subject and let
+        // CarePlanService::replace() compare it against the row it locates.
+        $expectedPid = $this->resolveGoalPatientId($updatedOpenEMRRecord);
+        if ($expectedPid instanceof ProcessingResult) {
+            return $expectedPid;
+        }
+
         return $this->service->replace(
             (int) $encounterId,
             $formId,
-            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null)
+            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null),
+            [],
+            $expectedPid
         );
+    }
+
+    /**
+     * Resolves the Goal's subject reference to a pid.
+     *
+     * @param array<array-key, mixed> $record
+     * @return int|ProcessingResult Numeric pid on success, ProcessingResult on resolution failure.
+     */
+    private function resolveGoalPatientId(array $record): int|ProcessingResult
+    {
+        $puuid = $record['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '' || !UuidRegistry::isValidStringUUID($puuid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'FHIR Goal requires a Patient reference']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
+            return $result;
+        }
+
+        return (int) $pid;
     }
 
     /**

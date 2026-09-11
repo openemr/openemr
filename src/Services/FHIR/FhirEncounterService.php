@@ -20,7 +20,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -552,29 +551,21 @@ class FhirEncounterService extends FhirServiceBase implements
      */
     private function resolveProviderUuids(array &$record): void
     {
-        $session = $this->getSession();
-        $authUserRaw = $session?->get('authUser');
-        $authUser = is_string($authUserRaw) ? $authUserRaw : '';
-        $authUserIdRaw = $session?->get('authUserID');
-        $authUserId = is_scalar($authUserIdRaw) ? (string) $authUserIdRaw : '';
-        $canAssignAnyProvider = $authUser !== ''
-            && AclMain::aclCheckCore('admin', 'users', $authUser) !== false;
+        $policy = new PractitionerAttributionPolicy($this->getSession());
 
         $this->resolveSingleProviderField(
             $record,
             'provider_uuid',
             'provider_id',
             'Encounter.participant performer',
-            $canAssignAnyProvider,
-            $authUserId
+            $policy
         );
         $this->resolveSingleProviderField(
             $record,
             'referrer_uuid',
             'referring_provider_id',
             'Encounter.participant referrer',
-            $canAssignAnyProvider,
-            $authUserId
+            $policy
         );
     }
 
@@ -591,8 +582,7 @@ class FhirEncounterService extends FhirServiceBase implements
         string $uuidKey,
         string $idKey,
         string $fhirLabel,
-        bool $canAssignAnyProvider,
-        string $authUserId
+        PractitionerAttributionPolicy $policy
     ): void {
         $uuid = $record[$uuidKey] ?? null;
         $existingId = $record[$idKey] ?? null;
@@ -601,22 +591,14 @@ class FhirEncounterService extends FhirServiceBase implements
             unset($record[$uuidKey]);
             return;
         }
-        if (!\OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($uuid)) {
-            unset($record[$uuidKey]);
-            throw new \InvalidArgumentException($fhirLabel . ' reference is not a valid uuid');
-        }
-        $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($uuid);
-        $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
+        // Dropped before the policy runs so a rejected attribution cannot leave the raw uuid
+        // behind for a downstream writer to pick up.
         unset($record[$uuidKey]);
-        if ($providerId === false) {
-            throw new \InvalidArgumentException($fhirLabel . ' reference could not be resolved');
-        }
-        if (!$canAssignAnyProvider && (string) $providerId !== $authUserId) {
-            throw new \InvalidArgumentException(
-                $fhirLabel . ' attribution to another practitioner requires admin/users'
-            );
-        }
-        $record[$idKey] = $providerId;
+        $record[$idKey] = $policy->resolveAndAssert(
+            $uuid,
+            $fhirLabel,
+            fn(string $bytes) => $this->encounterService->getIdByUuid($bytes, 'users', 'id')
+        );
     }
 
     public function createProvenanceResource($dataRecord = [], $encode = false)
