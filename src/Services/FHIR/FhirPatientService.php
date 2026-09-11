@@ -974,18 +974,14 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     public function getSupportedVersions()
     {
-        // A site pinned to 3.1.1 declares only 3.1.1. Sites running a
-        // later profile version declare all versions the server understands
-        // so certification checks against any single version can locate
-        // their expected profile URI. 7.0.0 and 8.0.0 are not fully
-        // backward compatible with each other, so a client validating an
-        // actual Patient response against one may reject a field expected
-        // in the other — a resource-level concern, not a declaration
-        // concern.
-        if ($this->getHighestCompatibleUSCoreProfileVersion() === self::PROFILE_VERSION_3_1_1) {
-            return self::PROFILE_VERSIONS_V1;
-        }
-        return self::PROFILE_VERSIONS_ALL;
+        $highestVersion = $this->getHighestCompatibleUSCoreProfileVersion();
+        // Version 8.0.0 and version 7.0.0 are backwards compatible with 3.1.1 and none but ARE not backwards compatible with each other
+        return match ($highestVersion) {
+            self::PROFILE_VERSION_3_1_1 => self::PROFILE_VERSIONS_V1,
+            self::PROFILE_VERSION_7_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_7_0_0],
+            self::PROFILE_VERSION_8_0_0 => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_8_0_0],
+            default => [self::PROFILE_VERSION_NONE, self::PROFILE_VERSION_3_1_1, self::PROFILE_VERSION_8_0_0]
+        };
     }
 
     /**

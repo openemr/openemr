@@ -305,18 +305,12 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
     public function getSupportedVersions(): array
     {
-        // A site pinned to 3.1.1 declares only 3.1.1. Sites running a
-        // later profile version declare all versions the server understands
-        // so certification checks against any single version can locate
-        // their expected profile URI. 3.1.1 does not include RelatedPerson
-        // as a valid CareTeam member — a 3.1.1 client that fetches an
-        // actual CareTeam containing RelatedPerson may see a conformance
-        // warning, which is a resource-level concern, not a declaration
-        // concern.
-        if ($this->getHighestCompatibleUSCoreProfileVersion() === self::PROFILE_VERSION_3_1_1) {
+        // version 3.1.1 DOES NOT support RelatedPerson as care team members so we can't compatible across all versions
+        if ($this->getHighestCompatibleUSCoreProfileVersion() == self::PROFILE_VERSION_3_1_1) {
             return self::PROFILE_VERSIONS_V1;
+        } else {
+            return self::PROFILE_VERSIONS_V2;
         }
-        return self::PROFILE_VERSIONS_ALL;
     }
 
     /**
