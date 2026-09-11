@@ -2,12 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-/**
- * import supporting libraries
- */
-require_once('IRouter.php');
-require_once('verysimple/HTTP/RequestUtil.php');
-
 use OpenEMR\Core\OEGlobalsBag;
 
 /**

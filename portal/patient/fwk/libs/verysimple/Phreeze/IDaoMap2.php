@@ -3,12 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("FieldMap.php");
-require_once("KeyMap.php");
-
-/**
  * IDaoMap2 is an interface for a mapped object that can be persisted by Phreeze
  * Version 2 includes AddMap and SetFetchingStrategy
  *

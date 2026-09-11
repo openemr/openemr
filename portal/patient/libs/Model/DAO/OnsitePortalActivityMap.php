@@ -10,10 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/IDaoMap.php");
-require_once("verysimple/Phreeze/IDaoMap2.php");
-
 /**
  * OnsitePortalActivityMap is a static class with functions used to get FieldMap and KeyMap information that
  * is used by Phreeze to map the OnsitePortalActivityDAO to the onsite_portal_activity datastore.

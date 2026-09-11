@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("DataPage.php");
-
-/**
  * DataSet stores zero or more Loadable objects
  * The DataSet is the object that is returned by every Phreezer Query operation.
  * The DataSet contains various methods to enumerate through , or retrieve all
@@ -90,7 +85,6 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     public function Next()
     {
         if ($this->UnableToCache) {
-            require_once("verysimple/Util/ExceptionFormatter.php");
             $info = ExceptionFormatter::FormatTrace(debug_backtrace());
             $this->_phreezer->Observe("(DataSet.Next: unable to cache query with cursor) " . $info . "  " . $this->_sql, OBSERVE_DEBUG);
 

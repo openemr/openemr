@@ -2,13 +2,8 @@
 
 /** @package    verysimple::Authentication */
 
-/**
- * import supporting libraries
- */
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-require_once("IAuthenticatable.php");
-require_once("AuthenticationException.php");
 
 /**
  * Authenticator is a collection of static methods for storing a current user
