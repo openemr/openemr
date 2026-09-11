@@ -1,0 +1,217 @@
+{#
+  Rules editor.
+
+  @package   OpenEMR
+  @author    Simon Quigley <squigley@altispeed.com>
+  @license   GNU General Public License 3
+#}
+<html>
+<head>
+    <title>{{ "Form statement rules"|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body class="p-3">
+    <div class="container-fluid">
+        <h2>{{ "Form statements"|xlt }}</h2>
+        {% include '_tabs.html.twig' %}
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error|text }}</div>
+        {% endif %}
+        {% if message %}
+            <div class="alert alert-success">{{ message|text }}</div>
+        {% endif %}
+
+        <form method="get" action="{{ postUrl|attr }}" class="mb-3">
+            <div class="form-group">
+                <label for="form_id">{{ "Layout"|xlt }}</label>
+                <select class="form-control" id="form_id" name="form_id" onchange="this.form.submit()">
+                    {% for layout in layouts %}
+                        <option value="{{ layout.form_id|attr }}" {% if layout.form_id == form_id %}selected{% endif %}>
+                            {{ layout.title|text }} ({{ layout.form_id|text }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        {% if form_id %}
+        <form method="post" action="{{ postUrl|attr }}" class="mb-4">
+            {{ csrfToken('default', 'csrf_token_form') }}
+            <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
+            <input type="hidden" name="action" value="paragraph" />
+            <div class="form-group">
+                <label for="paragraph_field_id">{{ "Paragraph field"|xlt }}</label>
+                <select class="form-control" id="paragraph_field_id" name="paragraph_field_id">
+                    {% for fid, meta in fields %}
+                        {% if meta.data_type == 3 %}
+                            <option value="{{ fid|attr }}" {% if paragraphField == fid %}selected{% endif %}>{{ meta.title|text }} ({{ fid|text }})</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary">{{ "Save paragraph field"|xlt }}</button>
+        </form>
+        {% endif %}
+
+        <h3>{{ "Rules"|xlt }}</h3>
+        <p>
+            <button type="button" class="btn btn-primary" id="add-rule" data-next-seq="{{ nextSeq|attr }}">{{ "Add rule"|xlt }}</button>
+        </p>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>{{ "Order"|xlt }}</th>
+                    <th>{{ "Field"|xlt }}</th>
+                    <th>{{ "When"|xlt }}</th>
+                    <th>{{ "Sentence"|xlt }}</th>
+                    <th>{{ "On"|xlt }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rule in rules %}
+                    <tr>
+                        <td>{{ rule.seq|text }}</td>
+                        <td>
+                            {% if fields[rule.source_field_id] is defined %}
+                                {{ fields[rule.source_field_id].title|text }}
+                            {% else %}
+                                <code>{{ rule.source_field_id|text }}</code>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if rule.op == 'band' %}
+                                {{ rule.min_value|text }}–{{ rule.max_value|text }}
+                            {% elseif rule.op == 'parse_severity' %}
+                                {{ rule.match_token|text }}
+                            {% else %}
+                                {{ rule.op|text }}
+                            {% endif %}
+                        </td>
+                        <td>{{ rule.statement_text|text }}</td>
+                        <td>
+                            <form method="post" action="{{ postUrl|attr }}" class="d-inline">
+                                {{ csrfToken('default', 'csrf_token_form') }}
+                                <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
+                                <input type="hidden" name="action" value="toggle" />
+                                <input type="hidden" name="rule_id" value="{{ rule.id|attr }}" />
+                                <input type="hidden" name="enabled" value="{{ rule.enabled ? '0' : '1' }}" />
+                                <button type="submit" class="btn btn-sm {{ rule.enabled ? 'btn-success' : 'btn-outline-secondary' }}">
+                                    {{ rule.enabled ? "On"|xlt : "Off"|xlt }}
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-link btn-sm p-0" data-rule-edit="{{ rule|json_encode|attr }}">{{ "Edit"|xlt }}</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="modal fade" id="ruleModal" tabindex="-1" role="dialog" aria-labelledby="ruleModalLabel" aria-hidden="true"
+             data-band-rules="{{ bandRules|json_encode|attr }}"
+             data-msg-overlap="{{ "This numeric range overlaps another band on the same field."|xlt }}"
+             data-msg-inverted="{{ "Minimum must be less than or equal to maximum."|xlt }}"
+             {% if edit %}data-reopen="{{ edit|json_encode|attr }}"{% endif %}>
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <form method="post" action="{{ postUrl|attr }}">
+                        {{ csrfToken('default', 'csrf_token_form') }}
+                        <input type="hidden" name="action" value="save" />
+                        <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
+                        <input type="hidden" name="rule_id" id="rule_id" value="" />
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ruleModalLabel" data-add="{{ "Add rule"|xlt }}" data-edit="{{ "Edit rule"|xlt }}">{{ "Add rule"|xlt }}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="{{ "Close"|xlt }}">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted small mb-3">{{ "Each rule writes one sentence into the paragraph field for this layout. Leave a bound blank for open-ended."|xlt }}</p>
+                            <div id="rule-overlap-msg" class="alert alert-danger d-none" role="alert"></div>
+
+                            <div class="form-group">
+                                <label for="statement_text">{{ "Sentence"|xlt }}</label>
+                                <textarea class="form-control" id="statement_text" name="statement_text" rows="2" placeholder="{{ "The left atrium is mildly dilated."|xlt }}"></textarea>
+                                <small class="form-text text-muted">{{ "Use {source} and {source_2} for the measured values."|xlt }}</small>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="source_field_id">{{ "When this field"|xlt }}</label>
+                                    <select class="form-control" id="source_field_id" name="source_field_id">
+                                        {% for fid, meta in fields %}
+                                            <option value="{{ fid|attr }}">{{ meta.title|text }} ({{ fid|text }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="op">{{ "Matches"|xlt }}</label>
+                                    <select class="form-control" id="op" name="op">
+                                        <option value="band">{{ "Numeric range"|xlt }}</option>
+                                        <option value="parse_severity">{{ "List / text token"|xlt }}</option>
+                                        <option value="ratio_lt">{{ "Ratio less than"|xlt }}</option>
+                                        <option value="ratio_gt">{{ "Ratio greater than"|xlt }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="source2-wrap" class="form-group">
+                                <label for="source_field_id_2">{{ "Second field"|xlt }}</label>
+                                <select class="form-control" id="source_field_id_2" name="source_field_id_2">
+                                    <option value="">{{ "None"|xlt }}</option>
+                                    {% for fid, meta in fields %}
+                                        <option value="{{ fid|attr }}">{{ meta.title|text }} ({{ fid|text }})</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted" id="source2-help-band">{{ "Optional. When set, this field must also have a value."|xlt }}</small>
+                                <small class="form-text text-muted d-none" id="source2-help-ratio">{{ "Required. The ratio is first field ÷ second field."|xlt }}</small>
+                            </div>
+
+                            <div id="band-fields" class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="min_value">{{ "From"|xlt }}</label>
+                                    <input class="form-control" id="min_value" name="min_value" inputmode="decimal" />
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="max_value">{{ "To"|xlt }}</label>
+                                    <input class="form-control" id="max_value" name="max_value" inputmode="decimal" />
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="d-block">{{ "Include endpoints"|xlt }}</label>
+                                    <label class="mr-2"><input type="checkbox" id="min_inclusive" name="min_inclusive" value="1" checked /> {{ "from"|xlt }}</label>
+                                    <label><input type="checkbox" id="max_inclusive" name="max_inclusive" value="1" checked /> {{ "to"|xlt }}</label>
+                                    <small class="form-text text-muted">{{ "Ranges on the same field cannot overlap. Save is rejected if they do."|xlt }}</small>
+                                </div>
+                            </div>
+
+                            <div id="token-fields" class="form-group d-none">
+                                <label for="match_token">{{ "Tokens"|xlt }}</label>
+                                <input class="form-control" id="match_token" name="match_token" placeholder="{{ "mild, moderate"|xlt }}" />
+                                <small class="form-text text-muted">{{ "Comma-separated. Matches an option id, a checkbox member, or a whole word."|xlt }}</small>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="seq">{{ "Order"|xlt }}</label>
+                                    <input class="form-control" id="seq" name="seq" />
+                                </div>
+                                <div class="form-group col-md-8 d-flex align-items-end">
+                                    <label class="mb-2"><input type="checkbox" id="enabled" name="enabled" value="1" checked /> {{ "Enabled"|xlt }}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ "Cancel"|xlt }}</button>
+                            <button type="submit" class="btn btn-primary">{{ "Save"|xlt }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ assetBase|attr }}admin.js"></script>
+</body>
+</html>
