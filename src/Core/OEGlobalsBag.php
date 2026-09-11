@@ -172,12 +172,22 @@ class OEGlobalsBag extends ParameterBag
             : $this->getString('include_root');
     }
 
+    public function getString(string $key, string $default = ''): string
+    {
+        try {
+            return parent::getString($key, $default);
+        } catch (\UnexpectedValueException $e) {
+                $this->reportUnusableValue($key, $default, $e);
+                return $default;
+        }
+    }
+
     /**
      * Falls back to the default when a stored global cannot satisfy the requested filter,
      * instead of throwing the way ParameterBag does.
      *
      * ParameterBag is built for HTTP request input, where rejecting a malformed value loudly is
-     * the correct behaviour -- the request is the untrusted thing and failing it is cheap. This
+     * the correct behavior -- the request is the untrusted thing and failing it is cheap. This
      * bag wraps persisted configuration read from the `globals` table, where the same policy is
      * actively harmful: every typed getter runs during interface/globals.php, so a single bad row
      * takes down every page in the installation, including the Administration > Globals screen an
