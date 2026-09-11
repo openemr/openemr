@@ -35,5 +35,6 @@ setup() {
         "${ROOT}/docker/flex/openemr.sh"; do
         ! grep -q 'date +%s\.%N' "${script}" || exit 1
         ! grep -q 'python3 -c "print(round' "${script}" || exit 1
+        grep -Fq 'PERM_DURATION_US >= 5000' "${script}" || exit 1
     done
 }

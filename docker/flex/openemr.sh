@@ -1067,7 +1067,7 @@ if [[ "${AUTHORITY}" = "yes" ]] &&
 
         PERM_END=$(current_time_us)
         PERM_DURATION_US=$(elapsed_time_us "${PERM_START}" "${PERM_END}")
-        if [[ "${PERM_DURATION_US}" -ne 0 ]]; then
+        if (( PERM_DURATION_US >= 5000 )); then
             PERM_DURATION=$(format_elapsed_seconds "${PERM_DURATION_US}")
             echo "[TIMING] File permissions took ${PERM_DURATION}s"
         fi
