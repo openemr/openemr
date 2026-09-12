@@ -13,7 +13,7 @@ in a hook directory, and the container will run your scripts at the appropriate 
 
 We define four hooks via `HOOKS_ROOT`, defaulting to `/root/hooks` within the container:
 - `${HOOKS_ROOT}/postconfig` is run after first-time configuration is complete, and never again.
-- `${HOOKS_ROOT}/postupgrade` is run after an upgrade process completes, on the authority only (swarm-mode leader).
+- `${HOOKS_ROOT}/postupgrade` is run after an upgrade process completes, on the authority container only (the sole container in a standard deployment, or the leader in swarm/Kubernetes mode).
 - `${HOOKS_ROOT}/prelaunch` is run after all container setup is otherwise complete, every launch.
 - `${HOOKS_ROOT}/tooearly` is run before any container setup even starts, aimed at debugging and rescue.
 
@@ -27,6 +27,7 @@ container launch to fail.
 ### Notes
 
 - `postconfig` and `postupgrade` will cause the container launch to fail if they don't return success, but since they can't roll back successful configuration events, when the container next launches it won't retry them because their lifecycle point has passed.
+- Hook scripts inherit `openemr.sh`'s root permissions, which is relevant for security but also ownership of anything they unpack and install.
 - `tooearly` probably shouldn't be used for normal deployments.
 
 ## Docker Compose Invocation
