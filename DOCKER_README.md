@@ -47,6 +47,12 @@ There is also a less-flexible development docker rebuilt daily, tagged `dev` (he
 (head of the upcoming-release rel branch), mainly used for testing. Available on
 [dockerhub](https://hub.docker.com/r/openemr/openemr/).
 
+## Post-deployment automation
+
+To better assist administrators managing security updates, script packages can be sideloaded into the production
+container to be run at certain defined container lifecycle points, such as after an upgrade or before Apache's
+launch. See the [vendor hooks documentation](docker/HOOKS.md) for the location and formatting of these packages.
+
 ## Source repository and pipeline
 
 This repository owns the production Docker image pipeline end-to-end as of June 2026. Previously it lived in
