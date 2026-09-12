@@ -38,6 +38,7 @@ return [
     ],
     'uuid' => 'uuid(\'form_encounter\')',
     'encounter' => 'generateId()',
+    'date' => '2024-01-01 08:00:00',
     'sensitivity' => 'normal',
     'reason' => 'test-fixture-Complains of nausea, loose stools and weakness.',
     'last_level_billed' => 0,
