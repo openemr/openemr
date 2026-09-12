@@ -51,8 +51,9 @@ function displayApptTime(evt) {
         style = "style='height:" + tsHeight + ";'";
         $(this).find("div.calendar_day").append("<a class='apptMarker event_appointment'" + style + "></a>");
         marker = $(this).find("a.apptMarker");
-        // Stay under real schedule events (OUT/LUNCH/appointments) so they remain clickable.
-        marker.css("z-index", 0);
+        // Above IN fill (z-index 1 body is pointer-events:none); under OUT/LUNCH/
+        // appointments (z-index 2+) so those remain clickable.
+        marker.css("z-index", 1);
     }
     y = evt.pageY - $(this).offset().top;
     rem = y % tsHeightNum;

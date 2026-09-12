@@ -540,6 +540,14 @@ $side-calendar-date-padding: 0.3rem !default;
     z-index: 2;
   }
 
+  /* Create-slot marker is not .event (avoids EditEvent bindings) but still needs
+     absolute layout inside .calendar_day or it pins to the column top-left. */
+  a.apptMarker {
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+  }
+
   .event_out.event_highlight,
   .in_start.event_highlight {
     background-color: $yellow;

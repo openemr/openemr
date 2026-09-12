@@ -215,8 +215,14 @@
         cursor: pointer;
         z-index: 3;
     }
+    /* apptMarker deliberately omits the generic .event class (so EditEvent
+       dblclick does not fire on it). Re-apply the absolute layout that .event
+       would have provided, or top/height stay in normal flow and the marker
+       pins to the top-left of the column. */
     #bigCal .calendar_day a.apptMarker {
-        z-index: 0;
+        position: absolute;
+        width: 100%;
+        z-index: 1;
     }
     #bigCal .calendar_day .event_out.event_highlight,
     #bigCal .calendar_day .in_start.event_highlight {
