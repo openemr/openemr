@@ -229,7 +229,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $medListService = new ActiveMedicationListService();
             $activeMeds = $medListService->getActiveList((int) $pid);
             $viewArgs['list'] = $activeMeds;
-            $viewArgs['inactive'] = $medListService->getInactiveList((int) $pid, $activeMeds);
+            $viewArgs['inactiveCount'] = count($medListService->getInactiveList((int) $pid, $activeMeds));
             $viewArgs['printHref'] = OEGlobalsBag::getInstance()->getWebRoot()
                 . "/interface/patient_file/summary/active_medications_print.php";
             echo $t->render('patient/card/medication.html.twig', $viewArgs);
