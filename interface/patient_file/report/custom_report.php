@@ -433,20 +433,35 @@ function getContent()
                         if (AclMain::aclCheckCore('patients', 'med')) {
                             echo "<hr />";
                             echo "<div class='text medications'>\n";
-                            print "<h4>" . xlt('Active Medication List') . ":</h4>";
-                            $meds = (new ActiveMedicationListService())->getActiveList((int) $pid);
-                            if ($meds === []) {
-                                echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
-                            } else {
+                            print "<h4>" . xlt('Medication List') . ":</h4>";
+                            $medSvc = new ActiveMedicationListService();
+                            $activeMeds = $medSvc->getActiveList((int) $pid);
+                            $inactiveMeds = $medSvc->getInactiveList((int) $pid, $activeMeds);
+                            $medSections = [
+                                [xlt('Active'), $activeMeds, false],
+                                [xlt('Inactive / historical'), $inactiveMeds, true],
+                            ];
+                            foreach ($medSections as [$medHeading, $meds, $showEnd]) {
+                                echo "<h5>" . $medHeading . "</h5>";
+                                if ($meds === []) {
+                                    echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
+                                    continue;
+                                }
                                 echo "<div class='table-responsive'><table class='table'>";
                                 echo "<tr><td class='font-weight-bold'>" . xlt('Medication') . "</td>";
                                 echo "<td class='font-weight-bold'>" . xlt('Dose') . "</td>";
                                 echo "<td class='font-weight-bold'>" . xlt('Start') . "</td>";
+                                if ($showEnd) {
+                                    echo "<td class='font-weight-bold'>" . xlt('End') . "</td>";
+                                }
                                 echo "<td class='font-weight-bold'>" . xlt('Comments') . "</td></tr>\n";
                                 foreach ($meds as $med) {
                                     echo "<tr><td class='text'>" . text($med['title']) . "</td>";
                                     echo "<td class='text'>" . text($med['dose']) . "</td>";
                                     echo "<td class='text'>" . text($med['start'] !== null ? oeFormatShortDate($med['start']) : '') . "</td>";
+                                    if ($showEnd) {
+                                        echo "<td class='text'>" . text($med['end'] !== null ? oeFormatShortDate($med['end']) : '') . "</td>";
+                                    }
                                     echo "<td class='text'>" . text($med['comments']) . "</td></tr>\n";
                                 }
                                 echo "</table></div>";
