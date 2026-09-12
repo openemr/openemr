@@ -20,7 +20,7 @@ We define four hooks via `HOOKS_ROOT`, defaulting to `/root/hooks` within the co
 ### Contents
 
 A hook directory contains run-parts-compatible scripts (named only with letters, digits, underscores,
-and hyphens, no dots) set executable, along with any number of other non-executable resource files you require. 
+and hyphens, no dots) set executable, along with any number of other non-executable resource files you require.
 These scripts will be run by run-parts in strict alphabetical order, and any that return non-zero will cause
 container launch to fail.
 
