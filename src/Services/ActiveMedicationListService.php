@@ -1,18 +1,15 @@
 <?php
 
 /**
- * Active and inactive medications for a patient chart print.
+ * ActiveMedicationListService
  *
- * Issues (lists type medication) come first. Prescriptions whose drug name
- * already appears as an issue title are skipped so the printed list has
- * each drug once. Inactive rows are a separate list; a name already on
- * the active list is not repeated there.
+ * One row per drug name. Issue titles win over prescriptions.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
- * @license   GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 declare(strict_types=1);
@@ -21,15 +18,12 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 
-final class ActiveMedicationListService
+class ActiveMedicationListService
 {
     /**
-     * Combine issue rows and prescription rows, dropping prescriptions
-     * whose drug name already appears as an issue title.
-     *
      * @param list<array<string, mixed>> $issues
      * @param list<array<string, mixed>> $prescriptions
-     * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
+     * @return list<array<string, mixed>>
      */
     public static function merge(array $issues, array $prescriptions): array
     {
@@ -81,14 +75,9 @@ final class ActiveMedicationListService
     }
 
     /**
-     * Drop rows whose title already appears on another list (case-insensitive).
-     *
-     * Used so an ended prescription does not reprint a drug that is still
-     * an active issue.
-     *
-     * @param list<array{title: string, ...}> $rows
-     * @param list<array{title: string, ...}> $already
-     * @return list<array{title: string, ...}>
+     * @param list<array<string, mixed>> $rows
+     * @param list<array<string, mixed>> $already
+     * @return list<array<string, mixed>>
      */
     public static function excludeListedNames(array $rows, array $already): array
     {
@@ -112,13 +101,9 @@ final class ActiveMedicationListService
     }
 
     /**
-     * Active medications for one patient.
+     * activity = 1 (or prescriptions.active = 1) and no end date, or end date today or later.
      *
-     * An issue is active when activity is 1 and enddate is empty or today
-     * or later. A prescription is active when active is 1 and end_date is
-     * empty or today or later.
-     *
-     * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
+     * @return list<array<string, mixed>>
      */
     public function getActiveList(int $pid): array
     {
@@ -145,15 +130,10 @@ final class ActiveMedicationListService
     }
 
     /**
-     * Inactive / historical medications for one patient.
+     * Stopped, activity = 0, or an end date before today. Skips names already on the active list.
      *
-     * An issue is inactive when activity is not 1, or when enddate is a
-     * real date before today. A prescription is inactive when active is
-     * not 1, or when end_date is a real date before today. Names already
-     * on the active list are omitted.
-     *
-     * @param list<array{title: string, ...}>|null $active
-     * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
+     * @param list<array<string, mixed>>|null $active
+     * @return list<array<string, mixed>>
      */
     public function getInactiveList(int $pid, ?array $active = null): array
     {
