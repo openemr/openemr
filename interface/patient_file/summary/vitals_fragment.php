@@ -21,8 +21,7 @@ $pid = $session->get('pid', 0);
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 ?>
-<div id='vitals''><!--outer div-->
-<?php
+<div id='vitals'><?php
 //retrieve most recent set of vitals.
 $result = sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' ORDER BY FORM_VITALS.date DESC", [$pid]);
 
@@ -47,3 +46,6 @@ if (!$result) { //If there are no disclosures recorded
   </span><?php
 } ?>
 </div>
+<button class="btn btn-primary quick-vitals-btn" data-pid="<?php echo attr($pid); ?>" data-encounter="<?php echo attr($session->get('encounter') ?? ''); ?>">
+  <?php echo xlt('Enter Quick Vitals'); ?>
+</button>
