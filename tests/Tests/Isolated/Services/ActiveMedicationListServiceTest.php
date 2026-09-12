@@ -7,7 +7,7 @@
  * @link      https://www.open-emr.org
  * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
- * @license   GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 declare(strict_types=1);
@@ -81,9 +81,6 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertNull($rows[0]['end']);
     }
 
-    /**
-     * End dates from issues and prescriptions are kept for the inactive table.
-     */
     public function testMergeCopiesEndDates(): void
     {
         $rows = ActiveMedicationListService::merge(
@@ -109,9 +106,6 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame('2021-01-01', $rows[1]['end']);
     }
 
-    /**
-     * A stopped prescription with the same name as an active issue is dropped.
-     */
     public function testExcludeListedNamesIsCaseInsensitive(): void
     {
         $inactive = ActiveMedicationListService::merge(
