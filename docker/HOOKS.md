@@ -3,8 +3,8 @@
 ## Introduction
 
 In an effort to help vendors and administrators of systems with customized code or modules cope with
-more frequnent releases with strong security implications, we now (as of 8.4.0) offer
-access to container lifecycle events. Volume mount a run-parts-compatible set of scripts 
+more frequent releases with strong security implications, we now (as of 8.4.0) offer
+access to container lifecycle events. Volume mount a run-parts-compatible set of scripts
 in a hook directory, and the container will run your scripts at the appropriate lifecycle point.
 
 ## Lifecycle Hooks
@@ -13,13 +13,13 @@ in a hook directory, and the container will run your scripts at the appropriate 
 
 We define four hooks via `HOOKS_ROOT`, defaulting to `/root/hooks` within the container:
 - `${HOOKS_ROOT}/postconfig` is run after first-time configuration is complete, and never again.
-- `${HOOKS_ROOT}/postupgrade` is run after on the leader only, after an upgrade process completes.
+- `${HOOKS_ROOT}/postupgrade` is run after an upgrade process completes, on the authority only (swarm-mode leader).
 - `${HOOKS_ROOT}/prelaunch` is run after all container setup is otherwise complete, every launch.
 - `${HOOKS_ROOT}/tooearly` is run before any container setup even starts, aimed at debugging and rescue.
 
 ### Contents
 
-A hook directory contains run-parts-compatible scripts (named only with letters, digits, underscores, 
+A hook directory contains run-parts-compatible scripts (named only with letters, digits, underscores,
 and hyphens, no dots) set executable, along with any number of other non-executable resource files you require. 
 These scripts will be run by run-parts in strict alphabetical order, and any that return non-zero will cause
 container launch to fail.
