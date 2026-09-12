@@ -1179,7 +1179,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
                         'list' => $activeMeds,
-                        'inactive' => $medListService->getInactiveList((int) $pid, $activeMeds),
+                        'inactiveCount' => count($medListService->getInactiveList((int) $pid, $activeMeds)),
                         'listTouched' => !empty(getListTouch($pid, 'medication')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
