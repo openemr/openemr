@@ -32,7 +32,7 @@ class ProductRegistrationRestController
         description: 'Retrieves the OpenEMR product registration information',
         tags: ['standard'],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
