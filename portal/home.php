@@ -376,6 +376,7 @@ try {
         'patientID' => $pid,
         'patientName' => $session->get('ptName', null),
         'csrfUtils' => CsrfUtils::collectCsrfToken(session: $session),
+        'csrfPostUtils' => CsrfUtils::collectCsrfToken(session: $session, subject: 'portal-payment'),
         'isEasyPro' => $isEasyPro,
         'appointments' => $appointments,
         'pastAppointments' => $past_appointments,
