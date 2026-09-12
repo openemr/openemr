@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Printable active medication list for the current patient.
+ * Printable medication list for the current patient.
+ *
+ * Active rows first, then a labeled Inactive / historical section.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -35,40 +37,55 @@ if (!empty($prow['squad']) && !AclMain::aclCheckCore('squads', $prow['squad'])) 
 }
 
 $ptname = trim(($prow['title'] ?? '') . ' ' . ($prow['fname'] ?? '') . ' ' . ($prow['mname'] ?? '') . ' ' . ($prow['lname'] ?? ''));
-$rows = (new ActiveMedicationListService())->getActiveList($pid);
+$svc = new ActiveMedicationListService();
+$active = $svc->getActiveList($pid);
+$inactive = $svc->getInactiveList($pid, $active);
+
+/**
+ * @param list<array{title: string, dose: string, start: ?string, end: ?string, comments: string}> $rows
+ */
+function oemr_print_medication_table(array $rows, bool $showEnd): void
+{
+    if ($rows === []) {
+        echo '<p>' . xlt('None{{Issues}}') . '</p>';
+        return;
+    }
+    echo '<table class="table table-bordered table-sm">';
+    echo '<thead><tr>';
+    echo '<th>' . xlt('Medication') . '</th>';
+    echo '<th>' . xlt('Dose') . '</th>';
+    echo '<th>' . xlt('Start') . '</th>';
+    if ($showEnd) {
+        echo '<th>' . xlt('End') . '</th>';
+    }
+    echo '<th>' . xlt('Comments') . '</th>';
+    echo '</tr></thead><tbody>';
+    foreach ($rows as $row) {
+        echo '<tr>';
+        echo '<td>' . text($row['title']) . '</td>';
+        echo '<td>' . text($row['dose']) . '</td>';
+        echo '<td>' . text($row['start'] !== null ? oeFormatShortDate($row['start']) : '') . '</td>';
+        if ($showEnd) {
+            echo '<td>' . text($row['end'] !== null ? oeFormatShortDate($row['end']) : '') . '</td>';
+        }
+        echo '<td>' . text($row['comments']) . '</td>';
+        echo '</tr>';
+    }
+    echo '</tbody></table>';
+}
 ?>
 <html>
 <head>
 <?php Header::setupHeader(); ?>
-<title><?php echo xlt('Active Medication List'); ?></title>
+<title><?php echo xlt('Medication List'); ?></title>
 </head>
 <body class="body_top">
-<h4><?php echo xlt('Active Medication List'); ?>
+<h4><?php echo xlt('Medication List'); ?>
     <?php echo ' ' . xlt('for') . ' ' . text($ptname); ?></h4>
-<?php if ($rows === []) { ?>
-<p><?php echo xlt('None{{Issues}}'); ?></p>
-<?php } else { ?>
-<table class="table table-bordered table-sm">
-    <thead>
-        <tr>
-            <th><?php echo xlt('Medication'); ?></th>
-            <th><?php echo xlt('Dose'); ?></th>
-            <th><?php echo xlt('Start'); ?></th>
-            <th><?php echo xlt('Comments'); ?></th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($rows as $row) { ?>
-        <tr>
-            <td><?php echo text($row['title']); ?></td>
-            <td><?php echo text($row['dose']); ?></td>
-            <td><?php echo text($row['start'] !== null ? oeFormatShortDate($row['start']) : ''); ?></td>
-            <td><?php echo text($row['comments']); ?></td>
-        </tr>
-    <?php } ?>
-    </tbody>
-</table>
-<?php } ?>
+<h5><?php echo xlt('Active'); ?></h5>
+<?php oemr_print_medication_table($active, false); ?>
+<h5><?php echo xlt('Inactive / historical'); ?></h5>
+<?php oemr_print_medication_table($inactive, true); ?>
 <script>
 if (window.opener && window.opener.top && typeof window.opener.top.printLogPrint === "function") {
     window.opener.top.printLogPrint(window);
