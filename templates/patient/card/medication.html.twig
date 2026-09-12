@@ -17,7 +17,16 @@
     {% for m in list %}
         <div class="list-group-item p-0 pl-1">
             <span class="font-weight-normal">{{ m.title|text }}</span>
-            <span>{{ m.drug_dosage_instructions|text }}</span>
+            <span>{{ (m.dose|default(m.drug_dosage_instructions))|text }}</span>
+        </div>
+    {% endfor %}
+{% endif %}
+{% if inactive is defined and inactive|length > 0 %}
+    <div class="list-group-item p-0 pl-1 text-muted small font-italic">{{ "Inactive / historical"|xlt }}</div>
+    {% for m in inactive %}
+        <div class="list-group-item p-0 pl-1 text-muted">
+            <span class="font-weight-normal">{{ m.title|text }}</span>
+            <span>{{ (m.dose|default(m.drug_dosage_instructions))|text }}</span>
         </div>
     {% endfor %}
 {% endif %}
