@@ -51,7 +51,7 @@ There is also a less-flexible development docker rebuilt daily, tagged `dev` (he
 
 To better assist administrators managing security updates, script packages can be sideloaded into the production
 container to be run at certain defined container lifecycle points, such as after an upgrade or before Apache's
-launch. See the (vendor hooks documentation)[docker/HOOKS.md] for the location and formatting of these packages.
+launch. See the [vendor hooks documentation](docker/HOOKS.md) for the location and formatting of these packages.
 
 ## Source repository and pipeline
 
