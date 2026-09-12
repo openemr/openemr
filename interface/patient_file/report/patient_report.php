@@ -254,7 +254,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <!--
                                     <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br />
                                     -->
-                                    <input type='checkbox' name='include_medications' id='include_medications' value="medications" /><?php echo xlt('Medication List'); ?>
+                                    <input type='checkbox' name='include_medications' id='include_medications' value="medications" /><?php echo xlt('Medications'); ?>
                                     <br />
                                     <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations" /><?php echo xlt('Immunizations'); ?>
                                     <br />
