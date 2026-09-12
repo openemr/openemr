@@ -65,6 +65,7 @@ use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
+use OpenEMR\Services\ActiveMedicationListService;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\Forms\CarePlanFormService;
 use OpenEMR\Services\FormService;
@@ -1173,7 +1174,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // MEDICATION CARD
                 if ($meds === 1) {
-                    $_rawMedList = $patIssueService->search(['lists.pid' => is_int($pid) ? (string) $pid : $pid, 'lists.type' => 'medication'])->getData();
+                    $medListService = new ActiveMedicationListService();
+                    $activeMeds = $medListService->getActiveList((int) $pid);
                     $id = 'medication_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medications'),
@@ -1182,7 +1184,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'forceAlwaysOpen' => false,
                         'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
-                        'list' => filterActiveIssues($_rawMedList),
+                        'list' => $activeMeds,
+                        'inactive' => $medListService->getInactiveList((int) $pid, $activeMeds),
                         'listTouched' => !empty(getListTouch($pid, 'medication')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
