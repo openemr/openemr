@@ -185,7 +185,12 @@ class ListService
 
     public function insert($data)
     {
+        // The row needs a uuid at insert time. Without one, reading the list
+        // back through this same service throws on the null until the
+        // missing-uuid backfill happens to run, so POST then GET on the same
+        // collection returns 500 and then heals on its own.
         $sql  = " INSERT INTO lists SET";
+        $sql .= "     uuid=?,";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
         $sql .= "     pid=?,";
@@ -198,6 +203,7 @@ class ListService
         return sqlInsert(
             $sql,
             [
+                UuidRegistry::getRegistryForTable('lists')->createUuid(),
                 $data['pid'],
                 $data['type'],
                 $data["title"],
