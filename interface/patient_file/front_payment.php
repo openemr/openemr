@@ -522,6 +522,13 @@ function toencounter(enc, datestr, topframe) {
                             <?php echo text("[Phone]" . $frow['phone']) ?><br />
                             <?php echo text("[Email] " . $frow['email']) ?><br />
 
+                            <br />
+                            <?php echo xlt('Patient'); ?>:
+                            <?php echo text(trim(($patdata['fname'] ?? '') . ' ' . ($patdata['mname'] ?? '') . ' ' . ($patdata['lname'] ?? ''))); ?>
+
+                            <br />
+                            <?php echo xlt('Patient ID'); ?>:
+                            <?php echo text($patdata['pubpid'] ?? ''); ?>
 
                             <br />
                             <?php echo xlt('How Paid'); ?>:
