@@ -17,6 +17,8 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -279,10 +281,28 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         // FHIR PUT cannot rebind the practitioner or organization; drop those uuids from
         // the update payload to keep PractitionerRoleService::update focused on role/specialty.
         unset($updatedOpenEMRRecord['provider_uuid'], $updatedOpenEMRRecord['facility_uuid']);
-        return $this->practitionerRoleService->update(
+        $result = $this->practitionerRoleService->update(
             $fhirResourceId,
             FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
         );
+        if ($result->hasErrors() || !$result->hasData()) {
+            return $result;
+        }
+
+        // Read the role back through the search path rather than returning what update() built.
+        // It answers with a bare ['uuid' => ...] row, and FhirServiceBase::update() feeds that
+        // straight into parseOpenEMRRecord(), which reads role_code, specialty_code,
+        // provider_uuid and facility_uuid -- so a successful PUT came back as a PractitionerRole
+        // carrying nothing but its id and meta.
+        // Keyed on providers.facility_role_uuid, the same field the _id search parameter above
+        // resolves to -- so this is the identical lookup a GET performs. The outer select only
+        // exposes it as the alias `uuid`, which MySQL will not accept in a WHERE clause.
+        return $this->searchForOpenEMRRecords([
+            'providers.facility_role_uuid' => new TokenSearchField(
+                'providers.facility_role_uuid',
+                [new TokenSearchValue($fhirResourceId, null, true)]
+            ),
+        ]);
     }
 
     /**
