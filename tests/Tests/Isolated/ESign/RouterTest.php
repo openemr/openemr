@@ -49,7 +49,11 @@ class RouterTest extends TestCase
         $this->assertSame($expected, Router::resolveModule($input));
     }
 
-    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function validModules(): array
     {
         return [
@@ -62,13 +66,17 @@ class RouterTest extends TestCase
     }
 
     #[DataProvider('maliciousModules')]
-    public function testRejectsUnknownOrTraversalModules($input): void
+    public function testRejectsUnknownOrTraversalModules(mixed $input): void
     {
         $this->expectException(InvalidArgumentException::class);
         Router::resolveModule($input);
     }
 
-    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
+    /**
+     * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function maliciousModules(): array
     {
         return [

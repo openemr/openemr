@@ -146,6 +146,7 @@ class OneTimeAuth
      * @param $onetime_token
      * @return array
      * @throws OneTimeAuthExpiredException
+     * @throws OneTimeAuthException
      */
     public function decodePortalOneTime($onetime_token, $logUpdate = true): array
     {
@@ -187,7 +188,9 @@ class OneTimeAuth
         // paths, so a token that has already reached its configured limit is
         // rejected rather than replayed or brute-forced.
         $actions = is_array($t_info['onetime_actions'] ?? null) ? $t_info['onetime_actions'] : [];
-        if (self::usageLimitReached($actions, (int)($t_info['access_count'] ?? 0), $this->pinAttemptLimit())) {
+        $accessCountRaw = $t_info['access_count'] ?? 0;
+        $accessCount = is_numeric($accessCountRaw) ? (int) $accessCountRaw : 0;
+        if (self::usageLimitReached($actions, $accessCount, $this->pinAttemptLimit())) {
             $this->systemLogger->error("Onetime token refused: usage limit reached", ['token' => $tokenFingerprint]);
             throw new OneTimeAuthException("Onetime token usage limit reached");
         }
@@ -310,7 +313,7 @@ class OneTimeAuth
      * flags against it throttles both token replay and PIN brute force without
      * any schema change.
      *
-     * @param array $actions        Decoded onetime_actions for the token.
+     * @param array<array-key, mixed> $actions Decoded onetime_actions for the token.
      * @param int   $accessCount     Current onetime_auth.access_count for the token.
      * @param int   $maxPinAttempts  Effective cap for PIN-protected tokens (see
      *                               MAX_PIN_ATTEMPTS / the portal_onetime_max_pin_attempts global).
@@ -324,7 +327,8 @@ class OneTimeAuth
         }
 
         // Explicit cap set by the caller (0 = unlimited).
-        $maxAccess = (int)($actions['max_access_count'] ?? 0);
+        $maxAccessRaw = $actions['max_access_count'] ?? 0;
+        $maxAccess = is_numeric($maxAccessRaw) ? (int) $maxAccessRaw : 0;
         if ($maxAccess > 0 && $accessCount >= $maxAccess) {
             return true;
         }

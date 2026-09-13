@@ -133,6 +133,11 @@ class OneTimeAuthPolicyTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function typeJugglingBypassProvider(): array
     {
         return [
@@ -158,6 +163,11 @@ class OneTimeAuthPolicyTest extends TestCase
         $this->assertFalse(OneTimeAuth::pinMatches('123456', $submitted));
     }
 
+    /**
+     * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
     public static function nonStringProvider(): array
     {
         return [
