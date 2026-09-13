@@ -419,7 +419,10 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
     public function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         $patientId = $this->resolvePatientId($openEmrRecord['puuid'] ?? null);
-        $encounterId = $this->resolveEncounterId($openEmrRecord['encounter_uuid'] ?? null);
+        $encounterId = $this->resolveEncounterId(
+            $openEmrRecord['encounter_uuid'] ?? null,
+            FhirPayloadReader::get($openEmrRecord, 'puuid')
+        );
         $questionnaire = $this->fetchQuestionnaireContent(
             $openEmrRecord['questionnaire_id'] ?? null,
             FhirPayloadReader::get($openEmrRecord, 'questionnaire_version')
@@ -619,13 +622,28 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         return $pid;
     }
 
-    private function resolveEncounterId(mixed $encounterUuid): ?int
+    /**
+     * Resolves the encounter the answers were captured at.
+     *
+     * Bound to the subject's compartment: the encounter reference and the subject reference are
+     * resolved independently from the payload, so without the bind a caller could file a
+     * response against another patient's visit -- and the response then reads back under it.
+     * EncounterService::getEncounter() already takes the bind; it simply was not being passed.
+     */
+    private function resolveEncounterId(mixed $encounterUuid, mixed $puuid): ?int
     {
         if (!is_string($encounterUuid) || $encounterUuid === '') {
             return null;
         }
-        $encounterRecords = ProcessingResult::extractDataArray((new EncounterService())->getEncounter($encounterUuid));
+        if (!is_string($puuid) || $puuid === '') {
+            throw new InvalidArgumentException("QuestionnaireResponse.subject must reference a Patient on this server.");
+        }
+        $encounterRecords = ProcessingResult::extractDataArray(
+            (new EncounterService())->getEncounter($encounterUuid, $puuid)
+        );
         if ($encounterRecords === []) {
+            // Reported the same way an unknown encounter is: an encounter outside the subject's
+            // compartment must not be distinguishable from one that does not exist.
             throw new InvalidArgumentException("Encounter does not exist");
         }
         $eid = self::toInt($encounterRecords[0]['eid'] ?? null);
