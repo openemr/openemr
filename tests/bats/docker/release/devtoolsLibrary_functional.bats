@@ -5,7 +5,20 @@ load '../helpers'
 setup() {
     SCRIPT_DIR="$(get_script_dir release)"
     LIB="${SCRIPT_DIR}/utilities/devtoolsLibrary.source"
+    SCRIPT="${SCRIPT_DIR}/openemr.sh"
     [[ -f "$LIB" ]]
+    [[ -f "$SCRIPT" ]]
+}
+
+@test "release devtoolsLibrary: timing helpers use EPOCHREALTIME microseconds" {
+    run bash -c "set -e; source '$LIB'; grep -Fq '\${EPOCHREALTIME/[.,]/}' '$LIB'; [[ \"\$(current_time_us)\" =~ ^[0-9]+$ ]]; [[ \"\$(elapsed_time_us 1000000 1234567)\" == \"234567\" ]]; [[ \"\$(elapsed_time_us 1234567 1000000)\" == \"0\" ]]; [[ \"\$(format_elapsed_seconds 4999)\" == \"0.00\" ]]; [[ \"\$(format_elapsed_seconds 5000)\" == \"0.01\" ]]; [[ \"\$(format_elapsed_seconds 234567)\" == \"0.23\" ]]"
+    [[ $status -eq 0 ]]
+}
+
+@test "release openemr.sh: startup timing avoids busybox nanoseconds and python" {
+    ! grep -q 'date +%s\.%N' "$SCRIPT"
+    ! grep -q 'python3 -c "print(round' "$SCRIPT"
+    grep -Fq 'PERM_DURATION_US >= 5000' "$SCRIPT"
 }
 
 @test "devtoolsLibrary: prepareVariables with custom env sets CONFIGURATION" {
