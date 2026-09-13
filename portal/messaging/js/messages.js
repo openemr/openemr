@@ -103,6 +103,30 @@
         return str.length > limit ? str.substring(0, limit) : str;
     }
 
+    function secureMessageEditorOptions(height) {
+        return {
+            focus: true,
+            height: height,
+            width: '100%',
+            tabsize: 4,
+            disableDragAndDrop: true,
+            dialogsInBody: true,
+            dialogsFade: true,
+            // Secure messages deliberately do not support links or uploaded
+            // media. Keep the editor UI aligned with what rendering permits.
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['view', ['codeview', 'help']]
+            ],
+            popover: {
+                image: [],
+                link: [],
+                air: []
+            }
+        };
+    }
+
     async function postForm(url, params) {
         const response = await fetch(url, {
             method: 'POST',
@@ -614,15 +638,7 @@
             state.compose.noteid = $(relatedTarget).attr('data-noteid');
             updateComposeForm();
         } else if (mode === 'reply') {
-            $('#inputBody').show().summernote({
-                focus: true,
-                height: '225px',
-                width: '100%',
-                tabsize: 4,
-                disableDragAndDrop: true,
-                dialogsInBody: true,
-                dialogsFade: true
-            });
+            $('#inputBody').show().summernote(secureMessageEditorOptions('225px'));
             $('#finputBody').hide();
             $('#selForwardto').hide();
             $('#selSendto').show();
@@ -643,20 +659,7 @@
             state.compose.noteid = chain;
             updateComposeForm();
         } else {
-            $('#inputBody').show().summernote({
-                width: '100%',
-                focus: true,
-                height: '375px',
-                tabsize: 4,
-                disableDragAndDrop: true,
-                dialogsInBody: true,
-                dialogsFade: true,
-                popover: {
-                    image: [],
-                    link: [],
-                    air: []
-                }
-            });
+            $('#inputBody').show().summernote(secureMessageEditorOptions('375px'));
             $('#finputBody').hide();
             $('#selForwardto').hide();
             $('#selSendto').show().prop('disabled', false);
@@ -810,6 +813,7 @@
             escapeHtml,
             htmlToText,
             limitTo,
+            secureMessageEditorOptions,
             renderMessageBody,
             paginate,
             groupChain

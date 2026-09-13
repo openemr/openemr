@@ -191,6 +191,21 @@ describe('messages.js limitTo', () => {
     });
 });
 
+describe('messages.js secureMessageEditorOptions', () => {
+    const { secureMessageEditorOptions } = messagesHelpers;
+
+    test('does not offer links or uploaded media', () => {
+        const options = secureMessageEditorOptions('225px');
+        const buttons = options.toolbar.flatMap(group => group[1]);
+
+        expect(buttons).not.toContain('link');
+        expect(buttons).not.toContain('picture');
+        expect(buttons).not.toContain('video');
+        expect(options.disableDragAndDrop).toBe(true);
+        expect(options.popover).toEqual({ image: [], link: [], air: [] });
+    });
+});
+
 // ---------------------------------------------------------------------------
 // messages.js: renderMessageBody — the only sink that passes user-supplied
 // HTML straight into innerHTML. Must be DOMPurify-sanitized and must forbid
