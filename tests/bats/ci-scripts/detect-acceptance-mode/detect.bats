@@ -40,7 +40,7 @@ teardown() {
 
 # --- workflow_call gate ---
 
-@test "workflow_call gate happy path (both artifacts + to_version) -> build_locally=true, to_version=input" {
+@test "workflow_call gate happy path (both artifacts + to_version) -> build_locally=true, expected_version=to_version" {
     export EVENT_NAME="workflow_dispatch"
     export CALLER_TARBALL_ARTIFACT="my-tarball"
     export CALLER_ZIP_ARTIFACT="my-zip"
@@ -52,8 +52,40 @@ teardown() {
     emitted="$(read_output)"
     [[ "${emitted}" == *"build_locally=true"* ]]
     [[ "${emitted}" == *"to_version=8.2.1"* ]]
-    # build_locally=true: expected_version reads version.php (seeded 8.4.99).
-    [[ "${emitted}" == *"expected_version=8.4.99"* ]]
+    # workflow_call gate: expected_version MUST equal to_version, NOT be
+    # read from the checkout's version.php (seeded here at 8.4.99). The
+    # caller-supplied tarball was built with --release-version=to_version
+    # so the running artifact self-reports to_version verbatim. Reading
+    # from the checkout was the openemr/openemr#13761 regression that
+    # made the 8.4.0 ship's acceptance-gate fail (expected=8.5.0 vs
+    # actual=8.4.0); guard against reintroduction.
+    [[ "${emitted}" == *"expected_version=8.2.1"* ]]
+    [[ "${emitted}" != *"expected_version=8.4.99"* ]]
+}
+
+@test "workflow_call gate: expected_version pins to_version even when checkout version.php differs (8.4.0 ship regression guard)" {
+    # Simulates the exact 8.4.0 ship failure: build-release-on-tag fires
+    # against a v8_4_0 tag but its inherited github.ref is master, so
+    # actions/checkout lands on master, whose version.php reads e.g.
+    # 8.5.0-dev. Without the fix, emit_expected_version("true") reads
+    # master's 8.5.0-dev -> ACCEPTANCE_EXPECTED_VERSION=8.5.0 while the
+    # tarball self-reports 8.4.0 -> every acceptance-gate cell fails.
+    export EVENT_NAME="workflow_dispatch"
+    export CALLER_TARBALL_ARTIFACT="release-candidate-8.4.0-tarball"
+    export CALLER_ZIP_ARTIFACT="release-candidate-8.4.0-zip"
+    export DISPATCH_TO_VERSION="8.4.0"
+    # Checkout carries master's next-cycle version.php (would resolve to
+    # 8.5.0 under read_tree_version) — deliberately distinct from
+    # DISPATCH_TO_VERSION to catch any regression that re-couples
+    # expected_version to the checkout instead of to_version.
+    seed_version_php 8 5 0
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=8.4.0"* ]]
+    [[ "${emitted}" == *"expected_version=8.4.0"* ]]
+    [[ "${emitted}" != *"expected_version=8.5.0"* ]]
 }
 
 @test "workflow_call gate half-set (only tarball) -> exit 1 with both-or-neither error" {
