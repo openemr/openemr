@@ -691,8 +691,10 @@ log_timing() {
     local step_name="$1"
     local current_time
     local elapsed
+    local elapsed_us
     current_time=$(current_time_us)
-    elapsed=$(format_elapsed_seconds "$(elapsed_time_us "${SCRIPT_START_TIME}" "${current_time}")")
+    elapsed_us=$(elapsed_time_us "${SCRIPT_START_TIME}" "${current_time}")
+    elapsed=$(format_elapsed_seconds "${elapsed_us}")
     echo "[TIMING] Step ${step_name}: ${elapsed}s elapsed"
 }
 
@@ -795,7 +797,8 @@ if [[ "${AUTHORITY}" = "yes" ]]; then
         fi
 
         AUTO_CONFIG_END=$(current_time_us)
-        AUTO_CONFIG_DURATION=$(format_elapsed_seconds "$(elapsed_time_us "${AUTO_CONFIG_START}" "${AUTO_CONFIG_END}")")
+        AUTO_CONFIG_DURATION_US=$(elapsed_time_us "${AUTO_CONFIG_START}" "${AUTO_CONFIG_END}")
+        AUTO_CONFIG_DURATION=$(format_elapsed_seconds "${AUTO_CONFIG_DURATION_US}")
         echo "[TIMING] Auto-configuration took ${AUTO_CONFIG_DURATION}s"
         echo "Setup Complete!"
 
@@ -941,7 +944,8 @@ if [[ "${OPERATOR}" = "yes" ]]; then
     done
 
     SCRIPT_END_TIME=$(current_time_us)
-    TOTAL_DURATION=$(format_elapsed_seconds "$(elapsed_time_us "${SCRIPT_START_TIME}" "${SCRIPT_END_TIME}")")
+    TOTAL_DURATION_US=$(elapsed_time_us "${SCRIPT_START_TIME}" "${SCRIPT_END_TIME}")
+    TOTAL_DURATION=$(format_elapsed_seconds "${TOTAL_DURATION_US}")
     echo "[TIMING] Total script execution time: ${TOTAL_DURATION}s before PHP-FPM/Apache start"
     echo 'Starting PHP-FPM...'
     # Create PHP-FPM log directory (needed even if /var/log is a volume)
