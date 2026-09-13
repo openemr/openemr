@@ -1,0 +1,22 @@
+deployment_preset = "hybrid"
+
+name_prefix = "openemr"
+aws_region  = "us-east-2"
+
+network_reference = {
+  vpc_id             = "vpc-0123456789abcdef0"
+  public_subnet_ids  = ["subnet-public-a", "subnet-public-b"]
+  private_subnet_ids = ["subnet-private-a", "subnet-private-b"]
+  db_subnet_ids      = ["subnet-db-a", "subnet-db-b"]
+}
+
+load_balancer_reference = {
+  alb_arn               = "arn:aws:elasticloadbalancing:us-east-2:123456789012:loadbalancer/app/example/abc123"
+  alb_security_group_id = "sg-0123456789abcdef0"
+}
+
+hosted_zone_name      = "example.com"
+openemr_hostname      = "openemr.example.com"
+openemr_allowed_cidrs = ["203.0.113.10/32"]
+
+openemr_image = "openemr/openemr:8.0.1"
