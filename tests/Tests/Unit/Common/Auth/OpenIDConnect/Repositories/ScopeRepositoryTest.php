@@ -88,7 +88,7 @@ class ScopeRepositoryTest extends TestCase
                 ,'user/medical_problem.cruds'
             ]);
         $scopeRepository = $this->scopeRepository;
-        $scopeRepository->setSystemLogger($this->createMock(LoggerInterface::class));
+        $scopeRepository->setLogger($this->createMock(LoggerInterface::class));
         $scopeRepository->setServerScopeList($serverScopeListEntity);
 
         $validSubSets = [
@@ -222,27 +222,170 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals("patient/Patient.ruds", $allowedScopes[2]->getIdentifier(), "Allowed scope should be patient/Patient.ruds");
     }
 
-    public function finalizeScopesWithInvalidSubScopeWillFail(): never
+    public function testFinalizeScopesFiltersOutInvalidSubScope(): void
     {
-        // tests we need to handle here
-        $this->markTestIncomplete("ScopeRepository::finalizeScopes() needs to be implemented and tested.");
-
-        // verify a client with a full scope, will still fail if a request is made for an invalid sub scope
+        // A client registered only with read/search permissions must not receive
+        // a create/update/delete scope it did not register for. finalizeScopes()
+        // filters unsatisfiable scopes rather than failing the whole grant, so
+        // the write scope is dropped while satisfiable scopes are retained.
         $scopeRepository = $this->scopeRepository;
         $requestedScopes = [
-            ScopeEntity::createFromString("patient/Patient.cud")
+            ScopeEntity::createFromString("patient/Patient.cud"), // not registered — must be dropped
+            ScopeEntity::createFromString("patient/Patient.rs"),  // registered — must survive
         ];
         $client = new ClientEntity();
         $client->setScopes([
-            "patient/Patient.rs"
-            ,"patient/Patient.r"
-            ,"patient/Patient.s"
-            ,"openid"
-            ,"api:fhir"
-            ,"api:oemr"
-            ,"api:portal"
+            "patient/Patient.rs",
+            "patient/Patient.r",
+            "patient/Patient.s",
+            "openid",
+            "api:fhir",
+            "api:oemr",
+            "api:portal",
         ]);
         $allowedScopes = $scopeRepository->finalizeScopes($requestedScopes, "authorization_code", $client);
-        $this->assertEmpty($allowedScopes, "Allowed scope should be empty for patient/Patient.rs as its not a subset of Patient/Patient.cud");
+
+        $allowedNames = array_map(fn($s) => $s->getIdentifier(), $allowedScopes);
+        $this->assertContains("patient/Patient.rs", $allowedNames, "A registered read/search scope should survive finalizeScopes()");
+        $this->assertNotContains("patient/Patient.cud", $allowedNames, "An unregistered write scope must be filtered out by finalizeScopes()");
+    }
+
+    public function testHasScopesThatRequireManualApprovalDetectsPrivilegedContextsInSlashSpellings(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+        $scopeRepository->setLogger($this->createMock(LoggerInterface::class));
+
+        // Every slash-form spelling of a system/user scope must gate a confidential
+        // client for manual approval. Colon-form privileged scopes never reach
+        // this gate — they are rejected upstream at parse time by
+        // ScopeEntity::createFromString() and by validateScopesAgainstServerApprovedScopes().
+        $privilegedScopeSets = [
+            'slash form system scope' => ["openid", "system/Patient.read"],
+            'slash form user scope' => ["openid", "user/Patient.read"],
+            'system export operation' => ["system/Group.\$export"],
+            'system wildcard scope' => ["system/*.rs"],
+            'bare system context' => ["system"],
+            'bare user context' => ["user"],
+            'privileged scope hidden among patient scopes' => ["patient/Patient.read", "patient/Observation.rs", "user/Encounter.read"],
+        ];
+        foreach ($privilegedScopeSets as $description => $scopes) {
+            $this->assertTrue(
+                $scopeRepository->hasScopesThatRequireManualApproval(true, $scopes),
+                "Confidential client with {$description} should require manual approval"
+            );
+        }
+    }
+
+    /**
+     * Colon-form privileged scopes (system:, user:) are rejected at parse time
+     * by ScopeEntity::createFromString(). arrayHasContext() catches the parse
+     * exception and skips them, so this gate returns false for a client whose
+     * only privileged scope is colon-form. That is the correct fail-closed
+     * behavior — the client cannot obtain a working token because the colon-
+     * form scope is also rejected upstream by
+     * validateScopesAgainstServerApprovedScopes() before reaching this gate.
+     * Documented so a future loosening of the parser cannot silently open a
+     * bypass here without failing this test.
+     */
+    public function testHasScopesThatRequireManualApprovalSkipsColonFormPrivilegedScopes(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+        $scopeRepository->setLogger($this->createMock(LoggerInterface::class));
+
+        $colonFormOnly = [
+            'colon form system scope only' => ["openid", "system:Patient.read"],
+            'colon form user scope only' => ["openid", "user:Patient.read"],
+        ];
+        foreach ($colonFormOnly as $description => $scopes) {
+            $this->assertFalse(
+                $scopeRepository->hasScopesThatRequireManualApproval(true, $scopes),
+                "Confidential client with {$description} should be skipped by arrayHasContext (rejected upstream at parse time)"
+            );
+        }
+    }
+
+    public function testHasScopesThatRequireManualApprovalAutoEnablesPatientOnlyConfidentialClients(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+        $scopeRepository->setLogger($this->createMock(LoggerInterface::class));
+
+        // ONC information blocking rule: confidential apps using ONLY patient/* scopes
+        // (plus openid connect & site scopes) must be allowed to auto-enable
+        $patientOnlyScopes = [
+            "openid", "fhirUser", "email", "offline_access",
+            "launch/patient",
+            "api:fhir", "api:oemr", "api:port", "api:portal", "site:default",
+            "patient/Patient.read", "patient/Observation.rs", "patient/Encounter.cruds",
+        ];
+        $this->assertFalse(
+            $scopeRepository->hasScopesThatRequireManualApproval(true, $patientOnlyScopes),
+            "Confidential client with only patient/openid/site scopes should be auto-enabled"
+        );
+    }
+
+    public function testHasScopesThatRequireManualApprovalPublicClientWithLaunchScope(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+        $scopeRepository->setLogger($this->createMock(LoggerInterface::class));
+
+        $this->assertTrue(
+            $scopeRepository->hasScopesThatRequireManualApproval(false, ["openid", "launch", "patient/Patient.read"]),
+            "Public client requesting the launch scope should require manual approval"
+        );
+        $this->assertFalse(
+            $scopeRepository->hasScopesThatRequireManualApproval(false, ["openid", "launch/patient", "patient/Patient.read"]),
+            "Public client without the standalone launch scope should be auto-enabled"
+        );
+    }
+
+    public function testHasScopesThatRequireManualApprovalHonorsGlobalSetting(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+        $scopeRepository->setLogger($this->createMock(LoggerInterface::class));
+
+        $this->assertTrue(
+            $scopeRepository->hasScopesThatRequireManualApproval(false, ["openid", "patient/Patient.read"], '1'),
+            "OAuthManualApproval global setting of '1' should require manual approval regardless of scopes"
+        );
+    }
+
+    /**
+     * Encodes the fail-closed invariant that makes it safe for the manual-approval
+     * gate to skip unparsable scopes: getScopeEntityByIdentifier() uses the same
+     * ScopeEntity parser at grant time, so any scope the gate ignores as unparsable
+     * can never actually be granted. If the grant-time parser is ever loosened
+     * without also tightening the gate, this test should catch the divergence.
+     */
+    public function testUnparsableSystemLookingScopeIsSkippedButFailsClosedAtGrantTime(): void
+    {
+        $scopeRepository = $this->scopeRepository;
+
+        $scopeRepository->setLogger($this->createMock(LoggerInterface::class));
+
+        $serverScopeListEntity = $this->getMockBuilder(ServerScopeListEntity::class)
+            ->onlyMethods(['getAllSupportedScopesList'])
+            ->getMock();
+        $serverScopeListEntity->expects($this->any())
+            ->method('getAllSupportedScopesList')
+            ->willReturn([
+                "system/Patient.cruds"
+            ]);
+        $scopeRepository->setServerScopeList($serverScopeListEntity);
+
+        $unparsableScopes = [
+            "system/Patient.bogus"      // invalid permission string
+            , "system/Patient/extra"    // extra path segment
+            , "system/Pat ient.read"    // whitespace inside resource
+        ];
+        foreach ($unparsableScopes as $scope) {
+            $this->assertFalse(
+                $scopeRepository->hasScopesThatRequireManualApproval(true, [$scope]),
+                "Unparsable scope {$scope} should be skipped by the manual-approval gate"
+            );
+            $this->assertEmpty(
+                $scopeRepository->getScopeEntityByIdentifier($scope),
+                "Unparsable scope {$scope} must also be rejected at grant time (fail-closed invariant)"
+            );
+        }
     }
 }

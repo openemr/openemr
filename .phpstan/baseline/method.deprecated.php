@@ -649,12 +649,6 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ScopeRepository\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method requestHasScope\\(\\) of class OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:
 use requestHasScopeEntity\\(\\) instead which receives a ScopeEntity object$#',
     'count' => 12,

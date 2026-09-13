@@ -323,17 +323,20 @@ class AuthorizationController implements LoggerAwareInterface
                 $params['client_secret'] = $client_secret;
                 $params['client_role'] = 'user';
 
-                // don't allow system scopes without a jwk or jwks_uri value
+                // don't allow system scopes without a jwk or jwks_uri value.
+                // Compare on the parsed SMART context so alternate spellings of the
+                // delimiter (e.g. "system:Patient.read") cannot bypass this check.
                 if (
-                    str_contains($scope, 'system/')
+                    ScopeEntity::scopeListHasContext($scope, 'system')
                     && !$data->has('jwks') && !$data->has('jwks_uri')
                 ) {
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
-                // don't allow user, system scopes, and offline_access for public apps
+                // don't allow user, system scopes, and offline_access for public apps.
+                // Parse-and-compare on context so colon-form scopes cannot bypass this gate.
             } elseif (
-                str_contains($scope, 'system/')
-                || str_contains($scope, 'user/')
+                ScopeEntity::scopeListHasContext($scope, 'system')
+                || ScopeEntity::scopeListHasContext($scope, 'user')
             ) {
                 throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }

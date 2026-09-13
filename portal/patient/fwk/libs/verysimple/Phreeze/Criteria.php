@@ -264,11 +264,18 @@ class Criteria
                         $this->_where_delim = " and";
                     } elseif (str_ends_with((string) $prop, "_BitwiseOr") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BitwiseOr", "", $prop));
-                        $this->_where .= $this->_where_delim . " (" . $dbfield . " | '" . $this->Escape($val) . ")";
+                        // Bitwise operands are integers by definition. Emit the value as an
+                        // integer literal rather than string-escaping it: this is an unquoted
+                        // SQL context, where Escape() (a quote-context str_replace) does not
+                        // neutralise spaces, operators or keywords and would allow injection.
+                        $bitmask = is_numeric($val) ? (int) $val : 0;
+                        $this->_where .= $this->_where_delim . " (" . $dbfield . " | " . $bitmask . ")";
                         $this->_where_delim = " and";
                     } elseif (str_ends_with((string) $prop, "_BitwiseAnd") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BitwiseAnd", "", $prop));
-                        $this->_where .= $this->_where_delim . " (" . $dbfield . " & " . $this->Escape($val) . ")";
+                        // See _BitwiseOr above: emit an integer literal for this unquoted context.
+                        $bitmask = is_numeric($val) ? (int) $val : 0;
+                        $this->_where .= $this->_where_delim . " (" . $dbfield . " & " . $bitmask . ")";
                         $this->_where_delim = " and";
                     } elseif (str_ends_with((string) $prop, "_LiteralFunction") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_LiteralFunction", "", $prop));

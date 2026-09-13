@@ -217,4 +217,63 @@ class AuthorizationClientRegistrationNegativeTest extends TestCase
         ]);
         $this->assertRejected($status, $body, "unsafe jwks_uri: $jwksUri");
     }
+
+    /**
+     * 6. A confidential (private) client requesting a privileged-context scope
+     *    in colon form (e.g. system:Patient.read, user:Patient.read,
+     *    patient:Patient.read) must be rejected. The colon delimiter is
+     *    reserved for SMART launch contexts (api:oemr, site:default, etc.);
+     *    every permission-bearing context must use the slash delimiter.
+     *
+     *    ScopeEntity::createFromString throws InvalidArgumentException at
+     *    parse time; validateScopesAgainstServerApprovedScopes catches the
+     *    invalid scope and raises OAuthServerException::invalidScope, which
+     *    clientRegistration() converts to a 4xx HTTP response.
+     */
+    public function testColonFormPrivilegedScopeIsRejected(): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Colon System Client",
+            "token_endpoint_auth_method" => "private_key_jwt",
+            "contacts" => ["test@open-emr.org"],
+            "jwks" => ["keys" => [[
+                "kty" => "RSA",
+                "n" => "sXchDaQebHnPiGvyDOAT4saGEUetSyo9MKLOoWFsueri23bOdgWp4Dy1WlUzewbgBHod5pcM9H95GQRV3JDXboIRROSBigeC5yjU1hGzHHyXss8UDprecbAYxknTcQkhslANGRUZmdTOQ5ZTsSt1RwbGSKcNIGVpxKn5Fz-3wZ_wMg-BiTL7uKb1YnLBLK6zTOevD5rG-oJ2Xh0Rj_5Fk-oxaGdD1CInGGm4L5rNe6ULiNyk3z8hE0PBBJnpP4-VfXlOFA3zJPBSjA3W9CXCTn5H6DVoI9FUeS29H0Kzu9jGXm2y7pMBpUvL15pw",
+                "e" => "AQAB",
+                "kid" => "colon-poc",
+                "alg" => "RS256",
+                "use" => "sig",
+            ]]],
+            "scope" => "openid api:fhir system:Patient.read",
+        ]);
+        $this->assertRejected($status, $body, "colon-form system: scope");
+    }
+
+    public function testColonFormUserScopeIsRejected(): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Colon User Client",
+            "token_endpoint_auth_method" => "client_secret_basic",
+            "contacts" => ["test@open-emr.org"],
+            "scope" => "openid user:Patient.read",
+        ]);
+        $this->assertRejected($status, $body, "colon-form user: scope");
+    }
+
+    public function testColonFormPatientScopeIsRejected(): void
+    {
+        [$status, $body] = $this->registerWith([
+            "application_type" => "private",
+            "redirect_uris" => ["http://localhost:8080/oauth2/callback"],
+            "client_name" => "Colon Patient Client",
+            "token_endpoint_auth_method" => "client_secret_basic",
+            "contacts" => ["test@open-emr.org"],
+            "scope" => "openid patient:Patient.read",
+        ]);
+        $this->assertRejected($status, $body, "colon-form patient: scope");
+    }
 }

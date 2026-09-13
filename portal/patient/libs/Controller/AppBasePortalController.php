@@ -81,6 +81,38 @@ class AppBasePortalController extends PortalController
     }
 
     /**
+     * Apply request parameters as equality filters on a query Criteria.
+     *
+     * Request input may only ever drive equality (`_Equals`) filters. The
+     * comparator applied to a column is a code-level decision and must never be
+     * selectable from the request: assigning arbitrary criteria properties from
+     * request keys (e.g. `*_BitwiseAnd`, `*_In`, `*_LiteralFunction`, or the
+     * framework `Filters` property) is a mass-assignment weakness (CWE-915) and,
+     * for the bitwise comparators, reaches an unquoted SQL context (CWE-89).
+     *
+     * Both the bare-column convenience form (`?Id=5` -> `Id_Equals`) and the
+     * explicit form (`?Id_Equals=5`) are preserved.
+     *
+     * @param Criteria $criteria the query criteria to populate
+     */
+    protected function ApplyRequestEqualsFilters(Criteria $criteria): void
+    {
+        $request = \OpenEMR\Common\Http\CurrentRequest::get();
+        $keys = array_unique(array_merge($request->query->keys(), $request->request->keys()));
+
+        foreach ($keys as $prop) {
+            $prop_normal = ucfirst((string) $prop);
+
+            if (str_ends_with($prop_normal, '_Equals') && property_exists($criteria, $prop_normal)) {
+                $criteria->$prop_normal = RequestUtil::Get($prop);
+            } elseif (property_exists($criteria, $prop_normal . '_Equals')) {
+                // convenience so that the _Equals suffix is not needed
+                $criteria->{$prop_normal . '_Equals'} = RequestUtil::Get($prop);
+            }
+        }
+    }
+
+    /**
      * Helper utility that calls RenderErrorJSON
      * @param mixed $exception
      */

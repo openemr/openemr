@@ -323,7 +323,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     /**
      * Checks if the given scopes array requires any manual approval by an administrator before an oauth2 client can be authorized
      * @param bool $is_confidential_client Whether the client is confidential (can keep a secret safe) or a public app
-     * @param array $scopes The scopes to be checked to see if we need manual approval
+     * @param string[] $scopes The scopes to be checked to see if we need manual approval
      * @param string $oauthManualApprovalSetting The OAuthManualApproval setting from the globals table
      * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
      */
@@ -359,35 +359,20 @@ class ScopeRepository implements ScopeRepositoryInterface
     }
 
     /**
-     * @param array $scopes
+     * @param string[] $scopes
      * @return bool
      */
     private function hasUserScopes(array $scopes): bool
     {
-        return $this->scopeArrayHasString($scopes, 'user/');
+        return ScopeEntity::arrayHasContext($scopes, 'user');
     }
 
     /**
-     * @param array $scopes
+     * @param string[] $scopes
      * @return bool
      */
     private function hasSystemScopes(array $scopes): bool
     {
-        return $this->scopeArrayHasString($scopes, 'system/');
-    }
-
-    /**
-     * @param array $scopes
-     * @param $str
-     * @return bool
-     */
-    private function scopeArrayHasString(array $scopes, $str): bool
-    {
-        foreach ($scopes as $scope) {
-            if (str_contains((string) $scope, (string) $str)) {
-                return true;
-            }
-        }
-        return false;
+        return ScopeEntity::arrayHasContext($scopes, 'system');
     }
 }
