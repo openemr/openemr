@@ -2216,6 +2216,13 @@ $GLOBALS_METADATA = [
             xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ],
 
+        'portal_onetime_max_pin_attempts' => [
+            xl('Portal One-Time Token Maximum PIN Attempts'),
+            'num',                            // data type
+            '5',                              // default
+            xl('Maximum PIN attempts allowed for a patient portal one-time (e.g. invoice) token before it is refused. 0 or blank uses the built-in default.')
+        ],
+
         'gbl_fac_warehouse_restrictions' => [
             xl('Enable Facility/Warehouse Permissions'),
             'bool',                           // data type
