@@ -2655,6 +2655,21 @@ openemr/openemr#13635 (three signals: DB via shell, About page via
 Panther, `/apis/default/api/version` via Panther) required workarounds
 whose shape teaches the wrong pattern for future contributors.
 
+**Update 2026-09-13 — priority signal from the 8.4.0 ship:** The 8.4.0
+ship-day cascade (see [`release-mechanism-gaps.md` G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13))
+was rooted in exactly the group-tag / workflow-isolation coupling the
+refactor below is designed to eliminate. The `version-display` group
+existed precisely because `acceptance-docker.yml` cannot resolve
+floating tags to `X.Y.Z` at runtime; the workaround-based way that
+`ACCEPTANCE_EXPECTED_VERSION` was plumbed through `detect-acceptance-mode.sh`
+had a latent bug (the workflow_call gate branch read `version.php` instead
+of using `to_version`, per G35 finding #1) that surfaced only on the
+first ship after the introducing PR (openemr/openemr#13761). The root-cause
+fix (openemr/openemr#13974) addressed the specific bug but the class of
+bug — value-derivation logic entangled with workflow-shape coupling —
+persists until this refactor lands. Bumps this from "when there's time"
+to "cost of NOT doing this compounds with every release cycle."
+
 ### Motivating problem
 
 Group tags on acceptance tests do three unrelated jobs at once:
