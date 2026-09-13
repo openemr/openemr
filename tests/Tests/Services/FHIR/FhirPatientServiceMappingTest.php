@@ -276,4 +276,104 @@ class FhirPatientServiceMappingTest extends TestCase
         $this->assertEquals(1, count($email));
         $this->assertEquals($email[0]->getValue(), $actualResult['email']);
     }
+
+    /**
+     * Test ethnicity extension when ethnicity data is empty (missing)
+     * Should emit Data Absent Reason (UNK/Unknown) per US Core Missing Data guidance
+     */
+    #[Test]
+    public function testParseOpenEMREthnicityRecordWithEmptyEthnicity(): void
+    {
+        $patientResource = new FHIRPatient();
+        $ethnicity = null; // empty ethnicity
+
+        // Use reflection to call private method
+        $method = new \ReflectionMethod(FhirPatientService::class, 'parseOpenEMREthnicityRecord');
+        $method->setAccessible(true);
+        $method->invoke($this->fhirPatientService, $patientResource, $ethnicity);
+
+        // Assert extension exists
+        $extensions = $patientResource->getExtension();
+        $ethnicityExt = null;
+        foreach ($extensions as $ext) {
+            if ($ext->getUrl() === 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity') {
+                $ethnicityExt = $ext;
+                break;
+            }
+        }
+
+        $this->assertNotNull($ethnicityExt, 'Ethnicity extension must be present even when data is empty');
+
+        // Assert ombCategory extension with UNK code
+        $subExtensions = $ethnicityExt->getExtension();
+        $ombCategoryExt = null;
+        $textExt = null;
+
+        foreach ($subExtensions as $subExt) {
+            if ($subExt->getUrl() === 'ombCategory') {
+                $ombCategoryExt = $subExt;
+            } elseif ($subExt->getUrl() === 'text') {
+                $textExt = $subExt;
+            }
+        }
+
+        $this->assertNotNull($ombCategoryExt, 'ombCategory extension must be present');
+        $this->assertNotNull($textExt, 'text extension must be present');
+
+        // Assert ombCategory has correct UNK coding
+        $coding = $ombCategoryExt->getValueCoding();
+        $this->assertEquals('UNK', $coding->getCode(), 'Code should be UNK for unknown ethnicity');
+        $this->assertEquals('Unknown', $coding->getDisplay(), 'Display should be Unknown');
+        $this->assertStringContainsString('NullFlavor', $coding->getSystem(), 'System should be HL7 NullFlavor');
+
+        // Assert text extension has 'Unknown'
+        $this->assertEquals('Unknown', $textExt->getValueString(), 'Text should be Unknown');
+    }
+
+    /**
+     * Test ethnicity extension when ethnicity is 'decline_to_specify'
+     * Should emit ASKU (Asked but unknown) per US Core guidance
+     */
+    #[Test]
+    public function testParseOpenEMREthnicityRecordWithDeclineToSpecify(): void
+    {
+        $patientResource = new FHIRPatient();
+        $ethnicity = 'decline_to_specify';
+
+        // Use reflection to call private method
+        $method = new \ReflectionMethod(FhirPatientService::class, 'parseOpenEMREthnicityRecord');
+        $method->setAccessible(true);
+        $method->invoke($this->fhirPatientService, $patientResource, $ethnicity);
+
+        // Assert extension exists
+        $extensions = $patientResource->getExtension();
+        $ethnicityExt = null;
+        foreach ($extensions as $ext) {
+            if ($ext->getUrl() === 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity') {
+                $ethnicityExt = $ext;
+                break;
+            }
+        }
+
+        $this->assertNotNull($ethnicityExt, 'Ethnicity extension must be present');
+
+        // Assert ombCategory extension with ASKU code
+        $subExtensions = $ethnicityExt->getExtension();
+        $ombCategoryExt = null;
+
+        foreach ($subExtensions as $subExt) {
+            if ($subExt->getUrl() === 'ombCategory') {
+                $ombCategoryExt = $subExt;
+                break;
+            }
+        }
+
+        $this->assertNotNull($ombCategoryExt, 'ombCategory extension must be present even for decline_to_specify');
+
+        // Assert ombCategory has correct ASKU coding
+        $coding = $ombCategoryExt->getValueCoding();
+        $this->assertEquals('ASKU', $coding->getCode(), 'Code should be ASKU for decline to specify');
+        $this->assertEquals('Asked but no answer', $coding->getDisplay(), 'Display should indicate asked but no answer');
+        $this->assertStringContainsString('NullFlavor', $coding->getSystem(), 'System should be HL7 NullFlavor');
+    }
 }
