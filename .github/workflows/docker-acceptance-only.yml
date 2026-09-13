@@ -139,6 +139,16 @@ jobs:
       image_version: ${{ steps.inspect_candidate.outputs.version }}
       build_date: ${{ steps.inspect_candidate.outputs.created }}
     steps:
+    # Checkout master so the later steps can call scripts under
+    # .github/scripts/ (validate-source-run.sh + verify-dockerhub-
+    # tag-exists.sh). Without this the eligibility validation steps
+    # below fail with "No such file or directory". Same latent bug
+    # as its acceptance-only.yml sibling — see the checkout comment
+    # there for the introducing PR (#13294) and discovery context.
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
     # Phase 14 guardrail: if the operator dispatched with
     # skip_acceptance=true, they MUST supply a non-empty
     # skip_acceptance_reason so the audit trail carries an

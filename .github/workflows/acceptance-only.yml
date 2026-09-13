@@ -143,6 +143,19 @@ jobs:
     outputs:
       artifact_name: openemr-release-candidate-${{ inputs.version }}
     steps:
+    # Checkout master so the later steps can call scripts under
+    # .github/scripts/ (validate-source-run.sh). Without this the
+    # `Validate source run eligibility` step below fails with
+    # "No such file or directory" — the fetch-source-artifact job
+    # runs standalone and doesn't inherit a checkout from anywhere.
+    # Introduced as a latent bug by #13294 (Phase 10e-2 extract of
+    # the inline validation logic to a shared script); surfaced only
+    # when the workflow was first exercised end-to-end on the 8.4.0
+    # ship recovery attempt on 2026-09-13.
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
     # Phase 14 guardrail: if the operator dispatched with
     # skip_acceptance=true, they MUST supply a non-empty
     # skip_acceptance_reason so the audit trail carries an
