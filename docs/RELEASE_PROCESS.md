@@ -57,30 +57,34 @@ After each release completes (Conductor + Docs + Finalize all merged, tag + Rele
 
 ## Release performance metrics (DORA-aligned)
 
-Per-release tracking of the [four DORA key metrics](https://dora.dev/research/) adapted to our release cadence. Populated after each ship (see [Quick action 7](#7-update-release-performance-metrics-after-every-ship) above). Establishes a baseline so we can see whether interventions (smaller batches, better shift-left of latent-bug discovery, recovery-path smoketests, etc.) actually move the needle over time. Cross-references gap entries in [`release-mechanism-gaps.md`](release-mechanism-gaps.md) when a cascade occurred.
+Per-release tracking of the [current DORA five-metric model](https://dora.dev/guides/dora-metrics-four-keys/) adapted to our release cadence. Populated after each ship (see [Quick action 7](#7-update-release-performance-metrics-after-every-ship) above). Establishes a baseline so we can see whether interventions (smaller batches, better shift-left of latent-bug discovery, recovery-path smoketests, etc.) actually move the needle over time. Cross-references gap entries in [`release-mechanism-gaps.md`](release-mechanism-gaps.md) when a cascade occurred.
+
+DORA's original "four keys" were expanded in 2024 to five metrics, and MTTR was replaced with the more-precise "Failed Deployment Recovery Time" (recovery from failed *deployments* specifically, not generic operational incidents). The five metrics group as **Throughput** (3) + **Stability** (2). See [DORA's metrics history](https://dora.dev/insights/dora-metrics-history) for the research behind the rename.
 
 **Metric definitions (adapted to our shape):**
 
-| Metric | Definition | How measured for us |
-|---|---|---|
-| **Deployment Frequency** | How often released to production | Days between the previous release (on any rel line) and this one. |
-| **Lead Time for Changes** | Merged-to-master → shipped-to-users | Days from the rel-branch cut date (approximate proxy for "changes stopped landing on this rel line") to the ship date. Doesn't capture pre-cut lead time; a better measure would sample individual PRs but the cut-to-ship value is what we can compute mechanically without instrumentation. |
-| **Change Failure Rate (CFR)** | % of ships requiring hotfix / rollback within the ship window | Yes/no per ship + a count of same-day cascade fixes that were required to actually publish. A "yes" isn't necessarily bad — it means the release-mechanism surfaced a latent bug the operator had to fix mid-ship to publish; the count reflects severity. |
-| **Mean Time to Recovery (MTTR)** | Time from ship-time failure detection to successful publish | Approximate wall-clock hours from the first acceptance-gate failure (or preflight block) to green publish. `n/a` when no cascade. |
+| Metric | Group | Definition | How measured for us |
+|---|---|---|---|
+| **Deployment Frequency** | Throughput | How often released to production | Days between the previous release (on any rel line) and this one. |
+| **Change Lead Time** | Throughput | Merged-to-master → shipped-to-users | Days from the rel-branch cut date (approximate proxy for "changes stopped landing on this rel line") to the ship date. Doesn't capture pre-cut lead time; a better measure would sample individual PRs but the cut-to-ship value is what we can compute mechanically without instrumentation. |
+| **Failed Deployment Recovery Time** | Throughput | Time from ship-time failure detection to successful publish (DORA replaced MTTR with this — scope is deployment-failure recovery, not generic operational incidents) | Approximate wall-clock hours from the first acceptance-gate failure (or preflight block) to green publish. `n/a` when no cascade. |
+| **Change Fail Rate (CFR)** | Stability | Ratio of deployments needing immediate intervention / rollback during the ship window | Yes/no per ship + a count of same-day cascade fixes that were required to actually publish. A "yes" isn't necessarily bad — it means the release-mechanism surfaced a latent bug the operator had to fix mid-ship to publish; the count reflects severity. |
+| **Deployment Rework Rate** | Stability | Ratio of unplanned deployments driven by production incidents (post-ship hotfixes / patch releases) | For us: was a subsequent patch release (e.g. 8.3.1, 8.4.1) shipped primarily to fix bugs the previous release introduced, rather than for planned feature/security work? Yes/no + short cause note. Distinct from CFR — CFR measures problems caught *before* users get the release, Rework Rate measures problems caught *after*. |
 
 **Per-release data:**
 
-| Version | Shipped | From | Deployment freq (days since previous) | Lead time (cut → ship, days) | Cascade? | MTTR | Gap entry |
-|---|---|---|---|---|---|---|---|
-| 8.2.0 | 2026-07-08 | rel-820 | n/a (first release post-migration; not automated end-to-end) | ~6 | n/a (manual click-through) | n/a | — |
-| 8.3.0 | 2026-08-18 | rel-830 | ~41 | ~6 | **Yes** — 7 preflight-deadlock gates + merge-API permission bug (8 code fixes) + 2 rel-830 cherry-picks + 1 migration cleanup | ~24h (2026-08-17 through 08-18) | [G33](release-mechanism-gaps.md#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18) |
-| 8.4.0 | 2026-09-13 | rel-840 | ~26 | ~3 | **Yes** — root-cause `ACCEPTANCE_EXPECTED_VERSION` bug + 2 recovery-path bugs surfaced during recovery (3 code fixes) + Docker Hub 502 + `release-amendment.yml` peter-evans timeouts | ~2h from first fail to publish | [G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13) |
+| Version | Shipped | From | Dep. freq (days since prev) | Lead time (cut → ship, days) | Recovery time | Cascade / CFR | Rework? | Gap entry |
+|---|---|---|---|---|---|---|---|---|
+| 8.2.0 | 2026-07-08 | rel-820 | n/a (first release post-migration; not automated end-to-end) | ~6 | n/a | n/a (manual click-through) | No | — |
+| 8.3.0 | 2026-08-18 | rel-830 | ~41 | ~6 | ~24h (2026-08-17 through 08-18) | **Yes** — 7 preflight-deadlock gates + merge-API permission bug (8 code fixes) + 2 rel-830 cherry-picks + 1 migration cleanup | No (no 8.3.1 shipped as of 8.4.0 ship date) | [G33](release-mechanism-gaps.md#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18) |
+| 8.4.0 | 2026-09-13 | rel-840 | ~26 | ~3 | ~2h from first fail to publish | **Yes** — root-cause `ACCEPTANCE_EXPECTED_VERSION` bug + 2 recovery-path bugs surfaced during recovery (3 code fixes) + Docker Hub 502 + `release-amendment.yml` peter-evans timeouts | TBD (revisit when 8.4.1 either ships or is confirmed not needed) | [G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13) |
 
 **Baseline observations (from the two automated ships so far):**
 
 - **Cascade rate on automated ships: 100% (2/2).** Both cascades traced to "first real exercise of code path X since infra change Y." G33 exposed 7 preflight-gate paths that had never been end-to-end-tested until an actual ship needed them. G35 exposed 3 recovery-path bugs that were latent since a 2026-07-30 refactor and surfaced only when the 8.4.0 ship needed the recovery path. Same systemic driver, not per-ship bad luck.
 - **Deployment frequency ≈ monthly** (41 days between 8.2.0 → 8.3.0, then 26 days between 8.3.0 → 8.4.0). Moving to bi-weekly would test the DORA "small batches → lower CFR" hypothesis directly.
-- **MTTR shrinking** (~24h on 8.3.0 → ~2h on 8.4.0) as the recovery playbook + operator familiarity mature. Not enough data yet to know if this holds or was a one-off.
+- **Failed Deployment Recovery Time shrinking** (~24h on 8.3.0 → ~2h on 8.4.0) as the recovery playbook + operator familiarity mature. Not enough data yet to know if this holds or was a one-off.
+- **Rework Rate: 0 to date** — neither 8.2.0 nor 8.3.0 required an unplanned patch release for regression-fix reasons (any subsequent patches would be routine security or feature work). 8.4.0's rework status is TBD until 8.4.1 either ships-for-regressions or is confirmed not needed.
 
 **Followup potential (deferred to gap entries):**
 
