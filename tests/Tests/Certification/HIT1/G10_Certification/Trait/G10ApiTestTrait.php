@@ -77,19 +77,30 @@ trait G10ApiTestTrait
         self::setupG10ProfileGlobals();
     }
 
-    protected static function setupG10ProfileGlobals() {
-        QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
-            , ['3.1.1', GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]);
-        $value = QueryUtils::fetchSingleValue("SELECT `gl_value` FROM globals WHERE `gl_name` = ?"
-            , 'gl_value', [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]) ?? '';
+    protected static function setupG10ProfileGlobals(): void
+    {
+        $glName = GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value;
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES (?, 0, ?)
+             ON DUPLICATE KEY UPDATE gl_value = VALUES(gl_value)",
+            [$glName, '3.1.1']
+        );
+        $value = QueryUtils::fetchSingleValue(
+            "SELECT `gl_value` FROM globals WHERE `gl_name` = ?",
+            'gl_value',
+            [$glName]
+        ) ?? '';
         if ($value !== '3.1.1') {
             throw new Exception("Failed to set FHIR US Core Max Supported Profile Version to 3.1.1 for G10 Certification tests");
         }
     }
 
-    public static function teardownG10Test() {
-        QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
-            , [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, self::$previousProfileValue]);
+    public static function teardownG10Test(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?",
+            [self::$previousProfileValue, GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]
+        );
     }
 
     private static function buildIdMap(array $testGroups): void
