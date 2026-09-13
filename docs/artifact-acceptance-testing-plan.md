@@ -2657,18 +2657,21 @@ whose shape teaches the wrong pattern for future contributors.
 
 **Update 2026-09-13 — priority signal from the 8.4.0 ship:** The 8.4.0
 ship-day cascade (see [`release-mechanism-gaps.md` G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13))
-was rooted in exactly the group-tag / workflow-isolation coupling the
-refactor below is designed to eliminate. The `version-display` group
-existed precisely because `acceptance-docker.yml` cannot resolve
-floating tags to `X.Y.Z` at runtime; the workaround-based way that
-`ACCEPTANCE_EXPECTED_VERSION` was plumbed through `detect-acceptance-mode.sh`
-had a latent bug (the workflow_call gate branch read `version.php` instead
-of using `to_version`, per G35 finding #1) that surfaced only on the
-first ship after the introducing PR (openemr/openemr#13761). The root-cause
-fix (openemr/openemr#13974) addressed the specific bug but the class of
-bug — value-derivation logic entangled with workflow-shape coupling —
-persists until this refactor lands. Bumps this from "when there's time"
-to "cost of NOT doing this compounds with every release cycle."
+exposed a related failure mode adjacent to the group-tag / workflow-isolation
+coupling this refactor is designed to eliminate. The chain: the
+`version-display` group was introduced (in openemr/openemr#13635) precisely
+because `acceptance-docker.yml` cannot resolve floating tags to `X.Y.Z`
+at runtime, forcing a workaround-based plumbing of
+`ACCEPTANCE_EXPECTED_VERSION` through `detect-acceptance-mode.sh`; a
+later refactor of that plumbing (openemr/openemr#13761) introduced the
+workflow_call gate bug that made every acceptance-gate cell fail on
+8.4.0's ship. Root cause of G35 was specifically the plumbing refactor
+(fixed by openemr/openemr#13974), not the coupling itself — but the
+workaround plumbing existed only because the coupling forced it. So the
+refactor below wouldn't have prevented G35 directly, but it removes the
+class of workaround that turned into G35's regression surface. Bumps this
+from "when there's time" to "cost of NOT doing this compounds with every
+release cycle" as more workarounds accumulate in the same shape.
 
 ### Motivating problem
 
