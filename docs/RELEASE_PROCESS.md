@@ -51,6 +51,49 @@ Both **must dispatch from `--ref master`** — workflows reject other refs. See 
 
 **Do NOT use** on a first-time / never-validated artifact, or repeatedly on the same flake class (that's a signal to fix the flake, not bypass — the audit trail is designed to make repeat-bypass visible). See [runbook step 10 skip-acceptance paragraph](#release-runbook) + the [acceptance-testing plan's Phase 14 section](artifact-acceptance-testing-plan.md) for the full when-to-use / when-NOT-to-use guidance.
 
+### 7. Update release performance metrics after every ship
+
+After each release completes (Conductor + Docs + Finalize all merged, tag + Release + Docker image all published, docker orchestration for the shipped tag green), add a row to the [Release performance metrics (DORA-aligned)](#release-performance-metrics-dora-aligned) table below with the four values for that ship. Keeps the baseline current so improvement/regression trends stay visible over time.
+
+## Release performance metrics (DORA-inspired proxies)
+
+Per-release tracking of five release-process signals **modeled on** — but not literally identical to — the [current DORA five-metric framework](https://dora.dev/guides/dora-metrics/). DORA's metrics are defined against production observability (post-deploy incident tracking, production-user recovery, etc.); ours are proxies computed from release-mechanism artifacts (rel-branch cut dates, ship-time cascade counts, acceptance-gate recovery windows) because we don't currently collect production events at the granularity DORA assumes. The proxies are useful as trend signals over successive ships; comparing our absolute values against DORA's industry benchmarks would be apples-to-oranges.
+
+Populated after each ship (see [Quick action 7](#7-update-release-performance-metrics-after-every-ship) above). Establishes a baseline so we can see whether interventions (smaller batches, better shift-left of latent-bug discovery, recovery-path smoketests, etc.) actually move the needle over time. Cross-references gap entries in [`release-mechanism-gaps.md`](release-mechanism-gaps.md) when a cascade occurred.
+
+DORA's original "four keys" were expanded in 2024 to five metrics, and MTTR was replaced with the more-precise "Failed Deployment Recovery Time" (recovery from failed *deployments* specifically, not generic operational incidents). DORA groups the five as **Throughput** (3) + **Instability** (2) — the second group name captures that higher values mean more failures / more unplanned rework (worse), not more stability. See [DORA's metrics history](https://dora.dev/insights/dora-metrics-history) for the research behind the rename.
+
+**Proxy definitions (mapped to DORA metrics):**
+
+| Our proxy | DORA metric | Group | How we measure it |
+|---|---|---|---|
+| **Deployment Frequency** | Deployment Frequency | Throughput | Days between the previous release (on any rel line) and this one. |
+| **Change Lead Time (cut → ship)** | Change Lead Time | Throughput | Days from the rel-branch cut date (approximate proxy for "changes stopped landing on this rel line") to the ship date. Doesn't capture pre-cut lead time; a better measure would sample individual PRs but the cut-to-ship value is what we can compute mechanically without instrumentation. |
+| **Ship-time Recovery** | Failed Deployment Recovery Time | Throughput | Wall-clock hours from the first acceptance-gate failure (or preflight block) to green publish. `n/a` when no cascade. DORA's metric is about post-deploy production-incident recovery; ours is pre-publish recovery inside the release-mechanism (bugs never reach users because they block the publish itself). |
+| **Ship-time Cascade Rate** | Change Fail Rate | Instability | Yes/no per ship + a count of same-day cascade fixes that were required to actually publish. DORA's CFR is about deployments that "reach production but need rollback / intervention"; ours captures pre-publish cascades that also required intervention but never reached users. Same class of signal (latent bug surfaced by deployment), different scope. |
+| **Post-ship Rework Rate** | Deployment Rework Rate | Instability | Per-release: **Yes** if a subsequent same-rel-line patch (e.g. 8.3.1 following 8.3.0) shipped primarily to fix regressions the earlier release introduced; **No** if the observation window closed without such a patch; **TBD** while the window is still open. Observation window closes when either (a) a same-rel-line patch ships (examine its contents to decide Yes/No), or (b) the rel line is EOL'd. Cause note captures the specific regression(s) when Yes. **Aggregate rate** across N releases = Yes-count / (Yes + No), excluding TBD. This is the metric that aligns most closely with DORA's original definition — it captures problems caught *after* users have the release. |
+
+**Per-release data:**
+
+| Version | Shipped | From | Dep. freq (days since prev) | Lead time (cut → ship, days) | Ship-time Recovery | Ship-time Cascade | Post-ship Rework? | Gap entry |
+|---|---|---|---|---|---|---|---|---|
+| 8.2.0 | 2026-07-08 | rel-820 | 147 (since 8.0.0 on 2026-02-11; 8.1.0 was skipped) | ~6 | n/a | n/a (manual click-through) | No | — |
+| 8.3.0 | 2026-08-18 | rel-830 | ~41 | ~6 | ~24h (2026-08-17 through 08-18) | **Yes** — 7 preflight-deadlock gates + merge-API permission bug (8 code fixes) + 2 rel-830 cherry-picks + 1 migration cleanup | No (no 8.3.1 shipped as of 8.4.0 ship date) | [G33](release-mechanism-gaps.md#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18) |
+| 8.4.0 | 2026-09-13 | rel-840 | ~26 | ~3 | ~2h from first fail to publish | **Yes** — root-cause `ACCEPTANCE_EXPECTED_VERSION` bug + 2 recovery-path bugs surfaced during recovery (3 code fixes) + Docker Hub 502 + `release-amendment.yml` peter-evans timeouts | TBD (revisit when 8.4.1 either ships or is confirmed not needed) | [G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13) |
+
+**Baseline observations (from the two automated ships so far):**
+
+- **Ship-time cascade rate on automated ships: 100% (2/2).** Both cascades traced to "first real exercise of code path X since infra change Y." G33 exposed 7 preflight-gate paths that had never been end-to-end-tested until an actual ship needed them. G35 exposed 3 recovery-path bugs that were latent since a 2026-07-30 refactor and surfaced only when the 8.4.0 ship needed the recovery path. Same systemic driver, not per-ship bad luck.
+- **Deployment frequency shortening** (147 days 8.0.0 → 8.2.0 during the manual-ship era; 41 then 26 days between automated ships). Moving to bi-weekly would test the DORA "small batches → lower failure rate" hypothesis directly against our proxies.
+- **Ship-time Recovery shrinking** (~24h on 8.3.0 → ~2h on 8.4.0) as the recovery playbook + operator familiarity mature. Not enough data yet to know if this holds or was a one-off.
+- **Post-ship Rework Rate: 0/2 with closed observation windows** — neither 8.2.0's nor 8.3.0's same-rel-line window has produced a regression-fix patch (no 8.2.1, no 8.3.1 as of this writing). Both count as No. 8.4.0's observation window is open (rel-840 hasn't shipped a patch or been EOL'd), so it's TBD and excluded from the aggregate. Aggregate rate = 0/2 = 0%.
+
+**Followup potential (deferred to gap entries):**
+
+- If cascade rate stays at 100% across the next few ships, the "recovery-path smoketest outside real ships" idea (G35's proposed followup) becomes higher priority than intuition suggests.
+- 8.5.0 will be the third automated-ship data point. If bi-weekly cadence is adopted by then, that ship will start distinguishing "small batches help" from "the cascade pattern is unrelated to batch size."
+- Broader operational monitoring of the release-mechanism itself (e.g., "release-mechanism-smoketest.yml green %" as a leading indicator, per DORA's "Monitoring and Observability" capability) is worth considering once we have 4-5 data points.
+
 ## Repositories involved
 
 | Repository | Role |
