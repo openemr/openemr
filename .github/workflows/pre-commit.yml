@@ -41,6 +41,6 @@ jobs:
     # phpcs.yml, etc.). Conventional Commits is commit-msg stage only.
     - uses: j178/prek-action@v2
       env:
-        SKIP: php-syntax-check,composer-validate,composer-normalize,phpcbf,phpcs,phpstan,rector,composer-require-checker,conventional-commits
+        SKIP: php-syntax-check,composer-validate,composer-normalize,phpcbf,phpcs,phpstan,rector,composer-require-checker,conventional-commits,lint-workflow-checkout-needed
       with:
         extra-args: --all-files
