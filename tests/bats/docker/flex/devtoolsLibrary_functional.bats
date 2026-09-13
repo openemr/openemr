@@ -16,9 +16,9 @@ setup() {
 }
 
 @test "flex openemr.sh: startup timing avoids busybox nanoseconds and python" {
-    ! grep -q 'date +%s\.%N' "$SCRIPT"
-    ! grep -q 'python3 -c "print(round' "$SCRIPT"
-    grep -Fq 'PERM_DURATION_US >= 5000' "$SCRIPT"
+    ! grep -q 'date +%s\.%N' "$SCRIPT" || exit 1
+    ! grep -q 'python3 -c "print(round' "$SCRIPT" || exit 1
+    grep -Fq 'PERM_DURATION_US >= 5000' "$SCRIPT" || exit 1
 }
 
 @test "flex devtoolsLibrary: prepareVariables with custom env sets CONFIGURATION" {
