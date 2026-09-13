@@ -10,6 +10,25 @@
 
 See the [tested CI matrix](https://github.com/openemr/openemr/tree/rel-840/ci) for all tested version combinations.
 
+### Security Fixes
+
+  - [Critical] Missing Write ACL Allows Unauthorized Document Reassignment ([GHSA-92rh-g949-4mvv](https://github.com/openemr/openemr/security/advisories/GHSA-92rh-g949-4mvv))
+  - [Critical] OpenEMR OneTimeAuth token replay and PIN brute force ([GHSA-xg3m-9pfq-c8r6](https://github.com/openemr/openemr/security/advisories/GHSA-xg3m-9pfq-c8r6))
+  - [Critical] Remote Code Execution (RCE) via ESign module Local File Inclusion chained with fax-upload write primitive ([GHSA-p4v7-crwp-qq7q](https://github.com/openemr/openemr/security/advisories/GHSA-p4v7-crwp-qq7q))
+  - [High] Mass Assignment Leads to SQL Injection in the Patient Portal ([GHSA-hx8r-g8gw-6g2j](https://github.com/openemr/openemr/security/advisories/GHSA-hx8r-g8gw-6g2j))
+  - [High] Unauthenticated Server-Side Request Forgery (SSRF) via OAuth2 client jwks_uri in OpenEMR ([GHSA-mf6h-xc62-9fg4](https://github.com/openemr/openemr/security/advisories/GHSA-mf6h-xc62-9fg4))
+  - [Medium]  FHIR $docref can lead to arbitrary-patient full-chart CCDA exfiltration ([GHSA-r79c-4hf6-fgp3](https://github.com/openemr/openemr/security/advisories/GHSA-r79c-4hf6-fgp3))
+  - [Medium] APICSRFTOKEN local-session bootstrap can lead to site-wide FHIR QuestionnaireResponse PHI exposure ([GHSA-5xf2-3h9x-f4m6](https://github.com/openemr/openemr/security/advisories/GHSA-5xf2-3h9x-f4m6))
+  - [Medium] Authorization Bypass / IDOR in SMART on FHIR Patient Binding via checkUserHasAccessToPatient ([GHSA-xjgw-qjm5-4mq6](https://github.com/openemr/openemr/security/advisories/GHSA-xjgw-qjm5-4mq6))
+  - [Medium] FHIR Media/:uuid and QuestionnaireResponse read routes skip both ACL mechanisms ([GHSA-6g45-38wc-5wg9](https://github.com/openemr/openemr/security/advisories/GHSA-6g45-38wc-5wg9))
+  - [Medium] FHIR Patient Compartment bypass on Person: a patient SMART token can read any staff member's PII ([GHSA-ggpx-qgcr-w2gh](https://github.com/openemr/openemr/security/advisories/GHSA-ggpx-qgcr-w2gh))
+  - [Medium] FHIR Patient Compartment bypass on QuestionnaireResponse: a SMART patient-launch token reads any patient's questionnaire responses ([GHSA-fmmr-p679-97fq](https://github.com/openemr/openemr/security/advisories/GHSA-fmmr-p679-97fq))
+  - [Medium] Portal onsite-document APIs can lead to cross-patient PHI disclosure and record tampering ([GHSA-4r76-rq83-hgpg](https://github.com/openemr/openemr/security/advisories/GHSA-4r76-rq83-hgpg))
+  - [Medium] Rainforest portal payments can lead to arbitrary cross-patient receivables credits ([GHSA-525m-fch5-vqqm](https://github.com/openemr/openemr/security/advisories/GHSA-525m-fch5-vqqm))
+  - [Medium] Read-only Medical/History prescription API can lead to tenant-wide unauthorized prescription tampering ([GHSA-qrc2-5wvq-f68q](https://github.com/openemr/openemr/security/advisories/GHSA-qrc2-5wvq-f68q))
+  - [Medium] REST document download can lead to arbitrary local file read and PHI compromise ([GHSA-xgxv-36g2-hq5g](https://github.com/openemr/openemr/security/advisories/GHSA-xgxv-36g2-hq5g))
+  - [Medium] SMART patient-launch selection can lead to cross-patient PHI exfiltration ([GHSA-rm4j-gxwp-qh48](https://github.com/openemr/openemr/security/advisories/GHSA-rm4j-gxwp-qh48))
+
 ### Fixed
 
   - #13528 calendar inject styles/scripts ([#13531](https://github.com/openemr/openemr/pull/13531))
