@@ -62,8 +62,8 @@ function GetPortalAlertCounts(): array
     $counts['mailCnt'] = $qrtn['count_mail'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_audits FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status LIKE ?";
-    $qrtn = sqlQueryNoLog($query, ['%waiting%']);
+        "WHERE `m`.status = ? AND `m`.require_audit = ?";
+    $qrtn = sqlQueryNoLog($query, ['waiting', 1]);
     $counts['auditCnt'] = $qrtn['count_audits'] ?: "0";
 
     $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
@@ -72,11 +72,12 @@ function GetPortalAlertCounts(): array
     $counts['chatCnt'] = $qrtn['count_chats'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status LIKE ? AND `m`.activity = ?";
-    $qrtn = sqlQueryNoLog($query, ['%waiting%', 'payment']);
+        "WHERE `m`.status = ? AND `m`.require_audit = ? AND `m`.activity = ?";
+    $qrtn = sqlQueryNoLog($query, ['waiting', 1, 'payment']);
     $counts['paymentCnt'] = $qrtn['count_payments'] ?: "0";
 
-    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'] + $counts['paymentCnt'];
+    // Payments are already included in auditCnt, so do not add them twice.
+    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'];
 
     return $counts;
 }
