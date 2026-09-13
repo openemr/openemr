@@ -200,12 +200,19 @@ jobs:
     # Only EXPECTED_WORKFLOW_PATH is passed (no EXPECTED_CANDIDATE_TAG):
     # tarball recovery has no operator-supplied candidate binding to
     # cross-check.
+    #
+    # EXPECTED_WORKFLOW_PATH accepts both `build-release.yml` (manual
+    # workflow_dispatch flow) and `build-release-on-tag.yml` (auto-fires
+    # from ship-release.yml tag creation) — both produce the same
+    # `openemr-release-candidate-<version>` artifact shape, so either is
+    # a valid recoverable source. Comma-separated list per the script's
+    # env-var contract.
     - name: Validate source run eligibility
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPO: ${{ github.repository }}
         SOURCE_RUN_ID: ${{ inputs.source_run_id }}
-        EXPECTED_WORKFLOW_PATH: .github/workflows/build-release.yml
+        EXPECTED_WORKFLOW_PATH: .github/workflows/build-release.yml,.github/workflows/build-release-on-tag.yml
       run: |
         set -euo pipefail
 
