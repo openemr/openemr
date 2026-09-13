@@ -133,6 +133,16 @@ class PractitionerRoleFhirWriteApiTest extends TestCase
 
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
+        // Change a mapped field, not just the id: a PUT that rewrites nothing passes
+        // identically when the write path ignores the body and returns the stored resource.
+        // 111N00000X is Chiropractor, against the fixture's 103T00000X Psychologist.
+        $updated['code'] = [[
+            'coding' => [[
+                'system' => 'http://nucc.org/provider-taxonomy',
+                'code' => '111N00000X',
+                'display' => 'Chiropractor',
+            ]],
+        ]];
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
         $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
@@ -148,6 +158,11 @@ class PractitionerRoleFhirWriteApiTest extends TestCase
             $putContents,
             'PUT should answer with the updated resource, not a null body. Body: ' . $putBody
         );
+        $this->assertSame(
+            '111N00000X',
+            self::digString($putContents, ['code', 0, 'coding', 0, 'code']),
+            'PUT should return the new role code. Body: ' . $putBody
+        );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
     }
@@ -162,5 +177,26 @@ class PractitionerRoleFhirWriteApiTest extends TestCase
             $response->getStatusCode(),
             'POST without practitioner should return 400. Body: ' . $response->getBody()->getContents()
         );
+    }
+
+    /**
+     * Reads a nested string out of a decoded FHIR resource, or null when the path is absent.
+     *
+     * Chained offset reads on a json_decode() result are all `mixed` at level 10; walking the
+     * path with a narrowing check keeps the assertions readable without casting.
+     *
+     * @param list<string|int> $path
+     */
+    private static function digString(mixed $source, array $path): ?string
+    {
+        $cursor = $source;
+        foreach ($path as $key) {
+            if (!is_array($cursor) || !array_key_exists($key, $cursor)) {
+                return null;
+            }
+            $cursor = $cursor[$key];
+        }
+
+        return is_string($cursor) ? $cursor : null;
     }
 }

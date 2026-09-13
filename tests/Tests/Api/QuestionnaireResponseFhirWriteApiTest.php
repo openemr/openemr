@@ -156,6 +156,12 @@ class QuestionnaireResponseFhirWriteApiTest extends TestCase
         );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
+        // The payload above amends the response, so assert the amendment is what comes back.
+        $this->assertSame(
+            'amended',
+            $putContents['status'] ?? null,
+            'PUT should return the amended status. Body: ' . $putBody
+        );
     }
 
     public function testPostWithoutSubjectReturnsError(): void

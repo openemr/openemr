@@ -172,6 +172,13 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             'Update should succeed: ' . json_encode($result->getValidationMessages())
         );
         $this->assertNotEmpty($result->getData());
+
+        // The payload above switches the role code, so assert the switch landed.
+        $this->assertSame(
+            '111N00000X',
+            self::digString($this->readBack($result), ['code', 0, 'coding', 0, 'code']),
+            'Update should return the new role code'
+        );
     }
 
     #[Test]
@@ -180,6 +187,46 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
         $result = $this->fhirPractitionerRoleService->update('bad-uuid', $this->fhirPractitionerRoleFixture);
         $this->assertFalse($result->isValid());
         $this->assertSame([], $result->getData());
+    }
+
+    /**
+     * The FHIR resource update() returns, as a plain array.
+     *
+     * Asserting on the serialized form rather than the getters keeps these checks independent
+     * of whether a field comes back as a scalar or a wrapped FHIR primitive.
+     *
+     * @return array<mixed>
+     */
+    private function readBack(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $decoded = json_decode((string) json_encode($data[0]), true);
+        $this->assertIsArray($decoded);
+
+        return $decoded;
+    }
+
+    /**
+     * Reads a nested string out of a decoded FHIR resource, or null when the path is absent.
+     *
+     * Chained offset reads on a json_decode() result are all `mixed` at level 10; walking the
+     * path with a narrowing check keeps the assertions readable without casting.
+     *
+     * @param list<string|int> $path
+     */
+    private static function digString(mixed $source, array $path): ?string
+    {
+        $cursor = $source;
+        foreach ($path as $key) {
+            if (!is_array($cursor) || !array_key_exists($key, $cursor)) {
+                return null;
+            }
+            $cursor = $cursor[$key];
+        }
+
+        return is_string($cursor) ? $cursor : null;
     }
 
     /**

@@ -136,6 +136,54 @@ class FhirCareTeamServiceCrudTest extends TestCase
             'Update should succeed: ' . json_encode($result->getValidationMessages())
         );
         $this->assertNotEmpty($result->getData());
+
+        // The payload above renames the team, so assert the rename actually landed. Without
+        // this the test passes when update() ignores the body and hands back the stored team.
+        $this->assertSame(
+            'test-fixture Care Team Updated',
+            self::digString($this->readBack($result), ['name']),
+            'Update should return the renamed team'
+        );
+    }
+
+    /**
+     * The FHIR resource update() returns, as a plain array.
+     *
+     * Asserting on the serialized form rather than the getters keeps these checks independent
+     * of whether a field comes back as a scalar or a wrapped FHIR primitive.
+     *
+     * @return array<mixed>
+     */
+    private function readBack(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $decoded = json_decode((string) json_encode($data[0]), true);
+        $this->assertIsArray($decoded);
+
+        return $decoded;
+    }
+
+    /**
+     * Reads a nested string out of a decoded FHIR resource, or null when the path is absent.
+     *
+     * Chained offset reads on a json_decode() result are all `mixed` at level 10; walking the
+     * path with a narrowing check keeps the assertions readable without casting.
+     *
+     * @param list<string|int> $path
+     */
+    private static function digString(mixed $source, array $path): ?string
+    {
+        $cursor = $source;
+        foreach ($path as $key) {
+            if (!is_array($cursor) || !array_key_exists($key, $cursor)) {
+                return null;
+            }
+            $cursor = $cursor[$key];
+        }
+
+        return is_string($cursor) ? $cursor : null;
     }
 
     #[Test]

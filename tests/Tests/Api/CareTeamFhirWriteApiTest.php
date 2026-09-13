@@ -143,6 +143,9 @@ class CareTeamFhirWriteApiTest extends TestCase
 
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
+        // Change a mapped field, not just the id: a PUT that rewrites nothing passes
+        // identically when the write path ignores the body and returns the stored resource.
+        $updated['name'] = 'test-fixture Care Team Renamed';
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
         $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
@@ -160,6 +163,11 @@ class CareTeamFhirWriteApiTest extends TestCase
         );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
+        $this->assertSame(
+            'test-fixture Care Team Renamed',
+            $putContents['name'] ?? null,
+            'PUT should return the renamed team. Body: ' . $putBody
+        );
     }
 
     public function testPostWithoutSubjectReturnsError(): void

@@ -103,11 +103,90 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
-        // Update the allergy - change the verification status
-        $this->fhirAllergyIntoleranceFixture->setId(self::fhirId($fhirId));
-        $actualResult = $this->fhirAllergyIntoleranceService->update($fhirId, $this->fhirAllergyIntoleranceFixture);
+        // Update the allergy - change the verification status. The fixture is 'confirmed', so
+        // asserting 'unconfirmed' comes back proves the body was actually applied; changing only
+        // the id (as this did) passes just as well when update() ignores every mutable field.
+        $payload = $this->fhirAllergyIntoleranceFixture->jsonSerialize();
+        $payload['id'] = $fhirId;
+        $payload['verificationStatus'] = [
+            'coding' => [
+                [
+                    'system' => 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification',
+                    'code' => 'unconfirmed',
+                    'display' => 'Unconfirmed',
+                ],
+            ],
+        ];
+        $updated = new FHIRAllergyIntolerance($payload);
+
+        $actualResult = $this->fhirAllergyIntoleranceService->update($fhirId, $updated);
         $this->assertTrue($actualResult->isValid(), "Update should succeed: " . json_encode($actualResult->getValidationMessages()));
         $this->assertNotEmpty($actualResult->getData());
+
+        $verification = self::digString(
+            $this->readBack($actualResult),
+            ['verificationStatus', 'coding', 0, 'code']
+        );
+        $this->assertSame('unconfirmed', $verification, 'Update should return the new verification status');
+    }
+
+    /**
+     * The FHIR resource update() returns, as a plain array.
+     *
+     * Asserting on the serialized form rather than the getters keeps these checks independent
+     * of whether a field comes back as a scalar or a wrapped FHIR primitive.
+     *
+     * @return array<mixed>
+     */
+    private function readBack(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $decoded = json_decode((string) json_encode($data[0]), true);
+        $this->assertIsArray($decoded);
+
+        return $decoded;
+    }
+
+    /**
+     * Reads a nested string out of a decoded FHIR resource, or null when the path is absent.
+     *
+     * Chained offset reads on a json_decode() result are all `mixed` at level 10; walking the
+     * path with a narrowing check keeps the assertions readable without casting.
+     *
+     * @param list<string|int> $path
+     */
+    private static function digString(mixed $source, array $path): ?string
+    {
+        $cursor = $source;
+        foreach ($path as $key) {
+            if (!is_array($cursor) || !array_key_exists($key, $cursor)) {
+                return null;
+            }
+            $cursor = $cursor[$key];
+        }
+
+        return is_string($cursor) ? $cursor : null;
+    }
+
+    #[Test]
+    public function testRecorderGoesThroughTheAttributionPolicy(): void
+    {
+        // recorder is an attribution claim -- it says which clinician recorded the allergy --
+        // so it is resolved and authorized through PractitionerAttributionPolicy rather than
+        // looked up straight to a username. Before that, a recorder naming a practitioner who
+        // did not exist was silently dropped and the write reported success.
+        //
+        // An unresolvable reference is the cheap way to prove the policy is in the path at all:
+        // the direct lookup it replaced ignored one, the policy rejects it by name.
+        $payload = $this->fhirAllergyIntoleranceFixture->jsonSerialize();
+        $payload['recorder'] = ['reference' => 'Practitioner/00000000-0000-4000-8000-000000000000'];
+        $resource = new FHIRAllergyIntolerance($payload);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('AllergyIntolerance.recorder');
+        $this->fhirAllergyIntoleranceService->insert($resource);
     }
 
     #[Test]
@@ -119,13 +198,6 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
         $this->assertSame([], $actualResult->getData());
     }
 
-    private static function fhirId(string $value): FHIRId
-    {
-        $id = new FHIRId();
-        $id->setValue($value);
-
-        return $id;
-    }
 
     /**
      * Reads the first row of a ProcessingResult, asserting the shape as it goes so a

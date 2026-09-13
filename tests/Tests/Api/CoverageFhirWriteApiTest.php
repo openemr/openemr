@@ -126,6 +126,9 @@ class CoverageFhirWriteApiTest extends TestCase
 
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
+        // Change a mapped field, not just the id: a PUT that rewrites nothing passes
+        // identically when the write path ignores the body and returns the stored resource.
+        $updated['subscriberId'] = 'POL-UPDATED-0001';
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
         $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
@@ -143,6 +146,11 @@ class CoverageFhirWriteApiTest extends TestCase
         );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
+        $this->assertSame(
+            'POL-UPDATED-0001',
+            $putContents['subscriberId'] ?? null,
+            'PUT should return the new subscriber id. Body: ' . $putBody
+        );
     }
 
     public function testPostWithoutBeneficiaryReturnsError(): void

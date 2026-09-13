@@ -121,10 +121,60 @@ class FhirPersonServiceCrudTest extends TestCase
             $actualResult->isValid(),
             "Update should succeed: " . json_encode($actualResult->getValidationMessages())
         );
-        // PractitionerService::update returns getOne which depends on the search default
-        // filtering for npi-bearing users; we don't assert on data shape here, just that
-        // the update reported no validation/internal errors above.
         $this->assertFalse($actualResult->hasErrors());
+
+        // The read-back is asserted, not just the absence of errors. PractitionerService::update()
+        // returns getOne(), whose default search filters to npi-bearing users, so a person without
+        // one used to come back empty and a successful PUT answered with a null body;
+        // updateOpenEMRRecord() now falls back to a uuid lookup for exactly that case. Asserting
+        // the new telephone proves both that the body was applied and that the fallback fired.
+        $telecoms = $this->readBack($actualResult)['telecom'] ?? null;
+        $this->assertIsArray($telecoms);
+        $values = [];
+        foreach ($telecoms as $index => $entry) {
+            $values[] = self::digString($telecoms, [$index, 'value']);
+        }
+        $this->assertContains('(555) 999-9999', $values, 'Update should return the new telephone');
+    }
+
+    /**
+     * The FHIR resource update() returns, as a plain array.
+     *
+     * Asserting on the serialized form rather than the getters keeps these checks independent
+     * of whether a field comes back as a scalar or a wrapped FHIR primitive.
+     *
+     * @return array<mixed>
+     */
+    private function readBack(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $decoded = json_decode((string) json_encode($data[0]), true);
+        $this->assertIsArray($decoded);
+
+        return $decoded;
+    }
+
+    /**
+     * Reads a nested string out of a decoded FHIR resource, or null when the path is absent.
+     *
+     * Chained offset reads on a json_decode() result are all `mixed` at level 10; walking the
+     * path with a narrowing check keeps the assertions readable without casting.
+     *
+     * @param list<string|int> $path
+     */
+    private static function digString(mixed $source, array $path): ?string
+    {
+        $cursor = $source;
+        foreach ($path as $key) {
+            if (!is_array($cursor) || !array_key_exists($key, $cursor)) {
+                return null;
+            }
+            $cursor = $cursor[$key];
+        }
+
+        return is_string($cursor) ? $cursor : null;
     }
 
     #[Test]
