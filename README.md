@@ -63,6 +63,118 @@ npm run build
 composer dump-autoload -o
 ```
 
+### Running Code Quality and CI Checks Locally
+
+OpenEMR includes Composer and npm scripts that mirror many of the checks run in GitHub Actions CI. Running these tools locally can significantly reduce development turnaround time by providing immediate feedback before opening a pull request.
+
+Examples below assume project dependencies have already been installed via Composer and npm.
+
+#### Run All PHP Code Quality Checks
+
+```bash
+composer run code-quality
+```
+
+This command runs the following checks, in order:
+
+- Codespell
+- PHP syntax checking
+- PHP Code Beautifier and Fixer (PHPCBF)
+- PHP CodeSniffer (PHPCS)
+- PHPStan
+- Rector (dry-run analysis)
+- Composer Require Checker
+
+> **Note:** `codespell` requires a separate installation and may be skipped if it is not available in your environment.
+>
+> Install with:
+>
+> ```bash
+> brew install codespell
+> ```
+>
+> or
+>
+> ```bash
+> pipx install codespell
+> ```
+
+#### Individual PHP Checks
+
+| Tool | Purpose | Command |
+| ---- | ------- | ------- |
+| Codespell | Spell checking (requires separate install) | `composer run codespell` |
+| PHPStan | Static analysis | `composer run phpstan` |
+| PHPCS | Coding standards validation | `composer run phpcs` |
+| PHPCBF | Automatically fix coding standards violations | `composer run phpcbf` |
+| Rector | Modernization and refactoring analysis | `composer run rector-check` |
+| Rector (Fix) | Automatically apply Rector fixes | `composer run rector-fix` |
+| PHP Syntax Check | PHP linting | `composer run php-syntax-check` |
+| Composer Require Checker | Dependency validation | `composer run require-checker` |
+| Conventional Commits | Commit message validation (not included in `code-quality`; run separately before pushing) | `composer run conventional-commits:check` |
+| Composer Checks | Composer validation and normalization | `composer run checks` |
+| PHPUnit | Run isolated test suite | `composer run phpunit-isolated` |
+
+#### Frontend Checks
+
+```bash
+# JavaScript linting
+npm run lint:js
+
+# Automatically fix JavaScript issues
+npm run lint:js-fix
+
+# CSS/SCSS linting
+npm run stylelint
+
+# Automatically fix CSS/SCSS issues
+npm run stylelint-fix
+```
+
+> **Note:** Frontend tooling requires Node.js 24 or later as specified in `package.json`.
+
+#### IDE Integration
+
+Many of the validation tools used by OpenEMR can be integrated directly into editors and IDEs to provide immediate feedback while developing.
+
+##### Visual Studio Code
+
+Recommended extensions:
+
+| Tool | Extension |
+| ---- | --------- |
+| PHPStan | https://marketplace.visualstudio.com/items?itemName=SanderRonde.phpstan-vscode |
+| PHP_CodeSniffer (PHPCS) | https://marketplace.visualstudio.com/items?itemName=johnrdorazio.vscode-phpcs |
+| ESLint | https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint |
+| Stylelint | https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint |
+
+##### PhpStorm / JetBrains IDEs
+
+JetBrains IDEs provide native support for many of these tools.
+
+**PHPStan / PHPCS**
+
+```text
+Preferences → Languages & Frameworks → PHP → Quality Tools
+```
+
+**ESLint / Stylelint**
+
+```text
+Preferences → Languages & Frameworks → JavaScript → Code Quality Tools
+```
+
+#### Configuration Files
+
+The following configuration files may be useful when configuring IDE integrations or AI-assisted development tools:
+
+| Tool | Configuration File |
+| ---- | ------------------ |
+| PHPStan | `phpstan.neon.dist` |
+| Rector | `rector.php` |
+| PHP_CodeSniffer | `phpcs.xml.dist` |
+| Composer Require Checker | `.composer-require-checker.json` |
+
 ### Contributors
 
 This project exists thanks to all the people who have contributed. [[Contribute]](CONTRIBUTING.md).
