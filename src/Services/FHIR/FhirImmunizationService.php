@@ -285,18 +285,26 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $data['administered_date'] = $administeredDate;
         }
 
-        // Status -> completion_status / added_erroneously
+        // Status -> completion_status / added_erroneously.
+        //
+        // Both columns are written on every mapped status, never just the one the branch is
+        // named for. A PUT replaces the resource, and parseOpenEMRRecord() reads
+        // added_erroneously first: leaving a stored '1' in place while setting
+        // completion_status would return 200 for a status change that the next GET does not
+        // reflect.
         $status = $json['status'] ?? null;
         if (is_string($status) && $status !== '') {
             switch ($status) {
                 case 'completed':
                     $data['completion_status'] = 'Completed';
+                    $data['added_erroneously'] = '0';
                     break;
                 case 'entered-in-error':
                     $data['added_erroneously'] = '1';
                     break;
                 case 'not-done':
                     $data['completion_status'] = 'Refused';
+                    $data['added_erroneously'] = '0';
                     break;
             }
         }

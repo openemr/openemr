@@ -244,12 +244,18 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             $data['enddate'] = $enddate;
         }
 
-        // Note -> comments
-        $notes = $json['note'] ?? null;
-        $firstNote = is_array($notes) ? ($notes[0] ?? null) : null;
-        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
-        if (is_string($noteText) && $noteText !== '') {
-            $data['comments'] = $noteText;
+        // Note -> comments. Condition.note is 0..*, and lists.comments is free text, so every
+        // note is joined into it. Keeping only note[0] silently discarded the rest of a
+        // clinician's notes on a request that reported success.
+        $noteTexts = [];
+        foreach (FhirPayloadReader::rows($json['note'] ?? null) as $note) {
+            $noteText = FhirPayloadReader::getString($note, 'text');
+            if ($noteText !== null && $noteText !== '') {
+                $noteTexts[] = $noteText;
+            }
+        }
+        if ($noteTexts !== []) {
+            $data['comments'] = implode("\n\n", $noteTexts);
         }
 
         return $data;

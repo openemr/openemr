@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceUdiCarrier;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\DeviceService;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -191,18 +192,31 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         // type.coding -> lists.diagnosis (SNOMED-CT:code) + lists.title (display)
         $type = $json['type'] ?? null;
         $typeText = FhirPayloadReader::getString($type, 'text');
-        $typeCoding = FhirPayloadReader::firstCoding($type);
-        if ($typeCoding !== []) {
-            $code = FhirPayloadReader::getString($typeCoding, 'code');
+
+        // lists.diagnosis is written with a hardcoded SNOMED-CT: prefix, so only a coding that
+        // actually declares that system may fill it. Taking coding[0] regardless of system
+        // relabels a local or proprietary code as SNOMED and drops the real SNOMED code that
+        // may follow it -- type.coding is 0..* precisely so both can be sent.
+        $snomedCoding = [];
+        foreach (FhirPayloadReader::codings($type) as $coding) {
+            if (FhirPayloadReader::getString($coding, 'system') === FhirCodeSystemConstants::SNOMED_CT) {
+                $snomedCoding = $coding;
+                break;
+            }
+        }
+        if ($snomedCoding !== []) {
+            $code = FhirPayloadReader::getString($snomedCoding, 'code');
             if ($code !== null) {
                 $data['diagnosis'] = 'SNOMED-CT:' . $code;
             }
-            $display = FhirPayloadReader::getString($typeCoding, 'display') ?? $typeText;
-            if ($display !== null) {
-                $data['title'] = $display;
-            }
-        } elseif ($typeText !== null) {
-            $data['title'] = $typeText;
+        }
+
+        // The title is just a human label, so any coding's display will do for it.
+        $display = FhirPayloadReader::getString($snomedCoding, 'display')
+            ?? FhirPayloadReader::getString(FhirPayloadReader::firstCoding($type), 'display')
+            ?? $typeText;
+        if ($display !== null) {
+            $data['title'] = $display;
         }
 
         // udiCarrier[0]: deviceIdentifier -> udi_data.standard_elements.di, carrierHRF -> lists.udi

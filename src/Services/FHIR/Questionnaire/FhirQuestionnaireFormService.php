@@ -292,10 +292,30 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements
         $questionnaire['id'] = $existing['questionnaire_id'] ?? null;
         $questionnaire['url'] = $existing['source_url'] ?? null;
 
+        // A PUT may rename its own questionnaire but not take a title another row already holds.
+        // saveQuestionnaireResource() resolves by title, so without this the save would land on
+        // that other row -- overwriting it and leaving two rows answering to one lookup key.
+        $title = $this->parsedTitle($updatedOpenEMRRecord);
+        $titleOwner = $service->getQuestionnaireIdAndVersion($title);
+        $titleOwnerId = $titleOwner['id'] ?? null;
+        if (is_numeric($titleOwnerId) && (int) $titleOwnerId !== (int) $recordId) {
+            $result->setValidationMessages(
+                ['title' => 'Another Questionnaire already uses this title']
+            );
+            return $result;
+        }
+
         // saveQuestionnaireResource() bumps `version` when handed an existing row, so a PUT
         // updates the stored questionnaire in place rather than creating a second repository
         // row under the same title.
-        $rowId = $this->save($questionnaire, $this->parsedTitle($updatedOpenEMRRecord), (int)$recordId);
+        //
+        // Both this check and the create-path one are read-then-write, so they narrow the
+        // window rather than close it: `questionnaire_repository`.`name` carries a non-unique
+        // index, so two simultaneous creates of one title can still both land. Closing it needs
+        // a UNIQUE constraint added through sql_upgrade, which in turn needs a decision about
+        // what to do with duplicate titles already stored on existing installs -- deferred
+        // rather than guessed at here.
+        $rowId = $this->save($questionnaire, $title, (int)$recordId);
 
         $stored = $service->fetchQuestionnaireById($rowId);
         if ($stored === []) {

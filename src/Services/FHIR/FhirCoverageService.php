@@ -629,6 +629,20 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             $result->setValidationMessages(['uuid' => 'Coverage not found']);
             return $result;
         }
+        // A beneficiary naming a different patient is rejected, not merged. array_merge() lets
+        // the request's pid win, so without this a PUT could move the coverage into another
+        // patient's chart; omitting beneficiary entirely still keeps the stored pid, because
+        // then there is no pid in the parsed record to override it with.
+        $requestedPid = $updatedOpenEMRRecord['pid'] ?? null;
+        $storedPid = $existing['pid'] ?? null;
+        if (is_numeric($requestedPid) && is_numeric($storedPid) && (int) $requestedPid !== (int) $storedPid) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(
+                ['beneficiary' => 'Coverage.beneficiary does not match the stored coverage\'s patient']
+            );
+            return $result;
+        }
+
         $updatedOpenEMRRecord = array_merge($existing, $updatedOpenEMRRecord);
 
         // Validated after the overlay, not before: a PUT that carries `status` but omits

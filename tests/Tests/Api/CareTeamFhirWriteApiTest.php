@@ -95,8 +95,17 @@ class CareTeamFhirWriteApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeCareTeamFixtures();
-        $this->fixtureManager->removePatientFixtures();
+        // setUp() assigns testClient before it fetches a token and fixtureManager after, so a
+        // failed token fetch leaves fixtureManager uninitialized. PHPUnit still runs tearDown()
+        // after a failed setUp(), and touching a typed property before initialization raises an
+        // Error that aborts the rest of the cleanup -- taking the OAuth client teardown below
+        // with it and leaking a registered client per failed run.
+        if (isset($this->fixtureManager)) {
+            $this->fixtureManager->removeCareTeamFixtures();
+        }
+        if (isset($this->fixtureManager)) {
+            $this->fixtureManager->removePatientFixtures();
+        }
         $this->practitionerFixtureManager->removePractitionerFixtures();
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();

@@ -838,6 +838,26 @@ class ProcedureService extends BaseService
             return $result;
         }
 
+        // The encounter has to belong to the patient being ordered for. The FHIR adapter
+        // resolves ServiceRequest.subject and .encounter independently, so without this check a
+        // caller authorized for one patient could file an order against another patient's visit
+        // -- and the order then reads back under that visit.
+        $patientId = (int) $orderData['patient_id'];
+        $encounterId = $orderData['encounter_id'] ?? null;
+        if (is_numeric($encounterId) && (int) $encounterId > 0) {
+            $encounterPatientId = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM " . self::ENCOUNTER_TABLE . " WHERE encounter = ?",
+                'pid',
+                [(int) $encounterId]
+            );
+            if (!is_numeric($encounterPatientId) || (int) $encounterPatientId !== $patientId) {
+                $result->setValidationMessages([
+                    'encounter' => 'Encounter does not belong to the referenced patient',
+                ]);
+                return $result;
+            }
+        }
+
         $orderData['date_ordered'] ??= date('Y-m-d H:i:s');
         $orderData['order_status'] ??= 'pending';
         $orderData['procedure_order_type'] ??= 'laboratory_test';

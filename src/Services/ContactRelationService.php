@@ -76,6 +76,11 @@ class ContactRelationService extends BaseService
             $result->setValidationMessages(['relationship' => 'relationship code is required']);
             return $result;
         }
+        $relationshipError = $this->unknownRelationshipMessage($relationship);
+        if ($relationshipError !== null) {
+            $result->setValidationMessages(['relationship' => $relationshipError]);
+            return $result;
+        }
         $firstName = $data['first_name'] ?? '';
         $lastName = $data['last_name'] ?? '';
         if (!is_string($firstName) || !is_string($lastName) || ($firstName === '' && $lastName === '')) {
@@ -198,6 +203,14 @@ class ContactRelationService extends BaseService
         if ($ownerPid <= 0) {
             $result->setValidationMessages(['patient' => 'A resolvable patient reference is required']);
             return $result;
+        }
+        $relationshipValue = $data['relationship'] ?? null;
+        if (is_string($relationshipValue) && $relationshipValue !== '') {
+            $relationshipError = $this->unknownRelationshipMessage($relationshipValue);
+            if ($relationshipError !== null) {
+                $result->setValidationMessages(['relationship' => $relationshipError]);
+                return $result;
+            }
         }
 
         // As on the insert path: a demographics update PersonService rejects on business rules
@@ -385,11 +398,17 @@ class ContactRelationService extends BaseService
             // addresses has no AUTO_INCREMENT (legacy schema); allocate id with
             // duplicate-key retry to close the concurrent-writer race. Proper fix
             // is the AUTO_INCREMENT schema migration tracked separately.
+            //
+            // The candidate comes from a locking read, not SELECT MAX(id). This runs inside a
+            // transaction, where a plain SELECT is a consistent read served from the snapshot
+            // taken at its start: two writers would pick the same candidate and keep picking it
+            // on every retry, so the retry loop could not converge. ORDER BY id DESC LIMIT 1
+            // FOR UPDATE walks the primary key and locks the top row, serialising allocation.
             $newAddressId = null;
             $maxAttempts = 5;
             for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
                 $maxAddressId = QueryUtils::fetchSingleValue(
-                    "SELECT MAX(id) AS m FROM addresses",
+                    "SELECT id AS m FROM addresses ORDER BY id DESC LIMIT 1 FOR UPDATE",
                     'm',
                     []
                 );
@@ -692,6 +711,10 @@ class ContactRelationService extends BaseService
             ,ca.address_use
             ,ca.address_status
         FROM
+            -- Address, telecom and the relationship label are LEFT JOINed: none of them is
+            -- required to write a RelatedPerson, and as inner joins they made a legally-written
+            -- person vanish from its own PUT read-back and from every later GET. The person and
+            -- the owning patient stay inner joins -- a row without either is not a RelatedPerson.
             contact_relation cr
             JOIN contact owner_contact ON cr.contact_id = owner_contact.id
             JOIN contact target_contact ON cr.target_id = target_contact.foreign_id
@@ -709,13 +732,13 @@ class ContactRelationService extends BaseService
                  pid AS patient_id
                  FROM patient_data
              ) pd ON owner_contact.foreign_table_name='patient_data' AND owner_contact.foreign_id = pd.patient_id
-            JOIN (
+            LEFT JOIN (
                 SELECT
                     option_id AS relationship_code
                     , title AS relationship_code_title
                 FROM list_options WHERE list_id = 'related_person_relationship'
             ) lo_relationship ON cr.relationship = lo_relationship.relationship_code
-            JOIN (
+            LEFT JOIN (
                 SELECT
                     contact_id
                     ,address_id
@@ -727,7 +750,7 @@ class ContactRelationService extends BaseService
                     ,period_end AS address_period_end
                 FROM contact_address
             ) ca ON target_contact.id = ca.contact_id
-            JOIN (
+            LEFT JOIN (
                 SELECT
                     id AS address_id
                     ,line1 AS address_line1
@@ -740,7 +763,7 @@ class ContactRelationService extends BaseService
                  FROM
                     addresses
             ) addr ON addr.address_id = ca.address_id
-            JOIN (
+            LEFT JOIN (
                 SELECT
                     id AS telecom_id,
                     contact_id,
@@ -982,6 +1005,26 @@ class ContactRelationService extends BaseService
         return !empty($result);
     }
 
+
+    /**
+     * Rejects a relationship code that is not in the `related_person_relationship` list.
+     *
+     * contact_relation.relationship is free text, and the read path joins it to list_options to
+     * label it. An unlisted value therefore stored fine and then made the row unreadable, so the
+     * write is refused up front instead.
+     *
+     * @return string|null The validation message, or null when the code is valid
+     */
+    private function unknownRelationshipMessage(string $relationship): ?string
+    {
+        $valid = $this->getValidRelationshipTypes();
+        if (array_key_exists($relationship, $valid)) {
+            return null;
+        }
+
+        return 'Unknown relationship code "' . $relationship . '"; expected one of: '
+            . implode(', ', array_keys($valid));
+    }
 
     /**
      * Get valid relationship types from list options

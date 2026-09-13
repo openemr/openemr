@@ -50,21 +50,13 @@ class ImmunizationValidator extends BaseValidator
                 // sane range. 50 mL is well past any real-world single-dose.
                 $context->optional('amount_administered')->numeric()->between(0, 50);
                 $context->optional('amount_administered_unit')->lengthBetween(1, 255);
-                $context->optional('expiration_date')
-                    ->datetime('Y-m-d')
-                    ->callback(static function ($value): bool {
-                        // Reject already-expired vaccines on insert. (Updates run through
-                        // the copied context with required(false), so historical records
-                        // can still be touched without triggering this rule.)
-                        if (!is_string($value) || $value === '') {
-                            return true;
-                        }
-                        $expiry = date_create_immutable($value);
-                        if ($expiry === false) {
-                            return false;
-                        }
-                        return $expiry >= date_create_immutable('today');
-                    });
+                // Shape only -- a past expiry is a legal value here. This column records the
+                // expiry printed on the vial that was actually administered, so back-entry of
+                // a historical dose and any import from another system carry dates long past.
+                // (The earlier "must not be expired" rule did not relax on update either:
+                // copyContext()'s required(false) drops the presence requirement, not the
+                // callback, so re-submitting a stored historical record was rejected too.)
+                $context->optional('expiration_date')->datetime('Y-m-d');
                 $context->optional('refusal_reason')->lengthBetween(1, 255);
                 $context->optional('information_source')->lengthBetween(1, 255);
             }

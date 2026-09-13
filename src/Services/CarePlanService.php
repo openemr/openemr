@@ -415,12 +415,18 @@ class CarePlanService extends BaseService
         $authorized = (string) ($context['authorized'] ?? 0);
 
         // form_care_plan has no AUTO_INCREMENT and no unique key on `id` (legacy schema:
-        // one id spans every item row of a form). Duplicate-key can therefore never fire,
-        // so the retry loop below cannot be what makes allocation safe — the SELECT ...
-        // FOR UPDATE inside the transaction is. It serializes concurrent allocators so two
-        // requests cannot read the same MAX(id) and both insert under it. The proper fix
-        // remains the AUTO_INCREMENT schema migration tracked separately; the retry stays
-        // for the case where that migration lands and starts raising duplicate-key.
+        // one id spans every item row of a form), so duplicate-key can never fire and the
+        // retry loop below cannot be what makes allocation safe. The id therefore comes from
+        // the `sequences` table via QueryUtils::generateId() -- the allocator this schema
+        // already provides for exactly this, as its docblock says ("the counter for form_id in
+        // the forms table"). Its GenID() is atomic and independent of this transaction's
+        // snapshot, so concurrent CarePlan and Goal writes cannot be handed the same number.
+        //
+        // What it replaces was SELECT MAX(id) ... FOR UPDATE: an aggregate over an empty or
+        // non-matching set locks no row, so the first two writers to a fresh table could both
+        // read NULL and both allocate 1 -- and with no unique key neither insert would fail.
+        // The retry stays for the case where an AUTO_INCREMENT migration later lands and
+        // starts raising duplicate-key.
         $maxAttempts = 5;
         $lastError = null;
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
@@ -433,12 +439,7 @@ class CarePlanService extends BaseService
                     $group,
                     $items
                 ): array {
-                    $maxId = QueryUtils::fetchSingleValue(
-                        "SELECT MAX(id) AS largestId FROM form_care_plan FOR UPDATE",
-                        'largestId',
-                        []
-                    );
-                    $newFormId = (is_numeric($maxId) ? (int) $maxId : 0) + 1;
+                    $newFormId = QueryUtils::generateId();
 
                     $formService = new FormService();
                     $formService->addForm(

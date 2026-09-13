@@ -201,7 +201,7 @@ class FhirCoverageRestController
     // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/Coverage',
-        description: 'Creates a new Coverage resource. Note: FHIR R4 allows the `payor` reference to target Organization, Patient, or RelatedPerson; OpenEMR only resolves Organization (the `insurance_companies` table). Patient/RelatedPerson payor references in the payload will fail with a 422 since they cannot be persisted to `insurance_data.provider`.',
+        description: 'Creates a new Coverage resource. Note: FHIR R4 allows the `payor` reference to target Organization, Patient, or RelatedPerson; OpenEMR only resolves Organization (the `insurance_companies` table). Patient/RelatedPerson payor references in the payload are rejected with a 400 since they cannot be persisted to `insurance_data.provider`.',
         tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,

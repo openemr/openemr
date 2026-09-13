@@ -15,7 +15,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\PractitionerAttributionPolicy;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -343,17 +345,26 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         // `practitioner_uuid` is only a read alias -- not a `lists` column -- so storing the
         // uuid under that key would be silently dropped by the BaseService column builders
         // and the recorder would be lost. Resolve it to the username here instead.
+        //
+        // The reference goes through PractitionerAttributionPolicy first, the same as
+        // Immunization.performer and MedicationRequest.requester: recorder is an attribution
+        // claim, so without it any caller holding AllergyIntolerance.write could file an allergy
+        // under another clinician's name. The policy resolves the uuid to a users.id and rejects
+        // anyone but the authenticated user unless the caller holds admin/users.
         $recorderRef = FhirPayloadReader::reference($json['recorder'] ?? null);
         if ($recorderRef !== null) {
             $recorderUuid = UtilsService::parseReferenceString($recorderRef, 'Practitioner')['uuid'] ?? null;
-            if (
-                is_string($recorderUuid) && $recorderUuid !== ''
-                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($recorderUuid)
-            ) {
+            if (is_string($recorderUuid) && $recorderUuid !== '') {
+                $recorderId = (new PractitionerAttributionPolicy($this->getSession()))
+                    ->resolveAndAssert(
+                        $recorderUuid,
+                        'AllergyIntolerance.recorder',
+                        static fn(string $bytes) => BaseService::getIdByUuid($bytes, 'users', 'id')
+                    );
                 $username = QueryUtils::fetchSingleValue(
-                    'SELECT username FROM users WHERE uuid = ?',
+                    'SELECT username FROM users WHERE id = ?',
                     'username',
-                    [\OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($recorderUuid)]
+                    [$recorderId]
                 );
                 if (is_string($username) && $username !== '') {
                     $data['user'] = $username;

@@ -61,11 +61,18 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
     private const DEFAULT_CATEGORY_TITLE = 'Office Visit';
 
     /**
-     * Default openemr_postcalendar_categories.pc_catid used when the FHIR
-     * Appointment carries no resolvable appointmentType. 9 is the stock
-     * "Office Visit" category in the default category seed.
+     * pc_constant_id of the category used when the FHIR Appointment carries no resolvable
+     * appointmentType. The constant is the stable identity; pc_catid is auto-incremented and
+     * so is not portable between installations.
      */
-    private const DEFAULT_CATEGORY_ID = 9;
+    private const DEFAULT_CATEGORY_CONSTANT = 'office_visit';
+
+    /**
+     * pc_catid fallback for when even the constant lookup finds nothing -- a site can
+     * deactivate or delete the stock category. 5 is what openemr_postcalendar_events.pc_catid
+     * defaults to in the schema, and is 'office_visit' in the stock seed.
+     */
+    private const DEFAULT_CATEGORY_ID = 5;
 
     /**
      * Default appointment duration in seconds (15 minutes) when the FHIR
@@ -529,10 +536,14 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $openEmrRecord['pc_billing_location'] = $facilityId;
         }
 
-        // Default pc_catid if not provided (required by validator)
+        // Default pc_catid if not provided (required by validator). Resolved through
+        // pc_constant_id so the row actually is the category DEFAULT_CATEGORY_TITLE names:
+        // pc_catid is auto-incremented, so a hardcoded number means a different category on
+        // installations whose seed has drifted (9 is 'established_patient' in the stock seed).
         $catId = $openEmrRecord['pc_catid'] ?? null;
         if (!is_numeric($catId) || (int) $catId <= 0) {
-            $openEmrRecord['pc_catid'] = self::DEFAULT_CATEGORY_ID;
+            $defaultCatId = $this->lookupCategoryByConstantId(self::DEFAULT_CATEGORY_CONSTANT);
+            $openEmrRecord['pc_catid'] = $defaultCatId !== false ? $defaultCatId : self::DEFAULT_CATEGORY_ID;
         }
 
         // Default pc_duration if not provided (validator requires it)

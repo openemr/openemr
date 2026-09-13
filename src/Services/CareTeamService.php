@@ -371,74 +371,85 @@ class CareTeamService extends BaseService
         // Create UUIDs for the table if not already present
         UuidRegistry::createMissingUuidsForTables([self::CARE_TEAM_TABLE]);
 
-        // Create or update main care team record
-        $careTeamIdRaw = $this->createOrUpdateCareTeam($pid, $teamId, $teamName, $status);
-        if (!is_numeric($careTeamIdRaw)) {
-            throw new \RuntimeException('care_teams row id could not be resolved after save');
-        }
-        $careTeamId = (int) $careTeamIdRaw;
-
-        // Get existing members keyed by user_id for comparison
-        $existingMembers = $this->getExistingCareTeamMembers($careTeamId);
-        $existingMembersByUserId = [];
-        $existingMembersByContactId = [];
-        // AI-generated indexing logic - Start
-        foreach ($existingMembers as $index => $member) {
-            if (!empty($member['user_id'])) {
-                $existingMembersByUserId[intval($member['user_id'])] = $index;
-            } elseif (!empty($member['contact_id'])) {
-                $existingMembersByContactId[intval($member['contact_id'])] = $index;
+        // The team row and the member reconciliation below are one unit of work: the row is
+        // written first, then members are inserted, updated and deactivated. Without a
+        // transaction a failure partway through leaves the caller an error alongside a
+        // half-reconciled team -- on a FHIR PUT that can mean members already deactivated
+        // against a team whose replacements never landed.
+        //
+        // createMissingUuidsForTables() stays outside it: that backfill runs its own
+        // start/commit cycle (and commits again mid-loop), so enclosing it would end this
+        // transaction early rather than nest inside it.
+        return QueryUtils::inTransaction(function () use ($pid, $teamId, $teamName, $team, $status): int {
+            // Create or update main care team record
+            $careTeamIdRaw = $this->createOrUpdateCareTeam($pid, $teamId, $teamName, $status);
+            if (!is_numeric($careTeamIdRaw)) {
+                throw new \RuntimeException('care_teams row id could not be resolved after save');
             }
-        }
-        // AI-generated indexing logic - End
-        // AI-generated member processing logic - Start
-        // Process submitted members
-        foreach ($team as $entry) {
-            // Ensure user_id takes precedence over contact_id
-            if (!empty($entry['user_id']) && !empty($entry['contact_id'])) {
-                $entry['contact_id'] = null; // Clear contact_id if user_id exists
-            }
+            $careTeamId = (int) $careTeamIdRaw;
 
-            $userId = intval($entry['user_id'] ?? 0);
-            $contactId = intval($entry['contact_id'] ?? 0);
-
-            if (!$userId && !$contactId) {
-                continue; // Skip if neither is set
-            }
-
-            if ($userId !== 0) {
-                // Handle user member
-                $index = $existingMembersByUserId[$userId] ?? -1;
-                if (isset($existingMembers[$index])) {
-                    // Update existing member
-                    $this->updateCareTeamMember($existingMembers[$index]['id'], $entry);
-                    unset($existingMembers[$index]);
-                } else {
-                    // Insert new member
-                    $this->insertCareTeamMember($careTeamId, $entry);
-                }
-            } elseif ($contactId !== 0) {
-                // Handle contact member
-                // Find existing member by contact_id
-                $index = $existingMembersByContactId[$contactId] ?? -1;
-                if (isset($existingMembers[$index])) {
-                    // Update existing contact member
-                    $this->updateCareTeamMember($existingMembers[$index]['id'], $entry);
-                    unset($existingMembers[$index]);
-                } else {
-                    // Insert new contact member
-                    $this->insertCareTeamMember($careTeamId, $entry);
+            // Get existing members keyed by user_id for comparison
+            $existingMembers = $this->getExistingCareTeamMembers($careTeamId);
+            $existingMembersByUserId = [];
+            $existingMembersByContactId = [];
+            // AI-generated indexing logic - Start
+            foreach ($existingMembers as $index => $member) {
+                if (!empty($member['user_id'])) {
+                    $existingMembersByUserId[intval($member['user_id'])] = $index;
+                } elseif (!empty($member['contact_id'])) {
+                    $existingMembersByContactId[intval($member['contact_id'])] = $index;
                 }
             }
-        }
-        // AI-generated member processing logic - End
+            // AI-generated indexing logic - End
+            // AI-generated member processing logic - Start
+            // Process submitted members
+            foreach ($team as $entry) {
+                // Ensure user_id takes precedence over contact_id
+                if (!empty($entry['user_id']) && !empty($entry['contact_id'])) {
+                    $entry['contact_id'] = null; // Clear contact_id if user_id exists
+                }
 
-        // Mark removed members as inactive
-        foreach ($existingMembers as $member) {
-            $this->markMemberAsInactive($member['id']);
-        }
+                $userId = intval($entry['user_id'] ?? 0);
+                $contactId = intval($entry['contact_id'] ?? 0);
 
-        return $careTeamId;
+                if (!$userId && !$contactId) {
+                    continue; // Skip if neither is set
+                }
+
+                if ($userId !== 0) {
+                    // Handle user member
+                    $index = $existingMembersByUserId[$userId] ?? -1;
+                    if (isset($existingMembers[$index])) {
+                        // Update existing member
+                        $this->updateCareTeamMember($existingMembers[$index]['id'], $entry);
+                        unset($existingMembers[$index]);
+                    } else {
+                        // Insert new member
+                        $this->insertCareTeamMember($careTeamId, $entry);
+                    }
+                } elseif ($contactId !== 0) {
+                    // Handle contact member
+                    // Find existing member by contact_id
+                    $index = $existingMembersByContactId[$contactId] ?? -1;
+                    if (isset($existingMembers[$index])) {
+                        // Update existing contact member
+                        $this->updateCareTeamMember($existingMembers[$index]['id'], $entry);
+                        unset($existingMembers[$index]);
+                    } else {
+                        // Insert new contact member
+                        $this->insertCareTeamMember($careTeamId, $entry);
+                    }
+                }
+            }
+            // AI-generated member processing logic - End
+
+            // Mark removed members as inactive
+            foreach ($existingMembers as $member) {
+                $this->markMemberAsInactive($member['id']);
+            }
+
+            return $careTeamId;
+        });
     }
 
     /**

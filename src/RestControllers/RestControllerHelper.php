@@ -521,10 +521,23 @@ class RestControllerHelper
                     'internalErrors' => $processingResult->getInternalErrors(),
                 ]
             );
-            $httpResponseBody["internalErrors"] = [
-                'An internal error occurred (incident ' . $correlationId . ')',
-            ];
-            return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
+            // An OperationOutcome, not the bare internalErrors envelope: every caller of this
+            // method is a FHIR controller, and R4 asks for OperationOutcome on a failed
+            // interaction. The correlation id rides in the issue text so an operator can tie the
+            // client's report back to the logged exception.
+            //
+            // The 400 branch above deliberately keeps its validationErrors shape -- that is the
+            // established contract for FHIR validation failures here and is asserted by
+            // ConditionFhirApiTest, so changing it belongs in its own change, not this one.
+            return self::responseHandler(
+                UtilsService::createOperationOutcomeResource(
+                    'error',
+                    'exception',
+                    'An internal error occurred (incident ' . $correlationId . ')'
+                ),
+                null,
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         } elseif (count($processingResult->getData()) <= 0) {
             // Checked after the internal-error branch: a service that fails and returns no
             // data (addInternalError() with an empty payload, which is what the write paths

@@ -78,6 +78,11 @@ class QuestionnaireResponseFhirWriteApiTest extends TestCase
 
     protected function tearDown(): void
     {
+        // setUp() assigns testClient before it fetches a token and fixtureManager after, so a
+        // failed token fetch leaves fixtureManager uninitialized. PHPUnit still runs tearDown()
+        // after a failed setUp(), and touching a typed property before initialization raises an
+        // Error that aborts the rest of the cleanup -- taking the OAuth client teardown below
+        // with it and leaking a registered client per failed run.
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_name LIKE ?)",
             [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
@@ -94,7 +99,9 @@ class QuestionnaireResponseFhirWriteApiTest extends TestCase
             "DELETE FROM questionnaire_repository WHERE name LIKE ?",
             [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
         );
-        $this->fixtureManager->removePatientFixtures();
+        if (isset($this->fixtureManager)) {
+            $this->fixtureManager->removePatientFixtures();
+        }
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }

@@ -361,6 +361,16 @@ class ImmunizationService extends BaseService
         unset($data['patient_id']);
 
         [$set, $bind] = $this->splitColumnQuery($this->buildUpdateColumns($data));
+        // A payload that maps to nothing updatable -- patient_id removed above, uuid skipped by
+        // buildUpdateColumns() -- would otherwise emit "UPDATE immunizations SET  WHERE ...",
+        // and the resulting SqlQueryException gets reported as an internal error. It is a bad
+        // request, so say so.
+        if (trim($set) === '') {
+            $processingResult->setValidationMessages(
+                ['data' => 'No updatable Immunization fields were supplied']
+            );
+            return $processingResult;
+        }
         $sql = " UPDATE " . self::IMMUNIZATION_TABLE . " SET ";
         $sql .= $set;
         // patient_id is part of the WHERE for belt-and-braces protection if $expectedPatientId

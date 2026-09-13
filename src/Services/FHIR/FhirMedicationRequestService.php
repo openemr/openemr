@@ -298,6 +298,17 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $data['drug'] = $medicationText;
         }
 
+        // medication[x] is a required choice, and only the medicationCodeableConcept arm maps to
+        // prescriptions.drug (see the class docblock). A medicationReference is not merely
+        // unsupported on the way in -- the read side always re-emits medicationCodeableConcept,
+        // so accepting it would silently keep the stored medication and report success on a PUT
+        // whose whole point was to change the drug. Surface the gap; the insert and update
+        // paths turn it into a 422.
+        if (!isset($data['drug']) && isset($json['medicationReference'])) {
+            $data['__validation_error__'] =
+                'MedicationRequest.medicationReference is not supported; supply medicationCodeableConcept';
+        }
+
         // subject -> puuid (resolved to patient_id downstream)
         $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
         if ($subjectRef !== null) {
@@ -374,6 +385,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             throw new \InvalidArgumentException('Expected a parsed OpenEMR MedicationRequest record array');
         }
 
+        $validationError = $openEmrRecord['__validation_error__'] ?? null;
+        if (is_string($validationError)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['medication' => $validationError]);
+            return $result;
+        }
+
         $resolveResult = $this->resolveReferences($openEmrRecord);
         if ($resolveResult !== null) {
             return $resolveResult;
@@ -405,6 +423,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
+        $validationError = $updatedOpenEMRRecord['__validation_error__'] ?? null;
+        if (is_string($validationError)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['medication' => $validationError]);
+            return $result;
+        }
+
         $resolveResult = $this->resolveReferences($updatedOpenEMRRecord);
         if ($resolveResult !== null) {
             return $resolveResult;
@@ -414,8 +439,21 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         // The subject the caller asserts has to be the prescription's actual owner. Without this
         // the resolved patient_id would simply be written, moving the record to another chart.
+        //
+        // It is also required, not merely checked when present: a payload with no subject left
+        // $expectedPatientId null, and PrescriptionService::update() skips the ownership
+        // comparison on null. A leaked prescription uuid was then enough to mutate the record
+        // without ever naming whose chart it is in. MedicationRequest.subject is 1..1 in R4, so
+        // rejecting the omission is also what the spec asks for.
         $patientId = $record['patient_id'] ?? null;
-        $expectedPatientId = is_numeric($patientId) ? (int) $patientId : null;
+        if (!is_numeric($patientId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'subject' => ['MedicationRequest.subject is required and must reference a known patient'],
+            ]);
+            return $result;
+        }
+        $expectedPatientId = (int) $patientId;
 
         return $this->getPrescriptionService()->update($fhirResourceId, $record, $expectedPatientId);
     }

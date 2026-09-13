@@ -450,8 +450,15 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 [UuidRegistry::uuidToBytes($practitionerUuid)]
             );
             if (!is_numeric($userId)) {
-                // Skip unresolvable practitioners rather than failing the whole save
-                continue;
+                // A participant the caller named but we cannot resolve fails the save. Skipping
+                // it returned success for a team that is missing a member the client believes it
+                // asked for -- and worse on PUT, where the member list is reconciled: every
+                // existing member absent from the surviving list gets deactivated, so one
+                // unresolvable reference could empty a team and still report 200.
+                $result->setValidationMessages([
+                    'participant' => 'Practitioner reference could not be resolved: ' . $practitionerUuid,
+                ]);
+                return $result;
             }
             $role = is_string($member['role'] ?? null) ? $member['role'] : '';
             $resolvedMembers[] = [
@@ -467,6 +474,11 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             $careTeamService = new CareTeamService();
             $savedTeamId = $careTeamService->saveCareTeam($pid, $teamId, $teamName, $resolvedMembers, $status);
         } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            // The class list is deliberate and stays narrow. ForbiddenCatchTypeRule rejects any
+            // catch related to \Error or \ErrorException -- which rules out \Throwable and
+            // \Exception alike -- because an Error here is a bug in this code, not a failed
+            // request, and it belongs in the global handler rather than dressed up as a tidy
+            // CareTeam error. These three are what a save can legitimately fail with.
             ServiceContainer::getLogger()->error('CareTeam save failed', ['pid' => $pid, 'exception' => $e]);
             $result->addInternalError('CareTeam could not be saved');
             return $result;

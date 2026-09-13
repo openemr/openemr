@@ -742,6 +742,17 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             $data['uuid'] = $resourceId;
         }
 
+        // intent is 1..1 in R4, but form_care_plan has no column for it and parseOpenEMRRecord()
+        // hardcodes 'plan' on the way out. Anything else is therefore rejected rather than
+        // accepted and quietly downgraded -- storing an 'order' and reading back a 'plan' changes
+        // what the resource means. insertOpenEMRRecord/updateOpenEMRRecord turn this into a 422.
+        $intent = $json['intent'] ?? null;
+        if (is_string($intent) && $intent !== '' && $intent !== 'plan') {
+            $data['__validation_error__'] = [
+                'intent' => 'Only CarePlan.intent "plan" is supported; "' . $intent . '" cannot be stored',
+            ];
+        }
+
         // subject -> puuid
         $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
         if ($subjectRef !== null) {
@@ -788,6 +799,16 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         foreach (is_array($activities) ? $activities : [] as $activity) {
             $detail = FhirPayloadReader::get($activity, 'detail');
             if (!is_array($detail)) {
+                // R4 invariant cpl-3 makes activity.reference and activity.detail an exclusive
+                // choice, so a reference-only activity is valid and common. form_care_plan rows
+                // are built from detail alone and have nowhere to put the reference, so the
+                // activity is rejected rather than dropped: dropping it let a create store fewer
+                // activities than were sent, and let a PUT delete stored ones, both reporting 200.
+                if (FhirPayloadReader::reference(FhirPayloadReader::get($activity, 'reference')) !== null) {
+                    $data['__validation_error__'] = [
+                        'activity' => 'CarePlan.activity.reference is not supported; supply activity.detail',
+                    ];
+                }
                 continue;
             }
 
@@ -863,6 +884,26 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     }
 
     /**
+     * Turns a marker left by parseFhirResource() into a rejection both write paths can return.
+     *
+     * The parser has no ProcessingResult to fail into, so it records the reason and the write
+     * path converts it here rather than each path re-deriving the check.
+     *
+     * @param mixed $openEmrRecord
+     */
+    private function parseTimeValidationError($openEmrRecord): ?ProcessingResult
+    {
+        $messages = is_array($openEmrRecord) ? ($openEmrRecord['__validation_error__'] ?? null) : null;
+        if (!is_array($messages) || $messages === []) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages($messages);
+
+        return $result;
+    }
+
+    /**
      * Inserts a new care_plan form from a parsed FHIR CarePlan.
      *
      * Requires an encounter context — there is no encounter-less form_care_plan. If FHIR omits
@@ -875,6 +916,11 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR CarePlan record array');
+        }
+
+        $validationError = $this->parseTimeValidationError($openEmrRecord);
+        if ($validationError !== null) {
+            return $validationError;
         }
 
         $patientId = $this->resolvePatientId($openEmrRecord);
@@ -902,6 +948,11 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
+        $validationError = $this->parseTimeValidationError($updatedOpenEMRRecord);
+        if ($validationError !== null) {
+            return $validationError;
+        }
+
         $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
         $euuid = $parts['euuid'] ?? '';
         $encounterUuid = is_string($euuid) ? $euuid : '';

@@ -228,7 +228,7 @@ class FhirMedicationRequestRestController
     // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/MedicationRequest',
-        description: 'Creates a new MedicationRequest resource. Note: FHIR R4 allows medication via either `medicationCodeableConcept` (inline coding) or `medicationReference` (link to a Medication resource). OpenEMR only handles the `medicationCodeableConcept` path; `medicationReference` is silently dropped on write. Use medicationCodeableConcept with an RxNorm coding for round-trip compatibility.',
+        description: 'Creates a new MedicationRequest resource. Note: FHIR R4 allows medication via either `medicationCodeableConcept` (inline coding) or `medicationReference` (link to a Medication resource). OpenEMR only handles the `medicationCodeableConcept` path; a `medicationReference` is rejected rather than dropped. Use medicationCodeableConcept with an RxNorm coding for round-trip compatibility.',
         tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,

@@ -702,6 +702,27 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
+        // Naming the right patient is not the same as being allowed to open their chart.
+        // insert() runs this check and update() did not, so an unbound token carrying only
+        // tenant-wide MedicationRequest.write could modify a prescription in a chart its user
+        // has no access to -- including one gated behind a squad ACL. Reported as a denial
+        // rather than not-found: the caller has already matched the row's owner, so there is
+        // nothing left to probe for.
+        $rowPatient = $this->findPatientByPid($rowPatientId);
+        if ($rowPatient === null) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
+            return $processingResult;
+        }
+        $rowSquadRaw = $rowPatient['squad'] ?? '';
+        if (!$this->aclCheckUserPatientAccess(is_string($rowSquadRaw) ? $rowSquadRaw : '')) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages([
+                'patient_id' => 'User does not have access to this patient.',
+            ]);
+            return $processingResult;
+        }
+
         $encounterError = $this->encounterOwnershipError($data['encounter'] ?? null, $rowPatientId);
         if ($encounterError !== null) {
             return $encounterError;

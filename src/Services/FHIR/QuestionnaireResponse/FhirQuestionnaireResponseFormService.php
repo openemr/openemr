@@ -111,6 +111,11 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             throw new InvalidArgumentException("Questionnaire does not exist on local server. Cannot save QuestionnaireResponse.");
         }
         $parsedResource['questionnaire_id'] = $parsedReference['uuid'];
+        // A pinned |version is carried through rather than dropped. The repository updates a
+        // questionnaire in place and bumps `version`, so storing answers against "whatever the
+        // row says now" would silently attach them to a different set of questions than the
+        // client filled in. fetchQuestionnaireContent() rejects a mismatch.
+        $parsedResource['questionnaire_version'] = self::canonicalVersion($json['questionnaire'] ?? null);
 
         // our subjects at this point should really only be the patient...
         $subject = UtilsService::parseReferenceString(FhirPayloadReader::reference($json['subject'] ?? null), 'Patient');
@@ -190,6 +195,30 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         $versionSeparator = strpos($canonical, '|');
 
         return $versionSeparator === false ? $canonical : substr($canonical, 0, $versionSeparator);
+    }
+
+    /**
+     * Returns the `|version` a canonical pins, or null when it pins none.
+     *
+     * Split from canonicalValue() because the reference and the version are wanted in different
+     * places: the reference resolves the row, the version says which revision of it the answers
+     * were given against.
+     */
+    private static function canonicalVersion(mixed $canonical): ?string
+    {
+        if (!is_string($canonical) || $canonical === '') {
+            $canonical = FhirPayloadReader::getString($canonical, 'value');
+        }
+        if (!is_string($canonical) || $canonical === '') {
+            return null;
+        }
+        $versionSeparator = strpos($canonical, '|');
+        if ($versionSeparator === false) {
+            return null;
+        }
+        $version = substr($canonical, $versionSeparator + 1);
+
+        return $version === '' ? null : $version;
     }
 
     /**
@@ -391,7 +420,10 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
     {
         $patientId = $this->resolvePatientId($openEmrRecord['puuid'] ?? null);
         $encounterId = $this->resolveEncounterId($openEmrRecord['encounter_uuid'] ?? null);
-        $questionnaire = $this->fetchQuestionnaireContent($openEmrRecord['questionnaire_id'] ?? null);
+        $questionnaire = $this->fetchQuestionnaireContent(
+            $openEmrRecord['questionnaire_id'] ?? null,
+            FhirPayloadReader::get($openEmrRecord, 'questionnaire_version')
+        );
 
         // note https://build.fhir.org/http.html#create specification states that an id SHALL be
         // ignored for our create operation, so the client's id is dropped from the payload as
@@ -607,7 +639,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
      * The response row keeps its own copy of the questionnaire content, so the repository is
      * only consulted on create.
      */
-    private function fetchQuestionnaireContent(mixed $questionnaireId): string
+    private function fetchQuestionnaireContent(mixed $questionnaireId, mixed $requestedVersion = null): string
     {
         if (!is_string($questionnaireId) || $questionnaireId === '') {
             throw new InvalidArgumentException("Questionnaire does not exist");
@@ -617,6 +649,23 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         $questionnaireRecords = ProcessingResult::extractDataArray($questionnaireService->search(['uuid' => $tokenSearchValue]));
         if ($questionnaireRecords === []) {
             throw new InvalidArgumentException("Questionnaire does not exist");
+        }
+        // A canonical that pins a version has to match the revision actually stored. The
+        // repository has no history to fall back on -- saveQuestionnaireResource() overwrites
+        // the row and increments `version` -- so the alternative to rejecting is silently
+        // answering a different questionnaire than the client was shown.
+        if (is_string($requestedVersion) && $requestedVersion !== '') {
+            $storedVersion = FhirPayloadReader::getString(
+                FhirPayloadReader::get($questionnaireRecords, 0),
+                'version'
+            );
+            if ($storedVersion !== $requestedVersion) {
+                throw new InvalidArgumentException(
+                    'QuestionnaireResponse.questionnaire pins version ' . $requestedVersion
+                    . ' but the stored Questionnaire is version ' . ($storedVersion ?? 'unknown')
+                    . '; historical versions are not retained'
+                );
+            }
         }
         $questionnaire = $questionnaireRecords[0]['questionnaire'] ?? null;
         if (!is_string($questionnaire)) {

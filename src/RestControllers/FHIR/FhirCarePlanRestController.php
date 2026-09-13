@@ -211,7 +211,7 @@ class FhirCarePlanRestController
     // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/CarePlan',
-        description: 'Creates a new CarePlan resource. The CarePlan must reference an existing encounter; one CarePlan corresponds to one care_plan form on that encounter, with each FHIR activity.detail becoming a form_care_plan row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR\'s form_care_plan schema has no column for it; the read side hardcodes intent=\'plan\', so any other intent value supplied on write is silently treated as \'plan\' on round-trip.',
+        description: 'Creates a new CarePlan resource. The CarePlan must reference an existing encounter; one CarePlan corresponds to one care_plan form on that encounter, with each FHIR activity.detail becoming a form_care_plan row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR\'s form_care_plan schema has no column for it; the read side hardcodes intent=\'plan\', so any other intent value is rejected rather than stored and silently downgraded. `activity.reference` is likewise rejected: form_care_plan rows are built from `activity.detail`.',
         tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,

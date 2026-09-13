@@ -45,6 +45,12 @@ class ImmunizationValidatorTest extends TestCase
             BaseValidator::DATABASE_INSERT_CONTEXT
         );
         $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the patient_id rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('patient_id', $messages);
     }
 
     public function testInsertRequiresCvxCode(): void
@@ -54,6 +60,12 @@ class ImmunizationValidatorTest extends TestCase
             BaseValidator::DATABASE_INSERT_CONTEXT
         );
         $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the cvx_code rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('cvx_code', $messages);
     }
 
     public function testInsertRequiresAdministeredDate(): void
@@ -63,6 +75,12 @@ class ImmunizationValidatorTest extends TestCase
             BaseValidator::DATABASE_INSERT_CONTEXT
         );
         $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the administered_date rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('administered_date', $messages);
     }
 
     public function testInsertAcceptsValidData(): void
