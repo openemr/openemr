@@ -39,7 +39,13 @@ SCRIPT_REF = re.compile(r'\.github/scripts/')
 
 def collect_violations(workflows_dir: Path) -> list[str]:
     violations: list[str] = []
-    for wf_file in sorted(workflows_dir.glob('*.yml')):
+    # Scan both extensions -- GitHub Actions accepts both .yml and .yaml,
+    # and the pre-commit hook that runs this lint filters on the same pair
+    # (see .pre-commit-config.yaml's `files: ^\.github/workflows/.*\.ya?ml$`).
+    workflow_files = sorted(
+        list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
+    )
+    for wf_file in workflow_files:
         try:
             with wf_file.open() as f:
                 wf = yaml.safe_load(f)
@@ -57,22 +63,42 @@ def collect_violations(workflows_dir: Path) -> list[str]:
             steps = job.get('steps')
             if not isinstance(steps, list):
                 continue
-            has_checkout = any(
-                isinstance(s, dict)
-                and isinstance(s.get('uses'), str)
-                and s['uses'].startswith('actions/checkout@')
-                for s in steps
+            # Find the indexes of the first checkout and the first script
+            # invocation. A checkout AFTER the first script call is useless
+            # -- the script has already tried to read the empty workspace by
+            # then. Require checkout index < first-script index (or no
+            # script call at all).
+            first_checkout_idx = next(
+                (
+                    i for i, s in enumerate(steps)
+                    if isinstance(s, dict)
+                    and isinstance(s.get('uses'), str)
+                    and s['uses'].startswith('actions/checkout@')
+                ),
+                None,
             )
-            calls_repo_script = any(
-                isinstance(s, dict)
-                and isinstance(s.get('run'), str)
-                and SCRIPT_REF.search(s['run'])
-                for s in steps
+            first_script_idx = next(
+                (
+                    i for i, s in enumerate(steps)
+                    if isinstance(s, dict)
+                    and isinstance(s.get('run'), str)
+                    and SCRIPT_REF.search(s['run'])
+                ),
+                None,
             )
-            if calls_repo_script and not has_checkout:
+            if first_script_idx is None:
+                continue  # no script call, nothing to guard
+            if first_checkout_idx is None or first_checkout_idx > first_script_idx:
+                if first_checkout_idx is None:
+                    detail = "has no actions/checkout step in the same job"
+                else:
+                    detail = (
+                        f"has actions/checkout at step index {first_checkout_idx} "
+                        f"which runs AFTER the first .github/scripts/ invocation at "
+                        f"step index {first_script_idx}"
+                    )
                 violations.append(
-                    f"{wf_file}: job '{job_name}' calls a .github/scripts/ script "
-                    f"but has no actions/checkout step in the same job "
+                    f"{wf_file}: job '{job_name}' calls a .github/scripts/ script but {detail} "
                     f"(the workspace will be empty at script-invocation time)"
                 )
     return violations
