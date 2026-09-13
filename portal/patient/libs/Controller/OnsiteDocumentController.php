@@ -140,18 +140,9 @@ class OnsiteDocumentController extends AppBasePortalController
                 );
             }
 
-            // TODO: this is generic query filtering based only on criteria properties
-            foreach (array_keys($_REQUEST) as $prop) {
-                $prop_normal = ucfirst((string) $prop);
-                $prop_equals = $prop_normal . '_Equals';
-
-                if (property_exists($criteria, $prop_normal)) {
-                    $criteria->$prop_normal = RequestUtil::Get($prop);
-                } elseif (property_exists($criteria, $prop_equals)) {
-                    // this is a convenience so that the _Equals suffix is not needed
-                    $criteria->$prop_equals = RequestUtil::Get($prop);
-                }
-            }
+            // generic query filtering: request input may only drive equality
+            // (_Equals) filters, never arbitrary criteria properties (CWE-915)
+            $this->ApplyRequestEqualsFilters($criteria);
 
             $output = new stdClass();
 
