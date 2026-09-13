@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -12,7 +13,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationStatusCodes;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationPerformer;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -48,9 +51,9 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization';
 
-    public function __construct()
+    public function __construct(?string $fhirAPIURL = null)
     {
-        parent::__construct();
+        parent::__construct($fhirAPIURL);
         $this->immunizationService = new ImmunizationService();
     }
 
@@ -233,6 +236,235 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     }
 
     /**
+     * Parses a FHIR Immunization Resource, returning the equivalent OpenEMR immunization record
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array The OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRImmunization)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRImmunization resource, got ' . $fhirResource::class
+            );
+        }
+
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // Patient reference -> patient_id
+        $patientUuid = $this->referenceUuid($json['patient'] ?? null, 'Patient');
+        if ($patientUuid !== '') {
+            $puuidBytes = UuidRegistry::uuidToBytes($patientUuid);
+            $patientId = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
+            if ($patientId !== false) {
+                $data['patient_id'] = $patientId;
+            }
+        }
+
+        // VaccineCode -> cvx_code
+        $cvxCode = FhirPayloadReader::firstCodingCode($json['vaccineCode'] ?? null);
+        if ($cvxCode !== '') {
+            $data['cvx_code'] = $cvxCode;
+        }
+
+        // OccurrenceDateTime -> administered_date. When a dose was given is a
+        // point in time, so partial precision is rejected rather than widened.
+        $administeredDate = FhirDateTimeParser::toDbDate(
+            $json['occurrenceDateTime'] ?? null,
+            'Immunization.occurrenceDateTime'
+        );
+        if ($administeredDate !== null) {
+            $data['administered_date'] = $administeredDate;
+        }
+
+        // Status -> completion_status / added_erroneously.
+        //
+        // Both columns are written on every mapped status, never just the one the branch is
+        // named for. A PUT replaces the resource, and parseOpenEMRRecord() reads
+        // added_erroneously first: leaving a stored '1' in place while setting
+        // completion_status would return 200 for a status change that the next GET does not
+        // reflect.
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            switch ($status) {
+                case 'completed':
+                    $data['completion_status'] = 'Completed';
+                    $data['added_erroneously'] = '0';
+                    break;
+                case 'entered-in-error':
+                    $data['added_erroneously'] = '1';
+                    break;
+                case 'not-done':
+                    $data['completion_status'] = 'Refused';
+                    $data['added_erroneously'] = '0';
+                    break;
+            }
+        }
+
+        // StatusReason -> refusal_reason
+        $refusalReason = FhirPayloadReader::firstCodingCode($json['statusReason'] ?? null);
+        if ($refusalReason !== '') {
+            $data['refusal_reason'] = $refusalReason;
+        }
+
+        // LotNumber -> lot_number
+        $lotNumber = $json['lotNumber'] ?? null;
+        if (is_string($lotNumber) && $lotNumber !== '') {
+            $data['lot_number'] = $lotNumber;
+        }
+
+        // ExpirationDate -> expiration_date
+        $expiration = FhirDateTimeParser::toDbDate(
+            $json['expirationDate'] ?? null,
+            'Immunization.expirationDate'
+        );
+        if ($expiration !== null) {
+            $data['expiration_date'] = $expiration;
+        }
+
+        // Site -> administration_site
+        $administrationSite = FhirPayloadReader::firstCodingCode($json['site'] ?? null);
+        if ($administrationSite !== '') {
+            $data['administration_site'] = $administrationSite;
+        }
+
+        // DoseQuantity -> amount_administered, amount_administered_unit
+        $doseQuantity = $json['doseQuantity'] ?? null;
+        $doseValue = is_array($doseQuantity) ? ($doseQuantity['value'] ?? null) : null;
+        if (is_numeric($doseValue) && (float) $doseValue !== 0.0) {
+            $data['amount_administered'] = $doseValue;
+        }
+        $doseUnit = is_array($doseQuantity) ? ($doseQuantity['code'] ?? null) : null;
+        if (is_string($doseUnit) && $doseUnit !== '') {
+            $data['amount_administered_unit'] = $doseUnit;
+        }
+
+        // Note -> note
+        $notes = $json['note'] ?? null;
+        $firstNote = is_array($notes) ? ($notes[0] ?? null) : null;
+        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
+        if (is_string($noteText) && $noteText !== '') {
+            $data['note'] = $noteText;
+        }
+
+        // Performer -> administered_by_id (resolve Practitioner uuid to id).
+        // administered_by_id is a clinical-accountability field, so the caller may only name
+        // themselves unless they hold admin/users -- the same policy Encounter and Appointment
+        // apply to their participant references. See PractitionerAttributionPolicy.
+        $performers = $json['performer'] ?? null;
+        foreach (is_array($performers) ? $performers : [] as $performer) {
+            $practitionerUuid = $this->referenceUuid(
+                is_array($performer) ? ($performer['actor'] ?? null) : null,
+                'Practitioner'
+            );
+            if ($practitionerUuid === '') {
+                continue;
+            }
+            $data['administered_by_id'] = (new PractitionerAttributionPolicy($this->getSession()))
+                ->resolveAndAssert(
+                    $practitionerUuid,
+                    'Immunization.performer',
+                    static fn(string $bytes) => BaseService::getIdByUuid($bytes, 'users', 'id')
+                );
+            break;
+        }
+
+        // Encounter -> encounter_id (resolve Encounter uuid to encounter number)
+        $encounterUuid = $this->referenceUuid($json['encounter'] ?? null, 'Encounter');
+        if ($encounterUuid !== '') {
+            $encounterUuidBytes = UuidRegistry::uuidToBytes($encounterUuid);
+            $encounterId = BaseService::getIdByUuid(
+                $encounterUuidBytes,
+                'form_encounter',
+                'encounter'
+            );
+            if ($encounterId !== false) {
+                $data['encounter_id'] = $encounterId;
+            }
+        }
+
+        // Recorded -> create_date
+        $recorded = FhirDateTimeParser::toDbDateTime(
+            $json['recorded'] ?? null,
+            'Immunization.recorded'
+        );
+        if ($recorded !== null) {
+            $data['create_date'] = $recorded;
+        }
+
+        // PrimarySource -> information_source
+        if (isset($json['primarySource'])) {
+            $data['information_source'] = $json['primarySource']
+                ? 'new_immunization_record'
+                : 'other_provider';
+        }
+
+        return $data;
+    }
+
+    /**
+     * Resolves a FHIR Reference element to a well-formed uuid of the expected
+     * resource type.
+     *
+     * @param mixed $reference The Reference element from the payload
+     * @param string $expectedType The FHIR resource type the reference must name
+     * @return string The uuid, or '' when absent, of another type, or malformed
+     */
+    private function referenceUuid($reference, string $expectedType): string
+    {
+        $referenceString = is_array($reference) ? ($reference['reference'] ?? null) : null;
+        if (!is_string($referenceString) || $referenceString === '') {
+            return '';
+        }
+        $uuid = UtilsService::parseReferenceString($referenceString, $expectedType)['uuid'] ?? null;
+        if (!is_string($uuid) || $uuid === '' || !UuidRegistry::isValidStringUUID($uuid)) {
+            return '';
+        }
+
+        return $uuid;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Immunization record array');
+        }
+
+        return $this->immunizationService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // The patient the caller asserts has to be the immunization's actual owner. Without this
+        // the resolved patient_id would simply be written, moving the record to another chart.
+        $patientId = $updatedOpenEMRRecord['patient_id'] ?? null;
+        $expectedPatientId = is_numeric($patientId) ? (int) $patientId : null;
+
+        return $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord, $expectedPatientId);
+    }
+
+    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
@@ -243,6 +475,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         // puuid binding happens in the $openEMRSearchParameters
         return $this->immunizationService->getAll($openEMRSearchParameters, true);
     }
+
     public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         if (!($dataRecord instanceof FHIRImmunization)) {

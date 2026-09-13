@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -23,7 +25,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanActivity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanDetail;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CarePlanService;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -572,6 +576,10 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             'completed' => 'completed',
             'on-hold' => 'on-hold',
             'cancelled' => 'revoked',
+            // parseFhirResource() stores CarePlan.status verbatim, so a client that sent
+            // the R4 value 'revoked' must read back as 'revoked' rather than 'unknown'.
+            // 'cancelled' stays mapped for rows written before the write path existed.
+            'revoked' => 'revoked',
             'entered-in-error' => 'entered-in-error',
             'draft' => 'draft',
             'unknown' => 'unknown'
@@ -699,6 +707,351 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         return $this->service->search($openEMRSearchParameters, true);
+    }
+
+    /**
+     * Parses a FHIR CarePlan resource into an OpenEMR-shaped payload.
+     *
+     * One FHIR CarePlan maps to one form_care_plan form, with each FHIR `activity.detail` entry
+     * becoming one form_care_plan row. The patient (subject) and encounter references are kept
+     * as opaque uuid strings here; they are resolved to numeric ids inside
+     * insertOpenEMRRecord/updateOpenEMRRecord.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed> {
+     *   uuid?: surrogate-key (encounter-uuid + "-SK-" + form_id) for updates,
+     *   puuid?: patient uuid,
+     *   euuid?: encounter uuid (REQUIRED for inserts — there is no encounter-less CarePlan),
+     *   plan_status: string,
+     *   items: array<int, array<string, mixed>> activity rows
+     * }
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRCarePlan)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCarePlan resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // intent is 1..1 in R4, but form_care_plan has no column for it and parseOpenEMRRecord()
+        // hardcodes 'plan' on the way out. Anything else is therefore rejected rather than
+        // accepted and quietly downgraded -- storing an 'order' and reading back a 'plan' changes
+        // what the resource means. insertOpenEMRRecord/updateOpenEMRRecord turn this into a 422.
+        $intent = $json['intent'] ?? null;
+        if (is_string($intent) && $intent !== '' && $intent !== 'plan') {
+            $data['__validation_error__'] = [
+                'intent' => 'Only CarePlan.intent "plan" is supported; "' . $intent . '" cannot be stored',
+            ];
+        }
+
+        // subject -> puuid
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
+            }
+        }
+
+        // encounter -> euuid (REQUIRED for new CarePlans; care_plan forms live on an encounter)
+        $encounterRef = FhirPayloadReader::reference($json['encounter'] ?? null);
+        if ($encounterRef !== null) {
+            $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
+            if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
+                $data['euuid'] = $encounterUuid;
+            }
+        }
+
+        // status -> plan_status (mapping mirrors mapCarePlanStatus inverse used in setStatus)
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            $data['plan_status'] = $status;
+        }
+
+        // period -> first activity defaults if items don't specify their own dates.
+        // Partial precision is widened to the first day of the period, matching
+        // FhirGoalService::parseFhirResource on the same form_care_plan table --
+        // "the plan started in 2024" is legitimate and common.
+        $period = $json['period'] ?? null;
+        $defaultStart = FhirDateTimeParser::toDbDate(
+            is_array($period) ? ($period['start'] ?? null) : null,
+            'CarePlan.period.start',
+            true
+        );
+        $defaultEnd = FhirDateTimeParser::toDbDate(
+            is_array($period) ? ($period['end'] ?? null) : null,
+            'CarePlan.period.end',
+            true
+        );
+
+        // activity[] -> items (one row per activity)
+        $items = [];
+        $activities = $json['activity'] ?? null;
+        foreach (is_array($activities) ? $activities : [] as $activity) {
+            $detail = FhirPayloadReader::get($activity, 'detail');
+            if (!is_array($detail)) {
+                // R4 invariant cpl-3 makes activity.reference and activity.detail an exclusive
+                // choice, so a reference-only activity is valid and common. form_care_plan rows
+                // are built from detail alone and have nowhere to put the reference, so the
+                // activity is rejected rather than dropped: dropping it let a create store fewer
+                // activities than were sent, and let a PUT delete stored ones, both reporting 200.
+                if (FhirPayloadReader::reference(FhirPayloadReader::get($activity, 'reference')) !== null) {
+                    $data['__validation_error__'] = [
+                        'activity' => 'CarePlan.activity.reference is not supported; supply activity.detail',
+                    ];
+                }
+                continue;
+            }
+
+            $item = [
+                'plan_status' => $data['plan_status'] ?? null,
+                'date' => $defaultStart,
+                'date_end' => $defaultEnd,
+            ];
+
+            // code -> code + codetext
+            $detailCode = $detail['code'] ?? null;
+            $detailCodeText = FhirPayloadReader::getString($detailCode, 'text');
+            $coding = FhirPayloadReader::firstCoding($detailCode);
+            if ($coding !== []) {
+                $codeValue = FhirPayloadReader::getString($coding, 'code');
+                if ($codeValue !== null) {
+                    $item['code'] = $this->prefixCodeForStorage(
+                        FhirPayloadReader::getString($coding, 'system') ?? '',
+                        $codeValue
+                    );
+                }
+                $display = $coding['display'] ?? $detailCodeText;
+                if (is_string($display)) {
+                    $item['codetext'] = $display;
+                }
+            } elseif ($detailCodeText !== null) {
+                $item['codetext'] = $detailCodeText;
+            }
+
+            // description
+            $description = $detail['description'] ?? null;
+            if (is_string($description) && $description !== '') {
+                $item['description'] = $description;
+            }
+
+            // status (FHIR activity status) -> plan_status on this row
+            $detailStatus = $detail['status'] ?? null;
+            if (is_string($detailStatus) && $detailStatus !== '') {
+                $item['plan_status'] = $detailStatus;
+            }
+
+            // scheduledPeriod -> per-item date / date_end
+            $scheduledPeriod = $detail['scheduledPeriod'] ?? null;
+            $itemStart = FhirDateTimeParser::toDbDate(
+                is_array($scheduledPeriod) ? ($scheduledPeriod['start'] ?? null) : null,
+                'CarePlan.activity.detail.scheduledPeriod.start',
+                true
+            );
+            if ($itemStart !== null) {
+                $item['date'] = $itemStart;
+            }
+            $itemEnd = FhirDateTimeParser::toDbDate(
+                is_array($scheduledPeriod) ? ($scheduledPeriod['end'] ?? null) : null,
+                'CarePlan.activity.detail.scheduledPeriod.end',
+                true
+            );
+            if ($itemEnd !== null) {
+                $item['date_end'] = $itemEnd;
+            }
+
+            // scheduledString -> proposed_date (target)
+            $scheduledString = $detail['scheduledString'] ?? null;
+            if (is_string($scheduledString) && $scheduledString !== '') {
+                $item['proposed_date'] = $scheduledString;
+            }
+
+            $items[] = $item;
+        }
+
+        $data['items'] = $items;
+
+        return $data;
+    }
+
+    /**
+     * Turns a marker left by parseFhirResource() into a rejection both write paths can return.
+     *
+     * The parser has no ProcessingResult to fail into, so it records the reason and the write
+     * path converts it here rather than each path re-deriving the check.
+     *
+     * @param mixed $openEmrRecord
+     */
+    private function parseTimeValidationError($openEmrRecord): ?ProcessingResult
+    {
+        $messages = is_array($openEmrRecord) ? ($openEmrRecord['__validation_error__'] ?? null) : null;
+        if (!is_array($messages) || $messages === []) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages($messages);
+
+        return $result;
+    }
+
+    /**
+     * Inserts a new care_plan form from a parsed FHIR CarePlan.
+     *
+     * Requires an encounter context — there is no encounter-less form_care_plan. If FHIR omits
+     * encounter, returns a 422-style ProcessingResult.
+     *
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR CarePlan record array');
+        }
+
+        $validationError = $this->parseTimeValidationError($openEmrRecord);
+        if ($validationError !== null) {
+            return $validationError;
+        }
+
+        $patientId = $this->resolvePatientId($openEmrRecord);
+        if ($patientId instanceof ProcessingResult) {
+            return $patientId;
+        }
+        $encounterId = $this->resolveEncounterId($openEmrRecord);
+        if ($encounterId instanceof ProcessingResult) {
+            return $encounterId;
+        }
+
+        return $this->service->create(
+            $patientId,
+            $encounterId,
+            FhirPayloadReader::rows($openEmrRecord['items'] ?? null)
+        );
+    }
+
+    /**
+     * Replaces an existing care_plan form's items from a parsed FHIR CarePlan.
+     *
+     * @param string $fhirResourceId The surrogate key (encounter-uuid + "-SK-" + form_id).
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        $validationError = $this->parseTimeValidationError($updatedOpenEMRRecord);
+        if ($validationError !== null) {
+            return $validationError;
+        }
+
+        $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
+        $euuid = $parts['euuid'] ?? '';
+        $encounterUuid = is_string($euuid) ? $euuid : '';
+        $formIdRaw = $parts['form_id'] ?? 0;
+        $formId = is_numeric($formIdRaw) ? (int) $formIdRaw : 0;
+
+        if ($encounterUuid === '' || $formId <= 0 || !UuidRegistry::isValidStringUUID($encounterUuid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Invalid CarePlan id; expected encounter-uuid + "-SK-" + form-id']);
+            return $result;
+        }
+
+        $encounterId = QueryUtils::fetchSingleValue(
+            "SELECT encounter FROM form_encounter WHERE uuid = ?",
+            'encounter',
+            [UuidRegistry::uuidToBytes($encounterUuid)]
+        );
+        if (!is_numeric($encounterId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Encounter not found for given CarePlan id']);
+            return $result;
+        }
+
+        // The URL's surrogate id chooses the form to rewrite; the body's subject says whose care
+        // plan the caller believes they are editing. If those disagree the write is rejected
+        // rather than silently rewriting whichever patient the id happened to point at.
+        $expectedPid = $this->resolvePatientId($updatedOpenEMRRecord);
+        if ($expectedPid instanceof ProcessingResult) {
+            return $expectedPid;
+        }
+
+        return $this->service->replace(
+            (int) $encounterId,
+            $formId,
+            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null),
+            [],
+            $expectedPid
+        );
+    }
+
+    /**
+     * @param array<array-key, mixed> $record
+     * @return int|ProcessingResult Numeric pid on success, ProcessingResult on resolution failure.
+     */
+    private function resolvePatientId(array $record): int|ProcessingResult
+    {
+        $puuid = $record['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference is required for CarePlan']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM patient_data WHERE uuid = ?",
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => ['Patient reference could not be resolved' => $puuid]]);
+            return $result;
+        }
+        return (int) $pid;
+    }
+
+    /**
+     * @param array<array-key, mixed> $record
+     * @return int|ProcessingResult
+     */
+    private function resolveEncounterId(array $record): int|ProcessingResult
+    {
+        $euuid = $record['euuid'] ?? null;
+        if (!is_string($euuid) || $euuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['encounter' => 'Encounter reference is required for CarePlan']);
+            return $result;
+        }
+        $encounterId = QueryUtils::fetchSingleValue(
+            "SELECT encounter FROM form_encounter WHERE uuid = ?",
+            'encounter',
+            [UuidRegistry::uuidToBytes($euuid)]
+        );
+        if (!is_numeric($encounterId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['encounter' => ['Encounter reference could not be resolved' => $euuid]]);
+            return $result;
+        }
+        return (int) $encounterId;
+    }
+
+    /**
+     * OpenEMR's form_care_plan.code column stores codes prefixed by code-type
+     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService,
+     * so the write side resolves the system URL through the same service to stay
+     * in sync with the supported code systems.
+     */
+    private function prefixCodeForStorage(string $system, string $code): string
+    {
+        return (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
     }
 
     /**

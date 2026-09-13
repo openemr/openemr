@@ -21,6 +21,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
@@ -612,6 +613,14 @@ class PrescriptionService extends BaseService
             return $processingResult;
         }
 
+        // The encounter has to belong to the same patient. The FHIR adapter resolves the
+        // subject and the encounter independently, so without this a POST could file the
+        // prescription against another patient's visit.
+        $encounterError = $this->encounterOwnershipError($data['encounter'] ?? null, $patientIdNormalized);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
         // Field allowlist: drop keys the REST contract does not expose so
         // client input cannot populate server-managed columns.
         $filteredData = array_intersect_key($data, array_flip(self::INSERTABLE_FIELDS));
@@ -640,6 +649,113 @@ class PrescriptionService extends BaseService
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Updates an existing prescription record by uuid.
+     *
+     * Only records that live in the `prescriptions` table can be updated. `lists`-source
+     * medications (legacy free-text entries surfaced through the read UNION) are not
+     * writable here — passing one of those uuids returns a validation error.
+     *
+     * @param string $uuid The prescription uuid in string format.
+     * @param array<string, mixed> $data Column => value pairs to update. The `uuid` and
+     *                                   `patient_id` keys, if present, are ignored.
+     * @param int|null $expectedPatientId If provided, the stored prescription's patient_id
+     *     must match -- ownership check so a leaked uuid cannot be used to mutate a
+     *     prescription belonging to a patient other than the caller's resolved subject.
+     * @return ProcessingResult The refreshed record on success, or validation errors.
+     */
+    public function update(string $uuid, array $data, ?int $expectedPatientId = null): ProcessingResult
+    {
+        // master removed the $patientValidator property in the per-caller binding refactor;
+        // BaseValidator's static form is what the sibling services use.
+        $isValid = BaseValidator::validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
+        if ($isValid instanceof ProcessingResult) {
+            return $isValid;
+        }
+
+        if ($data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'No update fields supplied']);
+            return $processingResult;
+        }
+
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $rowPatientIdRaw = QueryUtils::fetchSingleValue(
+            "SELECT patient_id FROM " . self::PRESCRIPTION_TABLE . " WHERE uuid = ?",
+            'patient_id',
+            [$uuidBytes]
+        );
+        if (!is_numeric($rowPatientIdRaw)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
+            return $processingResult;
+        }
+        $rowPatientId = (int) $rowPatientIdRaw;
+
+        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
+            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
+            // existence of another patient's prescription.
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
+            return $processingResult;
+        }
+
+        // Naming the right patient is not the same as being allowed to open their chart.
+        // insert() runs this check and update() did not, so an unbound token carrying only
+        // tenant-wide MedicationRequest.write could modify a prescription in a chart its user
+        // has no access to -- including one gated behind a squad ACL. Reported as a denial
+        // rather than not-found: the caller has already matched the row's owner, so there is
+        // nothing left to probe for.
+        $rowPatient = $this->findPatientByPid($rowPatientId);
+        if ($rowPatient === null) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
+            return $processingResult;
+        }
+        $rowSquadRaw = $rowPatient['squad'] ?? '';
+        if (!$this->aclCheckUserPatientAccess(is_string($rowSquadRaw) ? $rowSquadRaw : '')) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages([
+                'patient_id' => 'User does not have access to this patient.',
+            ]);
+            return $processingResult;
+        }
+
+        $encounterError = $this->encounterOwnershipError($data['encounter'] ?? null, $rowPatientId);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
+        // Neither the uuid nor the owning patient is mutable. BaseService::buildUpdateColumns()
+        // skips `pid`, but this table names its owner column `patient_id`, so it would otherwise
+        // pass straight into the SET clause and move the prescription to another chart.
+        unset($data['uuid'], $data['patient_id']);
+
+        $data['date_modified'] = date('Y-m-d H:i:s');
+        $query = $this->buildUpdateColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<int, mixed> $binds */
+        $binds = $query['bind'];
+
+        if ($setClause === '') {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'No recognized fields to update']);
+            return $processingResult;
+        }
+
+        // patient_id is part of the WHERE for belt-and-braces protection if $expectedPatientId
+        // was not supplied by the caller.
+        $sql = "UPDATE " . self::PRESCRIPTION_TABLE . " SET " . $setClause
+            . " WHERE uuid = ? AND patient_id = ?";
+        $binds[] = $uuidBytes;
+        $binds[] = $rowPatientId;
+        QueryUtils::sqlStatementThrowException($sql, $binds);
+
+        return $this->getOne($uuid);
     }
 
     /**
@@ -703,6 +819,32 @@ class PrescriptionService extends BaseService
         $processingResult = new ProcessingResult();
         $processingResult->addData(['message' => 'record deleted']);
         return $processingResult;
+    }
+
+    /**
+     * Rejects an encounter reference that belongs to a different patient.
+     *
+     * The FHIR adapters resolve the subject and the encounter independently, so without this
+     * a write could file a prescription for patient A against patient B's visit. Returns null when
+     * there is nothing to check or the encounter checks out.
+     */
+    private function encounterOwnershipError(mixed $encounter, int $patientId): ?ProcessingResult
+    {
+        if (!is_numeric($encounter) || (int) $encounter === 0) {
+            return null;
+        }
+        $encounterPid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM form_encounter WHERE encounter = ?",
+            'pid',
+            [(int) $encounter]
+        );
+        if (is_numeric($encounterPid) && (int) $encounterPid === $patientId) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages(['encounter' => 'Encounter reference does not belong to this patient']);
+
+        return $result;
     }
 
     /**

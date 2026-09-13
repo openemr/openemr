@@ -4,8 +4,6 @@
  * Isolated ImmunizationValidator Test
  *
  * Tests ImmunizationValidator validation logic without database dependencies.
- * Note: ImmunizationValidator currently only inherits from BaseValidator
- * without adding specific validation rules.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -40,37 +38,76 @@ class ImmunizationValidatorTest extends TestCase
         $this->assertInstanceOf(ImmunizationValidator::class, $validator);
     }
 
-    public function testValidatorHasEmptyConfiguration(): void
+    public function testInsertRequiresPatientId(): void
     {
-        // ImmunizationValidator currently has an empty configureValidator() method
-        // This test documents the current state - it doesn't add any validation contexts
-
-        // We can test this by trying to validate with unsupported contexts
-        // The empty configuration causes internal errors in the validator
-        $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to a member function merge() on null');
-
-        $this->validator->validate(['test' => 'data'], BaseValidator::DATABASE_INSERT_CONTEXT);
+        $result = $this->validator->validate(
+            ['cvx_code' => '197', 'administered_date' => '2024-01-15'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the patient_id rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('patient_id', $messages);
     }
 
-    public function testValidatorRejectsUpdateContext(): void
+    public function testInsertRequiresCvxCode(): void
     {
-        // Similar test for update context
-        $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to a member function merge() on null');
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'administered_date' => '2024-01-15'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the cvx_code rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('cvx_code', $messages);
+    }
 
-        $this->validator->validate(['test' => 'data'], BaseValidator::DATABASE_UPDATE_CONTEXT);
+    public function testInsertRequiresAdministeredDate(): void
+    {
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'cvx_code' => '197'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the administered_date rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('administered_date', $messages);
+    }
+
+    public function testInsertAcceptsValidData(): void
+    {
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'cvx_code' => '197', 'administered_date' => '2024-01-15'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertTrue($result->isValid());
+    }
+
+    public function testUpdateRequiresUuid(): void
+    {
+        $result = $this->validator->validate(
+            ['cvx_code' => '197'],
+            BaseValidator::DATABASE_UPDATE_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
     }
 
     public function testValidatorClassExists(): void
     {
-        // Basic test to ensure the class can be instantiated and exists
         $this->assertTrue(class_exists(ImmunizationValidator::class));
     }
 
     public function testValidatorHasConfigureValidatorMethod(): void
     {
-        // Test that the configureValidator method exists (even though it's empty)
         $this->assertTrue(method_exists($this->validator, 'configureValidator'));
     }
 }

@@ -1,0 +1,47 @@
+[{
+    "resourceType": "Person",
+    "id": "5f0f7c4e-7d52-4d8b-9b3a-1e8c5f3a2b7d",
+    "meta": {
+        "versionId": "1",
+        "lastUpdated": "2026-01-15T10:00:00+00:00"
+    },
+    "identifier": [{
+        "system": "http://hl7.org/fhir/sid/us-npi",
+        "value": "1112223334"
+    }],
+    "active": true,
+    "name": [{
+        "use": "official",
+        "family": "test-fixture-PersonLast",
+        "given": [
+            "test-fixture-PersonFirst",
+            "Middle"
+        ],
+        "prefix": [
+            "Dr."
+        ]
+    }],
+    "telecom": [{
+        "system": "phone",
+        "value": "(555) 100-2000",
+        "use": "home"
+    }, {
+        "system": "phone",
+        "value": "(555) 100-2001",
+        "use": "work"
+    }, {
+        "system": "phone",
+        "value": "(555) 100-2002",
+        "use": "mobile"
+    }, {
+        "system": "email",
+        "value": "test-fixture-person@example.invalid",
+        "use": "home"
+    }],
+    "address": [{
+        "line": ["123 Test Fixture Ave"],
+        "city": "Testville",
+        "state": "CA",
+        "postalCode": "90001"
+    }]
+}]

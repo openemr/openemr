@@ -15,6 +15,8 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -363,6 +365,313 @@ class CarePlanService extends BaseService
         return $key;
     }
 
+    /**
+     * Inserts a new care_plan form for the given patient and encounter and populates it with the
+     * provided activity rows. The form is registered in the `forms` table via FormService::addForm,
+     * and each item becomes a row in `form_care_plan` tagged with the service's care_plan_type
+     * (plan_of_care or goal).
+     *
+     * Wrapped in a transaction so a row-insert failure rolls back the form registry entry.
+     *
+     * @param int $pid OpenEMR internal patient id.
+     * @param int $encounterId form_encounter.encounter (NOT uuid; resolved upstream).
+     * @param array<int, array<string, mixed>> $items Each item supplies code/codetext/description/
+     *        date/date_end/proposed_date/plan_status/note_related_to/reason_* columns.
+     * @param array<string, mixed> $context Optional: user, groupname, authorized. Falls back to
+     *        the active session.
+     * @return ProcessingResult On success, data[0] contains pid, encounter, form_id, surrogate uuid.
+     */
+    public function create(int $pid, int $encounterId, array $items, array $context = []): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        if ($pid <= 0 || $encounterId <= 0) {
+            $result->setValidationMessages(['identifier' => 'pid and encounter id are required']);
+            return $result;
+        }
+        if ($items === []) {
+            $result->setValidationMessages(['activity' => 'At least one care plan item is required']);
+            return $result;
+        }
+
+        // The FHIR adapters resolve the subject and the encounter independently, so an
+        // encounter belonging to a different patient has to be rejected before a form is
+        // anchored to it.
+        $encounterPid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM form_encounter WHERE encounter = ?",
+            'pid',
+            [$encounterId]
+        );
+        if (!is_numeric($encounterPid) || (int) $encounterPid !== $pid) {
+            $result->setValidationMessages([
+                'encounter' => 'Encounter reference does not belong to this patient',
+            ]);
+            return $result;
+        }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $context['user'] ?? $session->get('authUser') ?? '';
+        $group = $context['groupname'] ?? $session->get('authProvider') ?? '';
+        $authorized = (string) ($context['authorized'] ?? 0);
+
+        // form_care_plan has no AUTO_INCREMENT and no unique key on `id` (legacy schema:
+        // one id spans every item row of a form), so duplicate-key can never fire and the
+        // retry loop below cannot be what makes allocation safe. The id therefore comes from
+        // the `sequences` table via QueryUtils::generateId() -- the allocator this schema
+        // already provides for exactly this, as its docblock says ("the counter for form_id in
+        // the forms table"). Its GenID() is atomic and independent of this transaction's
+        // snapshot, so concurrent CarePlan and Goal writes cannot be handed the same number.
+        //
+        // What it replaces was SELECT MAX(id) ... FOR UPDATE: an aggregate over an empty or
+        // non-matching set locks no row, so the first two writers to a fresh table could both
+        // read NULL and both allocate 1 -- and with no unique key neither insert would fail.
+        // The retry stays for the case where an AUTO_INCREMENT migration later lands and
+        // starts raising duplicate-key.
+        $maxAttempts = 5;
+        $lastError = null;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                $result_data = QueryUtils::inTransaction(function () use (
+                    $encounterId,
+                    $pid,
+                    $authorized,
+                    $user,
+                    $group,
+                    $items
+                ): array {
+                    $newFormId = QueryUtils::generateId();
+
+                    $formService = new FormService();
+                    $formService->addForm(
+                        $encounterId,
+                        'Care Plan Form',
+                        $newFormId,
+                        'care_plan',
+                        $pid,
+                        $authorized,
+                        'NOW()',
+                        is_string($user) ? $user : '',
+                        is_string($group) ? $group : ''
+                    );
+
+                    foreach ($items as $item) {
+                        $this->insertFormCarePlanRow($newFormId, $pid, $encounterId, $authorized, $user, $group, $item);
+                    }
+
+                    return [
+                        'form_id' => $newFormId,
+                        'uuid' => $this->buildV2SurrogateKey(
+                            $this->fetchEncounterUuid($encounterId),
+                            $newFormId
+                        ),
+                    ];
+                });
+
+                $result->addData([
+                    'pid' => $pid,
+                    'encounter' => $encounterId,
+                    'form_id' => $result_data['form_id'],
+                    'uuid' => $result_data['uuid'],
+                ]);
+                return $result;
+            } catch (SqlQueryException $e) {
+                $lastError = $e;
+                // Duplicate-key under concurrent allocation — retry with a fresh MAX.
+                if (str_contains($e->getMessage(), 'Duplicate entry')) {
+                    continue;
+                }
+                $this->getLogger()->error('Care plan insert failed', ['pid' => $pid, 'exception' => $e]);
+                $result->addInternalError('Care plan could not be created');
+                return $result;
+            } catch (\RuntimeException $e) {
+                $this->getLogger()->error('Care plan insert failed', ['pid' => $pid, 'exception' => $e]);
+                $result->addInternalError('Care plan could not be created');
+                return $result;
+            }
+        }
+
+        $this->getLogger()->error(
+            'form_care_plan id allocation exhausted its retries',
+            ['pid' => $pid, 'attempts' => $maxAttempts, 'exception' => $lastError]
+        );
+        $result->addInternalError('Care plan could not be created');
+        return $result;
+    }
+
+    /**
+     * Replaces the items in an existing care_plan form. Locates the form by
+     * (encounter, form_id, care_plan_type), deletes its existing form_care_plan rows of this
+     * service's type, and inserts the new set. Transactional.
+     *
+     * FHIR PUT semantics replace the resource as a whole; this matches that.
+     *
+     * CarePlan and Goal share the `form_care_plan` table and the same {euuid}-SK-{formId}
+     * surrogate key, separated only by `care_plan_type`. Both the lookup and the delete are
+     * therefore scoped by type: without it a CarePlan PUT would delete the form's Goal rows
+     * (and vice versa), and a Goal surrogate key -- which the CarePlan read hands out in
+     * `related_goal_uuids` -- would be a valid CarePlan PUT target.
+     *
+     * @param int $encounterId form_encounter.encounter.
+     * @param int $formId form_care_plan form id (already validated to exist by caller).
+     * @param array<int, array<string, mixed>> $items
+     * @param array<string, mixed> $context Optional user/groupname overrides.
+     * @return ProcessingResult
+     */
+    public function replace(
+        int $encounterId,
+        int $formId,
+        array $items,
+        array $context = [],
+        ?int $expectedPid = null
+    ): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        $existing = QueryUtils::querySingleRow(
+            "SELECT f.pid, f.encounter FROM forms f
+             JOIN form_care_plan fcp
+                ON fcp.id = f.form_id AND fcp.encounter = f.encounter AND fcp.pid = f.pid
+             WHERE f.encounter = ? AND f.form_id = ? AND f.formdir = 'care_plan' AND f.deleted = 0
+               AND fcp.care_plan_type = ?
+             LIMIT 1",
+            [$encounterId, $formId, $this->carePlanType]
+        );
+        if (!is_array($existing) || $existing === []) {
+            $result->setValidationMessages(['uuid' => 'Care plan form not found for given encounter and form id']);
+            return $result;
+        }
+        if ($items === []) {
+            $result->setValidationMessages(['activity' => 'At least one care plan item is required']);
+            return $result;
+        }
+
+        $existingPid = $existing['pid'] ?? null;
+        if (!is_numeric($existingPid)) {
+            $result->setValidationMessages(['uuid' => 'Care plan form not found for given encounter and form id']);
+            return $result;
+        }
+        $pid = (int) $existingPid;
+
+        // The surrogate id in the URL decides which form is rewritten, so a caller who names a
+        // different patient in the body must not be able to replace this one's care plan. The
+        // row located above is the authority on ownership; compare against it before writing.
+        if ($expectedPid !== null && $pid !== $expectedPid) {
+            $result->setValidationMessages(
+                ['subject' => 'Care plan does not belong to the referenced patient']
+            );
+            return $result;
+        }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $context['user'] ?? $session->get('authUser') ?? '';
+        $group = $context['groupname'] ?? $session->get('authProvider') ?? '';
+        $authorizedRaw = $context['authorized'] ?? 0;
+        $authorized = is_scalar($authorizedRaw) ? (string) $authorizedRaw : '0';
+
+        try {
+            $surrogateUuid = QueryUtils::inTransaction(function () use (
+                $encounterId,
+                $formId,
+                $pid,
+                $authorized,
+                $user,
+                $group,
+                $items
+            ): string {
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM form_care_plan
+                     WHERE id = ? AND pid = ? AND encounter = ? AND care_plan_type = ?",
+                    [$formId, $pid, $encounterId, $this->carePlanType]
+                );
+
+                foreach ($items as $item) {
+                    $this->insertFormCarePlanRow($formId, $pid, $encounterId, $authorized, $user, $group, $item);
+                }
+
+                return $this->buildV2SurrogateKey(
+                    $this->fetchEncounterUuid($encounterId),
+                    $formId
+                );
+            });
+
+            $result->addData([
+                'pid' => $pid,
+                'encounter' => $encounterId,
+                'form_id' => $formId,
+                'uuid' => $surrogateUuid,
+            ]);
+        } catch (\RuntimeException | SqlQueryException $e) {
+            $this->getLogger()->error(
+                'Care plan replace failed',
+                ['encounter' => $encounterId, 'form_id' => $formId, 'exception' => $e]
+            );
+            $result->addInternalError('Care plan could not be updated');
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private function insertFormCarePlanRow(
+        int $formId,
+        int $pid,
+        int $encounterId,
+        string $authorized,
+        mixed $user,
+        mixed $group,
+        array $item
+    ): void {
+        QueryUtils::sqlInsert(
+            "INSERT INTO form_care_plan SET "
+            . "id = ?, pid = ?, groupname = ?, user = ?, encounter = ?, authorized = ?, activity = 1, "
+            . "code = ?, codetext = ?, description = ?, date = ?, date_end = ?, proposed_date = ?, "
+            . "plan_status = ?, care_plan_type = ?, note_related_to = ?, "
+            . "reason_code = ?, reason_status = ?, reason_description = ?, reason_date_low = ?, reason_date_high = ?",
+            [
+                $formId,
+                $pid,
+                is_string($group) ? $group : '',
+                is_string($user) ? $user : '',
+                $encounterId,
+                $authorized,
+                $item['code'] ?? '',
+                $item['codetext'] ?? '',
+                $item['description'] ?? '',
+                $item['date'] ?? null,
+                $item['date_end'] ?? null,
+                $item['proposed_date'] ?? null,
+                $item['plan_status'] ?? null,
+                $this->carePlanType,
+                $item['note_related_to'] ?? '',
+                $item['reason_code'] ?? '',
+                $item['reason_status'] ?? '',
+                $item['reason_description'] ?? '',
+                $item['reason_date_low'] ?? null,
+                $item['reason_date_high'] ?? null,
+            ]
+        );
+    }
+
+    private function fetchEncounterUuid(int $encounterId): string
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT uuid FROM form_encounter WHERE encounter = ?",
+            [$encounterId]
+        );
+        $uuid = is_array($row) ? ($row['uuid'] ?? null) : null;
+        if (!is_string($uuid) || $uuid === '') {
+            throw new \RuntimeException("Encounter $encounterId has no uuid");
+        }
+        return UuidRegistry::uuidToString($uuid);
+    }
+
+    private function buildV2SurrogateKey(string $encounterUuid, int $formId): string
+    {
+        return $encounterUuid . self::SURROGATE_KEY_SEPARATOR_V2 . $formId;
+    }
+
     protected function createResultRecordFromDatabaseResult($row): array
     {
         $formId = $row['form_id'] ?? null;
@@ -385,7 +694,8 @@ class CarePlanService extends BaseService
         // - care_plan_id: form_care_plan table id (unique per goal row)
         // Note: forms.form_id = form_care_plan.id, so we only need care_plan_id
         if (!empty($row['goal_care_plan_ids']) && !empty($record['euuid'])) {
-            $goalIds = explode(',', (string) $row['goal_care_plan_ids']);
+            $goalCarePlanIds = $row['goal_care_plan_ids'];
+            $goalIds = explode(',', is_scalar($goalCarePlanIds) ? (string) $goalCarePlanIds : '');
             $goalUuids = [];
             $separator = self::SURROGATE_KEY_SEPARATOR_V2;
             if (intval($creationTimestamp) <= self::V2_TIMESTAMP) {

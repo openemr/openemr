@@ -87,6 +87,13 @@
                                                              data-parent="#resourceAccordion">
                                                             <div class="card-body">
                                                                 {# Store resource context and version for scope reconstruction #}
+                                                                {# resourceKey groups the DOM (it is context+resource, so the same
+                                                                   resource in two contexts stays two independent cards); the scope
+                                                                   string is built from these two values, never from the key. #}
+                                                                <input type="hidden"
+                                                                       class="resource-name"
+                                                                       data-resource="{{ resourceKey|attr }}"
+                                                                       value="{{ resource.name|attr }}">
                                                                 <input type="hidden"
                                                                        class="resource-context"
                                                                        data-resource="{{ resourceKey|attr }}"
@@ -477,18 +484,21 @@
                     resources.add(cb.dataset.resource);
                 });
 
-                resources.forEach(resource => {
-                    // Get context and version for this resource
-                    const contextInput = document.querySelector(`.resource-context[data-resource="${resource}"]`);
-                    const versionInput = document.querySelector(`.resource-version[data-resource="${resource}"]`);
-                    if (!contextInput) return;
+                resources.forEach(resourceKey => {
+                    // resourceKey identifies the card (context+resource). The scope string needs
+                    // the resource name on its own, so read it back rather than reusing the key.
+                    const nameInput = document.querySelector(`.resource-name[data-resource="${resourceKey}"]`);
+                    const contextInput = document.querySelector(`.resource-context[data-resource="${resourceKey}"]`);
+                    const versionInput = document.querySelector(`.resource-version[data-resource="${resourceKey}"]`);
+                    if (!contextInput || !nameInput) return;
 
+                    const resource = nameInput.value;
                     const context = contextInput.value;
                     const version = versionInput ? versionInput.value : 'v2';
 
                     // Get checked actions
                     const checkedActions = [];
-                    document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]:checked`).forEach(cb => {
+                    document.querySelectorAll(`.action-checkbox[data-resource="${resourceKey}"]:checked`).forEach(cb => {
                         checkedActions.push(cb.dataset.action);
                     });
 
@@ -501,7 +511,7 @@
                     }
                     // Handle V2 scopes
                     else {
-                        reconstructV2Scope(context, resource, checkedActions);
+                        reconstructV2Scope(context, resource, resourceKey, checkedActions);
                     }
                 });
             }
@@ -528,20 +538,20 @@
              * Reconstruct V2 format scopes with sub-scope consolidation
              * Respects master checkbox state - if unchecked, only grants restricted sub-scopes
              */
-            function reconstructV2Scope(context, resource, checkedActions) {
+            function reconstructV2Scope(context, resource, resourceKey, checkedActions) {
                 // Sort actions in CRUDS order
                 const actionOrder = ['c', 'r', 'u', 'd', 's'];
                 checkedActions.sort((a, b) => actionOrder.indexOf(a) - actionOrder.indexOf(b));
                 const actionsString = checkedActions.join('');
 
                 // Check if master checkbox is checked (allows global/unrestricted access)
-                const masterCheckbox = document.querySelector(`.resource-master-checkbox[data-resource="${resource}"]`);
+                const masterCheckbox = document.querySelector(`.resource-master-checkbox[data-resource="${resourceKey}"]`);
                 const masterChecked = masterCheckbox ? masterCheckbox.checked : true;
                 const unrestricted = masterCheckbox.dataset['unrestricted'] === '1';
 
                 // Get checked restrictions
                 const checkedRestrictions = [];
-                document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]:checked`).forEach(cb => {
+                document.querySelectorAll(`.restriction-checkbox[data-resource="${resourceKey}"]:checked`).forEach(cb => {
                     checkedRestrictions.push(cb.dataset.restriction);
                 });
 

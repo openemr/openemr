@@ -35,6 +35,7 @@ class CodeTypesService
     const CODE_TYPE_RXNORM = "RXNORM";
     const CODE_TYPE_RXCUI = "RXCUI";
     const CODE_TYPE_ICD10 = 'ICD10';
+    const CODE_TYPE_ICD9 = 'ICD9';
     const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
@@ -276,7 +277,8 @@ class CodeTypesService
             FhirCodeSystemConstants::NDC => [self::CODE_TYPE_NDC],
             FhirCodeSystemConstants::NCI_THESAURUS => [self::CODE_TYPE_NCI],
             FhirCodeSystemConstants::AMA_CPT => [self::CODE_TYPE_CPT4],
-            FhirCodeSystemConstants::HL7_ICD10 => [self::CODE_TYPE_ICD10],
+            FhirCodeSystemConstants::HL7_ICD10, FhirCodeSystemConstants::HL7_ICD10_CM => [self::CODE_TYPE_ICD10],
+            FhirCodeSystemConstants::HL7_ICD9_CM => [self::CODE_TYPE_ICD9],
             FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM => [self::CODE_TYPE_DATE_ABSENT_REASON],
             FHIRCodeSystemConstants::HL7_ROLE_CODE => [self::CODE_TYPE_HL7_ROLE_CODE],
             FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE => [self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION],
@@ -306,6 +308,8 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.1';
             } elseif (self::CODE_TYPE_ICD10 == $codeType) {
                 $system = '2.16.840.1.113883.6.90';
+            } elseif (self::CODE_TYPE_ICD9 == $codeType) {
+                $system = '2.16.840.1.113883.6.103';
             } elseif (self::CODE_TYPE_RXCUI == $codeType || self::CODE_TYPE_RXNORM == $codeType) {
                 $system = '2.16.840.1.113883.6.88';
             } elseif (self::CODE_TYPE_CPT == $codeType) {
@@ -326,6 +330,9 @@ class CodeTypesService
                 self::CODE_TYPE_NCI => FhirCodeSystemConstants::NCI_THESAURUS,
                 self::CODE_TYPE_CPT4, self::CODE_TYPE_CPT => FhirCodeSystemConstants::AMA_CPT,
                 self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10,
+                // The reverse of getCodeTypeListForSystem()'s HL7_ICD9_CM entry. Without it an
+                // ICD9:<code> read back out carried no system at all.
+                self::CODE_TYPE_ICD9 => FhirCodeSystemConstants::HL7_ICD9_CM,
                 self::CODE_TYPE_DATE_ABSENT_REASON => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM,
                 self::CODE_TYPE_HL7_ROLE_CODE => FHIRCodeSystemConstants::HL7_ROLE_CODE,
                 self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION => FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE,

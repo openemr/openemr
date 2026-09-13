@@ -21,7 +21,7 @@ class FhirServiceLocator
 {
     /**
      * FhirExportServiceLocator constructor.
-     * @param array $routes
+     * @param array<string, mixed> $routes The route map, keyed by "<METHOD> /path".
      * $type is the FQDN of a class or interface... IE type should resolve to the ::class property of a class or interface
      */
     public function __construct(private readonly array $routes = [])
