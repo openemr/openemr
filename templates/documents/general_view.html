@@ -25,7 +25,7 @@
 
  // Process click on Delete link.
  function deleteme(docid) {
-  dlgopen('interface/patient_file/deleter.php?document=' + encodeURIComponent(docid) + '&csrf_token_form=' + {$csrf_token_form|js_url}, '_blank', 500, 450);
+  dlgopen('interface/patient_file/deleter.php?patient=' + encodeURIComponent({$patient_id|js_url}) + '&document=' + encodeURIComponent(docid) + '&csrf_token_form=' + {$csrf_token_form|js_url}, '_blank', 500, 450);
   return false;
  }
 

@@ -295,6 +295,19 @@ function popup_close() {
                     AccessDeniedHelper::deny('Unauthorized document deletion attempt');
                 }
 
+                // Scope the delete to the submitted patient context — the
+                // document's foreign_id must match. Mirrors the read/download
+                // path pattern so a mutation stays inside the caller's current
+                // patient rather than running against an arbitrary document id.
+                $documentRow = QueryUtils::querySingleRow(
+                    "SELECT foreign_id FROM documents WHERE id = ?",
+                    [$document]
+                );
+                $documentForeignId = is_array($documentRow) ? ($documentRow['foreign_id'] ?? null) : null;
+                if (!is_numeric($documentForeignId) || (int) $documentForeignId !== $patient) {
+                    AccessDeniedHelper::deny('Unauthorized document deletion attempt - patient context mismatch');
+                }
+
                 delete_document($document);
             } elseif ($payment) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {

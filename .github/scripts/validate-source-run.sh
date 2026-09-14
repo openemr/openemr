@@ -27,11 +27,17 @@
 #   SOURCE_RUN_ID              required. Operator-supplied workflow run
 #                              ID; used only for error-message context
 #                              (the RUN_JSON is the authoritative shape).
-#   EXPECTED_WORKFLOW_PATH     required. e.g.
+#   EXPECTED_WORKFLOW_PATH     required. Single path or comma-separated
+#                              list of accepted paths. Single-path form:
 #                              ".github/workflows/build-release.yml"
-#                              (tarball) or
+#                              (tarball dispatch) or
 #                              ".github/workflows/docker-build-release.yml"
-#                              (docker).
+#                              (docker dispatch). List form for callers
+#                              that accept semantically-equivalent
+#                              producers, e.g.
+#                              ".github/workflows/build-release.yml,.github/workflows/build-release-on-tag.yml"
+#                              (dispatch + tag-triggered variants both
+#                              produce the same artifact shape).
 #   RUN_JSON                   required. JSON blob from
 #                              `gh api repos/{owner}/{repo}/actions/runs/{id}`.
 #                              Read from stdin when the env var is unset
@@ -92,10 +98,42 @@ source_created_at=$(printf '%s' "${RUN_JSON}" | jq -er .created_at) || {
 # Uses .path rather than .name to avoid brittleness if the workflow name
 # is edited (path is the file location, which is more stable). GitHub's
 # workflow listing endpoint returns .path as ".github/workflows/<file>".
-echo "==> Confirming source run is a ${EXPECTED_WORKFLOW_PATH##*/} run"
-if [[ "${source_path}" != "${EXPECTED_WORKFLOW_PATH}" ]]; then
-    echo "::error::source run ${SOURCE_RUN_ID} was produced by '${source_path}', not '${EXPECTED_WORKFLOW_PATH}'."
-    echo "::error::this recovery workflow only accepts source runs from ${EXPECTED_WORKFLOW_PATH##*/} -- the artifact/tag shape is specific to that workflow."
+#
+# EXPECTED_WORKFLOW_PATH may be a single path or a comma-separated list
+# of accepted paths. List form lets a recovery workflow accept multiple
+# semantically-equivalent producers (e.g. build-release.yml +
+# build-release-on-tag.yml, which produce the same artifact shape).
+IFS=',' read -ra accepted_paths <<< "${EXPECTED_WORKFLOW_PATH}"
+# Build label ("basename1 or basename2") and quoted-list ("'path1', 'path2'")
+# via explicit loops -- bash's ${array[*]} uses only the first char of IFS
+# for joining, so multi-char separators like " or " and ", " can't come
+# out of a single expansion.
+accepted_label=""
+accepted_list=""
+for p in "${accepted_paths[@]}"; do
+    if [[ -z "${accepted_label}" ]]; then
+        accepted_label="${p##*/}"
+        accepted_list="'${p}'"
+    else
+        accepted_label="${accepted_label} or ${p##*/}"
+        accepted_list="${accepted_list}, '${p}'"
+    fi
+done
+echo "==> Confirming source run is a ${accepted_label} run"
+matched=0
+for accepted in "${accepted_paths[@]}"; do
+    if [[ "${source_path}" == "${accepted}" ]]; then
+        matched=1
+        break
+    fi
+done
+if [[ ${matched} -eq 0 ]]; then
+    if [[ ${#accepted_paths[@]} -eq 1 ]]; then
+        echo "::error::source run ${SOURCE_RUN_ID} was produced by '${source_path}', not ${accepted_list}."
+    else
+        echo "::error::source run ${SOURCE_RUN_ID} was produced by '${source_path}', not any of: ${accepted_list}."
+    fi
+    echo "::error::this recovery workflow only accepts source runs from ${accepted_label} -- the artifact/tag shape is specific to those workflows."
     exit 1
 fi
 
@@ -156,4 +194,4 @@ if [[ "${age_seconds}" -gt "${ceiling_seconds}" ]]; then
     exit 1
 fi
 
-echo "==> source run eligible: age=${age_hours}h, workflow=${EXPECTED_WORKFLOW_PATH##*/}"
+echo "==> source run eligible: age=${age_hours}h, workflow=${source_path##*/}"
