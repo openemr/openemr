@@ -170,18 +170,18 @@ jobs:
     # acceptance-only.yml pattern one-for-one.
     - name: Validate skip-acceptance inputs
       env:
+        FLAG_NAME: skip_acceptance
+        FLAG_VALUE: ${{ inputs.skip_acceptance }}
+        REASON_NAME: skip_acceptance_reason
+        REASON_VALUE: ${{ inputs.skip_acceptance_reason }}
         SKIP: ${{ inputs.skip_acceptance }}
         REASON: ${{ inputs.skip_acceptance_reason }}
       run: |
         set -euo pipefail
-        # Strip all whitespace before length check -- a reason that
-        # is only spaces / tabs / newlines is not a real audit trail
-        # entry, so treat it as empty.
-        STRIPPED_REASON="${REASON//[[:space:]]/}"
-        if [ "${SKIP}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
-          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason (whitespace-only reasons are rejected). The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
-          exit 1
-        fi
+        .github/scripts/validate-flag-with-reason.sh
+        # Warning + step-summary block emitted here (not in the shared
+        # script) because they vary per flag -- see acceptance-only.yml
+        # sibling for the full rationale.
         if [ "${SKIP}" = "true" ]; then
           echo "::warning title=Acceptance bypassed::Acceptance matrix skipped for this run. Reason: ${REASON}"
           {
@@ -201,15 +201,15 @@ jobs:
     # the full rationale + belt-and-suspenders design.
     - name: Validate no-publish inputs
       env:
+        FLAG_NAME: no_publish
+        FLAG_VALUE: ${{ inputs.no_publish }}
+        REASON_NAME: no_publish_reason
+        REASON_VALUE: ${{ inputs.no_publish_reason }}
         NO_PUBLISH: ${{ inputs.no_publish }}
         REASON: ${{ inputs.no_publish_reason }}
       run: |
         set -euo pipefail
-        STRIPPED_REASON="${REASON//[[:space:]]/}"
-        if [ "${NO_PUBLISH}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
-          echo "::error::no_publish=true requires a non-empty no_publish_reason (whitespace-only reasons are rejected). The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the smoketest scenario being run."
-          exit 1
-        fi
+        .github/scripts/validate-flag-with-reason.sh
         if [ "${NO_PUBLISH}" = "true" ]; then
           echo "::warning title=Publish suppressed::Publish + cleanup step will be skipped for this run. Reason: ${REASON}"
           {

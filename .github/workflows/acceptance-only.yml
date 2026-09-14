@@ -179,21 +179,26 @@ jobs:
     # skip_acceptance=true, they MUST supply a non-empty
     # skip_acceptance_reason so the audit trail carries an
     # accountable "why." Fail loudly + immediately (before doing
-    # any real work) on skip=true + empty reason.
+    # any real work) on skip=true + empty reason. Delegates to
+    # validate-flag-with-reason.sh (also used by the no-publish
+    # step below and by the docker-acceptance-only.yml sibling --
+    # extracted so the fail-loud rule + exact error shape land once
+    # instead of four times, and get BATS coverage independent of
+    # the workflow YAML).
     - name: Validate skip-acceptance inputs
       env:
+        FLAG_NAME: skip_acceptance
+        FLAG_VALUE: ${{ inputs.skip_acceptance }}
+        REASON_NAME: skip_acceptance_reason
+        REASON_VALUE: ${{ inputs.skip_acceptance_reason }}
         SKIP: ${{ inputs.skip_acceptance }}
         REASON: ${{ inputs.skip_acceptance_reason }}
       run: |
         set -euo pipefail
-        # Strip all whitespace before length check -- a reason that
-        # is only spaces / tabs / newlines is not a real audit trail
-        # entry, so treat it as empty.
-        STRIPPED_REASON="${REASON//[[:space:]]/}"
-        if [ "${SKIP}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
-          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason (whitespace-only reasons are rejected). The reason appears in the run-name, workflow summary, and release description for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
-          exit 1
-        fi
+        .github/scripts/validate-flag-with-reason.sh
+        # Warning + step-summary block emitted here (not in the shared
+        # script) because they vary per flag -- skip_acceptance's
+        # summary text differs from no_publish's.
         if [ "${SKIP}" = "true" ]; then
           echo "::warning title=Acceptance bypassed::Acceptance matrix skipped for this run. Reason: ${REASON}"
           {
@@ -209,8 +214,9 @@ jobs:
         fi
 
     # Same audit-trail-safe validation as skip-acceptance above, for
-    # the no_publish input: if no_publish=true, a non-empty
-    # no_publish_reason is required. Fails loudly + immediately.
+    # the no_publish input. Uses the same shared script; only the
+    # warning + step-summary text differ.
+    #
     # Belt-and-suspenders with the `if:` guard on the publish job
     # itself (below): input validation catches the missing-reason
     # case at dispatch time; the job-level `if:` gate is what
@@ -218,17 +224,15 @@ jobs:
     # is true.
     - name: Validate no-publish inputs
       env:
+        FLAG_NAME: no_publish
+        FLAG_VALUE: ${{ inputs.no_publish }}
+        REASON_NAME: no_publish_reason
+        REASON_VALUE: ${{ inputs.no_publish_reason }}
         NO_PUBLISH: ${{ inputs.no_publish }}
         REASON: ${{ inputs.no_publish_reason }}
       run: |
         set -euo pipefail
-        # Strip all whitespace before length check -- same rationale
-        # as skip-acceptance above.
-        STRIPPED_REASON="${REASON//[[:space:]]/}"
-        if [ "${NO_PUBLISH}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
-          echo "::error::no_publish=true requires a non-empty no_publish_reason (whitespace-only reasons are rejected). The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the smoketest scenario being run."
-          exit 1
-        fi
+        .github/scripts/validate-flag-with-reason.sh
         if [ "${NO_PUBLISH}" = "true" ]; then
           echo "::warning title=Publish suppressed::Publish step will be skipped for this run. Reason: ${REASON}"
           {
