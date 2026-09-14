@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -34,6 +36,7 @@ if (!empty($_POST)) {
 
 // Collect user id if editing entry
 $userid = $_REQUEST['userid'] ?? '';
+$save_ok = false;
 
 // Collect type if creating a new entry
 $type = $_REQUEST['type'] ?? '';
@@ -434,7 +437,22 @@ if (!empty($_POST['form_save'])) {
         $form_suffix = addrbook_invalue('form_suffix');
     }
 
-    if ($userid) {
+    // Person types (option_value 1, 2, or empty) are the ones claims pick as
+    // referring providers. Company types (3) are labs/vendors and skip this.
+    $save_ok = true;
+    if ((string) $option_abook_type !== '3') {
+        $npi_digits = preg_replace('/\D/', '', (string) ($_POST['form_npi'] ?? '')) ?? '';
+        $street = trim((string) ($_POST['form_street'] ?? ''));
+        $city = trim((string) ($_POST['form_city'] ?? ''));
+        $state = trim((string) ($_POST['form_state'] ?? ''));
+        $zip = trim((string) ($_POST['form_zip'] ?? ''));
+        if (strlen($npi_digits) !== 10 || $street === '' || $city === '' || $state === '' || $zip === '') {
+            $info_msg = xl('Person entries need a 10-digit NPI and a mailing address (street, city, state, postal code). Use Lookup to fill them from NPPES.');
+            $save_ok = false;
+        }
+    }
+
+    if ($save_ok && $userid) {
         $query = "UPDATE users SET " .
         "abook_type = "   . addrbook_invalue('form_abook_type')   . ", " .
         "title = "        . $form_title                  . ", " .
@@ -474,7 +492,7 @@ if (!empty($_POST['form_save'])) {
         "notes = "        . addrbook_invalue('form_notes')        . " "  .
         "WHERE id = '" . add_escape_custom($userid) . "'";
         sqlStatement($query);
-    } else {
+    } elseif ($save_ok) {
         $userid = sqlInsert("INSERT INTO users ( " .
         "username, password, authorized, info, source, " .
         "title, fname, lname, mname, suffix, " .
@@ -539,7 +557,7 @@ if (!empty($_POST['form_save'])) {
     }
 }
 
-if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
+if ((!empty($_POST['form_save']) && $save_ok) || !empty($_POST['form_delete'])) {
   // Close this window and redisplay the updated list.
     echo "<script>\n";
     if ($info_msg) {
@@ -554,6 +572,22 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
 
 if ($userid) {
     $row = sqlQuery("SELECT * FROM users WHERE id = ?", [$userid]);
+}
+
+if (!empty($_POST['form_save']) && !$save_ok) {
+    $row = $row ?? [];
+    foreach (
+        [
+            'abook_type', 'title', 'fname', 'lname', 'mname', 'suffix',
+            'specialty', 'organization', 'npi', 'street', 'streetb',
+            'city', 'state', 'zip', 'phone', 'phonew1', 'phonecell', 'fax',
+        ] as $col
+    ) {
+        $postkey = 'form_' . $col;
+        if (array_key_exists($postkey, $_POST)) {
+            $row[$col] = $_POST[$postkey];
+        }
+    }
 }
 
 if ($type) { // note this only happens when its new
@@ -575,6 +609,9 @@ if ($type) { // note this only happens when its new
 
 <form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
+<?php if (!empty($info_msg) && !$save_ok) { ?>
+<div class="alert alert-danger"><?php echo text($info_msg); ?></div>
+<?php } ?>
 
 <!-- NPI Lookup Results Container -->
 <div id="npi-lookup-results"></div>
@@ -856,6 +893,7 @@ if ($type) { // note this only happens when its new
                 </button>
             </div>
         </div>
+        <small class="text-muted"><?php echo xlt('Fills name, NPI, and address from NPPES.'); ?></small>
    </div>
    <div class="col-auto">
         <label for="form_federaltaxid" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('TIN'); ?>:</label>
