@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -642,7 +643,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 $observation->setEffectiveDateTime($startDate);
             }
         } else {
-            $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
+            $missingEffective = new OpenEMRFHIRDateTime();
+            $missingEffective->addExtension(UtilsService::createDataMissingExtension());
+            $observation->setEffectiveDateTime($missingEffective);
         }
 
         $code = $dataRecord['code'];

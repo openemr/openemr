@@ -86,7 +86,31 @@ final class InfernoSinglePatientAPITest extends TestCase
     public const DEFAULT_OPENEMR_BASE_URL_API = 'http://openemr';
     public const DEFAULT_INFERNO_BASE_URL = 'http://nginx';
     public const DEFAULT_TEST_GROUP_ID = 'us_core_v311-us_core_v311_fhir_api';
-    public const TIMEOUT = 60; // seconds
+    public const TIMEOUT = 60; // seconds — HTTP client per-request timeout
+
+    /**
+     * Max wall time (seconds) to wait for an async Inferno test_run to
+     * reach `status = 'done'`. Set generously so slow test groups
+     * (patient ~180s, allergy_intolerance and the vitals suites can
+     * run much longer) have room to complete. A single test that
+     * exceeds this fails on its own — session-per-test isolation
+     * prevents the miss from cascading into 409 conflicts on the
+     * following tests.
+     */
+    public const POLLING_TIMEOUT = 600;
+
+    /**
+     * Extended polling budget for test groups that pull large
+     * multi-entry result sets. Every US Core search mandates
+     * `_revinclude=Provenance:target`, so validator cost scales
+     * roughly linearly with entry count, and the resources that
+     * accumulate many entries per patient (allergy_intolerance,
+     * diagnostic_report_note, document_reference, medication_request,
+     * observation_lab, pulse_oximetry) regularly need 10-30 minutes
+     * on CI. Explicitly opt each of those test methods into this
+     * budget rather than raising the class-wide default.
+     */
+    public const POLLING_TIMEOUT_LONG = 1800;
 
     private static ApiTestClient $testClient;
     private static string $baseUrl;
@@ -99,14 +123,6 @@ final class InfernoSinglePatientAPITest extends TestCase
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: self::DEFAULT_OPENEMR_BASE_URL_API;
         self::$testClient = new ApiTestClient($baseUrl, false);
         self::$baseUrl = $baseUrl;
-        // For now this uses the admin user to authenticate.
-        // TODO: @adunsulag implement this using a test practitioner user so we can
-        // test the inferno single patient API from a regular provider.
-        self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $accessToken = self::$testClient->getAccessToken();
-        if (!is_string($accessToken) || $accessToken === '') {
-            throw new \RuntimeException('Failed to obtain access token for Inferno Single Patient API tests');
-        }
         $infernoUrl = getenv('INFERNO_BASE_URL', true) ?: self::DEFAULT_INFERNO_BASE_URL;
         self::$infernoClient = new Client([
             'timeout' => self::TIMEOUT,
@@ -116,6 +132,36 @@ final class InfernoSinglePatientAPITest extends TestCase
             // by a Guzzle ClientException / ServerException.
             'http_errors' => false,
         ]);
+    }
+
+    /**
+     * Fresh OAuth access token and Inferno session per test method.
+     *
+     * The class runs long enough (~90 min observed with the full test
+     * matrix) that a single access token obtained at setUpBeforeClass
+     * expires part-way through — every test after that point sees 401
+     * on its FHIR calls from the Inferno worker.
+     *
+     * The session-per-test half exists for a similar reason: sharing
+     * a session across every test means a single slow test group whose
+     * async run outlasts POLLING_TIMEOUT leaves that run mid-execution
+     * on the Inferno side, and every following test's POST /test_runs
+     * returns 409 (session busy), cascading one failure into roughly
+     * 30. Fresh session per method isolates each one.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // For now this uses the admin user to authenticate.
+        // TODO: @adunsulag implement this using a test practitioner user so we can
+        // test the inferno single patient API from a regular provider.
+        self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $accessToken = self::$testClient->getAccessToken();
+        if (!is_string($accessToken) || $accessToken === '') {
+            throw new \RuntimeException('Failed to obtain access token for Inferno Single Patient API tests');
+        }
+
         $response = self::$infernoClient->post('test_sessions?test_suite_id=' . self::currentSuite());
         $body = (string) $response->getBody();
         if ($response->getStatusCode() !== 200) {
@@ -157,7 +203,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testAllergyIntolerance(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'allergy_intolerance', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'allergy_intolerance',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'AllergyIntolerance Resource test failed');
     }
 
@@ -181,7 +231,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testDiagnosticReportNote(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'diagnostic_report_note', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'diagnostic_report_note',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'DiagnosticReport and Note exchange test failed');
     }
 
@@ -193,7 +247,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testDocumentReference(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'document_reference', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'document_reference',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'Document Reference Resource test failed');
     }
 
@@ -211,7 +269,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testMedicationRequest(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'medication_request', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'medication_request',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'MedicationRequest Resource test failed');
     }
 
@@ -229,7 +291,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testObservationLab(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'observation_lab', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'observation_lab',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'Observation Laboratory Resource test failed');
     }
 
@@ -241,7 +307,11 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testPulseOximetry(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'pulse_oximetry', 'smart_auth_info');
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'pulse_oximetry',
+            'smart_auth_info',
+            self::POLLING_TIMEOUT_LONG,
+        );
         $this->assertResultsPassed($response['results'], 'Us Core Pulse Oximetry Observation Resource test failed');
     }
 
@@ -420,8 +490,12 @@ final class InfernoSinglePatientAPITest extends TestCase
     /**
      * @return array{results: TestResult[]}
      */
-    protected function getTestGroupResponse(string $testGroupId, string $credentialsKeyName = 'smart_credentials'): array
-    {
+    protected function getTestGroupResponse(
+        string $testGroupId,
+        string $credentialsKeyName = 'smart_credentials',
+        ?int $pollingTimeout = null,
+    ): array {
+        $pollingTimeout ??= self::POLLING_TIMEOUT;
         $accessToken = self::$testClient->getAccessToken();
         $this->assertNotNull($accessToken, 'Access token must be set before running test groups');
         $testRunData = [
@@ -439,7 +513,7 @@ final class InfernoSinglePatientAPITest extends TestCase
 
         // Poll /test_runs/$testRunId?include_results=false every 500 ms until the
         // status is 'done'; if it never reaches 'done' before the timeout, fail.
-        $maxRetries = self::TIMEOUT * 2;
+        $maxRetries = $pollingTimeout * 2;
         $retryCount = 0;
         $status = '';
         while ($retryCount < $maxRetries) {
@@ -457,7 +531,7 @@ final class InfernoSinglePatientAPITest extends TestCase
 
         // Once status is 'done', request the final run with include_results=true
         // and verify the results.
-        $this->assertSame('done', $status, 'Test run did not complete in time');
+        $this->assertSame('done', $status, "Test run did not complete within {$pollingTimeout}s");
         $finalTestRunResponse = self::$infernoClient->get("test_runs/{$testRunId}?include_results=true");
         $this->assertSame(200, $finalTestRunResponse->getStatusCode(), 'Failed to get final test run results for ' . $testGroupId);
         $finalTestRunJson = json_decode((string) $finalTestRunResponse->getBody(), true, flags: JSON_THROW_ON_ERROR);

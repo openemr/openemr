@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR\Observation\Trait;
 use BadMethodCallException;
 use InvalidArgumentException;
 use OpenEMR\Common\Uuid\UuidMapping;
+use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
@@ -22,6 +23,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus;
@@ -199,8 +201,18 @@ trait FhirObservationTrait
         if (!empty($performerUuid)) {
             $performer = UtilsService::createRelativeReference($performerType, $performerUuid, $performerDisplay);
         } else {
+            // Attach the data-absent-reason extension directly to the Reference
+            // as a single Extension carrying the DAR URL. UtilsService's
+            // createDataMissingExtension() returns a two-level nested wrapper
+            // whose outer Extension has no URL — that shape is intentional for
+            // composition into OpenEMRFHIRDateTime (see the effective[x] site)
+            // but on a plain FHIRReference the outer no-URL Extension trips
+            // fhir_models' find_extension iterator when it calls .url.tr(...).
             $performer = new FHIRReference();
-            $performer->addExtension(UtilsService::createDataMissingExtension());
+            $dar = new FHIRExtension();
+            $dar->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
+            $dar->setValueCode(new FHIRCode('unknown'));
+            $performer->addExtension($dar);
         }
         $observation->addPerformer($performer);
     }
@@ -402,7 +414,13 @@ trait FhirObservationTrait
                 $observation->setEffectiveDateTime($effectiveDateTime);
             }
         } else {
-            $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
+            // No date present: emit the FHIR primitive-extension
+            // pattern via OpenEMRFHIRDateTime, whose trait override
+            // serializes the data-absent-reason extension into the
+            // `_effectiveDateTime` companion slot US Core expects.
+            $missingEffective = new OpenEMRFHIRDateTime();
+            $missingEffective->addExtension(UtilsService::createDataMissingExtension());
+            $observation->setEffectiveDateTime($missingEffective);
         }
     }
 
