@@ -175,9 +175,34 @@ jobs:
         set -euo pipefail
         # Single retry on the dispatch call itself -- transient
         # GitHub API 5xx during dispatch is one of the flakes we saw
-        # around the 8.4.0 ship day. If the second try also fails,
-        # the whole smoketest fails and we investigate.
+        # around the 8.4.0 ship day.
+        #
+        # Pre-retry marker check: `gh workflow run` can report
+        # client/network failure AFTER GitHub actually accepted the
+        # dispatch. A blind retry would create a duplicate run + the
+        # locate step would then track only one, leaving the other
+        # orphaned + burning runner minutes. Before each retry, wait
+        # up to 30s (3 x 10s polls) for a matching run to appear; if
+        # one does, treat the "failed" prior attempt as success and
+        # skip the retry. Total wait budget is unchanged (was: sleep
+        # 30 between attempts; now: 30s of active checking).
         for attempt in 1 2; do
+          if [[ ${attempt} -gt 1 ]]; then
+            echo "  pre-retry: checking whether prior dispatch actually landed..."
+            for poll in 1 2 3; do
+              sleep 10
+              EXISTING=$(gh run list --workflow build-release.yml \
+                --event workflow_dispatch --limit 5 \
+                --json databaseId,displayTitle \
+                --jq "[.[] | select(.displayTitle | contains(\"${SMOKETEST_VERSION}\"))] | .[0].databaseId // empty")
+              if [[ -n "${EXISTING}" ]]; then
+                echo "==> Prior dispatch actually succeeded (run ${EXISTING} matched marker); skipping retry to avoid duplicate"
+                exit 0
+              fi
+              echo "    (poll ${poll}/3) no matching run yet..."
+            done
+            echo "  no matching run after 30s -- prior dispatch really did fail; retrying"
+          fi
           echo "==> [attempt ${attempt}] gh workflow run build-release.yml"
           # dry_run=true + skip_milestone_check + skip_ghsa_check are
           # all needed for the synthetic 99.x version: dry_run skips
@@ -195,10 +220,7 @@ jobs:
               -f skip_ghsa_check=true; then
             exit 0
           fi
-          if [[ ${attempt} -eq 1 ]]; then
-            echo "  dispatch failed; retrying in 30s..."
-            sleep 30
-          fi
+          echo "  dispatch attempt ${attempt} reported failure"
         done
         echo "::error::build-release.yml dispatch failed after retry"
         exit 1
@@ -255,7 +277,28 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
+        # Pre-retry marker check: same rationale as build-release
+        # dispatch above. Variant A's display title contains
+        # "SKIP-ACCEPTANCE" (from acceptance-only.yml's run-name
+        # template); filter on that to distinguish from variant B
+        # (dispatched later) that shares SMOKETEST_VERSION.
         for attempt in 1 2; do
+          if [[ ${attempt} -gt 1 ]]; then
+            echo "  pre-retry: checking whether prior variant A dispatch actually landed..."
+            for poll in 1 2 3; do
+              sleep 10
+              EXISTING=$(gh run list --workflow acceptance-only.yml \
+                --event workflow_dispatch --limit 5 \
+                --json databaseId,displayTitle \
+                --jq "[.[] | select(.displayTitle | contains(\"${SMOKETEST_VERSION}\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+              if [[ -n "${EXISTING}" ]]; then
+                echo "==> Prior variant A dispatch actually succeeded (run ${EXISTING}); skipping retry"
+                exit 0
+              fi
+              echo "    (poll ${poll}/3) no matching run yet..."
+            done
+            echo "  no matching run after 30s -- prior dispatch really did fail; retrying"
+          fi
           echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant A)"
           if gh workflow run acceptance-only.yml \
               --repo "${{ github.repository }}" \
@@ -270,10 +313,7 @@ jobs:
               -f no_publish_reason="Nightly recovery-path smoketest: verify acceptance-only.yml still works end-to-end without touching real release artifacts (recovery-path-smoketest.yml)"; then
             exit 0
           fi
-          if [[ ${attempt} -eq 1 ]]; then
-            echo "  dispatch failed; retrying in 30s..."
-            sleep 30
-          fi
+          echo "  dispatch attempt ${attempt} reported failure"
         done
         echo "::error::acceptance-only.yml (variant A) dispatch failed after retry"
         exit 1
@@ -323,7 +363,28 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
+        # Pre-retry marker check: same rationale as build-release
+        # dispatch above. Variant B has NO "SKIP-ACCEPTANCE" marker
+        # in its display title (no skip_acceptance input); filter
+        # explicitly requires that substring to be ABSENT so we don't
+        # confuse variant A's already-dispatched run for variant B.
         for attempt in 1 2; do
+          if [[ ${attempt} -gt 1 ]]; then
+            echo "  pre-retry: checking whether prior variant B dispatch actually landed..."
+            for poll in 1 2 3; do
+              sleep 10
+              EXISTING=$(gh run list --workflow acceptance-only.yml \
+                --event workflow_dispatch --limit 5 \
+                --json databaseId,displayTitle \
+                --jq "[.[] | select(.displayTitle | contains(\"${SMOKETEST_VERSION}\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+              if [[ -n "${EXISTING}" ]]; then
+                echo "==> Prior variant B dispatch actually succeeded (run ${EXISTING}); skipping retry"
+                exit 0
+              fi
+              echo "    (poll ${poll}/3) no matching run yet..."
+            done
+            echo "  no matching run after 30s -- prior dispatch really did fail; retrying"
+          fi
           echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant B)"
           if gh workflow run acceptance-only.yml \
               --repo "${{ github.repository }}" \
@@ -336,10 +397,7 @@ jobs:
               -f no_publish_reason="Nightly recovery-path smoketest variant B: run full acceptance matrix + verify no_publish gate correctly blocks publish (recovery-path-smoketest.yml)"; then
             exit 0
           fi
-          if [[ ${attempt} -eq 1 ]]; then
-            echo "  dispatch failed; retrying in 30s..."
-            sleep 30
-          fi
+          echo "  dispatch attempt ${attempt} reported failure"
         done
         echo "::error::acceptance-only.yml (variant B) dispatch failed after retry"
         exit 1
