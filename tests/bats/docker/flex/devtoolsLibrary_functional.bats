@@ -11,14 +11,35 @@ setup() {
 }
 
 @test "flex devtoolsLibrary: timing helpers use EPOCHREALTIME microseconds" {
-    run bash -c "set -e; source '$LIB'; grep -Fq '\${EPOCHREALTIME/[.,]/}' '$LIB'; [[ \"\$(current_time_us)\" =~ ^[0-9]+$ ]]; [[ \"\$(elapsed_time_us 1000000 1234567)\" == \"234567\" ]]; [[ \"\$(elapsed_time_us 1234567 1000000)\" == \"0\" ]]; [[ \"\$(format_elapsed_seconds 4999)\" == \"0.00\" ]]; [[ \"\$(format_elapsed_seconds 5000)\" == \"0.01\" ]]; [[ \"\$(format_elapsed_seconds 234567)\" == \"0.23\" ]]"
+    run bash -c "source '$LIB'; grep -Fq '\${EPOCHREALTIME/[.,]/}' '$LIB'"
     [[ $status -eq 0 ]]
+    run bash -c "source '$LIB'; current_time_us"
+    [[ $status -eq 0 ]]
+    [[ "$output" =~ ^[0-9]+$ ]]
+    run bash -c "source '$LIB'; elapsed_time_us 1000000 1234567"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "234567" ]]
+    run bash -c "source '$LIB'; elapsed_time_us 1234567 1000000"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "0" ]]
+    run bash -c "source '$LIB'; format_elapsed_seconds 4999"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "0.00" ]]
+    run bash -c "source '$LIB'; format_elapsed_seconds 5000"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "0.01" ]]
+    run bash -c "source '$LIB'; format_elapsed_seconds 234567"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "0.23" ]]
 }
 
 @test "flex openemr.sh: startup timing avoids busybox nanoseconds and python" {
-    ! grep -q 'date +%s\.%N' "$SCRIPT" || exit 1
-    ! grep -q 'python3 -c "print(round' "$SCRIPT" || exit 1
-    grep -Fq 'PERM_DURATION_US >= 5000' "$SCRIPT" || exit 1
+    run grep -q 'date +%s\.%N' "$SCRIPT"
+    [[ $status -ne 0 ]]
+    run grep -q 'python3 -c "print(round' "$SCRIPT"
+    [[ $status -ne 0 ]]
+    run grep -Fq 'PERM_DURATION_US >= 5000' "$SCRIPT"
+    [[ $status -eq 0 ]]
 }
 
 @test "flex devtoolsLibrary: prepareVariables with custom env sets CONFIGURATION" {
