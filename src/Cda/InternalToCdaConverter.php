@@ -3442,7 +3442,12 @@ class InternalToCdaConverter
             $date = $this->xpathValue('date', $vital);
             $row->appendChild($this->createElement('td', $date));
 
-            // Node.js mapping (matches htmlHeaders vital_list indices):
+            // Node.js mapping. htmlHeaders vitalSignsSectionEntriesOptionalHtmlHeader
+            // renders vital_list indices 7,0,1,5,2,3,4 after the date column, i.e.
+            // BMI, bps, bpd, height, bp_avg, avg_systolic, avg_diastolic. The column
+            // headers do not describe the data beneath them; that mismatch exists in
+            // the Node service and is reproduced here deliberately so narrative
+            // reference IDs (#vitalN) keep pointing at the same values.
             // Column 1 (Body Temp): BMI with kg/m2
             $bmi = $this->xpathValue('BMI', $vital);
             $cell1 = $this->createElement('td', $bmi !== '' ? "$bmi kg/m2" : 'No Data Available');
@@ -3474,13 +3479,15 @@ class InternalToCdaConverter
             $cell5->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell5);
 
-            // Column 6 (Weight): bps again with mm[Hg]
-            $cell6 = $this->createElement('td', $bps !== '' ? "$bps mm[Hg]" : 'No Data Available');
+            // Column 6 (Weight): avg_systolic with mm[Hg]
+            $avgSystolic = $this->xpathValue('avg_systolic', $vital);
+            $cell6 = $this->createElement('td', $avgSystolic !== '' ? "$avgSystolic mm[Hg]" : 'No Data Available');
             $cell6->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell6);
 
-            // Column 7 (BMI): bpd again with mm[Hg]
-            $cell7 = $this->createElement('td', $bpd !== '' ? "$bpd mm[Hg]" : 'No Data Available');
+            // Column 7 (BMI): avg_diastolic with mm[Hg]
+            $avgDiastolic = $this->xpathValue('avg_diastolic', $vital);
+            $cell7 = $this->createElement('td', $avgDiastolic !== '' ? "$avgDiastolic mm[Hg]" : 'No Data Available');
             $cell7->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell7);
 

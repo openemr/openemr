@@ -39,6 +39,8 @@ class FunctionalStatusFixtureManager
     private array $statusIds = [];
     /** @var list<int> */
     private array $formIds = [];
+    /** @var list<string> raw uuid bytes inserted into uuid_registry */
+    private array $uuidBytes = [];
 
     /**
      * @return array{pid: int, uuid: string, fname: string, lname: string, DOB: string, sex: string, pubpid: string}
@@ -70,6 +72,7 @@ class FunctionalStatusFixtureManager
         ]);
 
         $this->patientIds[] = $pid;
+        $this->uuidBytes[] = UuidRegistry::uuidToBytes($uuid);
 
         return $patientData;
     }
@@ -103,6 +106,7 @@ class FunctionalStatusFixtureManager
         ]);
 
         $this->encounterIds[] = $encounterId;
+        $this->uuidBytes[] = UuidRegistry::uuidToBytes($uuid);
 
         return $encounterData;
     }
@@ -178,11 +182,16 @@ class FunctionalStatusFixtureManager
         $this->deleteByIds("DELETE FROM form_functional_cognitive_status WHERE id IN", $this->statusIds);
         $this->deleteByIds("DELETE FROM form_encounter WHERE id IN", $this->encounterIds);
         $this->deleteByIds("DELETE FROM patient_data WHERE pid IN", $this->patientIds);
+        // createTestPatient()/createTestEncounter() call UuidRegistry::createUuid(),
+        // which inserts into uuid_registry. Remove those rows too so repeated test
+        // runs do not accumulate orphaned registry records.
+        $this->deleteByUuids($this->uuidBytes);
 
         $this->patientIds = [];
         $this->encounterIds = [];
         $this->statusIds = [];
         $this->formIds = [];
+        $this->uuidBytes = [];
     }
 
     /**
@@ -201,6 +210,24 @@ class FunctionalStatusFixtureManager
 
         $placeholders = implode(', ', array_fill(0, count($ids), '?'));
         QueryUtils::sqlStatementThrowException("$deleteSql ($placeholders)", $ids);
+    }
+
+    /**
+     * Removes uuid_registry rows created for the fixture records.
+     *
+     * @param list<string> $uuidBytes
+     */
+    private function deleteByUuids(array $uuidBytes): void
+    {
+        if ($uuidBytes === []) {
+            return;
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($uuidBytes), '?'));
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE uuid IN ($placeholders)",
+            $uuidBytes
+        );
     }
 
     /**

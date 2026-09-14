@@ -178,7 +178,19 @@ class CcdaGenerator
         }
 
         $converter = new InternalToCdaConverter();
-        return trim($converter->convert($data));
+        try {
+            return trim($converter->convert($data));
+        } catch (\InvalidArgumentException | \RuntimeException $e) {
+            // The converter runs in-process, so its failures would otherwise escape
+            // EncounterccdadispatchController, which only handles
+            // CcdaServiceConnectionException. Translate at this boundary so
+            // conversion failures keep the existing HTTP 500 and logging path.
+            throw new CcdaServiceConnectionException(
+                'Failed to generate CCDA document: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
     }
 
     public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = []): string
