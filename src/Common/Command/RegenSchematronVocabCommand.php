@@ -34,6 +34,18 @@ class RegenSchematronVocabCommand extends Command
         'qrda3' => '2022_CMS_QRDA_Category_III.sch',
     ];
 
+    /**
+     * @param string|null $outputRoot Destination for the generated schema set. Defaults to the
+     *                                shipped src/Services/Cda/Schematron/schemas directory.
+     *                                Overridden only by tests, which must not write into the
+     *                                committed schema set. The console runner instantiates
+     *                                commands with no arguments, so the default is what ships.
+     */
+    public function __construct(private readonly ?string $outputRoot = null)
+    {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this
@@ -66,7 +78,7 @@ class RegenSchematronVocabCommand extends Command
         /** @var string $sourceRootArg */
         $sourceRootArg = $input->getArgument('source-root');
         $sourceRoot = rtrim($sourceRootArg, '/');
-        $outputRoot = dirname(__DIR__, 2) . '/Services/Cda/Schematron/schemas';
+        $outputRoot = $this->outputRoot ?? dirname(__DIR__, 2) . '/Services/Cda/Schematron/schemas';
 
         // Preflight: fail before writing anything if any expected input is missing,
         // so the shipped set stays internally consistent.
@@ -121,21 +133,21 @@ class RegenSchematronVocabCommand extends Command
             $schBackup = is_file($schDest) ? file_get_contents($schDest) : null;
 
             if (
-                file_put_contents($schTmp, $sch) !== strlen($sch)
-                || file_put_contents($vocabTmp, $vocabBody) !== strlen($vocabBody)
+                @file_put_contents($schTmp, $sch) !== strlen($sch)
+                || @file_put_contents($vocabTmp, $vocabBody) !== strlen($vocabBody)
             ) {
                 @unlink($schTmp);
                 @unlink($vocabTmp);
                 $io->error("$type: failed to write temp files");
                 return Command::FAILURE;
             }
-            if (!rename($schTmp, $schDest)) {
+            if (!@rename($schTmp, $schDest)) {
                 @unlink($schTmp);
                 @unlink($vocabTmp);
                 $io->error("$type: failed to swap in new .sch");
                 return Command::FAILURE;
             }
-            if (!rename($vocabTmp, $vocabDest)) {
+            if (!@rename($vocabTmp, $vocabDest)) {
                 // Vocab swap failed after .sch was already updated - restore prior
                 // .sch (or remove it if there wasn't one) so the pair stays coherent.
                 if ($schBackup !== null) {
