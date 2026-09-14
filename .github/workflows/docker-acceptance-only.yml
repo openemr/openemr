@@ -69,7 +69,7 @@
 # for the design rationale.
 
 name: Acceptance-only re-run + publish (docker)
-run-name: "Docker acceptance-only re-run + publish for candidate ${{ inputs.candidate_tag }} (source run ${{ inputs.source_run_id }})${{ inputs.skip_acceptance && format(' -- SKIP-ACCEPTANCE: {0}', inputs.skip_acceptance_reason) || '' }}"
+run-name: "Docker acceptance-only re-run + publish for candidate ${{ inputs.candidate_tag }} (source run ${{ inputs.source_run_id }})${{ inputs.skip_acceptance && format(' -- SKIP-ACCEPTANCE: {0}', inputs.skip_acceptance_reason) || '' }}${{ inputs.no_publish && format(' -- NO-PUBLISH: {0}', inputs.no_publish_reason) || '' }}"
 
 on:
   workflow_dispatch:
@@ -99,6 +99,19 @@ on:
         default: false
       skip_acceptance_reason:
         description: 'REQUIRED when skip_acceptance=true. Free-text explanation for the audit trail (appears in run-name, workflow summary). Empty reason with skip=true fails the workflow immediately.'
+        required: false
+        type: string
+        default: ''
+      # Distinct from skip_acceptance -- see the acceptance-only.yml
+      # sibling for the full rationale. Intended use is the recovery-
+      # path smoketest, NOT real ship recovery.
+      no_publish:
+        description: 'ESCAPE HATCH -- run through validation + acceptance-gate but do NOT publish (no docker tag alias, no candidate cleanup). ONLY use for smoketesting the recovery path itself. Requires non-empty no_publish_reason. Do NOT use when actually trying to recover a real docker publish.'
+        required: false
+        type: boolean
+        default: false
+      no_publish_reason:
+        description: 'REQUIRED when no_publish=true. Free-text explanation for the audit trail (appears in run-name and workflow summary). Empty reason with no_publish=true fails the workflow immediately.'
         required: false
         type: string
         default: ''
@@ -180,6 +193,34 @@ jobs:
             echo ""
             echo "Skip-acceptance is intended for known-good candidate images hitting confirmed test-side flakes."
             echo "If bypasses are repeating on the same failure class, the underlying flake needs a fix, not a bypass."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    # Same audit-trail-safe validation as skip-acceptance above, for
+    # the no_publish input. See the acceptance-only.yml sibling for
+    # the full rationale + belt-and-suspenders design.
+    - name: Validate no-publish inputs
+      env:
+        NO_PUBLISH: ${{ inputs.no_publish }}
+        REASON: ${{ inputs.no_publish_reason }}
+      run: |
+        set -euo pipefail
+        STRIPPED_REASON="${REASON//[[:space:]]/}"
+        if [ "${NO_PUBLISH}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
+          echo "::error::no_publish=true requires a non-empty no_publish_reason (whitespace-only reasons are rejected). The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the smoketest scenario being run."
+          exit 1
+        fi
+        if [ "${NO_PUBLISH}" = "true" ]; then
+          echo "::warning title=Publish suppressed::Publish + cleanup step will be skipped for this run. Reason: ${REASON}"
+          {
+            echo "## :warning: Publish suppressed"
+            echo ""
+            echo "This run will proceed through validation + acceptance-gate (if not also skipped) but will NOT publish -- no final docker tag aliasing, no candidate cleanup."
+            echo ""
+            echo "**Reason (operator-supplied):** ${REASON}"
+            echo ""
+            echo "no-publish mode is intended for smoketesting the recovery path itself without touching real docker tags."
+            echo "If you were expecting a real docker publish, re-dispatch WITHOUT the no_publish input set."
           } >> "$GITHUB_STEP_SUMMARY"
         fi
 
@@ -364,8 +405,16 @@ jobs:
     # and failed AND NOT when the workflow run itself was cancelled.
     # See acceptance-only.yml:publish for the same pattern + full
     # rationale.
+    #
+    # no_publish=true is the load-bearing suppression for the
+    # recovery-path smoketest -- see the acceptance-only.yml sibling
+    # for the belt-and-suspenders design (input validation catches
+    # missing-reason at dispatch time; this `if:` gate is what
+    # actually prevents publish from ever running when no_publish
+    # is true).
     if: >-
       always() && !cancelled()
+      && inputs.no_publish != true
       && needs.fetch-source-run-outputs.result == 'success'
       && needs.acceptance-gate.result != 'failure'
       && needs.acceptance-gate.result != 'cancelled'
