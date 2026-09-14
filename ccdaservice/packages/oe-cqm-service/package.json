@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "bluebird": "3.7.2",
-    "body-parser": "1.20.6",
+    "body-parser": "1.20.8",
     "compression": "^1.8.1",
     "cqm-execution": "^4.4.3",
     "cqm-models": "^4.3.2",
