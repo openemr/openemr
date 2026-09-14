@@ -564,6 +564,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         if (!$PMSFH) {
             $PMSFH = build_PMSFH($pid);
         }
+        $PMSFH = is_array($PMSFH) ? $PMSFH : [];
 
         $issue = $_REQUEST['issue'] ?? '';
         $deletion = $_REQUEST['deletion'] ?? '';
@@ -574,7 +575,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $form_type = $_REQUEST['form_type'] ?? '';
         $panelType = $form_type;
         $r_PMSFH = $_REQUEST['r_PMSFH'] ?? '';
-        if ($deletion == 1) {
+        if ($deletion == 1 && $issue !== '') {
             eye_mag_row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
             eye_mag_row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
             $PMSFH = build_PMSFH($pid);
@@ -664,7 +665,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     $subtype = "eye";
                 } elseif (($form_type == "Medication") || ($form_type == "Eye Meds")) {
                     $form_type = "medication";
-                    if (!empty($_REQUEST['form_eye_subtype'])) {
+                    if (($_REQUEST['form_eye_subtype'] ?? '') !== '') {
                         $subtype = "eye";
                         //we always want a default begin date
                         //if it is empty, fill it with today
