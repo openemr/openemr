@@ -15,6 +15,19 @@
 # build-release.yml also gets nightly proactive exercise -- it was
 # previously in the same "first-run-on-real-ship" category.
 #
+# Two acceptance-only.yml variants dispatched per run (both use the
+# same dry-run source artifact):
+#   * Variant A -- skip_acceptance=true + no_publish=true. This is
+#     the actual G35 recovery pattern (source's acceptance already
+#     passed; just redo publish). Exercises the skip-acceptance
+#     routing + publish-blocked gate. Fast (~few minutes).
+#   * Variant B -- no_publish=true only. Full acceptance matrix
+#     runs + publish is blocked. Exercises the acceptance path
+#     itself + confirms publish-blocked works AFTER a green
+#     acceptance. Slow (~30-40 min).
+# Variant A runs first so any routing bug in the skip-acceptance
+# path fails the smoketest fast before we invest matrix time.
+#
 # No real release artifacts are created or overwritten:
 #   * build-release.yml runs with dry_run=true (no tag, no GitHub
 #     Release, artifacts uploaded only as workflow-run bundle).
@@ -24,6 +37,9 @@
 #   * Synthetic version marker of the form 99.YYYYMMDD.HHMMSS is
 #     used throughout so the smoketest cannot collide with any real
 #     release version and its runs are easy to locate when polling.
+#   * Rel branch is derived dynamically from .github/release-
+#     targets.yml (source-of-truth for active rel branches; new
+#     cuts auto-propagate, retired branches auto-drop).
 #
 # Docker sibling (docker-acceptance-only.yml) coverage is deferred to
 # a follow-up; docker-build-release.yml has no equivalent dry_run
@@ -83,7 +99,11 @@ jobs:
       github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
       && github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    # Serial run of: build-release dry-run (~10-15 min) +
+    # variant A skip_acceptance (~few min) + variant B full
+    # acceptance matrix (~30-40 min). 90 min gives comfort margin
+    # over the ~50 min expected total.
+    timeout-minutes: 90
     steps:
     - uses: actions/checkout@v7
       with:
@@ -117,10 +137,26 @@ jobs:
         # HHMMSS suffix disambiguates multiple manual dispatches
         # within the same day.
         SMOKETEST_VERSION="99.$(date -u +%Y%m%d).$(date -u +%H%M%S)"
-        # Any real rel branch works -- build-release.yml validates
-        # version_branch matches rel-<digits>. Pick the latest so
-        # the source code the dry-run build assembles is up-to-date.
-        REL_BRANCH="rel-840"
+        # Derive the rel branch dynamically from release-targets.yml
+        # (the source-of-truth for active rel branches -- see
+        # docker-release-orchestrator.yml). Pick the numerically
+        # highest rel-XYZ entry. This way:
+        #   * new rel cuts auto-propagate (add row to release-
+        #     targets.yml -> smoketest picks it up on next run)
+        #   * retired rel branches auto-drop (remove row -> smoketest
+        #     stops targeting it)
+        #   * no drift with the file that already tracks "which
+        #     branches are we actively building images for"
+        # awk pulls the numeric suffix, sort -rn picks the largest.
+        REL_SUFFIX=$(grep -E '^\s*- branch: rel-' .github/release-targets.yml \
+          | awk -F'rel-' '{print $2}' \
+          | sort -rn \
+          | head -1)
+        if [[ -z "${REL_SUFFIX}" ]]; then
+          echo "::error::Could not derive a rel-branch from .github/release-targets.yml -- has the file schema changed?"
+          exit 1
+        fi
+        REL_BRANCH="rel-${REL_SUFFIX}"
         # release_tag has to match build-release.yml's shape
         # (vMAJOR_MINOR_PATCH) even for dry-runs (validated at
         # dispatch time). Also derive-able from SMOKETEST_VERSION.
@@ -128,7 +164,7 @@ jobs:
         echo "SMOKETEST_VERSION=${SMOKETEST_VERSION}" >> "${GITHUB_ENV}"
         echo "REL_BRANCH=${REL_BRANCH}" >> "${GITHUB_ENV}"
         echo "RELEASE_TAG=${RELEASE_TAG}" >> "${GITHUB_ENV}"
-        echo "==> Smoketest markers: version=${SMOKETEST_VERSION}, branch=${REL_BRANCH}, tag=${RELEASE_TAG}"
+        echo "==> Smoketest markers: version=${SMOKETEST_VERSION}, branch=${REL_BRANCH} (from release-targets.yml), tag=${RELEASE_TAG}"
 
     - name: Dispatch build-release.yml (dry_run=true) as fresh source
       env:
@@ -201,14 +237,92 @@ jobs:
         # or cancellation).
         gh run watch "${SOURCE_RUN_ID}" --exit-status --repo "${{ github.repository }}"
 
-    - name: Dispatch acceptance-only.yml with no_publish=true
+    # Variant A -- skip-acceptance recovery path. This IS the real-
+    # ship recovery pattern used in G35 (acceptance had already
+    # passed on the source run; publish failed; the recovery was to
+    # skip acceptance + redo publish). Runs FIRST so any routing bug
+    # in the skip-acceptance code path fails the smoketest fast,
+    # before we invest ~30-40 min in the full-matrix variant B.
+    #
+    # Both variants pin no_publish=true (the recovery-workflow-side
+    # publish-blocker landed in openemr/openemr#13985); variant A
+    # additionally pins skip_acceptance=true (with a required
+    # audit-trail reason).
+    - name: Dispatch acceptance-only.yml (variant A - skip_acceptance + no_publish)
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
-        # Same retry-once pattern as build-release dispatch above.
         for attempt in 1 2; do
-          echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml"
+          echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant A)"
+          if gh workflow run acceptance-only.yml \
+              --repo "${{ github.repository }}" \
+              --ref master \
+              -f source_run_id="${SOURCE_RUN_ID}" \
+              -f version="${SMOKETEST_VERSION}" \
+              -f release_tag="${RELEASE_TAG}" \
+              -f version_branch="${REL_BRANCH}" \
+              -f skip_acceptance=true \
+              -f skip_acceptance_reason="Nightly recovery-path smoketest variant A: exercise the skip_acceptance code path (the actual G35-style recovery pattern) without touching real release artifacts" \
+              -f no_publish=true \
+              -f no_publish_reason="Nightly recovery-path smoketest: verify acceptance-only.yml still works end-to-end without touching real release artifacts (recovery-path-smoketest.yml)"; then
+            exit 0
+          fi
+          if [[ ${attempt} -eq 1 ]]; then
+            echo "  dispatch failed; retrying in 30s..."
+            sleep 30
+          fi
+        done
+        echo "::error::acceptance-only.yml (variant A) dispatch failed after retry"
+        exit 1
+
+    - name: Locate variant A acceptance-only run
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        # acceptance-only.yml's run-name for a skip_acceptance=true
+        # dispatch appends " -- SKIP-ACCEPTANCE: <reason>" to the
+        # display title. Use that + the version marker to
+        # disambiguate variant A from variant B (dispatched next,
+        # without the SKIP-ACCEPTANCE suffix).
+        for attempt in $(seq 1 12); do
+          RUN_ID=$(gh run list --workflow acceptance-only.yml \
+            --event workflow_dispatch --limit 10 \
+            --json databaseId,displayTitle \
+            --jq "[.[] | select(.displayTitle | contains(\"${SMOKETEST_VERSION}\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+          if [[ -n "${RUN_ID}" ]]; then
+            echo "ACCEPTANCE_RUN_ID_SKIP=${RUN_ID}" >> "${GITHUB_ENV}"
+            echo "==> Located variant A (skip_acceptance) run: ${RUN_ID}"
+            exit 0
+          fi
+          echo "  (attempt ${attempt}/12) waiting for variant A run to register..."
+          sleep 10
+        done
+        echo "::error::Could not locate variant A acceptance-only run within 2 minutes"
+        exit 1
+
+    - name: Wait for variant A acceptance-only run to complete
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        echo "==> Watching variant A (skip_acceptance) run ${ACCEPTANCE_RUN_ID_SKIP}"
+        gh run watch "${ACCEPTANCE_RUN_ID_SKIP}" --exit-status --repo "${{ github.repository }}"
+
+    # Variant B -- full acceptance path with publish blocked.
+    # Exercises the full acceptance matrix + confirms the
+    # no_publish gate correctly blocks publish AFTER acceptance
+    # succeeds. This is the more common recovery pattern (publish
+    # failed after a green acceptance -- redo publish with fresh
+    # source).
+    - name: Dispatch acceptance-only.yml (variant B - no_publish only)
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        set -euo pipefail
+        for attempt in 1 2; do
+          echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant B)"
           if gh workflow run acceptance-only.yml \
               --repo "${{ github.repository }}" \
               --ref master \
@@ -217,7 +331,7 @@ jobs:
               -f release_tag="${RELEASE_TAG}" \
               -f version_branch="${REL_BRANCH}" \
               -f no_publish=true \
-              -f no_publish_reason="Nightly recovery-path smoketest: verify acceptance-only.yml still works end-to-end without touching real release artifacts (openemr/openemr#TBD-PR2)"; then
+              -f no_publish_reason="Nightly recovery-path smoketest variant B: run full acceptance matrix + verify no_publish gate correctly blocks publish (recovery-path-smoketest.yml)"; then
             exit 0
           fi
           if [[ ${attempt} -eq 1 ]]; then
@@ -225,39 +339,41 @@ jobs:
             sleep 30
           fi
         done
-        echo "::error::acceptance-only.yml dispatch failed after retry"
+        echo "::error::acceptance-only.yml (variant B) dispatch failed after retry"
         exit 1
 
-    - name: Locate the dispatched acceptance-only run
+    - name: Locate variant B acceptance-only run
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Same locate-by-marker pattern as build-release above.
-        # acceptance-only.yml's run-name includes the version input.
+        # Variant B has NO "SKIP-ACCEPTANCE" marker in its display
+        # title (no skip_acceptance input), so we filter on the
+        # version marker + absence of the SKIP-ACCEPTANCE substring
+        # to distinguish from variant A's already-dispatched run.
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
             --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"${SMOKETEST_VERSION}\"))] | .[0].databaseId // empty")
+            --jq "[.[] | select(.displayTitle | contains(\"${SMOKETEST_VERSION}\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
           if [[ -n "${RUN_ID}" ]]; then
-            echo "ACCEPTANCE_RUN_ID=${RUN_ID}" >> "${GITHUB_ENV}"
-            echo "==> Located acceptance-only run: ${RUN_ID}"
+            echo "ACCEPTANCE_RUN_ID_FULL=${RUN_ID}" >> "${GITHUB_ENV}"
+            echo "==> Located variant B (full acceptance) run: ${RUN_ID}"
             exit 0
           fi
-          echo "  (attempt ${attempt}/12) waiting for run to register..."
+          echo "  (attempt ${attempt}/12) waiting for variant B run to register..."
           sleep 10
         done
-        echo "::error::Could not locate the dispatched acceptance-only run within 2 minutes"
+        echo "::error::Could not locate variant B acceptance-only run within 2 minutes"
         exit 1
 
-    - name: Wait for acceptance-only run to complete
+    - name: Wait for variant B acceptance-only run to complete
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        echo "==> Watching acceptance-only run ${ACCEPTANCE_RUN_ID}"
-        gh run watch "${ACCEPTANCE_RUN_ID}" --exit-status --repo "${{ github.repository }}"
+        echo "==> Watching variant B (full acceptance) run ${ACCEPTANCE_RUN_ID_FULL}"
+        gh run watch "${ACCEPTANCE_RUN_ID_FULL}" --exit-status --repo "${{ github.repository }}"
 
     - name: Emit summary
       if: always()
@@ -268,9 +384,10 @@ jobs:
           echo "Purpose: keep the recovery workflow chain warm outside of real ship-day cascades."
           echo ""
           echo "- **Synthetic version marker:** \`${SMOKETEST_VERSION:-<not-computed>}\`"
-          echo "- **Rel branch (arbitrary; picked for freshness):** \`${REL_BRANCH:-<not-computed>}\`"
+          echo "- **Rel branch (from release-targets.yml):** \`${REL_BRANCH:-<not-computed>}\`"
           echo "- **Source (build-release.yml dry-run):** run \`${SOURCE_RUN_ID:-<not-dispatched>}\`"
-          echo "- **Acceptance-only run:** run \`${ACCEPTANCE_RUN_ID:-<not-dispatched>}\`"
+          echo "- **Variant A (skip_acceptance + no_publish):** run \`${ACCEPTANCE_RUN_ID_SKIP:-<not-dispatched>}\`"
+          echo "- **Variant B (no_publish only, full acceptance matrix):** run \`${ACCEPTANCE_RUN_ID_FULL:-<not-dispatched>}\`"
           echo ""
           echo "One red in isolation is NOT necessarily action -- transient GitHub / Docker Hub API flakes exist. Two-plus reds on consecutive nights from the same failure class = investigate."
           echo ""
