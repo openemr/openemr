@@ -161,9 +161,11 @@ jobs:
         # (vMAJOR_MINOR_PATCH) even for dry-runs (validated at
         # dispatch time). Also derive-able from SMOKETEST_VERSION.
         RELEASE_TAG="v99_$(date -u +%Y%m%d)_$(date -u +%H%M%S)"
-        echo "SMOKETEST_VERSION=${SMOKETEST_VERSION}" >> "${GITHUB_ENV}"
-        echo "REL_BRANCH=${REL_BRANCH}" >> "${GITHUB_ENV}"
-        echo "RELEASE_TAG=${RELEASE_TAG}" >> "${GITHUB_ENV}"
+        {
+          echo "SMOKETEST_VERSION=${SMOKETEST_VERSION}"
+          echo "REL_BRANCH=${REL_BRANCH}"
+          echo "RELEASE_TAG=${RELEASE_TAG}"
+        } >> "${GITHUB_ENV}"
         echo "==> Smoketest markers: version=${SMOKETEST_VERSION}, branch=${REL_BRANCH} (from release-targets.yml), tag=${RELEASE_TAG}"
 
     - name: Dispatch build-release.yml (dry_run=true) as fresh source
