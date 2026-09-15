@@ -151,10 +151,13 @@ class OEGlobalsBagIsolatedTest extends TestCase
      */
     public function testGetArrayReturnsDefaultWhenAbsent(): void
     {
+        // A non-singleton bag still falls back to $GLOBALS in get(), so the key must be absent there too.
+        $key = 'oeglobalsbag_isolated_test_absent_get_array';
+        $this->assertArrayNotHasKey($key, $GLOBALS);
         $bag = new OEGlobalsBag([]);
 
-        $this->assertSame([], $bag->getArray('code_types'));
-        $this->assertSame(['x' => 1], $bag->getArray('code_types', ['x' => 1]));
+        $this->assertSame([], $bag->getArray($key));
+        $this->assertSame(['x' => 1], $bag->getArray($key, ['x' => 1]));
     }
 
     /**
