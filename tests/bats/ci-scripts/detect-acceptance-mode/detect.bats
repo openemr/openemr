@@ -463,7 +463,17 @@ PHP
 
 @test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (rel-830 shape)" {
     # rel-830 shape: upgrade files include 8_2_0-to-8_3_0, so the
-    # max from-version is 8.2.0.
+    # candidates are {8.1.0, 8.1.1, 8.2.0}. All three are in the
+    # default shipped manifest -> matched={8.1.0, 8.1.1, 8.2.0}.
+    #
+    # This test hits the schedule fallback path where TO defaults
+    # to the hardcoded "8.2.0". The exclude-to_version filter (see
+    # the derive_from_version comment on why) removes 8.2.0 from
+    # matched -> max becomes 8.1.1. Before that filter the test
+    # asserted 8.2.0 (which was the degenerate from=to case, only
+    # ever hit when TO happened to also be the max candidate); the
+    # filter converts this into a real 8.1.1 -> 8.2.0 upgrade
+    # transition.
     seed_sql_upgrade_fixtures \
         8_1_0-to-8_1_1 \
         8_1_1-to-8_2_0 \
@@ -474,7 +484,9 @@ PHP
     [[ ${status} -eq 0 ]]
     local emitted
     emitted="$(read_output)"
-    [[ "${emitted}" == *"from_version=8.2.0"* ]]
+    [[ "${emitted}" == *"to_version=8.2.0"* ]]
+    [[ "${emitted}" == *"from_version=8.1.1"* ]]
+    [[ "${emitted}" != *"from_version=8.2.0"* ]]
 }
 
 @test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (master shape)" {
