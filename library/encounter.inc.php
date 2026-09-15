@@ -1,6 +1,12 @@
 <?php
 
+/**
+ * Thin delegators kept for the existing call sites of library/encounter.inc.php.
+ * The bodies live in EncounterService; see the migration tracker, openemr/openemr#11674.
+ */
+
 use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Services\EncounterService;
 
 //function called to set the global session variable for encounter number
 function setencounter($enc)
@@ -8,25 +14,24 @@ function setencounter($enc)
     return EncounterSessionUtil::setEncounter($enc);
 }
 
-
-//fetches encounter pc_catid by encounter number
+/**
+ * Fetches the encounter pc_catid by encounter number.
+ */
 function fetchCategoryIdByEncounter($encounter)
 {
-    global $attendant_type;
-    $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
-    $sql = "SELECT pc_catid FROM " . escape_table_name($table) . " WHERE encounter = ? limit 1";
-    $result = sqlQuery($sql, [$encounter]);
-    return $result['pc_catid'];
+    if (!is_int($encounter) && !is_string($encounter)) {
+        return null;
+    }
+    return EncounterService::fetchCategoryIdByEncounter($encounter);
 }
 
 /**
- * @param $encounter
- * @return mixed
+ * Date of service (YYYY-MM-DD) of an encounter.
  */
-function fetchDateService($encounter)
+function fetchDateService($encounter): string
 {
-    $sql = "select date from form_encounter where encounter = ?";
-    $result = sqlQuery($sql, [$encounter]);
-    $result = explode(" ", (string) $result['date']);
-    return $result[0];
+    if (!is_int($encounter) && !is_string($encounter)) {
+        return '';
+    }
+    return EncounterService::fetchDateService($encounter);
 }
