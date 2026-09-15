@@ -383,8 +383,9 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
         is_numeric($patID)
     ) {
 // ------- check for valid recipient
-        $cRow = sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?', [$sendDMTo ?? '']));
-        if ($cRow == 0) {
+        $cRow = sqlFetchArray(sqlStatement('SELECT count(id) as cnt FROM `users` WHERE `id` = ?', [$sendTo]));
+        $recipientCount = is_array($cRow) && is_numeric($cRow['cnt'] ?? null) ? (int) $cRow['cnt'] : 0;
+        if ($recipientCount === 0) {
             return false;
         }
 

@@ -482,6 +482,11 @@ class InstallerController extends AbstractActionController
      */
     public function saveConfigAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            echo xlt('Not Authorized');
+            exit;
+        }
+
         $request = $this->getRequest();
         $moduleId = $request->getPost()->module_id;
 
@@ -504,6 +509,11 @@ class InstallerController extends AbstractActionController
      */
     public function DeleteAclAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            echo xlt('Not Authorized');
+            exit;
+        }
+
         $request = $this->getRequest();
         $this->InstallerTable->DeleteAcl($request->getPost());
         $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
@@ -516,6 +526,11 @@ class InstallerController extends AbstractActionController
      */
     public function DeleteHooksAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            echo xlt('Not Authorized');
+            exit;
+        }
+
         $request = $this->getRequest();
         $this->InstallerTable->DeleteHooks($request->getPost());
         $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
@@ -528,6 +543,11 @@ class InstallerController extends AbstractActionController
      */
     public function nickNameAction(): never
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            echo xlt('Not Authorized');
+            exit;
+        }
+
         $request = $this->getRequest();
         $nickname = $request->getPost()->nickname;
         echo $this->InstallerTable->validateNickName(trim((string) $nickname));
