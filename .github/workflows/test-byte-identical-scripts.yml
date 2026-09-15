@@ -62,4 +62,5 @@ jobs:
         bats tests/bats/ci-scripts/create-release-tag/
         bats tests/bats/ci-scripts/extract-changelog-section/
         bats tests/bats/ci-scripts/build-release-body/
+        bats tests/bats/ci-scripts/pick-smoketest-target/
         bats tests/bats/ci-scripts/validate-flag-with-reason/
