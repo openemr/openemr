@@ -3,6 +3,9 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
@@ -43,13 +46,31 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      */
     private $conditionService;
 
+    private FhirConditionProblemListItemService $problemListItemService;
+
     public function __construct()
     {
         parent::__construct();
+        $this->problemListItemService = new FhirConditionProblemListItemService();
         $this->addMappedService(new FhirConditionEncounterDiagnosisService());
-        $this->addMappedService(new FhirConditionProblemListItemService());
+        $this->addMappedService($this->problemListItemService);
         $this->addMappedService(new FhirConditionHealthConcernService());
         $this->conditionService = new ConditionService();
+    }
+
+    /**
+     * Re-emits a stored row as a FHIR resource. FhirServiceBase::update() calls this to build
+     * the body of a PUT response, so leaving it on the empty trait answers a successful update
+     * with a null body. The write path runs through ConditionService, which only ever writes
+     * `lists` rows of type 'medical_problem', so the problem-list-item mapping is the one that
+     * re-emits them.
+     *
+     * @param array<array-key, mixed> $dataRecord
+     * @param bool $encode
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    {
+        return $this->problemListItemService->parseOpenEMRRecord($dataRecord, $encode);
     }
 
     public function setSystemLogger(LoggerInterface $systemLogger): void
@@ -117,6 +138,154 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
+    }
+
+    /**
+     * Parses a FHIR Condition resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRCondition)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCondition resource, got ' . $fhirResource::class
+            );
+        }
+
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // Category -> subtype
+        $categories = $json['category'] ?? null;
+        $subtype = FhirPayloadReader::firstConceptCode($categories);
+        if ($subtype !== '') {
+            $data['subtype'] = $subtype;
+        }
+
+        // Subject -> puuid
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (
+                is_string($subjectUuid) && $subjectUuid !== ''
+                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($subjectUuid)
+            ) {
+                $data['puuid'] = $subjectUuid;
+            }
+        }
+
+        // Code -> title and diagnosis
+        $code = $json['code'] ?? null;
+        $codeCodings = FhirPayloadReader::codings($code);
+        if ($codeCodings !== []) {
+            $codeTypesService = new CodeTypesService();
+            $diagnosisParts = [];
+            foreach ($codeCodings as $coding) {
+                $systemValue = $coding['system'] ?? null;
+                $system = is_string($systemValue) ? $systemValue : '';
+                $codeValue = $coding['code'] ?? null;
+                if (is_scalar($codeValue) && $codeValue !== '' && $codeValue !== false) {
+                    $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
+                }
+                $display = $coding['display'] ?? null;
+                if (is_string($display) && $display !== '' && !isset($data['title'])) {
+                    $data['title'] = $display;
+                }
+            }
+            if ($diagnosisParts !== []) {
+                $data['diagnosis'] = implode(';', $diagnosisParts);
+            }
+        }
+        $codeText = is_array($code) ? ($code['text'] ?? null) : null;
+        if (!isset($data['title']) && is_string($codeText) && $codeText !== '') {
+            $data['title'] = $codeText;
+        }
+
+        // ClinicalStatus -> outcome and occurrence
+        $clinicalStatus = FhirPayloadReader::firstCodingCode($json['clinicalStatus'] ?? null);
+        if ($clinicalStatus !== '') {
+            $data['outcome'] = match ($clinicalStatus) {
+                'resolved' => '1',
+                'recurrence' => '0',
+                default => '0',
+            };
+            if ($clinicalStatus === 'recurrence') {
+                $data['occurrence'] = '2';
+            }
+        }
+
+        // VerificationStatus -> verification
+        $verification = FhirPayloadReader::firstCodingCode($json['verificationStatus'] ?? null);
+        if ($verification !== '') {
+            $data['verification'] = $verification;
+        }
+
+        // onsetDateTime -> begdate (ConditionValidator expects Y-m-d).
+        // Partial precision (YYYY, YYYY-MM) is rejected rather than widened:
+        // lists.begdate is a DATE column and a year-only onset cannot be stored
+        // faithfully, so the caller gets a 400 instead of a fabricated day.
+        $begdate = FhirDateTimeParser::toDbDate($json['onsetDateTime'] ?? null, 'Condition.onsetDateTime');
+        if ($begdate !== null) {
+            $data['begdate'] = $begdate;
+        }
+
+        // abatementDateTime -> enddate
+        $enddate = FhirDateTimeParser::toDbDate($json['abatementDateTime'] ?? null, 'Condition.abatementDateTime');
+        if ($enddate !== null) {
+            $data['enddate'] = $enddate;
+        }
+
+        // Note -> comments. Condition.note is 0..*, and lists.comments is free text, so every
+        // note is joined into it. Keeping only note[0] silently discarded the rest of a
+        // clinician's notes on a request that reported success.
+        $noteTexts = [];
+        foreach (FhirPayloadReader::rows($json['note'] ?? null) as $note) {
+            $noteText = FhirPayloadReader::getString($note, 'text');
+            if ($noteText !== null && $noteText !== '') {
+                $noteTexts[] = $noteText;
+            }
+        }
+        if ($noteTexts !== []) {
+            $data['comments'] = implode("\n\n", $noteTexts);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Condition record array');
+        }
+
+        return $this->conditionService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        return $this->conditionService->update($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     /**

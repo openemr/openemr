@@ -257,4 +257,74 @@ class FhirRelatedPersonRestController
         $bundleSearchResult = $this->fhirService->createBundle(FhirRelatedPersonService::RESOURCE_NAME, $bundleEntries, false);
         return RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
     }
+    /**
+     * Creates a new FHIR RelatedPerson resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    // @codeCoverageIgnoreStart
+    #[OA\Post(
+        path: '/fhir/RelatedPerson',
+        description: 'Creates a new RelatedPerson (patient\'s family/caregiver). The patient reference is required. OpenEMR also requires a relationship.coding entry under HL7 v3 RoleCode (or its FhirCodeSystemConstants::HL7_ROLE_CODE alias) — this is an OpenEMR deviation from R4 (which makes relationship 0..*) because the read JOIN binds into list_options on a non-null relationship.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'RelatedPerson resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::post()
+    }
+
+    /**
+     * Updates an existing FHIR RelatedPerson resource.
+     * Routed via FhirGenericRestController::put(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Put(
+        path: '/fhir/RelatedPerson/{uuid}',
+        description: 'Modifies a RelatedPerson resource. Telecoms and addresses are replaced per FHIR PUT semantics.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the RelatedPerson resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'RelatedPerson resource updated'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $fhirId, array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::put()
+    }
+    // @codeCoverageIgnoreEnd
 }

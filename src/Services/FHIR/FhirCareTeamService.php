@@ -14,11 +14,16 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam\FHIRCareTeamParticipant;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -29,6 +34,7 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
@@ -280,10 +286,244 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * @param  array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
+    /**
+     * Parses a FHIR CareTeam into the shape consumed by CareTeamService::saveCareTeam.
+     *
+     * CareTeam is patient-scoped (subject is REQUIRED). Each participant.member that
+     * references a Practitioner becomes a user_id-keyed team entry; each participant
+     * with a CareTeam.participant.role[].coding[0].code gets that as the entry's role.
+     * Other participant types (Organization, RelatedPerson) are not supported on write
+     * in this implementation — the FHIR resource still parses, but only Practitioner
+     * members are written. This matches the typical OpenEMR care-team data model.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRCareTeam)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCareTeam resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // subject.reference -> puuid (REQUIRED; resolved to pid downstream)
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
+            }
+        }
+
+        $data['status'] = (is_string($json['status'] ?? null) && in_array($json['status'], self::CARE_TEAM_STATII, true))
+            ? $json['status']
+            : self::CARE_TEAM_STATUS_ACTIVE;
+
+        $data['team_name'] = is_string($json['name'] ?? null) ? $json['name'] : '';
+
+        // participants[].member (Practitioner) -> {user_id, role}
+        // user_id resolution happens in insertOpenEMRRecord.
+        $members = [];
+        $participants = $json['participant'] ?? null;
+        foreach (is_array($participants) ? $participants : [] as $participant) {
+            if (!is_array($participant)) {
+                continue;
+            }
+            $memberRef = FhirPayloadReader::reference($participant['member'] ?? null);
+            if ($memberRef === null) {
+                continue;
+            }
+            $memberUuid = UtilsService::parseReferenceString($memberRef, 'Practitioner')['uuid'] ?? null;
+            if (!is_string($memberUuid) || $memberUuid === '' || !UuidRegistry::isValidStringUUID($memberUuid)) {
+                continue;
+            }
+            $roles = $participant['role'] ?? null;
+            $firstRole = is_array($roles) ? ($roles[0] ?? null) : null;
+            $roleCodings = is_array($firstRole) ? ($firstRole['coding'] ?? null) : null;
+            $firstRoleCoding = is_array($roleCodings) ? ($roleCodings[0] ?? null) : null;
+            $role = is_array($firstRoleCoding) ? ($firstRoleCoding['code'] ?? null) : null;
+            $members[] = [
+                'practitioner_uuid' => $memberUuid,
+                'role' => is_string($role) ? $role : '',
+            ];
+        }
+        $data['members'] = $members;
+
+        return $data;
+    }
+
+    /**
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR CareTeam record array');
+        }
+
+        return $this->saveCareTeamRecord($openEmrRecord, null);
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        if (!UuidRegistry::isValidStringUUID($fhirResourceId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'invalid uuid format']);
+            return $result;
+        }
+        $teamRow = QueryUtils::querySingleRow(
+            "SELECT id, pid FROM care_teams WHERE uuid = ?",
+            [UuidRegistry::uuidToBytes($fhirResourceId)]
+        );
+        if (!is_array($teamRow)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'CareTeam not found']);
+            return $result;
+        }
+        $teamIdRaw = $teamRow['id'] ?? 0;
+        $teamPidRaw = $teamRow['pid'] ?? 0;
+        // PUT cannot rebind a CareTeam to a different patient; ignore any puuid drift.
+        return $this->saveCareTeamRecord(
+            $updatedOpenEMRRecord,
+            is_numeric($teamIdRaw) ? (int) $teamIdRaw : 0,
+            is_numeric($teamPidRaw) ? (int) $teamPidRaw : 0
+        );
+    }
+
+    /**
+     * Common path: resolve patient + practitioner uuids, then call
+     * CareTeamService::saveCareTeam. On insert teamId is null; on update it's the
+     * existing care_teams.id.
+     *
+     * @param array<array-key, mixed> $record
+     */
+    private function saveCareTeamRecord(array $record, ?int $teamId, ?int $existingPid = null): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        $pid = $existingPid;
+        if ($pid === null || $pid === 0) {
+            $puuid = $record['puuid'] ?? null;
+            if (!is_string($puuid) || $puuid === '') {
+                $result->setValidationMessages(['subject' => 'FHIR CareTeam requires a Patient subject reference']);
+                return $result;
+            }
+            $resolved = QueryUtils::fetchSingleValue(
+                'SELECT pid FROM patient_data WHERE uuid = ?',
+                'pid',
+                [UuidRegistry::uuidToBytes($puuid)]
+            );
+            if (!is_numeric($resolved)) {
+                $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
+                return $result;
+            }
+            $pid = (int) $resolved;
+        }
+
+        $membersRaw = $record['members'] ?? [];
+        $members = is_array($membersRaw) ? $membersRaw : [];
+        $resolvedMembers = [];
+        foreach ($members as $member) {
+            if (!is_array($member)) {
+                continue;
+            }
+            $practitionerUuid = $member['practitioner_uuid'] ?? null;
+            if (!is_string($practitionerUuid) || $practitionerUuid === '') {
+                continue;
+            }
+            $userId = QueryUtils::fetchSingleValue(
+                'SELECT id FROM users WHERE uuid = ?',
+                'id',
+                [UuidRegistry::uuidToBytes($practitionerUuid)]
+            );
+            if (!is_numeric($userId)) {
+                // A participant the caller named but we cannot resolve fails the save. Skipping
+                // it returned success for a team that is missing a member the client believes it
+                // asked for -- and worse on PUT, where the member list is reconciled: every
+                // existing member absent from the surviving list gets deactivated, so one
+                // unresolvable reference could empty a team and still report 200.
+                $result->setValidationMessages([
+                    'participant' => 'Practitioner reference could not be resolved: ' . $practitionerUuid,
+                ]);
+                return $result;
+            }
+            $role = is_string($member['role'] ?? null) ? $member['role'] : '';
+            $resolvedMembers[] = [
+                'user_id' => (int) $userId,
+                'role' => $role,
+            ];
+        }
+
+        $status = is_string($record['status'] ?? null) ? $record['status'] : self::CARE_TEAM_STATUS_ACTIVE;
+        $teamName = is_string($record['team_name'] ?? null) ? $record['team_name'] : '';
+
+        try {
+            $careTeamService = new CareTeamService();
+            $savedTeamId = $careTeamService->saveCareTeam($pid, $teamId, $teamName, $resolvedMembers, $status);
+        } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
+            // The class list is deliberate and stays narrow. ForbiddenCatchTypeRule rejects any
+            // catch related to \Error or \ErrorException -- which rules out \Throwable and
+            // \Exception alike -- because an Error here is a bug in this code, not a failed
+            // request, and it belongs in the global handler rather than dressed up as a tidy
+            // CareTeam error. These three are what a save can legitimately fail with.
+            ServiceContainer::getLogger()->error('CareTeam save failed', ['pid' => $pid, 'exception' => $e]);
+            $result->addInternalError('CareTeam could not be saved');
+            return $result;
+        }
+
+        // Keyed on the id saveCareTeam() actually wrote. Selecting the patient's newest row
+        // instead would let two concurrent POSTs for one patient both read back the later
+        // insert.
+        $uuid = QueryUtils::fetchSingleValue(
+            "SELECT uuid FROM care_teams WHERE id = ?",
+            'uuid',
+            [$savedTeamId]
+        );
+        if (!is_string($uuid)) {
+            $result->addInternalError('CareTeam row could not be located after save');
+            return $result;
+        }
+
+        // Read the team back through the search path. FhirServiceBase::update() feeds this
+        // result into parseOpenEMRRecord(), which reads care_team_status and puuid unguarded
+        // -- neither of which a hand-built ['uuid', 'pid'] row carries.
+        return $this->careTeamService->getAll(
+            ['uuid' => new TokenSearchField('uuid', UuidRegistry::uuidToString($uuid), true)],
+            true
+        );
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param array<array-key, mixed> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        $processingResult = $this->careTeamService->getAll($openEMRSearchParameters, true);
-        return $processingResult;
+        // FhirServiceBase declares the parameter as a bare array; CareTeamService::getAll
+        // accepts only search fields, so anything else is dropped rather than forwarded.
+        $search = [];
+        foreach ($openEMRSearchParameters as $key => $value) {
+            if ($value instanceof ISearchField || is_string($value)) {
+                $search[(string) $key] = $value;
+            }
+        }
+
+        return $this->careTeamService->getAll($search, true);
     }
 
     /**

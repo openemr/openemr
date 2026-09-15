@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -26,7 +27,7 @@ class ImmunizationService extends BaseService
 {
     private const IMMUNIZATION_TABLE = "immunizations";
     private const PATIENT_TABLE = "patient_data";
-    private $immunizationValidator;
+    private readonly ImmunizationValidator $immunizationValidator;
 
     /**
      * Default constructor.
@@ -247,14 +248,57 @@ class ImmunizationService extends BaseService
     /**
      * Inserts a new immunization record.
      *
-     * @param $data The immunization fields (array) to insert.
+     * @param mixed $data The immunization fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
     public function insert($data)
     {
-        $processingResult = new ProcessingResult();
-        $processingResult->addInternalError("Method not implemented yet.");
+        if (!is_array($data) || $data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'Invalid Data']);
+            return $processingResult;
+        }
+
+        $processingResult = $this->immunizationValidator->validate(
+            $data,
+            ImmunizationValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $patientIdRaw = $data['patient_id'] ?? null;
+        if (!is_numeric($patientIdRaw)) {
+            $processingResult->setValidationMessages(['patient_id' => 'This field is required']);
+            return $processingResult;
+        }
+        $encounterError = $this->encounterOwnershipError($data['encounter_id'] ?? null, (int) $patientIdRaw);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
+        $uuid = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
+        $data['uuid'] = $uuid;
+
+        [$set, $bind] = $this->splitColumnQuery($this->buildInsertColumns($data));
+        $sql  = " INSERT INTO immunizations SET";
+        $sql .= "     create_date=NOW(),";
+        $sql .= $set;
+
+        try {
+            $results = QueryUtils::sqlInsert($sql, $bind);
+        } catch (SqlQueryException) {
+            $processingResult->addInternalError("error processing SQL Insert");
+            return $processingResult;
+        }
+
+        $processingResult->addData([
+            'id' => $results,
+            'uuid' => UuidRegistry::uuidToString($uuid),
+        ]);
+
         return $processingResult;
     }
 
@@ -263,14 +307,131 @@ class ImmunizationService extends BaseService
      * Updates an existing immunization record.
      *
      * @param $uuid - The immunization uuid identifier in string format used for update.
-     * @param $data - The updated immunization data fields
+     * @param mixed $data - The updated immunization data fields
+     * @param int|null $expectedPatientId If provided, the stored immunization's patient_id must
+     *     match -- ownership check so a leaked uuid cannot be used to mutate an immunization
+     *     belonging to a patient other than the caller's resolved subject.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function update($uuid, $data)
+    public function update($uuid, $data, ?int $expectedPatientId = null)
     {
-        $processingResult = new ProcessingResult();
-        $processingResult->addInternalError("Method not implemented yet.");
-        return $processingResult;
+        if (!is_array($data) || $data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'Invalid Data']);
+            return $processingResult;
+        }
+
+        $data["uuid"] = $uuid;
+        $processingResult = $this->immunizationValidator->validate(
+            $data,
+            ImmunizationValidator::DATABASE_UPDATE_CONTEXT
+        );
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $rowPatientIdRaw = QueryUtils::fetchSingleValue(
+            "SELECT patient_id FROM " . self::IMMUNIZATION_TABLE . " WHERE uuid = ?",
+            'patient_id',
+            [$uuidBytes]
+        );
+        if (!is_numeric($rowPatientIdRaw)) {
+            $processingResult->setValidationMessages(['uuid' => 'Immunization not found']);
+            return $processingResult;
+        }
+        $rowPatientId = (int) $rowPatientIdRaw;
+
+        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
+            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
+            // existence of another patient's immunization.
+            $processingResult->setValidationMessages(['uuid' => 'Immunization not found']);
+            return $processingResult;
+        }
+
+        $encounterError = $this->encounterOwnershipError($data['encounter_id'] ?? null, $rowPatientId);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
+        // The owning patient is not mutable. BaseService::buildUpdateColumns() skips `pid`, but
+        // this table names its owner column `patient_id`, so it would otherwise pass straight
+        // into the SET clause and move the immunization to another chart.
+        unset($data['patient_id']);
+
+        [$set, $bind] = $this->splitColumnQuery($this->buildUpdateColumns($data));
+        // A payload that maps to nothing updatable -- patient_id removed above, uuid skipped by
+        // buildUpdateColumns() -- would otherwise emit "UPDATE immunizations SET  WHERE ...",
+        // and the resulting SqlQueryException gets reported as an internal error. It is a bad
+        // request, so say so.
+        if (trim($set) === '') {
+            $processingResult->setValidationMessages(
+                ['data' => 'No updatable Immunization fields were supplied']
+            );
+            return $processingResult;
+        }
+        $sql = " UPDATE " . self::IMMUNIZATION_TABLE . " SET ";
+        $sql .= $set;
+        // patient_id is part of the WHERE for belt-and-braces protection if $expectedPatientId
+        // was not supplied by the caller.
+        $sql .= " WHERE `uuid` = ? AND `patient_id` = ?";
+
+        $bind[] = $uuidBytes;
+        $bind[] = $rowPatientId;
+
+        try {
+            QueryUtils::sqlStatementThrowException($sql, $bind);
+        } catch (SqlQueryException) {
+            $processingResult->addInternalError("error processing SQL Update");
+            return $processingResult;
+        }
+
+        return $this->getOne($uuid);
+    }
+
+    /**
+     * Splits the payload BaseService's column builders return into the SET fragment
+     * and its bind list. Those builders are untyped, so the shape is asserted here
+     * rather than assumed at the call sites.
+     *
+     * @param mixed $query
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function splitColumnQuery($query): array
+    {
+        $set = is_array($query) ? ($query['set'] ?? null) : null;
+        $bind = is_array($query) ? ($query['bind'] ?? null) : null;
+
+        return [
+            is_string($set) ? $set : '',
+            is_array($bind) ? array_values($bind) : [],
+        ];
+    }
+
+    /**
+     * Rejects an encounter reference that belongs to a different patient.
+     *
+     * The FHIR adapters resolve the subject and the encounter independently, so without this
+     * a write could file an immunization for patient A against patient B's visit. Returns null when
+     * there is nothing to check or the encounter checks out.
+     */
+    private function encounterOwnershipError(mixed $encounter, int $patientId): ?ProcessingResult
+    {
+        if (!is_numeric($encounter) || (int) $encounter === 0) {
+            return null;
+        }
+        $encounterPid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM form_encounter WHERE encounter = ?",
+            'pid',
+            [(int) $encounter]
+        );
+        if (is_numeric($encounterPid) && (int) $encounterPid === $patientId) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages(['encounter' => 'Encounter reference does not belong to this patient']);
+
+        return $result;
     }
 }

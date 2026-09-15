@@ -15,7 +15,9 @@
 namespace OpenEMR\Services\FHIR;
 
 use InvalidArgumentException;
+use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -32,6 +34,7 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements
     IResourceReadableService,
     IResourceSearchableService,
     IResourceCreatableService,
+    IResourceUpdateableService,
     IResourceUSCIGProfileService,
     IPatientCompartmentResourceService
 {
@@ -47,10 +50,61 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements
 
     private EventDispatcherInterface $dispatcher;
 
+    private ?FhirQuestionnaireResponseFormService $writeService = null;
 
     public function __construct(?string $fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
+    }
+
+    /**
+     * The form-backed service the write operations are mapped onto.
+     *
+     * It is deliberately not registered with addMappedService(): the routes register their
+     * own instance for search, and a second registration here would duplicate every search
+     * result this aggregator returns.
+     */
+    private function getWriteService(): FhirQuestionnaireResponseFormService
+    {
+        $this->writeService ??= new FhirQuestionnaireResponseFormService($this->getFhirApiURL());
+        return $this->writeService;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
+    {
+        return $this->getWriteService()->parseFhirResource($fhirResource);
+    }
+
+    /**
+     * @param mixed $openEmrRecord
+     */
+    public function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        return $this->getWriteService()->insertOpenEMRRecord($openEmrRecord);
+    }
+
+    /**
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
+     */
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        return $this->getWriteService()->updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord);
+    }
+
+    /**
+     * Re-emits a stored row as a FHIR resource. FhirServiceBase::update() calls this to build
+     * the body of a PUT response, so an aggregator that leaves it on the empty trait answers a
+     * successful update with a null body.
+     *
+     * @param array<array-key, mixed> $dataRecord
+     * @param bool $encode
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): OpenEMRFhirQuestionnaireResponse
+    {
+        return $this->getWriteService()->parseOpenEMRRecord($dataRecord, $encode);
     }
 
     public function setEventDispatcher(EventDispatcherInterface $dispatcher)

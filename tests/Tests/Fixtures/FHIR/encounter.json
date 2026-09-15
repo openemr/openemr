@@ -1,0 +1,30 @@
+[
+    {
+        "resourceType": "Encounter",
+        "status": "finished",
+        "class": {
+            "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+            "code": "AMB",
+            "display": "ambulatory"
+        },
+        "type": [
+            {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "185349003",
+                        "display": "Encounter for check up (procedure)"
+                    }
+                ]
+            }
+        ],
+        "period": {
+            "start": "2024-01-15T10:00:00+00:00"
+        },
+        "reasonCode": [
+            {
+                "text": "test-fixture encounter annual checkup"
+            }
+        ]
+    }
+]

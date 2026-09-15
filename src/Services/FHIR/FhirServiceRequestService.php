@@ -13,6 +13,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -20,6 +22,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -789,6 +792,295 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         return $reasonCodes;
+    }
+
+    /**
+     * Parses a FHIR ServiceRequest into a {header, codes} shape consumed by
+     * ProcedureService::createOrder / updateOrder. The header describes the procedure_order
+     * row (patient, requester, encounter, category=procedure_order_type, status, priority,
+     * authoredOn, notes); the codes array becomes procedure_order_code rows (one per
+     * code.coding entry).
+     *
+     * Subject (Patient) reference is required for new orders. The mapping inverts the
+     * mapOrderStatus and mapOrderPriority helpers used by parseOpenEMRRecord, with
+     * 'on-hold'/'draft' falling through to their literal OpenEMR values.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRServiceRequest)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRServiceRequest resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $header = [];
+        $codes = [];
+        $data = ['header' => &$header, 'codes' => &$codes];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // subject.reference -> patient puuid (resolved downstream)
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
+            }
+        }
+
+        // requester.reference -> provider pruuid (resolved downstream; optional)
+        $requesterRef = FhirPayloadReader::reference($json['requester'] ?? null);
+        if ($requesterRef !== null) {
+            $requesterUuid = UtilsService::parseReferenceString($requesterRef, 'Practitioner')['uuid'] ?? null;
+            if (is_string($requesterUuid) && $requesterUuid !== '' && UuidRegistry::isValidStringUUID($requesterUuid)) {
+                $data['pruuid'] = $requesterUuid;
+            }
+        }
+
+        // encounter.reference -> encounter euuid (optional)
+        $encounterRef = FhirPayloadReader::reference($json['encounter'] ?? null);
+        if ($encounterRef !== null) {
+            $encounterUuid = UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null;
+            if (is_string($encounterUuid) && $encounterUuid !== '' && UuidRegistry::isValidStringUUID($encounterUuid)) {
+                $data['euuid'] = $encounterUuid;
+            }
+        }
+
+        // status -> order_status (inverse of mapOrderStatus)
+        $status = $json['status'] ?? null;
+        if (is_string($status) && $status !== '') {
+            $statusReverseMap = [
+                'active' => 'pending',
+                'completed' => 'complete',
+                'revoked' => 'canceled',
+                'draft' => 'pending',
+                'on-hold' => 'pending',
+            ];
+            $header['order_status'] = $statusReverseMap[$status] ?? 'pending';
+            if ($status === 'entered-in-error') {
+                $header['activity'] = 0;
+            }
+        }
+
+        // intent -> order_intent (FHIR R4 1..1). The list_options 'order_intent' set
+        // holds order/plan/directive/proposal/option; other R4 intents (e.g.
+        // original-order, reflex-order, filler-order, instance-order) fall back to
+        // 'order' since OpenEMR's order workflow has no distinction for those.
+        $intent = $json['intent'] ?? null;
+        if (is_string($intent) && $intent !== '') {
+            $supportedIntents = ['order', 'plan', 'directive', 'proposal', 'option'];
+            $header['order_intent'] = in_array($intent, $supportedIntents, true)
+                ? $intent
+                : 'order';
+        }
+
+        // priority passthrough (matches OpenEMR vocab for routine/urgent/asap/stat)
+        $priority = $json['priority'] ?? null;
+        if (is_string($priority) && $priority !== '') {
+            $header['order_priority'] = $priority;
+        }
+
+        // category[0].coding[0].code (SNOMED) -> procedure_order_type (inverse of CATEGORY_MAP)
+        $categoryCode = FhirPayloadReader::firstConceptCode($json['category'] ?? null);
+        if ($categoryCode !== '') {
+            $categoryReverseMap = [
+                self::CATEGORY_LABORATORY => self::ORDER_TYPE_LABORATORY,
+                self::CATEGORY_IMAGING => self::ORDER_TYPE_IMAGING,
+                self::CATEGORY_CLINICAL_TEST => self::ORDER_TYPE_CLINICAL_TEST,
+                self::CATEGORY_PROCEDURE => self::ORDER_TYPE_PROCEDURE,
+            ];
+            if (isset($categoryReverseMap[$categoryCode])) {
+                $header['procedure_order_type'] = $categoryReverseMap[$categoryCode];
+            }
+        }
+
+        // authoredOn -> date_ordered (Y-m-d H:i:s for DATETIME column)
+        $dateOrdered = FhirDateTimeParser::toDbDateTime(
+            $json['authoredOn'] ?? null,
+            'ServiceRequest.authoredOn'
+        );
+        if ($dateOrdered !== null) {
+            $header['date_ordered'] = $dateOrdered;
+        }
+
+        // patientInstruction -> patient_instructions
+        $patientInstruction = $json['patientInstruction'] ?? null;
+        if (is_string($patientInstruction) && $patientInstruction !== '') {
+            $header['patient_instructions'] = $patientInstruction;
+        }
+
+        // note[0].text -> clinical_hx (best-fit free-text field)
+        $noteText = FhirPayloadReader::getString(FhirPayloadReader::get($json['note'] ?? null, 0), 'text');
+        if ($noteText !== null) {
+            $header['clinical_hx'] = $noteText;
+        }
+
+        // code.coding[] -> procedure_order_code rows (one per coding, or fallback to text)
+        $codeConcept = $json['code'] ?? null;
+        $codeText = FhirPayloadReader::getString($codeConcept, 'text');
+        foreach (FhirPayloadReader::codings($codeConcept) as $coding) {
+            $procCode = $coding['code'] ?? '';
+            if (!is_string($procCode) || $procCode === '') {
+                continue;
+            }
+            $display = $coding['display'] ?? null;
+            $codes[] = [
+                'procedure_code' => $procCode,
+                'procedure_name' => is_string($display)
+                    ? $display
+                    : ($codeText ?? ''),
+                'procedure_order_title' => is_string($display) ? $display : '',
+            ];
+        }
+        // No usable coding: procedure_order_code.procedure_code is varchar(64) NOT NULL and
+        // ProcedureService requires it non-empty, so code.text cannot stand in for a code --
+        // a long display string would be truncated on the way to the column. Surface the
+        // gap instead; insertOpenEMRRecord/updateOpenEMRRecord turn it into a 422.
+        if ($codes === []) {
+            $data['__validation_error__'] = $codeText !== null
+                ? 'ServiceRequest.code requires a coding with a code; code.text alone cannot be stored'
+                : 'ServiceRequest.code is required and must carry a coding with a code';
+        }
+
+        // reasonCode[0].coding -> diagnoses on the first procedure code row (string form)
+        $reasonCoding = FhirPayloadReader::firstCoding(
+            FhirPayloadReader::get($json['reasonCode'] ?? null, 0)
+        );
+        $reasonCode = $reasonCoding['code'] ?? null;
+        if (is_string($reasonCode) && $reasonCode !== '' && $codes !== []) {
+            $reasonSystem = $reasonCoding['system'] ?? null;
+            $system = is_string($reasonSystem) ? $reasonSystem : '';
+            $codes[0]['diagnoses'] = (new CodeTypesService())
+                ->getOpenEMRCodeForSystemAndCode($system, $reasonCode);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR ServiceRequest record array');
+        }
+
+        $validationError = $openEmrRecord['__validation_error__'] ?? null;
+        if (is_string($validationError)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['code' => $validationError]);
+            return $result;
+        }
+
+        $puuid = $openEmrRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'FHIR ServiceRequest requires a Patient reference']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
+            return $result;
+        }
+
+        $header = FhirPayloadReader::stringKeyed($openEmrRecord['header'] ?? null);
+        $header['patient_id'] = (int) $pid;
+
+        // Optional encounter resolution
+        $euuid = $openEmrRecord['euuid'] ?? null;
+        if (is_string($euuid) && $euuid !== '') {
+            $encounterId = QueryUtils::fetchSingleValue(
+                'SELECT encounter FROM form_encounter WHERE uuid = ?',
+                'encounter',
+                [UuidRegistry::uuidToBytes($euuid)]
+            );
+            if (is_numeric($encounterId)) {
+                $header['encounter_id'] = (int) $encounterId;
+            }
+        }
+
+        // Optional requester resolution. procedure_order.provider_id is the ordering provider of
+        // record, so a caller may only name themselves unless they hold admin/users -- see
+        // PractitionerAttributionPolicy.
+        $pruuid = $openEmrRecord['pruuid'] ?? null;
+        if (is_string($pruuid) && $pruuid !== '') {
+            $header['provider_id'] = (new PractitionerAttributionPolicy($this->getSession()))
+                ->resolveAndAssert(
+                    $pruuid,
+                    'ServiceRequest.requester',
+                    static fn(string $bytes) => QueryUtils::fetchSingleValue(
+                        'SELECT id FROM users WHERE uuid = ?',
+                        'id',
+                        [$bytes]
+                    )
+                );
+        }
+
+        $codes = FhirPayloadReader::rows($openEmrRecord['codes'] ?? null);
+
+        return $this->procedureService->createOrder($header, $codes);
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        $validationError = $updatedOpenEMRRecord['__validation_error__'] ?? null;
+        if (is_string($validationError)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['code' => $validationError]);
+            return $result;
+        }
+
+        $header = FhirPayloadReader::stringKeyed($updatedOpenEMRRecord['header'] ?? null);
+        // PUT cannot rebind patient/encounter/requester; drop those resolved ids.
+        unset($header['patient_id']);
+
+        $codes = FhirPayloadReader::rows($updatedOpenEMRRecord['codes'] ?? null);
+
+        // Resolve the body's subject to a pid and require it to match the stored
+        // procedure_order.patient_id, so a leaked order uuid cannot be used to mutate
+        // another patient's order. The subject is required rather than optional: leaving
+        // it out would resolve to no expected pid and skip the check entirely, which is
+        // the same as not having it. ServiceRequest.subject is 1..1 in R4 regardless.
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(
+                ['subject' => 'FHIR ServiceRequest requires a Patient reference']
+            );
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(
+                ['subject' => 'Patient reference could not be resolved: ' . $puuid]
+            );
+            return $result;
+        }
+
+        return $this->procedureService->updateOrder($fhirResourceId, $header, $codes, (int) $pid);
     }
 
     /**

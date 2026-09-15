@@ -12,6 +12,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAppointmentStatus;
@@ -22,7 +24,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRParticipationStatus;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAppointment\FHIRAppointmentParticipant;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\AppointmentService;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -32,6 +36,7 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
+use Particle\Validator\ValidationResult;
 
 class FhirAppointmentService extends FhirServiceBase implements IPatientCompartmentResourceService, IFhirExportableResourceService
 {
@@ -48,6 +53,33 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
     const PARTICIPANT_TYPE_PRIMARY_PERFORMER = "PPRF";
     const PARTICIPANT_TYPE_PRIMARY_PERFORMER_TEXT = "Primary Performer";
     const PARTICIPANT_TYPE_PARTICIPANT_TEXT = "Participant";
+
+    /**
+     * Fallback appointment category title when the FHIR Appointment carries no
+     * appointmentType display. Passed through xl_appt_category() for translation.
+     */
+    private const DEFAULT_CATEGORY_TITLE = 'Office Visit';
+
+    /**
+     * pc_constant_id of the category used when the FHIR Appointment carries no resolvable
+     * appointmentType. The constant is the stable identity; pc_catid is auto-incremented and
+     * so is not portable between installations.
+     */
+    private const DEFAULT_CATEGORY_CONSTANT = 'office_visit';
+
+    /**
+     * pc_catid fallback for when even the constant lookup finds nothing -- a site can
+     * deactivate or delete the stock category. 5 is what openemr_postcalendar_events.pc_catid
+     * defaults to in the schema, and is 'office_visit' in the stock seed.
+     */
+    private const DEFAULT_CATEGORY_ID = 5;
+
+    /**
+     * Default appointment duration in seconds (15 minutes) when the FHIR
+     * Appointment does not yield a start/end span. The AppointmentValidator
+     * requires a non-empty pc_duration.
+     */
+    private const DEFAULT_DURATION_SECONDS = 900;
 
     /**
      * @var AppointmentService
@@ -260,6 +292,289 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         return $appt;
     }
 
+
+    /**
+     * Parses a FHIR Appointment resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRAppointment)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRAppointment resource, got ' . $fhirResource::class
+            );
+        }
+
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects: the top
+        // level is an array, but every value below it is still whatever the
+        // request payload carried, so each read below narrows before using it.
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        // status -> pc_apptstatus (reverse the status mapping from parseOpenEMRRecord)
+        $status = $json['status'] ?? null;
+        $data['pc_apptstatus'] = is_string($status) && $status !== ''
+            ? $this->mapFhirStatusToOpenEmr($status)
+            : '-'; // default to pending/proposed
+
+        // appointmentType[0].coding[0].code -> pc_catid (look up by pc_constant_id)
+        $constantId = FhirPayloadReader::firstCodingValue($json['appointmentType'] ?? null, 'code');
+        if ($constantId !== '') {
+            $catId = $this->lookupCategoryByConstantId($constantId);
+            if ($catId !== false) {
+                $data['pc_catid'] = $catId;
+            }
+        }
+
+        // Default pc_title from appointmentType display, else the translated
+        // fallback category title.
+        $typeDisplay = FhirPayloadReader::firstCodingValue($json['appointmentType'] ?? null, 'display');
+        $data['pc_title'] = $typeDisplay !== ''
+            ? $typeDisplay
+            : \xl_appt_category(self::DEFAULT_CATEGORY_TITLE);
+
+        // Authorization context for provider attribution: only callers holding admin/users may
+        // attribute an appointment to a different provider. The check itself lives in
+        // PractitionerAttributionPolicy, shared with Encounter, Immunization, MedicationRequest
+        // and ServiceRequest. Unlike those, a rejected reference here is dropped rather than
+        // thrown: pc_aid is optional and the upstream service supplies its own default, so a
+        // scheduling client that names a colleague still gets its appointment.
+        $attribution = new PractitionerAttributionPolicy($this->getSession());
+
+        // Parse participants - Patient, Practitioner, Location
+        $participants = $json['participant'] ?? null;
+        if (is_array($participants)) {
+            foreach ($participants as $participant) {
+                $actor = is_array($participant) ? ($participant['actor'] ?? null) : null;
+                $reference = is_array($actor) ? ($actor['reference'] ?? null) : null;
+                if (!is_string($reference) || $reference === '') {
+                    continue;
+                }
+                $parsed = UtilsService::parseReferenceString($reference);
+                $referenceUuid = $parsed['uuid'] ?? null;
+                $referenceType = $parsed['type'] ?? null;
+
+                if (
+                    !is_string($referenceUuid) || $referenceUuid === ''
+                    || !is_string($referenceType) || $referenceType === ''
+                ) {
+                    continue;
+                }
+
+                // Reject malformed UUIDs before touching UuidRegistry — uuidToBytes()
+                // throws on invalid input, which would surface as a 500 to the client.
+                if (!UuidRegistry::isValidStringUUID($referenceUuid)) {
+                    continue;
+                }
+
+                if ($referenceType === 'Patient') {
+                    // An appointment stores exactly one pid, and the controller's
+                    // patient-compartment check reads the first Patient reference in the
+                    // payload. Letting a later participant overwrite the earlier one would
+                    // mean a patient-scoped caller could list their own patient first to
+                    // satisfy that check and have the appointment written for a second,
+                    // unauthorized patient. Conflicting references are rejected instead.
+                    $existingPuuid = $data['puuid'] ?? null;
+                    if (is_string($existingPuuid) && strcasecmp($existingPuuid, $referenceUuid) !== 0) {
+                        throw new \InvalidArgumentException(
+                            'Appointment.participant carries more than one distinct Patient reference'
+                        );
+                    }
+                    $data['puuid'] = $referenceUuid;
+                    // Resolve patient uuid to pid
+                    $puuidBytes = UuidRegistry::uuidToBytes($referenceUuid);
+                    $pid = BaseService::getIdByUuid($puuidBytes, 'patient_data', 'pid');
+                    if ($pid !== false) {
+                        $data['pid'] = $pid;
+                    }
+                } elseif ($referenceType === 'Practitioner' || $referenceType === 'Person') {
+                    $providerUuidBytes = UuidRegistry::uuidToBytes($referenceUuid);
+                    $providerId = BaseService::getIdByUuid($providerUuidBytes, 'users', 'id');
+                    // Only honour the assignment if the caller has admin/users
+                    // OR is assigning the appointment to themselves.
+                    if ($providerId !== false && $attribution->mayAttributeTo($providerId)) {
+                        $data['pc_aid'] = $providerId;
+                    }
+                } elseif ($referenceType === 'Location') {
+                    $facilityUuidBytes = UuidRegistry::uuidToBytes($referenceUuid);
+                    $facilityId = BaseService::getIdByUuid($facilityUuidBytes, 'facility', 'id');
+                    // Honour any resolvable facility — the patients/appt ACL
+                    // already gates *who* can schedule, and FHIR R4 lets the
+                    // serviceProvider be any Location. Admin-only restrictions
+                    // here would prevent clinical staff from scheduling their
+                    // own appointments at the facilities they operate in.
+                    if ($facilityId !== false) {
+                        $data['pc_facility'] = $facilityId;
+                    }
+                }
+            }
+        }
+
+        // Appointment.start / .end are FHIR `instant`, so a timezone is always
+        // present and partial precision is not legal. FhirDateTimeParser rejects
+        // anything else with an InvalidArgumentException, which the controller
+        // turns into a 400 rather than writing a fabricated date.
+        $startDt = FhirDateTimeParser::toDateTimeImmutable($json['start'] ?? null, 'Appointment.start');
+        $endDt = FhirDateTimeParser::toDateTimeImmutable($json['end'] ?? null, 'Appointment.end');
+
+        // start -> pc_eventDate (Y-m-d) + pc_startTime (H:i)
+        if ($startDt !== null) {
+            $data['pc_eventDate'] = $startDt->format('Y-m-d');
+            $data['pc_startTime'] = $startDt->format('H:i');
+        }
+
+        // end -> calculate pc_duration from start/end difference (in seconds)
+        if ($startDt !== null && $endDt !== null) {
+            $data['pc_duration'] = $endDt->getTimestamp() - $startDt->getTimestamp();
+        }
+
+        // comment -> pc_hometext. FHIR R4 Appointment.comment is a plain
+        // string ("additional comments about the appointment") — strip any
+        // markup at the write boundary so HTML never reaches storage. The
+        // render sinks (printed_fee_sheet etc.) also escape, but defense in
+        // depth: other render paths in the legacy UI may render raw.
+        $comment = $json['comment'] ?? null;
+        $commentRaw = is_string($comment) ? $comment : '';
+        $data['pc_hometext'] = $commentRaw === '' ? '' : strip_tags($commentRaw);
+
+        // pc_billing_location is not carried by FHIR Appointment; default it to the
+        // facility resolved from serviceProvider so the validator's numeric requirement
+        // is satisfied without inventing a location.
+        if (isset($data['pc_facility'])) {
+            $data['pc_billing_location'] = $data['pc_facility'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Maps a FHIR Appointment status code to an OpenEMR appointment status code.
+     *
+     * @param string $fhirStatus The FHIR status code
+     * @return string The OpenEMR appointment status code
+     */
+    private function mapFhirStatusToOpenEmr(string $fhirStatus): string
+    {
+        return match ($fhirStatus) {
+            'proposed' => '-',
+            'pending' => '^',
+            'booked' => '*',
+            'arrived' => '@',
+            'fulfilled' => '>',
+            'cancelled' => 'x',
+            'noshow' => '?',
+            'checked-in' => '<',
+            'waitlist' => 'CALL',
+            default => '-',
+        };
+    }
+
+    /**
+     * Looks up a calendar category ID by its constant_id value.
+     *
+     * @param string $constantId The pc_constant_id to look up
+     * @return int|false The pc_catid or false if not found
+     */
+    private function lookupCategoryByConstantId(string $constantId)
+    {
+        $result = QueryUtils::querySingleRow(
+            "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_constant_id = ? AND pc_active = 1",
+            [$constantId]
+        );
+        $catId = is_array($result) ? ($result['pc_catid'] ?? null) : null;
+        if (is_numeric($catId) && (int) $catId > 0) {
+            return (int) $catId;
+        }
+        return false;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Appointment record array');
+        }
+
+        $processingResult = new ProcessingResult();
+
+        // parseFhirResource() sets pid only when a Patient participant reference resolves.
+        // Falling back to 0 would create an appointment orphaned from every patient and
+        // invisible to patient-scoped reads, so this is rejected the same way a missing
+        // serviceProvider is below.
+        $pidRaw = $openEmrRecord['pid'] ?? null;
+        if (!is_numeric($pidRaw) || (int) $pidRaw <= 0) {
+            $processingResult->setValidationMessages([
+                'participant' => 'Appointment requires a resolvable Patient participant reference',
+            ]);
+            return $processingResult;
+        }
+        $pid = (int) $pidRaw;
+        unset($openEmrRecord['pid']);
+        unset($openEmrRecord['puuid']);
+
+        // Require an explicit facility from the FHIR caller — silently
+        // picking the first row would attribute the appointment to an arbitrary
+        // facility (potentially the wrong tenant in a multi-site deployment).
+        // Callers must supply a serviceProvider Reference to a Location.
+        $facilityId = $openEmrRecord['pc_facility'] ?? null;
+        if (!is_numeric($facilityId) || (int) $facilityId <= 0) {
+            $processingResult->setValidationMessages([
+                'serviceProvider' => 'Appointment.serviceProvider (a Location reference) is required',
+            ]);
+            return $processingResult;
+        }
+        $billingLocation = $openEmrRecord['pc_billing_location'] ?? null;
+        if (!is_numeric($billingLocation) || (int) $billingLocation <= 0) {
+            $openEmrRecord['pc_billing_location'] = $facilityId;
+        }
+
+        // Default pc_catid if not provided (required by validator). Resolved through
+        // pc_constant_id so the row actually is the category DEFAULT_CATEGORY_TITLE names:
+        // pc_catid is auto-incremented, so a hardcoded number means a different category on
+        // installations whose seed has drifted (9 is 'established_patient' in the stock seed).
+        $catId = $openEmrRecord['pc_catid'] ?? null;
+        if (!is_numeric($catId) || (int) $catId <= 0) {
+            $defaultCatId = $this->lookupCategoryByConstantId(self::DEFAULT_CATEGORY_CONSTANT);
+            $openEmrRecord['pc_catid'] = $defaultCatId !== false ? $defaultCatId : self::DEFAULT_CATEGORY_ID;
+        }
+
+        // Default pc_duration if not provided (validator requires it)
+        $duration = $openEmrRecord['pc_duration'] ?? null;
+        if (!is_numeric($duration) || (int) $duration <= 0) {
+            $openEmrRecord['pc_duration'] = self::DEFAULT_DURATION_SECONDS;
+        }
+
+        // Validate that required fields are present
+        // AppointmentService::validate() is untyped; it returns Particle's ValidationResult.
+        $validationResult = $this->appointmentService->validate($openEmrRecord);
+        if ($validationResult instanceof ValidationResult && !$validationResult->isValid()) {
+            $processingResult->setValidationMessages($validationResult->getMessages());
+            return $processingResult;
+        }
+
+        $insertId = $this->appointmentService->insert($pid, $openEmrRecord);
+        if ($insertId) {
+            // Fetch the created appointment to return full data
+            $appointment = $this->appointmentService->getAppointment($insertId);
+            if (is_array($appointment) && isset($appointment[0])) {
+                $processingResult->addData($appointment[0]);
+            } else {
+                $processingResult->addData(['pc_eid' => $insertId]);
+            }
+        } else {
+            $processingResult->addInternalError("Failed to insert appointment record");
+        }
+
+        return $processingResult;
+    }
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters

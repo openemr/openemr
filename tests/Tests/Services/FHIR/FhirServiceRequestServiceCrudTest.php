@@ -1,0 +1,204 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Services\FHIR;
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\Services\FHIR\FhirServiceRequestService;
+use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+
+/**
+ * FHIR ServiceRequest Service CRUD Tests
+ *
+ * ServiceRequest maps to one procedure_order row + N procedure_order_code rows.
+ * Insert/update are transactional (delete-then-insert for codes on update per
+ * FHIR PUT replace semantics).
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Chris Dickman <chrisd@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+class FhirServiceRequestServiceCrudTest extends TestCase
+{
+    private FixtureManager $fixtureManager;
+    private FHIRServiceRequest $fhirServiceRequestFixture;
+    private FhirServiceRequestService $fhirServiceRequestService;
+    private string $patientUuid;
+
+    protected function setUp(): void
+    {
+        $this->fixtureManager = new FixtureManager();
+
+        $this->fixtureManager->installPatientFixtures();
+        $patientFixture = $this->fixtureManager->getPatientFixtures()[0];
+        $this->assertIsArray($patientFixture);
+        $patientRecord = QueryUtils::querySingleRow(
+            "SELECT uuid FROM patient_data WHERE pubpid = ?",
+            [$patientFixture['pubpid']]
+        );
+        $this->assertIsArray($patientRecord);
+        $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
+
+        $fixture = (array) $this->fixtureManager->getSingleFhirServiceRequestFixture();
+        $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
+        $this->fhirServiceRequestFixture = new FHIRServiceRequest($fixture);
+
+        $this->fhirServiceRequestService = new FhirServiceRequestService();
+        $this->fhirServiceRequestService->setLogger($this->createMock(LoggerInterface::class));
+    }
+
+    protected function tearDown(): void
+    {
+        $this->fixtureManager->removeServiceRequestFixtures();
+        $this->fixtureManager->removePatientFixtures();
+    }
+
+    #[Test]
+    public function testInsertCreatesOrderAndCodes(): void
+    {
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
+        $result = $this->fhirServiceRequestService->insert($this->fhirServiceRequestFixture);
+        $this->assertTrue(
+            $result->isValid(),
+            'Insert should succeed: ' . json_encode($result->getValidationMessages())
+        );
+
+        $data = $this->firstDataRow($result);
+        $this->assertArrayHasKey('uuid', $data);
+        $this->assertIsString($data['uuid']);
+        $this->assertGreaterThan(0, $data['procedure_order_id']);
+
+        $codeCount = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS c FROM procedure_order_code WHERE procedure_order_id = ?",
+            'c',
+            [$data['procedure_order_id']]
+        );
+        $this->assertIsNumeric($codeCount);
+        $this->assertSame(1, (int) $codeCount);
+    }
+
+    #[Test]
+    public function testInsertWithUnresolvableSubject(): void
+    {
+        $bogusUuid = UuidRegistry::uuidToString(
+            (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
+        );
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
+        $payload = $this->fhirServiceRequestFixture->jsonSerialize();
+        $payload['subject'] = ['reference' => 'Patient/' . $bogusUuid];
+        $fixture = new FHIRServiceRequest($payload);
+
+        $result = $this->fhirServiceRequestService->insert($fixture);
+        $this->assertFalse($result->isValid());
+        $this->assertSame([], $result->getData());
+    }
+
+    #[Test]
+    public function testUpdateReplacesCodes(): void
+    {
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
+        $insertResult = $this->fhirServiceRequestService->insert($this->fhirServiceRequestFixture);
+        $this->assertTrue(
+            $insertResult->isValid(),
+            'Insert should succeed: ' . json_encode($insertResult->getValidationMessages())
+        );
+        $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
+        // ProcedureService::createOrder() casts the new id to int before returning it.
+        $orderId = $this->firstDataRow($insertResult)['procedure_order_id'];
+        $this->assertIsInt($orderId);
+
+        // Update with TWO codings instead of one
+        $payload = $this->fhirServiceRequestFixture->jsonSerialize();
+        $payload['id'] = $fhirId;
+        $code = $payload['code'] ?? [];
+        $this->assertIsArray($code);
+        $code['coding'] = [
+            [
+                'system' => 'http://loinc.org',
+                'code' => '5778-6',
+                'display' => 'test-fixture-updated Glucose [Mass/volume] in Urine by Test strip',
+            ],
+            [
+                'system' => 'http://loinc.org',
+                'code' => '2345-7',
+                'display' => 'test-fixture-updated Glucose [Mass/volume] in Serum or Plasma',
+            ],
+        ];
+        $payload['code'] = $code;
+        $updated = new FHIRServiceRequest($payload);
+
+        $result = $this->fhirServiceRequestService->update($fhirId, $updated);
+        $this->assertTrue(
+            $result->isValid(),
+            'Update should succeed: ' . json_encode($result->getValidationMessages())
+        );
+
+        $codeCount = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS c FROM procedure_order_code WHERE procedure_order_id = ?",
+            'c',
+            [$orderId]
+        );
+        $this->assertIsNumeric($codeCount);
+        $this->assertSame(2, (int) $codeCount);
+    }
+
+    #[Test]
+    public function testUpdateWithBadUuid(): void
+    {
+        $result = $this->fhirServiceRequestService->update('bad-uuid', $this->fhirServiceRequestFixture);
+        $this->assertFalse($result->isValid());
+        $this->assertSame([], $result->getData());
+    }
+
+    #[Test]
+    public function testInsertPersistsIntent(): void
+    {
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
+        $payload = $this->fhirServiceRequestFixture->jsonSerialize();
+        $payload['intent'] = 'plan';
+        $fixture = new FHIRServiceRequest($payload);
+
+        $result = $this->fhirServiceRequestService->insert($fixture);
+        $this->assertTrue(
+            $result->isValid(),
+            'Insert should succeed: ' . json_encode($result->getValidationMessages())
+        );
+        $procedureOrderId = $this->firstDataRow($result)['procedure_order_id'];
+        $this->assertIsInt($procedureOrderId);
+
+        $intent = QueryUtils::fetchSingleValue(
+            "SELECT order_intent FROM procedure_order WHERE procedure_order_id = ?",
+            'order_intent',
+            [$procedureOrderId]
+        );
+        $this->assertSame('plan', $intent);
+    }
+
+    /**
+     * Reads the first row of a ProcessingResult, asserting the shape as it goes so a
+     * failed insert surfaces as a test failure rather than a type error downstream.
+     *
+     * @return array<mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey(0, $data);
+        $row = $data[0];
+        $this->assertIsArray($row);
+
+        return $row;
+    }
+}
