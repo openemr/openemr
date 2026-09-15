@@ -69,7 +69,7 @@
 # sections for the full design rationale.
 
 name: Acceptance-only re-run + publish (tarball)
-run-name: "Acceptance-only re-run + publish for ${{ inputs.version }} (source run ${{ inputs.source_run_id }})${{ inputs.skip_acceptance && format(' -- SKIP-ACCEPTANCE: {0}', inputs.skip_acceptance_reason) || '' }}"
+run-name: "Acceptance-only re-run + publish for ${{ inputs.version }} (source run ${{ inputs.source_run_id }})${{ inputs.skip_acceptance && format(' -- SKIP-ACCEPTANCE: {0}', inputs.skip_acceptance_reason) || '' }}${{ inputs.no_publish && format(' -- NO-PUBLISH: {0}', inputs.no_publish_reason) || '' }}"
 
 on:
   workflow_dispatch:
@@ -104,6 +104,25 @@ on:
         default: false
       skip_acceptance_reason:
         description: 'REQUIRED when skip_acceptance=true. Free-text explanation for the audit trail (appears in run-name, workflow summary, release description). Empty reason with skip=true fails the workflow immediately.'
+        required: false
+        type: string
+        default: ''
+      # Distinct from skip_acceptance: skip_acceptance bypasses the
+      # acceptance-gate matrix but publish still runs. no_publish
+      # bypasses ONLY publish (acceptance-gate can run or be skipped
+      # independently). Intended use is the recovery-path smoketest
+      # (dispatches acceptance-only.yml against a real source_run_id
+      # to verify the recovery workflow still works end-to-end,
+      # without creating/overwriting real GitHub Release assets).
+      # NOT intended for real ship recovery -- when you actually want
+      # a release published, do not set this.
+      no_publish:
+        description: 'ESCAPE HATCH -- run through validation + acceptance-gate but do NOT publish (no GitHub Release create, no asset upload). ONLY use for smoketesting the recovery path itself. Requires non-empty no_publish_reason. Do NOT use when actually trying to recover a real release.'
+        required: false
+        type: boolean
+        default: false
+      no_publish_reason:
+        description: 'REQUIRED when no_publish=true. Free-text explanation for the audit trail (appears in run-name and workflow summary). Empty reason with no_publish=true fails the workflow immediately.'
         required: false
         type: string
         default: ''
@@ -143,36 +162,90 @@ jobs:
     outputs:
       artifact_name: openemr-release-candidate-${{ inputs.version }}
     steps:
+    # Checkout master so the later steps can call scripts under
+    # .github/scripts/ (validate-source-run.sh). Without this the
+    # `Validate source run eligibility` step below fails with
+    # "No such file or directory" — the fetch-source-artifact job
+    # runs standalone and doesn't inherit a checkout from anywhere.
+    # Introduced as a latent bug by #13294 (Phase 10e-2 extract of
+    # the inline validation logic to a shared script); surfaced only
+    # when the workflow was first exercised end-to-end on the 8.4.0
+    # ship recovery attempt on 2026-09-13.
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
     # Phase 14 guardrail: if the operator dispatched with
     # skip_acceptance=true, they MUST supply a non-empty
     # skip_acceptance_reason so the audit trail carries an
     # accountable "why." Fail loudly + immediately (before doing
-    # any real work) on skip=true + empty reason.
+    # any real work) on skip=true + empty reason. Delegates to
+    # validate-flag-with-reason.sh (also used by the no-publish
+    # step below and by the docker-acceptance-only.yml sibling --
+    # extracted so the fail-loud rule + exact error shape land once
+    # instead of four times, and get BATS coverage independent of
+    # the workflow YAML).
     - name: Validate skip-acceptance inputs
       env:
+        FLAG_NAME: skip_acceptance
+        FLAG_VALUE: ${{ inputs.skip_acceptance }}
+        REASON_NAME: skip_acceptance_reason
+        REASON_VALUE: ${{ inputs.skip_acceptance_reason }}
         SKIP: ${{ inputs.skip_acceptance }}
         REASON: ${{ inputs.skip_acceptance_reason }}
       run: |
         set -euo pipefail
-        # Strip all whitespace before length check -- a reason that
-        # is only spaces / tabs / newlines is not a real audit trail
-        # entry, so treat it as empty.
-        STRIPPED_REASON="${REASON//[[:space:]]/}"
-        if [ "${SKIP}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
-          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason (whitespace-only reasons are rejected). The reason appears in the run-name, workflow summary, and release description for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
-          exit 1
-        fi
+        .github/scripts/validate-flag-with-reason.sh
+        # Warning + step-summary block emitted here (not in the shared
+        # script) because they vary per flag -- skip_acceptance's
+        # summary text differs from no_publish's.
         if [ "${SKIP}" = "true" ]; then
           echo "::warning title=Acceptance bypassed::Acceptance matrix skipped for this run. Reason: ${REASON}"
           {
             echo "## :warning: Acceptance bypassed"
             echo ""
-            echo "This run skipped the acceptance-scenario matrix and published directly."
+            echo "This run skipped the acceptance-scenario matrix."
             echo ""
             echo "**Reason (operator-supplied):** ${REASON}"
             echo ""
             echo "Skip-acceptance is intended for known-good artifacts hitting confirmed test-side flakes."
             echo "If bypasses are repeating on the same failure class, the underlying flake needs a fix, not a bypass."
+            echo ""
+            echo "Publish behavior is orthogonal to skip-acceptance -- see the no-publish summary block below if the two were combined."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    # Same audit-trail-safe validation as skip-acceptance above, for
+    # the no_publish input. Uses the same shared script; only the
+    # warning + step-summary text differ.
+    #
+    # Belt-and-suspenders with the `if:` guard on the publish job
+    # itself (below): input validation catches the missing-reason
+    # case at dispatch time; the job-level `if:` gate is what
+    # actually prevents publish from ever running when no_publish
+    # is true.
+    - name: Validate no-publish inputs
+      env:
+        FLAG_NAME: no_publish
+        FLAG_VALUE: ${{ inputs.no_publish }}
+        REASON_NAME: no_publish_reason
+        REASON_VALUE: ${{ inputs.no_publish_reason }}
+        NO_PUBLISH: ${{ inputs.no_publish }}
+        REASON: ${{ inputs.no_publish_reason }}
+      run: |
+        set -euo pipefail
+        .github/scripts/validate-flag-with-reason.sh
+        if [ "${NO_PUBLISH}" = "true" ]; then
+          echo "::warning title=Publish suppressed::Publish step will be skipped for this run. Reason: ${REASON}"
+          {
+            echo "## :warning: Publish suppressed"
+            echo ""
+            echo "This run will proceed through fetch + acceptance-gate (if not also skipped) but will NOT publish -- no GitHub Release create, no asset upload."
+            echo ""
+            echo "**Reason (operator-supplied):** ${REASON}"
+            echo ""
+            echo "no-publish mode is intended for smoketesting the recovery path itself without touching real release artifacts."
+            echo "If you were expecting a real release to publish, re-dispatch WITHOUT the no_publish input set."
           } >> "$GITHUB_STEP_SUMMARY"
         fi
 
@@ -187,12 +260,19 @@ jobs:
     # Only EXPECTED_WORKFLOW_PATH is passed (no EXPECTED_CANDIDATE_TAG):
     # tarball recovery has no operator-supplied candidate binding to
     # cross-check.
+    #
+    # EXPECTED_WORKFLOW_PATH accepts both `build-release.yml` (manual
+    # workflow_dispatch flow) and `build-release-on-tag.yml` (auto-fires
+    # from ship-release.yml tag creation) — both produce the same
+    # `openemr-release-candidate-<version>` artifact shape, so either is
+    # a valid recoverable source. Comma-separated list per the script's
+    # env-var contract.
     - name: Validate source run eligibility
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPO: ${{ github.repository }}
         SOURCE_RUN_ID: ${{ inputs.source_run_id }}
-        EXPECTED_WORKFLOW_PATH: .github/workflows/build-release.yml
+        EXPECTED_WORKFLOW_PATH: .github/workflows/build-release.yml,.github/workflows/build-release-on-tag.yml
       run: |
         set -euo pipefail
 
@@ -342,8 +422,17 @@ jobs:
     # workflow run itself was cancelled (always() alone would fire
     # publish through a workflow-level cancel — !cancelled() blocks
     # that). Fetch-source result must be 'success' regardless.
+    #
+    # no_publish=true is the load-bearing suppression for the
+    # recovery-path smoketest: this `if:` gate is what actually
+    # prevents publish from ever running when no_publish is true,
+    # regardless of what the audit-trail validation step above did
+    # (the two together form belt-and-suspenders). Placed early in
+    # the expression so it's readable + reviewable as an explicit
+    # deny.
     if: >-
       always() && !cancelled()
+      && inputs.no_publish != true
       && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
       && github.ref == 'refs/heads/master'
       && needs.fetch-source-artifact.result == 'success'

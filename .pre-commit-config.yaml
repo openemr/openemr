@@ -160,6 +160,22 @@ repos:
   hooks:
   - id: actionlint-docker
 
+# Local lint: workflow jobs that call .github/scripts/ must have
+# actions/checkout in the same job. Guards against the openemr/openemr#13972
+# class of bug where a workflow refactor extracts logic into a shared
+# script but forgets to add a checkout step -- actionlint doesn't cross-
+# reference script existence against checkout presence, so this bug type
+# stays latent until the workflow is first exercised end-to-end.
+- repo: local
+  hooks:
+  - id: lint-workflow-checkout-needed
+    name: Workflows calling .github/scripts/ must have actions/checkout
+    entry: .github/scripts/lint-workflow-checkout-needed.py
+    language: python
+    additional_dependencies: [PyYAML]
+    files: ^\.github/workflows/.*\.ya?ml$
+    pass_filenames: false
+
 # shellcheck
 - repo: https://github.com/shellcheck-py/shellcheck-py
   rev: v0.11.0.1   # shellcheck 0.9.0 — matches ubuntu-24.04's package, which CI uses
