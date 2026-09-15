@@ -534,7 +534,7 @@ class FhirPatientServiceUSCore8Test extends TestCase
     }
 
     /**
-     * US Core 7.0.0: the us-core-sex extension carries the Male SNOMED CT code as valueCode (no valueCoding).
+     * US Core 7.0.0: the us-core-sex extension carries the Male and Female SNOMED CT codes as valueCode (no valueCoding).
      */
     public function testHighestCompatibleVersion7_0_HasCorrectSexExtension(): void
     {
@@ -550,10 +550,19 @@ class FhirPatientServiceUSCore8Test extends TestCase
         $this->assertNull($valueCoding, "Sex extension must NOT have valueCoding for version 7.0.0");
         $this->assertNotNull($sexExtension->getValueCode(), "Sex extension should populate valueCode for version 7.0.0");
         $this->assertEquals('248153007', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Male for version 7.0.0");
+
+        $this->compliantPatientData['sex_identified'] = 'Female';
+        $parsedResource = $this->fhirPatientService->parseOpenEMRRecord($this->compliantPatientData);
+        $sexExtension = $this->findExtensionByUrl(
+            $parsedResource,
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex'
+        );
+        $this->assertNotNull($sexExtension, 'Patient should have sex extension');
+        $this->assertSame('248152002', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Female for version 7.0.0");
     }
 
     /**
-     * US Core 3.1.1: the us-core-sex extension carries the Male SNOMED CT code as valueCode (no valueCoding).
+     * US Core 3.1.1: the us-core-sex extension carries the Male and Female SNOMED CT codes as valueCode (no valueCoding).
      */
     public function testHighestCompatibleVersion311_HasCorrectSexExtension(): void
     {
@@ -569,10 +578,19 @@ class FhirPatientServiceUSCore8Test extends TestCase
         $this->assertNull($valueCoding, "Sex extension must NOT have valueCoding for version 3.1.1");
         $this->assertNotNull($sexExtension->getValueCode(), "Sex extension should populate valueCode for version 3.1.1");
         $this->assertEquals('248153007', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Male for version 3.1.1");
+
+        $this->compliantPatientData['sex_identified'] = 'Female';
+        $parsedResource = $this->fhirPatientService->parseOpenEMRRecord($this->compliantPatientData);
+        $sexExtension = $this->findExtensionByUrl(
+            $parsedResource,
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex'
+        );
+        $this->assertNotNull($sexExtension, 'Patient should have sex extension');
+        $this->assertSame('248152002', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Female for version 3.1.1");
     }
 
     /**
-     * US Core 8.0.0: the us-core-sex extension carries the Male SNOMED CT code as valueCoding.
+     * US Core 8.0.0: the us-core-sex extension carries the Male and Female SNOMED CT codes as valueCoding.
      */
     public function testHighestCompatibleVersion8_0_HasCorrectSexExtension(): void
     {
@@ -592,5 +610,16 @@ class FhirPatientServiceUSCore8Test extends TestCase
         $this->assertEquals("Male", (string)$valueCoding->getDisplay(), "Sex coding.display must have correct display");
 
         $this->assertNull($sexExtension->getValueCode(), "Sex extension should NOT populate valueCode for version 8.0.0");
+
+        $this->compliantPatientData['sex_identified'] = 'Female';
+        $parsedResource = $this->fhirPatientService->parseOpenEMRRecord($this->compliantPatientData);
+        $sexExtension = $this->findExtensionByUrl(
+            $parsedResource,
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex'
+        );
+        $this->assertNotNull($sexExtension, 'Patient should have sex extension');
+        $valueCoding = $sexExtension->getValueCoding();
+        $this->assertSame('248152002', (string)$valueCoding->getCode(), "Sex coding.code must have correct coding for Female for version 8.0.0");
+        $this->assertSame('Female', (string)$valueCoding->getDisplay(), "Sex coding.display must have correct display for Female");
     }
 }
