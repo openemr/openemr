@@ -248,6 +248,7 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     - name: Open or update sync PR
+      id: pr
       if: steps.apply.outputs.has_changes == 'true'
       uses: peter-evans/create-pull-request@v8
       with:
@@ -263,3 +264,40 @@ jobs:
         add-paths: ${{ steps.paths.outputs.paths }}
         delete-branch: false
         labels: auto-sync
+
+    # Enable auto-merge on the sync PR. Sync PRs contain deterministic
+    # master content already reviewed on master, so once CI turns green
+    # there's nothing else worth manually reviewing before merge --
+    # they're purely mechanical propagation of the byte-identical
+    # invariant. Auto-merge waits for required status checks (and any
+    # required reviews the rel branch's protection rules define) before
+    # firing, so a genuine CI failure still holds the PR for manual
+    # attention.
+    #
+    # Uses the release App token (the same token used to open the PR
+    # via peter-evans above). ship-release.yml already exercises this
+    # App for rel-branch PR merges (Conductor + Docs + Finalize), so
+    # its scope + branch-protection bypass are proven for this path.
+    # AUTO_MERGE_APP is deliberately NOT used -- its install scope is
+    # currently only master-branch merges (dependabot's docker-compose
+    # bumps), so widening it would be an extra install surface for no
+    # gain.
+    #
+    # `gh pr merge --auto` is idempotent: peter-evans force-pushes on
+    # every sync-workflow rerun cancel any prior auto-merge enrollment,
+    # and this step re-enables it on the same run. Self-healing loop.
+    #
+    # Escape hatch: an operator wanting to hand-inspect a specific sync
+    # PR can `gh pr merge --disable-auto <PR#>` on that one PR without
+    # touching this workflow. The next sync-workflow run will re-enable
+    # auto-merge on the fresh force-push, which is the correct behavior
+    # -- newer sync content should not stay held indefinitely.
+    - name: Enable auto-merge on sync PR
+      if: steps.pr.outputs.pull-request-number && steps.pr.outputs.pull-request-operation != 'closed'
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+      run: |
+        set -euo pipefail
+        echo "==> Enabling auto-merge on sync PR #${PR_NUMBER}"
+        gh pr merge --auto --squash "${PR_NUMBER}" --repo "${{ github.repository }}"
