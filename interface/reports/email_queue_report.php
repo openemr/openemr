@@ -15,26 +15,23 @@ declare(strict_types=1);
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\Email\EmailQueueService;
 
 $globalsBag = OEGlobalsBag::getInstance();
-/**
- * @var mixed $kernelValue
- */
-$kernelValue = $globalsBag->get('kernel');
-$kernel = $kernelValue instanceof Kernel ? $kernelValue : null;
 $webrootValue = $globalsBag->get('webroot');
 $webroot = is_string($webrootValue) ? $webrootValue : '';
 
 // ACL check - requires billing or admin access
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $kernel))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('Email Queue Report')]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate(
+        "ACL check failed for admin/super or acct/bill: Email Queue Report",
+        xl('Email Queue Report')
+    );
 }
 
 // Initialize service
@@ -105,8 +102,7 @@ $templateVars = [
 <body class="body_top">
     <div class="container-fluid">
         <?php
-        $twig = new TwigContainer(null, $kernel);
-        echo $twig->getTwig()->render('reports/email/queue.html.twig', $templateVars);
+        echo ServiceContainer::getTwig()->render('reports/email/queue.html.twig', $templateVars);
         ?>
     </div>
 </body>

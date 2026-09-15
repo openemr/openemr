@@ -20,8 +20,8 @@ require_once("../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Reports\Email\EmailQueueService;
-use RuntimeException;
 
 // Clear any error output that may have occurred
 ob_end_clean();
@@ -31,7 +31,8 @@ header('Content-Type: application/json');
 
 try {
     // Verify user is authenticated
-    $authUserId = filter_var($_SESSION['authUserID'] ?? null, FILTER_VALIDATE_INT, [
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserId = filter_var($session->get('authUserID'), FILTER_VALIDATE_INT, [
         'options' => ['min_range' => 1],
     ]);
     if (!is_int($authUserId)) {

@@ -31,7 +31,7 @@ class EmailQueueService
         'template_name',
     ];
 
-    private EmailQueueFilterBuilder $filterBuilder;
+    private readonly EmailQueueFilterBuilder $filterBuilder;
 
     public function __construct(?EmailQueueFilterBuilder $filterBuilder = null)
     {
