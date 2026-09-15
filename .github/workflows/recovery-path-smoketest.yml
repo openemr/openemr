@@ -79,10 +79,23 @@
 # (source-of-truth for active rel branches; new cuts auto-propagate,
 # retired branches auto-drop).
 #
-# Docker sibling (docker-acceptance-only.yml) coverage is deferred to
-# a follow-up; docker-build-release.yml has no equivalent dry_run
-# path today so exercising the docker recovery chain the same way
-# needs a bit more design.
+# Docker sibling (docker-acceptance-only.yml) coverage: added as the
+# `smoketest-docker` job parallel to `smoketest`. Uses the last
+# successful nightly `docker-build-release` run as its fresh source
+# (docker-release-orchestrator dispatches one per rel-branch nightly
+# at 06:17 UTC, always under the 48h age ceiling), so no docker-side
+# equivalent of build-release's dry_run mode is needed. Docker-side
+# guardrails have two differences from tarball:
+#   * NO L3 -- Docker Hub accepts arbitrary re-push (no "already
+#     exists" server rejection like git tag / gh release create).
+#     L4 is therefore more load-bearing.
+#   * L4 uses publish-job-status check + canary-tag-absent check
+#     instead of Docker Hub digest baseline. Digest baseline would
+#     false-positive on the nightly orchestrator's legitimate re-
+#     push of the target rel-line's tags (`8.4.0`, `latest`); canary
+#     tag is unique-per-smoketest-run so no orchestrator race.
+# See the smoketest-docker job's own header comment below for the
+# full docker-specific design + rationale.
 #
 # Cadence + noise-handling:
 #   * Nightly cron at 02:00 UTC (outside typical release-mechanism
@@ -657,10 +670,34 @@ jobs:
           FAILED=1
         fi
 
+        # L4a (belt-and-suspenders): assert publish job status =
+        # 'skipped' on each dispatched acceptance-only run. Direct
+        # signal that the `if: inputs.no_publish != true` gate held.
+        # Complements the "state unchanged" check above with a
+        # positive signal on the gate mechanism itself. Docker sibling
+        # job carries the same check; kept here for consistency.
+        for var_pair in "variant-A:${ACCEPTANCE_RUN_ID_SKIP:-}" "variant-B:${ACCEPTANCE_RUN_ID_FULL:-}"; do
+          VAR="${var_pair%%:*}"
+          RID="${var_pair#*:}"
+          if [[ -z "${RID}" ]]; then
+            continue
+          fi
+          PUBLISH_STATUS=$(gh run view "${RID}" --repo "${{ github.repository }}" \
+            --json jobs \
+            --jq '.jobs[] | select(.name | test("(?i)publish")) | .conclusion' \
+            | head -1)
+          if [[ "${PUBLISH_STATUS}" != "skipped" ]]; then
+            echo "::error::GUARDRAIL FAILED (${VAR}): publish job conclusion = '${PUBLISH_STATUS:-<not-found>}' (expected 'skipped'). no_publish gate silently failed on run ${RID}."
+            FAILED=1
+          else
+            echo "==> ${VAR} publish job: skipped (gate held)"
+          fi
+        done
+
         if [[ ${FAILED} -eq 1 ]]; then
           exit 1
         fi
-        echo "==> Guardrail OK: tag SHA + Release state hash unchanged since pre-dispatch baseline."
+        echo "==> Guardrail OK: tag SHA + Release state hash unchanged + publish jobs skipped on both variants."
         {
           echo ""
           echo "### Guardrail verify"
@@ -668,6 +705,7 @@ jobs:
           echo "- Result: **PASSED**"
           echo "- Tag SHA: unchanged (\`${CURRENT_TAG_SHA}\`)"
           echo "- Release state hash: unchanged (\`${CURRENT_RELEASE_HASH}\`)"
+          echo "- Both dispatched runs' publish jobs = skipped"
         } >> "${GITHUB_STEP_SUMMARY}"
 
     - name: Emit summary
@@ -687,4 +725,470 @@ jobs:
           echo "One red in isolation is NOT necessarily action -- transient GitHub / Docker Hub API flakes exist. Two-plus reds on consecutive nights from the same failure class = investigate."
           echo ""
           echo "See workflow header for full cadence + noise-handling policy + rationale (G35 systemic lesson)."
+        } >> "${GITHUB_STEP_SUMMARY}"
+
+  # ==============================================================================
+  # Docker sibling smoketest -- parallel to the tarball `smoketest` job above.
+  #
+  # Extends the recovery-path warm-up coverage from tarball
+  # (acceptance-only.yml) to docker (docker-acceptance-only.yml). Same
+  # design rationale (G35 systemic lesson: recovery workflows only fire
+  # on real ship failures, so refactors between ships surface at the
+  # next ship that needs them), same L1/L2/L4 guardrail model with two
+  # docker-specific differences:
+  #
+  #   1. L3 does NOT exist for docker. Docker Hub accepts arbitrary
+  #      re-push (no "already exists" server rejection like git tag /
+  #      gh release create). L4 is therefore more load-bearing here.
+  #
+  #   2. L4's "Docker Hub state unchanged" cannot be a plain digest
+  #      snapshot -- the nightly `docker-release-orchestrator` at ~06:17
+  #      UTC LEGITIMATELY re-pushes `8.4.0` + `latest` tags every day
+  #      (fresh Alpine base, dep updates), so baseline-vs-verify digest
+  #      comparison would false-positive on orchestrator overlap. Two
+  #      signals used instead:
+  #
+  #        L4a (publish-job-status check): assert that the `publish`
+  #          job in each dispatched docker-acceptance-only run has
+  #          status = 'skipped' (proving the `if: inputs.no_publish
+  #          != true` gate held). Direct signal on the gate we're
+  #          relying on, orchestrator-race-immune.
+  #
+  #        L4b (canary-tag-absent check): pass a globally-unique
+  #          `smoketest-canary-<runid>-<timestamp>` value as the
+  #          `docker_tags` input. If the publish gate silently
+  #          regressed, publish would push that tag to Docker Hub as
+  #          an alias of the candidate. Post-run: query Docker Hub
+  #          for the canary tag; if it exists, publish leaked ->
+  #          hard FAIL + cleanup. Deterministic, no orchestrator
+  #          race (canary name is unique per smoketest run, cannot
+  #          collide with any real tag orchestrator would push).
+  #
+  # Source-run selection: uses the last successful nightly
+  # docker-build-release run for the picked rel-branch. Orchestrator
+  # dispatches one per rel-branch nightly (06:17 UTC), so a fresh
+  # source under 48h is always available. No dry-run mode needed on
+  # docker-build-release (unlike tarball where we dispatch one dry-run
+  # per smoketest run) -- we ride the existing nightly build.
+  #
+  # Cleanup: unconditional delete of canary tag from Docker Hub at
+  # step end (defensive; a partial early-exit could theoretically
+  # leave a stray). Uses .github/scripts/dockerhub-delete-tag.sh (same
+  # script the docker publish path's cleanup-candidate job uses).
+  smoketest-docker:
+    if: >-
+      github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    # Serial run of: variant A skip_acceptance (~few min) + variant B
+    # full docker acceptance matrix (~40-60 min per arch, currently
+    # ~40 min for amd64-only per test topology). 90 min comfort
+    # margin.
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Mint App token
+      id: app-token
+      uses: ./.github/actions/generate-app-token
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: openemr
+
+    - name: Pick smoketest target (from release-targets.yml "latest" row)
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        # Reuse the picker + safety-gate logic the tarball job uses.
+        # See that step's comments for full rationale.
+        LATEST_ROW=$(.github/scripts/pick-smoketest-target.sh)
+        PICKED_REL_BRANCH=$(echo "${LATEST_ROW}" | awk '{print $1}')
+        PICKED_TAG=$(echo "${LATEST_ROW}" | awk '{print $2}')
+        PICKED_VERSION=$(echo "${PICKED_TAG}" | sed -E 's/^v([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/')
+        echo "==> Picker chose: rel branch=${PICKED_REL_BRANCH}, tag=${PICKED_TAG}, version=${PICKED_VERSION}"
+
+        # SAFETY GATES (L2) -- tag + Release exist on origin. Same
+        # rationale as the tarball job.
+        if ! git ls-remote --tags origin "refs/tags/${PICKED_TAG}" | grep -q "refs/tags/${PICKED_TAG}$"; then
+          echo "::error::SAFETY GATE FAILED: tag ${PICKED_TAG} does not exist on origin."
+          exit 1
+        fi
+        if ! gh release view "${PICKED_TAG}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+          echo "::error::SAFETY GATE FAILED: GitHub Release ${PICKED_TAG} does not exist."
+          exit 1
+        fi
+        echo "==> Safety gates confirmed."
+
+        # Compute a globally-unique canary tag for this smoketest run.
+        # If the publish gate silently regressed, publish would push
+        # this tag to Docker Hub as an alias of the candidate image
+        # -- post-verify checks the tag's ABSENCE as proof the gate
+        # held. Unique-per-run so we can't collide with any real tag
+        # or a concurrent smoketest run.
+        CANARY_TAG="smoketest-canary-${{ github.run_id }}-$(date -u +%Y%m%d%H%M%S)"
+
+        {
+          echo "SHIPPED_VERSION=${PICKED_VERSION}"
+          echo "REL_BRANCH=${PICKED_REL_BRANCH}"
+          echo "RELEASE_TAG=${PICKED_TAG}"
+          echo "CANARY_TAG=${CANARY_TAG}"
+        } >> "${GITHUB_ENV}"
+        {
+          echo "### Docker smoketest target"
+          echo ""
+          echo "- rel-line: ${PICKED_REL_BRANCH}"
+          echo "- shipped tag: \`${PICKED_TAG}\`"
+          echo "- canary docker tag (should NEVER appear on Docker Hub): \`${CANARY_TAG}\`"
+        } >> "${GITHUB_STEP_SUMMARY}"
+
+    - name: Find source docker-build-release run
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        # Find the most recent successful docker-build-release run
+        # dispatched by the nightly orchestrator against our target
+        # rel-branch (head_branch matches inputs.branch since docker-
+        # build-release's checkout step lands on that ref). Under-48h
+        # constraint enforced by validate-source-run.sh downstream, so
+        # we don't need to duplicate that check here -- but if there's
+        # NO recent run, abort with a clear error rather than dispatch
+        # against a stale artifact that acceptance-only would then
+        # reject.
+        SOURCE_RUN_ID=$(gh run list --workflow docker-build-release.yml \
+          --repo "${{ github.repository }}" \
+          --branch "${REL_BRANCH}" \
+          --status success \
+          --limit 10 \
+          --json databaseId,createdAt \
+          --jq "[.[] | select(.createdAt > (now - 48*3600 | strftime(\"%Y-%m-%dT%H:%M:%SZ\")))] | .[0].databaseId // empty")
+        if [[ -z "${SOURCE_RUN_ID}" ]]; then
+          echo "::error::No successful docker-build-release run for ${REL_BRANCH} in the last 48 hours. Nightly orchestrator (06:17 UTC) may be broken -- check .github/workflows/docker-release-orchestrator.yml."
+          exit 1
+        fi
+
+        # candidate_tag is deterministic: release-candidate-<runid>-<attempt>.
+        # For orchestrator-dispatched runs, attempt is 1 (no reruns unless
+        # a maintainer manually retriggered). Query the attempt to be
+        # safe -- rerun-with-failed-jobs would bump this.
+        RUN_ATTEMPT=$(gh api "repos/${{ github.repository }}/actions/runs/${SOURCE_RUN_ID}" --jq '.run_attempt')
+        CANDIDATE_TAG="release-candidate-${SOURCE_RUN_ID}-${RUN_ATTEMPT}"
+
+        {
+          echo "SOURCE_RUN_ID=${SOURCE_RUN_ID}"
+          echo "CANDIDATE_TAG=${CANDIDATE_TAG}"
+        } >> "${GITHUB_ENV}"
+        echo "==> Source docker-build-release run: ${SOURCE_RUN_ID} (attempt ${RUN_ATTEMPT}), candidate=${CANDIDATE_TAG}"
+
+    - name: Capture guardrail baseline (tag SHA + Release hash)
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        # Same baseline the tarball job takes. L4b (canary check) is
+        # the primary docker-specific guardrail; this baseline covers
+        # the tag + Release surfaces that docker-acceptance-only's
+        # publish job would also mutate under a gating regression.
+        BASELINE_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
+        BASELINE_RELEASE_HASH=$(gh release view "${RELEASE_TAG}" --repo "${{ github.repository }}" \
+          --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
+          --jq '@json' \
+          | sha256sum | awk '{print $1}')
+        {
+          echo "BASELINE_TAG_SHA=${BASELINE_TAG_SHA}"
+          echo "BASELINE_RELEASE_HASH=${BASELINE_RELEASE_HASH}"
+        } >> "${GITHUB_ENV}"
+
+    - name: Dispatch docker-acceptance-only.yml (variant A - skip_acceptance + no_publish)
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        set -euo pipefail
+        # Retry-once pattern matching the tarball job's dispatch.
+        # docker_tags is set to CANARY_TAG (unique per smoketest) so
+        # any accidental push during a gating regression creates a
+        # detectable-and-cleanable artifact rather than clobbering
+        # a real tag.
+        for attempt in 1 2; do
+          if [[ ${attempt} -gt 1 ]]; then
+            echo "  pre-retry: checking whether prior variant A dispatch actually landed..."
+            for poll in 1 2 3; do
+              sleep 10
+              EXISTING=$(gh run list --workflow docker-acceptance-only.yml \
+                --event workflow_dispatch --limit 5 \
+                --json databaseId,displayTitle \
+                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+              if [[ -n "${EXISTING}" ]]; then
+                echo "==> Prior variant A dispatch actually succeeded (run ${EXISTING}); skipping retry"
+                exit 0
+              fi
+              echo "    (poll ${poll}/3) no matching run yet..."
+            done
+          fi
+          echo "==> [attempt ${attempt}] gh workflow run docker-acceptance-only.yml (variant A)"
+          if gh workflow run docker-acceptance-only.yml \
+              --repo "${{ github.repository }}" \
+              --ref master \
+              -f source_run_id="${SOURCE_RUN_ID}" \
+              -f candidate_tag="${CANDIDATE_TAG}" \
+              -f docker_tags="${CANARY_TAG}" \
+              -f skip_acceptance=true \
+              -f skip_acceptance_reason="Nightly recovery-path smoketest variant A (docker): exercise skip_acceptance code path without touching real Docker Hub tags -- docker_tags=canary tag proves publish gate held" \
+              -f no_publish=true \
+              -f no_publish_reason="Nightly recovery-path smoketest (docker): verify docker-acceptance-only.yml works end-to-end without publishing to Docker Hub"; then
+            exit 0
+          fi
+          echo "  dispatch attempt ${attempt} reported failure"
+        done
+        echo "::error::docker-acceptance-only.yml (variant A) dispatch failed after retry"
+        exit 1
+
+    - name: Locate variant A docker-acceptance-only run
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        for attempt in $(seq 1 12); do
+          RUN_ID=$(gh run list --workflow docker-acceptance-only.yml \
+            --event workflow_dispatch --limit 10 \
+            --json databaseId,displayTitle \
+            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+          if [[ -n "${RUN_ID}" ]]; then
+            echo "DOCKER_RUN_ID_SKIP=${RUN_ID}" >> "${GITHUB_ENV}"
+            echo "==> Located variant A (docker skip_acceptance) run: ${RUN_ID}"
+            exit 0
+          fi
+          echo "  (attempt ${attempt}/12) waiting for variant A run to register..."
+          sleep 10
+        done
+        echo "::error::Could not locate variant A docker-acceptance-only run within 2 minutes"
+        exit 1
+
+    - name: Wait for variant A docker-acceptance-only run to complete
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        echo "==> Watching variant A (docker skip_acceptance) run ${DOCKER_RUN_ID_SKIP}"
+        gh run watch "${DOCKER_RUN_ID_SKIP}" --exit-status --repo "${{ github.repository }}"
+
+    - name: Dispatch docker-acceptance-only.yml (variant B - no_publish only)
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        set -euo pipefail
+        for attempt in 1 2; do
+          if [[ ${attempt} -gt 1 ]]; then
+            echo "  pre-retry: checking whether prior variant B dispatch actually landed..."
+            for poll in 1 2 3; do
+              sleep 10
+              EXISTING=$(gh run list --workflow docker-acceptance-only.yml \
+                --event workflow_dispatch --limit 5 \
+                --json databaseId,displayTitle \
+                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+              if [[ -n "${EXISTING}" ]]; then
+                echo "==> Prior variant B dispatch actually succeeded (run ${EXISTING}); skipping retry"
+                exit 0
+              fi
+              echo "    (poll ${poll}/3) no matching run yet..."
+            done
+          fi
+          echo "==> [attempt ${attempt}] gh workflow run docker-acceptance-only.yml (variant B)"
+          if gh workflow run docker-acceptance-only.yml \
+              --repo "${{ github.repository }}" \
+              --ref master \
+              -f source_run_id="${SOURCE_RUN_ID}" \
+              -f candidate_tag="${CANDIDATE_TAG}" \
+              -f docker_tags="${CANARY_TAG}" \
+              -f no_publish=true \
+              -f no_publish_reason="Nightly recovery-path smoketest variant B (docker): run full docker acceptance matrix + verify no_publish gate correctly blocks publish -- docker_tags=canary tag proves publish gate held"; then
+            exit 0
+          fi
+          echo "  dispatch attempt ${attempt} reported failure"
+        done
+        echo "::error::docker-acceptance-only.yml (variant B) dispatch failed after retry"
+        exit 1
+
+    - name: Locate variant B docker-acceptance-only run
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        for attempt in $(seq 1 12); do
+          RUN_ID=$(gh run list --workflow docker-acceptance-only.yml \
+            --event workflow_dispatch --limit 10 \
+            --json databaseId,displayTitle \
+            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+          if [[ -n "${RUN_ID}" ]]; then
+            echo "DOCKER_RUN_ID_FULL=${RUN_ID}" >> "${GITHUB_ENV}"
+            echo "==> Located variant B (docker full acceptance) run: ${RUN_ID}"
+            exit 0
+          fi
+          echo "  (attempt ${attempt}/12) waiting for variant B run to register..."
+          sleep 10
+        done
+        echo "::error::Could not locate variant B docker-acceptance-only run within 2 minutes"
+        exit 1
+
+    - name: Wait for variant B docker-acceptance-only run to complete
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        echo "==> Watching variant B (docker full acceptance) run ${DOCKER_RUN_ID_FULL}"
+        gh run watch "${DOCKER_RUN_ID_FULL}" --exit-status --repo "${{ github.repository }}"
+
+    # GUARDRAIL VERIFY (docker) -- three checks:
+    #   L4-tag+release: same as tarball -- tag SHA + Release hash
+    #     unchanged since baseline. Catches any publish gate regression
+    #     that would touch git or GitHub Release surfaces.
+    #   L4a (publish-job-status): assert publish job status = 'skipped'
+    #     on each dispatched docker-acceptance-only run. Direct signal
+    #     the `if: inputs.no_publish != true` gate held. Immune to
+    #     Docker Hub orchestrator race.
+    #   L4b (canary-tag-absent): query Docker Hub for the canary tag
+    #     smoketest-canary-<runid>-<timestamp>. If it exists, publish
+    #     leaked and pushed the canary as an alias -- hard FAIL and
+    #     the cleanup step will delete the stray. Unique per run so no
+    #     collision risk with real orchestrator activity.
+    #
+    # if: always() so this fires even on earlier failure -- catch any
+    # partial-stomp regardless of overall run outcome.
+    - name: GUARDRAIL VERIFY (docker) -- publish job skipped + canary absent + tag/Release unchanged
+      if: always()
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        if [[ -z "${RELEASE_TAG:-}" ]]; then
+          echo "==> Baseline not captured (target picker never ran); nothing to verify."
+          exit 0
+        fi
+        FAILED=0
+
+        # L4-tag+release: unchanged?
+        CURRENT_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
+        CURRENT_RELEASE_HASH=$(gh release view "${RELEASE_TAG}" --repo "${{ github.repository }}" \
+          --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
+          --jq '@json' 2>/dev/null | sha256sum | awk '{print $1}')
+        if [[ -z "${CURRENT_RELEASE_HASH}" ]]; then
+          CURRENT_RELEASE_HASH="<release-missing-or-view-failed>"
+        fi
+        if [[ "${CURRENT_TAG_SHA}" != "${BASELINE_TAG_SHA}" ]]; then
+          echo "::error::GUARDRAIL FAILED: tag ${RELEASE_TAG} SHA changed (baseline ${BASELINE_TAG_SHA} -> current ${CURRENT_TAG_SHA})"
+          FAILED=1
+        fi
+        if [[ "${CURRENT_RELEASE_HASH}" != "${BASELINE_RELEASE_HASH}" ]]; then
+          echo "::error::GUARDRAIL FAILED: Release ${RELEASE_TAG} state hash changed (baseline ${BASELINE_RELEASE_HASH} -> current ${CURRENT_RELEASE_HASH})"
+          FAILED=1
+        fi
+
+        # L4a (publish-job-status): assert 'skipped' on each dispatched
+        # docker-acceptance-only run's publish job. If the run didn't
+        # even locate, skip that specific check (already failed
+        # elsewhere and got its own error).
+        for var_pair in "variant-A:${DOCKER_RUN_ID_SKIP:-}" "variant-B:${DOCKER_RUN_ID_FULL:-}"; do
+          VAR="${var_pair%%:*}"
+          RID="${var_pair#*:}"
+          if [[ -z "${RID}" ]]; then
+            continue
+          fi
+          PUBLISH_STATUS=$(gh run view "${RID}" --repo "${{ github.repository }}" \
+            --json jobs \
+            --jq '.jobs[] | select(.name | test("(?i)publish")) | .conclusion' \
+            | head -1)
+          # 'skipped' is the correct expected conclusion when the
+          # `if: inputs.no_publish != true` gate holds. Any other
+          # value (success/failure/cancelled) means the publish job
+          # actually ran.
+          if [[ "${PUBLISH_STATUS}" != "skipped" ]]; then
+            echo "::error::GUARDRAIL FAILED (${VAR}): publish job conclusion = '${PUBLISH_STATUS:-<not-found>}' (expected 'skipped'). no_publish gate silently failed on run ${RID}."
+            FAILED=1
+          else
+            echo "==> ${VAR} publish job: skipped (gate held)"
+          fi
+        done
+
+        # L4b (canary-tag-absent): docker inspect the canary tag on
+        # Docker Hub. Uses the anonymous v2 API (public repo, no auth
+        # needed). A 404 = tag doesn't exist = gate held. Any 2xx =
+        # tag exists = publish leaked.
+        if [[ -n "${CANARY_TAG:-}" ]]; then
+          CANARY_STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
+            "https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANARY_TAG}/")
+          if [[ "${CANARY_STATUS}" == "404" ]]; then
+            echo "==> Canary tag ${CANARY_TAG} absent from Docker Hub (as expected -- publish gate held)"
+          elif [[ "${CANARY_STATUS}" == "200" ]]; then
+            echo "::error::GUARDRAIL FAILED: canary tag ${CANARY_TAG} EXISTS on Docker Hub. no_publish gate silently failed and publish pushed the canary as an alias. Cleanup step will delete it, but investigate immediately -- other real tags may also have been pushed."
+            FAILED=1
+          else
+            # Ambiguous -- Docker Hub API flake. Fail closed (safer
+            # to investigate a false alarm than miss a real leak).
+            echo "::error::GUARDRAIL INCONCLUSIVE: canary check returned HTTP ${CANARY_STATUS} (expected 404 or 200). Docker Hub API flake? Retry the smoketest to disambiguate. Failing closed for safety."
+            FAILED=1
+          fi
+        fi
+
+        if [[ ${FAILED} -eq 1 ]]; then
+          exit 1
+        fi
+        {
+          echo ""
+          echo "### Docker guardrail verify"
+          echo ""
+          echo "- Result: **PASSED**"
+          echo "- Tag SHA unchanged (\`${CURRENT_TAG_SHA}\`)"
+          echo "- Release state hash unchanged"
+          echo "- Both dispatched runs' publish jobs = skipped (L4a)"
+          echo "- Canary tag absent from Docker Hub (L4b)"
+        } >> "${GITHUB_STEP_SUMMARY}"
+
+    # Unconditional cleanup: delete the canary tag from Docker Hub if
+    # it exists. A green run should be a no-op (canary was never
+    # pushed); a red run from L4b would have found the canary and
+    # this deletes it. Safe to re-invoke -- dockerhub-delete-tag.sh
+    # treats 404 as success.
+    #
+    # if: always() so even a mid-run failure hits cleanup.
+    - name: Cleanup canary tag from Docker Hub (defensive)
+      if: always() && env.CANARY_TAG != ''
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        TAG: ${{ env.CANARY_TAG }}
+      run: |
+        set -euo pipefail
+        echo "==> Ensuring canary tag ${TAG} is deleted from Docker Hub (no-op if never pushed)"
+        .github/scripts/dockerhub-delete-tag.sh || {
+          # dockerhub-delete-tag.sh exits non-zero on unexpected API
+          # status. For a canary that should never have been pushed,
+          # this shouldn't happen -- but don't hard-fail the whole
+          # smoketest on a Docker Hub cleanup flake. The next
+          # smoketest run will re-attempt cleanup if needed.
+          echo "::warning::Cleanup of canary tag ${TAG} returned non-zero; if this recurs, investigate Docker Hub credentials or API state."
+        }
+
+    - name: Emit summary (docker)
+      if: always()
+      run: |
+        {
+          echo "## Recovery-path smoketest summary (docker)"
+          echo ""
+          echo "Purpose: keep the docker recovery workflow chain warm outside of real ship-day cascades."
+          echo ""
+          echo "- **Current-rel shipped version:** \`${SHIPPED_VERSION:-<not-computed>}\` (tag \`${RELEASE_TAG:-<not-computed>}\`)"
+          echo "- **Source docker-build-release run (last successful nightly):** \`${SOURCE_RUN_ID:-<not-found>}\`"
+          echo "- **Candidate tag:** \`${CANDIDATE_TAG:-<not-computed>}\`"
+          echo "- **Canary tag (unique per smoketest, must NEVER appear on Docker Hub):** \`${CANARY_TAG:-<not-computed>}\`"
+          echo "- **Variant A (skip_acceptance + no_publish) run:** \`${DOCKER_RUN_ID_SKIP:-<not-dispatched>}\`"
+          echo "- **Variant B (no_publish only, full acceptance matrix) run:** \`${DOCKER_RUN_ID_FULL:-<not-dispatched>}\`"
+          echo ""
+          echo "Guardrail model differences vs tarball: no L3 (Docker Hub accepts arbitrary re-push), L4 uses publish-job-status check + canary-tag-absent check instead of digest baseline (avoids orchestrator-overlap race)."
+          echo ""
+          echo "One red in isolation is NOT necessarily action. Two-plus consecutive same-class reds = investigate."
         } >> "${GITHUB_STEP_SUMMARY}"

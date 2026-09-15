@@ -2852,9 +2852,27 @@ For a real release to be stomped, ALL FOUR layers would need to fail simultaneou
 - **One red in isolation is NOT action.** Transient GitHub API 5xx (e.g. HTTP 500 on `POST /actions/workflows/.../dispatches` — observed in run 34952209883) and Docker Hub 502 flakes exist. Single-retry patterns on dispatch calls tolerate most; when they don't, one red night is data, not signal.
 - **Two-plus reds on consecutive nights from the same failure class = investigate + likely file / promote to a G-entry.** This is where the smoketest earns its keep — catching the real regressions before they hurt the next ship.
 
+**Docker sibling smoketest (SHIPPED 2026-09-15):**
+
+Added as the `smoketest-docker` job parallel to the tarball `smoketest` job in `.github/workflows/recovery-path-smoketest.yml`. Extends the recovery-path warm-up coverage from tarball (`acceptance-only.yml`) to docker (`docker-acceptance-only.yml`) — same G35 systemic-lesson motivation, same L1/L2/L4 guardrail model with two docker-specific differences that the initial G36 design correctly anticipated as blockers:
+
+- **Source-run selection doesn't need a docker-side `dry_run`.** The nightly `docker-release-orchestrator` at ~06:17 UTC dispatches one successful `docker-build-release` per rel-branch, always under the 48h age ceiling `validate-source-run.sh` enforces. The smoketest picks the most recent successful nightly for the current-shipped rel-line and uses it as the fresh source. No dry-run infrastructure needed on `docker-build-release.yml`; the smoketest rides existing nightly builds.
+
+- **L3 does NOT exist for docker.** Docker Hub accepts arbitrary re-push (unlike git tag / GitHub Release which server-side reject "already exists"). L4 is therefore more load-bearing here. Two signals used instead of the tarball's digest-baseline approach:
+
+  - **L4a (publish-job-status check):** assert the `publish` job in each dispatched `docker-acceptance-only` run has conclusion=`skipped` (proving the `if: inputs.no_publish != true` gate held). Direct signal on the gate we're relying on, immune to Docker Hub state churn.
+  - **L4b (canary-tag-absent check):** pass a globally-unique `smoketest-canary-<runid>-<timestamp>` value as the `docker_tags` input. If the publish gate silently regressed, publish would push that tag to Docker Hub as an alias of the candidate. Post-run: query Docker Hub for the canary tag; if it exists, publish leaked → hard FAIL. Deterministic + no orchestrator race (canary name is unique per smoketest run, cannot collide with real orchestrator activity on `8.4.0` / `latest`).
+
+  Digest-baseline was rejected because the nightly orchestrator LEGITIMATELY re-pushes `8.4.0` + `latest` every day (fresh Alpine base, dep updates), so baseline-vs-verify comparison would false-positive on orchestrator overlap. The canary approach sidesteps the race entirely.
+
+**Cleanup step:** unconditional delete-if-present of the canary tag from Docker Hub via `.github/scripts/dockerhub-delete-tag.sh` (same script the docker publish path's cleanup-candidate job uses). Runs with `if: always()` so even a mid-run failure hits cleanup — protection against a partial early-exit leaving a stray canary.
+
+**Bonus: L4a also added to the tarball job** for consistency (belt-and-suspenders — the existing "state unchanged" hash-based check plus this direct publish-job-status assertion).
+
+Cascade of PRs that shipped the docker sibling: openemr/openemr#14031 (or applicable PR number when merged).
+
 **Followup opportunities (deferred):**
 
-- **Docker sibling smoketest.** Extend the smoketest to also exercise `docker-acceptance-only.yml`. Blocked by needing something equivalent to `dry_run` on `docker-build-release.yml` — that workflow always pushes to Docker Hub. Options: add a `dry_run` mode there, or use a chained approach against an existing shipped docker source-run. Not started; the tarball-side smoketest is enough to catch the "recovery-workflow refactor between ships" class of regression on its own for now.
 - **First observed regression → promote noise-handling policy to a G-entry.** The current policy is documented in the workflow header + this gap entry, but if we ever hit the "two consecutive same-class reds" trigger, that investigation deserves its own gap entry with the specific regression + fix.
 - **Retire the "hardcoded 8.2.0 fallback" in `detect-acceptance-mode.sh`.** #14018's `derive_from_version` filter incidentally fixed the degenerate case for that fallback path (the fallback would previously have returned `from=8.2.0`= `to=8.2.0`). Fallback is likely vestigial in practice (no known caller hits it), but removing it or replacing with a loud error would be cleaner than leaving both the fallback and the degeneracy-fix in place.
 
