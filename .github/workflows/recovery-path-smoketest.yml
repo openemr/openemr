@@ -201,50 +201,16 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Parse the row whose docker_tags contains "latest". Row shape:
-        #   - branch: rel-840
-        #     docker_tags: 8.4.0,latest
-        #     openemr_version_ref: v8_4_0
-        # Awk state machine: track current block's branch + version_ref;
-        # when docker_tags contains "latest", print them.
-        LATEST_ROW=$(awk '
-          /^- branch:/ {
-            branch=$3
-            docker_tags=""
-            version_ref=""
-            next
-          }
-          /^  docker_tags:/ { docker_tags=$2; next }
-          /^  openemr_version_ref:/ { version_ref=$2; next }
-          /^$/ {
-            if (!found && docker_tags ~ /(^|,)latest($|,)/) {
-              print branch, version_ref
-              found=1
-              exit
-            }
-            branch=""; docker_tags=""; version_ref=""
-          }
-          END {
-            # Handle file that does not end with a blank line.
-            # `found` guard prevents double-print when exit triggers END.
-            if (!found && docker_tags ~ /(^|,)latest($|,)/) {
-              print branch, version_ref
-            }
-          }
-        ' .github/release-targets.yml)
-
-        if [[ -z "${LATEST_ROW}" ]]; then
-          echo "::error::Could not find a row with docker_tags containing 'latest' in .github/release-targets.yml -- has the file schema changed, or has no row been marked latest?"
-          exit 1
-        fi
+        # Delegate the release-targets.yml parse to the shared script
+        # (unit-tested in tests/bats/ci-scripts/pick-smoketest-target/).
+        # Script emits "<branch> <version_ref>" on stdout on success,
+        # or exits non-zero with an ::error:: annotation on any of:
+        # missing file / no latest row / malformed version_ref.
+        LATEST_ROW=$(.github/scripts/pick-smoketest-target.sh)
         PICKED_REL_BRANCH=$(echo "${LATEST_ROW}" | awk '{print $1}')
         PICKED_TAG=$(echo "${LATEST_ROW}" | awk '{print $2}')
-
         # Derive human-readable version from tag (v8_4_0 -> 8.4.0).
-        if [[ ! "${PICKED_TAG}" =~ ^v[0-9]+_[0-9]+_[0-9]+$ ]]; then
-          echo "::error::openemr_version_ref '${PICKED_TAG}' does not match expected v<major>_<minor>_<patch> shape"
-          exit 1
-        fi
+        # Shape already validated by pick-smoketest-target.sh.
         PICKED_VERSION=$(echo "${PICKED_TAG}" | sed -E 's/^v([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/')
 
         echo "==> Picker chose: rel branch=${PICKED_REL_BRANCH}, tag=${PICKED_TAG}, version=${PICKED_VERSION}"
@@ -285,35 +251,59 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
+        # Since SHIPPED_VERSION is a stable value (e.g. "8.4.0"),
+        # display-title filtering ALONE isn't unique enough to
+        # identify OUR dispatched run -- prior nightly smoketest
+        # runs and real 8.4.0 ship dispatches share the same
+        # marker. Snapshot the currently-existing matching run IDs
+        # BEFORE dispatch so the locate + pre-retry steps can
+        # filter to "IDs not present in baseline" = definitely
+        # our new run. limit=30 covers a wide history window; we
+        # only need to distinguish new-since-now.
+        BASELINE_IDS=$(gh run list --workflow build-release.yml \
+          --event workflow_dispatch --limit 30 \
+          --json databaseId,displayTitle \
+          --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\")) | .databaseId] | join(\",\")")
+        echo "SOURCE_BASELINE_IDS=${BASELINE_IDS}" >> "${GITHUB_ENV}"
+        echo "==> Baseline of ${SHIPPED_VERSION}-matching build-release runs: [${BASELINE_IDS:-<none>}]"
+
         # Single retry on the dispatch call itself -- transient
         # GitHub API 5xx during dispatch is one of the flakes we saw
         # around the 8.4.0 ship day.
         #
-        # Pre-retry marker check: `gh workflow run` can report
+        # Pre-retry check: `gh workflow run` can report
         # client/network failure AFTER GitHub actually accepted the
         # dispatch. A blind retry would create a duplicate run + the
         # locate step would then track only one, leaving the other
         # orphaned + burning runner minutes. Before each retry, wait
-        # up to 30s (3 x 10s polls) for a matching run to appear; if
-        # one does, treat the "failed" prior attempt as success and
-        # skip the retry. Total wait budget is unchanged (was: sleep
-        # 30 between attempts; now: 30s of active checking).
+        # up to 30s (3 x 10s polls) for a NEW run (matching marker
+        # AND not in baseline). If one appears, treat the "failed"
+        # prior attempt as success and skip the retry.
         for attempt in 1 2; do
           if [[ ${attempt} -gt 1 ]]; then
-            echo "  pre-retry: checking whether prior dispatch actually landed..."
+            echo "  pre-retry: checking whether prior dispatch actually landed (looking for run new since baseline)..."
             for poll in 1 2 3; do
               sleep 10
-              EXISTING=$(gh run list --workflow build-release.yml \
-                --event workflow_dispatch --limit 5 \
+              CANDIDATE_IDS=$(gh run list --workflow build-release.yml \
+                --event workflow_dispatch --limit 10 \
                 --json databaseId,displayTitle \
-                --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\"))] | .[0].databaseId // empty")
-              if [[ -n "${EXISTING}" ]]; then
-                echo "==> Prior dispatch actually succeeded (run ${EXISTING} matched marker); skipping retry to avoid duplicate"
+                --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\")) | .databaseId] | .[]" \
+                | tr '\n' ' ')
+              NEW_ID=""
+              for ID in ${CANDIDATE_IDS}; do
+                # Comma-delimited membership test on the baseline.
+                if [[ ",${BASELINE_IDS}," != *",${ID},"* ]]; then
+                  NEW_ID="${ID}"
+                  break
+                fi
+              done
+              if [[ -n "${NEW_ID}" ]]; then
+                echo "==> Prior dispatch actually succeeded (run ${NEW_ID} is new since baseline); skipping retry to avoid duplicate"
                 exit 0
               fi
-              echo "    (poll ${poll}/3) no matching run yet..."
+              echo "    (poll ${poll}/3) no new run yet..."
             done
-            echo "  no matching run after 30s -- prior dispatch really did fail; retrying"
+            echo "  no new run after 30s -- prior dispatch really did fail; retrying"
           fi
           echo "==> [attempt ${attempt}] gh workflow run build-release.yml"
           # dry_run=true skips the publish job (tag push + GitHub
@@ -349,23 +339,35 @@ jobs:
       run: |
         set -euo pipefail
         # gh workflow run doesn't return the new run's ID -- poll
-        # gh run list filtering on our version marker
-        # (renders into display_title as "Build Release <version>").
+        # gh run list. Filter to runs matching SHIPPED_VERSION AND
+        # not in SOURCE_BASELINE_IDS (the snapshot from before
+        # dispatch, per the note in that step). "New since baseline"
+        # uniquely identifies our just-dispatched run even when
+        # SHIPPED_VERSION is a stable value that collides with prior
+        # smoketest runs / real ship runs.
         # 12 attempts x 10s = 2 minutes of tolerance for API lag.
         for attempt in $(seq 1 12); do
-          RUN_ID=$(gh run list --workflow build-release.yml \
+          CANDIDATE_IDS=$(gh run list --workflow build-release.yml \
             --event workflow_dispatch --limit 10 \
             --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\"))] | .[0].databaseId // empty")
+            --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\")) | .databaseId] | .[]" \
+            | tr '\n' ' ')
+          RUN_ID=""
+          for ID in ${CANDIDATE_IDS}; do
+            if [[ ",${SOURCE_BASELINE_IDS}," != *",${ID},"* ]]; then
+              RUN_ID="${ID}"
+              break
+            fi
+          done
           if [[ -n "${RUN_ID}" ]]; then
             echo "SOURCE_RUN_ID=${RUN_ID}" >> "${GITHUB_ENV}"
-            echo "==> Located build-release source run: ${RUN_ID}"
+            echo "==> Located build-release source run: ${RUN_ID} (new since baseline)"
             exit 0
           fi
-          echo "  (attempt ${attempt}/12) waiting for run to register..."
+          echo "  (attempt ${attempt}/12) waiting for new run to register..."
           sleep 10
         done
-        echo "::error::Could not locate the dispatched build-release run within 2 minutes (searched for version marker ${SHIPPED_VERSION})"
+        echo "::error::Could not locate a NEW build-release run within 2 minutes (SHIPPED_VERSION=${SHIPPED_VERSION}, baseline=[${SOURCE_BASELINE_IDS}])"
         exit 1
 
     - name: Wait for build-release run to complete
@@ -395,11 +397,15 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
-        # Pre-retry marker check: same rationale as build-release
-        # dispatch above. Variant A's display title contains
-        # "SKIP-ACCEPTANCE" (from acceptance-only.yml's run-name
-        # template); filter on that to distinguish from variant B
-        # (dispatched later) that shares SHIPPED_VERSION.
+        # Pre-retry check: same rationale as build-release dispatch
+        # above. For acceptance-only lookups we don't need a
+        # snapshot -- the run-name template embeds source_run_id
+        # ("... (source run 12345)"), and each smoketest gets a
+        # fresh build-release => a unique SOURCE_RUN_ID. Filter
+        # on "(source run ${SOURCE_RUN_ID})" (including the
+        # closing paren so a numeric prefix collision can't
+        # false-match). SKIP-ACCEPTANCE substring disambiguates
+        # variant A (present) from variant B (absent).
         for attempt in 1 2; do
           if [[ ${attempt} -gt 1 ]]; then
             echo "  pre-retry: checking whether prior variant A dispatch actually landed..."
@@ -408,7 +414,7 @@ jobs:
               EXISTING=$(gh run list --workflow acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
                 --json databaseId,displayTitle \
-                --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
               if [[ -n "${EXISTING}" ]]; then
                 echo "==> Prior variant A dispatch actually succeeded (run ${EXISTING}); skipping retry"
                 exit 0
@@ -441,16 +447,16 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # acceptance-only.yml's run-name for a skip_acceptance=true
-        # dispatch appends " -- SKIP-ACCEPTANCE: <reason>" to the
-        # display title. Use that + the version marker to
-        # disambiguate variant A from variant B (dispatched next,
-        # without the SKIP-ACCEPTANCE suffix).
+        # Filter by "(source run ${SOURCE_RUN_ID})" -- unique per
+        # smoketest (each dispatches a fresh build-release for a
+        # unique source_run_id) so no baseline snapshot needed.
+        # SKIP-ACCEPTANCE substring distinguishes variant A from
+        # variant B (dispatched next, without that suffix).
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
             --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
           if [[ -n "${RUN_ID}" ]]; then
             echo "ACCEPTANCE_RUN_ID_SKIP=${RUN_ID}" >> "${GITHUB_ENV}"
             echo "==> Located variant A (skip_acceptance) run: ${RUN_ID}"
@@ -459,7 +465,7 @@ jobs:
           echo "  (attempt ${attempt}/12) waiting for variant A run to register..."
           sleep 10
         done
-        echo "::error::Could not locate variant A acceptance-only run within 2 minutes"
+        echo "::error::Could not locate variant A acceptance-only run within 2 minutes (looking for source run ${SOURCE_RUN_ID} + SKIP-ACCEPTANCE)"
         exit 1
 
     - name: Wait for variant A acceptance-only run to complete
@@ -481,11 +487,12 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
-        # Pre-retry marker check: same rationale as build-release
-        # dispatch above. Variant B has NO "SKIP-ACCEPTANCE" marker
-        # in its display title (no skip_acceptance input); filter
-        # explicitly requires that substring to be ABSENT so we don't
-        # confuse variant A's already-dispatched run for variant B.
+        # Pre-retry check: same source-run-id filter approach as
+        # variant A. Variant B has NO "SKIP-ACCEPTANCE" marker in
+        # its display title (no skip_acceptance input); filter
+        # explicitly requires that substring to be ABSENT so we
+        # don't confuse variant A's already-dispatched run for
+        # variant B.
         for attempt in 1 2; do
           if [[ ${attempt} -gt 1 ]]; then
             echo "  pre-retry: checking whether prior variant B dispatch actually landed..."
@@ -494,7 +501,7 @@ jobs:
               EXISTING=$(gh run list --workflow acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
                 --json databaseId,displayTitle \
-                --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
               if [[ -n "${EXISTING}" ]]; then
                 echo "==> Prior variant B dispatch actually succeeded (run ${EXISTING}); skipping retry"
                 exit 0
@@ -525,15 +532,14 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Variant B has NO "SKIP-ACCEPTANCE" marker in its display
-        # title (no skip_acceptance input), so we filter on the
-        # version marker + absence of the SKIP-ACCEPTANCE substring
-        # to distinguish from variant A's already-dispatched run.
+        # Filter by "(source run ${SOURCE_RUN_ID})" -- unique per
+        # smoketest -- with SKIP-ACCEPTANCE ABSENT to distinguish
+        # variant B from variant A's already-dispatched run.
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
             --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"${SHIPPED_VERSION}\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
           if [[ -n "${RUN_ID}" ]]; then
             echo "ACCEPTANCE_RUN_ID_FULL=${RUN_ID}" >> "${GITHUB_ENV}"
             echo "==> Located variant B (full acceptance) run: ${RUN_ID}"
@@ -542,7 +548,7 @@ jobs:
           echo "  (attempt ${attempt}/12) waiting for variant B run to register..."
           sleep 10
         done
-        echo "::error::Could not locate variant B acceptance-only run within 2 minutes"
+        echo "::error::Could not locate variant B acceptance-only run within 2 minutes (looking for source run ${SOURCE_RUN_ID} + NOT SKIP-ACCEPTANCE)"
         exit 1
 
     - name: Wait for variant B acceptance-only run to complete
