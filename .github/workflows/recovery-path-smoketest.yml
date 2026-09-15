@@ -162,108 +162,109 @@ jobs:
         owner: ${{ github.repository_owner }}
         repositories: openemr
 
-    # Pick the smoketest target: iterate active rel branches (from
-    # .github/release-targets.yml, sorted highest first) and for each,
-    # look up the highest SHIPPED tag on that line (v<major>_<minor>_*
-    # with a matching GitHub Release). Use the first rel-branch that
-    # has any shipped tag.
+    # Pick the smoketest target from .github/release-targets.yml:
+    # the row whose docker_tags contains "latest" identifies the
+    # currently-shipped release (docker-release-orchestrator.yml uses
+    # this SAME file to decide which image to tag as "latest", so by
+    # definition the row with "latest" IS the current shipped
+    # release). Read `branch` for the rel branch and
+    # `openemr_version_ref` for the exact git tag.
     #
-    # This handles two edge cases where the naive "read the rel
-    # branch's version.php" approach would leave the smoketest
-    # blanked out:
+    # This handles both edge cases where the naive "read the newest
+    # rel branch's version.php" approach would leave the smoketest
+    # blanked out between cut and ship:
     #
     #   (a) Fresh rel cut, not yet shipped -- e.g. rel-850 cut,
-    #       version.php = 8.5.0, but v8_5_0 tag doesn't exist yet.
-    #       We fall through to rel-840, which still has v8_4_0.
+    #       version.php = 8.5.0, but v8_5_0 not yet published.
+    #       The "latest" marker stays on rel-840 in release-targets
+    #       .yml until 8.5.0 actually ships (moving it earlier
+    #       would break docker-release-orchestrator too), so the
+    #       picker still returns rel-840 + v8_4_0.
     #
     #   (b) Post-release version bump on the rel branch -- e.g.
-    #       rel-840 bumped to 8.4.1-dev after 8.4.0 shipped; tag
-    #       v8_4_1 doesn't exist yet. We use v8_4_0.
+    #       rel-840 bumped to 8.4.1-dev after 8.4.0 shipped.
+    #       release-targets.yml doesn't move openemr_version_ref
+    #       until 8.4.1 actually ships, so the picker still returns
+    #       v8_4_0.
     #
     # Critical: build-release.yml gets `version_branch=<the tag>`
     # (not the rel-branch name) so its checkout is the exact commit
-    # that was shipped. That way version.php on disk during the
-    # dispatched workflow reports the same version we're passing,
+    # that was shipped. version.php on disk during the dispatched
+    # workflow then reports the same version we're passing,
     # regardless of any post-release drift on the rel branch.
     #
     # actions/checkout accepts tags as refs, and build-release.yml
     # only requires version_branch be a valid git ref (no
     # rel-<digits> shape check).
-    - name: Pick smoketest target (rel branch + shipped tag)
+    - name: Pick smoketest target (from release-targets.yml "latest" row)
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # All active rel branches from release-targets.yml, sorted
-        # highest first. awk pulls the numeric suffix; sort -rn picks
-        # largest.
-        REL_SUFFIXES=$(grep -E '^\s*- branch: rel-' .github/release-targets.yml \
-          | awk -F'rel-' '{print $2}' \
-          | sort -rn)
-        if [[ -z "${REL_SUFFIXES}" ]]; then
-          echo "::error::Could not derive any rel-branch from .github/release-targets.yml -- has the file schema changed?"
+        # Parse the row whose docker_tags contains "latest". Row shape:
+        #   - branch: rel-840
+        #     docker_tags: 8.4.0,latest
+        #     openemr_version_ref: v8_4_0
+        # Awk state machine: track current block's branch + version_ref;
+        # when docker_tags contains "latest", print them.
+        LATEST_ROW=$(awk '
+          /^- branch:/ {
+            branch=$3
+            docker_tags=""
+            version_ref=""
+            next
+          }
+          /^  docker_tags:/ { docker_tags=$2; next }
+          /^  openemr_version_ref:/ { version_ref=$2; next }
+          /^$/ {
+            if (!found && docker_tags ~ /(^|,)latest($|,)/) {
+              print branch, version_ref
+              found=1
+              exit
+            }
+            branch=""; docker_tags=""; version_ref=""
+          }
+          END {
+            # Handle file that does not end with a blank line.
+            # `found` guard prevents double-print when exit triggers END.
+            if (!found && docker_tags ~ /(^|,)latest($|,)/) {
+              print branch, version_ref
+            }
+          }
+        ' .github/release-targets.yml)
+
+        if [[ -z "${LATEST_ROW}" ]]; then
+          echo "::error::Could not find a row with docker_tags containing 'latest' in .github/release-targets.yml -- has the file schema changed, or has no row been marked latest?"
           exit 1
         fi
+        PICKED_REL_BRANCH=$(echo "${LATEST_ROW}" | awk '{print $1}')
+        PICKED_TAG=$(echo "${LATEST_ROW}" | awk '{print $2}')
 
-        PICKED_REL_BRANCH=""
-        PICKED_TAG=""
-        PICKED_VERSION=""
-        for REL_SUFFIX in ${REL_SUFFIXES}; do
-          # REL_SUFFIX looks like "840". First digit = major, next = minor,
-          # rest = patch-line-anchor (typically "0" for the branch).
-          # rel-<major><minor>0 -> line is v<major>_<minor>_*.
-          REL_MAJOR="${REL_SUFFIX:0:1}"
-          REL_MINOR="${REL_SUFFIX:1:1}"
-          echo "==> Checking rel-${REL_SUFFIX} (line v${REL_MAJOR}_${REL_MINOR}_*)"
-          # List all tags matching v<major>_<minor>_<digits>. Pick highest
-          # patch (sort by third numeric field). Filter to numeric-only
-          # patches (avoids alpha/beta/rc if any).
-          CANDIDATE_TAG=$(gh api "repos/${{ github.repository }}/git/matching-refs/tags/v${REL_MAJOR}_${REL_MINOR}_" \
-            --jq '.[].ref' 2>/dev/null \
-            | sed 's|^refs/tags/||' \
-            | grep -E "^v${REL_MAJOR}_${REL_MINOR}_[0-9]+$" \
-            | awk -F'_' '{print $3, $0}' \
-            | sort -k1 -rn \
-            | head -1 \
-            | awk '{print $2}')
-          if [[ -z "${CANDIDATE_TAG}" ]]; then
-            echo "    no shipped tag on v${REL_MAJOR}_${REL_MINOR}_* line, trying next rel branch..."
-            continue
-          fi
-          # Confirm a GitHub Release exists for the tag (belt-and-
-          # suspenders: matching-refs returns git refs; Release is a
-          # separate GitHub concept).
-          if ! gh release view "${CANDIDATE_TAG}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            echo "    tag ${CANDIDATE_TAG} exists but no GitHub Release for it -- treating as unshipped, trying next rel branch..."
-            continue
-          fi
-          # Parse patch from tag for the version string.
-          PATCH=$(echo "${CANDIDATE_TAG}" | awk -F'_' '{print $3}')
-          PICKED_REL_BRANCH="rel-${REL_SUFFIX}"
-          PICKED_TAG="${CANDIDATE_TAG}"
-          PICKED_VERSION="${REL_MAJOR}.${REL_MINOR}.${PATCH}"
-          echo "    PICKED: rel branch=${PICKED_REL_BRANCH}, tag=${PICKED_TAG}, version=${PICKED_VERSION}"
-          break
-        done
-
-        if [[ -z "${PICKED_TAG}" ]]; then
-          echo "::error::No shipped tag found across any active rel branch. This should be impossible unless the repo has never shipped a release."
+        # Derive human-readable version from tag (v8_4_0 -> 8.4.0).
+        if [[ ! "${PICKED_TAG}" =~ ^v[0-9]+_[0-9]+_[0-9]+$ ]]; then
+          echo "::error::openemr_version_ref '${PICKED_TAG}' does not match expected v<major>_<minor>_<patch> shape"
           exit 1
         fi
+        PICKED_VERSION=$(echo "${PICKED_TAG}" | sed -E 's/^v([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/')
 
-        # SAFETY GATES (belt-and-suspenders) -- these ALREADY passed
-        # implicitly by getting this far, but re-assert for
-        # defense-in-depth. If a future refactor accidentally
-        # weakens the picker's checks, these still guard.
+        echo "==> Picker chose: rel branch=${PICKED_REL_BRANCH}, tag=${PICKED_TAG}, version=${PICKED_VERSION}"
+
+        # SAFETY GATE 1: tag must actually exist on origin. Guards
+        # against a race where release-targets.yml has been updated
+        # ahead of the tag push (would be a broken state, but the
+        # smoketest should NOT proceed against it).
         if ! git ls-remote --tags origin "refs/tags/${PICKED_TAG}" | grep -q "refs/tags/${PICKED_TAG}$"; then
           echo "::error::SAFETY GATE FAILED: tag ${PICKED_TAG} does not exist on origin. Refusing to proceed -- any accidental tag push during a dry_run-gating regression could create a NEW real tag."
           exit 1
         fi
+        # SAFETY GATE 2: GitHub Release must actually exist for that
+        # tag. Same rationale as above but for the API-level
+        # gh release create surface.
         if ! gh release view "${PICKED_TAG}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
           echo "::error::SAFETY GATE FAILED: GitHub Release ${PICKED_TAG} does not exist. Refusing to proceed -- any accidental Release create during a no_publish-gating regression could create a NEW real Release."
           exit 1
         fi
-        echo "==> Safety gates confirmed: tag + Release exist. Cannot stomp on this version."
+        echo "==> Safety gates confirmed: tag + Release exist on origin. Cannot stomp on this version."
 
         {
           echo "SHIPPED_VERSION=${PICKED_VERSION}"
@@ -274,7 +275,7 @@ jobs:
           echo "### Smoketest target"
           echo ""
           echo "- rel-line: ${PICKED_REL_BRANCH}"
-          echo "- shipped tag: \`${PICKED_TAG}\`"
+          echo "- shipped tag: \`${PICKED_TAG}\` (from release-targets.yml \`latest\` row)"
           echo "- version passed to build-release: ${PICKED_VERSION}"
           echo "- version_branch passed to build-release: \`${PICKED_TAG}\` (checks out the tag's commit, not the rel-branch tip -- source reports the exact shipped version regardless of any post-release drift on the rel branch)"
         } >> "${GITHUB_STEP_SUMMARY}"
