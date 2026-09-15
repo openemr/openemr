@@ -1455,26 +1455,69 @@ EOF
         return 1
     fi
 
-    # Step 4: Get log position before restart to only check new logs
-    log_info "Step 3: Getting current log position..."
-    local log_size_before
-    # shellcheck disable=SC2034  # log_size_before is captured but not used (reserved for future debugging)
-    log_size_before=$(docker logs "${container_name}" 2>&1 | wc -l) || log_size_before="0"
+    # Prepare code-version bind-mount used only for the recreate below.
+    #
+    # openemr.sh's check_upgrade guard requires /root/docker-version to equal
+    # the code copy at ${OE_ROOT}/docker-version before it fires. In a normal
+    # production image both come from the same build so they always match; in
+    # a locally-built branch-cut PR image the /root/ copy is ahead (bumped by
+    # the PR) while the code copy came from a fresh git clone of the target
+    # branch that predates the PR merge. openemr.sh's setup writeback syncs
+    # them in the writable layer during Step 1, but the recreate in Step 3
+    # wipes the writable layer, so the code copy reverts to the git-cloned
+    # value and the guard fails again — the recreate boot skips the upgrade
+    # and the test asserts "Upgrade started: 0".
+    #
+    # The bind-mount pins the code-version file to the /root/ value across
+    # the recreate. We can't apply it during Step 1 because with the pin in
+    # place on a fresh install, the fresh-boot check_upgrade fires before
+    # openemr is configured (root == code from the pin, sites still at the
+    # git-cloned value → guard passes → run_upgrade → "Cannot upgrade -
+    # OpenEMR is not configured yet" → unhealthy container). Passing the
+    # override compose file only to the recreate's up command scopes the
+    # bind-mount to Step 3 alone.
+    log_info "Preparing code-version bind-mount for recreate..."
+    echo -n "${current_version}" > "${test_dir}/code-version-override"
+    cat > "${test_dir}/docker-compose.recreate.yml" <<EOF
 
-    # Step 5: Restart container to trigger upgrade check
-    log_info "Step 4: Restarting container to trigger upgrade..."
+services:
+  openemr:
+    volumes:
+      - ${test_dir}/code-version-override:/var/www/localhost/htdocs/openemr/docker-version:ro
+EOF
+    log_info "Bind-mount override pinned to: ${current_version}"
+
+    # Step 4: Recreate container to trigger upgrade check.
+    # A real upgrade always ships as a new image -> new container; recreating
+    # (rather than restarting) also restores setup-removed files such as
+    # sql_upgrade.php from the image, which the fsupgrade scripts require.
+    # Note: the sites/default/docker-version marker set above lives on the
+    # upgrade_sites volume and survives recreation; the code-version fix-up
+    # in Step 2 lives in the writable layer and does not (acceptable: images
+    # missing the code version file cannot upgrade in production either).
+    log_info "Step 3: Recreating container to trigger upgrade..."
     cd "${test_dir}"
-    # shellcheck disable=SC2310  # Restart may fail if container is not running, which is acceptable
-    run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml restart openemr 2>&1 | tee -a "${LOG_FILE}" || true
+    # shellcheck disable=SC2310  # Stop/rm may no-op if container already exited
+    run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml stop openemr 2>&1 | tee -a "${LOG_FILE}" || true
+    # shellcheck disable=SC2310  # rm may no-op if container was never created
+    run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml rm -f openemr 2>&1 | tee -a "${LOG_FILE}" || true
+    # shellcheck disable=SC2310  # Error handling is explicit via if/return
+    if ! run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml -f docker-compose.recreate.yml up -d openemr 2>&1 | tee -a "${LOG_FILE}"; then
+        log_test_result "${test_name}" "FAIL" "Failed to recreate container"
+        # shellcheck disable=SC2310  # Cleanup should not fail the test
+        run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml down --volumes >/dev/null 2>&1 || true
+        cd - >/dev/null
+        return 1
+    fi
     cd - >/dev/null
 
-    # Wait a moment for container to restart
+    # Wait a moment for container to recreate
     sleep 5
 
-    # Wait for container to be healthy again after restart
+    # Wait for container to be healthy again after recreate
     # shellcheck disable=SC2310
     if ! wait_for_healthy "${container_name}" 600; then
-        log_test_result "${test_name}" "FAIL" "Container did not become healthy after restart"
+        log_test_result "${test_name}" "FAIL" "Container did not become healthy after recreate"
         docker logs "${container_name}" --tail 50 2>&1 | tee -a "${LOG_FILE}" || true
         cd "${test_dir}"
         # shellcheck disable=SC2310  # Cleanup should not fail the test
@@ -1486,8 +1529,8 @@ EOF
     # Give upgrade time to complete if it's running
     sleep 10
 
-    # Step 6: Check logs for upgrade messages (only new logs since restart)
-    log_info "Step 5: Checking upgrade logs..."
+    # Step 5: Check logs for upgrade messages (recreated container's logs)
+    log_info "Step 4: Checking upgrade logs..."
     local all_logs
     all_logs=$(docker logs "${container_name}" 2>&1 || echo "")
 
@@ -1501,8 +1544,8 @@ EOF
     local upgrade_scripts_run
     upgrade_scripts_run=$(echo "${all_logs}" | grep -q "Processing fsupgrade-.*\.sh upgrade script" && echo "1" || echo "0")
 
-    # Step 7: Verify version marker was updated
-    log_info "Step 6: Verifying version marker was updated..."
+    # Step 6: Verify version marker was updated
+    log_info "Step 5: Verifying version marker was updated..."
     local new_version
     new_version=$(docker exec "${container_name}" cat /var/www/localhost/htdocs/openemr/sites/default/docker-version 2>/dev/null || echo "0")
     log_info "Version after upgrade: ${new_version} (was ${old_version}, should be ${current_version})"
@@ -1514,7 +1557,7 @@ EOF
     code_version=$(docker exec "${container_name}" cat /var/www/localhost/htdocs/openemr/docker-version 2>/dev/null || echo "0")
     log_info "Root version: ${root_version}, Code version: ${code_version}, Sites version: ${new_version}"
 
-    # Step 8: Verify OpenEMR is still configured and accessible
+    # Step 7: Verify OpenEMR is still configured and accessible
     local config_after_upgrade
     config_after_upgrade=$(check_openemr_configured "${container_name}")
 

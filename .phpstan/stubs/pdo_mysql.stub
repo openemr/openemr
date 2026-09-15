@@ -5,7 +5,7 @@
  * PHPStan stub for Pdo\Mysql class added in PHP 8.4.
  *
  * This stub allows PHPStan to analyze code that references Pdo\Mysql constants
- * while still targeting PHP 8.2+ as the minimum version. The actual runtime
+ * while still targeting PHP 8.3+ as the minimum version. The actual runtime
  * code uses class_exists() checks to fall back to PDO::MYSQL_ATTR_* constants
  * on older PHP versions.
  *

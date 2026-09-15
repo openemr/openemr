@@ -132,15 +132,9 @@ class MeasureResultsTest extends TestCase
                     $setNumber = $parts[1];
                     // Only check results if the population set is correct
                     if ($measureResult['pop_set'] == $setNumber) {
-                        if (!isset($populationSet['DENEXCEP'])) {
-                            $populationSet['DENEXCEP'] = 0;
-                        }
-                        if (!isset($populationSet['DENEX'])) {
-                            $populationSet['DENEX'] = 0;
-                        }
-                        if (!isset($populationSet['NUMEX'])) {
-                            $populationSet['NUMEX'] = 0;
-                        }
+                        $populationSet['DENEXCEP'] ??= 0;
+                        $populationSet['DENEX'] ??= 0;
+                        $populationSet['NUMEX'] ??= 0;
 
                         try {
                             $this->assertEquals($measureResult['IPP'], $populationSet['IPP'], "IPP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");

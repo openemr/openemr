@@ -22,14 +22,14 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
  */
 class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
 {
-    function __construct()
+    public function __construct()
     {
     }
 
     /**
      * @return ?RuleCriteriaType
      */
-    function resolveRuleCriteriaType($method, $methodDetail, $value)
+    public function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
         if (strpos((string) $method, "database")) {
             $exploded = explode("::", (string) $value);
@@ -51,7 +51,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
      * @param RuleCriteriaType $ruleCriteriaType
      * @return ?RuleCriteria
      */
-    function build($ruleCriteriaType, $value, $methodDetail)
+    public function build($ruleCriteriaType, $value, $methodDetail)
     {
         $exploded = explode("::", (string) $value);
 
@@ -90,7 +90,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
      *
      * @param RuleCriteriaType $ruleCriteriaType
      */
-    function newInstance($ruleCriteriaType)
+    public function newInstance($ruleCriteriaType)
     {
         if ($ruleCriteriaType->code == RuleCriteriaType::lifestyle) {
             return new RuleCriteriaLifestyle(null, null);

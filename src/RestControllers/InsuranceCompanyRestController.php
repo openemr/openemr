@@ -13,10 +13,17 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Validators\ProcessingResult;
+use Psr\Http\Message\ResponseInterface;
 
 #[OA\Schema(
     schema: 'api_insurance_company_request',
@@ -55,8 +62,8 @@ use OpenEMR\Services\InsuranceCompanyService;
 )]
 class InsuranceCompanyRestController
 {
-    private $insuranceCompanyService;
-    private $addressService;
+    private readonly InsuranceCompanyService $insuranceCompanyService;
+    private readonly AddressService $addressService;
 
     public function __construct()
     {
@@ -64,10 +71,27 @@ class InsuranceCompanyRestController
         $this->addressService = new AddressService();
     }
 
+    /**
+     * Search parameters are read from the request query string.
+     */
     #[OA\Get(
         path: '/api/insurance_company',
-        description: 'Retrieves all insurance companies',
+        description: 'Retrieves all insurance companies, optionally filtered by search parameters',
         tags: ['standard'],
+        parameters: [
+            new OA\Parameter(name: 'uuid', in: 'query', description: 'The uuid of the insurance company.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'name', in: 'query', description: 'Partial match on the insurance company name.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'cms_id', in: 'query', description: 'Exact match on the cms id.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'alt_cms_id', in: 'query', description: 'Exact match on the alternate cms id.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'ins_type_code', in: 'query', description: 'The insurance type code.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(
+                name: 'inactive',
+                in: 'query',
+                description: 'Whether the insurance company is inactive (0 or 1).',
+                required: false,
+                schema: new OA\Schema(type: 'string', enum: ['0', '1'])
+            ),
+        ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
@@ -75,10 +99,29 @@ class InsuranceCompanyRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getAll()
+    public function getAll(HttpRestRequest $request): ResponseInterface
     {
-        $serviceResult = $this->insuranceCompanyService->getAll();
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        $processingResult = new ProcessingResult();
+        try {
+            $search = [];
+            foreach ($request->getQueryParams() as $key => $value) {
+                if (!is_string($value) && !is_array($value)) {
+                    throw new SearchFieldException('search', 'unsupported search parameter');
+                }
+                $search[$key] = match ($key) {
+                    'uuid' => new TokenSearchField('uuid', $value, true),
+                    'name' => new StringSearchField('name', $value, SearchModifier::CONTAINS),
+                    'cms_id', 'alt_cms_id' => new StringSearchField($key, $value, SearchModifier::EXACT),
+                    'ins_type_code', 'inactive' => new TokenSearchField($key, $value),
+                    default => throw new SearchFieldException('search', 'unsupported search parameter'),
+                };
+            }
+            $processingResult = $this->insuranceCompanyService->search($search);
+        } catch (SearchFieldException | \InvalidArgumentException) {
+            // do not reflect raw parameter names or values back to the caller
+            $processingResult->setValidationMessages(['search' => ['invalid or unsupported search parameter']]);
+        }
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }
 
     #[OA\Get(
@@ -142,18 +185,20 @@ class InsuranceCompanyRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function post($data)
+    public function post(HttpRestRequest $request, $data)
     {
         $insuranceCompanyValidationResult = $this->insuranceCompanyService->validate($data);
-        $insuranceCompanyValidationHandlerResult = RestControllerHelper::validationHandler($insuranceCompanyValidationResult);
-        if (is_array($insuranceCompanyValidationHandlerResult)) {
-            return $insuranceCompanyValidationHandlerResult;
+        if (!$insuranceCompanyValidationResult->isValid()) {
+            return RestControllerHelper::createProcessingResultResponse($request, $insuranceCompanyValidationResult, 400);
         }
 
         $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
-        $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
-        if (is_array($addressValidationHandlerResult)) {
-            return $addressValidationHandlerResult;
+        if (!$addressValidationResult->isValid()) {
+            // AddressService::validate() returns a Particle ValidationResult;
+            // convert so the response helper receives a ProcessingResult
+            $addressProcessingResult = new ProcessingResult();
+            $addressProcessingResult->setValidationMessages($addressValidationResult->getMessages());
+            return RestControllerHelper::createProcessingResultResponse($request, $addressProcessingResult, 400);
         }
 
         $serviceResult = $this->insuranceCompanyService->insert($data);
@@ -187,18 +232,20 @@ class InsuranceCompanyRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($iid, $data)
+    public function put(HttpRestRequest $request, $iid, $data)
     {
         $insuranceCompanyValidationResult = $this->insuranceCompanyService->validate($data);
-        $insuranceCompanyValidationHandlerResult = RestControllerHelper::validationHandler($insuranceCompanyValidationResult);
-        if (is_array($insuranceCompanyValidationHandlerResult)) {
-            return $insuranceCompanyValidationHandlerResult;
+        if (!$insuranceCompanyValidationResult->isValid()) {
+            return RestControllerHelper::createProcessingResultResponse($request, $insuranceCompanyValidationResult, 400);
         }
 
         $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
-        $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
-        if (is_array($addressValidationHandlerResult)) {
-            return $addressValidationHandlerResult;
+        if (!$addressValidationResult->isValid()) {
+            // AddressService::validate() returns a Particle ValidationResult;
+            // convert so the response helper receives a ProcessingResult
+            $addressProcessingResult = new ProcessingResult();
+            $addressProcessingResult->setValidationMessages($addressValidationResult->getMessages());
+            return RestControllerHelper::createProcessingResultResponse($request, $addressProcessingResult, 400);
         }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);

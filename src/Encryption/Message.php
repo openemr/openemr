@@ -22,7 +22,7 @@ final readonly class Message
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
-        if ($this->format === MessageFormat::ImplicitKey){
+        if ($this->format === MessageFormat::ImplicitKey) {
             if (!preg_match('/^00[1-7]$/', $this->keyId->id)) {
                 throw new BadMethodCallException('Only legacy key versions can use ImplicitKey format');
             }

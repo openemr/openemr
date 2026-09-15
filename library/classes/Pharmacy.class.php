@@ -42,7 +42,7 @@ class Pharmacy extends ORDataObject
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct(public $id = "")
+    public function __construct(public $id = "")
     {
         $this->state = $this->getState();
         $this->name = "";
@@ -56,90 +56,90 @@ class Pharmacy extends ORDataObject
         }
     }
 
-    function set_id($id = "")
+    public function set_id($id = "")
     {
         $this->id = $id;
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
-    function set_form_id($id = "")
+    public function set_form_id($id = "")
     {
         if ($id !== '') {
             $this->populate();
         }
     }
-    function set_fax_id($id)
+    public function set_fax_id($id)
     {
         $this->id = $id;
     }
-    function set_address($aobj)
+    public function set_address($aobj)
     {
         $this->address = $aobj;
     }
-    function get_address()
+    public function get_address()
     {
         return $this->address;
     }
-    function set_address_line1($line)
+    public function set_address_line1($line)
     {
         $this->address->set_line1($line);
     }
-    function set_address_line2($line)
+    public function set_address_line2($line)
     {
         $this->address->set_line2($line);
     }
-    function set_city($city)
+    public function set_city($city)
     {
         $this->address->set_city($city);
     }
-    function set_state($state)
+    public function set_state($state)
     {
         $this->address->set_state($state);
     }
-    function set_zip($zip)
+    public function set_zip($zip)
     {
         $this->address->set_zip($zip);
     }
 
-    function set_name($name)
+    public function set_name($name)
     {
         $this->name = $name;
     }
-    function get_name()
+    public function get_name()
     {
         return $this->name;
     }
-    function set_npi($npi)
+    public function set_npi($npi)
     {
         $this->npi = $npi;
     }
-    function get_npi()
+    public function get_npi()
     {
         return $this->npi;
     }
-    function set_ncpdp($ncpdp)
+    public function set_ncpdp($ncpdp)
     {
         $this->ncpdp = $ncpdp;
     }
-    function get_ncpdp()
+    public function get_ncpdp()
     {
         return $this->ncpdp;
     }
-    function set_email($email)
+    public function set_email($email)
     {
         $this->email = $email;
     }
-    function get_email()
+    public function get_email()
     {
         return $this->email;
     }
-    function set_transmit_method($tm)
+    public function set_transmit_method($tm)
     {
         $this->transmit_method = $tm;
     }
-    function get_transmit_method()
+    public function get_transmit_method()
     {
         if ($this->transmit_method == TRANSMIT_EMAIL && $this->email === '') {
             return TRANSMIT_PRINT;
@@ -147,11 +147,11 @@ class Pharmacy extends ORDataObject
 
         return $this->transmit_method;
     }
-    function get_transmit_method_display()
+    public function get_transmit_method_display()
     {
         return $this->transmit_method_array[$this->transmit_method];
     }
-    function get_phone()
+    public function get_phone()
     {
         foreach ($this->phone_numbers as $phone) {
             if ($phone->type === PhoneType::WORK) {
@@ -160,7 +160,7 @@ class Pharmacy extends ORDataObject
         }
         return "";
     }
-    function set_number(string $num, PhoneType $type): void
+    public function set_number(string $num, PhoneType $type): void
     {
         $typed = TypedPhoneNumber::tryCreate($num, $type);
         if ($typed === null) {
@@ -177,16 +177,16 @@ class Pharmacy extends ORDataObject
         $this->phone_numbers[] = $typed;
     }
 
-    function set_phone($phone)
+    public function set_phone($phone)
     {
         $this->set_number($phone, PhoneType::WORK);
     }
-    function set_fax($fax)
+    public function set_fax($fax)
     {
         $this->set_number($fax, PhoneType::FAX);
     }
 
-    function get_fax()
+    public function get_fax()
     {
         foreach ($this->phone_numbers as $phone) {
             if ($phone->type === PhoneType::FAX) {
@@ -195,7 +195,7 @@ class Pharmacy extends ORDataObject
         }
         return "";
     }
-    function populate()
+    public function populate()
     {
         parent::populate();
         $this->address = Address::factory_address($this->id);
@@ -215,7 +215,7 @@ class Pharmacy extends ORDataObject
         }
     }
 
-    function persist()
+    public function persist(): mixed
     {
         // Wrap the whole logical save (parent row, address row, phone_numbers
         // delete + re-insert) in a single transaction. See the matching note
@@ -223,8 +223,8 @@ class Pharmacy extends ORDataObject
         // what stops the duplicate-phone-row accumulation, and the
         // transaction keeps a mid-loop failure from leaving the record with
         // partial or no phone data instead of just the buggy duplicates.
-        QueryUtils::inTransaction(function (): void {
-            parent::persist();
+        return QueryUtils::inTransaction(function (): mixed {
+            $ret = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
             QueryUtils::sqlStatementThrowException(
@@ -244,10 +244,11 @@ class Pharmacy extends ORDataObject
                 $phoneService->type = $phone->type->value;
                 $phoneService->insert($phoneData, $this->id);
             }
+            return $ret;
         });
     }
 
-    function utility_pharmacy_array()
+    public function utility_pharmacy_array()
     {
         $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
@@ -265,7 +266,7 @@ class Pharmacy extends ORDataObject
         return ($pharmacy_array);
     }
 
-    function pharmacies_factory()
+    public function pharmacies_factory()
     {
         $p = new Pharmacy();
         $pharmacies = [];
@@ -285,14 +286,14 @@ class Pharmacy extends ORDataObject
         return $pharmacies;
     }
 
-    function getState()
+    public function getState()
     {
         $sql = "SELECT state FROM facility";
         $res = sqlQuery($sql);
         return $res['state'];
     }
 
-    function toString($html = false)
+    public function toString($html = false)
     {
         $phoneDisplay = ($this->phone_numbers[0] ?? null)?->formatLocal() ?? '';
         $string = "\n"
@@ -305,14 +306,14 @@ class Pharmacy extends ORDataObject
         return $html ? nl2br($string) : $string;
     }
 
-    function totalPages()
+    public function totalPages()
     {
         $sql = "select count(*) AS numberof from " . escape_table_name($this->_table);
         $count = sqlQuery($sql);
         return $count['numberof'];
     }
 
-    function getPageno()
+    public function getPageno()
     {
         return $this->pageno = 1;
     }

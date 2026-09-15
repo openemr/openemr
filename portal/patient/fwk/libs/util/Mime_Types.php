@@ -112,7 +112,7 @@ class Mime_Types
      *
      * @param mixed $mime_types
      */
-    function __construct($mime_types = null)
+    public function __construct($mime_types = null)
     {
         if (is_string($mime_types)) {
             $this->load_file($mime_types);
@@ -143,7 +143,7 @@ class Mime_Types
      * @param mixed $param
      *          passed as the 3rd argument to $callback
      */
-    function scan($callback, &$param)
+    public function scan($callback, &$param)
     {
         if (is_array($callback)) {
             $method = & $callback [1];
@@ -180,7 +180,7 @@ class Mime_Types
      *          default: true
      * @return string false if unable to find suitable match
      */
-    function get_file_type($file, $use_ext = true)
+    public function get_file_type($file, $use_ext = true)
     {
         $file = trim($file);
         if ($file == '') {
@@ -249,7 +249,7 @@ class Mime_Types
      * @param string $ext
      * @return string false if extension not found
      */
-    function get_type($ext)
+    public function get_type($ext)
     {
         $ext = strtolower($ext);
         // get position of last dot
@@ -286,7 +286,7 @@ class Mime_Types
      *          separated by space.
      * @return void
      */
-    function set($type, $exts = null)
+    public function set($type, $exts = null)
     {
         if (! isset($exts)) {
             if (is_array($type)) {
@@ -337,7 +337,7 @@ class Mime_Types
      * @param string $ext
      * @return bool
      */
-    function has_extension($ext)
+    public function has_extension($ext)
     {
         return (isset($this->mime_types [strtolower($ext)]));
     }
@@ -350,7 +350,7 @@ class Mime_Types
      * @param string $type
      * @return bool
      */
-    function has_type($type)
+    public function has_type($type)
     {
         return (in_array(strtolower($type), $this->mime_types));
     }
@@ -364,7 +364,7 @@ class Mime_Types
      * @param string $type
      * @return string false if $type not found
      */
-    function get_extension($type)
+    public function get_extension($type)
     {
         $type = strtolower($type);
         foreach ($this->mime_types as $ext => $m_type) {
@@ -385,7 +385,7 @@ class Mime_Types
      * @param string $type
      * @return array
      */
-    function get_extensions($type)
+    public function get_extensions($type)
     {
         $type = strtolower($type);
         return (array_keys($this->mime_types, $type));
@@ -404,7 +404,7 @@ class Mime_Types
      *          string holding extension(s) separated by space, or array
      * @return void
      */
-    function remove_extension($exts)
+    public function remove_extension($exts)
     {
         if (! is_array($exts)) {
             $exts = explode(' ', (string) $exts);
@@ -433,7 +433,7 @@ class Mime_Types
      *          if omitted, all types will be removed
      * @return void
      */
-    function remove_type($type = null)
+    public function remove_type($type = null)
     {
         if (! isset($type)) {
             $this->mime_types =  [];
@@ -467,7 +467,7 @@ class Mime_Types
      * @param string $file
      * @return bool
      */
-    function load_file($file)
+    public function load_file($file): bool
     {
         if (! file_exists($file) || ! is_readable($file)) {
             return false;
@@ -511,7 +511,7 @@ class Mime_Types
      * @return bool
      * @access private
      */
-    function _remove_type_callback(&$mime, $ext_type, $type_info)
+    public function _remove_type_callback(&$mime, $ext_type, $type_info): bool
     {
         // temporarily we'll put match to false
         $matched = false;

@@ -18,11 +18,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaLifestyle extends RuleCriteria
 {
-    function __construct(public $type, public $matchValue)
+    public function __construct(public $type, public $matchValue)
     {
     }
 
-    function getRequirements()
+    public function getRequirements()
     {
         $requirements = xl("Value") . ": ";
         if (is_null($this->matchValue)) {
@@ -34,18 +34,18 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return $requirements;
     }
 
-    function getTitle()
+    public function getTitle()
     {
         $label = xl_layout_label($this->getLayoutLabel($this->type, "HIS"));
         return xl("Lifestyle") . " - " . $label;
     }
 
-    function getView()
+    public function getView()
     {
         return "lifestyle.php";
     }
 
-    function getOptions()
+    public function getOptions()
     {
         $stmt = sqlStatement(
             "SELECT lo.field_id, lo.title FROM layout_options AS lo, layout_group_properties AS lp "
@@ -65,7 +65,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return $options;
     }
 
-    function getDbView()
+    public function getDbView()
     {
         $dbView = parent::getDbView();
 
@@ -75,7 +75,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         parent::updateFromRequest();
 

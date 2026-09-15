@@ -18,8 +18,6 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\BillingUtilities;
@@ -49,6 +47,10 @@ $ORDERHASH = [
   'pubpid'  => 'lower(p.pubpid), fe.date DESC, fe.encounter DESC',
   'time'    => 'fe.date DESC, fe.encounter DESC, lower(u.lname), lower(u.fname)',
   'encounter'    => 'fe.encounter DESC, fe.date DESC, lower(u.lname), lower(u.fname)',
+  'status' => 'CASE WHEN billed_count > 0 AND unbilled_count > 0 THEN 3 ' .
+            'WHEN unbilled_count > 0 THEN 1 ' .
+            'WHEN billed_count > 0 THEN 4 ELSE 2 END, ' .
+            'fe.date DESC, fe.encounter DESC',
 ];
 
 function show_doc_total($lastdocname, $doc_encounters): void
@@ -99,7 +101,15 @@ $query = "SELECT " .
   "fe.encounter, fe.date, fe.reason, " .
   "f.formdir, f.form_name, " .
   "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.dob, " .
-  "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
+  "u.lname AS ulname, u.fname AS ufname, u.mname AS umname, " .
+  "((SELECT COUNT(*) FROM billing AS b WHERE b.pid = fe.pid AND b.encounter = fe.encounter " .
+    "AND b.activity = 1 AND (b.code_type IS NULL OR b.code_type NOT IN ('COPAY','TAX')) AND b.billed = 1) + " .
+  "(SELECT COUNT(*) FROM drug_sales AS ds WHERE ds.pid = fe.pid AND ds.encounter = fe.encounter " .
+    "AND ds.billed = 1)) AS billed_count, " .
+  "((SELECT COUNT(*) FROM billing AS b2 WHERE b2.pid = fe.pid AND b2.encounter = fe.encounter " .
+    "AND b2.activity = 1 AND (b2.code_type IS NULL OR b2.code_type NOT IN ('COPAY','TAX')) AND (b2.billed = 0 OR b2.billed IS NULL)) + " .
+  "(SELECT COUNT(*) FROM drug_sales AS ds2 WHERE ds2.pid = fe.pid AND ds2.encounter = fe.encounter " .
+    "AND (ds2.billed = 0 OR ds2.billed IS NULL))) AS unbilled_count " .
   "$esign_fields" .
   "FROM ( form_encounter AS fe, forms AS f ) " .
   "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
@@ -190,17 +200,6 @@ $res = sqlStatement($query, $sqlBindArray);
             });
         });
 
-        function dosort(orderby) {
-            var f = document.forms[0];
-            f.form_orderby.value = orderby;
-            f.submit();
-            return false;
-        }
-
-        function refreshme() {
-            document.forms[0].submit();
-        }
-
         // Called to switch to the specified encounter having the specified DOS.
         function toEncounter(newpid, enc) {
             top.restoreSession();
@@ -209,6 +208,25 @@ $res = sqlStatement($query, $sqlBindArray);
                 set_pid: newpid
             });
             top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
+        }
+
+        function showReportSpinner() {
+            document.getElementById('report_loading').style.display = 'block';
+            var results = document.getElementById('report_results');
+            if (results) { results.style.display = 'none'; }
+        }
+
+        function dosort(orderby) {
+            var f = document.forms[0];
+            f.form_orderby.value = orderby;
+            showReportSpinner();
+            f.submit();
+            return false;
+        }
+
+        function refreshme() {
+            showReportSpinner();
+            document.forms[0].submit();
         }
 
     </script>
@@ -223,8 +241,14 @@ $res = sqlStatement($query, $sqlBindArray);
 <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
-<form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
+<form method='post' name='theform' id='theform' action='encounters_report.php'
+      onsubmit='if (!top.restoreSession()) { return false; } showReportSpinner(); return true;'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
+
+<div id="report_loading" class="text-center m-5" style="display:none;">
+    <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+    <div class="mt-2"><?php echo xlt('Building report') . xl('...'); ?></div>
+</div>
 
 <div id="report_parameters">
 <table>
@@ -324,16 +348,17 @@ $res = sqlStatement($query, $sqlBindArray);
         <tr>
             <td>
                 <div class="text-center">
-          <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <div class="btn-group" role="group">
+                        <a href='#' class='btn btn-secondary btn-save'
+                            onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
-                      </a>
+                        </a>
                         <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) { ?>
-              <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
-                                <?php echo xlt('Print'); ?>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
+                            <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
-          </div>
+                    </div>
                 </div>
             </td>
         </tr>
@@ -368,7 +393,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
   </th>
   <th>
-        <?php echo xlt('Status'); ?>
+    <a href="nojs.php" onclick="return dosort('status')"
+        <?php echo ($form_orderby == "status") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Status'); ?>
+    </a>
   </th>
   <th>
         <?php echo xlt('Encounter'); ?>
@@ -429,47 +456,27 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
                 // Fetch coding and compute billing status.
                 $coded = "";
-                $billed_count = 0;
-                $unbilled_count = 0;
                 if (
                     $billres = BillingUtilities::getBillingByEncounter(
                         $row['pid'],
                         $row['encounter'],
-                        "code_type, code, code_text, billed"
+                        "code_type, code, code_text"
                     )
                 ) {
                     foreach ($billres as $billrow) {
-                        // $title = addslashes($billrow['code_text']);
                         if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
                             $coded .= $billrow['code'] . ', ';
-                            if ($billrow['billed']) {
-                                ++$billed_count;
-                            } else {
-                                ++$unbilled_count;
-                            }
                         }
                     }
-
                     $coded = substr($coded, 0, strlen($coded) - 2);
                 }
 
-                // Figure product sales into billing status.
-                $sres = sqlStatement("SELECT billed FROM drug_sales " .
-                "WHERE pid = ? AND encounter = ?", [$row['pid'], $row['encounter']]);
-                while ($srow = sqlFetchArray($sres)) {
-                    if ($srow['billed']) {
-                        ++$billed_count;
-                    } else {
-                        ++$unbilled_count;
-                    }
-                }
-
-                // Compute billing status.
-                if ($billed_count && $unbilled_count) {
+                // Compute billing status from the counts already in the row.
+                if ($row['billed_count'] && $row['unbilled_count']) {
                     $status = xl('Mixed');
-                } elseif ($billed_count) {
+                } elseif ($row['billed_count']) {
                     $status = xl('Closed');
-                } elseif ($unbilled_count) {
+                } elseif ($row['unbilled_count']) {
                     $status = xl('Open');
                 } else {
                     $status = xl('Empty');

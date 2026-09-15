@@ -208,25 +208,43 @@ class ListService
         );
     }
 
-    public function update($data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function update(string $pid, string $list_id, string $list_type, array $data): int
     {
+        // Scope by pid+type so a leaked list_id can't rewrite a record on
+        // another patient's chart or under a different list type. Pre-check
+        // via SELECT drives the 200/404 outcome — affected rows would falsely
+        // 404 when the client resubmits identical values.
+        $existing = QueryUtils::querySingleRow(
+            "SELECT id FROM lists WHERE id=? AND pid=? AND type=?",
+            [$list_id, $pid, $list_type]
+        );
+        if (!is_array($existing) || $existing === []) {
+            return 0;
+        }
+
         $sql  = " UPDATE lists SET";
         $sql .= "     title=?,";
         $sql .= "     begdate=?,";
         $sql .= "     enddate=?,";
         $sql .= "     diagnosis=?";
-        $sql .= " WHERE id=?";
+        $sql .= " WHERE id=? AND pid=? AND type=?";
 
-        return sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             $sql,
             [
                 $data["title"],
                 $data["begdate"],
                 $data["enddate"],
                 $data["diagnosis"],
-                $data["id"]
+                $list_id,
+                $pid,
+                $list_type,
             ]
         );
+        return 1;
     }
 
     public function delete($pid, $list_id, $list_type)

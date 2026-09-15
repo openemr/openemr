@@ -8,7 +8,9 @@
  * @subpackage ediHistory
  * @link       https://www.open-emr.org
  * @author     Kevin McCormick
+ * @author     Michael A. Smith <michael@opencoreemr.com>
  * @copyright  Copyright (c) 2016 Kevin McCormick    Longview, Texas
+ * @copyright  Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -730,6 +732,13 @@ function edih_archive_csv_combine($filetype, $csvtype)
  */
 function edih_archive_restore($archive_name)
 {
+    // Archive names must be plain filenames matching the format used at
+    // archive creation time (e.g. "<date>_archive.zip"). Reject anything
+    // else to keep restore constrained to well-formed archive entries.
+    if (!preg_match('/\A[\w.-]+\.zip\z/', $archive_name)) {
+        csv_edihist_log("edih_archive_restore: rejected archive name");
+        return "Archive: invalid archive file name<br />";
+    }
     //
     $str_out = '';
     $bdir = csv_edih_basedir();

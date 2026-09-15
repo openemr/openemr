@@ -16,7 +16,7 @@ use OpenApi\Analysers\ReflectionAnalyser;
 use OpenApi\Generator;
 use OpenApi\Processors\DocBlockDescriptions;
 use OpenApi\Processors\OperationId;
-use OpenApi\SourceFinder;
+use OpenApi\Utils\SourceFinder;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;

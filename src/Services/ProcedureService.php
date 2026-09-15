@@ -1073,9 +1073,7 @@ class ProcedureService extends BaseService
 
         foreach ($specimens as $specimen) {
             $seq = $specimen['procedure_order_seq'];
-            if (!isset($grouped[$seq])) {
-                $grouped[$seq] = [];
-            }
+            $grouped[$seq] ??= [];
             $grouped[$seq][] = $specimen;
         }
 

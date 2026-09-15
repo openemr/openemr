@@ -25,8 +25,6 @@ $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 $pid = PatientSessionUtil::getPid();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 formHeader("Form:Transfer Summary");
@@ -100,7 +98,7 @@ echo "<form method='post' name='my_form' " .
 
      <td class="forms">
          <input type="text" name="transfer_to" id="transfer_to"
-        value="<?php echo text($obj["transfer_to"] ?? '');?>"></td>
+        value="<?php echo attr($obj["transfer_to"] ?? '');?>"></td>
 
         <td align="left" class="forms"><?php echo xlt('Transfer date'); ?>:</td>
         <td class="forms">

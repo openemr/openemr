@@ -11,11 +11,6 @@
  */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/Phreeze/Reporter.php");
-
-/**
  * This is an example Reporter based on the OnsiteActivityView object.
  * The reporter object
  * allows you to run arbitrary queries that return data which may or may not fit within
@@ -77,7 +72,7 @@ class OnsiteActivityViewReporter extends Reporter
      * @param Criteria $criteria
      * @return string SQL statement
      */
-    static function GetCustomQuery($criteria)
+    public static function GetCustomQuery($criteria)
     {
         $sql = <<<'SQL'
         SELECT
@@ -143,7 +138,7 @@ class OnsiteActivityViewReporter extends Reporter
      * @param Criteria $criteria
      * @return string SQL statement
      */
-    static function GetCustomCountQuery($criteria)
+    public static function GetCustomCountQuery($criteria)
     {
         $sql = <<<'SQL'
         SELECT count(1) AS counter

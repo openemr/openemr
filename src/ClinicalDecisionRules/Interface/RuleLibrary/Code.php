@@ -16,11 +16,11 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class Code
 {
-    function __construct(public $id, public $code, public $text, public $codeType)
+    public function __construct(public $id, public $code, public $text, public $codeType)
     {
     }
 
-    function display()
+    public function display()
     {
         return $this->codeType . ":" . $this->id . " - " . $this->code . " " . $this->text;
     }

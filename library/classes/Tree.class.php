@@ -39,23 +39,23 @@ class Tree
     *   @param mixed $root name or id of desired root node
     *   @param int $root_type optional flag indicating if $root is a name or id, defaults to id
     */
-    function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
+    public function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
     {
         $this->_db = OEGlobalsBag::getInstance()->get('adodb')['db'];
         $this->load_tree();
     }
 
-    function should_translate_name()
+    public function should_translate_name(): bool
     {
         return false;
     }
 
-    function get_translated_name($name)
+    public function get_translated_name($name)
     {
         return $name;
     }
 
-    function load_tree()
+    public function load_tree()
     {
         $root = $this->_root;
         $tree = [];
@@ -167,7 +167,7 @@ class Tree
     *   @param int $parent id of the node you would like to rebuild all nodes below
     *   @param int $left optional proper left value of the node you are rebuilding below, then used recursively
     */
-    function rebuild_tree($parent, $left = null)
+    public function rebuild_tree($parent, $left = null)
     {
 
         //if no left is supplied assume the existing left is proper
@@ -221,7 +221,7 @@ class Tree
     *   @param string $codes optional Medical codes to use (LOINC, SNOMED, etc) for this node.
     *   @return int id of newly added node
     */
-    function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
+    public function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
     {
 
         $sql = "SELECT * from " . $this->_table . " where parent = ? and name=?";
@@ -262,7 +262,7 @@ class Tree
     *   @param string $codes optional Medical codes to use (LOINC, SNOMED, etc) for this node.
     *   @return int same as input id
     */
-    function edit_node($id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
+    public function edit_node($id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
     {
         $sql = "SELECT c2.id FROM " . $this->_table . " AS c1, " . $this->_table . " AS c2 WHERE " .
         "c1.id = ? AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = ?";
@@ -282,7 +282,7 @@ class Tree
     *   of the deleted nodes parent
     *   @param int $id id of the node you want to delete
     */
-    function delete_node($id)
+    public function delete_node($id): bool
     {
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";
@@ -326,7 +326,7 @@ class Tree
         return true;
     }
 
-    function get_node_info($id)
+    public function get_node_info($id)
     {
         if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id];
@@ -335,7 +335,7 @@ class Tree
         }
     }
 
-    function get_node_name($id)
+    public function get_node_name($id)
     {
         if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id]['name'];
@@ -351,9 +351,7 @@ function array_merge_2(&$array, &$array_i): void
     foreach ($array_i as $k => $v) {
         // If the value itself is an array, the process repeats recursively:
         if (is_array($v)) {
-            if (!isset($array[$k])) {
-                $array[$k] = [];
-            }
+            $array[$k] ??= [];
 
             array_merge_2($array[$k], $v);
 

@@ -21,7 +21,7 @@ class C_X12Partner extends Controller
     /** @var X12Partner[] */
     public $x12_partners;
 
-    function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->x12_partners = [];
@@ -30,12 +30,12 @@ class C_X12Partner extends Controller
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action(): string
+    public function default_action(): string
     {
         return $this->list_action();
     }
 
-    function edit_action($id = "", $x_obj = null)
+    public function edit_action($id = "", $x_obj = null)
     {
         if ($x_obj instanceof X12Partner) {
             $this->x12_partners[0] = $x_obj;
@@ -56,7 +56,7 @@ class C_X12Partner extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_edit.html");
     }
 
-    function list_action(): string
+    public function list_action(): string
     {
         $x = new X12Partner();
         $this->assign("partners", $x->x12_partner_factory());
@@ -64,7 +64,7 @@ class C_X12Partner extends Controller
     }
 
 
-    function edit_action_process()
+    public function edit_action_process()
     {
         if ($_POST['process'] != "true") {
             return;

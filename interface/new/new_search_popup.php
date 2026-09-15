@@ -15,9 +15,9 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
@@ -28,7 +28,12 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
+// The form posts fstart, but the pager links pass it on the query string.
+$request = CurrentRequest::get();
+$fstartRequest = $request->request->has('fstart')
+    ? $request->request->get('fstart')
+    : $request->query->get('fstart');
+$fstart = is_numeric($fstartRequest) ? (int) $fstartRequest : 0;
 
 $searchcolor = empty(OEGlobalsBag::getInstance()->get('layout_search_color')) ? 'var(--yellow)' : OEGlobalsBag::getInstance()->get('layout_search_color');
 $simpleSearch = $_GET['simple_search'] ?? null;
@@ -95,7 +100,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
 <body class="body_top">
     <form method='post' action='new_search_popup.php' name='theform'>
         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-        <input type='hidden' name='fstart' value='<?php echo attr($fstart); ?>' />
+        <input type='hidden' name='fstart' value='<?php echo attr((string) $fstart); ?>' />
         <?php
         $MAXSHOW = 100; // maximum number of results to display at once
 
@@ -145,9 +150,11 @@ $simpleSearch = $_GET['simple_search'] ?? null;
             "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS " .
             "FROM patient_data WHERE $where " .
             "ORDER BY relevance DESC, lname, fname, mname " .
-            "LIMIT " . escape_limit($fstart) . ", " . escape_limit($MAXSHOW) . "";
+            "LIMIT ? OFFSET ?";
 
         $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
+        $sqlBindArray[] = $MAXSHOW;
+        $sqlBindArray[] = $fstart;
         $rez = sqlStatement($sql, $sqlBindArray);
         $result = [];
         while ($row = sqlFetchArray($rez)) {

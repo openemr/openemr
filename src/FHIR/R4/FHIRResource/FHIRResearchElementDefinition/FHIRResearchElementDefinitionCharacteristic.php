@@ -763,9 +763,7 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchElementDefinitionCharacteristic xmlns="http://hl7.org/fhir"></ResearchElementDefinitionCharacteristic>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResearchElementDefinitionCharacteristic xmlns="http://hl7.org/fhir"></ResearchElementDefinitionCharacteristic>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->definitionCodeableConcept)) {
             $this->definitionCodeableConcept->xmlSerialize(true, $sxe->addChild('definitionCodeableConcept'));

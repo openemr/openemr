@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("IObserver.php");
-require_once("verysimple/HTTP/RequestUtil.php");
-/**
  * ObserverToBrowser is an implementation of IObserver that writes all
  * messages to a file
  *
@@ -30,7 +25,7 @@ class ObserveToFile implements IObserver
         @fclose($this->fh);
         $this->fileIsOpen = false;
     }
-    function Init()
+    public function Init()
     {
         $this->fh = fopen($this->filepath, "a");
         $this->fileIsOpen = true;

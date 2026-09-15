@@ -157,7 +157,9 @@ class ImmunizationTable
             return count($result);
         }
 
-        $query .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']) . "," . \Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
+        $query .= " LIMIT ? OFFSET ?";
+        $query_data[] = is_numeric($form_data['results']) ? (int) $form_data['results'] : 0;
+        $query_data[] = is_numeric($form_data['limit_start']) ? (int) $form_data['limit_start'] : 0;
         return QueryUtils::fetchRecords($query, $query_data);
     }
 

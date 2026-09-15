@@ -187,6 +187,6 @@ class ZendModuleControllerResolverIsolatedTest extends TestCase
             $this->responder(),
         );
 
-        $this->assertSame([], $resolver->getArguments(Request::create('/'), fn() => null));
+        $this->assertSame([], $resolver->getArguments(Request::create('/'), fn(): null => null));
     }
 }

@@ -26,6 +26,7 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
@@ -41,7 +42,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
@@ -220,7 +221,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
                     $values = [new TokenSearchValue(true)];
                     $modifier = SearchModifier::MISSING;
                     break;
-                } else if ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
+                } elseif ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
                     // remove the system as procedure service only cares about the code itself
                     $values[] = new TokenSearchValue($value->getCode());
                 } else {
@@ -248,13 +249,22 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
         if (!($dataRecord instanceof FHIRDiagnosticReport)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     protected function populateMeta(FHIRDiagnosticReport $report, array $dataRecordReport): void

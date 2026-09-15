@@ -19,6 +19,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -34,7 +35,6 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 </head>
 <body class="body_top">
 <?php
-require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_ankleinjury", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/ankleinjury/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
@@ -44,7 +44,7 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link"
+<a href="<?php echo FormActionBarSettings::EXIT_URL; ?>" class="link"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 <br /><br />
 
@@ -199,7 +199,7 @@ attr($obj["ankle_diagnosis4"]); ?>" size="50"></td>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link"
+<a href="<?php echo FormActionBarSettings::EXIT_URL; ?>" class="link"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 </form>
 <?php

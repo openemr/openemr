@@ -16,3 +16,6 @@ parameters:
     # patterns the rule should flag; excluding them keeps full-codebase
     # PHPStan runs from reporting those intentional bugs.
     - ../tests/Tests/Isolated/PHPStan/Sql/data
+    # Fixture for ForbiddenSessionSuperglobalRuleTest — deliberately reads and
+    # writes $_SESSION so the rule has something to flag.
+    - ../tests/Tests/Isolated/PHPStan/data

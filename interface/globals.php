@@ -18,7 +18,7 @@ use OpenEMR\BC\Deprecation;
 use OpenEMR\BC\DeprecationMode;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -27,6 +27,11 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\VersionFile;
+use OpenEMR\Services\CodeTypes\Subscriber\CodeTypeEventsSubscriber;
+use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
+use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
+use OpenEMR\Services\PatientFlowBoard\Subscriber\PatientFlowBoardEventsSubscriber;
 
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -172,15 +177,9 @@ if (!empty($GLOBALS['http_ca_cert']) && !$GLOBALS['http_verify_ssl']) {
     );
 }
 
-// Unless specified explicitly, apply Auth functions
-if (!isset($ignoreAuth)) {
-    $ignoreAuth = false;
-}
+$ignoreAuth ??= false;
 
-// Same for onsite
-if (!isset($ignoreAuth_onsite_portal)) {
-    $ignoreAuth_onsite_portal = false;
-}
+$ignoreAuth_onsite_portal ??= false;
 
 // Collect the apache server document root (and convert to windows slashes, if needed)
 $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
@@ -240,34 +239,43 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 
 /*
-* If a session does not yet exist, then will start the core OpenEMR session.
-* If a session already exists, then this means portal or oauth2 or api is being used, which
-*   has already created a portal session/cookie, so will bypass setting of
-*   the core OpenEMR session/cookie.
-* $sessionAllowWrite = 1 | true | string then normal operation
-* $sessionAllowWrite = undefined | null | 0  session start for read only then auto
-*   immediate session_write_close.
-* Unless $sessionAllowWrite is true, ensure no session writes are used within the calling
-*   scope of this globals instance. Goal is to unlock session file as quickly as possible
-*   instead of waiting for calling script to complete before releasing flock.
+ * Adopt the request the entry point published, or build one on first use for a
+ * plain web request. In the REST and OAuth2 paths this file is included from
+ * SiteSetupListener, whose scope cannot see the dispatcher's $request — reading
+ * through CurrentRequest is what keeps this from becoming a second instance
+ * without the api type, token scopes, and session the run has attached.
  */
-if (empty($restRequest)) {
-    $restRequest = HttpRestRequest::createFromGlobals();
-}
-// OEGlobalsBag is a singleton; reassigning here is safe even if an earlier
-// include already populated it. Selected values are re-set onto the bag
-// throughout the rest of this file.
+$restRequest = CurrentRequest::get();
+
+/*
+ * OEGlobalsBag is a singleton; reassigning here is safe even if an earlier
+ * include already populated it. Selected values are re-set onto the bag
+ * throughout the rest of this file.
+ */
 $globalsBag = OEGlobalsBag::getInstance();
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
 // Absolute path to the location of documentroot directory for use with include statements:
 $globalsBag->set('webroot', $web_root);
-$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor"); // @phpstan-ignore nullCoalesce.offset ($GLOBALS key may not exist yet)
+$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor");
 $globalsBag->set('restRequest', $restRequest);
-$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites"); // @phpstan-ignore nullCoalesce.offset
-$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false); // @phpstan-ignore nullCoalesce.offset
+$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites");
+$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
+
+/*
+ * If a session does not yet exist, then will start the core OpenEMR session.
+ * If a session already exists, then this means portal or oauth2 or api is being used, which
+ *   has already created a portal session/cookie, so will bypass setting of
+ *   the core OpenEMR session/cookie.
+ * $sessionAllowWrite = 1 | true | string then normal operation
+ * $sessionAllowWrite = undefined | null | 0  session start for read only then auto
+ *   immediate session_write_close.
+ * Unless $sessionAllowWrite is true, ensure no session writes are used within the calling
+ *   scope of this globals instance. Goal is to unlock session file as quickly as possible
+ *   instead of waiting for calling script to complete before releasing flock.
+ */
 $read_only = empty($sessionAllowWrite);
 SessionWrapperFactory::getInstance()->setSessionReadOnly($read_only);
 
@@ -391,16 +399,28 @@ require_once(__DIR__ . "/../library/sql.inc.php");
 $globalsBag->set("adodb", $GLOBALS['adodb'] ?? null);
 $globalsBag->set("dbh", $GLOBALS['dbh'] ?? null);
 
-// Include the version file
-require_once(__DIR__ . "/../version.php");
-$globalsBag->set("v_major", $v_major ?? null);
-$globalsBag->set("v_minor", $v_minor ?? null);
-$globalsBag->set("v_patch", $v_patch ?? null);
-$globalsBag->set("v_tag", $v_tag ?? null);
-$globalsBag->set("v_realpatch", $v_realpatch ?? null);
-$globalsBag->set("v_database", $v_database ?? null);
-$globalsBag->set("v_acl", $v_acl ?? null);
-$globalsBag->set("v_js_includes", $v_js_includes ?? null);
+// Read the version file. VersionFile evaluates it in its own scope, because
+// a require_once here is a no-op when another entry point already included
+// version.php, and the $v_* variables would then be undefined in this scope.
+// Storing them as null poisons every reader: the keys are present, so
+// getString() ignores its default and throws instead.
+$versionFile = VersionFile::load(dirname(__DIR__));
+$v_major = $versionFile->major;
+$v_minor = $versionFile->minor;
+$v_patch = $versionFile->patch;
+$v_tag = $versionFile->tag;
+$v_realpatch = $versionFile->realpatch;
+$v_database = $versionFile->database;
+$v_acl = $versionFile->acl;
+$v_js_includes = $versionFile->jsIncludes;
+$globalsBag->set('v_major', $v_major);
+$globalsBag->set('v_minor', $v_minor);
+$globalsBag->set('v_patch', $v_patch);
+$globalsBag->set('v_tag', $v_tag);
+$globalsBag->set('v_realpatch', $v_realpatch);
+$globalsBag->set('v_database', $v_database);
+$globalsBag->set('v_acl', $v_acl);
+$globalsBag->set('v_js_includes', $v_js_includes);
 
 ini_set('default_charset', 'utf-8');
 $HTML_CHARSET = "UTF-8";
@@ -419,19 +439,9 @@ if (!empty($glrow)) {
     // Collect user specific settings from user_settings table.
     //
     $gl_user = [];
-    // Collect the user id first
     $temp_authuserid = '';
     if (!empty($session->get('authUserID'))) {
-        //Set the user id from the session variable
         $temp_authuserid = $session->get('authUserID');
-    } else {
-        if (!empty($_POST['authUser'])) {
-            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$_POST['authUser']]);
-            if (!empty($temp_sql_ret['id'])) {
-                //Set the user id from the login variable
-                $temp_authuserid = $temp_sql_ret['id'];
-            }
-        }
     }
 
     if (!empty($temp_authuserid)) {
@@ -739,12 +749,6 @@ $globalsBag->set('layout_search_color', '#ff9919');
 
 $encounter = EncounterSessionUtil::getEncounter();
 
-if (!empty($_GET['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_GET['pid']);
-} elseif (!empty($_POST['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_POST['pid']);
-}
-
 $pid = PatientSessionUtil::getPid();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 $groupname = empty($session->get('authProvider')) ? 0 : $session->get('authProvider');
@@ -831,6 +835,15 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  * Used by include files to guard against direct HTTP access.
  */
 const OPENEMR_GLOBALS_LOADED = true;
+
+// Core event subscribers.
+// These are always-on behaviour, not optional modules, so they register directly
+// on the kernel dispatcher rather than going through the modules system.
+$coreDispatcher = $globalsBag->getKernel()->getEventDispatcher();
+$coreDispatcher->addSubscriber(new UuidMappingEventsSubscriber());
+$coreDispatcher->addSubscriber(new CalculatedObservationEventsSubscriber());
+$coreDispatcher->addSubscriber(new CodeTypeEventsSubscriber());
+$coreDispatcher->addSubscriber(new PatientFlowBoardEventsSubscriber());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files

@@ -7,6 +7,15 @@
  * Thin CLI wrapper around OpenEMR\Release\PackageAssembler; see that class for
  * the build steps and rationale.
  *
+ * Note that `--release-version` is a naming label only: it flows into the
+ * output filename (`openemr-<version>.tar.gz`) and the intermediate staging
+ * dir, but does NOT get baked into the packaged codebase. The shipped
+ * self-reported version comes from files in the source tree (sql/version.php
+ * and friends), which the assembler ships as-is from the checked-out ref.
+ * That's why Phase 3.5's build_locally acceptance path can label the
+ * PR-built tarball `99.99.99` without any file rewriting — the assembler's
+ * git-archive step preserves whatever version the codebase self-reports.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>

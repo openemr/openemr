@@ -182,9 +182,7 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalCharacteristics xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalCharacteristics>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductPharmaceuticalCharacteristics xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalCharacteristics>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

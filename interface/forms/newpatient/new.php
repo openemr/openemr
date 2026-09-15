@@ -20,8 +20,6 @@ use OpenEMR\Core\OEGlobalsBag;
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $pid = PatientSessionUtil::getPid();
 
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/patient.inc.php");
 
 // Check permission to create encounters.
 $tmp = getPatientData($pid, "squad");

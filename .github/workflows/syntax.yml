@@ -25,7 +25,7 @@ jobs:
       matrix:
         # PRs: only oldest supported PHP (fast feedback)
         # Push to master/rel-*: all supported versions
-        php: ${{ github.event_name == 'pull_request' && fromJson('["8.2"]') || fromJson('["8.2", "8.3", "8.4", "8.5", "8.6"]') }}
+        php: ${{ github.event_name == 'pull_request' && fromJson('["8.3"]') || fromJson('["8.3", "8.4", "8.5", "8.6"]') }}
     name: PHP ${{ matrix.php }}
     steps:
     - uses: actions/checkout@v7

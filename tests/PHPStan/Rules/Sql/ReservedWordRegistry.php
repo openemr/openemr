@@ -56,11 +56,13 @@ final readonly class ReservedWordRegistry
      */
     private const RESERVED_WORD_SUPPLEMENT = [
         'conversion',
+        'cube',
         'cume_dist',
         'delete_domain_id',
         'dense_rank',
         'do_domain_ids',
         'empty',
+        'external',
         'first_value',
         'function',
         'grouping',

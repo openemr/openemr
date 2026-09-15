@@ -100,9 +100,7 @@ class QueryBuilder
                 $jointype = $km->LoadType == KM_LOAD_INNER ? "inner" : "left";
 
                 foreach ($ffms as $ffm) {
-                    if (! isset($this->Joins [$ffm->TableName])) {
-                        $this->Joins [$ffm->TableName] = " " . $jointype . " join `" . $ffm->TableName . "` on `" . $fms [$km->KeyProperty]->TableName . "`.`" . $fms [$km->KeyProperty]->ColumnName . "` = `" . $ffms [$km->ForeignKeyProperty]->TableName . "`.`" . $ffms [$km->ForeignKeyProperty]->ColumnName . "`";
-                    }
+                    $this->Joins [$ffm->TableName] ??= " " . $jointype . " join `" . $ffm->TableName . "` on `" . $fms [$km->KeyProperty]->TableName . "`.`" . $fms [$km->KeyProperty]->ColumnName . "` = `" . $ffms [$km->ForeignKeyProperty]->TableName . "`.`" . $ffms [$km->ForeignKeyProperty]->ColumnName . "`";
                 }
 
                 // keep track of what we have eagerly joined already

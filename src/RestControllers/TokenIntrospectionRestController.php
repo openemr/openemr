@@ -119,9 +119,7 @@ class TokenIntrospectionRestController {
      */
     public function getPsr17Factory(): ?Psr17Factory
     {
-        if (!isset($this->psr17Factory)) {
-            $this->psr17Factory = new Psr17Factory();
-        }
+        $this->psr17Factory ??= new Psr17Factory();
         return $this->psr17Factory;
     }
 
@@ -134,16 +132,12 @@ class TokenIntrospectionRestController {
     }
 
     public function getAccessTokenRepository(SessionInterface $session): AccessTokenRepository {
-        if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository($this->getServerConfig(), $session);
-        }
+        $this->accessTokenRepository ??= new AccessTokenRepository($this->getServerConfig(), $session);
         return $this->accessTokenRepository;
     }
 
     public function getRefreshTokenRepository(): RefreshTokenRepository {
-        if (!isset($this->refreshTokenRepository)) {
-            $this->refreshTokenRepository = new RefreshTokenRepository();
-        }
+        $this->refreshTokenRepository ??= new RefreshTokenRepository();
         return $this->refreshTokenRepository;
     }
 
@@ -156,9 +150,7 @@ class TokenIntrospectionRestController {
     }
 
     public function getTrustedUserService(): TrustedUserService {
-        if (!isset($this->trustedUserService)) {
-            $this->trustedUserService = new TrustedUserService();
-        }
+        $this->trustedUserService ??= new TrustedUserService();
         return $this->trustedUserService;
     }
 
@@ -171,9 +163,7 @@ class TokenIntrospectionRestController {
     }
 
     public function getCryptoGen(): CryptoInterface {
-        if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = ServiceContainer::getCrypto();
-        }
+        $this->cryptoGen ??= ServiceContainer::getCrypto();
         return $this->cryptoGen;
     }
 
@@ -182,9 +172,7 @@ class TokenIntrospectionRestController {
     }
 
     public function getJsonWebKeyParser() : JsonWebKeyParser {
-        if (!isset($this->jsonWebKeyParser)) {
-            $this->jsonWebKeyParser = new JsonWebKeyParser($this->getOAuth2KeyConfig()->getEncryptionKey(), $this->getOAuth2KeyConfig()->getPublicKeyLocation());
-        }
+        $this->jsonWebKeyParser ??= new JsonWebKeyParser($this->getOAuth2KeyConfig()->getEncryptionKey(), $this->getOAuth2KeyConfig()->getPublicKeyLocation());
         return $this->jsonWebKeyParser;
     }
 
@@ -205,9 +193,7 @@ class TokenIntrospectionRestController {
     }
 
     public function getJWTRepository(): JWTRepository {
-        if (!isset($this->jwtRepository)) {
-            $this->jwtRepository = new JWTRepository();
-        }
+        $this->jwtRepository ??= new JWTRepository();
         return $this->jwtRepository;
     }
 
@@ -227,9 +213,7 @@ class TokenIntrospectionRestController {
 
     public function getServerConfig(): ServerConfig
     {
-        if (!isset($this->serverConfig)) {
-            $this->serverConfig = new ServerConfig();
-        }
+        $this->serverConfig ??= new ServerConfig();
         return $this->serverConfig;
     }
 
@@ -446,8 +430,7 @@ class TokenIntrospectionRestController {
             if (isset($result['exp']) && $result['exp'] instanceof \DateTimeImmutable) {
                 $result['exp'] = $result['exp']->getTimestamp();
             }
-        }
-        catch (\Throwable $exception) {
+        } catch (\Throwable $exception) {
             // something else went wrong
             $this->getSystemLogger()->error($exception->getMessage(), ['exception' => $exception, 'client_id' => $clientId]);
             // something else went wrong

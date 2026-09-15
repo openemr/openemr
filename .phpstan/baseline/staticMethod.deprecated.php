@@ -132,12 +132,6 @@ use createProcessingResultResponse\\(\\) instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
 use createProcessingResultResponse\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
-use createProcessingResultResponse\\(\\) instead\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
 ];
@@ -150,7 +144,7 @@ use createProcessingResultResponse\\(\\) instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
 use createProcessingResultResponse\\(\\) instead\\.$#',
-    'count' => 14,
+    'count' => 13,
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
 ];
 $ignoreErrors[] = [

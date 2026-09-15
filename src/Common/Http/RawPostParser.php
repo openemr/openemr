@@ -92,9 +92,13 @@ final class RawPostParser
      */
     public static function fromGlobals(): self
     {
-        // filter_input(INPUT_SERVER, ...) is the project-blessed boundary
-        // pattern for reading $_SERVER without tripping the forbidden-
-        // globals PHPStan rule. Header is normalised by PHP to CONTENT_TYPE.
+        // Transitional: these two headers are available on the Request as
+        // $request->headers->get('Content-Type'/'Content-Length'), and this
+        // factory should take a Request rather than reading $_SERVER. Note
+        // the body itself must stay raw — the whole point of this class is
+        // that $_POST, and therefore $request->request, is already truncated.
+        // filter_input() here is legacy, not a pattern to copy. Header is
+        // normalised by PHP to CONTENT_TYPE.
         $contentType = filter_input(INPUT_SERVER, 'CONTENT_TYPE') ?? '';
         $contentLength = filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT);
         return new self(

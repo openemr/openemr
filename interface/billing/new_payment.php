@@ -30,9 +30,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/payment.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -43,6 +41,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $PaymentType = filter_input(INPUT_POST, 'type_name') ?: filter_input(INPUT_GET, 'type_name') ?: '';
 $TypeCode = filter_input(INPUT_POST, 'hidden_type_code') ?: filter_input(INPUT_GET, 'hidden_type_code') ?: '';
 $CountIndexBelow = filter_input(INPUT_POST, '_init_count_index_below', FILTER_VALIDATE_INT) ?: 0;
+$CountIndex = 0; // charge-row counter; payment_pat_sel.inc.php continues from the caller's value
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));
@@ -437,7 +436,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         <div class="clearfix">.</div>
     </div><!-- end of container div -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-<script src = '<?php echo OEGlobalsBag::getInstance()->getString('webroot');?>/library/js/oeUI/oeFileUploads.js'></script>
+<script src = '<?php echo OEGlobalsBag::getInstance()->getString('webroot');?>/library/js/oeUI/oeFileUploads.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>'></script>
 <script>
 $(function () {
     $('select').removeClass('class1 text');

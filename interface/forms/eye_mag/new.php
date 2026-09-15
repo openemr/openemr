@@ -16,9 +16,6 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
-
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -89,9 +86,9 @@ if (!empty($erow['form_id']) && ($erow['form_id'] > '0')) {
             "user, groupname, authorized, formdir) values (NOW(),?,?,?,?,?,?,?,?)";
     $answer = sqlInsert($sql, [$encounter,$form_name,$newid,$pid,$user,$group,$providerid,$form_folder]);
     // Keep the session encounter in sync with the value just written to the
-    // forms table.  view.php reads $encounter exclusively from the session
-    // (via globals.php) and compares it against the stored encounter for IDOR
-    // protection; if they diverge the guard fires a 404 "Form not found".
+    // forms table.  view.php reads $encounter from the session (via
+    // globals.php) and compares it to the stored encounter; a mismatch
+    // returns 404 "Form not found".
     SessionUtil::setSession('encounter', $encounter);
 }
 

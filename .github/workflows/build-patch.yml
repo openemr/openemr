@@ -120,10 +120,27 @@ jobs:
         printf '::error::release_tag is required when dry_run is false\n'
         exit 1
 
+    # Full checkout first — composite actions (generate-app-token,
+    # setup-php-composer) resolve against a real workspace, and
+    # composer.json is present for setup-php-composer's cache/install
+    # steps. The earlier sparse-first pattern (openemr/openemr#13480
+    # + #13509) worked around one bug but not the underlying git-
+    # sparse-then-full-checkout leak: files not in the initial sparse
+    # pattern (like composer.json) still weren't materialized by the
+    # second full checkout. Full-checkout-first sidesteps the leak.
+    - name: Checkout openemr release branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.version_branch }}
+        token: ${{ github.token }}
+        filter: blob:none
+        fetch-depth: 1
+        persist-credentials: false
+
     - name: Generate app token
       if: '!inputs.dry_run'
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -139,13 +156,6 @@ jobs:
         gh api repos/openemr/openemr/milestones --jq '.[].title' | head -5
         echo 'App token verified.'
 
-    - name: Checkout openemr release branch
-      uses: actions/checkout@v7
-      with:
-        ref: ${{ inputs.version_branch }}
-        token: ${{ steps.app-token.outputs.token || github.token }}
-        filter: blob:none
-        fetch-depth: 1
 
     - name: Fetch start tag
       env:
@@ -181,7 +191,7 @@ jobs:
 
     - name: Build theme styles
       if: inputs.copy_styles
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: '22'
     - name: Install npm and build styles
@@ -272,6 +282,7 @@ jobs:
       if: '!inputs.dry_run'
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
         RELEASE_TAG: ${{ inputs.release_tag }}
         VERSION_BRANCH: ${{ inputs.version_branch }}
         PATCH_FILENAME: ${{ inputs.patch_filename }}
@@ -285,8 +296,18 @@ jobs:
         if git rev-parse "$tag" > /dev/null 2>&1; then
           echo "Tag $tag already exists, skipping tag creation"
         else
+          # Authenticate git-push with the App token inline (not
+          # persisted in .git/config) — top checkout used
+          # persist-credentials=false so credentials aren't sitting
+          # in the tree during the composer install / npm ci / npm
+          # build / package-assembly steps between checkout and now.
+          # `-c http.extraheader=...` is one-shot: applies to this
+          # push only, never written to .git/config, no leak surface
+          # for a compromised dep or vendor script to read.
+          basic_auth_b64="$(printf 'x-access-token:%s' "$APP_TOKEN" | base64 -w0)"
           git tag -a -m "Patch release $tag" "$tag" "$VERSION_BRANCH"
-          git push origin "$tag"
+          git -c "http.https://github.com/.extraheader=Authorization: Basic ${basic_auth_b64}" \
+            push origin "$tag"
         fi
 
         if ! gh release view "$tag" --repo openemr/openemr > /dev/null 2>&1; then

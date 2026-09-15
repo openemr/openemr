@@ -19,10 +19,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once("$srcDir/forms.inc.php");
-require_once("$srcDir/transactions.inc.php");
-require_once("$srcDir/lists.inc.php");
-require_once("$srcDir/patient.inc.php");
 require_once("$srcDir/options.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

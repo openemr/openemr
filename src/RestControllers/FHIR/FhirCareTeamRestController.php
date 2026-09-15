@@ -44,9 +44,7 @@ class FhirCareTeamRestController
 
     public function getOEGlobals(): OEGlobalsBag
     {
-        if (!isset($this->oeGlobalsBag)) {
-            $this->oeGlobalsBag = new OEGlobalsBag();
-        }
+        $this->oeGlobalsBag ??= new OEGlobalsBag();
         return $this->oeGlobalsBag;
     }
 
@@ -178,7 +176,7 @@ class FhirCareTeamRestController
     /**
      * Queries for FHIR CareTeam resources using various search parameters.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @return \Symfony\Component\HttpFoundation\Response FHIR bundle with query results, if found
      */
     #[OA\Get(
         path: '/fhir/CareTeam',

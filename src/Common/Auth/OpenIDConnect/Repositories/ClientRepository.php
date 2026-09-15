@@ -228,7 +228,7 @@ class ClientRepository implements ClientRepositoryInterface
      * @return bool True if it succeeded
      * @throws \RuntimeException If there is a database error in saving.
      */
-    public function saveIsEnabled(ClientEntity $client, $isEnabled)
+    public function saveIsEnabled(ClientEntity $client, $isEnabled): bool
     {
         // TODO: adunsulag do we want to eventually just have a save() method.. it would be very handy but not sure
         // we want any oauth2 values being overwritten.
@@ -287,7 +287,7 @@ class ClientRepository implements ClientRepositoryInterface
         return HttpUtils::base64url_encode(random_bytes(16));
     }
 
-    public function saveSkipEHRLaunchFlow(ClientEntity $client, bool $skipFlow)
+    public function saveSkipEHRLaunchFlow(ClientEntity $client, bool $skipFlow): bool
     {
         // TODO: adunsulag do we want to eventually just have a save() method.. it would be very handy but not sure
         // we want any oauth2 values being overwritten.

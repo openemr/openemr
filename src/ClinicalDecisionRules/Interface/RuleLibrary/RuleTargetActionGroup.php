@@ -44,7 +44,7 @@ class RuleTargetActionGroup
         $this->ruleActions = $ruleActions;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
     }
 }

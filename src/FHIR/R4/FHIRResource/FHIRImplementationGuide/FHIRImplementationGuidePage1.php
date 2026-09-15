@@ -223,9 +223,7 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImplementationGuidePage1 xmlns="http://hl7.org/fhir"></ImplementationGuidePage1>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImplementationGuidePage1 xmlns="http://hl7.org/fhir"></ImplementationGuidePage1>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

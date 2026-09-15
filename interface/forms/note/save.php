@@ -16,6 +16,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -27,9 +28,6 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
@@ -38,13 +36,17 @@ CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
  */
 $table_name = "form_note";
 
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'note');
+
 $_POST['date_of_signature'] = DateToYYYYMMDD($_POST['date_of_signature']);
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit($table_name, $_POST, $_GET["id"] ?? '', $userauthorized);
+    $newid = formSubmit($table_name, $_POST, $formId, $userauthorized);
     addForm($encounter, "Work/School Note", $newid, "note", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    $success = formUpdate($table_name, $_POST, $_GET["id"], $userauthorized);
+    $success = formUpdate($table_name, $_POST, $formId, $userauthorized);
 }
 
 formHeader("Redirecting....");

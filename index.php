@@ -18,10 +18,10 @@
     $sites_dirs = glob('sites/*', GLOB_ONLYDIR) ?: [];
     $valid_site_ids = array_map(
         basename(...),
-        array_filter($sites_dirs, fn($d) => is_file("{$d}/sqlconf.php"))
+        array_filter($sites_dirs, fn($d): bool => is_file("{$d}/sqlconf.php"))
     );
 
-    switch(count($valid_site_ids)) {
+    switch (count($valid_site_ids)) {
         case 0:
             throw new RuntimeException('No valid sites found');
         // Often there's only one valid request id, so we can ignore input.

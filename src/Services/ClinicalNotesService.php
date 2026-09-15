@@ -415,9 +415,7 @@ class ClinicalNotesService extends BaseService
         $grouped = [];
         foreach ($results as $row) {
             $noteId = $row['clinical_note_id'];
-            if (!isset($grouped[$noteId])) {
-                $grouped[$noteId] = [];
-            }
+            $grouped[$noteId] ??= [];
             $grouped[$noteId][] = [
                 'uuid' => UuidRegistry::uuidToString($row['document_uuid']),
                 'name' => $row['document_name'],
@@ -465,9 +463,7 @@ class ClinicalNotesService extends BaseService
         $grouped = [];
         foreach ($results as $row) {
             $noteId = $row['clinical_note_id'];
-            if (!isset($grouped[$noteId])) {
-                $grouped[$noteId] = [];
-            }
+            $grouped[$noteId] ??= [];
             $grouped[$noteId][] = [
                 'uuid' => UuidRegistry::uuidToString($row['result_uuid']),
                 'procedure_name' => $row['procedure_name'],

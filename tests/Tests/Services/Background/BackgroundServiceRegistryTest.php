@@ -202,7 +202,7 @@ class BackgroundServiceRegistryTest extends TestCase
         $this->registry->register($b);
 
         $all = $this->registry->list();
-        $names = array_map(fn(BackgroundServiceDefinition $d) => $d->name, $all);
+        $names = array_map(fn(BackgroundServiceDefinition $d): string => $d->name, $all);
 
         $this->assertContains($a->name, $names);
         $this->assertContains($b->name, $names);
@@ -216,10 +216,10 @@ class BackgroundServiceRegistryTest extends TestCase
         $this->registry->register($inactive);
 
         $activeList = $this->registry->list(activeFilter: true);
-        $activeNames = array_map(fn(BackgroundServiceDefinition $d) => $d->name, $activeList);
+        $activeNames = array_map(fn(BackgroundServiceDefinition $d): string => $d->name, $activeList);
 
         $inactiveList = $this->registry->list(activeFilter: false);
-        $inactiveNames = array_map(fn(BackgroundServiceDefinition $d) => $d->name, $inactiveList);
+        $inactiveNames = array_map(fn(BackgroundServiceDefinition $d): string => $d->name, $inactiveList);
 
         $this->assertContains($active->name, $activeNames);
         $this->assertNotContains($inactive->name, $activeNames);
@@ -234,7 +234,7 @@ class BackgroundServiceRegistryTest extends TestCase
         $this->registry->register($def);
 
         $all = $this->registry->list(activeFilter: null);
-        $names = array_map(fn(BackgroundServiceDefinition $d) => $d->name, $all);
+        $names = array_map(fn(BackgroundServiceDefinition $d): string => $d->name, $all);
 
         $this->assertContains($def->name, $names);
     }
@@ -247,7 +247,7 @@ class BackgroundServiceRegistryTest extends TestCase
         $this->registry->register($low);
 
         $all = $this->registry->list();
-        $names = array_map(fn(BackgroundServiceDefinition $d) => $d->name, $all);
+        $names = array_map(fn(BackgroundServiceDefinition $d): string => $d->name, $all);
 
         $lowIdx = array_search($low->name, $names, true);
         $highIdx = array_search($high->name, $names, true);

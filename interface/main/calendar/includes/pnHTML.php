@@ -118,7 +118,7 @@ class pnHTML
     /**
      * pnHTML constructor.
      */
-    function __construct()
+    public function __construct()
     {
         $this->header =  [];
         $this->parse = _PNH_PARSEINPUT;
@@ -134,7 +134,7 @@ class pnHTML
      * @return int Current input state
      * @see SetInputMode()
      */
-    function GetInputMode()
+    public function GetInputMode()
     {
         // The ONLY time this should be accessed directly
         return $this->parse;
@@ -149,7 +149,7 @@ class pnHTML
      * @return int Previous state
      * @see GetInputMode()
      */
-    function SetInputMode($st)
+    public function SetInputMode($st)
     {
         $pre = $this->GetInputMode();
         switch ($st) {
@@ -180,7 +180,7 @@ class pnHTML
      * @param string $body The assembled HTML body (from generate*() calls)
      * @return string An HTML string
      */
-    function GetOutput(string $body): string
+    public function GetOutput(string $body): string
     {
         return implode("\n", $this->header) . "\n" . $body;
     }
@@ -192,7 +192,7 @@ class pnHTML
      * @param string $body The assembled HTML body (from generate*() calls)
      * @return void
      */
-    function PrintPage(string $body): void
+    public function PrintPage(string $body): void
     {
         // Headers set by the system
         foreach ($this->header as $headerline) {
@@ -213,7 +213,7 @@ class pnHTML
      * @return string The HTML string
      * @see generateEndPage()
      */
-    function generateStartPage(): string
+    public function generateStartPage(): string
     {
         ob_start();
         print '<table class="w-100 border-0" cellpadding="0" cellspacing="0"><tr><td class="text-left align-top">';
@@ -231,7 +231,7 @@ class pnHTML
      * @return string The HTML string
      * @see generateStartPage()
      */
-    function generateEndPage(): string
+    public function generateEndPage(): string
     {
         global $index;
         $index = pnVarCleanFromInput('module') ? 0 : 1;
@@ -256,7 +256,7 @@ class pnHTML
      * @param string $text The text string to add
      * @return string The processed text
      */
-    function generateText($text): string
+    public function generateText($text): string
     {
         if ($this->GetInputMode() == _PNH_PARSEINPUT) {
             $text = pnVarPrepForDisplay($text);
@@ -273,7 +273,7 @@ class pnHTML
      * @param int $numbreaks number of linebreaks to add
      * @return string The HTML string
      */
-    function generateLinebreak($numbreaks = 1): string
+    public function generateLinebreak($numbreaks = 1): string
     {
         $out = '';
         for ($i = 0; $i < $numbreaks; $i++) {
@@ -295,7 +295,7 @@ class pnHTML
      * @param string $action the URL that this form should go to on submission
      * @return string The HTML string
      */
-    function generateFormStart($action): string
+    public function generateFormStart($action): string
     {
         return '<form'
             . ' action="' . pnVarPrepForDisplay($action) . '"'
@@ -311,7 +311,7 @@ class pnHTML
      * @access public
      * @return string The HTML string
      */
-    function generateFormEnd(): string
+    public function generateFormEnd(): string
     {
         return '</form>';
     }
@@ -325,7 +325,7 @@ class pnHTML
      * @param string $accesskey (optional) accesskey to active this button
      * @return string The HTML string
      */
-    function generateFormSubmit($label = 'Submit', $accesskey = ''): string
+    public function generateFormSubmit($label = 'Submit', $accesskey = ''): string
     {
         $this->tabindex++;
         return '<input class="btn btn-primary"'
@@ -347,7 +347,7 @@ class pnHTML
      * @param string $value the value of the hidden field
      * @return string The HTML string (empty when $fieldname is empty)
      */
-    function generateFormHidden($fieldname, $value = ''): string
+    public function generateFormHidden($fieldname, $value = ''): string
     {
         if (empty($fieldname)) {
             return '';
@@ -398,7 +398,7 @@ class pnHTML
      * @param string $accesskey (optional) accesskey to active this item
      * @return string The HTML string (empty when $fieldname is empty)
      */
-    function generateFormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false): string
+    public function generateFormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false): string
     {
         if (empty($fieldname)) {
             return '';

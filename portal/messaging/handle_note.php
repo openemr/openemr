@@ -95,7 +95,6 @@ if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
 }
 
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");
-require_once("{$globalsBag->getString('srcdir')}/pnotes.inc.php");
 
 
 if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {

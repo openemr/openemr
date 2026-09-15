@@ -41,6 +41,7 @@ if (!is_string($token) || $token === '') {
 
 try {
     $crypto = new \OpenEMR\Common\Crypto\CryptoGen();
+    // @phpstan-ignore method.deprecated (needs OTP conversion)
     $plain = $crypto->decryptStandard($token);
     if (!is_string($plain) || $plain === '') {
         http_response_code(403);

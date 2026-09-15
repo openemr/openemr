@@ -33,7 +33,7 @@ define("N2T_NEGATIVE", "negative");
 
 class NumberToText
 {
-    function __construct(public $number, public $currency = false, public $capitalize = false, public $and = false)
+    public function __construct(public $number, public $currency = false, public $capitalize = false, public $and = false)
     {
     }
 
@@ -52,7 +52,7 @@ class NumberToText
     * @return string The textual description of the number.
     * @package NumberToText
     */
-    function convert()
+    public function convert()
     {
         $number = $this->number;
         $currency = $this->currency;
@@ -190,7 +190,7 @@ class NumberToText
     * @return string The textual description of the number.
     * @package NumberToText
     */
-    function n2t_convertthree($number, $and, $preceding)
+    public function n2t_convertthree($number, $and, $preceding)
     {
         $small = unserialize(N2T_SMALL, ['allowed_classes' => false]);
         $medium = unserialize(N2T_MEDIUM, ['allowed_classes' => false]);
@@ -222,7 +222,7 @@ class NumberToText
         return $text;
     }
 
-    function getmicrotime()
+    public function getmicrotime()
     {
         [$usec, $sec] = explode(" ", microtime());
         return ((float)$usec + (float)$sec);

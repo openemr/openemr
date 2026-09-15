@@ -19,8 +19,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../../../library/patient.inc.php';
-
 class DuplicatePatientDetectionTest extends TestCase
 {
     /** @var list<int> PIDs to clean up after tests */
@@ -81,7 +79,7 @@ class DuplicatePatientDetectionTest extends TestCase
         $placeholders = array_fill(0, count($columns), '?');
         $sql = sprintf(
             "INSERT INTO patient_data (%s) VALUES (%s)",
-            implode(', ', array_map(fn($c) => "`$c`", $columns)),
+            implode(', ', array_map(fn($c): string => "`$c`", $columns)),
             implode(', ', $placeholders)
         );
         QueryUtils::sqlStatementThrowException($sql, array_values($patientData));

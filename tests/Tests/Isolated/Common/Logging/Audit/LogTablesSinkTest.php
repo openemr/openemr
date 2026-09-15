@@ -54,6 +54,19 @@ class LogTablesSinkTest extends TestCase
         );
     }
 
+    /**
+     * Narrow a captured insert value (mixed) to its string form for
+     * checksum recomputation, mirroring how PHP string concatenation
+     * treats the raw values inside LogTablesSink.
+     *
+     * @param array<array-key, mixed> $data
+     */
+    private static function field(array $data, string $key): string
+    {
+        $value = $data[$key] ?? null;
+        return is_scalar($value) ? (string)$value : '';
+    }
+
     public function testRecordInsertsIntoLogTable(): void
     {
         $event = $this->createEvent();
@@ -232,6 +245,7 @@ class LogTablesSinkTest extends TestCase
     {
         return [
             'user_id' => 1,
+            'client_id' => 'test-client-id',
             'patient_id' => 123,
             'method' => 'GET',
             'request' => '/api/patient',
@@ -307,6 +321,7 @@ class LogTablesSinkTest extends TestCase
         self::assertNotNull($capturedApiLogData);
         self::assertSame('55', $capturedApiLogData['log_id']);
         self::assertSame(1, $capturedApiLogData['user_id']);
+        self::assertSame('test-client-id', $capturedApiLogData['client_id']);
         self::assertSame(123, $capturedApiLogData['patient_id']);
         self::assertSame('GET', $capturedApiLogData['method']);
         self::assertSame('/api/patient', $capturedApiLogData['request']);
@@ -342,5 +357,114 @@ class LogTablesSinkTest extends TestCase
         self::assertIsArray($capturedLogCommentData);
         self::assertIsString($capturedLogCommentData['checksum_api']);
         self::assertSame(128, strlen($capturedLogCommentData['checksum_api']));
+    }
+
+    /**
+     * The stored api checksum must be reproducible by the exact field
+     * concatenation the audit log tamper report uses
+     * (interface/reports/audit_log_tamper_report.php). If the sink's field
+     * order and the tamper report's recompute ever diverge, every new
+     * api_log row will be reported as tampered.
+     */
+    public function testRecordApiChecksumMatchesTamperReportRecompute(): void
+    {
+        $event = $this->createEvent(api: $this->createApiData());
+
+        $capturedLogCommentData = null;
+        $capturedApiLogData = null;
+        $this->connection->expects($this->exactly(3))
+            ->method('insert')
+            ->willReturnCallback(function (string $table, array $data) use (&$capturedLogCommentData, &$capturedApiLogData): int {
+                if ($table === 'log_comment_encrypt') {
+                    $capturedLogCommentData = $data;
+                }
+                if ($table === 'api_log') {
+                    $capturedApiLogData = $data;
+                }
+                return 1;
+            });
+
+        $this->connection->method('lastInsertId')->willReturn('55');
+
+        $sink = new LogTablesSink(conn: $this->connection);
+
+        $sink->record($event);
+
+        self::assertIsArray($capturedLogCommentData);
+        self::assertIsArray($capturedApiLogData);
+
+        // mirror the tamper report's recompute, field by field
+        $recompute = hash(
+            'sha3-512',
+            self::field($capturedApiLogData, 'log_id')
+            . self::field($capturedApiLogData, 'user_id')
+            . self::field($capturedApiLogData, 'client_id')
+            . self::field($capturedApiLogData, 'patient_id')
+            . self::field($capturedApiLogData, 'ip_address')
+            . self::field($capturedApiLogData, 'method')
+            . self::field($capturedApiLogData, 'request')
+            . self::field($capturedApiLogData, 'request_url')
+            . self::field($capturedApiLogData, 'request_body')
+            . self::field($capturedApiLogData, 'response')
+            . self::field($capturedApiLogData, 'created_time')
+        );
+
+        self::assertSame($recompute, $capturedLogCommentData['checksum_api']);
+    }
+
+    /**
+     * Rows logged by callers that do not provide client_id (the state of the
+     * world before the column existed, and any older recordLogItem callers)
+     * must produce a checksum identical to the legacy formula that omitted
+     * client_id entirely -- the empty-string fallback contributes nothing to
+     * the hash. This is what keeps pre-upgrade audit rows verifiable in the
+     * tamper report.
+     */
+    public function testRecordApiChecksumWithoutClientIdMatchesLegacyFormula(): void
+    {
+        $apiData = $this->createApiData();
+        unset($apiData['client_id']);
+        $event = $this->createEvent(api: $apiData);
+
+        $capturedLogCommentData = null;
+        $capturedApiLogData = null;
+        $this->connection->expects($this->exactly(3))
+            ->method('insert')
+            ->willReturnCallback(function (string $table, array $data) use (&$capturedLogCommentData, &$capturedApiLogData): int {
+                if ($table === 'log_comment_encrypt') {
+                    $capturedLogCommentData = $data;
+                }
+                if ($table === 'api_log') {
+                    $capturedApiLogData = $data;
+                }
+                return 1;
+            });
+
+        $this->connection->method('lastInsertId')->willReturn('55');
+
+        $sink = new LogTablesSink(conn: $this->connection);
+
+        $sink->record($event);
+
+        self::assertIsArray($capturedLogCommentData);
+        self::assertIsArray($capturedApiLogData);
+        self::assertSame('', $capturedApiLogData['client_id'], 'missing client_id must be stored as empty string');
+
+        // the legacy checksum formula, exactly as it existed before client_id
+        $legacyRecompute = hash(
+            'sha3-512',
+            self::field($capturedApiLogData, 'log_id')
+            . self::field($capturedApiLogData, 'user_id')
+            . self::field($capturedApiLogData, 'patient_id')
+            . self::field($capturedApiLogData, 'ip_address')
+            . self::field($capturedApiLogData, 'method')
+            . self::field($capturedApiLogData, 'request')
+            . self::field($capturedApiLogData, 'request_url')
+            . self::field($capturedApiLogData, 'request_body')
+            . self::field($capturedApiLogData, 'response')
+            . self::field($capturedApiLogData, 'created_time')
+        );
+
+        self::assertSame($legacyRecompute, $capturedLogCommentData['checksum_api']);
     }
 }

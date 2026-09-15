@@ -314,9 +314,7 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImplementationGuideManifest xmlns="http://hl7.org/fhir"></ImplementationGuideManifest>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImplementationGuideManifest xmlns="http://hl7.org/fhir"></ImplementationGuideManifest>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->rendering)) {
             $this->rendering->xmlSerialize(true, $sxe->addChild('rendering'));

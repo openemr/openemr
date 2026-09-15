@@ -33,9 +33,6 @@ $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 $pid = PatientSessionUtil::getPid();
 
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/encounter.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

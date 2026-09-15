@@ -385,9 +385,7 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EnrollmentResponse xmlns="http://hl7.org/fhir"></EnrollmentResponse>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EnrollmentResponse xmlns="http://hl7.org/fhir"></EnrollmentResponse>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

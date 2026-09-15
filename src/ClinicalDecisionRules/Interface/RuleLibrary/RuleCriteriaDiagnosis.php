@@ -19,11 +19,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaDiagnosis extends RuleCriteria
 {
-    function __construct(public $title, public $codeType = '', public $id = '')
+    public function __construct(public $title, public $codeType = '', public $id = '')
     {
     }
 
-    function getRequirements()
+    public function getRequirements()
     {
         $codeManager = new CodeManager();
         $code = $codeManager->get($this->id);
@@ -34,17 +34,17 @@ class RuleCriteriaDiagnosis extends RuleCriteria
         return $code->display();
     }
 
-    function getTitle()
+    public function getTitle()
     {
         return $this->title;
     }
 
-    function getView()
+    public function getView()
     {
         return "diagnosis.php";
     }
 
-    function getDbView()
+    public function getDbView()
     {
         $dbView = parent::getDbView();
 
@@ -54,7 +54,7 @@ class RuleCriteriaDiagnosis extends RuleCriteria
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         parent::updateFromRequest();
         $value = Common::post("fld_value");

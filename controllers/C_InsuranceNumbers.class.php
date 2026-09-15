@@ -17,7 +17,7 @@ class C_InsuranceNumbers extends Controller
         public $providers;
         public $insurance_numbers;
 
-    function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->providers = [];
@@ -27,12 +27,12 @@ class C_InsuranceNumbers extends Controller
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action(): string
+    public function default_action(): string
     {
         return $this->list_action();
     }
 
-    function edit_action($id = "", $provider_id = "")
+    public function edit_action($id = "", $provider_id = "")
     {
 
         //case where a direct id is provided, doesn't matter if a provider id is available get it from the insurance_numbers record
@@ -101,7 +101,7 @@ class C_InsuranceNumbers extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "insurance_numbers/" . $this->template_mod . "_edit.html");
     }
 
-    function list_action(): string
+    public function list_action(): string
     {
 
         $p = new Provider();
@@ -110,7 +110,7 @@ class C_InsuranceNumbers extends Controller
     }
 
 
-    function edit_action_process()
+    public function edit_action_process()
     {
         if ($_POST['process'] != "true") {
                 return;

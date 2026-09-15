@@ -17,6 +17,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 return [
-    SessionWrapperFactory::class => fn (TC $c) => new SessionWrapperFactory(webRoot: $c->getString('webRoot')),
+    SessionWrapperFactory::class => fn (TC $c): SessionWrapperFactory => new SessionWrapperFactory(webRoot: $c->getString('webRoot')),
     SessionInterface::class => fn (TC $c) => $c->get(SessionWrapperFactory::class)->getActiveSession(),
 ];

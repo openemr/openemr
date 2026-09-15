@@ -12,9 +12,19 @@ jobs:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-24.04
     steps:
+    # Sparse checkout of just the composite action so the token-mint
+    # step below can resolve `uses: ./.github/actions/...`. This
+    # workflow doesn't otherwise need a checkout.
+    - name: Checkout composite action
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: .github/actions/generate-app-token
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+
     - name: Generate GitHub App token
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.AUTO_MERGE_APP_CLIENT_ID }}
         private-key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}

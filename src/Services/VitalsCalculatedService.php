@@ -50,9 +50,7 @@ class VitalsCalculatedService extends BaseService
 
     public function getUuidRegistry(): UuidRegistry
     {
-        if (!isset($this->uuidRegistry)) {
-            $this->uuidRegistry = new UuidRegistry(['table_name' => self::TABLE_NAME]);
-        }
+        $this->uuidRegistry ??= new UuidRegistry(['table_name' => self::TABLE_NAME]);
         return $this->uuidRegistry;
     }
 
@@ -137,27 +135,24 @@ class VitalsCalculatedService extends BaseService
         foreach ($records as $record) {
             $uuid = UuidRegistry::uuidToString($record['uuid']);
 
-            // Initialize record if first time seeing this UUID
-            if (!isset($groupedRecords[$uuid])) {
-                $groupedRecords[$uuid] = [
-                    'uuid' => $uuid,
-                    'date_start' => $record['date_start'],
-                    'date_end' => $record['date_end'],
-                    'created_at' => $record['created_at'],
-                    'updated_at' => $record['last_updated'],
-                    'created_by' => $record['created_by'],
-                    'created_by_uuid' => UuidRegistry::uuidToString($record['created_by_uuid']),
-                    'updated_by' => $record['updated_by'],
-                    'updated_by_uuid' => UuidRegistry::uuidToString($record['updated_by_uuid']),
-                    'calculation_id' => $record['calculation_id'],
-                    'encounter' => $record['encounter'],
-                    'euuid' => !empty($record['euuid']) ? UuidRegistry::uuidToString($record['euuid']) : null,
-                    'pid' => $record['pid'],
-                    'puuid' => UuidRegistry::uuidToString($record['puuid']),
-                    'parent_observation_uuid' => [],
-                    'components' => []
-                ];
-            }
+            $groupedRecords[$uuid] ??= [
+                'uuid' => $uuid,
+                'date_start' => $record['date_start'],
+                'date_end' => $record['date_end'],
+                'created_at' => $record['created_at'],
+                'updated_at' => $record['last_updated'],
+                'created_by' => $record['created_by'],
+                'created_by_uuid' => UuidRegistry::uuidToString($record['created_by_uuid']),
+                'updated_by' => $record['updated_by'],
+                'updated_by_uuid' => UuidRegistry::uuidToString($record['updated_by_uuid']),
+                'calculation_id' => $record['calculation_id'],
+                'encounter' => $record['encounter'],
+                'euuid' => !empty($record['euuid']) ? UuidRegistry::uuidToString($record['euuid']) : null,
+                'pid' => $record['pid'],
+                'puuid' => UuidRegistry::uuidToString($record['puuid']),
+                'parent_observation_uuid' => [],
+                'components' => []
+            ];
 
             // Add source vital UUID if present and not already added
             $sourceVitalUuid = !empty($sourceVitalUuid) ? UuidRegistry::uuidToString($record['source_vital_uuid']) : null;

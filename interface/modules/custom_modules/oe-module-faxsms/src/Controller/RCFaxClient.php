@@ -18,15 +18,17 @@ use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
 
-class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface
+class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface, FaxDocumentDisposalInterface
 {
     use AuthenticateTrait;
+    use FaxDocumentDisposalTrait;
 
     public string $baseDir = '';
     public $uriDir;
@@ -659,71 +661,6 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         $formatted_document = $control->convertImageToPdf($encodedFax, '');
 
         return $formatted_document ? base64_encode($formatted_document) : false;
-    }
-
-    /**
-     * @return string
-     */
-    public function disposeDocument(): string
-    {
-        $response = ['success' => false, 'message' => '', 'url' => ''];
-        $where = $this->getRequest('file_path') ?? $this->getSession('where');
-
-        if (empty($where)) {
-            die(xlt('Problem with download. Use browser back button'));
-        }
-
-        $content = $this->getRequest('content', '');
-        $action = $this->getRequest('action');
-
-        if ($action == 'download') {
-            $this->sendFile($where);
-            sleep(2);
-            unlink($where);
-            exit;
-        }
-
-        if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode((string)$content);
-            // Write encrypted-at-rest; the download branch's sendFile
-            // call decrypts via FaxUploadStaging::decryptFileBytes.
-            if (file_put_contents($where, $this->crypto->encryptForFilesystem($decodedContent)) !== false) {
-                $response['success'] = true;
-                $response['url'] = $where;
-            } else {
-                $response['message'] = 'Failed to write file';
-            }
-        } elseif ($action == 'setup') {
-            $response['success'] = true;
-            $response['url'] = $where;
-        }
-
-        return json_encode($response);
-    }
-
-    /**
-     * Decrypt the at-rest fax file and stream it to the browser. Legacy
-     * plaintext files flow through unchanged via decryptFromFilesystem's
-     * version-prefix check.
-     */
-    private function sendFile(string $filePath): void
-    {
-        $payload = $this->uploadStaging->decryptFileBytes($filePath);
-        if ($payload === null) {
-            http_response_code(500);
-            echo xlt('Failed to read fax file');
-            exit;
-        }
-        ob_end_clean();
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=" . basename($filePath));
-        header("Content-Type: application/pdf");
-        header("Content-Transfer-Encoding: binary");
-        header('Content-Length: ' . strlen($payload));
-
-        echo $payload;
-        exit;
     }
 
     /**

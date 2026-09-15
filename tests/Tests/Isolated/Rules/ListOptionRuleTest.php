@@ -255,7 +255,7 @@ class ListOptionRuleStub extends ListOptionRule
     /**
      * Direct validation without error handling for isolated testing
      */
-    public function validateDirectly($value)
+    public function validateDirectly($value): bool
     {
         if ($value === null) {
             return false;

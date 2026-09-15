@@ -73,7 +73,7 @@ function getUserFacWH($uID, $fID)
  * @param int $day
  * @return bool
  */
-function is_weekend_day($day)
+function is_weekend_day($day): bool
 {
 
     if (in_array($day, OEGlobalsBag::getInstance()->get('weekend_days'))) {

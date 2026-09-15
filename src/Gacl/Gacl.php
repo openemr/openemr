@@ -59,23 +59,6 @@ class Gacl {
     /** @var \ADOConnection An ADODB database connector object */
     public $db;
 
-    /*
-     * NOTE:    This cache must be manually cleaned each time ACL's are modified.
-     *      Alternatively you could wait for the cache to expire.
-     */
-
-    /** Caches queries if true */
-    protected bool $_caching = FALSE;
-
-    /** Force cache to expire */
-    protected bool $_force_cache_expire = TRUE;
-
-    /** The directory for cache file to eb written (ensure write permission are set) */
-    private string $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
-
-    /** The time for the cache to expire in seconds - 600 == Ten Minutes */
-    private int $_cache_expire_time=600;
-
     /** @var int Number of items to display per page */
     protected int $_items_per_page = 100;
 
@@ -92,8 +75,8 @@ class Gacl {
      * Constructor
      * @param array<string, mixed>|null $options An array of options to override the class defaults
      */
-    function __construct($options = NULL) {
-        $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','caching','force_cache_expire','cache_dir','cache_expire_time'];
+    public function __construct($options = NULL) {
+        $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix'];
 
         //Values supplied in $options array overwrite those in the config file.
         if ( file_exists($this->config_file) ) {
@@ -121,11 +104,7 @@ class Gacl {
                         'items_per_page' => $this->_items_per_page = $intVal,
                         'max_select_box_items' => $this->_max_select_box_items = $intVal,
                         'max_search_return_items' => $this->_max_search_return_items = $intVal,
-                        'db_table_prefix' => $this->_db_table_prefix = $stringVal,
-                        'caching' => $this->_caching = (bool) $value,
-                        'force_cache_expire' => $this->_force_cache_expire = (bool) $value,
-                        'cache_dir' => $this->_cache_dir = $stringVal,
-                        default => $this->_cache_expire_time = $intVal,
+                        default => $this->_db_table_prefix = $stringVal,
                     };
                     // End of AI / Claude Code refactor
                 } else {
@@ -155,29 +134,6 @@ class Gacl {
 
         }
         $this->db->debug = $this->_debug;
-
-        if ( $this->_caching == TRUE ) {
-            if (!class_exists('Hashed_Cache_Lite')) {
-                require_once(__DIR__ .'/Cache_Lite/Hashed_Cache_Lite.php');
-            }
-
-            /*
-             * Cache options. We default to the highest performance. If you run in to cache corruption problems,
-             * Change all the 'false' to 'true', this will slow things down slightly however.
-             */
-
-            $cache_options = [
-                'caching' => $this->_caching,
-                'cacheDir' => $this->_cache_dir.'/',
-                'lifeTime' => $this->_cache_expire_time,
-                'fileLocking' => TRUE,
-                'writeControl' => FALSE,
-                'readControl' => FALSE,
-                'memoryCaching' => TRUE,
-                'automaticSerialization' => FALSE
-            ];
-            $this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
-        }
     }
 
     /**
@@ -185,7 +141,7 @@ class Gacl {
     * @param string $text THe text to output
     * @return bool Always returns true
     */
-    function debug_text($text) {
+    public function debug_text($text): bool {
 
         if ($this->_debug) {
             echo "$text<br />\n";
@@ -199,7 +155,7 @@ class Gacl {
     * @param string $function_name The name of the function calling this method
     * @return string Returns an error message
     */
-    function debug_db($function_name = '') {
+    public function debug_db($function_name = '') {
         if ($function_name != '') {
             $function_name .= ' (): ';
         }
@@ -224,7 +180,7 @@ class Gacl {
     * @param int $root_axo_group The group id of the AXO (optional)
     * @return bool true if the check succeeds, false if not.
     */
-    function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
+    public function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
         $acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
 
         return $acl_result['allow'];
@@ -244,7 +200,7 @@ class Gacl {
     * @param int $root_axo_group The group id of the AXO (optional)
     * @return string The return value of the ACL
     */
-    function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
+    public function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
         $acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
 
         return $acl_result['return_value'];
@@ -257,7 +213,7 @@ class Gacl {
     * @param array $aro_array An named array of arrays, each element in the format aro_section_value=>array(aro_value1,aro_value1,...)
     * @return mixed The same data format as inputted.
      */
-    function acl_check_array($aco_section_value, $aco_value, $aro_array) {
+    public function acl_check_array($aco_section_value, $aco_value, $aro_array) {
         /*
             Input Array:
                 Section => array(Value, Value, Value),
@@ -270,11 +226,11 @@ class Gacl {
             return false;
         }
 
-        foreach($aro_array as $aro_section_value => $aro_value_array) {
+        foreach ($aro_array as $aro_section_value => $aro_value_array) {
             foreach ($aro_value_array as $aro_value) {
                 $this->debug_text("acl_query_array(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
 
-                if( $this->acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value) ) {
+                if ( $this->acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value) ) {
                     $this->debug_text("acl_query_array(): ACL_CHECK True");
                     $retarr[$aro_section_value][] = $aro_value;
                 } else {
@@ -302,29 +258,26 @@ class Gacl {
         * @param bool $return_all Option to return all applicable ACL's rather than just one. (optional) (Added by OpenEMR)
     * @return array Returns as much information as possible about the ACL so other functions can trim it down and omit unwanted data.
     */
-    function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL, $return_all=FALSE) {
+    public function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL, $return_all=FALSE) {
 
-        $cache_id = 'acl_query_'.$aco_section_value.'-'.$aco_value.'-'.$aro_section_value.'-'.$aro_value.'-'.$axo_section_value.'-'.$axo_value.'-'.$root_aro_group.'-'.$root_axo_group.'-'.$debug.'-'.$return_all;
+        $retarr = FALSE;
 
-        $retarr = $this->get_cache($cache_id);
-
-        if (!$retarr) {
             /*
              * Grab all groups mapped to this ARO/AXO
              */
             $aro_group_ids = $this->acl_get_groups($aro_section_value, $aro_value, $root_aro_group, 'ARO');
 
-            if (is_array($aro_group_ids) AND !empty($aro_group_ids)) {
-                $sql_aro_group_ids = implode(',', $aro_group_ids);
-            }
+        if (is_array($aro_group_ids) AND !empty($aro_group_ids)) {
+            $sql_aro_group_ids = implode(',', $aro_group_ids);
+        }
 
-            if ($axo_section_value != '' AND $axo_value != '') {
-                $axo_group_ids = $this->acl_get_groups($axo_section_value, $axo_value, $root_axo_group, 'AXO');
+        if ($axo_section_value != '' AND $axo_value != '') {
+            $axo_group_ids = $this->acl_get_groups($axo_section_value, $axo_value, $root_axo_group, 'AXO');
 
-                if (is_array($axo_group_ids) AND !empty($axo_group_ids)) {
-                    $sql_axo_group_ids = implode(',', $axo_group_ids);
-                }
+            if (is_array($axo_group_ids) AND !empty($axo_group_ids)) {
+                $sql_axo_group_ids = implode(',', $axo_group_ids);
             }
+        }
 
             /*
              * This query is where all the magic happens.
@@ -343,24 +296,24 @@ class Gacl {
 					FROM		'. $this->_db_table_prefix .'acl a
 					LEFT JOIN 	'. $this->_db_table_prefix .'aco_map ac ON ac.acl_id=a.id';
 
-            if ($aro_section_value != $this->_group_switch) {
-                $query .= '
+        if ($aro_section_value != $this->_group_switch) {
+            $query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'aro_map ar ON ar.acl_id=a.id';
-            }
+        }
 
-            if ($axo_section_value != $this->_group_switch) {
-                $query .= '
+        if ($axo_section_value != $this->_group_switch) {
+            $query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'axo_map ax ON ax.acl_id=a.id';
-            }
+        }
 
             /*
              * if there are no aro groups, don't bother doing the join.
              */
-            if (isset($sql_aro_group_ids)) {
-                $query .= '
+        if (isset($sql_aro_group_ids)) {
+            $query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'aro_groups_map arg ON arg.acl_id=a.id
 					LEFT JOIN	'. $this->_db_table_prefix .'aro_groups rg ON rg.id=arg.group_id';
-            }
+        }
 
             // this join is necessary to weed out rules associated with axo groups
             $query .= '
@@ -370,10 +323,10 @@ class Gacl {
              * if there are no axo groups, don't bother doing the join.
              * it is only used to rank by the level of the group.
              */
-            if (isset($sql_axo_group_ids)) {
-                $query .= '
+        if (isset($sql_axo_group_ids)) {
+            $query .= '
 					LEFT JOIN	'. $this->_db_table_prefix .'axo_groups xg ON xg.id=axg.group_id';
-            }
+        }
 
             //Move the below line to the LEFT JOIN above for PostgreSQL's sake.
             //AND   ac.acl_id=a.id
@@ -382,65 +335,65 @@ class Gacl {
 						AND		(ac.section_value='. $this->db->Quote($aco_section_value) .' AND ac.value='. $this->db->Quote($aco_value) .')';
 
             // if we are querying an aro group
-            if ($aro_section_value == $this->_group_switch) {
-                // if acl_get_groups did not return an array
-                if ( !isset ($sql_aro_group_ids) ) {
-                    $this->debug_text ('acl_query(): Invalid ARO Group: '. $aro_value);
-                    return FALSE;
-                }
+        if ($aro_section_value == $this->_group_switch) {
+            // if acl_get_groups did not return an array
+            if ( !isset ($sql_aro_group_ids) ) {
+                $this->debug_text ('acl_query(): Invalid ARO Group: '. $aro_value);
+                return FALSE;
+            }
 
-                $query .= '
+            $query .= '
 						AND		rg.id IN ('. $sql_aro_group_ids .')';
 
-                $order_by[] = '(rg.rgt-rg.lft) ASC';
-            } else {
-                $query .= '
+            $order_by[] = '(rg.rgt-rg.lft) ASC';
+        } else {
+            $query .= '
 						AND		((ar.section_value='. $this->db->Quote($aro_section_value) .' AND ar.value='. $this->db->Quote($aro_value) .')';
 
-                if ( isset ($sql_aro_group_ids) ) {
-                    $query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
+            if ( isset ($sql_aro_group_ids) ) {
+                $query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
 
-                    $order_by[] = '(CASE WHEN ar.value IS NULL THEN 0 ELSE 1 END) DESC';
-                    $order_by[] = '(rg.rgt-rg.lft) ASC';
-                }
-
-                $query .= ')';
+                $order_by[] = '(CASE WHEN ar.value IS NULL THEN 0 ELSE 1 END) DESC';
+                $order_by[] = '(rg.rgt-rg.lft) ASC';
             }
+
+            $query .= ')';
+        }
 
 
             // if we are querying an axo group
-            if ($axo_section_value == $this->_group_switch) {
-                // if acl_get_groups did not return an array
-                if ( !isset ($sql_axo_group_ids) ) {
-                    $this->debug_text ('acl_query(): Invalid AXO Group: '. $axo_value);
-                    return FALSE;
-                }
+        if ($axo_section_value == $this->_group_switch) {
+            // if acl_get_groups did not return an array
+            if ( !isset ($sql_axo_group_ids) ) {
+                $this->debug_text ('acl_query(): Invalid AXO Group: '. $axo_value);
+                return FALSE;
+            }
 
-                $query .= '
+            $query .= '
 						AND		xg.id IN ('. $sql_axo_group_ids .')';
 
-                $order_by[] = '(xg.rgt-xg.lft) ASC';
-            } else {
-                $query .= '
+            $order_by[] = '(xg.rgt-xg.lft) ASC';
+        } else {
+            $query .= '
 						AND		(';
 
-                if ($axo_section_value == '' AND $axo_value == '') {
-                    $query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
-                } else {
-                    $query .= '(ax.section_value='. $this->db->Quote($axo_section_value) .' AND ax.value='. $this->db->Quote($axo_value) .')';
-                }
-
-                if (isset($sql_axo_group_ids)) {
-                    $query .= ' OR xg.id IN ('. $sql_axo_group_ids .')';
-
-                    $order_by[] = '(CASE WHEN ax.value IS NULL THEN 0 ELSE 1 END) DESC';
-                    $order_by[] = '(xg.rgt-xg.lft) ASC';
-                } else {
-                    $query .= ' AND axg.group_id IS NULL';
-                }
-
-                $query .= ')';
+            if ($axo_section_value == '' AND $axo_value == '') {
+                $query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
+            } else {
+                $query .= '(ax.section_value='. $this->db->Quote($axo_section_value) .' AND ax.value='. $this->db->Quote($axo_value) .')';
             }
+
+            if (isset($sql_axo_group_ids)) {
+                $query .= ' OR xg.id IN ('. $sql_axo_group_ids .')';
+
+                $order_by[] = '(CASE WHEN ax.value IS NULL THEN 0 ELSE 1 END) DESC';
+                $order_by[] = '(xg.rgt-xg.lft) ASC';
+            } else {
+                $query .= ' AND axg.group_id IS NULL';
+            }
+
+            $query .= ')';
+        }
 
             /*
              * The ordering is always very tricky and makes all the difference in the world.
@@ -459,79 +412,66 @@ class Gacl {
             // we are only interested in the first row unless $return_all is set
                         $rs = $return_all ? $this->db->Execute($query) : $this->db->SelectLimit($query, 1);
 
-            if (!is_object($rs)) {
-                $this->debug_db('acl_query');
-                return FALSE;
-            }
+        if (!is_object($rs)) {
+            $this->debug_db('acl_query');
+            return FALSE;
+        }
 
-            if ($return_all) {
-                while ($arr = $rs->FetchRow()) {
-                                $row[] = $arr;
-                }
+        if ($return_all) {
+            while ($arr = $rs->FetchRow()) {
+                            $row[] = $arr;
             }
-            else {
-                    $row = $rs->FetchRow();
-            }
+        } else {
+                $row = $rs->FetchRow();
+        }
 
 
             /*
              * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
              */
-            if (isset($row) && is_array($row)) {
+        if (isset($row) && is_array($row)) {
 
-                if ($return_all) {
-                    foreach ($row as $single_row) {
-                        $allow = FALSE;
-                        if ( isset($single_row[1]) AND $single_row[1] == 1 ) {
-                            $allow = TRUE;
-                        }
-                        if ($retarr === false) {
-                        // PHP 8.1 deprecates Autovivification on false and it will break in PHP 9.0, so need to set the
-                        //  array explicitly
-                            $retarr = [['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow]];
-                        } else {
-                            $retarr[] = ['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow];
-                        }
-                    }
-                }
-                else {
+            if ($return_all) {
+                foreach ($row as $single_row) {
                     $allow = FALSE;
-                    if ( isset($row[1]) AND $row[1] == 1 ) {
+                    if ( isset($single_row[1]) AND $single_row[1] == 1 ) {
                         $allow = TRUE;
                     }
-                        $retarr = ['acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow];
+                    if ($retarr === false) {
+                        // PHP 8.1 deprecates Autovivification on false and it will break in PHP 9.0, so need to set the
+                        //  array explicitly
+                        $retarr = [['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow]];
+                    } else {
+                        $retarr[] = ['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow];
+                    }
                 }
             } else {
-                if ($return_all) {
-                            // Permission denied.
-                    if(!is_array($retarr)) {
-                                $retarr = [];
-                    }
-                            $retarr[] = ['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE];
+                $allow = FALSE;
+                if ( isset($row[1]) AND $row[1] == 1 ) {
+                    $allow = TRUE;
                 }
-                else {
-                        // Permission denied.
-                        $retarr = ['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE];
-                }
+                    $retarr = ['acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow];
             }
+        } else {
+            if ($return_all) {
+                        // Permission denied.
+                        $retarr = [['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE]];
+            } else {
+                    // Permission denied.
+                    $retarr = ['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE];
+            }
+        }
 
             /*
              * Return the query that we ran if in debug mode.
              */
-            if ($debug == TRUE) {
-                $retarr['query'] = &$query;
-            }
-
-            //Cache data.
-            $this->put_cache($retarr, $cache_id);
+        if ($debug == TRUE) {
+            $retarr['query'] = &$query;
         }
 
-        if ($return_all)
-        {
+        if ($return_all) {
             $this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: OMITTED due to return_all");
-        }
-        else
-        {
+        } else {
             $this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
         }
 
@@ -545,9 +485,9 @@ class Gacl {
     * @param int $root_group The group id of the group to start at (optional)
     * @param string $group_type The type of group, either ARO or AXO (optional)
     */
-    function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
+    public function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
-        switch(strtolower(is_scalar($group_type) ? (string) $group_type : '')) {
+        switch (strtolower(is_scalar($group_type) ? (string) $group_type : '')) {
             case 'axo':
                 $group_type = 'axo';
                 $object_table = $this->_db_table_prefix .'axo';
@@ -564,32 +504,25 @@ class Gacl {
 
         //$profiler->startTimer( "acl_get_groups()");
 
-        //Generate unique cache id.
-        $cache_id = 'acl_get_groups_'.$section_value.'-'.$value.'-'.$root_group.'-'.$group_type;
-
-        $retarr = $this->get_cache($cache_id);
-
-        if (!$retarr) {
-
             // Make sure we get the groups
             $query = '
 					SELECT 		DISTINCT g2.id';
 
-            if ($section_value == $this->_group_switch) {
-                $query .= '
+        if ($section_value == $this->_group_switch) {
+            $query .= '
 					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
 
-                $where = '
+            $where = '
 					WHERE		g1.value=' . $this->db->Quote( $value );
-            } else {
-                $query .= '
+        } else {
+            $query .= '
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
 
-                $where = '
+            $where = '
 					WHERE		(o.section_value='. $this->db->Quote($section_value) .' AND o.value='. $this->db->Quote($value) .')
 						AND		gm.'. $group_type .'_id=o.id
 						AND		g1.id=gm.group_id';
-            }
+        }
 
             /*
              * If root_group_id is specified, we have to narrow this query down
@@ -597,84 +530,37 @@ class Gacl {
              * This essentially creates a virtual "subtree" and ignores all outside groups.
              * Useful for sites like sourceforge where you may separate groups by "project".
              */
-            if ( $root_group != '') {
-                //It is important to note the below line modifies the tables being selected.
-                //This is the reason for the WHERE variable.
-                $query .= ','. $group_table .' g3';
+        if ( $root_group != '') {
+            //It is important to note the below line modifies the tables being selected.
+            //This is the reason for the WHERE variable.
+            $query .= ','. $group_table .' g3';
 
-                $where .= '
+            $where .= '
 						AND		g3.value='. $this->db->Quote( $root_group ) .'
 						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
-            } else {
-                $where .= '
+        } else {
+            $where .= '
 						AND		(g2.lft <= g1.lft AND g2.rgt >= g1.rgt)';
-            }
+        }
 
             $query .= $where;
 
             // $this->debug_text($query);
             $rs = $this->db->Execute($query);
 
-            if (!is_object($rs)) {
-                $this->debug_db('acl_get_groups');
-                return FALSE;
-            }
+        if (!is_object($rs)) {
+            $this->debug_db('acl_get_groups');
+            return FALSE;
+        }
 
             $retarr = [];
 
             //Unbuffered query?
-            while (!$rs->EOF) {
-                $retarr[] = reset($rs->fields);
-                $rs->MoveNext();
-            }
-
-            //Cache data.
-            $this->put_cache($retarr, $cache_id);
+        while (!$rs->EOF) {
+            $retarr[] = reset($rs->fields);
+            $rs->MoveNext();
         }
 
         return $retarr;
-    }
-
-    /**
-    * Uses PEAR's Cache_Lite package to grab cached arrays, objects, variables etc...
-    * using unserialize() so it can handle more then just text string.
-    * @param string $cache_id The id of the cached object
-    * @return mixed The cached object, otherwise FALSE if the object identifier was not found
-    */
-    function get_cache($cache_id) {
-
-        if ( $this->_caching == TRUE ) {
-            $this->debug_text("get_cache(): on ID: $cache_id");
-
-            if ( is_string($this->Cache_Lite->get($cache_id) ) ) {
-                return unserialize($this->Cache_Lite->get($cache_id), ['allowed_classes' => false]);
-            }
-        }
-
-        return false;
-    }
-
-    /**
-    * Uses PEAR's Cache_Lite package to write cached arrays, objects, variables etc...
-    * using serialize() so it can handle more then just text string.
-    * @param mixed $data A variable to cache
-    * @param string $cache_id The id of the cached variable
-    */
-    function put_cache($data, $cache_id) {
-
-        if ( $this->_caching == TRUE ) {
-            $this->debug_text("put_cache(): Cache MISS on ID: $cache_id");
-
-            return $this->Cache_Lite->save(serialize($data), $cache_id);
-        }
-
-        return false;
-    }
-
-    function clear_cache() {
-        if ( $this->_caching == TRUE ) {
-            $this->debug_text("clear_cache(): Clearing cache");
-            $this->Cache_Lite->clean();
-        }
     }
 }

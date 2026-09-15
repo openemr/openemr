@@ -29,7 +29,7 @@ class AMC_304d_STG2_Denominator implements AmcFilterIF
         return "AMC_304d_STG2 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //MEASURE STAGE 2: Number of unique patients who have had two or more office visits with the EP in the 24 months prior to the beginning of the EHR reporting period
 

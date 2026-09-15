@@ -93,9 +93,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
@@ -106,9 +104,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
 
     public function getFhirOrganizationService(): FhirOrganizationService
     {
-        if (!isset($this->fhirOrganizationService)) {
-            $this->fhirOrganizationService = new FhirOrganizationService();
-        }
+        $this->fhirOrganizationService ??= new FhirOrganizationService();
         return $this->fhirOrganizationService;
     }
 
@@ -119,9 +115,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
 
     public function getDrugSalesService(): DrugSalesService
     {
-        if (!isset($this->drugSalesService)) {
-            $this->drugSalesService = new DrugSalesService();
-        }
+        $this->drugSalesService ??= new DrugSalesService();
         return $this->drugSalesService;
     }
 
@@ -466,7 +460,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $fhirTiming = new OpenEMRFHIRTiming();
             $fhirTiming->setCode($intervalConcept);
             $dosage->setTiming($fhirTiming);
-        } else if (!empty($dataRecord['interval_notes'])) {
+        } elseif (!empty($dataRecord['interval_notes'])) {
             // if we have notes but no corresponding code, just set the text
             $intervalConcept = new FHIRCodeableConcept();
             $intervalConcept->setText($dataRecord['interval_notes']);

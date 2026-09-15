@@ -169,7 +169,7 @@ class PatientAdvanceDirectiveService extends BaseService
         $sql .= $whereClause->getFragment() . " ORDER BY d.docdate DESC, d.date DESC";
         $resultSet = QueryUtils::sqlStatementThrowException($sql, $whereClause->getBoundValues());
         $processingResult = new ProcessingResult();
-        while($row = QueryUtils::fetchArrayFromResultSet($resultSet)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($resultSet)) {
             $docType = $this->determineAdvanceDirectiveType($row['name'], $row['category_name']);
 
             // Filter by document types if specified

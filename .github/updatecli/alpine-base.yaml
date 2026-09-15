@@ -1,0 +1,69 @@
+# Bump the Alpine base pinned by the images whose ARG default is the
+# pin that actually ships.
+#
+# Dependabot cannot see these. Its docker ecosystem parses literal
+# `FROM alpine:3.24` lines; all three OpenEMR Dockerfiles write
+# `FROM alpine:${ALPINE_VERSION}`, so the entries that used to exist for
+# them in openemr-devops produced no PRs at all (see
+# docs/docker-migration-from-devops.md). That inertness is why these pins
+# drift: docker/binary sat on 3.22 while docker/release was on 3.24.
+#
+# docker/flex is deliberately absent. Every published flex image overrides
+# ALPINE_VERSION from the docker-build-3XX.yml matrix, so its ARG default
+# is never the shipped value, and the set of Alpine lines flex supports
+# grows by adding a workflow file — not by moving a version string.
+#
+# See .github/workflows/updatecli-docker-pins.yml.
+
+name: Bump the Alpine base of the binary and release Docker images
+pipelineid: docker-alpine-base
+
+sources:
+  alpineMinor:
+    name: Newest Alpine 3.x minor line
+    kind: dockerimage
+    spec:
+      image: alpine
+      versionfilter:
+        # Constrained to 3.x on purpose: a major Alpine jump is a
+        # deliberate migration, not something a scheduled bot should
+        # propose on its own.
+        kind: semver
+        pattern: '~3'
+    transformers:
+      # The registry's newest semver tag is a patch (3.24.1); the ARGs
+      # pin a minor line (3.24) so image rebuilds pick up patch-level
+      # security fixes without a code change.
+    - findsubmatch:
+        pattern: '^(\d+\.\d+)'
+        captureindex: 1
+
+targets:
+  binaryDockerfile:
+    name: 'docker/binary/Dockerfile: ARG ALPINE_VERSION'
+    kind: dockerfile
+    sourceid: alpineMinor
+    spec:
+      file: docker/binary/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: ALPINE_VERSION
+
+  releaseDockerfile:
+    name: 'docker/release/Dockerfile: ARG ALPINE_VERSION'
+    kind: dockerfile
+    sourceid: alpineMinor
+    spec:
+      file: docker/release/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: ALPINE_VERSION
+
+  binaryReadme:
+    name: 'docker/binary/README.md: documented ALPINE_VERSION default'
+    kind: file
+    sourceid: alpineMinor
+    spec:
+      file: docker/binary/README.md
+      matchpattern: '(`ALPINE_VERSION`: Alpine Linux version \(default: `)[^`]*(`\))'
+      replacepattern: '${1}{{ source "alpineMinor" }}${2}'

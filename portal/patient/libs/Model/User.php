@@ -10,10 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("DAO/UserDAO.php");
-require_once("UserCriteria.php");
-
 /**
  * The User class extends UserDAO which provides the access
  * to the datastore.
@@ -42,7 +38,7 @@ class User extends UserDAO
     /**
      * @see Phreezable::OnSave()
      */
-    public function OnSave($insert)
+    public function OnSave($insert): bool
     {
         // the controller create/update methods validate before saving.  this will be a
         // redundant validation check, however it will ensure data integrity at the model

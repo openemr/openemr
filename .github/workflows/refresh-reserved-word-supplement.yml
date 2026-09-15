@@ -97,7 +97,7 @@ jobs:
 
     - name: Generate GitHub App token
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RESERVED_WORD_BOT_CLIENT_ID }}
         private-key: ${{ secrets.RESERVED_WORD_BOT_PRIVATE_KEY }}

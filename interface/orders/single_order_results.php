@@ -67,7 +67,7 @@ body {
 }
 </style>
 
-<script src="../../library/topdialog.js"></script>
+<script src="../../library/topdialog.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script>
     <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 </script>

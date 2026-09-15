@@ -35,14 +35,14 @@ interface IFhirExportableResourceService
      * @throws ExportException  If there is an error in processing the export
      * @return void
      */
-    function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void;
+    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void;
 
     /**
      * Returns whether the service supports the system export operation
      * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---system-level-export
      * @return bool true if this resource service should be called for a system export operation, false otherwise
      */
-    function supportsSystemExport();
+    public function supportsSystemExport();
 
     /**
      * Returns whether the service supports the group export operation.
@@ -51,7 +51,7 @@ interface IFhirExportableResourceService
      * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---group-of-patients
      * @return bool true if this resource service should be called for a group export operation, false otherwise
      */
-    function supportsGroupExport();
+    public function supportsGroupExport();
 
     /**
      * Returns whether the service supports the all patient export operation
@@ -60,7 +60,7 @@ interface IFhirExportableResourceService
      * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---all-patients
      * @return bool true if this resource service should be called for a patient export operation, false otherwise
      */
-    function supportsPatientExport();
+    public function supportsPatientExport();
 
     /**
      * Returns the search field that represents the last modified date for the resource used in the export _since
@@ -68,5 +68,5 @@ interface IFhirExportableResourceService
      * will return null and the export should return ALL the resources for the resource service.
      * @return ISearchField|null The search field that represents the last modified date for the resource
      */
-    function getLastModifiedSearchField(): ?FhirSearchParameterDefinition;
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition;
 }

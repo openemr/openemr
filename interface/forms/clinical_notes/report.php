@@ -22,8 +22,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ClinicalNotesService;
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-
 function clinical_notes_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;

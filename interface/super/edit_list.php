@@ -17,7 +17,6 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
@@ -25,6 +24,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -824,11 +824,11 @@ function writeCTLine($ct_array): void
  */
 function writeITLine($it_array): void
 {
-    global $opt_line_no, $ISSUE_TYPE_CATEGORIES, $ISSUE_TYPE_STYLES;
+    global $opt_line_no;
     ++$opt_line_no;
     $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
     echo " <tr>\n";
-    echo ctSelector($opt_line_no, $it_array, 'category', $ISSUE_TYPE_CATEGORIES, xl('OpenEMR Application Category'));
+    echo ctSelector($opt_line_no, $it_array, 'category', IssueTypeRegistry::issueTypeCategories(), xl('OpenEMR Application Category'));
     echo ctGenCBox($opt_line_no, $it_array, 'active', xl('Is this active?'));
     echo ctGenCell($opt_line_no, $it_array, 'ordering', 4, 10, xl('Order{{Sequence}}'));
     echo ctGenCell($opt_line_no, $it_array, 'type', 15, 75, xl('Issue Type'));
@@ -853,7 +853,7 @@ function writeITLine($it_array): void
         $abbrStr = is_string($it_array['abbreviation'] ?? null) ? $it_array['abbreviation'] : '';
         echo "  <td align='center' class='translation'>" . text(xl_list_label($abbrStr)) . "</td>\n";
     }
-    echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
+    echo ctSelector($opt_line_no, $it_array, 'style', IssueTypeRegistry::issueTypeStyles(), xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
     echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
 
     echo "<td>";
@@ -1397,12 +1397,12 @@ function writeITLine($it_array): void
             // Get the selected list's elements.
             $total_rows = 0;
             if ($list_id) {
-                $sql_limits = 'ASC LIMIT 0, ' . escape_limit($records_per_page);
+                $sql_limits = 'ASC LIMIT 0, ' . (int) $records_per_page;
                 if ($list_from > 0) {
                     $list_from--;
                 }
                 if ($list_to > 0) {
-                    $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
+                    $sql_limits = ' ASC LIMIT ' . ($list_to - $list_from) . ' OFFSET ' . $list_from;
                 }
 
                 if ($list_id == 'feesheet') {

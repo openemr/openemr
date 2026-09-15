@@ -4,11 +4,29 @@
  * Custom PHPStan Rule to Forbid Direct Request Superglobal Access
  *
  * Forbid direct access to $_GET, $_POST, $_REQUEST, $_FILES, $_COOKIE, and
- * $_SERVER in favor of Symfony's Request object or filter_input().
+ * $_SERVER in favor of Symfony's Request object.
  *
- * Raw superglobals bypass validation, type narrowing, and testing seams.
- * Symfony's Request (preferred) and filter_input() (fallback) both provide
- * typed, testable access to request data.
+ * Raw superglobals bypass validation, type narrowing, and testing seams. The
+ * Request object's typed InputBag getters provide all three, with a dedicated
+ * bag per superglobal — query, request, cookies, files, server — including
+ * arrays and uploaded files.
+ *
+ * $_REQUEST is the one exception: Symfony keeps query and body data separate
+ * and has no merged bag, so converting a $_REQUEST read means choosing the
+ * source it actually came from. That choice depends on the request_order ini
+ * setting and must be made per call site, not mechanically.
+ *
+ * filter_input() is not an acceptable target. It reaches only four of the six
+ * superglobals (no INPUT_REQUEST, no $_FILES equivalent), addresses only
+ * top-level keys, and needs an explicit FILTER_REQUIRE_ARRAY flag to return an
+ * array at all. Its return type is the deeper problem: mixed, varying with the
+ * filter passed, with failure signalled in-band by sentinels rather than by
+ * type — false for "filter failed", null for "not set", and
+ * FILTER_NULL_ON_FAILURE reverses the two. `??` lets the false failure value
+ * through, while `?:` swallows legitimate falsy input like '0', so every call
+ * site needs an explicit === false / === null check against the filter it
+ * chose. Converting a superglobal to filter_input() silences this rule while
+ * moving the problem to a surface with no rule covering it.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -89,12 +107,12 @@ class ForbiddenRequestGlobalsRule implements Rule
         return [
             RuleErrorBuilder::message(
                 sprintf(
-                    'Direct access to %s is forbidden. Use Symfony\'s Request object or filter_input() instead.',
+                    'Direct access to %s is forbidden. Use Symfony\'s Request object instead.',
                     $superglobal,
                 ),
             )
                 ->identifier('openemr.forbiddenRequestGlobals')
-                ->tip('Symfony Request: $request->query->get(), $request->request->get(), $request->server->get(), etc. Fallback: filter_input(INPUT_GET, ...), filter_input(INPUT_SERVER, ...), etc.')
+                ->tip('Get the request with OpenEMR\Common\Http\CurrentRequest::get(), or take one as a constructor parameter. Then read the bag matching the superglobal: $_GET -> $request->query->getString(), $_POST -> $request->request->getInt(), arrays -> $request->request->all(), $_FILES -> $request->files->get(), $_COOKIE -> $request->cookies->getString(), $_SERVER -> $request->server->getString() or a named accessor such as $request->getMethod(), HTTP headers -> $request->headers->get(). $_REQUEST has no equivalent bag: decide whether the value comes from the query string or the body and read that bag directly. Do not convert to filter_input() — it is not a valid target for this rule.')
                 ->build(),
         ];
     }

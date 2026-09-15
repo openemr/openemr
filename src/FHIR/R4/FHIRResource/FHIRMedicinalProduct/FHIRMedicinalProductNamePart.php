@@ -182,9 +182,7 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductNamePart xmlns="http://hl7.org/fhir"></MedicinalProductNamePart>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductNamePart xmlns="http://hl7.org/fhir"></MedicinalProductNamePart>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->part)) {
             $this->part->xmlSerialize(true, $sxe->addChild('part'));

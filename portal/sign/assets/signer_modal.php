@@ -12,7 +12,6 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
@@ -54,7 +53,7 @@ $twigVars = [
     ,'cpid' => $cpid
     ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
-$twigContainer = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
+$twigContainer = ServiceContainer::getTwig();
 try {
     $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
 } catch (\Throwable $exception) {

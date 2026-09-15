@@ -19,14 +19,17 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 
-class EtherFaxActions extends AppDispatch implements FaxChannelInterface
+class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDocumentDisposalInterface
 {
+    use FaxDocumentDisposalTrait;
+
     public static $timeZone;
     protected string $baseDir = '';
     protected $uriDir;
@@ -633,183 +636,6 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
         $formatted_document = $control->convertImageToPdf($encodedFax, '');
 
         return $formatted_document ? base64_encode($formatted_document) : false;
-    }
-
-    /**
-     * @return string
-     */
-
-    public function disposeDocument(): string
-    {
-        if (!$this->authenticate()) {
-            http_response_code(403);
-            return json_encode(['success' => false, 'message' => xlt('Unauthorized')]);
-        }
-
-        $response = ['success' => false, 'message' => '', 'url' => ''];
-        $where = (string)($this->getRequest('file_path') ?? $this->getSession('where') ?? '');
-
-        if (empty($where)) {
-            return json_encode(['success' => false, 'message' => xlt('No file path specified')]);
-        }
-        $allowedRoot = realpath($this->baseDir) ?: $this->baseDir;
-        $targetPath = $this->normalizePath($where);
-
-        if (!$this->isPathAllowed($targetPath, $allowedRoot)) {
-            error_log("SECURITY: Fax disposeDocument path violation: {$targetPath}");
-            http_response_code(403);
-            return json_encode(['success' => false, 'message' => xlt('Access denied')]);
-        }
-
-        $content = (string)$this->getRequest('content', '');
-        $action = (string)$this->getRequest('action', '');
-
-        if ($action === 'download') {
-            // Only allow download from allowed root
-            if (!is_file($targetPath)) {
-                return json_encode(['success' => false, 'message' => xlt('File not found')]);
-            }
-            $this->sendFile($targetPath);
-            // Best effort cleanup for temp files created by this controller
-            @unlink($targetPath);
-            return json_encode(['success' => true, 'url' => $targetPath]);
-        }
-
-        if (!empty($content) && $action === 'setup') {
-            // Only allow fax-safe extensions
-            $ext = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
-            $allowedExtensions = ['pdf', 'tif', 'tiff', 'txt'];
-            if (!in_array($ext, $allowedExtensions, true)) {
-                error_log("SECURITY: Disallowed file extension in disposeDocument: .{$ext}");
-                return json_encode(['success' => false, 'message' => xlt('Invalid file type')]);
-            }
-
-            $decoded = base64_decode($content, true);
-            if ($decoded === false) {
-                return json_encode(['success' => false, 'message' => xlt('Invalid content encoding')]);
-            }
-
-            // Simple executable content guard (PHP tags, HTML script). This is a defense-in-depth measure.
-            if ($this->containsExecutableCode($decoded)) {
-                error_log("SECURITY: Executable content blocked in disposeDocument");
-                return json_encode(['success' => false, 'message' => xlt('Malicious content detected')]);
-            }
-
-            // Ensure directory exists
-            $dir = dirname($targetPath);
-            if (!is_dir($dir) && !mkdir($dir, 0770, true)) {
-                return json_encode(['success' => false, 'message' => xlt('Failed to create directory')]);
-            }
-
-            // Write atomically; encrypt-at-rest so the download branch's
-            // sendFile call (which decrypts via decryptFileBytes) is the
-            // only path that ever sees the plaintext bytes on disk.
-            $tmp = tempnam($dir, 'fax_');
-            if ($tmp === false) {
-                return json_encode(['success' => false, 'message' => xlt('Failed to create temp file')]);
-            }
-            $bytes = file_put_contents($tmp, $this->crypto->encryptForFilesystem($decoded), LOCK_EX);
-            if ($bytes === false) {
-                @unlink($tmp);
-                return json_encode(['success' => false, 'message' => xlt('Failed to write file')]);
-            }
-            // Move to destination
-            if (!@rename($tmp, $targetPath)) {
-                @unlink($tmp);
-                return json_encode(['success' => false, 'message' => xlt('Failed to finalize file')]);
-            }
-            @chmod($targetPath, 0660);
-
-            $response['success'] = true;
-            $response['url'] = $targetPath;
-            return json_encode($response);
-        } elseif ($action === 'setup') {
-            // Setup without content should not create files; just acknowledge if path is allowed
-            $response['success'] = true;
-            $response['url'] = $targetPath;
-            return json_encode($response);
-        }
-
-        // Default: unsupported action
-        return json_encode(['success' => false, 'message' => xlt('Unsupported action')]);
-    }
-
-    /**
-     * Normalize a filesystem path without resolving symlinks from user input.
-     */
-    private function normalizePath(string $path): string
-    {
-        $parts = [];
-        foreach (explode(DIRECTORY_SEPARATOR, $path) as $segment) {
-            if ($segment === '' || $segment === '.') {
-                continue;
-            }
-            if ($segment === '..') {
-                array_pop($parts);
-            } else {
-                $parts[] = $segment;
-            }
-        }
-        $prefix = DIRECTORY_SEPARATOR;
-        $isWindowsDrive = strlen($path) >= 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === DIRECTORY_SEPARATOR);
-        if ($isWindowsDrive) {
-            $prefix = '';
-        }
-        return $prefix . implode(DIRECTORY_SEPARATOR, $parts);
-    }
-
-    /**
-     * Enforce that target path is at or below allowed root.
-     */
-    private function isPathAllowed(string $targetPath, string $allowedRoot): bool
-    {
-        $allowed = realpath($allowedRoot) ?: $allowedRoot;
-        $real = realpath($targetPath);
-        if ($real === false) {
-            // If file does not exist yet, check its directory
-            $real = realpath(dirname($targetPath));
-            if ($real === false) {
-                // Directory might not exist; check against intended dir under allowed
-                $intended = $this->normalizePath(dirname($targetPath));
-                return str_starts_with($intended, $allowed);
-            }
-        }
-        return str_starts_with($real, $allowed);
-    }
-
-    /**
-     * Lightweight detector for executable content we never expect for fax artifacts.
-     */
-    private function containsExecutableCode(string $data): bool
-    {
-        // Check for PHP tags or HTML/JS script tags in first 1MB to be safe.
-        $snippet = substr($data, 0, 1024 * 1024);
-        return (bool)preg_match('/<\?(php|=)|<script\b/i', $snippet);
-    }
-
-    /**
-     * Decrypt the at-rest fax file and stream it to the browser. Legacy
-     * plaintext files flow through unchanged via decryptFromFilesystem's
-     * version-prefix check.
-     */
-    private function sendFile(string $filePath): void
-    {
-        $payload = $this->uploadStaging->decryptFileBytes($filePath);
-        if ($payload === null) {
-            http_response_code(500);
-            echo xlt('Failed to read fax file');
-            exit;
-        }
-        ob_end_clean();
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=" . basename($filePath));
-        header("Content-Type: application/pdf");
-        header("Content-Transfer-Encoding: binary");
-        header('Content-Length: ' . strlen($payload));
-
-        echo $payload;
-        exit;
     }
 
     /**

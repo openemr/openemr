@@ -30,6 +30,22 @@ class AclExtended
     // Holds the static GaclApi object
     private static $gaclApiObject;
 
+    /**
+     * Per-request memo of getUserPermissions() results, keyed by username.
+     * Mutation paths must call clearUserPermissionsCache() before re-checking.
+     *
+     * @var array<string, array<mixed>>
+     */
+    private static array $userPermissionsCache = [];
+
+    // Any membership or ACL change can affect any cached user result and the
+    // superuser probe cached in AclMain, so drop both on any mutation.
+    private static function resetAclCaches(): void
+    {
+        self::$userPermissionsCache = [];
+        AclMain::clearSuperuserCache();
+    }
+
     // Collect the stored GaclApi object (create it if it doesn't yet exist)
     //  Sharing one object will prevent opening a database connection for every call to GaclApi.
     private static function collectGaclApiObject()
@@ -233,14 +249,12 @@ class AclExtended
     //   $middle_name = middle name
     //   $last_name = last name
     //
-    public static function setUserAro($arr_group_titles, $user_name, $first_name, $middle_name, $last_name)
+    public static function setUserAro($arr_group_titles, $user_name, $first_name, $middle_name, $last_name): bool
     {
         $gacl = self::collectGaclApiObject();
 
         //see if this user is gacl protected (ie. do not allow
         //removal from the Administrators group)
-        require_once(__DIR__ . '/../../../library/user.inc.php');
-
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
         $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin";
@@ -326,6 +340,7 @@ class AclExtended
                 break;
             }
         }
+        self::resetAclCaches();
         return true;
     }
 
@@ -340,7 +355,7 @@ class AclExtended
     //    $name = name of acl (string)
     //    $return_value = return value of acl (string)
     //
-    public static function aclExist($title, $name, $return_value)
+    public static function aclExist($title, $name, $return_value): bool
     {
         $gacl = self::collectGaclApiObject();
         if (!$name) {
@@ -406,6 +421,7 @@ class AclExtended
                 $note
             );
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -429,6 +445,7 @@ class AclExtended
             $group_id = $gacl->get_group_id(null, $acl_title, 'ARO');
             $gacl->del_group($group_id, true, 'ARO');
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -448,6 +465,7 @@ class AclExtended
             $aco_name = $aco_data[0][1];
             $gacl->append_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -484,6 +502,7 @@ class AclExtended
             $aco_name = $aco_data[0][1];
             $gacl->shift_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
+        self::resetAclCaches();
         return;
     }
 
@@ -1026,6 +1045,7 @@ class AclExtended
                 break;
         }
 
+        self::resetAclCaches();
         return;
     }
 
@@ -1063,6 +1083,7 @@ class AclExtended
                 break;
         }
 
+        self::resetAclCaches();
         return;
     }
 
@@ -1105,6 +1126,12 @@ class AclExtended
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $username = $session->get('authUser');
         }
+        // Cache only when $username is a string so we never memoize under a
+        // coerced key. Non-string usernames fall through to the original path.
+        $cacheKey = is_string($username) ? $username : null;
+        if ($cacheKey !== null && array_key_exists($cacheKey, self::$userPermissionsCache)) {
+            return self::$userPermissionsCache[$cacheKey];
+        }
         $gacl = self::collectGaclApiObject();
         $perms = [];
         $username_acl_groups = self::aclGetGroupTitles($username); // array of roles for the user
@@ -1113,7 +1140,15 @@ class AclExtended
                 self::getGroupPermissions($group_name, $perms);
             }
         }
+        if ($cacheKey !== null) {
+            self::$userPermissionsCache[$cacheKey] = $perms;
+        }
         return $perms;
+    }
+
+    public static function clearUserPermissionsCache(): void
+    {
+        self::$userPermissionsCache = [];
     }
 
     /**
@@ -1122,7 +1157,7 @@ class AclExtended
      * @param  string  $username              Name of user
      * @return bool
      */
-    public static function iHavePermissionsOf($username)
+    public static function iHavePermissionsOf($username): bool
     {
         $perms = self::getUserPermissions($username);
         $myperms = self::getUserPermissions();
@@ -1147,7 +1182,7 @@ class AclExtended
      * @param  string  $group_name            Name of group
      * @return bool
      */
-    public static function iHaveGroupPermissions($group_name)
+    public static function iHaveGroupPermissions($group_name): bool
     {
         $perms = [];
         self::getGroupPermissions($group_name, $perms);

@@ -1,7 +1,5 @@
 <?php
 
-require_once(__DIR__ . "/forms.inc.php");
-
 use OpenEMR\Common\Session\EncounterSessionUtil;
 
 //function called to set the global session variable for encounter number

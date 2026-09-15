@@ -18,6 +18,7 @@ parameters:
         - ../interface/modules/zend_modules
         - ../library/classes/ClinicalTypes
         - ../library/classes/rulesets
+        - ../library/edihistory
         # Only verysimple: fwk/libs/util declares a lowercase `class thumbnail`
         # that collides (case-insensitively) with library/classes/thumbnail's
         # Thumbnail and corrupts type resolution when scanned.

@@ -26,7 +26,10 @@ VALIDATE_BYTE_IDENTICAL_SCRIPT="$(cd "${__HELPERS_DIR}/../../../.." && pwd)/.git
 #   RAW_FETCH_BASE_URL   exported -- the script + curl mock both consume.
 #   PATH                 prepended with the curl mock dir.
 setup_test_dir() {
-    CWD=$(mktemp -d -t validate-byte-identical-test-XXXX)
+    # `mktemp -d` (no `-t <template>`) — BusyBox's mktemp in the
+    # bats/bats:1.13.0 Alpine image rejects the `-t` form that GNU
+    # mktemp accepts.
+    CWD=$(mktemp -d)
     FAKE_REMOTE_DIR="${CWD}/.fake-remote"
     mkdir -p "${FAKE_REMOTE_DIR}"
 

@@ -22,6 +22,7 @@ use OpenEMR\Common\Command\RootCliGuard;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Installer\InstallerInterface;
+use OpenEMR\Core\VersionFile;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
@@ -551,27 +552,15 @@ class Installer implements InstallerInterface
      */
     public function add_version_info(): bool
     {
-        include __DIR__ . "/../../version.php";
-        /**
-         * This annotation declares variables from the legacy include
-         * so PHPStan recognizes them.
-         *
-         * @var string $v_major
-         * @var string $v_minor
-         * @var string $v_patch
-         * @var string $v_realpatch
-         * @var string $v_tag
-         * @var string $v_database
-         * @var string $v_acl
-         */
+        $version = VersionFile::load(dirname(__DIR__, 2));
         $version_fields = array_map($this->escapeSql(...), [
-            'v_major' => $v_major,
-            'v_minor' => $v_minor,
-            'v_patch' => $v_patch,
-            'v_realpatch' => $v_realpatch,
-            'v_tag' => $v_tag,
-            'v_database' => $v_database,
-            'v_acl' => $v_acl
+            'v_major' => $version->major,
+            'v_minor' => $version->minor,
+            'v_patch' => $version->patch,
+            'v_realpatch' => $version->realpatch,
+            'v_tag' => $version->tag,
+            'v_database' => (string) $version->database,
+            'v_acl' => (string) $version->acl
         ]);
         $update_parts = array_map(fn($field): string => sprintf("%s = '%s'", $field, $version_fields[$field]), array_keys($version_fields));
 

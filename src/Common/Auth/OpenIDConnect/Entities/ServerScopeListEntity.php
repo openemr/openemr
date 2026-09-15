@@ -427,7 +427,7 @@ class ServerScopeListEntity
         };
         if ($context == "user") {
             $description .= ". " . xl("Application is requesting access to all patient data for this resource you have access to");
-        } else if ($context == "system") {
+        } elseif ($context == "system") {
             $description .= ". " . xl("Application is requesting access to all data in entire system for this resource");
         }
         return $description;

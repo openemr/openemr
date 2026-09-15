@@ -49,7 +49,8 @@ $isPrimaryRecord = $medication['is_primary_record'] ?? '1';
         </label>
     </radiogroup>
 </div>
-<div class="form-group col-sm-12 <?php if ($isPrimaryRecord) { ?>d-none<?php } ?>" id="medication-reported-by-container">
+<div class="form-group col-sm-12 <?php if ($isPrimaryRecord) {
+    ?>d-none<?php } ?>" id="medication-reported-by-container">
     <label class="col-form-label" for="medication[reported_by]"><?php echo xlt('Reported By (Address Book User)'); ?>:</label>
     <?php
     generate_form_field(['data_type' => 14, 'field_id' => 'medication[reporting_source_record_id]'], $medication['reporting_source_record_id'] ?? null);

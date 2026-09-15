@@ -17,16 +17,15 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Routing\ZendModuleApplication;
 use OpenEMR\Core\Routing\ZendModuleRouteLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 require_once(__DIR__ . "/../../../globals.php");
-require_once(__DIR__ . "/../../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../../library/options.inc.php");
 
 chdir(dirname(__DIR__));
@@ -62,7 +61,7 @@ if (OEEnvBag::getInstance()->getBoolean('OPENEMR__ZEND_SYMFONY_SEAM')) {
             new ZendModuleRouteLoader(__DIR__ . '/..'),
         );
 
-        $request = Request::createFromGlobals();
+        $request = CurrentRequest::get();
         if ($seam->matches($request->getPathInfo())) {
             $seam->handle($request)->send();
             return;

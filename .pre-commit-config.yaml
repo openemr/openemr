@@ -160,6 +160,37 @@ repos:
   hooks:
   - id: actionlint-docker
 
+# Local lint: workflow jobs that call .github/scripts/ must have
+# actions/checkout in the same job. Guards against the openemr/openemr#13972
+# class of bug where a workflow refactor extracts logic into a shared
+# script but forgets to add a checkout step -- actionlint doesn't cross-
+# reference script existence against checkout presence, so this bug type
+# stays latent until the workflow is first exercised end-to-end.
+- repo: local
+  hooks:
+  - id: lint-workflow-checkout-needed
+    name: Workflows calling .github/scripts/ must have actions/checkout
+    entry: .github/scripts/lint-workflow-checkout-needed.py
+    language: python
+    additional_dependencies: [PyYAML]
+    files: ^\.github/workflows/.*\.ya?ml$
+    pass_filenames: false
+
+# shellcheck
+- repo: https://github.com/shellcheck-py/shellcheck-py
+  rev: v0.11.0.1   # shellcheck 0.9.0 — matches ubuntu-24.04's package, which CI uses
+  hooks:
+  - id: shellcheck
+      # Match CI's invocation (.github/workflows/shellcheck.yml). enable=all
+      # comes from .shellcheckrc, which this hook reads too — don't repeat it.
+    args: [--check-sourced, --external-sources]
+      # Mirror CI's coverage: its path list skips docker/openemr/obsolete/ and
+      # never included tests/bats/ (**.sh / **.source / named scripts only).
+      # The bats suite carries an enable=all backlog (SC2250 etc.); bringing it
+      # under shellcheck is follow-up work, not part of mirroring CI.
+    exclude: (^docker/openemr/obsolete/|^tests/bats/)
+
+
 # hadolint for Dockerfile linting. Mirrors the CI workflow
 # (.github/workflows/docker-lint-hadolint.yml) so devs see the same findings
 # locally as CI. Shares .hadolint.yaml with CI.
@@ -175,7 +206,7 @@ repos:
 # briefly when upstream ships a new version. Dependabot bumps the hook rev
 # to close that window.
 - repo: https://github.com/AleksaC/hadolint-py
-  rev: v2.14.0
+  rev: v2.15.1
   hooks:
   - id: hadolint
     args:
@@ -184,6 +215,29 @@ repos:
 
 - repo: local
   hooks:
+  # OpenEMR once used a bare `.inc` extension for PHP includes, relying on the
+  # webserver not serving them. That is a fragile defence -- any server that is
+  # not configured to deny `.inc` hands the source out verbatim -- so the files
+  # were migrated to `.inc.php` (#5897) and the leftover redirect stubs deleted
+  # (#10495). No tracked file uses a bare `.inc` extension any more; this hook
+  # keeps it that way.
+  #
+  # The Rector rule fixtures are the one legitimate exception: Rector's
+  # AbstractRectorTestCase discovers fixtures by the `*.php.inc` suffix, and
+  # they are test data that is never included at runtime.
+  - id: forbid-inc-extension
+    name: Forbid bare .inc file extension
+    entry: >-
+      Files ending in .inc are not allowed: a misconfigured webserver serves
+      them as plain text, leaking source. Name PHP includes .inc.php (legacy
+      library helpers) or .php (new code).
+    language: fail
+    files: \.inc$
+    # Rector's fixture format is fixed at .php.inc, and each rule needs its own
+    # fixture directory so one rule's test does not pick up another's fixtures.
+    # These are test data, never served.
+    exclude: ^tests/Rector/Rules/Fixture[^/]*/[^/]+\.php\.inc$
+
   - id: php-syntax-check
     name: PHP Syntax Check
     entry: php -l

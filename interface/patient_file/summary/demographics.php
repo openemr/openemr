@@ -34,8 +34,6 @@ $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 // fetchNextXAppts() (in library/appointments.inc.php) writes $resNotNull via the
 // global keyword to signal whether the appointments query returned a non-null result.
 $resNotNull = false;
-require_once($srcdir . "/lists.inc.php");
-require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once("../history/history.inc.php");
 require_once($srcdir . "/clinical_rules.php");
@@ -44,6 +42,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -58,6 +57,7 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
 use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
+use OpenEMR\Patient\Cards\CarePlanViewCard;
 use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
@@ -65,14 +65,17 @@ use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\Forms\CarePlanFormService;
+use OpenEMR\Services\FormService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+// Pass the request to the cards that need it rather than having each card reach
+// for one itself.
+$request = CurrentRequest::get();
 
-if (!isset($pid)) {
-    $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
-}
+$pid ??= $session->get('pid') ?? $_GET['pid'] ?? null;
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
@@ -82,7 +85,6 @@ $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
-    require_once($srcdir . "/pid.inc.php");
     setpid($_GET['set_pid']);
     $ptService = new PatientService();
     $newPatient = $ptService->findByPid($pid);
@@ -134,6 +136,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
 }
 //Check to see is only one insurance is allowed
 $insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
+
+// The care plan card takes an int pid, and $pid arrives from the request as mixed.
+$carePlanCardPid = is_numeric($pid) ? (int) $pid : 0;
 
 function getHiddenDashboardCards(): array
 {
@@ -192,7 +197,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT " . escape_limit($limit), [$pid, $doc_catg]);
+            ORDER BY d.date DESC LIMIT ?", [$pid, $doc_catg, $limit]);
         while ($result = sqlFetchArray($query)) {
             $results[] = $result['id'];
         }
@@ -927,7 +932,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']));
             } else {
                 echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
-            } ?>);
+            }
+            echo "," . ((new PatientService())->hasPictureForPid($pid) ? 'true' : 'false'); ?>);
             var EncounterDateArray = [];
             var CalendarCategoryArray = [];
             var EncounterIdArray = [];
@@ -1250,7 +1256,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="row">
                 <?php
                 if (!in_array('card_care_team', $hiddenCards)) {
-                    $card = new CareTeamViewCard($pid, ['dispatcher' => $ed]);
+                    $card = new CareTeamViewCard($pid, $request, ['dispatcher' => $ed]);
                     $btnLabel = false;
                     if ($card->canAdd()) {
                         $btnLabel = 'Add';
@@ -1278,7 +1284,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // TREATMENT INTERVENTION PREFERENCES CARD
                 // ============================================================================
                 if (!in_array('card_treatment_preferences', $hiddenCards)) {
-                    $card = new TreatmentPreferenceViewCard($pid);
+                    $card = new TreatmentPreferenceViewCard($pid, $request);
                     $viewArgs = [
                         'title' => xl('Treatment Intervention Preferences'),
                         'id' => 'card_treatment_preferences',
@@ -1286,10 +1292,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_bg_color' => '',
                         'card_text_color' => '',
                         'forceAlwaysOpen' => !$card->canCollapse(),
+                        // btnLabel/btnLink/linkMethod are owned by the card
+                        // class — it supplies them via getTemplateVariables(),
+                        // which wins the array_merge below.
                         'btnClass'   => 'js-card-toggle-edit',
-                        'btnLabel' => 'Add',
-                        'linkMethod' => 'javascript',
-                        'btnLink' => "void(0);",
                     ];
                     // Merge with ViewCard variables and render CARD template (not form!)
                     echo "<div class='col-12 m-0 p-0 px-2'>";
@@ -1304,7 +1310,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // CARE EXPERIENCE PREFERENCES CARD
                 // ============================================================================
                 if (!in_array('card_care_experience', $hiddenCards)) {
-                    $card = new CareExperiencePreferenceViewCard($pid);
+                    $card = new CareExperiencePreferenceViewCard($pid, $request);
 
                     $viewArgs = [
                         'title' => xl('Care Experience Preferences'),
@@ -1313,13 +1319,41 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_bg_color' => '',
                         'card_text_color' => '',
                         'forceAlwaysOpen' =>  !$card->canCollapse(),
+                        // btnLabel/btnLink/linkMethod are owned by the card
+                        // class — it supplies them via getTemplateVariables(),
+                        // which wins the array_merge below.
                         'btnClass'   => 'js-card-toggle-edit',
-                        'btnLabel' => 'Add',
-                        'linkMethod' => 'javascript',
-                        'btnLink' => "void(0);",
                     ];
 
                     // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
+                }
+
+                // ============================================================================
+                // CARE PLAN CARD
+                // ============================================================================
+                $carePlanFormService = new FormService();
+                $carePlanCard = new CarePlanViewCard(
+                    $carePlanCardPid,
+                    new CarePlanFormService($carePlanFormService),
+                    $carePlanFormService
+                );
+                if (!in_array(CarePlanViewCard::CARD_ID, $hiddenCards) && $carePlanCard->isVisible()) {
+                    $card = $carePlanCard;
+                    $viewArgs = [
+                        'title' => $card->getTitle(),
+                        'id' => $card->getIdentifier(),
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'auth' => false,
+                    ];
                     echo "<div class='col-12 m-0 p-0 px-2'>";
                     echo $twig->getTwig()->render(
                         $card->getTemplateFile(),
@@ -1344,7 +1378,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     if (!in_array('card_insurance', $hiddenCards)) {
-                        $sectionRenderEvents->addCard(new InsuranceViewCard($pid, ['dispatcher' => $ed]));
+                        $sectionRenderEvents->addCard(new InsuranceViewCard($pid, $request, ['dispatcher' => $ed]));
                     }
 
                     // Get the cards to render
@@ -1622,7 +1656,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
+                            // Fallback only: a section card that needs a button
+                            // target supplies its own btnLink via
+                            // getTemplateVariables(), which wins the merge
+                            // below. It must stay a safe href — `javascript:`
+                            // URLs are rejected by |safe_href.
+                            'btnLink' => '#',
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));

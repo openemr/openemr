@@ -1,0 +1,3 @@
+id,date,type,subtype,title,begdate,enddate,diagnosis,activity,comments,pid,user,outcome,reaction,verification,severity_al
+8001,2026-01-15,medical_problem,,Essential hypertension,2024-06-20,,I10,1,Monitoring blood pressure,1001,clinician_demo,,,confirmed,
+8002,2026-02-03,allergy,drug,Penicillin,1998-01-01,,,1,Synthetic allergy example,1002,clinician_demo,,Rash,confirmed,moderate

@@ -144,9 +144,7 @@ class FHIRObservationRangeCategory extends FHIRElement implements \JsonSerializa
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ObservationRangeCategory xmlns="http://hl7.org/fhir"></ObservationRangeCategory>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ObservationRangeCategory xmlns="http://hl7.org/fhir"></ObservationRangeCategory>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

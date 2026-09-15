@@ -154,7 +154,7 @@ class Rule
      */
     public ?string $feedback;
 
-    function __construct(public $id = '', public string $title = '', public $ruleTypes = [])
+    public function __construct(public $id = '', public string $title = '', public $ruleTypes = [])
     {
         $this->bibliographic_citation = '';
         $this->developer = '';
@@ -219,37 +219,37 @@ class Rule
         $this->feedback = $feedback;
     }
 
-    function getTitle()
+    public function getTitle()
     {
         return $this->title;
     }
 
-    function setBibliographicCitation($s)
+    public function setBibliographicCitation($s)
     {
         $this->bibliographic_citation = $s;
     }
 
-    function setDeveloper($s)
+    public function setDeveloper($s)
     {
         $this->developer = $s;
     }
 
-    function setFunding($s)
+    public function setFunding($s)
     {
         $this->funding_source = $s;
     }
 
-    function setRelease($s)
+    public function setRelease($s)
     {
         $this->release = $s;
     }
 
-    function setWeb_reference($s)
+    public function setWeb_reference($s)
     {
         $this->web_reference = $s;
     }
 
-    function setLinkedReferentialCds($s)
+    public function setLinkedReferentialCds($s)
     {
         $this->linked_referential_cds = $s;
     }
@@ -257,7 +257,7 @@ class Rule
     /**
      * @param RuleType $ruleType
      */
-    function addRuleType($ruleType)
+    public function addRuleType($ruleType)
     {
         if (!$this->hasRuleType($ruleType)) {
             array_push($this->ruleTypes, $ruleType->code);
@@ -269,7 +269,7 @@ class Rule
      * @param RuleType $ruleType
      * @return bool
      */
-    function hasRuleType($ruleType)
+    public function hasRuleType($ruleType): bool
     {
         foreach ($this->ruleTypes as $type) {
             if ($type == $ruleType->code) {
@@ -280,27 +280,27 @@ class Rule
         return false;
     }
 
-    function isActiveAlert()
+    public function isActiveAlert()
     {
         return $this->hasRuleType(RuleType::from(RuleType::ActiveAlert));
     }
 
-    function isPassiveAlert()
+    public function isPassiveAlert()
     {
         return $this->hasRuleType(RuleType::from(RuleType::PassiveAlert));
     }
 
-    function isCqm()
+    public function isCqm()
     {
         return $this->hasRuleType(RuleType::from(RuleType::CQM));
     }
 
-    function isAmc()
+    public function isAmc()
     {
         return $this->hasRuleType(RuleType::from(RuleType::AMC));
     }
 
-    function isReminder()
+    public function isReminder()
     {
         return $this->hasRuleType(RuleType::from(RuleType::PatientReminder));
     }
@@ -308,7 +308,7 @@ class Rule
     /**
      * @param ReminderIntervals $reminderIntervals
      */
-    function setReminderIntervals($reminderIntervals)
+    public function setReminderIntervals($reminderIntervals)
     {
         $this->reminderIntervals = $reminderIntervals;
     }
@@ -317,12 +317,12 @@ class Rule
      *
      * @param RuleFilters $ruleFilters
      */
-    function setRuleFilters($ruleFilters)
+    public function setRuleFilters($ruleFilters)
     {
         $this->filters = $ruleFilters;
     }
 
-    function setGroups(array $groups)
+    public function setGroups(array $groups)
     {
         $this->groups = $groups;
     }
@@ -331,7 +331,7 @@ class Rule
      *
      * @param RuleTargets $ruleTargets
      */
-    function setRuleTargets($ruleTargets)
+    public function setRuleTargets($ruleTargets)
     {
         $this->targets = $ruleTargets;
     }
@@ -339,17 +339,17 @@ class Rule
     /**
      * @param RuleActions $actions
      */
-    function setRuleActions($actions)
+    public function setRuleActions($actions)
     {
         $this->actions = $actions;
     }
 
-    function isEditable()
+    public function isEditable(): bool
     {
         return true;
     }
 
-    function getRuleTypeLabels()
+    public function getRuleTypeLabels()
     {
         $labels = [];
         foreach ($this->ruleTypes as $ruleType) {

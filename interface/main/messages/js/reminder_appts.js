@@ -137,7 +137,7 @@ function add_this_recall(e) {
     }
 
     var url = "save.php";
-    formData = JSON.stringify($("form#addRecall").serialize());
+    formData = $("form#addRecall").serialize();
     top.restoreSession();
     $.ajax({
         type: 'POST',
@@ -230,7 +230,8 @@ function process_this(material, id, eid = '') {
             'uid_pc_eid': all_Data,
             'msg_notes': notes,
             'action': 'process',
-            'item': material
+            'item': material,
+            'csrf_token_form': $("input[name='csrf_token_form']").first().val()
         }
     }).done(function (result) {
         if (material === 'labels') window.open("../../patient_file/addr_appt_label.php", "_blank");
@@ -310,7 +311,8 @@ function delete_Recall(pid, r_ID) {
             data: {
                 'action': 'delete_Recall',
                 'pid': pid,
-                'r_ID': r_ID
+                'r_ID': r_ID,
+                'csrf_token_form': $("input[name='csrf_token_form']").first().val()
             }
 
         }).done(function (result) {

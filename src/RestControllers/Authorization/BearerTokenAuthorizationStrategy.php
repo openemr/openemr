@@ -6,6 +6,8 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
 use LogicException;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
@@ -14,9 +16,11 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Psr\Log\LoggerInterface;
@@ -43,6 +47,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private UserService $userService;
 
+    private PatientService $patientService;
+
     public function __construct(private OEGlobalsBag $globalsBag, private EventAuditLogger $auditLogger, ?LoggerInterface $logger = null)
     {
         if ($logger) {
@@ -52,10 +58,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     public function getTrustedUserService(): TrustedUserService
     {
-        if (!isset($this->trustedUserService)) {
-            // Initialize the trusted user service if not already set.
-            $this->trustedUserService = new TrustedUserService();
-        }
+        $this->trustedUserService ??= new TrustedUserService();
         return $this->trustedUserService;
     }
 
@@ -103,21 +106,13 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
      */
     public function getUuidUserAccountFactory(): callable
     {
-        if (!isset($this->uuidUserAccountFactory)) {
-            // If the factory is not set, we can initialize it here.
-            // This is a placeholder for the actual factory logic.
-            $this->uuidUserAccountFactory = (fn($userUuid): \OpenEMR\Common\Auth\UuidUserAccount => new UuidUserAccount($userUuid));
-        }
+        $this->uuidUserAccountFactory ??= fn($userUuid): \OpenEMR\Common\Auth\UuidUserAccount => new UuidUserAccount($userUuid);
         return $this->uuidUserAccountFactory;
     }
 
     public function getAccessTokenRepositoryForSession(SessionInterface $session): AccessTokenRepository
     {
-        if (!isset($this->accessTokenRepository)) {
-            // If the access token repository is not set, we can create it here.
-            // This is a placeholder for the actual repository logic.
-            $this->accessTokenRepository = $this->createAccessTokenRepository($session);
-        }
+        $this->accessTokenRepository ??= $this->createAccessTokenRepository($session);
         return $this->accessTokenRepository;
     }
 
@@ -362,7 +357,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return $raw;
     }
 
-    private function isValidRequestForUserRole(Request $request, array $oauthScopes, string $userRole)
+    private function isValidRequestForUserRole(Request $request, array $oauthScopes, string $userRole): bool
     {
         $resource = $request->getPathInfo();
         if (
@@ -418,11 +413,19 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     public function getUserService(): UserService
     {
-        if (!isset($this->userService)) {
-            // Initialize the user service if not already set.
-            $this->userService = new UserService();
-        }
+        $this->userService ??= new UserService();
         return $this->userService;
+    }
+
+    public function setPatientService(PatientService $patientService): void
+    {
+        $this->patientService = $patientService;
+    }
+
+    public function getPatientService(): PatientService
+    {
+        $this->patientService ??= new PatientService();
+        return $this->patientService;
     }
 
     /**
@@ -471,16 +474,157 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
 
     /**
-     * Checks whether a user has access to the patient. Returns true if the user can access the given patient, false otherwise
-     * @param $userId The id from the users table that represents the user
-     * @param $patientUuid The uuid from the patient_data table that represents the patient
-     * @return bool True if has access, false otherwise
+     * Checks whether a user has access to the patient. Returns true if the user can access the given patient, false otherwise.
+     *
+     * Mirrors OpenEMR's core UI enforcement model for patient chart access:
+     *   1. The caller must resolve to a real user record.
+     *   2. The patient UUID must resolve to a real patient record.
+     *   3. The user must hold the `patients / demo` ACL (the minimum PHI ACL, used
+     *      at `PatientContextSearchController::checkUserAccessPatientData` for the
+     *      SMART patient picker and at `interface/patient_file/summary/demographics.php`
+     *      for chart access in the core UI).
+     *   4. If the patient carries a `squad` tag, the user must additionally hold
+     *      the matching `squads / <squad>` ACL, mirroring the squad-gate enforced
+     *      by `interface/patient_file/summary/demographics.php`.
+     *
+     * Returns false on any missing input, invalid UUID, unresolved user, or
+     * unresolved patient. Called during SMART launch context mapping in
+     * {@see self::populateTokenContextForRequest()}; without this check any
+     * `user/*.*`-scoped token could bind an arbitrary patient UUID into the
+     * request context.
+     *
+     * Note: parameter types are intentionally left untyped. The values arrive
+     * from OAuth-token attributes and JSON-decoded token context, both of which
+     * are `mixed` at the source. Validation happens inside the method rather
+     * than at the signature so callers get a `false` result instead of a
+     * TypeError.
+     *
+     * @param mixed $userId      Expected to be a user UUID string (from the OAuth token).
+     * @param mixed $patientUuid Expected to be a patient UUID string (from the token context claim).
+     * @return bool True if the user is authorized to access the patient, false otherwise.
      */
     protected function checkUserHasAccessToPatient($userId, $patientUuid): bool
     {
-        // TODO: the session should never be populated with the pid from the access token unless the user had access to
-        // it.  However, if we wanted an additional check or if we wanted to fire off any kind of event that does
-        // patient filtering by provider / clinic we would handle that here.
+        // Return false on missing/malformed inputs. Route audit lines through
+        // `auditLogger()` (inline lazy init, avoiding the deprecated
+        // `getSystemLogger()`) rather than the null-safe `$this->logger?->error(...)`
+        // — these are audit-critical rejection paths, and a null-logger
+        // edge case (test misconfiguration or DI hiccup in production) must
+        // not silently drop the audit line.
+        if (!is_string($userId) || $userId === '' || !UuidRegistry::isValidStringUUID($userId)) {
+            $this->auditLogger()->error(
+                "OpenEMR Error: checkUserHasAccessToPatient rejected — user id missing or not a valid UUID",
+                ['userIdType' => gettype($userId)]
+            );
+            return false;
+        }
+        if (!is_string($patientUuid) || $patientUuid === '' || !UuidRegistry::isValidStringUUID($patientUuid)) {
+            $this->auditLogger()->error(
+                "OpenEMR Error: checkUserHasAccessToPatient rejected — patient uuid missing or not a valid UUID",
+                ['patientUuidType' => gettype($patientUuid)]
+            );
+            return false;
+        }
+
+        // Resolve the user record. We need `username` for AclMain::aclCheckCore.
+        $user = $this->getUserService()->getUserByUUID($userId);
+        if (!is_array($user)) {
+            $this->auditLogger()->error(
+                "OpenEMR Error: checkUserHasAccessToPatient rejected — user uuid did not resolve to a user record",
+                ['userId' => $userId]
+            );
+            return false;
+        }
+        $username = $user['username'] ?? null;
+        if (!is_string($username) || $username === '') {
+            $this->auditLogger()->error(
+                "OpenEMR Error: checkUserHasAccessToPatient rejected — resolved user record has no username",
+                ['userId' => $userId]
+            );
+            return false;
+        }
+
+        // Resolve the patient. We need the row (not just the pid) so we can check
+        // the optional per-patient `squad` ACL scope.
+        $patient = $this->findPatientByUuid($patientUuid);
+        if ($patient === null) {
+            $this->auditLogger()->error(
+                "OpenEMR Error: checkUserHasAccessToPatient rejected — patient uuid did not resolve to a patient record",
+                ['patientUuid' => $patientUuid]
+            );
+            return false;
+        }
+        $pid = $patient['pid'] ?? null;
+        if (!is_numeric($pid) || (int) $pid <= 0) {
+            $this->auditLogger()->error(
+                "OpenEMR Error: checkUserHasAccessToPatient rejected — resolved patient record has no pid",
+                ['patientUuid' => $patientUuid]
+            );
+            return false;
+        }
+        $squadRaw = $patient['squad'] ?? '';
+        $squad = is_string($squadRaw) ? $squadRaw : '';
+
+        return $this->aclCheckUserPatientAccess($username, $squad);
+    }
+
+    /**
+     * Resolve a logger for audit-log lines emitted from audit-critical
+     * rejection paths. Uses the injected `$this->logger` when present, otherwise
+     * lazily falls back to `ServiceContainer::getLogger()` (which itself
+     * returns a `SystemLogger` in production and a `NullLogger` under PHPUnit,
+     * respecting the project's forbidden-instantiation rule).
+     *
+     * Callers should prefer this over `$this->logger?->error(...)` for audit
+     * lines that must not be silently dropped in a null-logger edge case (test
+     * misconfiguration or DI hiccup in production).
+     */
+    private function auditLogger(): LoggerInterface
+    {
+        return $this->logger ??= ServiceContainer::getLogger();
+    }
+
+    /**
+     * Look up a patient row by its UUID string. Returns null when the UUID does
+     * not correspond to an existing patient. Split out so isolated tests can
+     * override this seam without touching the database.
+     *
+     * The return type is deliberately widened to `array<string,mixed>|null`
+     * (rather than `PatientDataRow`) so isolated tests can supply fixture rows
+     * without having to satisfy every field of the underlying shape.
+     *
+     * @return array<string,mixed>|null
+     */
+    protected function findPatientByUuid(string $patientUuid): ?array
+    {
+        $patientService = $this->getPatientService();
+        $pid = $patientService->getPidByUuid($patientUuid);
+        if (!is_numeric($pid) || (int) $pid <= 0) {
+            return null;
+        }
+        // PatientService::findByPid returns a PatientDataRow shape when the
+        // pid resolves; the pid guard above and getPidByUuid's own existence
+        // check make that the only path here.
+        return $patientService->findByPid((int) $pid);
+    }
+
+    /**
+     * Applies OpenEMR's user-to-patient ACL policy: base `patients / demo`
+     * plus, when the patient carries a squad tag, the matching `squads / <squad>`
+     * ACL. Split out so isolated tests can stub the AclMain interaction without
+     * standing up the gACL database.
+     *
+     * @param string $username The user whose access is being checked.
+     * @param string $squad    The patient's squad tag (empty string when unset).
+     */
+    protected function aclCheckUserPatientAccess(string $username, string $squad): bool
+    {
+        if (!AclMain::aclCheckCore('patients', 'demo', $username)) {
+            return false;
+        }
+        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad, $username)) {
+            return false;
+        }
         return true;
     }
 }

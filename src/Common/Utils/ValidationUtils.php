@@ -85,6 +85,29 @@ class ValidationUtils
     }
 
     /**
+     * Parses a monetary amount that must be strictly greater than zero.
+     *
+     * validateFloat()'s min_range is inclusive, so it cannot express "positive"
+     * without also admitting zero. Payment amounts need the exclusive bound: a
+     * zero or negative amount is a tampered or mistyped request, not a payment.
+     *
+     * Returns null rather than false for every rejected input so callers branch
+     * on a single null check instead of distinguishing false from 0.0.
+     *
+     * @param mixed $value The raw value to parse, typically request input
+     * @return ?float The parsed amount, or null if it is not a positive number
+     */
+    public static function parsePositiveAmount(mixed $value): ?float
+    {
+        $amount = self::validateFloat($value);
+        if ($amount === false || $amount <= 0) {
+            return null;
+        }
+
+        return $amount;
+    }
+
+    /**
      * Validates a National Provider Identifier (NPI).
      *
      * NPIs are 10-digit numbers that must pass the Luhn algorithm check

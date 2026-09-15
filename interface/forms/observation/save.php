@@ -18,22 +18,20 @@ require_once(__DIR__ . "/../../globals.php");
  * @global string $srcdir defined in globals.php
  */
 global $srcdir;
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
-use Symfony\Component\HttpFoundation\Request;
 
 $logger = ServiceContainer::getLogger();
 
 try {
     // Create controller and handle request
-    $request = Request::createFromGlobals();
+    $request = CurrentRequest::get();
     $service = new ObservationService();
     $formService = new FormService();
     // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates

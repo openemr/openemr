@@ -18,11 +18,17 @@ $depth = '../../../';
 require_once($depth . 'interface/globals.php');
 require_once("content_parser.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: CAMOS Note Generator", xl("CAMOS Note Generator"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
@@ -458,9 +464,7 @@ function getFormData(string $start_date, string $end_date, string $lname, string
         /** @var array{form_id: int, form_name: ?string, pid: int, date: string, datekey: string, lname: string, fname: string, pubpid: string, dob: string, enc: int, reason: ?string} $results1 */
         $datekey = $results1['datekey'];
         $pidEnc = $results1['pid'] . '_' . $results1['enc'];
-        if (!isset($dates[$datekey])) {
-            $dates[$datekey] = [];
-        }
+        $dates[$datekey] ??= [];
 
         if (!isset($dates[$datekey][$pidEnc])) {
             $dates[$datekey][$pidEnc] = [];
@@ -530,9 +534,7 @@ function getFormData(string $start_date, string $end_date, string $lname, string
                         'date' => $results2['date']];
                     array_push($dates[$datekey][$pidEnc]['calories'], $values);
                 } else {
-                    if (!isset($dates[$datekey][$pidEnc]['other'][$results2['category']])) {
-                        $dates[$datekey][$pidEnc]['other'][$results2['category']] = [];
-                    }
+                    $dates[$datekey][$pidEnc]['other'][$results2['category']] ??= [];
 
                     array_push(
                         $dates[$datekey][$pidEnc]['other'][$results2['category']],

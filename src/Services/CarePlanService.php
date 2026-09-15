@@ -59,7 +59,7 @@ class CarePlanService extends BaseService
      */
     private $codeTypesService;
 
-    function getUuidFields(): array
+    public function getUuidFields(): array
     {
         return ['puuid', 'euuid', 'provider_uuid'];
     }

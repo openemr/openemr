@@ -53,3 +53,9 @@ setup() {
 @test "flex openemr.sh: default FLEX_REPOSITORY github.com/openemr" {
     assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'github.com/openemr'
 }
+
+@test "flex openemr.sh: composer install retries GitHub zipball 504s" {
+    assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'COMPOSER_MAX_RETRIES'
+    assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'composer_install_with_retry'
+    assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'retrying in 15s'
+}

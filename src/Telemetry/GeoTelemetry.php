@@ -63,9 +63,9 @@ class GeoTelemetry implements GeoTelemetryInterface
 
         // Try multiple providers in sequence
         $providers = [
-            fn() => $this->tryIpApi($ip),
-            fn() => $this->tryGeoPlugin($ip),
-            fn() => $this->tryIpApiCom($ip),
+            fn(): array => $this->tryIpApi($ip),
+            fn(): array => $this->tryGeoPlugin($ip),
+            fn(): array => $this->tryIpApiCom($ip),
         ];
 
         foreach ($providers as $provider) {

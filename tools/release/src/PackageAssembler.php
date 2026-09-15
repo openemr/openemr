@@ -16,6 +16,12 @@
  * Unlike PatchAssembler (a changed-files overlay), this produces a complete,
  * standalone install that end users extract and run without composer or npm.
  *
+ * Changes here auto-fire the acceptance-package.yml build_locally path
+ * (Phase 3.5) — the workflow builds the tarball from the PR checkout and
+ * runs the fresh-install + upgrade acceptance groups against it, catching
+ * assembler regressions pre-merge instead of at release-conductor time.
+ * See docs/artifact-acceptance-testing-plan.md for the phase design.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>

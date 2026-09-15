@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,11 +21,9 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
-
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
@@ -497,9 +496,8 @@ function match_patient($ptarr)
  * Look for a lab matching the given XCN field from some segment.
  *
  * @param array $seg MSH seg identifying a provider.
- * @return mixed        TRUE, or FALSE if no match.
  */
-function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = '')
+function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = ''): bool
 {
     if (empty($hl7)) {
         return false;
@@ -690,9 +688,7 @@ function create_skeleton_patient($patient_data)
     $employer_data = [];
     $tmp = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
     $ptid = empty($tmp['pid']) ? 1 : intval($tmp['pid']);
-    if (!isset($patient_data['pubpid'])) {
-        $patient_data['pubpid'] = $ptid;
-    }
+    $patient_data['pubpid'] ??= $ptid;
 
     updatePatientData($ptid, $patient_data, true);
     updateEmployerData($ptid, $employer_data, true);
@@ -926,7 +922,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if ($patient_id == -1) {
                     // Result is indeterminate.
                     // Make a stringified form of $ptarr to use as a key.
-                    $ptstring = serialize($ptarr);
+                    try {
+                        $ptstring = json_encode($ptarr, JSON_THROW_ON_ERROR);
+                    } catch (\JsonException) {
+                        return rhl7LogMsg(xl('Failed to encode patient match key for segment') .
+                            ' ' . $rhl7_segnum, true);
+                    }
                     // Check if the user has specified the patient.
                     if (isset($matchresp[$ptstring])) {
                         // This will be an existing pid, or 0 to specify creating a patient.
@@ -1178,14 +1179,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $code_seq_array = [];
             }
 
-            // Find the order line item (procedure code) that matches this result.
-            // If there is more than one, then we select the one whose sequence number
-            // is next after the last sequence number encountered for this procedure
-            // code; this assumes that result OBRs are returned in the same sequence
-            // as the corresponding OBRs in the order.
-            if (!isset($code_seq_array[$in_procedure_code])) {
-                $code_seq_array[$in_procedure_code] = 0;
-            }
+            $code_seq_array[$in_procedure_code] ??= 0;
 
             $pcquery = "SELECT pc.* FROM procedure_order_code AS pc " .
                 "WHERE pc.procedure_order_id = ? AND pc.procedure_code = ? " .
@@ -1588,9 +1582,7 @@ function poll_hl7_results(&$info, $labs = 0)
                     continue;
                 }
 
-                if (!isset($info["$lab_name/$ppid/$file"])) {
-                    $info["$lab_name/$ppid/$file"] = [];
-                }
+                $info["$lab_name/$ppid/$file"] ??= [];
 
                 // Ensure that archive directory exists.
                 $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
@@ -1720,9 +1712,7 @@ function poll_hl7_results(&$info, $labs = 0)
             ksort($files);
             // For each file...
             foreach ($files as $file) {
-                if (!isset($info["$lab_name/$ppid/$file"])) {
-                    $info["$lab_name/$ppid/$file"] = [];
-                }
+                $info["$lab_name/$ppid/$file"] ??= [];
 
                 // Ensure that archive directory exists.
                 $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
@@ -1852,9 +1842,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 $file = "result_" . $control_id . ".hl7";
 
                 ++$filecount;
-                if (!isset($info["$lab_name/$ppid/$file"])) {
-                    $info["$lab_name/$ppid/$file"] = [];
-                }
+                $info["$lab_name/$ppid/$file"] ??= [];
 
                 // Ensure that archive directory exists.
                 $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";

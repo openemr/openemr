@@ -14,7 +14,6 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 require_once('./../../interface/globals.php');
 $globalsBag = OEGlobalsBag::getInstance();
-require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 
 $templateService = new DocumentTemplateService();
 $group_list =  $templateService->fetchDefaultGroups();

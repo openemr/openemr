@@ -72,6 +72,7 @@ This file configures the kind that requires initialization.
     </testsuite>
     <testsuite name="controllers">
       <directory>tests/Tests/RestControllers</directory>
+      <directory>tests/Tests/Controllers</directory>
     </testsuite>
     <testsuite name="common">
       <directory>tests/Tests/Common</directory>

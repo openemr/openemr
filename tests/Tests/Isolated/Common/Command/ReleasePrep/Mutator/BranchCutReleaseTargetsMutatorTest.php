@@ -166,6 +166,12 @@ final class BranchCutReleaseTargetsMutatorTest extends TestCase
         self::assertSame('8.2.0,next', $byBranch['rel-820']['docker_tags']);
         self::assertSame('rel-820', $byBranch['rel-820']['openemr_version_ref']);
         self::assertSame('8.1.1,latest', $byBranch['rel-810']['docker_tags']);
+        // Every freshly-cut rel branch carries the acceptance surface
+        // (Phase 12 / #13332). Mutator must set gate_with_acceptance
+        // on the new row — omitted in the initial mutator shipped
+        // pre-Phase-12, back-patched after openemr/openemr#13484 caught
+        // the drop on rel-830's cut.
+        self::assertTrue($byBranch['rel-820']['gate_with_acceptance']);
     }
 
     public function testMasterWithoutNextStillBumpsMinor(): void

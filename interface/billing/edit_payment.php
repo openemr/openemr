@@ -34,9 +34,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/payment.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $CountIndexAbove = 0;
@@ -167,7 +165,7 @@ if ($saveError === null && isset($_POST["mode"])) {
 
         // This becomes MUCH more straightforward with actual dbal, but this is
         // still safe from SQLI since the keys are all string literals.
-        $updates = array_map(fn ($col) => sprintf('`%s` = ?', $col), array_keys($updatedValues));
+        $updates = array_map(fn ($col): string => sprintf('`%s` = ?', $col), array_keys($updatedValues));
         $query = implode(' ', [
             'UPDATE ar_session SET',
             implode(', ', $updates),
@@ -1040,11 +1038,11 @@ $ResultSearchSub = sqlStatement(
                         if ($Table == 'yes') { ?>
                             <tr>
                                 <td class="text-right text-dark" align="left" colspan="9"><b><?php echo (xlt("Totals") . ": ") ?></b></td>
-                                <td class="bg-dark text-secondary" align="center" id="allowtotal"><?php echo text(number_format($allowedtot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="paymenttotal"><?php echo text(number_format($paymenttot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="AdjAmounttotal"><?php echo text(number_format($adjamttot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="deductibletotal"><?php echo text(number_format($deductibletot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="allowtotal"><?php echo text(number_format($allowedtot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="paymenttotal"><?php echo text(number_format($paymenttot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="AdjAmounttotal"><?php echo text(number_format($adjamttot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="deductibletotal"><?php echo text(number_format($deductibletot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
                                 <td align="center" colspan="2">&nbsp;</td>
                                 <td align="right">
                                     <button type="button" class="btn btn-sm btn-secondary btn-refresh pull-right"

@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\CompositeSearchField;
@@ -33,7 +34,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirOrganizationFacilityService extends FhirServiceBase
+class FhirOrganizationFacilityService extends FhirServiceBase implements INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
 

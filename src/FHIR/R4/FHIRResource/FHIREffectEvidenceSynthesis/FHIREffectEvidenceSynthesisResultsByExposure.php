@@ -246,9 +246,7 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisResultsByExposure xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisResultsByExposure>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EffectEvidenceSynthesisResultsByExposure xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisResultsByExposure>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

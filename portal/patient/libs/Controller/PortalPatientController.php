@@ -10,11 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/**
- * import supporting libraries
- */
-require_once("AppBasePortalController.php");
-require_once("Model/Patient.php");
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 
 /**
  * PatientController is the controller class for the Patient object.
@@ -74,8 +70,10 @@ class PortalPatientController extends AppBasePortalController
     {
         try {
             $criteria = new PatientCriteria();
-            $recnum = RequestUtil::Get('patientId');
-            $criteria->Pid_Equals = $recnum;
+            // Bind to the validated bootstrap pid; a null/empty value would
+            // cause PatientReporter to skip its zero-pid branch and return
+            // every patient row.
+            $criteria->Pid_Equals = PortalSessionPidGuard::requireBootstrapPid();
 
             $output = new stdClass();
 
@@ -110,9 +108,8 @@ class PortalPatientController extends AppBasePortalController
         try {
             // not required here but, represents patient rec id, not audit id.
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $ppid = RequestUtil::Get('patientId');
             $appsql = new ApplicationTable();
-            $edata = $appsql->getPortalAudit($ppid, 'review');
+            $edata = $appsql->getPortalAudit(PortalSessionPidGuard::requireBootstrapPid(), 'review');
             $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
             $newv = [];
             foreach ($changed as $key => $val) {
@@ -139,6 +136,13 @@ class PortalPatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
+            if (!($patient instanceof Patient)) {
+                throw new Exception('Not found');
+            }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
@@ -182,7 +186,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->Homeless = $this->SafeGetVal($json, 'homeless', $patient->Homeless);
             $patient->FinancialReview = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'financialReview', $patient->FinancialReview)));*/
             $patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
-            $patient->Pid = $this->SafeGetVal($json, 'pid', $patient->Pid);
+            // Never let the body reassign the row's Pid — the ownership check above pins it.
             $patient->HipaaMail = $this->SafeGetVal($json, 'hipaaMail', $patient->HipaaMail);
             $patient->HipaaVoice = $this->SafeGetVal($json, 'hipaaVoice', $patient->HipaaVoice);
             $patient->HipaaNotice = $this->SafeGetVal($json, 'hipaaNotice', $patient->HipaaNotice);
@@ -270,6 +274,13 @@ class PortalPatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
+            if (!($patient instanceof Patient)) {
+                throw new Exception('Not found');
+            }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             $patient->Delete();
 

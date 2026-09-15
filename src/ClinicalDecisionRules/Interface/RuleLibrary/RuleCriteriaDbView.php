@@ -26,16 +26,16 @@ class RuleCriteriaDbView
 
     public $value;
 
-    function __construct()
+    public function __construct()
     {
     }
 
-    function set($i)
+    public function set($i)
     {
         $this->intervalType = $i;
     }
 
-    function get()
+    public function get()
     {
         return $this->intervalType;
     }

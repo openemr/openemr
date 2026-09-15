@@ -288,7 +288,7 @@ class BaseValidatorTestStub extends BaseValidator
     /**
      * Override validateCode to avoid database calls
      */
-    public function validateCode($code, $table, $valueset)
+    public function validateCode($code, $table, $valueset): bool
     {
         // Simulate database lookup - return true for 'valid_code', false for others
         if ($code === 'valid_code') {

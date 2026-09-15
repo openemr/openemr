@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\User;
 
+use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\WebDriverBy;
@@ -28,6 +29,7 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\User\UserTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsUserAddTrait;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -58,7 +60,7 @@ trait UserAddTrait
      * skips early when the user already exists, so the body rarely runs on the
      * one matrix slice that uploads coverage.
      */
-    private function userAddIfNotExist(string $username, bool $isRetry = false): void
+    private function userAddIfNotExist(string $username): void
     {
         // if user already exists, then skip this
         if ($this->isUserExist($username)) {
@@ -111,75 +113,126 @@ trait UserAddTrait
         // Switch to default content to properly detect modal state changes
         $this->client->switchTo()->defaultContent();
 
-        // Wait for the modal iframe to disappear (dialog closes on successful user creation)
+        // Wait for the modal iframe to disappear (dialog closes on successful user creation).
         // The dialog calls dlgclose('reload', false) on success, which closes the modal
         // and triggers a reload of the admin iframe.
         //
         // Scale the timeout with the page load timeout — coverage mode makes
         // the AJAX round-trip (bcrypt + DB writes + instrumented PHP) much slower.
+        //
+        // The AJAX-handler-to-dlgclose chain has a documented single-shot flake
+        // mode (mirrors the acceptance-side race handled in #13391): the server
+        // succeeds and the row lands in the DB, but the JS handler race loses
+        // dlgclose() so the modal stays visible. Instead of retrying the whole
+        // test (the prior approach — a 3-retry recursive loop), let the
+        // isUserExist() DB check act as the oracle. Row present after timeout
+        // means typical flake mode — force-clean modal + reload admin iframe
+        // and continue. Row missing means real regression — hard-fail.
         $modalTimeout = max(10, (int) ((int) (getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60) / 2));
-        if (!$this->waitForModalClose($modalTimeout)) {
-            // Modal didn't close - gather diagnostics before retrying
-            $diagnostics = $this->gatherModalDiagnostics($username);
-            fwrite(STDERR, "[E2E] Modal failed to close after user creation (waited {$modalTimeout}s). Diagnostics: {$diagnostics}\n");
+        if ($this->waitForModalClose($modalTimeout)) {
+            // Positive-path breadcrumb. Paired with the recovery-path
+            // breadcrumb in the else branch below — together they let
+            // us confirm the recovery mechanism is running end-to-end
+            // by grepping CI logs. Without the happy-path breadcrumb,
+            // "0 recovery-path breadcrumbs across N runs" is ambiguous:
+            // could mean "Bb never flaked" OR "the recovery logic was
+            // wired wrong and always short-circuits." Emitting on the
+            // clean path proves the wait actually completed via the
+            // expected non-catch code path.
+            fwrite(STDERR, "[e2e/Bb] Modal-close wait passed cleanly.\n");
+        } else {
+            // STDERR breadcrumb so CI logs show when the recovery path
+            // fired — lets us track the flake rate over time without
+            // needing a green-vs-red signal.
+            fwrite(
+                STDERR,
+                "[e2e/Bb] Modal-close wait timed out after Save (waited {$modalTimeout}s); "
+                . "entering recovery path (the AJAX-handler-to-dlgclose chain has a documented flake mode).\n"
+            );
 
-            // Check if user was actually created despite modal not closing
-            if ($this->isUserExist($username)) {
-                fwrite(STDERR, "[E2E] User exists in database despite modal not closing - possible JS/UI issue\n");
-                // Capture browser console log while we still have the broken session.
-                // The console may show the AJAX response handler error that
-                // prevented dlgclose() from firing.
-                $this->captureForceRefreshDiagnostics($username, 'pre-refresh');
-                // Force close by refreshing the page - modal state is broken but data is saved.
-                // Wrap each step so a TimeoutException identifies which recovery step failed.
-                try {
-                    $this->client->request('GET', '/interface/main/main_screen.php');
-                    $this->waitForAppReady(10);
-                    // @codeCoverageIgnoreStart
-                    // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
-                } catch (TimeoutException $e) {
-                    $this->dumpForceRefreshFailure($username, 'waiting for app ready after refresh', $e);
-                }
-                // @codeCoverageIgnoreEnd
-                // Navigate back to Admin > Users since force refresh loads the default view
-                try {
-                    $this->goToMainMenuLink('Admin||Users');
-                    $this->assertActiveTab("User / Groups");
-                    // @codeCoverageIgnoreStart
-                    // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
-                } catch (TimeoutException $e) {
-                    $this->dumpForceRefreshFailure($username, 'navigating back to Admin > Users', $e);
-                }
-                // @codeCoverageIgnoreEnd
-            } elseif ($isRetry) {
-                // Already retried once - fail with diagnostics
+            // Diagnostics capture — source-side has DB access +
+            // selenium-videos artifact upload that's genuinely useful
+            // when the recovery path fires, so we keep the full capture
+            // rather than the acceptance-side's slimmer approach.
+            $diagnostics = $this->gatherModalDiagnostics($username);
+            fwrite(STDERR, "[e2e/Bb] Modal diagnostics: {$diagnostics}\n");
+
+            if (!$this->isUserExist($username)) {
+                // Row-oracle: user was NOT created. This is a real
+                // regression, not the JS-handler-race flake mode.
+                // Capture forensics then hard-fail — do NOT retry the
+                // whole test (prior 3-retry recursive loop masked real
+                // failures behind repeated attempts).
+                $this->captureForceRefreshDiagnostics($username, 'user-not-in-db');
                 throw new TimeoutException(
-                    "Modal failed to close after user creation (retry also failed). Diagnostics: {$diagnostics}"
+                    "Modal failed to close after user creation AND user is not in database "
+                    . "(real regression, not the documented dlgclose race). Diagnostics: {$diagnostics}"
                 );
-            } else {
-                // User not created - retry with fresh session
-                fwrite(STDERR, "[E2E] User not in database, retrying with fresh session...\n");
-                $this->client->quit();
-                $this->base();
-                $this->userAddIfNotExist($username, true);
-                return;
             }
+
+            // Row-oracle: user IS in DB — typical flake mode (server
+            // succeeded, dlgclose lost the race). Force-clean the
+            // broken modal state by logging in again and navigating
+            // back to Admin > Users.
+            fwrite(STDERR, "[e2e/Bb] User exists in database despite modal not closing; force-cleaning modal DOM.\n");
+            // Capture browser console log while we still have the broken session.
+            // The console may show the AJAX response handler error that
+            // prevented dlgclose() from firing.
+            $this->captureForceRefreshDiagnostics($username, 'pre-refresh');
+            // Force close by logging in again. That is the only route back into
+            // interface/main/tabs/main.php: main_screen.php mints a fresh
+            // token_main on its login path and redirects there, and tabs/main.php
+            // discards the token after its first render (the prevent_browser_refresh
+            // default), so reloading the current URL lands on the login screen. A
+            // direct GET of main_screen.php is no better: its non-login path runs
+            // the CSRF check against POST input and lands on an error page with no
+            // menu. Either dead end strands every later step.
+            // login() requires waitForAppReady() to succeed (retrying once with a
+            // fresh session) and throws with page-state diagnostics when it does not.
+            // Wrap each step so the exception identifies which recovery step failed.
+            $this->client->switchTo()->defaultContent();
+            try {
+                $this->login(LoginTestData::username, LoginTestData::password);
+                // @codeCoverageIgnoreStart
+                // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
+            } catch (WebDriverException | AssertionFailedError $e) {
+                $this->dumpForceRefreshFailure($username, 'logging in again to reload the app', $e);
+            }
+            // @codeCoverageIgnoreEnd
+            // Navigate back to Admin > Users since the login lands on the default view.
+            // WebDriverWait::until() rethrows the last NoSuchElementException after
+            // the timeout instead of a TimeoutException, and assertActiveTab()
+            // rethrows the stale-element or unexpected-response exception its retry
+            // loop gave up on, so catch the WebDriverException family as a whole,
+            // plus the AssertionFailedError assertActiveTab() throws on a wrong title.
+            try {
+                $this->goToMainMenuLink('Admin||Users');
+                $this->assertActiveTab("User / Groups");
+                // @codeCoverageIgnoreStart
+                // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
+            } catch (WebDriverException | AssertionFailedError $e) {
+                $this->dumpForceRefreshFailure($username, 'navigating back to Admin > Users', $e);
+            }
+            // @codeCoverageIgnoreEnd
         }
 
         // Assert the new user is in the database
         $this->assertUserInDatabase($username);
 
-        // Wrap each post-recovery wait so a TimeoutException identifies which step failed.
+        // Wrap each post-recovery wait so the exception identifies which step failed.
         // Without this wrapping, PHPUnit reports a single "Errors: 1" line and we can't
         // tell whether the admin iframe never reappeared, the Add User button never
         // came back, or the users table never listed the new row. See issue #11642.
+        // Catch NoSuchElementException as well as TimeoutException: WebDriverWait::until()
+        // rethrows the last NoSuchElementException after the timeout, so a missing
+        // element never surfaces as a TimeoutException.
         try {
             // Wait for the admin iframe to be ready (it reloads after dialog closes)
             $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
             $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
             // @codeCoverageIgnoreStart
             // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
-        } catch (TimeoutException $e) {
+        } catch (TimeoutException | NoSuchElementException $e) {
             $this->dumpForceRefreshFailure($username, 'waiting for admin iframe after modal close', $e);
         }
         // @codeCoverageIgnoreEnd
@@ -189,7 +242,7 @@ trait UserAddTrait
             $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
             // @codeCoverageIgnoreStart
             // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
-        } catch (TimeoutException $e) {
+        } catch (TimeoutException | NoSuchElementException $e) {
             $this->dumpForceRefreshFailure($username, 'waiting for Add User button after iframe reload', $e);
         }
         // @codeCoverageIgnoreEnd
@@ -200,7 +253,7 @@ trait UserAddTrait
             $this->client->waitFor("//table//a[text()='$username']");
             // @codeCoverageIgnoreStart
             // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
-        } catch (TimeoutException $e) {
+        } catch (TimeoutException | NoSuchElementException $e) {
             $this->dumpForceRefreshFailure($username, 'waiting for users-table row', $e);
         }
         // @codeCoverageIgnoreEnd
@@ -295,10 +348,12 @@ trait UserAddTrait
      * Captures:
      * - Whether the user exists in the database
      * - Modal iframe content (error messages, form state)
-     * - Any visible alert text
+     * - Alerts the browser-prompt muzzle swallowed inside the modal window
      *
      * @param string $username The username being created
      * @return string JSON-encoded diagnostics
+     *
+     * @codeCoverageIgnore Diagnostic helper: only fires on the unhappy force-refresh path.
      */
     private function gatherModalDiagnostics(string $username): string
     {
@@ -308,6 +363,7 @@ trait UserAddTrait
             // Check if modal iframe is still present
             $modalVisible = false;
             $iframeContent = '';
+            $muzzledPrompts = [];
             try {
                 $iframe = $this->client->findElement(
                     WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
@@ -320,6 +376,14 @@ trait UserAddTrait
                     $iframeContent = (string) $this->client->executeScript(
                         'return document.body ? document.body.innerText.substring(0, 500) : "no body"'
                     );
+                    // Read back the alerts the CDP muzzle (BaseTrait::muzzleBrowserPrompts)
+                    // swallowed inside the modal window. The save handler alerts on any
+                    // non-empty response body and only calls dlgclose() on an empty one,
+                    // so this shows which branch ran.
+                    $rawPrompts = $this->client->executeScript('return window.__e2eMuzzledPrompts || [];');
+                    if (is_array($rawPrompts)) {
+                        $muzzledPrompts = $rawPrompts;
+                    }
                     $this->client->switchTo()->defaultContent();
                 }
             } catch (\Throwable) {
@@ -330,6 +394,7 @@ trait UserAddTrait
                 'userExistsInDb' => $userExists,
                 'modalVisible' => $modalVisible,
                 'iframeContentPreview' => $iframeContent,
+                'muzzledPrompts' => $muzzledPrompts,
             ], JSON_THROW_ON_ERROR);
         } catch (\Throwable $e) {
             return json_encode(['error' => 'Failed to gather diagnostics: ' . $e->getMessage()]);
@@ -411,7 +476,7 @@ trait UserAddTrait
      *
      * @codeCoverageIgnore Diagnostic helper — only fires on the unhappy force-refresh path.
      */
-    private function dumpForceRefreshFailure(string $username, string $step, TimeoutException $e): never
+    private function dumpForceRefreshFailure(string $username, string $step, \Throwable $e): never
     {
         $artifacts = $this->captureForceRefreshDiagnostics($username, $step);
         // WebDriverException's constructor only accepts (message, results), so

@@ -6,7 +6,9 @@
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,7 +17,6 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
@@ -24,6 +25,7 @@ use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ListService;
+use Symfony\Component\HttpFoundation\Request;
 
 class CareTeamViewCard extends CardModel
 {
@@ -38,7 +40,7 @@ class CareTeamViewCard extends CardModel
 
     private ListService $listService;
 
-    public function __construct(private $pid, array $opts = [])
+    public function __construct(private $pid, private readonly Request $request, array $opts = [])
     {
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
@@ -49,9 +51,7 @@ class CareTeamViewCard extends CardModel
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
     public function setListService(ListService $service): void
@@ -61,9 +61,7 @@ class CareTeamViewCard extends CardModel
 
     public function getCareTeamService(): CareTeamService
     {
-        if (!isset($this->careTeamService)) {
-            $this->careTeamService = new CareTeamService();
-        }
+        $this->careTeamService ??= new CareTeamService();
         return $this->careTeamService;
     }
 
@@ -99,8 +97,13 @@ class CareTeamViewCard extends CardModel
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
                 'btnClass' => 'btn-edit-care-team',
-                'btnLink' => "javascript:void(0);",
-                'linkMethod' => 'html',
+                // card_base emits this as an inline `onclick`; a `javascript:`
+                // href would be stripped by |safe_href. The click itself is
+                // handled by the `.btn-edit-care-team` listener in the card
+                // template, which does not call preventDefault() — so this
+                // must, or the `#` href jumps the page to the top.
+                'btnLink' => 'event.preventDefault();',
+                'linkMethod' => 'javascript',
                 'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
@@ -123,7 +126,7 @@ class CareTeamViewCard extends CardModel
 
     private function handleFormSubmission()
     {
-        $request = HttpRestRequest::createFromGlobals()->request;
+        $request = $this->request->request;
         if ($request->getString('save_care_team') !== 'true') {
             return;
         }

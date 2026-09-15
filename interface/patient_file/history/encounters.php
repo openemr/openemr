@@ -18,9 +18,6 @@
 
 require_once(__DIR__ . "/../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/forms.inc.php");
-require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/lists.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once($srcdir . "/group.inc.php");
@@ -33,6 +30,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -40,8 +38,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
 // The including page provides $attendant_type and $therapy_group.
 $attendant_type ??= 'pid';
@@ -98,7 +95,8 @@ $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 //Get Document List by Encounter ID
 function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
 {
-    global $ISSUE_TYPES, $auth_med;
+    global $auth_med;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $documents = getDocumentsByEncounter($pid, $encounter);
     if (!empty($documents) && count($documents) > 0) {
@@ -137,7 +135,8 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
 //
 function showDocument(&$drow): void
 {
-    global $ISSUE_TYPES, $auth_med;
+    global $auth_med;
+    $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $docdate = $drow['docdate'];
 
@@ -204,7 +203,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 <!-- Not sure why we don't want this ui to be B.S responsive. -->
 <?php Header::setupHeader(['no_textformat']); ?>
 
-<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajtooltip.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/ajtooltip.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
 
@@ -235,12 +234,10 @@ function toencounter(rawdata) {
 
 function todocument(docid) {
   const params = new URLSearchParams({
-    doc_id: docid,
-    document: '',
     patient_id: <?php echo js_escape($pid); ?>,
-    view: ''
+    doc_id: docid
   });
-  h = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/controller.php?' + params;
+  h = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/controller.php?document&view&' + params;
   top.restoreSession();
   location.href = h;
 }
@@ -456,7 +453,9 @@ window.onload = function() {
 
 
             if ($pagesize > 0) {
-                $query .= " LIMIT " . escape_limit($pagestart) . "," . escape_limit($pagesize);
+                $query .= " LIMIT ? OFFSET ?";
+                $sqlBindArray[] = (is_numeric($pagesize) ? (int) $pagesize : 0);
+                $sqlBindArray[] = (is_numeric($pagestart) ? (int) $pagestart : 0);
             }
             $upper  = $pagestart + $pagesize;
             if (($upper > $numRes) || ($pagesize == 0)) {
@@ -904,6 +903,26 @@ $(function () {
         dlgopen(url, '', 'modal-sm', 350, false, '', {
             onClosed: 'reload',
         });
+    });
+    $(".billing_note_text").each(function () {
+        const noteEl = this;
+        const $note = $(this);
+        if ($note.find('button.btn-add').length) return; // empty-note cell renders the Add button
+
+        $note.addClass('billing_note_clamp');
+        // Only offer a toggle if clamping actually hid something
+        if (noteEl.scrollHeight > noteEl.clientHeight + 2) {
+            $('<button type="button" class="btn btn-link btn-sm p-0 note-expand-toggle"></button>')
+                .text(<?php echo xlj('More'); ?>)
+                .insertAfter($note)
+                .on('click', function (evt) {
+                    evt.stopPropagation(); // don't trigger row/encounter click
+                    $note.toggleClass('billing_note_clamp');
+                    $(this).text($note.hasClass('billing_note_clamp')
+                        ? <?php echo xlj('More'); ?>
+                        : <?php echo xlj('Less'); ?>);
+                });
+        }
     });
 });
 

@@ -16,6 +16,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $order = (int) ($_GET['order'] ?? null);
 $labid = (int) ($_GET['labid'] ?? null);
@@ -48,7 +49,7 @@ if (isset($_GET['typeid'])) {
         }
     }
     ?>
-    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/main/tabs/js/include_opener.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
         if (opener.closed) {
             alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);

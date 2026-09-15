@@ -22,14 +22,13 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AppointmentService;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
-
-require_once("./../library/pnotes.inc.php");
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
@@ -48,11 +47,7 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 $srcdir = $globalsBag->getString('srcdir');
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/appointments.inc.php");
-
-use OpenEMR\Services\AppointmentService;
 
 // Things that might be passed by our opener.
 //

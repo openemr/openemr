@@ -20,16 +20,16 @@ set_time_limit(0);
 
 require_once('../../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\HolidayService;
 use OpenEMR\Services\InvalidHolidayCsvException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -37,7 +37,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate('ACL check failed for admin/super: Holidays management', xl('Holidays management'));
 }
 
-$request = Request::createFromGlobals();
+$request = CurrentRequest::get();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $service = HolidayService::createForLegacyContext();
 
@@ -81,7 +81,7 @@ try {
     $errorMessage = $e->getMessage();
 }
 
-$twig = (new TwigContainer())->getTwig();
+$twig = ServiceContainer::getTwig();
 echo $twig->render('holidays/import.html.twig', [
     'status' => $status,
     'errorMessage' => $errorMessage,

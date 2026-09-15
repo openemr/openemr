@@ -40,68 +40,6 @@
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
-
-// Build the $ISSUE_TYPE_CATEGORIES array
-// First, set the hard-coded options
-$ISSUE_TYPE_CATEGORIES = [
-  'default' => xl('Default'),             // Normal OpenEMR use
-  'ippf_specific' => xl('IPPF')           // For IPPF use
-];
-// Second, collect the non hard-coded options and add to the array
-$res = sqlStatement("SELECT DISTINCT `category` FROM `issue_types`");
-while ($row = sqlFetchArray($res)) {
-    if (($row['category'] == "default") || ($row['category'] == "ippf_specific")) {
-        continue;
-    }
-
-    $ISSUE_TYPE_CATEGORIES[$row['category']] = $row['category'];
-}
-
-$ISSUE_TYPE_STYLES = [
-  0 => xl('Standard'),                    // Standard
-  1 => xl('Simplified'),                  // Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.
-  2 => xl('Football Injury'),             // Football Injury
-  3 => xl('IPPF Abortion'),               // IPPF specific (abortions issues)
-  4 => xl('IPPF Contraception')           // IPPF specific (contraceptions issues)
-];
-
-/**
- * Will return the current issue type category that is being used.
- * @return  string  The current issue type category that is being used.
- */
-function collect_issue_type_category()
-{
-    if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) { // IPPF version
-        return "ippf_specific";
-    } else { // Default version
-        return "default";
-    }
-}
-
-// Build the $ISSUE_TYPES array (see script header for description)
-$res = sqlStatement(
-    "SELECT * FROM `issue_types` WHERE active = 1 AND `category`=? ORDER BY `ordering`",
-    [collect_issue_type_category()]
-);
-while ($row = sqlFetchArray($res)) {
-    $pluralStr = is_string($row['plural'] ?? null) ? $row['plural'] : '';
-    $singularStr = is_string($row['singular'] ?? null) ? $row['singular'] : '';
-    $abbrStr = is_string($row['abbreviation'] ?? null) ? $row['abbreviation'] : '';
-    $ISSUE_TYPES[$row['type']] = [
-    xl_list_label($pluralStr),
-    xl_list_label($singularStr),
-    xl_list_label($abbrStr),
-    $row['style'],
-    $row['force_show'],
-    $row['aco_spec']];
-}
-
-$ISSUE_CLASSIFICATIONS = [
-  0   => xl('Unknown or N/A'),
-  1   => xl('Trauma'),
-  2   => xl('Overuse')
-];
 
 function getListById($id, $cols = "*")
 {
@@ -115,13 +53,13 @@ function addList($pid, $type, $title, $comments, $activity = "1")
     return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)", [$pid, $type, $title, $activity, $comments, $session->get('authUser'), $session->get('authProvider')]);
 }
 
-function disappearList($id)
+function disappearList($id): bool
 {
     sqlStatement("update lists set activity = '0' where id=?", [$id]);
     return true;
 }
 
-function reappearList($id)
+function reappearList($id): bool
 {
     sqlStatement("update lists set activity = '1' where id=?", [$id]);
     return true;

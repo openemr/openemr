@@ -21,5 +21,5 @@ interface IResourceUSCIGProfileService
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array;
+    public function getProfileURIs(): array;
 }

@@ -5,7 +5,7 @@ namespace OpenEMR\Tests\Rector\Fixture;
 use Exception;
 
 try {
-    doSomething();
+    throw new Exception('boom');
 } catch (Exception $e) {
     handleError($e);
 }
@@ -16,9 +16,10 @@ try {
 
 namespace OpenEMR\Tests\Rector\Fixture;
 
+use Exception;
 
 try {
-    doSomething();
+    throw new Exception('boom');
 } catch (\Throwable $e) {
     handleError($e);
 }

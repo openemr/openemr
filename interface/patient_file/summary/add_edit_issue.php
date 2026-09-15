@@ -16,15 +16,13 @@
 
 require_once '../../globals.php';
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once $srcdir . '/lists.inc.php';
-require_once $srcdir . '/patient.inc.php';
 require_once $srcdir . '/options.inc.php';
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
-require_once $srcdir . '/csv_like_join.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -36,10 +34,8 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
 $webroot = OEGlobalsBag::getInstance()->getWebRoot();
 $v_js_includes = OEGlobalsBag::getInstance()->getString('v_js_includes');
-/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
-$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
-/** @var array<string, array<int, mixed>> $ISSUE_CLASSIFICATIONS */
-$ISSUE_CLASSIFICATIONS = OEGlobalsBag::getInstance()->get('ISSUE_CLASSIFICATIONS', []);
+$ISSUE_TYPES = IssueTypeRegistry::issueTypes();
+$ISSUE_CLASSIFICATIONS = IssueTypeRegistry::issueClassifications();
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
@@ -63,7 +59,6 @@ if (!empty($_POST['form_save'])) {
     // A nonempty thisenc means we are to link the issue to the encounter.
     $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 }
-// NOTE: $ISSUE_TYPES is defined in lists.inc.php
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.

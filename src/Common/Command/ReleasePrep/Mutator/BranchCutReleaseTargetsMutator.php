@@ -345,6 +345,11 @@ final readonly class BranchCutReleaseTargetsMutator implements MutatorInterface
 
     /**
      * Render the row's lines. Tag list at cut time: `<X.Y.0>,next`.
+     * `gate_with_acceptance: true` because every freshly-cut rel branch
+     * carries the acceptance surface (added by Phase 12 / #13332); this
+     * field was introduced after the mutator shipped and needs to be
+     * back-patched here so future cuts don't drop it (as happened on
+     * rel-830 in openemr/openemr#13484).
      *
      * @return list<string>
      */
@@ -355,6 +360,7 @@ final readonly class BranchCutReleaseTargetsMutator implements MutatorInterface
             '- branch: ' . $relBranch,
             '  docker_tags: ' . $versionTag . ',next',
             '  openemr_version_ref: ' . $relBranch,
+            '  gate_with_acceptance: true',
         ];
     }
 

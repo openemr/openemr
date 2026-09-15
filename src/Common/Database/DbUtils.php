@@ -36,10 +36,10 @@ class DbUtils
             'dbname' => $dbname,
             'host' => $host,
             'port' => $port,
-        ], fn($v) => $v !== '');
+        ], fn($v): bool => $v !== '');
 
         return 'mysql:' . implode(';', array_map(
-            fn($k, $v) => "$k=$v",
+            fn($k, $v): string => "$k=$v",
             array_keys($parts),
             $parts
         ));

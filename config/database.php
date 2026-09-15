@@ -67,7 +67,7 @@ return [
 
         // Audit connection: no middleware, used by EventAuditLogger and some
         // application bootstrapping
-        $manager->register(ConnectionType::NonAudited, fn () =>
+        $manager->register(ConnectionType::NonAudited, fn (): Connection =>
             DriverManager::getConnection($opts->toDbalParams()));
 
         return $manager;
@@ -86,7 +86,7 @@ return [
     },
 
     // Doctrine Migrations
-    ConfigurationLoader::class => fn () => new ConfigurationArray([
+    ConfigurationLoader::class => fn (): ConfigurationLoader => new ConfigurationArray([
         'custom_template' => 'db/migration-template.php.tpl',
         'migrations_paths' => [
             // A future version of this will integrate w/ the modules system and
@@ -98,11 +98,11 @@ return [
             'execution_time_column_name' => 'execution_duration_ms',
         ],
     ]),
-    ConnectionLoader::class => fn (TC $c) => new ExistingConnection(
+    ConnectionLoader::class => fn (TC $c): ConnectionLoader => new ExistingConnection(
         $c->get(ConnectionManager::class)
             ->get(ConnectionType::NonAudited)
     ),
-    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromConnection(
+    DependencyFactory::class => fn (TC $c): DependencyFactory => DependencyFactory::fromConnection(
         $c->get(ConfigurationLoader::class),
         $c->get(ConnectionLoader::class),
         $c->get(LoggerInterface::class),

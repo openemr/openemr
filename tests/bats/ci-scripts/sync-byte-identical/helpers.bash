@@ -20,7 +20,10 @@ SYNC_BYTE_IDENTICAL_SCRIPT="$(cd "${__HELPERS_DIR}/../../../.." && pwd)/.github/
 # the same shell as the @test that follows).
 setup_test_repo() {
     local rel_branch="${1:-rel-810}"
-    REPO=$(mktemp -d -t sync-byte-identical-test-XXXX)
+    # `mktemp -d` (no `-t <template>`) — BusyBox's mktemp in the
+    # bats/bats:1.13.0 Alpine image rejects the `-t` form that GNU
+    # mktemp accepts.
+    REPO=$(mktemp -d)
     OUTPUT_DIR="${REPO}/output"
     mkdir -p "$OUTPUT_DIR"
 
@@ -53,6 +56,35 @@ write_on_branch() {
     echo "$content" > "$path"
     git add "$path"
     git commit -q -m "write $path on $branch"
+}
+
+# Add or update an EXECUTABLE (100755) file on a specific branch. Same
+# as write_on_branch but chmod +x before staging so git records the
+# tree entry with mode 100755. Used by the mode-preservation tests to
+# verify sync-byte-identical.sh keeps the executable bit intact when
+# copying from master to a rel branch.
+write_executable_on_branch() {
+    local branch="$1" path="$2" content="$3"
+    git checkout -q "$branch"
+    mkdir -p "$(dirname "$path")"
+    echo "$content" > "$path"
+    chmod +x "$path"
+    git add "$path"
+    git commit -q -m "write executable $path on $branch"
+}
+
+# Read the mode git will record for a file in the next commit — i.e.
+# what's staged in the CURRENT INDEX. Returns strings like "100644"
+# or "100755" (empty if the file isn't staged).
+#
+# sync-byte-identical.sh stages its file changes via git-checkout
+# without committing; peter-evans (the workflow that calls the
+# script) creates the commit later. So mode-preservation tests need
+# to inspect the index, not the committed tree — the committed tree
+# still holds whatever mode was there before the sync ran.
+git_staged_mode() {
+    local path="$1"
+    git ls-files -s -- "$path" | awk '{print $1}'
 }
 
 # Delete a file on a specific branch.

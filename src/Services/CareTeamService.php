@@ -197,9 +197,7 @@ class CareTeamService extends BaseService
             }
             // Group by care team id
             $careTeamId = $row['care_team_id'] ?? null;
-            if (!isset($providers[$careTeamId])) {
-                $providers[$careTeamId] = [];
-            }
+            $providers[$careTeamId] ??= [];
 
             $providers[$careTeamId][] = [
                 'provider_uuid' => UuidRegistry::uuidToString($row['provider_uuid']),
@@ -237,9 +235,7 @@ class CareTeamService extends BaseService
         $result = QueryUtils::sqlStatementThrowException($sql, $careTeamIds);
         while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $careTeamId = $row['care_team_id'];
-            if (!isset($facilities[$careTeamId])) {
-                $facilities[$careTeamId] = [];
-            }
+            $facilities[$careTeamId] ??= [];
 
             $facilities[$careTeamId][] = [
                 'uuid' => UuidRegistry::uuidToString($row['uuid']),
@@ -290,9 +286,7 @@ class CareTeamService extends BaseService
         $result = QueryUtils::sqlStatementThrowException($sql, $careTeamIds);
         while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $careTeamId = $row['care_team_id'] ?? null;
-            if (!isset($contacts[$careTeamId])) {
-                $contacts[$careTeamId] = [];
-            }
+            $contacts[$careTeamId] ??= [];
 
             $contacts[$careTeamId][] = [
                 'uuid' => UuidRegistry::uuidToString($row['uuid']),
@@ -589,15 +583,13 @@ class CareTeamService extends BaseService
             $teamName = $member['team_name'] ?? 'default';
             $teamId = $member['team_id'];
 
-            if (!isset($careTeams[$teamId])) {
-                $careTeams[$teamId] = [
-                    'team_id' => $teamId,
-                    'team_name' => $teamName,
-                    'team_status' => $member['team_status'],
-                    'members' => [],
-                    'member_count' => 0
-                ];
-            }
+            $careTeams[$teamId] ??= [
+                'team_id' => $teamId,
+                'team_name' => $teamName,
+                'team_status' => $member['team_status'],
+                'members' => [],
+                'member_count' => 0
+            ];
 
             // Determine member type and build appropriate data
             $memberType = 'user'; // default

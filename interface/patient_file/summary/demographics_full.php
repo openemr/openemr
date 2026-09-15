@@ -22,9 +22,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/validation/LBF_Validation.php");
-require_once($srcdir . "/patientvalidation.inc.php");
-require_once($srcdir . "/pid.inc.php");
-require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -33,6 +30,7 @@ use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
+use OpenEMR\Services\PatientService;
 
 
 /** @var string $date_init */
@@ -267,17 +265,41 @@ $CPR = 4; // cells per row
             }
         }
 
+        // Map USPS verify params to candidate layout field ids, in priority order.
+        // Sites with customized layouts can be accommodated by adding ids here.
+        const addressVerifyFields = {
+            address1: ['form_street'],
+            address2: ['form_street_line_2'],
+            city:     ['form_city'],
+            state:    ['form_state'],
+            postal:   ['form_postal_code']
+        };
+
+        function resolveAddressField(candidates) {
+            const f = document.demographics_form;
+            for (const name of candidates) {
+                if (f[name]) {
+                    return f[name];
+                }
+            }
+            return null;
+        }
+
         function address_verify() {
             top.restoreSession();
-            const f = document.demographics_form;
+            const val = key => {
+                const el = resolveAddressField(addressVerifyFields[key]);
+                return el ? el.value : '';
+            };
+            const postal = val('postal').replace(/\D/g, '');
 
             const params = new URLSearchParams({
-                address1: f.form_street.value,
-                address2: f.form_street_line_2.value,
-                city: f.form_city.value,
-                state: f.form_state.value,
-                zip4: f.form_postal_code.value.substring(5, 9),
-                zip5: f.form_postal_code.value.substring(0, 5)
+                address1: val('address1'),
+                address2: val('address2'),
+                city: val('city'),
+                state: val('state'),
+                zip4: postal.substring(5, 9),
+                zip5: postal.substring(0, 5)
             });
 
             dlgopen('../../practice/address_verify.php?' + params,
@@ -507,7 +529,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <?php }?>
 
         <?php if ($set_pid) { ?>
-        parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD'])); ?>);
+        parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD'])) . "," . ((new PatientService())->hasPictureForPid($pid) ? 'true' : 'false'); ?>);
         <?php } ?>
 
         <?php echo $date_init; ?>
@@ -615,9 +637,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 width: 'resolve',
                 <?php require($srcdir . '/js/xl/select2.js.php'); ?>
             });
+
             <?php if (OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')) { ?>
-            $("#value_id_text_postal_code").append(
-                "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
+            if (['address1', 'city', 'state', 'postal'].every(
+                    k => resolveAddressField(addressVerifyFields[k]))) {
+                $("#value_id_text_postal_code").append(
+                    "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
+            }
             <?php } ?>
         })
     </script>

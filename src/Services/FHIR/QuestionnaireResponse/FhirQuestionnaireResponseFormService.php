@@ -20,7 +20,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -31,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceCreatableService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
@@ -47,7 +47,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService
+class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService, IPatientCompartmentResourceService
 {
     /**
      * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait
@@ -195,7 +195,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         $fhirResource->setMeta($meta);
 
-        $id = new FhirId();
+        $id = new FHIRId();
         $id->setValue($dataRecord['questionnaire_response_uuid']);
         $fhirResource->setId($id);
 
@@ -238,7 +238,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
                 'incomplete','active' => 'in-progress',
                 default => 'in-progress'
             });
-        } else if (is_string($fhirResource->getStatus())) {
+        } elseif (is_string($fhirResource->getStatus())) {
             // otherwise we use the status in the original questionnaire response status
             $responseStatus = new FHIRQuestionnaireResponseStatus();
             $responseStatus->setValue($fhirResource->getStatus());
@@ -302,25 +302,33 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
      * The ownership and AUDIT trail in FHIR is done via the Provenance record.
      * @param FHIRDomainResource $dataRecord The record we are generating a provenance from
      * @param bool $encode Whether to serialize the record or not
-     * @return FHIRProvenance|string
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
     {
         // we don't return any provenance authorship for this custom resource
         // if we did return it, we would fill out the following record
 //        $provenance = new FHIRProvenance();
-        if (!($dataRecord instanceof FHIRQuestionnaire)) {
+        if (!($dataRecord instanceof OpenEMRFhirQuestionnaireResponse)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
         // provenance will just be the organization as we don't keep track of the user at the individual FHIR resource level
         // note we do track this internally in OpenEMR but FHIR R4 doesn't expose this as far as I can tell.
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     public function insertOpenEMRRecord($openEmrRecord): ProcessingResult

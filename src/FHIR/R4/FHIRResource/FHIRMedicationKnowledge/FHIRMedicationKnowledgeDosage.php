@@ -191,9 +191,7 @@ class FHIRMedicationKnowledgeDosage extends FHIRBackboneElement implements \Json
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgeDosage xmlns="http://hl7.org/fhir"></MedicationKnowledgeDosage>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgeDosage xmlns="http://hl7.org/fhir"></MedicationKnowledgeDosage>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

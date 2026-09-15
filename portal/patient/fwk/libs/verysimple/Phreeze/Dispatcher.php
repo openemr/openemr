@@ -3,12 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/HTTP/RequestUtil.php");
-require_once("verysimple/Util/ExceptionThrower.php");
-
-/**
  * Dispatcher direct a web request to the correct controller & method
  *
  * @package verysimple::Phreeze
@@ -40,7 +34,7 @@ class Dispatcher
      *
      * @param string $fileName
      */
-    static function ControllerFileExists($fileName)
+    public static function ControllerFileExists($fileName)
     {
         if (file_exists($fileName)) {
             return $fileName;
@@ -77,10 +71,9 @@ class Dispatcher
      * @param Context $context (optional) a context object for persisting state
      * @param IRouter $router (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
      */
-    static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null)
+    public static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null): bool
     {
         if ($router == null) {
-            require_once('GenericRouter.php');
             $router = new GenericRouter();
         }
 
@@ -188,7 +181,7 @@ class Dispatcher
      * @param string $line
      * @param string $context
      */
-    static function HandleException($code, $string, $file, $line, $context = '')
+    public static function HandleException($code, $string, $file, $line, $context = '')
     {
         ExceptionThrower::HandleError($code, $string, $file, $line, $context);
     }

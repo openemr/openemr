@@ -310,9 +310,7 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BundleRequest xmlns="http://hl7.org/fhir"></BundleRequest>');
-        }
+        $sxe ??= new \SimpleXMLElement('<BundleRequest xmlns="http://hl7.org/fhir"></BundleRequest>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->method)) {
             $this->method->xmlSerialize(true, $sxe->addChild('method'));

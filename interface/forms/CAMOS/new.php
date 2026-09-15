@@ -15,10 +15,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -493,7 +492,7 @@ if (str_starts_with($hidden_mode, 'clone')) {
             // Backtick prefix resets subcategory/item conditions
             $clone_conditions = array_values(array_filter(
                 $clone_conditions,
-                fn (string $c) => str_starts_with($c, "category"),
+                fn (string $c): bool => str_starts_with($c, "category"),
             ));
             $clone_params = $clone_category !== '' ? [$clone_category] : [];
             $clone_search = substr((string) $clone_search, 1);
@@ -887,13 +886,19 @@ function processajax (serverPage, obj, getOrPost, str){
   }
 }
 
-
+// form_array is an Array used as an associative map (form_array['content'] = ...).
+// String keys do not contribute to .length and are not visited by the array
+// iterator, so `new URLSearchParams(form_array)` yields an empty string and the
+// POST body is dropped. Iterate with for...in to pick up the string-keyed
+// properties. Works for plain objects too, so callers may use either shape.
 function setformvalues(form_array){
-
-  //Run through a list of all objects and build query string
-  const params = new URLSearchParams(form_array);
-  //Then return the string values.
-  return params.toString();
+    const params = new URLSearchParams();
+    for (const key in form_array) {
+        if (Object.prototype.hasOwnProperty.call(form_array, key)) {
+            params.append(key, form_array[key]);
+        }
+    }
+    return params.toString();
 }
 
 //END OF AJAX RELATED FUNCTIONS
@@ -1098,7 +1103,7 @@ if (!$out_of_encounter) {
   <option value='12'><?php echo xlt('Back twelve visits'); ?></option>
 </select>
     <?php
-    echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
+    echo "<a href='" . FormActionBarSettings::EXIT_URL . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
     ?>
 <input type='button' name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
 <input type='button' name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
@@ -1234,7 +1239,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-    echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
+    echo "<a href='" . FormActionBarSettings::EXIT_URL . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
     echo "<a href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }

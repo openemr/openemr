@@ -14,17 +14,22 @@
  */
 
 require_once("../interface/globals.php");
-require_once("$srcdir/report_database.inc.php");
 require_once("qrda_category1_functions.php");
 require_once("qrda_category1.inc.php");
 require_once("qrda_functions.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
+}
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    http_response_code(403);
+    exit;
 }
 
 $reportID = filter_input(INPUT_POST, 'reportID', FILTER_VALIDATE_INT);

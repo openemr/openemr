@@ -365,9 +365,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     public function getVitalsCalculatedService(): VitalsCalculatedService
     {
-        if (!isset($this->calculatedService)) {
-            $this->calculatedService = new VitalsCalculatedService();
-        }
+        $this->calculatedService ??= new VitalsCalculatedService();
         return $this->calculatedService;
     }
     /**
@@ -853,10 +851,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             if ($unit === 'in') {
                 $unit = 'in_i';
                 $code = "[" . $unit . "]";
-            } else if ($unit === 'lb') {
+            } elseif ($unit === 'lb') {
                 $unit = 'lb_av';
                 $code = "[" . $unit . "]";
-            } else if ($unit === 'degF') {
+            } elseif ($unit === 'degF') {
                 $code = "[" . $unit . "]";
             }
             $quantity->setCode($code);
@@ -936,23 +934,32 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return FHIRProvenance|string the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
         $performer = null;
         if (!empty($dataRecord->getPerformer())) {
             // grab the first one
             $performer = current($dataRecord->getPerformer());
         }
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $performer);
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
@@ -1027,7 +1034,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     protected function convertComponentCodeToBaseCode(string $code): string
     {
-        return match($code) {
+        return match ($code) {
             self::VITALS_CODE_SYSTOLIC_BLOOD_PRESSURE, self::VITALS_CODE_DIASTOLIC_BLOOD_PRESSURE => self::VITALS_CODE_BLOOD_PRESSURE,
             self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE, self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION => self::VITALS_CODE_PULSE_OXIMETRY,
             default => $code,

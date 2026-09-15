@@ -9,7 +9,10 @@ __HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIST_MANIFEST_PATHS_SCRIPT="$(cd "${__HELPERS_DIR}/../../../.." && pwd)/.github/scripts/list-manifest-paths.sh"
 
 setup_test_dir() {
-    CWD=$(mktemp -d -t list-manifest-paths-test-XXXX)
+    # `mktemp -d` (no `-t <template>`) — BusyBox's mktemp in the
+    # bats/bats:1.13.0 Alpine image rejects the `-t` form that GNU
+    # mktemp accepts.
+    CWD=$(mktemp -d)
     # shellcheck disable=SC2034  # referenced from .bats files
     MANIFEST="${CWD}/manifest.yml"
     cd "${CWD}" || exit 1

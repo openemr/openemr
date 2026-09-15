@@ -133,7 +133,7 @@ class MfaUtils
      * Check code from TOTP application or device
      * @return bool
      */
-    private function checkTOTP($token)
+    private function checkTOTP($token): bool
     {
         $registrationSecret = false;
         if (!empty($this->var1TOTP)) {
@@ -191,7 +191,7 @@ class MfaUtils
      * Check code from U2F Key
      * @return bool
      */
-    private function checkU2F($token)
+    private function checkU2F($token): bool
     {
 
         $u2f = new \u2flib_server\U2F($this->appId);

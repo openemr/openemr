@@ -120,7 +120,7 @@ class LabRouteSetup
         $record = sqlQuery($sql_pp_search, [$npi, $active, $notes]);
         return $record['ppid'];
     }
-    public static function createDornRoute($labName, $routeGuid, $labGuid, $ppid, $uid, $lineBreakChar, $labAccountNumber)
+    public static function createDornRoute($labName, $routeGuid, $labGuid, $ppid, $uid, $lineBreakChar, $labAccountNumber): bool
     {
         $sql = "INSERT INTO mod_dorn_routes (lab_guid, lab_name, ppid, route_guid, uid, text_line_break_character, lab_account_number)
                 VALUES (?,?,?,?,?,?,?)

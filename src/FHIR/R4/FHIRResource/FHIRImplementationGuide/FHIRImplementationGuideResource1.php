@@ -240,9 +240,7 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImplementationGuideResource1 xmlns="http://hl7.org/fhir"></ImplementationGuideResource1>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImplementationGuideResource1 xmlns="http://hl7.org/fhir"></ImplementationGuideResource1>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->reference)) {
             $this->reference->xmlSerialize(true, $sxe->addChild('reference'));

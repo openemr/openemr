@@ -71,7 +71,7 @@ class Helper
         return $encounter->fetchDates($patient, $beginDate, $endDate);
     }
 
-    public static function checkAnyEncounter(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public static function checkAnyEncounter(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $encounters = Encounter::getEncounterTypes();
         foreach ($encounters as $encounter) {

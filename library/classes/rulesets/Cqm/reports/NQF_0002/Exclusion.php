@@ -29,7 +29,7 @@ class NQF_0002_Exclusion implements CqmFilterIF
         return "Exclusion";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
        //Children who are taking antibiotics in the 30 days prior to the diagnosis of pharyngitis
         $antibiotics  = implode(',', Codes::lookup(Medication::ANTIBIOTIC_FOR_PHARYNGITIS, 'RXNORM'));

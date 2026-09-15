@@ -88,19 +88,16 @@ CODE_SAMPLE
     /**
      * Check if a catch type refers to the global \Exception class.
      *
-     * After Rector's name resolution, unqualified names in a namespace
-     * become fully qualified with the namespace prefix. Only match
-     * names that resolve to exactly \Exception (no namespace prefix),
-     * or unqualified 'Exception' in the global namespace.
+     * Compare the *resolved* name, never the name as written. A bare
+     * `Exception` does not imply `\Exception`: with an import in scope
+     * (`use Doctrine\DBAL\Exception;`, or `use Foo\Bar as Exception;`) it
+     * names an unrelated class, and rewriting that catch to `\Throwable`
+     * silently widens it to swallow `\Error`. The written form carries no
+     * information at all once Rector's name importing is enabled, since
+     * that turns every fully-qualified catch type into a bare name.
      */
     private function isGlobalException(Name $type): bool
     {
-        // FullyQualified nodes: match only \Exception (toString returns 'Exception')
-        if ($type instanceof FullyQualified) {
-            return strcasecmp($type->toString(), 'Exception') === 0;
-        }
-
-        // Unqualified Name: only possible in global namespace (no namespace prefix added)
-        return strcasecmp($type->toString(), 'Exception') === 0;
+        return strcasecmp((string) $this->getName($type), 'Exception') === 0;
     }
 }

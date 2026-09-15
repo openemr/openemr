@@ -71,6 +71,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sdtc="urn:hl7-org:sdtc" version="1.0">
+  <!-- Shared allowlist template for narrative-block attribute copying. -->
+  <xsl:import href="_narrative-block-attrs.xsl"/>
+
   <!-- This is where all the styles are loaded -->
   
   
@@ -1719,6 +1722,32 @@ limitations under the License.
       <xsl:variable name="lcSource" select="translate($source, $uc, $lc)"/>
       <xsl:variable name="scrubbedSource" select="translate($source, $simple-sanitizer-match, $simple-sanitizer-replace)"/>
       <xsl:choose>
+        <xsl:when test="not(contains($narrative-block-attr-allowlist,
+                                     concat(' ', $attr-name, ' ')))">
+          <!--
+            Drop any attribute not on the CDA R2 narrative-block allowlist
+            (see $narrative-block-attr-allowlist in
+            _narrative-block-attrs.xsl). Blocks event handlers, style,
+            srcdoc, formaction, and every other non-narrative HTML attribute.
+
+            Ordered first so a non-allowlisted attribute is silently dropped
+            before its value can reach the javascript-terminate check below,
+            which would otherwise abort the whole render on malicious input
+            that would have been safely dropped anyway.
+          -->
+        </xsl:when>
+        <xsl:when test="contains($narrative-block-url-attrs,
+                                 concat(' ', $attr-name, ' '))">
+          <!--
+            URL-bearing attribute (href/...). Delegates to the shared
+            copy-if-safe-url template so the recognized-scheme list
+            lives in one place (_narrative-block-attrs.xsl). Ordered
+            before the scrubbedSource check because legitimate URL
+            characters (`:`, `/`) live on the simple-sanitizer-match
+            list and would otherwise trigger the warning path.
+          -->
+          <xsl:call-template name="copy-if-safe-url"/>
+        </xsl:when>
         <xsl:when test="contains($lcSource, 'javascript')">
           <p>
             <xsl:value-of select="$javascript-injection-warning"/>
@@ -1730,11 +1759,6 @@ limitations under the License.
         <xsl:when test="$attr-name = 'styleCode'">
           <xsl:apply-templates select="."/>
         </xsl:when>
-        <!--<xsl:when
-          test="not(document('')/xsl:stylesheet/xsl:variable[@name = 'table-elem-attrs']/in:tableElems/in:elem[@name = $elem-name]/in:attr[@name = $attr-name])">
-          <xsl:message><xsl:value-of select="$attr-name"/> is not legal in <xsl:value-of
-              select="$elem-name"/></xsl:message>
-        </xsl:when>-->
         <xsl:when test="not($source = $scrubbedSource)">
           <p>
             <xsl:value-of select="$malicious-content-warning"/>

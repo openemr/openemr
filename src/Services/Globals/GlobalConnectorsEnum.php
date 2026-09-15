@@ -25,6 +25,7 @@ enum GlobalConnectorsEnum: string
     case OAUTH_EHR_LAUNCH_AUTHORIZATION_FLOW_SKIP = 'oauth_ehr_launch_authorization_flow_skip';
     case FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION = 'fhir_us_core_profile_version';
     case CCDA_ALT_SERVICE_ENABLE = 'ccda_alt_service_enable';
+    case SMART_TEST_LAUNCHES_ENABLE = 'smart_context_test_launches';
     // TODO: move the rest of the Connectors settings from globals.inc.php into this file
 
     // TODO: add methods for handling things like the descriptions and supported data types if needed

@@ -65,7 +65,7 @@ class zipfile
      *
      * @access private
      */
-    function unix2DosTime($unixtime = 0)
+    public function unix2DosTime($unixtime = 0)
     {
         $timearray = ($unixtime == 0) ? getdate() : getdate($unixtime);
 
@@ -90,7 +90,7 @@ class zipfile
      *
      * @access public
      */
-    function addFile($data, $name, $time = 0)
+    public function addFile($data, $name, $time = 0)
     {
         $name = str_replace('\\', '/', $name);
 
@@ -164,7 +164,7 @@ class zipfile
      *
      * @access public
      */
-    function file()
+    public function file()
     {
         $data = implode('', $this->datasec);
         $ctrldir = implode('', $this->ctrl_dir);

@@ -19,7 +19,7 @@ class ControllerDetail extends BaseController
         parent::__construct();
     }
 
-    function _action_view()
+    public function _action_view()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);

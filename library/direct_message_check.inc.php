@@ -24,9 +24,7 @@
  * @link    https://www.open-emr.org
  */
 
-require_once(__DIR__ . "/pnotes.inc.php");
 require_once(__DIR__ . "/documents.php");
-require_once(__DIR__ . "/gprelations.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -222,9 +220,7 @@ function phimail_check(): void
 
                 phimail_logit($success, $ret, $msg['patient_id']);
 
-                if (!isset($val[3])) {
-                    $val[3] = "";
-                }
+                $val[3] ??= "";
 
                 $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
                 $res = sqlStatementNoLog($sql, [$status, $val[3], $val[1]]);

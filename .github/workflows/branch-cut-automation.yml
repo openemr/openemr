@@ -52,9 +52,27 @@ jobs:
         php-version:
         - '8.5'
     steps:
+    # Sparse checkout of just the composite actions this job's
+    # workspace-root uses/... references resolve against —
+    # generate-app-token (Mint step below) and setup-php-composer
+    # (Setup PHP step below). Local composite paths resolve against
+    # GITHUB_WORKSPACE at step-load time; a second full checkout
+    # doesn't reliably materialize files pruned by the first sparse
+    # checkout, so include everything the workspace-root needs in the
+    # first sparse pattern. Per-side mutator work uses rel-checkout/
+    # and master-checkout/ (below), which are their own full checkouts.
+    - name: Checkout composite actions
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: |
+          .github/actions/generate-app-token
+          .github/actions/setup-php-composer
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+
     - name: Mint App token
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -125,18 +143,6 @@ jobs:
           echo "target-version=${target_version}"
           echo "prev-rel-branch=${prev_rel_branch}"
         } >> "$GITHUB_OUTPUT"
-
-    # Initial checkout at the workflow's default working directory so
-    # `./.github/actions/setup-php-composer` resolves (composite actions
-    # must live under GITHUB_WORKSPACE before they can be referenced).
-    # The mutator runs use the per-side checkouts below; this checkout
-    # is just for the composite action source.
-    - name: Checkout master (for composite action source)
-      uses: actions/checkout@v7
-      with:
-        ref: master
-        fetch-depth: 1
-        persist-credentials: false
 
     - name: Setup PHP and Composer (shared)
       uses: ./.github/actions/setup-php-composer

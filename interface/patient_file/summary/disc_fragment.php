@@ -18,6 +18,7 @@ $pid = $session->get('pid', 0);
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
@@ -31,14 +32,8 @@ function getDisclosureByDate($pid, $limit)
     $discQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
     " LEFT JOIN users u ON u.username = el.user " .
     " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-    " ORDER BY el.date DESC LIMIT 0, " . escape_limit($limit);
-    $r1 = sqlStatement($discQry, [$pid]);
-    $result2 = [];
-    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
-        $result2[$iter] = $frow;
-    }
-
-    return $result2;
+    " ORDER BY el.date DESC LIMIT ?";
+    return QueryUtils::fetchRecords($discQry, [$pid, is_numeric($limit) ? (int) $limit : 0]);
 }
 ?>
 <div id='pnotes' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'><!--outer div-->

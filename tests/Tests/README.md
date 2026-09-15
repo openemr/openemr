@@ -28,6 +28,24 @@ To support additional record types within FixtureManager:
 - Add a supporting json file to the Fixture Namespace which maps to an OpenEMR database table.
 - Add public methods to the class to get, install, and remove fixture records.
 
+### Navigating the E2e Video Recording
+
+CI records the whole E2e run as a single screen capture (`selenium-videos/video.mp4`, uploaded as a workflow artifact). To make that recording navigable, the PHPUnit extension in `tests/PHPUnit/Timeline/` records when each E2e test started and how it ended, and CI turns that timeline into sidecars beside the video:
+
+| File | What it is |
+| ---- | ---------- |
+| `video.chapters.txt` | Plain-text index: timestamp, outcome, test — read it without a player |
+| `video.vtt` | WebVTT subtitles naming the running test; most players load it automatically when it sits next to the video |
+| `video.chapters.ffmetadata` | ffmpeg chapter metadata, for players that offer chapter jumps |
+
+To attach the chapters to the video itself:
+
+```sh
+ffmpeg -i video.mp4 -i video.chapters.ffmetadata -map_metadata 1 -codec copy chaptered.mp4
+```
+
+The timeline is recorded from PHPUnit's own events, so it costs the suite no run time and requires nothing of the tests — new E2e tests are chaptered automatically. Locally, an E2e run leaves the timeline in `e2e-timeline.jsonl`; `php ci/e2e-video-chapters.php --help` covers generating sidecars by hand.
+
 ### Isolated Tests
 
 Isolated tests live in `Isolated/` and run without a database or Docker using a

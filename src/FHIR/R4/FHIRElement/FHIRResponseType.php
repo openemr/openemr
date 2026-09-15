@@ -144,9 +144,7 @@ class FHIRResponseType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResponseType xmlns="http://hl7.org/fhir"></ResponseType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResponseType xmlns="http://hl7.org/fhir"></ResponseType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

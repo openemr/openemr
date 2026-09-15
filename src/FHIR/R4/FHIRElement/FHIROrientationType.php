@@ -144,9 +144,7 @@ class FHIROrientationType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<orientationType xmlns="http://hl7.org/fhir"></orientationType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<orientationType xmlns="http://hl7.org/fhir"></orientationType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

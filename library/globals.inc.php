@@ -89,14 +89,10 @@ use OpenEMR\Services\Globals\GlobalsService;
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
     // MS Windows
-    $mysql_bin_dir = 'C:/xampp/mysql/bin';
-    $perl_bin_dir = 'C:/xampp/perl/bin';
     $temporary_files_dir = 'C:/windows/temp';
     $backup_log_dir = 'C:/windows/temp';
 } else {
     // Everything else
-    $mysql_bin_dir = '/usr/bin';
-    $perl_bin_dir = '/usr/bin';
     $temporary_files_dir = '/tmp';
     $backup_log_dir = '/tmp';
 }
@@ -945,13 +941,6 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',                              // default = false
             xl('Display advance directives in the demographics page.')
-        ],
-
-        'configuration_import_export' => [
-            xl('Configuration Export/Import'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Support export/import of configuration data via the Backup page.')
         ],
 
         'restrict_user_facility' => [
@@ -2227,6 +2216,13 @@ $GLOBALS_METADATA = [
             xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ],
 
+        'portal_onetime_max_pin_attempts' => [
+            xl('Portal One-Time Token Maximum PIN Attempts'),
+            'num',                            // data type
+            '5',                              // default
+            xl('Maximum PIN attempts allowed for a patient portal one-time (e.g. invoice) token before it is refused. 0 or blank uses the built-in default.')
+        ],
+
         'gbl_fac_warehouse_restrictions' => [
             xl('Enable Facility/Warehouse Permissions'),
             'bool',                           // data type
@@ -2815,13 +2811,6 @@ $GLOBALS_METADATA = [
             xl('Enable logging of security and administration activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ],
 
-        'audit_events_backup' => [
-            xl('Audit Logging Backups'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Enable logging of backup related activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
-        ],
-
         'audit_events_other' => [
             xl('Audit Logging Miscellaneous'),
             'bool',                           // data type
@@ -2832,8 +2821,10 @@ $GLOBALS_METADATA = [
         'audit_events_query' => [
             xl('Audit Logging SELECT Query'),
             'bool',                           // data type
-            '1',                              // default
+            '0',                              // default off; enable for ONC certified deployments
             xl('Enable logging of all SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
+                . ' ' . xl('Required for ONC certified deployments.')
+                . ' ' . xl('Warning: this logs every SELECT, so the audit log grows with query volume and can become far larger than the clinical data it describes.')
         ],
 
         'audit_events_cdr' => [
@@ -2938,25 +2929,18 @@ $GLOBALS_METADATA = [
     //
     'Miscellaneous' => [
 
+        'duplicate_patient_rescore_on_load' => [
+            xl('Recompute Duplicate Scores On Every Report Load'),
+            'bool',                           // data type
+            '1',                              // default = true, matching long-standing behavior
+            xl('The Duplicate Patient Management report rescores every patient each time it loads. That keeps it accurate after a bulk import, but is slow on large installs. Turn this off where scores are already kept current when demographics change; the Recalculate Scores button still runs a full pass on demand.')
+        ],
+
         'enable_database_connection_pooling' => [
             xl('Enable Database Connection Pooling'),
             'bool',                           // data type
             '1',                              // default
             xl('Enable Database Connection Pooling')
-        ],
-
-        'mysql_bin_dir' => [
-            xl('Path to MySQL Binaries'),
-            'text',                           // data type
-            $mysql_bin_dir,                   // default
-            xl('Full path to directory containing MySQL executables.')
-        ],
-
-        'perl_bin_dir' => [
-            xl('Path to Perl Binaries'),
-            'text',                           // data type
-            $perl_bin_dir,                    // default
-            xl('Full path to directory containing Perl executables.')
         ],
 
         'temporary_files_dir' => [
@@ -3259,6 +3243,13 @@ $GLOBALS_METADATA = [
             'bool',
             '0',
             xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ],
+
+        GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
+            xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR SMART ON FHIR Current Context Test Launches.')
         ],
 
         GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => [
@@ -4421,20 +4412,19 @@ $GLOBALS_METADATA = [
                 '2' => xl('At the top of the page and at the foot of the page'),
                 '3' => xl('Do not display the note')
             ],
-            '0' ,                          // default = display at top of form
+            '3' ,                          // default = off
             xl('Configure where LOINC statement should be displayed')
         ],
 
         'questionnaire_display_style' => [
             xl('Questionnaire Form Display Style'),
             [
-                '0' => xl('OpenEMR Auto Select Dark/Light Themed Version'),
-                '1' => xl('LForms Project Maintained Light Version(Original)'),
-                '3' => xl('OpenEMR Light Theme Version Always'),
-                '4' => xl('OpenEMR Dark Theme Version Always'),
+                '0' => xl('OpenEMR Auto Select Dark/Light Theme'),
+                '3' => xl('OpenEMR Light Theme Always'),
+                '4' => xl('OpenEMR Dark Theme Always'),
             ],
-            '0' ,                          // default = display at top of form
-            xl('Choose OpenEMR auto select based on core theme styles(OpenEMR dark theme turns on Questionnaire dark, LForms project maintained light styles(Original) or default to always dark or light regardless of core themes.')
+            '0',
+            xl('Choose automatic theme selection or always use the light or dark Questionnaire theme.')
         ],
 
         'questionnaire_display_fullscreen' => [

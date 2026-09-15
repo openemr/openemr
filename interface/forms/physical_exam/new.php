@@ -17,14 +17,14 @@ require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
-use Symfony\Component\HttpFoundation\Request;
-
 use function OpenEMR\Forms\PhysicalExam\physical_exam_lines;
 use function OpenEMR\Forms\PhysicalExam\scalar_string;
 
@@ -35,8 +35,6 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 require_once(__DIR__ . "/lines.php");
 
 if (!$encounter) {
@@ -45,7 +43,7 @@ if (!$encounter) {
 
 $returnurl = 'encounter_top.php';
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$request = Request::createFromGlobals();
+$request = CurrentRequest::get();
 
 // A stored checkbox value is "on" when it is non-empty and not '0'.
 $isChecked = static fn (string $value): bool => $value !== '' && $value !== '0';
@@ -112,6 +110,7 @@ $showTreatmentLine = function (string $line_id, string $description, array $line
 };
 
 $formid = $request->query->getString('id');
+EncounterFormAccess::assertFormBelongsToSessionPatient((int) $formid, 'physical_exam');
 
 // If Save was clicked, save the info.
 //

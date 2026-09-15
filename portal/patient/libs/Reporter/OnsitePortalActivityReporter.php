@@ -10,9 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/Reporter.php");
-
 /**
  * This is an example Reporter based on the OnsitePortalActivity object.  The reporter object
  * allows you to run arbitrary queries that return data which may or may not fit within
@@ -53,7 +50,7 @@ class OnsitePortalActivityReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    static function GetCustomQuery($criteria)
+    public static function GetCustomQuery($criteria)
     {
         $sql = "select
 			'custom value here...' as CustomFieldExample
@@ -90,7 +87,7 @@ class OnsitePortalActivityReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    static function GetCustomCountQuery($criteria)
+    public static function GetCustomCountQuery($criteria)
     {
         $sql = "select count(1) as counter from `onsite_portal_activity`";
 

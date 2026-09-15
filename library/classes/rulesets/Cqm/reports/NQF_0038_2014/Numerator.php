@@ -29,7 +29,7 @@ class NQF_0038_2014_Numerator implements CqmFilterIF
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         if (
             (Immunizations::checkDtap($patient, $beginDate, $endDate) ) ||

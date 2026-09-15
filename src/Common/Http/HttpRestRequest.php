@@ -196,6 +196,9 @@ class HttpRestRequest extends Request implements Stringable
         $this->query = new InputBag($queryParams);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getQueryParams(): array
     {
         return $this->query->all();
@@ -415,7 +418,7 @@ class HttpRestRequest extends Request implements Stringable
                 if (empty($context) || empty($resource)) {
                     continue; // nothing to do here
                     // skip over any launch parameters, fhiruser, etc.
-                } else if (!in_array($context, $validContext)) {
+                } elseif (!in_array($context, $validContext)) {
                     continue;
                 }
                 $currentContext = $this->resourceScopeContexts[$resource] ?? $scopeContext;
@@ -423,9 +426,9 @@ class HttpRestRequest extends Request implements Stringable
                 if ($context == "user" && $currentContext != 'system') {
                     $scopeContext = "user";
                     // system scope for the resource overwrites everything
-                } else if ($context == "system") {
+                } elseif ($context == "system") {
                     $scopeContext = "system";
-                } else if ($currentContext != "patient") {
+                } elseif ($currentContext != "patient") {
                     // if what we have currently is not a patient context we want to use that value and not overwrite
                     // it with a patient context
                     $scopeContext = $currentContext;

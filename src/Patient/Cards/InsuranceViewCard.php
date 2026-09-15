@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,11 +18,11 @@ use InsuranceCompany;
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Services\InsuranceService;
+use Symfony\Component\HttpFoundation\Request;
 
 class InsuranceViewCard extends CardModel
 {
@@ -32,7 +34,7 @@ class InsuranceViewCard extends CardModel
 
     private $policy_types;
 
-    public function __construct(private $pid, array $opts = [])
+    public function __construct(private $pid, private readonly Request $request, array $opts = [])
     {
         $this->policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
         $opts = $this->setupOpts($opts);
@@ -162,7 +164,7 @@ class InsuranceViewCard extends CardModel
         $output = '';
         $pid = $this->pid;
         if (OEGlobalsBag::getInstance()->getBoolean("enable_eligibility_requests")) {
-            if (HttpRestRequest::createFromGlobals()->request->getString('status_update') === 'true') {
+            if ($this->request->request->getString('status_update') === 'true') {
                 $showEligibility = true;
                 $ok = EDI270::requestEligibleTransaction($pid);
                 if ($ok === true) {

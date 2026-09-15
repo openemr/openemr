@@ -144,9 +144,7 @@ class FHIRResearchElementType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchElementType xmlns="http://hl7.org/fhir"></ResearchElementType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResearchElementType xmlns="http://hl7.org/fhir"></ResearchElementType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

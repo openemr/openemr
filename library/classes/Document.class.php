@@ -17,9 +17,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../pnotes.inc.php");
-require_once(__DIR__ . "/../gprelations.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGenException;
@@ -417,7 +414,7 @@ class Document extends ORDataObject
      *                        otherwise every document object is returned
      * @return Document[]
      */
-    function documents_factory($foreign_id = "")
+    public function documents_factory($foreign_id = "")
     {
         $documents = [];
 
@@ -517,7 +514,7 @@ class Document extends ORDataObject
     /**
      * Convenience function to generate string debug data about the object
      */
-    function toString($html = false): string
+    public function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"
@@ -543,11 +540,11 @@ class Document extends ORDataObject
     *   Getter/Setter methods used by reflection to affect object in persist/poulate operations
     *   @param mixed new value for given attribute
     */
-    function set_id($id): void
+    public function set_id($id): void
     {
         $this->id = $id;
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
@@ -556,7 +553,7 @@ class Document extends ORDataObject
      * This is a Patient record id
      * @param $fid Unique database identifier for a patient record
      */
-    function set_foreign_id($fid): void
+    public function set_foreign_id($fid): void
     {
         $this->foreign_id = $fid;
     }
@@ -597,31 +594,31 @@ class Document extends ORDataObject
         return $this->foreign_reference_table;
     }
 
-    function get_foreign_id()
+    public function get_foreign_id()
     {
         return $this->foreign_id;
     }
-    function set_type($type): void
+    public function set_type($type): void
     {
         $this->type = $type;
     }
-    function get_type()
+    public function get_type()
     {
         return $this->type;
     }
-    function set_size($size): void
+    public function set_size($size): void
     {
         $this->size = $size;
     }
-    function get_size()
+    public function get_size()
     {
         return $this->size;
     }
-    function set_date($date): void
+    public function set_date($date): void
     {
         $this->date = $date;
     }
-    function get_date()
+    public function get_date()
     {
         return $this->date;
     }
@@ -629,19 +626,19 @@ class Document extends ORDataObject
     /**
      * @return string|null The datetime that the document expires at
      */
-    function get_date_expires(): ?string
+    public function get_date_expires(): ?string
     {
         return $this->date_expires;
     }
-    function set_hash($hash): void
+    public function set_hash($hash): void
     {
         $this->hash = $hash;
     }
-    function get_hash()
+    public function get_hash()
     {
         return $this->hash;
     }
-    function get_hash_algo_title(): string
+    public function get_hash_algo_title(): string
     {
         if (!empty($this->hash) && strlen((string) $this->hash) < 50) {
             return "SHA1";
@@ -649,26 +646,26 @@ class Document extends ORDataObject
             return "SHA3-512";
         }
     }
-    function set_url($url): void
+    public function set_url($url): void
     {
         $this->url = $url;
     }
-    function get_url()
+    public function get_url()
     {
         return $this->url;
     }
-    function set_thumb_url($url): void
+    public function set_thumb_url($url): void
     {
         $this->thumb_url = $url;
     }
-    function get_thumb_url()
+    public function get_thumb_url()
     {
         return $this->thumb_url;
     }
     /**
     * get the url without the protocol handler
     */
-    function get_url_filepath()
+    public function get_url_filepath()
     {
         return preg_replace("|^(.*)://|", "", (string) $this->url);
     }
@@ -706,73 +703,73 @@ class Document extends ORDataObject
     /**
     * get the url filename only
     */
-    function get_url_file()
+    public function get_url_file()
     {
         return basename_international(preg_replace("|^(.*)://|", "", (string) $this->url));
     }
     /**
     * get the url path only
     */
-    function get_url_path()
+    public function get_url_path()
     {
         return dirname((string) preg_replace("|^(.*)://|", "", (string) $this->url)) . "/";
     }
-    function get_path_depth()
+    public function get_path_depth()
     {
         return $this->path_depth;
     }
-    function set_path_depth($path_depth): void
+    public function set_path_depth($path_depth): void
     {
         $this->path_depth = $path_depth;
     }
-    function set_mimetype($mimetype): void
+    public function set_mimetype($mimetype): void
     {
         $this->mimetype = $mimetype;
     }
-    function get_mimetype()
+    public function get_mimetype()
     {
         return $this->mimetype;
     }
-    function set_pages($pages): void
+    public function set_pages($pages): void
     {
         $this->pages = $pages;
     }
-    function get_pages()
+    public function get_pages()
     {
         return $this->pages;
     }
-    function set_owner($owner): void
+    public function set_owner($owner): void
     {
         $this->owner = $owner;
     }
-    function get_owner()
+    public function get_owner()
     {
         return $this->owner;
     }
     /*
     *   No getter for revision because it is updated automatically by the DB.
     */
-    function set_revision($revision): void
+    public function set_revision($revision): void
     {
         $this->revision = $revision;
     }
-    function set_docdate($docdate): void
+    public function set_docdate($docdate): void
     {
         $this->docdate = $docdate;
     }
-    function get_docdate()
+    public function get_docdate()
     {
         return $this->docdate;
     }
-    function set_list_id($list_id): void
+    public function set_list_id($list_id): void
     {
         $this->list_id = $list_id;
     }
-    function get_list_id()
+    public function get_list_id()
     {
         return $this->list_id;
     }
-    function set_name($name): void
+    public function set_name($name): void
     {
         $this->name = $name;
     }
@@ -781,36 +778,36 @@ class Document extends ORDataObject
      * Returns the database human readable filename of the document
      * @return string|null
      */
-    function get_name()
+    public function get_name()
     {
         return $this->name;
     }
-    function set_drive_uuid($drive_uuid): void
+    public function set_drive_uuid($drive_uuid): void
     {
         $this->drive_uuid = $drive_uuid;
     }
-    function get_drive_uuid()
+    public function get_drive_uuid()
     {
         return $this->drive_uuid;
     }
-    function set_encounter_id($encounter_id): void
+    public function set_encounter_id($encounter_id): void
     {
         $this->encounter_id = $encounter_id;
     }
-    function get_encounter_id()
+    public function get_encounter_id()
     {
         return $this->encounter_id;
     }
-    function set_encounter_check($encounter_check): void
+    public function set_encounter_check($encounter_check): void
     {
         $this->encounter_check = $encounter_check;
     }
-    function get_encounter_check()
+    public function get_encounter_check()
     {
         return $this->encounter_check;
     }
 
-    function get_ccr_type($doc_id)
+    public function get_ccr_type($doc_id)
     {
         $type = sqlQuery(
             "SELECT c.name FROM categories AS c
@@ -820,27 +817,27 @@ class Document extends ORDataObject
         );
         return $type['name'];
     }
-    function set_imported($imported): void
+    public function set_imported($imported): void
     {
         $this->imported = $imported;
     }
-    function get_imported()
+    public function get_imported()
     {
         return $this->imported;
     }
-    function update_imported($doc_id): void
+    public function update_imported($doc_id): void
     {
         sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", [$doc_id]);
     }
-    function set_encrypted($encrypted): void
+    public function set_encrypted($encrypted): void
     {
         $this->encrypted = $encrypted;
     }
-    function get_encrypted()
+    public function get_encrypted()
     {
         return $this->encrypted;
     }
-    function is_encrypted(): bool
+    public function is_encrypted(): bool
     {
         return $this->encrypted == self::ENCRYPTED_ON;
     }
@@ -852,7 +849,7 @@ class Document extends ORDataObject
     *   @param int $fid foreign id that should be used so that this document can be related (joined) on it later
     */
 
-    function persist($fid = "")
+    public function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
@@ -860,40 +857,40 @@ class Document extends ORDataObject
 
         // need to populate our uuid if its empty
 
-        parent::persist();
+        return parent::persist();
     }
 
-    function set_storagemethod($str): void
+    public function set_storagemethod($str): void
     {
         $this->storagemethod = $str;
     }
 
-    function get_storagemethod()
+    public function get_storagemethod()
     {
         return $this->storagemethod;
     }
 
-    function set_couch_docid($str): void
+    public function set_couch_docid($str): void
     {
         $this->couch_docid = $str;
     }
 
-    function get_couch_docid()
+    public function get_couch_docid()
     {
         return $this->couch_docid;
     }
 
-    function set_couch_revid($str): void
+    public function set_couch_revid($str): void
     {
         $this->couch_revid = $str;
     }
 
-    function get_couch_revid()
+    public function get_couch_revid()
     {
         return $this->couch_revid;
     }
 
-    function set_uuid(?string $uuid): void
+    public function set_uuid(?string $uuid): void
     {
         $this->uuid = $uuid;
     }
@@ -901,7 +898,7 @@ class Document extends ORDataObject
     /**
      * @return string Binary representation of the uuid for this document
      */
-    function get_uuid()
+    public function get_uuid()
     {
         return $this->uuid;
     }
@@ -910,7 +907,7 @@ class Document extends ORDataObject
     // This just moves some code that used to be in C_Document.class.php,
     // changing it as little as possible since I'm not set up to test it.
     //
-    function change_patient($new_patient_id): bool
+    public function change_patient($new_patient_id): bool
     {
         // Set the new patient.
         $this->set_foreign_id($new_patient_id);
@@ -938,7 +935,7 @@ class Document extends ORDataObject
    * @param  string  $foreign_reference_table The table name of the foreign_reference_id this document refers to.
    * @return string                Empty string if success, otherwise error message text
    */
-    function createDocument(
+    public function createDocument(
         $patient_id,
         $category_id,
         $filename,
@@ -1135,7 +1132,7 @@ class Document extends ORDataObject
      * @return false|string Returns false if the data failed to decrypt, or a string if the data decrypts
      *                      or is unencrypted.
      */
-    function get_data()
+    public function get_data()
     {
         $storagemethod = $this->get_storagemethod();
 
@@ -1224,7 +1221,7 @@ class Document extends ORDataObject
    * @param string $file_name
    * Return file name for thumbnail (adding 'th_')
    */
-    function get_thumb_name($file_name): string
+    public function get_thumb_name($file_name): string
     {
         return 'th_' . $file_name;
     }
@@ -1236,7 +1233,7 @@ class Document extends ORDataObject
    * @param int $category_id The desired document category ID
    * @param  string  $message      Any desired message text for the note.
    */
-    function postPatientNote($provider, $category_id, $message = '')
+    public function postPatientNote($provider, $category_id, $message = '')
     {
         // Build note text in a way that identifies the new document.
         // See pnotes_full.php which uses this to auto-display the document.
@@ -1260,8 +1257,9 @@ class Document extends ORDataObject
   /**
    * Return note objects associated with this document using Note::notes_factory
    *
+   * @return array<int, Note>
    */
-    function get_notes()
+    public function get_notes(): array
     {
         return (Note::notes_factory($this->get_id()));
     }

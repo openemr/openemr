@@ -12,12 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\BmiCategory;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
@@ -364,7 +362,7 @@ class C_FormVitals
             ,'validationErrors' => $validationErrors
             ,'vitalFields' => $vitalFields
             ,'FORM_ACTION' => OEGlobalsBag::getInstance()->getWebRoot()
-            ,'DONT_SAVE_LINK' => OEGlobalsBag::getInstance()->get('form_exit_url')
+            ,'DONT_SAVE_LINK' => FormActionBarSettings::EXIT_URL
             ,'STYLE' => OEGlobalsBag::getInstance()->get('style')
             ,'units_of_measurement' => $this->units_of_measurement
             ,'MEASUREMENT_METRIC_ONLY' => FormVitals::MEASUREMENT_METRIC_ONLY
@@ -446,8 +444,8 @@ class C_FormVitals
         $vitalsArray = [];
         if (!empty($_POST['id'])) {
             $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
-            // Verify the vital belongs to this patient/encounter to prevent IDOR.
-            // If not, treat as a new form (ignore the supplied id).
+            // If the vital doesn't belong to this patient/encounter, treat
+            // as a new form and ignore the supplied id.
             if (
                 !empty($vitalsArray)
                 && ($vitalsArray['pid'] != $GLOBALS['pid'] || $vitalsArray['eid'] != $GLOBALS['encounter'])

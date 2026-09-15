@@ -31,16 +31,14 @@ use OpenEMR\Common\Session\Predis\LockingRedisSessionHandler;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-
-/**
- * Combined inner-handler interface as used by LockingRedisSessionHandler.
- */
-interface InnerHandlerInterface extends \SessionHandlerInterface, \SessionUpdateTimestampHandlerInterface {}
+use SessionHandlerInterface;
+use SessionIdInterface;
+use SessionUpdateTimestampHandlerInterface;
 
 class LockingRedisSessionHandlerTest extends TestCase
 {
     private \Redis&MockObject $redis;
-    private InnerHandlerInterface&MockObject $inner;
+    private SessionIdInterface&SessionHandlerInterface&SessionUpdateTimestampHandlerInterface&MockObject $inner;
     private LockingRedisSessionHandler $handler;
 
     protected function setUp(): void
@@ -52,7 +50,11 @@ class LockingRedisSessionHandlerTest extends TestCase
         parent::setUp();
 
         $this->redis = $this->createMock(\Redis::class);
-        $this->inner = $this->createMock(InnerHandlerInterface::class);
+        $this->inner = $this->createMockForIntersectionOfInterfaces([
+            SessionHandlerInterface::class,
+            SessionIdInterface::class,
+            SessionUpdateTimestampHandlerInterface::class,
+        ]);
 
         $this->handler = new LockingRedisSessionHandler(
             $this->redis,
@@ -407,5 +409,38 @@ class LockingRedisSessionHandlerTest extends TestCase
         // The token written to the lock key must be the same token checked in the Lua release
         $evalArgs = self::argArray($evalCalls[0], 1);
         $this->assertSame(self::arg($setCalls[0], 1), $evalArgs[1]);
+    }
+
+    // =========================================================================
+    // create_sid() — delegates or falls back to session_create_id()
+    // =========================================================================
+
+    public function testCreateSidDelegatesToInnerWhenItImplementsSessionIdInterface(): void
+    {
+        $this->inner->expects($this->once())
+            ->method('create_sid')
+            ->willReturn('inner-generated-id');
+
+        $result = $this->handler->create_sid();
+
+        $this->assertSame('inner-generated-id', $result, 'should delegate to inner when it implements SessionIdInterface');
+    }
+
+    public function testCreateSidUsesSessionCreateIdWhenInnerDoesNotImplementSessionIdInterface(): void
+    {
+        $innerWithoutSessionId = $this->createMockForIntersectionOfInterfaces([
+            \SessionHandlerInterface::class,
+            \SessionUpdateTimestampHandlerInterface::class,
+        ]);
+
+        $handler = new LockingRedisSessionHandler(
+            $this->redis,
+            $innerWithoutSessionId,
+            logger: new NullLogger(),
+        );
+
+        $result = $handler->create_sid();
+
+        $this->assertNotEmpty($result, 'session ID should not be empty');
     }
 }

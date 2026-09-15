@@ -27,7 +27,6 @@
 
 require_once __DIR__ . '/base_controller.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -353,7 +352,7 @@ class TherapyGroupsController extends BaseController
      * @param $group_id
      * @return bool
      */
-    private function checkIfHasApptOrEncounter($group_id)
+    private function checkIfHasApptOrEncounter($group_id): bool
     {
         $therapy_groups_events_model = $this->loadModel('Therapy_Groups_Events');
         $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');
@@ -409,7 +408,7 @@ class TherapyGroupsController extends BaseController
         return $groupData['group_id'];
     }
 
-    static function setSession($groupId)
+    public static function setSession($groupId)
     {
 
         setpid(0);

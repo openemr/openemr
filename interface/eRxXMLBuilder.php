@@ -14,8 +14,6 @@
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
-require_once(__DIR__ . "/../library/patient.inc.php");
-
 class eRxXMLBuilder
 {
     /** @var ?eRxGlobals */

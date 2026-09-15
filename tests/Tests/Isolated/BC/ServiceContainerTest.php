@@ -31,6 +31,7 @@ use Psr\Http\Message\{
 };
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Twig\Environment as TwigEnvironment;
 
 /**
  * Smoke tests intentionally verify runtime types match declared types.
@@ -98,6 +99,17 @@ class ServiceContainerTest extends TestCase
         $factory = ServiceContainer::getUriFactory();
         // @phpstan-ignore method.alreadyNarrowedType
         $this->assertInstanceOf(UriFactoryInterface::class, $factory);
+    }
+
+    public function testGetTwigHonorsOverride(): void
+    {
+        ServiceContainer::reset();
+        $stub = self::createStub(TwigEnvironment::class);
+
+        ServiceContainer::override(TwigEnvironment::class, $stub);
+
+        self::assertSame($stub, ServiceContainer::getTwig());
+        ServiceContainer::reset();
     }
 
     public function testGetGuzzle(): void

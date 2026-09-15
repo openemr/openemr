@@ -29,7 +29,7 @@ class AMC_302f_4_STG1_Numerator implements AmcFilterIF
         return "AMC_302f_4_STG1 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //If height/length, weight, and blood pressure (all) within scope of practice (Optional 2013; Required effective 2014):
         //Patients 3 years of age or older in the denominator for whom Height/length, weight, and blood pressure are recorded

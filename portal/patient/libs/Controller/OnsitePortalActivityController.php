@@ -10,11 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Core\OEGlobalsBag;
-
-/** import supporting libraries */
-require_once("AppBasePortalController.php");
-require_once("Model/OnsitePortalActivity.php");
 
 /**
  * OnsitePortalActivityController is the controller class for the OnsitePortalActivity object.  The
@@ -53,14 +50,11 @@ class OnsitePortalActivityController extends AppBasePortalController
         try {
             $criteria = new OnsitePortalActivityCriteria();
 
-            // only allow patient to see their own activity
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            $pid = !empty($bootstrapPid) ? $bootstrapPid : RequestUtil::Get('patientId');
-
+            $bootstrapPid = PortalSessionPidGuard::requireBootstrapPid();
             $activity = RequestUtil::Get('activity');
             $doc = RequestUtil::Get('doc');
             $doc = $doc ?: 0;
-            $criteria->PatientId_Equals = $pid;
+            $criteria->PatientId_Equals = $bootstrapPid;
             $criteria->Activity_Equals = $activity;
             $criteria->TableArgs_Equals = $doc;
 
@@ -110,12 +104,13 @@ class OnsitePortalActivityController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-            // only allow patient to update onsiteportalactivity about themself
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            if (!empty($bootstrapPid) && $bootstrapPid != $onsiteportalactivity->PatientId) {
-                $error = 'Unauthorized';
-                throw new Exception($error);
+            if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $onsiteportalactivity->PatientId,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
@@ -187,14 +182,13 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-
-            // only allow patient to update onsiteportalactivity about themself
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            if (!empty($bootstrapPid)) {
-                if ($bootstrapPid != $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId)) {
-                    throw new Exception('Bad PID');
-                }
+            if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $onsiteportalactivity->PatientId,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             // TODO: any fields that should not be updated by the user should be commented out
 
@@ -202,7 +196,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             // $onsiteportalactivity->Id = $this->SafeGetVal($json, 'id', $onsiteportalactivity->Id);
 
             $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date', $onsiteportalactivity->Date)));
-            $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId);
+            // PatientId is never re-assigned from the body; the ownership check above pins it.
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity', $onsiteportalactivity->Activity);
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit', $onsiteportalactivity->RequireAudit);
             $onsiteportalactivity->PendingAction = $this->SafeGetVal($json, 'pendingAction', $onsiteportalactivity->PendingAction);
@@ -239,6 +233,13 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
+            if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
+                throw new Exception('Not found');
+            }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $onsiteportalactivity->PatientId,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             $onsiteportalactivity->Delete();
 

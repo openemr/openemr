@@ -2,7 +2,6 @@
 
 require_once("../globals.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php";
 // TODO: @adunsulag we need to move ALL this AMC stuff into a namespace.  Any AMC classes should use autoloader not requires.
 require_once("../../library/classes/rulesets/library/RsReportIF.php");
 require_once("../../library/classes/rulesets/library/RsUnimplementedIF.php");
@@ -15,8 +14,6 @@ require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
@@ -89,9 +86,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
 
         for ($iter = $index; $row = sqlFetchArray($rez); $iter++) {
             $pid = $row['pid'];
-            if (!isset($reportDataByPid[$pid])) {
-                $reportDataByPid[$pid] = [];
-            }
+            $reportDataByPid[$pid] ??= [];
             $reportDataByPid[$pid][] = $iter;// need to keep the indexes so we can populate patients later
             $hydratedRecord = ['patient' => $pid, 'numerator' => [], 'denominator' => []];
             $ruleId = $row['rule_id'] ?? null;
@@ -184,8 +179,7 @@ $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "
 
 // Collect the back variable, if pertinent
 $back_link = (isset($_GET['back'])) ? trim((string) $_GET['back']) : "";
-$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$twig = $twigContainer->getTwig();
+$twig = ServiceContainer::getTwig();
 $report_view = collectReportDatabase($report_id);
 if (!empty($report_view)) {
     $amc_report_types = CertificationReportTypes::getReportTypeRecords();

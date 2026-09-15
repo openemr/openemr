@@ -115,7 +115,7 @@ class ForbidDirectSessionWriteRule implements Rule
         }
 
         // Check if the file is whitelisted
-        $file = $scope->getFile();
+        $file = str_replace('\\', '/', $scope->getFile());
         foreach (self::WHITELISTED_FILE_SUFFIXES as $suffix) {
             if (str_contains($file, $suffix)) {
                 return [];

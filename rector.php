@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
+use OpenEMR\Rector\Rules\ConsolidateImportsRector;
 use OpenEMR\Rector\Rules\OEGlobalsBagTypedGettersRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
@@ -13,6 +14,7 @@ use Rector\CodingStyle\Rector\ArrowFunction\ArrowFunctionDelegatingCallToFirstCl
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\TypeDeclaration\Rector\ArrowFunction\AddArrowFunctionReturnTypeRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -67,6 +69,19 @@ return RectorConfig::configure()
         ArrowFunctionDelegatingCallToFirstClassCallableRector::class => [
             __DIR__ . '/config',
         ],
+        // Rector infers `: int` return types on the two arrow functions in
+        // ObservationController::saveObservation that walk untyped `mixed`
+        // sub-observation arrays: `fn($sub) => $sub['id'] ?? 0`. Adding the
+        // return type would then force the body to also be int-typed, but
+        // the postData / form arrays lack shape typing — so satisfying the
+        // new signature would require a `(int)` cast, which
+        // phpstan-strict-rules `cast.int` forbids ("Cannot cast mixed to
+        // int"). Skip only these sites until ObservationService returns
+        // array-shape-typed sub-observations. Other arrow functions in the
+        // tree should still get inferred return types where safe.
+        AddArrowFunctionReturnTypeRector::class => [
+            __DIR__ . '/src/Controllers/Interface/Forms/Observation/ObservationController.php',
+        ],
     ])
     ->withCache(
         // ensure file system caching is used instead of in-memory
@@ -80,16 +95,14 @@ return RectorConfig::configure()
     ->withPHPStanConfigs([
         __DIR__ . '/.phpstan/rector-scan.neon',
     ])
-    ->withCodeQualityLevel(5)
     ->withConfiguredRule(ClassPropertyAssignToConstructorPromotionRector::class, [
         'allow_model_based_classes' => true,
         'inline_public' => false,
         'rename_property' => true,
     ])
-    ->withDeadCodeLevel(5)
     // https://getrector.com/documentation/troubleshooting-parallel
     ->withParallel(
-        timeoutSeconds: 120,
+        timeoutSeconds: 1200,
         maxNumberOfProcess: 12,
         jobSize: 12
     )
@@ -99,9 +112,12 @@ return RectorConfig::configure()
     ->withRules([
         CallUserFuncArrayToVariadicRector::class,
         CatchExceptionToThrowableRector::class,
+        ConsolidateImportsRector::class,
         OEGlobalsBagTypedGettersRector::class,
         SimplifyIfElseToTernaryRector::class,
         UnnecessaryTernaryExpressionRector::class,
     ])
     ->withPhpSets()
-    ->withTypeCoverageLevel(5);
+    ->withDeadCodeLevel(5)
+    ->withCodeQualityLevel(5)
+    ->withTypeCoverageLevel(7);

@@ -7,6 +7,7 @@ if ($aclSetupFlag !== true) {
 }
 
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Core\OEGlobalsBag;
 
 AclExtended::addObjectSectionAcl('pfeh', 'PatientFilter');
 
@@ -23,7 +24,7 @@ AclExtended::updateAcl($physicians_write, 'Physicians', 'pfeh', 'Parameters', 'p
 <html>
 <head>
     <title>PatientFilter ACL Setup</title>
-    <link rel=STYLESHEET href="interface/themes/style_blue.css">
+    <link rel=STYLESHEET href="interface/themes/style_blue.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
 </head>
 <body>
 <b>OpenEMR[PatientFilter] ACL Setup</b>

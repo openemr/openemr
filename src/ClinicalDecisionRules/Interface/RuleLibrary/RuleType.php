@@ -22,7 +22,7 @@ class RuleType
     const AMC = "amc";
     const PatientReminder = "patientreminder";
 
-    function __construct(public $code, public $lbl)
+    public function __construct(public $code, public $lbl)
     {
     }
 

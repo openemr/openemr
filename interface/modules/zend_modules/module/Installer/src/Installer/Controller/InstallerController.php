@@ -70,7 +70,7 @@ class InstallerController extends AbstractActionController
             'listenerObject' => $this->listenerObject,
             'dependencyObject' => $this->InstallerTable,
             // TODO: @adunsulag there should be a way to pull this from application.config.php but so far the answer eludes me.
-            'coreModules' => ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard']
+            'coreModules' => ['Application', 'Acl', 'Installer']
         ]);
     }
 
@@ -88,7 +88,7 @@ class InstallerController extends AbstractActionController
         $baseModuleDir = OEGlobalsBag::getInstance()->get('baseModDir');
         $customDir = OEGlobalsBag::getInstance()->get('customModDir');
         $zendModDir = OEGlobalsBag::getInstance()->get('zendModDir');
-        $coreModules = ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard'];
+        $coreModules = ['Application', 'Acl', 'Installer'];
         $allModules = [];
 
         $result = $this->InstallerTable->allModules();
@@ -538,7 +538,7 @@ class InstallerController extends AbstractActionController
      * @param $modId
      * @return false|string
      */
-    function getModuleVersionFromFile($modId)
+    public function getModuleVersionFromFile($modId)
     {
         //SQL version of Module
         $dirModule = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
@@ -683,7 +683,7 @@ class InstallerController extends AbstractActionController
     /**
      * @return bool
      */
-    public function InstallModuleSQL(int $modId)
+    public function InstallModuleSQL(int $modId): bool
     {
         $registryEntry = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $dirModule = $registryEntry->modDirectory;

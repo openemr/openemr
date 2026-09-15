@@ -151,19 +151,14 @@ class ScopePermissionParser
                     $requestedRestrictions[$resource][] = $restrictionKey;
                 }
 
-                if (!isset($structuredScopes[$resource]['restrictions'][$restrictionKey])) {
-                    $structuredScopes[$resource]['restrictions'][$restrictionKey] = [
-                        'label' => $restrictionLabel,
-                        'value' => $restrictionKey,
-                        'selected' => true,
-                        'actions' => $parsed['actions'],
-                    ];
-                }
+                $structuredScopes[$resource]['restrictions'][$restrictionKey] ??= [
+                    'label' => $restrictionLabel,
+                    'value' => $restrictionKey,
+                    'selected' => true,
+                    'actions' => $parsed['actions'],
+                ];
             } else {
-                // No restriction in this scope - mark as unrestricted
-                if (!isset($unrestrictedResources[$resource])) {
-                    $unrestrictedResources[$resource] = true;
-                }
+                $unrestrictedResources[$resource] ??= true;
             }
         }
 

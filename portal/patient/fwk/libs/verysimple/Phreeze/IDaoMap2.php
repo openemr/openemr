@@ -3,12 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("FieldMap.php");
-require_once("KeyMap.php");
-
-/**
  * IDaoMap2 is an interface for a mapped object that can be persisted by Phreeze
  * Version 2 includes AddMap and SetFetchingStrategy
  *
@@ -26,7 +20,7 @@ interface IDaoMap2
      * @param string $property
      * @param FieldMap $map
      */
-    static function AddMap($property, FieldMap $map);
+    public static function AddMap($property, FieldMap $map);
 
     /**
      * Change the fetching strategy for a KeyMap
@@ -35,7 +29,7 @@ interface IDaoMap2
      * @param int $loadType
      *          (KM_LOAD_LAZY | KM_LOAD_INNER | KM_LOAD_EAGER)
      */
-    static function SetFetchingStrategy($property, $loadType);
+    public static function SetFetchingStrategy($property, $loadType);
 
     /**
      * Returns a singleton array of FieldMaps for a Phreezable object
@@ -43,7 +37,7 @@ interface IDaoMap2
      * @access public
      * @return FieldMap[]
      */
-    static function GetFieldMaps();
+    public static function GetFieldMaps();
 
     /**
      * Returns a singleton array of KeyMaps for the Phreezable object
@@ -51,5 +45,5 @@ interface IDaoMap2
      * @access public
      * @return KeyMap[]
      */
-    static function GetKeyMaps();
+    public static function GetKeyMaps();
 }

@@ -17,9 +17,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 
-require_once("$srcdir/api.inc.php");
-
 require("C_FormSOAP.class.php");
 
 $c = new C_FormSOAP();
-echo $c->view_action($_GET['id']);
+echo $c->view_action(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT));

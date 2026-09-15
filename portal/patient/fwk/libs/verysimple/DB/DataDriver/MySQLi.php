@@ -2,11 +2,6 @@
 
 /** @package verysimple::DB::DataDriver */
 
-require_once("IDataDriver.php");
-require_once("verysimple/DB/ISqlFunction.php");
-require_once("verysimple/DB/DatabaseException.php");
-require_once("verysimple/DB/DatabaseConfig.php");
-
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -51,11 +46,11 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function GetServerType()
+    public function GetServerType()
     {
         return "MySQLi";
     }
-    function Ping($connection)
+    public function Ping($connection)
     {
         return mysqli_ping($connection);
     }
@@ -63,7 +58,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdoc
      */
-    function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = ''): \mysqli
+    public function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = ''): \mysqli
     {
         // Important: this completely ignores the parameters in favor of the
         // standard options reading/parsing. They're sourced from the same
@@ -96,7 +91,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function Close($connection)
+    public function Close($connection)
     {
         @mysqli_close($connection); // ignore warnings
     }
@@ -104,7 +99,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function Query($connection, $sql)
+    public function Query($connection, $sql)
     {
         if (! $rs = @mysqli_query($connection, $sql)) {
             throw new DatabaseException(mysqli_error($connection), DatabaseException::$ERROR_IN_QUERY);
@@ -116,7 +111,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function Execute($connection, $sql)
+    public function Execute($connection, $sql)
     {
         if (! $result = @mysqli_query($connection, $sql)) {
             throw new DatabaseException(mysqli_error($connection), DatabaseException::$ERROR_IN_QUERY);
@@ -128,7 +123,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function Fetch($connection, $rs)
+    public function Fetch($connection, $rs)
     {
         return mysqli_fetch_assoc($rs);
     }
@@ -136,7 +131,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function GetLastInsertId($connection)
+    public function GetLastInsertId($connection)
     {
         return (mysqli_insert_id($connection));
     }
@@ -144,7 +139,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function GetLastError($connection)
+    public function GetLastError($connection)
     {
         return mysqli_error($connection);
     }
@@ -152,7 +147,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function Release($connection, $rs)
+    public function Release($connection, $rs)
     {
         mysqli_free_result($rs);
     }
@@ -163,7 +158,7 @@ class DataDriverMySQLi implements IDataDriver
      * so that a database connection is not necessary in order to escape.
      * this way cached queries can be used without connecting to the DB server
      */
-    function Escape($val)
+    public function Escape($val)
     {
         return str_replace(self::$BAD_CHARS, self::$GOOD_CHARS, $val);
         // return mysqli_real_escape_string($val);
@@ -188,7 +183,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function GetTableNames($connection, $dbname, $ommitEmptyTables = false)
+    public function GetTableNames($connection, $dbname, $ommitEmptyTables = false)
     {
         $sql = "SHOW TABLE STATUS FROM `" . $this->Escape($dbname) . "`";
         $rs = $this->Query($connection, $sql);
@@ -207,16 +202,14 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function Optimize($connection, $table)
+    public function Optimize($connection, $table)
     {
         $result = "";
         $rs = $this->Query($connection, "optimize table `" . $this->Escape($table) . "`");
 
         while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
-            if (! isset($results [$tbl])) {
-                $results [$tbl] = "";
-            }
+            $results [$tbl] ??= "";
 
             $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }
@@ -227,7 +220,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function StartTransaction($connection)
+    public function StartTransaction($connection)
     {
         $this->Execute($connection, "SET AUTOCOMMIT=0");
         $this->Execute($connection, "START TRANSACTION");
@@ -236,7 +229,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function CommitTransaction($connection)
+    public function CommitTransaction($connection)
     {
         $this->Execute($connection, "COMMIT");
         $this->Execute($connection, "SET AUTOCOMMIT=1");
@@ -245,7 +238,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    function RollbackTransaction($connection)
+    public function RollbackTransaction($connection)
     {
         $this->Execute($connection, "ROLLBACK");
         $this->Execute($connection, "SET AUTOCOMMIT=1");

@@ -32,7 +32,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class CouchDB
 {
-    function __construct()
+    public function __construct()
     {
         $this->host = OEGlobalsBag::getInstance()->getString('couchdb_host');
         $this->user = (OEGlobalsBag::getInstance()->getString('couchdb_user') != '') ? OEGlobalsBag::getInstance()->getString('couchdb_user') : null;
@@ -43,7 +43,7 @@ class CouchDB
         $this->dbase = OEGlobalsBag::getInstance()->getString('couchdb_dbase');
     }
 
-    function check_connection()
+    public function check_connection(): bool
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
         $response = json_decode((string) $resp);
@@ -54,14 +54,14 @@ class CouchDB
         }
     }
 
-    function createDB()
+    public function createDB(): bool
     {
         $resp = $this->send("PUT", "/" . $this->dbase);
         return true;
     }
 
     // note this will include _id (and not allow _rev) in the $data
-    function save_doc($data)
+    public function save_doc($data)
     {
         $couch_json = [];
         foreach ($data as $key => $value) {
@@ -75,7 +75,7 @@ class CouchDB
     }
 
     // note this will include _id and _rev in the $data
-    function update_doc($data)
+    public function update_doc($data)
     {
         $couch_json = [];
         foreach ($data as $key => $value) {
@@ -85,25 +85,25 @@ class CouchDB
         return json_decode((string) $resp);
     }
 
-    function DeleteDoc($docid, $revid)
+    public function DeleteDoc($docid, $revid): bool
     {
         $resp = $this->send("DELETE", "/" . $this->dbase . "/" . $docid . "?rev=" . $revid);
         return true;
     }
 
-    function retrieve_doc($docid)
+    public function retrieve_doc($docid)
     {
         $resp = $this->send("GET", "/" . $this->dbase . "/" . $docid);
         return json_decode((string) $resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
     }
 
     // category is either documents or ccda
-    function createDocId($category)
+    public function createDocId($category)
     {
         return UuidRegistry::uuidToString((new UuidRegistry(['couchdb' => $category]))->createUuid());
     }
 
-    function send($method, $url, $post_data = null)
+    public function send($method, $url, $post_data = null)
     {
         if (OEGlobalsBag::getInstance()->getBoolean('couchdb_connection_ssl')) {
             // encrypt couchdb over the wire

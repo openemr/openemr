@@ -8,6 +8,8 @@
 table {
   font-size: 100%;
   *font-size: inherit;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 select,
@@ -53,11 +55,6 @@ td {
   padding: 0;
 }
 
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
 fieldset,
 img {
   border: 0;
@@ -74,7 +71,7 @@ th,
 var {
   font-style: normal;
   font-weight: normal;
-} /*ol,ul {list-style:none;}*/
+} /* ol,ul {list-style:none;} */
 caption,
 th {
   text-align: left;
@@ -87,12 +84,12 @@ h4,
 h5,
 h6 {
   font-size: 100%;
-  font-weight: normal;
+  font-weight: bold;
 }
 
 q::before,
 q::after {
-  content: "";
+  content: '';
 }
 
 abbr,
@@ -126,15 +123,6 @@ strong {
 
 em {
   font-style: italic;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: bold;
 }
 
 h1 {

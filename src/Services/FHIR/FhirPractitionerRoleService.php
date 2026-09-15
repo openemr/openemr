@@ -25,7 +25,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUSCIGProfileService
+class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUSCIGProfileService, INonPatientCompartmentResourceService
 {
     use VersionedProfileTrait;
     use FhirServiceBaseEmptyTrait;

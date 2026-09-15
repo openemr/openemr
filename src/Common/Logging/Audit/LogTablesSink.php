@@ -71,6 +71,9 @@ readonly class LogTablesSink implements SinkInterface
             $apiLogData = [
                 'log_id' => $lastLogId,
                 'user_id' => $api['user_id'],
+                // Empty-string default keeps checksums of rows logged before the
+                // client_id column existed verifiable by the tamper report.
+                'client_id' => $api['client_id'] ?? '',
                 'patient_id' => $api['patient_id'],
                 'ip_address' => $ipAddress,
                 'method' => $api['method'],

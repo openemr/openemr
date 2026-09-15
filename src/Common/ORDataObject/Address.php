@@ -38,7 +38,7 @@ class Address extends ORDataObject implements \JsonSerializable
     /**
      * Constructor sets all Address attributes to their default value
      */
-    function __construct(public $id = "", public $foreign_id = "")
+    public function __construct(public $id = "", public $foreign_id = "")
     {
         parent::__construct("addresses");
         $this->line1 = "";
@@ -53,7 +53,7 @@ class Address extends ORDataObject implements \JsonSerializable
             $this->populate();
         }
     }
-    static function factory_address($foreign_id = "")
+    public static function factory_address($foreign_id = "")
     {
         $sqlArray = [];
 
@@ -75,7 +75,7 @@ class Address extends ORDataObject implements \JsonSerializable
         return $a;
     }
 
-    function toString($html = false)
+    public function toString($html = false)
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"
@@ -87,77 +87,77 @@ class Address extends ORDataObject implements \JsonSerializable
         return $html ? nl2br($string) : $string;
     }
 
-    function set_id($id)
+    public function set_id($id)
     {
         $this->id = $id;
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
-    function set_foreign_id($fid)
+    public function set_foreign_id($fid)
     {
         $this->foreign_id = $fid;
     }
-    function get_foreign_id()
+    public function get_foreign_id()
     {
         return $this->foreign_id;
     }
-    function set_line1($line1)
+    public function set_line1($line1)
     {
         $this->line1 = $line1;
     }
-    function get_line1()
+    public function get_line1()
     {
         return $this->line1;
     }
-    function set_line2($line2)
+    public function set_line2($line2)
     {
         $this->line2 = $line2;
     }
-    function get_line2()
+    public function get_line2()
     {
         return $this->line2;
     }
-    function get_lines_display()
+    public function get_lines_display()
     {
         $string = $this->get_line1();
         $string .= " " . $this->get_line2();
         return $string;
     }
-    function set_city($city)
+    public function set_city($city)
     {
         $this->city = $city;
     }
-    function get_city()
+    public function get_city()
     {
         return $this->city;
     }
-    function set_state($state)
+    public function set_state($state)
     {
         $this->state = strtoupper((string) $state);
     }
-    function get_state()
+    public function get_state()
     {
         return $this->state;
     }
-    function set_zip($zip)
+    public function set_zip($zip)
     {
         $this->zip = $zip;
     }
-    function get_zip()
+    public function get_zip()
     {
         return $this->zip;
     }
-    function set_plus_four($plus_four)
+    public function set_plus_four($plus_four)
     {
         $this->plus_four = $plus_four;
     }
-    function get_plus_four()
+    public function get_plus_four()
     {
         return $this->plus_four;
     }
-    function set_country($country)
+    public function set_country($country)
     {
         $this->country = $country;
     }
@@ -166,7 +166,7 @@ class Address extends ORDataObject implements \JsonSerializable
      * Most users should use set_postalcode to handle regional differences
      * @param $postalcode The postal code for the address
      */
-    function set_postalcode($postalcode)
+    public function set_postalcode($postalcode)
     {
         $this->zip = $postalcode;
 
@@ -181,7 +181,7 @@ class Address extends ORDataObject implements \JsonSerializable
         }
     }
 
-    function get_postalcode(): ?string
+    public function get_postalcode(): ?string
     {
         // we handle plus four here in the USA
         if ($this->country == "USA") {
@@ -191,17 +191,17 @@ class Address extends ORDataObject implements \JsonSerializable
         }
         return $this->zip;
     }
-    function get_country()
+    public function get_country()
     {
         return $this->country;
     }
-    function persist($fid = "")
+    public function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
 
-        parent::persist();
+        return parent::persist();
     }
 
     public function toArray(): array

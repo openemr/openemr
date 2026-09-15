@@ -16,7 +16,7 @@
 
 ## Technology Stack
 
-- **PHP:** 8.2+ required
+- **PHP:** 8.3+ required
 - **Backend:** Laminas MVC, Symfony components
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
 - **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
@@ -364,9 +364,8 @@ messages), [PSR-15](https://www.php-fig.org/psr/psr-15/) (middleware),
 
 ### Database and Global Settings
 
-- **Database:** Use `QueryUtils` for queries. New schema changes use Doctrine
-  Migrations. Do not instantiate database connections directly — use the
-  centralized `DatabaseConnectionFactory`.
+- **Database:** Use `QueryUtils` for queries.
+- **Schema changes:** Use the sql_upgrade.php system. DO NOT use Doctrine Migrations yet, it is experimental and not fully adopted.
 - **Global settings:** Use `OEGlobalsBag` (extends Symfony `ParameterBag`) instead
   of `$GLOBALS`. Prefer typed getters over `get()` + cast:
   - `getString($key)` instead of `(string) get($key)`
@@ -485,10 +484,77 @@ dependencies.
 - **Clock injection (PSR-20):** Inject `ClockInterface` instead of calling
   `new \DateTimeImmutable()` or `time()` directly. This makes time-dependent
   code deterministically testable.
-- **No direct superglobal access** in application code. Use PSR-7 request
-  objects, framework session abstractions, and container-provided configuration.
-  In legacy code where this is unavoidable, confine superglobal reads to the
-  outermost entry point and parse into typed objects immediately.
+- **No direct superglobal access** in application code. Use the Symfony
+  `Request` object, framework session abstractions, and container-provided
+  configuration. In legacy code where this is unavoidable, confine superglobal
+  reads to the outermost entry point and parse into typed objects immediately.
+
+### Request Input
+
+Read request input through the Symfony `Request` object. Each superglobal maps
+to its own bag, and the `InputBag` getters return honest scalar types.
+
+| Superglobal | Request accessor |
+|-------------|------------------|
+| `$_GET` | `$request->query` |
+| `$_POST` | `$request->request` |
+| `$_COOKIE` | `$request->cookies` |
+| `$_FILES` | `$request->files` |
+| `$_SERVER` | `$request->server`, or a named accessor |
+| `$_REQUEST` | **no equivalent — pick a source, see below** |
+
+```php
+$request->query->getString('name');
+$request->request->getInt('id');
+$request->query->getBoolean('flag');
+$request->request->all('items');          // arrays
+$request->files->get('upload');
+$request->server->getString('SERVER_NAME');
+$request->headers->get('Content-Type');   // headers, not the raw server bag
+$request->getMethod();                    // prefer named accessors where they exist
+```
+
+Symfony deliberately keeps query and body data separate and has no merged
+`$_REQUEST` bag. Converting a `$_REQUEST` read therefore requires deciding
+which source the value actually comes from and reading that bag directly —
+`$request->query` or `$request->request`. This is not mechanical: which
+superglobals `$_REQUEST` contains, and in what precedence, depends on the
+`request_order` ini setting, so the existing behavior has to be checked per
+call site rather than assumed. (`Request::get()` does search attributes, then
+query, then body — but it is **deprecated as of Symfony 7.4** precisely because
+it hides that ambiguity. Do not reach for it to paper over the conversion.)
+
+Classes take a `Request` through the constructor — see `src/Patient/Cards/`
+for the shape. Procedural entry points that have nowhere to inject call
+`OpenEMR\Common\Http\CurrentRequest::get()`, which returns the one request
+object for the process. `CurrentRequest` is a transitional seam for legacy
+scripts, not a target architecture; do not call it from a class that could
+accept a constructor parameter instead.
+
+**Do not use `filter_input()`.** It reaches only four of the six superglobals
+(`INPUT_GET`, `INPUT_POST`, `INPUT_COOKIE`, `INPUT_SERVER` — there is no
+`INPUT_REQUEST` and no `$_FILES` equivalent), it addresses only top-level keys,
+and reading an array out of it requires an explicit `FILTER_REQUIRE_ARRAY` flag
+that is easy to omit — without it, an array input silently returns `false`.
+
+Its return type is the deeper problem. It is `mixed`, and what you actually get
+back depends on the filter you passed: a `string` by default, an `int` or
+`float` or `bool` from a validation filter, an array with `FILTER_REQUIRE_ARRAY`.
+Failure is signalled in-band by sentinel values rather than by type — `false`
+for "filter failed", `null` for "not set", and `FILTER_NULL_ON_FAILURE`
+*reverses* those two. So the caller has to know which filter was used before it
+can tell a rejected value from an absent one.
+
+Neither shorthand is safe as a fallback: `??` catches only `null` and lets
+`false` through as a value, while `?:` swallows legitimate falsy input such as
+`'0'`, `0`, and `''`. Correct handling requires an explicit `=== false` /
+`=== null` check, or a type check matching the chosen filter, at every call
+site. The `InputBag` getters have none of this: `getInt()` returns `int`,
+`getString()` returns `string`, and a missing key yields the declared default
+rather than a sentinel.
+
+Existing `filter_input()` calls are legacy to be converted, not a pattern to
+copy.
 
 ### Null Safety
 
@@ -582,6 +648,45 @@ class ExampleService extends BaseService
     }
 }
 ```
+
+## Module/Core Boundaries
+
+Dependencies point one way: a module reaches core by subscribing to an event,
+and core reaches a module by dispatching one.
+
+- **Core must not name a class from a module's namespace.** A module namespace
+  (`OpenEMR\Modules\...`, or a vendor-prefixed variant such as
+  `Acme\OpenEMR\Modules\...`) must not appear in a `use` statement, a type
+  declaration, or a static call under `src/`, `library/`, `templates/`, or
+  `interface/` outside `interface/modules/`. Some modules ship in-tree under
+  `interface/modules/custom_modules/` and others arrive through Composer, so a
+  name that resolves in a development checkout is not guaranteed to resolve in
+  a given deployment — and a bundled module can still be removed or disabled.
+  Wrapping the reference in an "is this module installed" check does not fix
+  it: core's source still names a symbol it does not own, which is what static
+  analysis, `composer-require-checker`, and the test suite see. A probe that
+  assembles the class name as a string and passes it to `class_exists()` is
+  the exception, because no analyzer resolves a string as a dependency.
+- **Core robustness fixes must not be gated on a module being present.** If
+  core has a bug (null handling, escaping, error paths), fix it
+  unconditionally — the fix must hold whether or not any module is installed.
+- **Module-specific UI belongs in the module,** emitted via events
+  (`MenuEvent`, `RenderEvent`, `EncounterMenuEvent`) or module controllers,
+  not hardcoded into a core template behind a module check.
+
+When core needs a value only a module can supply, dispatch an event that
+carries the inputs, let listeners contribute, and use whatever came back.
+`OpenEMR\Events\Core\StyleFilterEvent` is the shape: core constructs the event
+with its inputs, listeners fill an accumulator, core uses the result. With no
+listener subscribed the accumulator is empty and core behaves exactly as it
+does without the module, which is also how to verify the seam — exercise it
+both ways and diff. Give the event a slot per insertion point rather than one
+trailing slot; code with early-exit paths cannot express "contribute before
+the first return" with a single append.
+
+`library/dated_reminder_functions.php` predates this rule and imports
+`OpenEMR\Modules\FaxSMS\Controller\AppDispatch` directly. Treat it as
+something to migrate to an event, not as precedent.
 
 ## File Headers
 

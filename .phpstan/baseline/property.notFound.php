@@ -17,11 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property Cache_Lite\\:\\:\\$_memoryCachingState\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property Profiler\\:\\:\\$output_enabled\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
@@ -295,16 +290,6 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$use\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$Cache_Lite\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property OpenEMR\\\\Gacl\\\\GaclApi\\:\\:\\$Cache_Lite\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$label\\.$#',

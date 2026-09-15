@@ -34,7 +34,7 @@ class edih_271_codes
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
 //
-    function __construct(private $ds, private $dr)
+    public function __construct(private $ds, private $dr)
     {
         //
         $this->code271['BHT02'] = [

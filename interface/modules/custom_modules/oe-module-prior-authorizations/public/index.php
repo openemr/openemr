@@ -13,10 +13,16 @@ require_once dirname(__FILE__, 5) . "/globals.php";
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs write|addonly: Prior Authorization Manager", xl("Prior Authorization Manager"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

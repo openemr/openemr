@@ -14,6 +14,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -25,21 +26,24 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'phq9');
 
 if (!$encounter) {
     $encounter = date("Ymd");
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_phq9", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_phq9", $_POST, $formId, $userauthorized);
     addForm($encounter, "PHQ-9 Form", $newid, "phq9", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'phq9');
     sqlStatement(
         "update form_phq9 set pid = ?,
             groupname = ?,
@@ -72,7 +76,7 @@ if ($_GET["mode"] == "new") {
             $_POST["psychomotor_score"],
             $_POST["suicide_score"],
             $_POST["difficulty"],
-            $_GET["id"]
+            $formId
         ]
     );
 }

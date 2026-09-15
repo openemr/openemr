@@ -829,6 +829,11 @@ final readonly class CalendarRenderDataBuilder
             ? substr($eventDate, 0, 4) . substr($eventDate, 5, 2) . substr($eventDate, 8, 2)
             : '';
 
+        // Clinic-wide holiday (catid 6) or closed (catid 7) blocks new appointments
+        // in provider columns via full-height event overlays. Surface the same
+        // flag so the time gutter can refuse newEvt / direct-select create.
+        $isHolidayDay = $this->dayHasHolidayOrClosed($aEvents[$eventDate] ?? []);
+
         $providersGrid = [];
         foreach ($providers as $provider) {
             $providerIdRaw = $provider['id'] ?? null;
@@ -897,6 +902,8 @@ final readonly class CalendarRenderDataBuilder
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
             'timeslotCss'             => $timeslotCss,
+            'timeslotHeightVal'       => $timeslotHeightVal,
+            'isHolidayDay'            => $isHolidayDay,
             'providers'               => $providersGrid,
             'webroot'                 => $webroot,
         ];
@@ -967,6 +974,19 @@ final readonly class CalendarRenderDataBuilder
         $timeslotCss = $timeslotHeightVal . $timeslotHeightUnit;
         $timeRows = $this->buildTimeRows($times, $isTwelveHourFormat);
 
+        // Week time gutter uses the focused Date for newEvt(); block when that day is a holiday.
+        $focusDateKey = null;
+        foreach (array_keys($aEvents) as $columnDate) {
+            $columnYmd = substr($columnDate, 0, 4) . substr($columnDate, 5, 2) . substr($columnDate, 8, 2);
+            if ($columnYmd === $dateYmd) {
+                $focusDateKey = $columnDate;
+                break;
+            }
+        }
+        $isHolidayDay = $focusDateKey !== null
+            ? $this->dayHasHolidayOrClosed($aEvents[$focusDateKey] ?? [])
+            : false;
+
         $providersGrid = [];
         foreach ($providers as $provider) {
             $providerIdRaw = $provider['id'] ?? null;
@@ -1019,6 +1039,7 @@ final readonly class CalendarRenderDataBuilder
                     'dayHeaderLabel'  => date('D m/d', $columnTs),
                     'classForWeekend' => $isWeekend ? 'weekend-day' : 'work-day',
                     'isCurrentDay'    => $columnYmd === $dateYmd,
+                    'isHolidayDay'    => $this->dayHasHolidayOrClosed($dateEvents),
                     'events'          => $columnEvents,
                 ];
             }
@@ -1057,6 +1078,8 @@ final readonly class CalendarRenderDataBuilder
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
             'timeslotCss'             => $timeslotCss,
+            'timeslotHeightVal'       => $timeslotHeightVal,
+            'isHolidayDay'            => $isHolidayDay,
             'providers'               => $providersGrid,
             'webroot'                 => $webroot,
         ];
@@ -1509,6 +1532,26 @@ final readonly class CalendarRenderDataBuilder
         }
 
         return $event;
+    }
+
+    /**
+     * True when the day carries a clinic holiday (catid 6) or closed (catid 7)
+     * event. Those categories paint full-column overlays that block creating
+     * appointments on provider schedules; the time gutter needs the same signal.
+     *
+     * @param  list<array<string, mixed>> $events
+     */
+    private function dayHasHolidayOrClosed(array $events): bool
+    {
+        foreach ($events as $event) {
+            $catidRaw = $event['catid'] ?? 0;
+            $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+            if ($catid === 6 || $catid === 7) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

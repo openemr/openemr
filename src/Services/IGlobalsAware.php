@@ -19,10 +19,10 @@ interface IGlobalsAware
      * @param OEGlobalsBag $globalsBag The globals bag that will be used in the object.
      * @return void
      */
-    function setGlobalsBag(OEGlobalsBag $globalsBag): void;
+    public function setGlobalsBag(OEGlobalsBag $globalsBag): void;
 
     /**
      * @return OEGlobalsBag|null Returns the globals bag if it has been set, null otherwise
      */
-    function getGlobalsBag(): ?OEGlobalsBag;
+    public function getGlobalsBag(): ?OEGlobalsBag;
 }

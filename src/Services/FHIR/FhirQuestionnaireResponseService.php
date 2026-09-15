@@ -32,7 +32,8 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements
     IResourceReadableService,
     IResourceSearchableService,
     IResourceCreatableService,
-    IResourceUSCIGProfileService
+    IResourceUSCIGProfileService,
+    IPatientCompartmentResourceService
 {
     /**
      * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait
@@ -59,9 +60,7 @@ class FhirQuestionnaireResponseService extends FhirServiceBase implements
 
     public function getEventDispatcher(): EventDispatcherInterface
     {
-        if (!isset($this->dispatcher)) {
-            $this->dispatcher = new EventDispatcher();
-        }
+        $this->dispatcher ??= new EventDispatcher();
         return $this->dispatcher;
     }
 

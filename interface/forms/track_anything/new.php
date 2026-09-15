@@ -14,6 +14,8 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
@@ -26,9 +28,6 @@ $web_root = OEGlobalsBag::getInstance()->getWebRoot();
 $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
-
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 formHeader("Form: Track anything");
 
@@ -44,6 +43,8 @@ if (empty($formid)) {
         $formid = $_POST['formid'] ?? null;
     }
 }
+
+EncounterFormAccess::assertFormBelongsToSessionPatient(is_numeric($formid) ? (int) $formid : 0, 'track_anything');
 
 $myprocedureid =  $_POST['procedure2track'] ?? null;
 
@@ -87,7 +88,7 @@ if (!$formid) {
             addForm($encounter, $register_as, $formid, "track_anything", $pid, $userauthorized);
         } else {
                 echo xlt('No track selected') . ".<br />";
-            ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
+            ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'" /><?php
         }
     } else {
     // procedure is not yet selected
@@ -112,7 +113,7 @@ if (!$formid) {
         echo "</select>";
         echo "</td></tr><tr><td align='center'>";
         echo "<input type='submit' name='bn_select' value='" . xla('Select') . "' />";
-        ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
+        ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'" /><?php
         echo "</form>";
         echo "<br />&nbsp;</td></tr>";
 
@@ -223,7 +224,7 @@ if ($formid) {
     echo "</table>";
     echo "<input type='hidden' name='formid' value='" . attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";
-    ?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
+    ?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'" /><?php
 
 
     // show old entries of track
@@ -277,7 +278,7 @@ while ($myrow = sqlFetchArray($query)) {
     echo "</tr></table>";
     echo "<input type='hidden' name='formid' value='" . attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";
-?><input type='button' value='<?php echo xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
+?><input type='button' value='<?php echo xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'" /><?php
 
     echo "</form>";
 }//end if($formid)

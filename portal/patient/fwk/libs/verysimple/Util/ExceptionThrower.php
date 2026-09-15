@@ -34,7 +34,7 @@ class ExceptionThrower
      * @param int $level
      *          PHP Error level to catch (Default = E_ALL & ~E_DEPRECATED)
      */
-    static function Start($level = null)
+    public static function Start($level = null)
     {
         if ($level == null) {
             if (defined("E_DEPRECATED")) {
@@ -55,7 +55,7 @@ class ExceptionThrower
     /**
      * Stop redirecting PHP errors
      */
-    static function Stop()
+    public static function Stop()
     {
         restore_error_handler();
     }
@@ -73,7 +73,7 @@ class ExceptionThrower
      * @param string $line
      * @param string $context
      */
-    static function HandleError($code, $string, $file, $line, $context = '')
+    public static function HandleError($code, $string, $file, $line, $context = '')
     {
         // ignore suppressed errors
         if (error_reporting() == 0) {

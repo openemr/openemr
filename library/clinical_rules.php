@@ -16,10 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/patient.inc.php");
-require_once(__DIR__ . "/forms.inc.php");
 require_once(__DIR__ . "/options.inc.php");
-require_once(__DIR__ . "/report_database.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
@@ -1389,7 +1386,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                 }
             } else {
                 // batching
-                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ?,?", [($start - 1),$batchSize]);
+                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ? OFFSET ?", [$batchSize, ($start - 1)]);
             }
         } else {
             // Look at an individual physician
@@ -1416,7 +1413,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     }
                 } else {
                     //batching
-                    $sql .= " LIMIT " . intval($start) - 1 . "," . intval($batchSize);
+                    $sql .= " LIMIT " . intval($batchSize) . " OFFSET " . (intval($start) - 1);
                     $rez = sqlStatementCdrEngine($sql, [$provider, $provider, $provider]);
                 }
             } else {  //$pat_prov_rel == 'primary'
@@ -1429,7 +1426,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     }
                 } else {
                     $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` " .
-                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?", [$provider,($start - 1),$batchSize]);
+                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ? OFFSET ?", [$provider, $batchSize, ($start - 1)]);
                 }
             }
         }
@@ -1908,7 +1905,7 @@ HR: note: currently, this logic ignores inclusion/exclusion flag. Treats all as 
 test_targets() was previously called only with a single date param, which was $dateFocus in calling function.
 I changed this to pass both $dateFocus and $dateTarget so left and right interval boundaries could be determined separately
  */
-function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus = null, $dateTarget = null)
+function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus = null, $dateTarget = null): bool
 {
 
     // -------- Interval Target ----
@@ -2957,7 +2954,7 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
  * (1) If value ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_lists_item($patient_id, $type, $value, $dateTarget)
+function exist_lists_item($patient_id, $type, $value, $dateTarget): bool
 {
     // HR: used only for filters, not targets
 
@@ -3099,49 +3096,52 @@ function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, 
     // Collect the correct column label for date in the table
     $date_label = collect_database_label('date', $table);
 
-    // Deal with interval
+    // Deal with interval. MySQL requires a literal after INTERVAL, so this is
+    // narrowed to an int once here rather than bound as a query parameter.
+    $intervalInt = is_numeric($intervalValue) ? (int) $intervalValue : 0;
+
     if (!empty($intervalType)) {
         switch ($intervalType) {
             case "year":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "month":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "week":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " WEEK) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "day":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " DAY) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "hour":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "minute":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "second":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . $intervalInt .
                     " SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "flu_season":
@@ -3429,7 +3429,7 @@ function dueStatusCompare(string $old, string $new): bool
  * @param int $num_items Number of items
  * @return bool Comparison results
  */
-function itemsNumberCompare($comp, $thres, $num_items)
+function itemsNumberCompare($comp, $thres, $num_items): bool
 {
 
     if (($comp == "eq") && ($num_items == $thres)) {

@@ -182,9 +182,7 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitTotal xmlns="http://hl7.org/fhir"></ExplanationOfBenefitTotal>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExplanationOfBenefitTotal xmlns="http://hl7.org/fhir"></ExplanationOfBenefitTotal>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->category)) {
             $this->category->xmlSerialize(true, $sxe->addChild('category'));

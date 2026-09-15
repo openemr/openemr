@@ -5,7 +5,7 @@
 # This workflow runs the kind that requires initialization.
 #
 # Matrix strategy:
-# - Pull requests: Only PHP 8.2 configurations (oldest supported) for faster feedback
+# - Pull requests: Only PHP 8.3 configurations (oldest supported) for faster feedback
 # - Pull requests with "Test-Mode: full" trailer: All configurations (like nightly)
 # - Push to master/rel-*: All configurations
 #
@@ -14,7 +14,7 @@
 #
 #   Test-Mode: full
 #
-# Coverage is collected for one configuration (apache_82_118 on PRs, apache_85_118 on push).
+# Coverage is collected for one configuration (apache_83_123 on PRs, apache_85_123 on push).
 # Full coverage across ALL configurations runs in the scheduled nightly workflow.
 
 name: Test All Configurations
@@ -77,7 +77,7 @@ jobs:
       ##
       # Collect the docker directory names from ci subdirectories
       # and compute display names for each configuration.
-      # For PRs (without full mode): only PHP 8.2 configs (oldest supported).
+      # For PRs (without full mode): only PHP 8.3 configs (oldest supported).
       # For PRs with full mode or pushes to master/rel-*: all configs.
       run: |
         shopt -s nullglob
@@ -88,7 +88,7 @@ jobs:
         dirs=( "${dirs[@]#ci/}" )
 
         if [[ "${IS_PULL_REQUEST}" = 'true' && "${FULL_TEST_MODE}" != 'true' ]]; then
-          # For PRs without full mode: filter to only PHP 8.2 configurations
+          # For PRs without full mode: filter to only PHP 8.3 configurations
           ci/parse_docker_dir.sh "${dirs[@]}" |
             jq -rc --arg is_pr "${IS_PULL_REQUEST}" 'map({
               docker_dir: .output.docker_dir,
@@ -96,7 +96,7 @@ jobs:
               display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end) + (if (.output.docker_dir | endswith("_upgrade")) then " - Upgrade from 5.0.0" else "" end)),
               save_composer_cache: .output.save_composer_cache,
               save_node_cache: .output.save_node_cache
-            }) | map(select(.php == "8.2")) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+            }) | map(select(.php == "8.3")) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
         else
           # For PRs with full mode or pushes: include all configurations
           ci/parse_docker_dir.sh "${dirs[@]}" |
@@ -121,8 +121,8 @@ jobs:
     with:
       docker_dir: ${{ matrix.config.docker_dir }}
       display_name: ${{ matrix.config.display_name }}
-      # Enable coverage for one config: apache_82_118 on PRs (oldest PHP), apache_85_118 on push
+      # Enable coverage for one config: apache_83_123 on PRs (oldest PHP), apache_85_123 on push
       # Full coverage for all configs runs in scheduled nightly workflow
-      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_82_118') || (github.event_name != 'pull_request' && matrix.config.docker_dir == 'apache_85_118') }}
+      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_83_123') || (github.event_name != 'pull_request' && matrix.config.docker_dir == 'apache_85_123') }}
       save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
       save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}

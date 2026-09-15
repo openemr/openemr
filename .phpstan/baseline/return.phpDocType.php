@@ -62,11 +62,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/UserInterface/BaseActionButtonHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Events\\\\UserInterface\\\\UserEditRenderEvent is not subtype of native type OpenEMR\\\\Events\\\\UserInterface\\\\PageHeadingRenderEvent\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array\\|null is not subtype of native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',

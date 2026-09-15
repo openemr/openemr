@@ -62,9 +62,7 @@ class ObservationService extends BaseService
 
     public function getFormService(): FormService
     {
-        if (!isset($this->formService)) {
-            $this->formService = new FormService();
-        }
+        $this->formService ??= new FormService();
         return $this->formService;
     }
 
@@ -75,9 +73,7 @@ class ObservationService extends BaseService
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
 
@@ -88,9 +84,7 @@ class ObservationService extends BaseService
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
     public function setCodeTypesService(CodeTypesService $codeTypesService): void
@@ -100,9 +94,7 @@ class ObservationService extends BaseService
 
     public function getUuidRegistry(): UuidRegistry
     {
-        if (!isset($this->uuidRegistry)) {
-            $this->uuidRegistry = new UuidRegistry(['table_name' => self::TABLE_NAME]);
-        }
+        $this->uuidRegistry ??= new UuidRegistry(['table_name' => self::TABLE_NAME]);
         return $this->uuidRegistry;
     }
 
@@ -120,16 +112,12 @@ class ObservationService extends BaseService
 
     public function getObservationTypeDisplayName($obType): string
     {
-        if (!isset($this->typesById)) {
-            $this->typesById = $this->getOptionsByListName('Observation_Types');
-        }
+        $this->typesById ??= $this->getOptionsByListName('Observation_Types');
         return $this->typesById[$obType] ?? $obType;
     }
     public function getStatusDisplayName($status): string
     {
-        if (!isset($this->statiiById)) {
-            $this->statiiById = $this->getOptionsByListName('observation-status');
-        }
+        $this->statiiById ??= $this->getOptionsByListName('observation-status');
         return $this->statiiById[$status] ?? $status;
     }
 
@@ -262,9 +250,7 @@ class ObservationService extends BaseService
 
     private function getReasonStatusDisplay($status): string
     {
-        if (!isset($this->reasonCodes)) {
-            $this->reasonCodes = ReasonStatusCodes::getCodesWithDescriptions();
-        }
+        $this->reasonCodes ??= ReasonStatusCodes::getCodesWithDescriptions();
         return $this->reasonCodes[$status]['description'] ?? $status;
     }
 
@@ -316,9 +302,7 @@ class ObservationService extends BaseService
         foreach ($childRecordResult->getData() as $childRecord) {
             if (isset($recordIndex[$childRecord['parent_observation_id']])) {
                 $parentIndex = $recordIndex[$childRecord['parent_observation_id']];
-                if (!isset($records[$parentIndex]['sub_observations'])) {
-                    $records[$parentIndex]['sub_observations'] = [];
-                }
+                $records[$parentIndex]['sub_observations'] ??= [];
                 $records[$parentIndex]['sub_observations'][] = $childRecord;
             }
         }

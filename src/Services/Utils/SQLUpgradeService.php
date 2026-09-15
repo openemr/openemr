@@ -220,7 +220,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $filename Sql upgrade/patch filename
      */
-    function upgradeFromSqlFile($filename, $path = '')
+    public function upgradeFromSqlFile($filename, $path = '')
     {
         global $webserver_root;
 
@@ -838,6 +838,11 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         $this->flush();
 
+        // This file just ran DDL, so any schema memoized before now describes
+        // the old shape. Cleared before the POST event so listeners -- which may
+        // construct services -- read the post-upgrade schema.
+        QueryUtils::clearSchemaCache();
+
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
         if ($globalsBag->hasKernel()) {
@@ -882,7 +887,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $tblname Sql Table Name
      * @return bool returns true if the sql table exists
      */
-    private function tableExists($tblname)
+    private function tableExists($tblname): bool
     {
         $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
         if (empty($row)) {
@@ -900,7 +905,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $colname Sql Column Name
      * @return bool returns true if the sql column exists
      */
-    private function columnExists($tblname, $colname)
+    private function columnExists($tblname, $colname): bool
     {
         $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
         if (empty($row)) {
@@ -1090,7 +1095,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $option_id Sql List Option ID
      * @return bool returns true if the list exists
      */
-    private function listExists($option_id)
+    private function listExists($option_id): bool
     {
         $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", [$option_id]);
         if (empty($row)) {
@@ -1223,20 +1228,15 @@ class SQLUpgradeService implements ISQLUpgradeService
             $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
             $drugsArray = preg_split('/;\R/', $drugs);
 
-            // Settings to drastically speed up import with InnoDB
-            sqlStatementNoLog("SET autocommit=0");
-            sqlStatementNoLog("START TRANSACTION");
-
-            foreach ($drugsArray as $drug) {
-                if (empty($drug)) {
-                    continue;
+            // Batching the inserts into one transaction drastically speeds up import with InnoDB
+            QueryUtils::inTransaction(function () use ($drugsArray): void {
+                foreach ($drugsArray as $drug) {
+                    if (empty($drug)) {
+                        continue;
+                    }
+                    sqlStatementNoLog($drug);
                 }
-                sqlStatementNoLog($drug);
-            }
-
-            // Settings to drastically speed up import with InnoDB
-            sqlStatementNoLog("COMMIT");
-            sqlStatementNoLog("SET autocommit=1");
+            });
         }
     }
 
@@ -1280,7 +1280,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $engine has to be set to InnoDB 8-7-24
      *                       ADODB will fail if there was an error during conversion
      */
-    private function MigrateTableEngine($table, $engine)
+    private function MigrateTableEngine($table, $engine): bool
     {
         if ($engine != "InnoDB") {
             return false;
@@ -1442,42 +1442,43 @@ class SQLUpgradeService implements ISQLUpgradeService
             return true;
         }
 
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
-            while ($row = sqlFetchArray($result)) {
-                if (in_array($row['field_id'], $subject)) {
-                    $options = (json_decode((string)$row['edit_options'], true)) ?? [];
-                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
-                        $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
-                        $key = array_search($add_option, $options);
-                        unset($options[$key]);
-                    } else {
-                        continue;
+        $flag = QueryUtils::inTransaction(function () use ($result, $subject, $mode, $add_option, $form_id, $flag): bool {
+            try {
+                while ($row = sqlFetchArray($result)) {
+                    if (in_array($row['field_id'], $subject)) {
+                        $options = (json_decode((string)$row['edit_options'], true)) ?? [];
+                        if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
+                            $options[] = $add_option;
+                        } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
+                            $key = array_search($add_option, $options);
+                            unset($options[$key]);
+                        } else {
+                            continue;
+                        }
+                        if ($flag) {
+                            // just show this prior first change (so will be not shown if this is "skipped")
+                            $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
+                        }
+                        $new_options = json_encode($options);
+                        $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = ? AND `field_id` = ? AND `seq` = ? ";
+                        $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
+                        sqlStatementNoLog($update_sql, [$new_options, $form_id, $row['field_id'], $row['seq']]);
+                        $flag = false;
                     }
-                    if ($flag) {
-                        // just show this prior first change (so will be not shown if this is "skipped")
-                        $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
-                    }
-                    $new_options = json_encode($options);
-                    $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = ? AND `field_id` = ? AND `seq` = ? ";
-                    $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
-                    sqlStatementNoLog($update_sql, [$new_options, $form_id, $row['field_id'], $row['seq']]);
-                    $flag = false;
+                }
+            } catch (SqlQueryException $e) {
+                $this->failureCount++;
+                $this->echo("<p class='text-danger'>The above statement failed: " .
+                    text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
+                $this->flush_echo();
+                if ($this->isThrowExceptionOnError()) {
+                    throw $e;
                 }
             }
-        } catch (SqlQueryException $e) {
-            $this->failureCount++;
-            $this->echo("<p class='text-danger'>The above statement failed: " .
-                text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
-            $this->flush_echo();
-            if ($this->isThrowExceptionOnError()) {
-                throw $e;
-            }
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+
+            return $flag;
+        });
+
         if (!$flag) {
             // so will be not shown if this is "skipped"
             $this->echo("<p class='text-success'>Layout Edit Options " . text($mode) . " " . text($add_option) . " done.</p><br />");
@@ -1541,8 +1542,8 @@ class SQLUpgradeService implements ISQLUpgradeService
             if ($this->isThrowExceptionOnError()) {
                 throw $exception;
             }
-        } // we let errors percolate up
-        finally {
+        } finally {
+            // we let errors percolate up
             if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }

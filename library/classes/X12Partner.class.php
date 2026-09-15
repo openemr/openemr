@@ -57,7 +57,7 @@ class X12Partner extends ORDataObject
      * Constructor sets all Insurance attributes to their default value
      */
 
-    function __construct(public $id = "")
+    public function __construct(public $id = "")
     {
         parent::__construct();
         $this->_table = "x12_partners";
@@ -75,7 +75,7 @@ class X12Partner extends ORDataObject
         }
     }
 
-    function x12_partner_factory()
+    public function x12_partner_factory()
     {
         $partners = [];
         $x = new X12Partner();
@@ -89,24 +89,24 @@ class X12Partner extends ORDataObject
         return $partners;
     }
 
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
-    function set_id($id)
+    public function set_id($id)
     {
         if (is_numeric($id)) {
             $this->id = $id;
         }
     }
 
-    function get_name()
+    public function get_name()
     {
         return $this->name;
     }
 
-    function get_x12_submitter_array()
+    public function get_x12_submitter_array()
     {
         $query = "SELECT id, organization FROM users WHERE abook_type = 'bill_svc'";
         $res = sqlStatement($query);
@@ -118,17 +118,17 @@ class X12Partner extends ORDataObject
         return  $x12_submitter_array;
     }
 
-    function set_x12_submitter_id($id)
+    public function set_x12_submitter_id($id)
     {
         $this->x12_submitter_id = $id;
     }
 
-    function get_x12_submitter_id()
+    public function get_x12_submitter_id()
     {
         return $this->x12_submitter_id;
     }
 
-    function get_x12_submitter_name()
+    public function get_x12_submitter_name()
     {
         $xa = $this->get_x12_submitter_array();
         return $xa[$this->get_x12_submitter_id()] ?? null;
@@ -139,222 +139,222 @@ class X12Partner extends ORDataObject
      *
      * @param $string
      */
-    function set_x12_sftp_login($string)
+    public function set_x12_sftp_login($string)
     {
         $this->x12_sftp_login = $string;
     }
 
-    function get_x12_sftp_login()
+    public function get_x12_sftp_login()
     {
         return $this->x12_sftp_login;
     }
 
-    function set_x12_sftp_pass($string)
+    public function set_x12_sftp_pass($string)
     {
         $this->x12_sftp_pass = $string;
     }
 
-    function get_x12_sftp_pass()
+    public function get_x12_sftp_pass()
     {
         return $this->x12_sftp_pass;
     }
 
-    function set_x12_sftp_host($string)
+    public function set_x12_sftp_host($string)
     {
         $this->x12_sftp_host = $string;
     }
 
-    function get_x12_sftp_host()
+    public function get_x12_sftp_host()
     {
         return $this->x12_sftp_host;
     }
 
-    function set_x12_sftp_port($string)
+    public function set_x12_sftp_port($string)
     {
         $this->x12_sftp_port = $string;
     }
 
-    function get_x12_sftp_port()
+    public function get_x12_sftp_port()
     {
         return $this->x12_sftp_port;
     }
 
-    function set_x12_sftp_local_dir($string)
+    public function set_x12_sftp_local_dir($string)
     {
         $this->x12_sftp_local_dir = $string;
     }
 
-    function get_x12_sftp_local_dir()
+    public function get_x12_sftp_local_dir()
     {
         return $this->x12_sftp_local_dir;
     }
 
-    function set_x12_sftp_remote_dir($string)
+    public function set_x12_sftp_remote_dir($string)
     {
         $this->x12_sftp_remote_dir = $string;
     }
 
-    function get_x12_sftp_remote_dir()
+    public function get_x12_sftp_remote_dir()
     {
         return $this->x12_sftp_remote_dir;
     }
 
-    function set_name($string)
+    public function set_name($string)
     {
             $this->name = $string;
     }
 
-    function get_id_number()
+    public function get_id_number()
     {
         return $this->id_number;
     }
 
-    function set_id_number($string)
+    public function set_id_number($string)
     {
             $this->id_number = $string;
     }
 
-    function get_x12_sender_id()
+    public function get_x12_sender_id()
     {
         return $this->x12_sender_id;
     }
 
-    function set_x12_sender_id($string)
+    public function set_x12_sender_id($string)
     {
         $this->x12_sender_id = $string;
     }
 
-    function get_x12_receiver_id()
+    public function get_x12_receiver_id()
     {
         return $this->x12_receiver_id;
     }
 
-    function set_x12_receiver_id($string)
+    public function set_x12_receiver_id($string)
     {
         $this->x12_receiver_id = $string;
     }
 
-    function get_x12_version()
+    public function get_x12_version()
     {
         return $this->x12_version;
     }
 
-    function set_x12_version($string)
+    public function set_x12_version($string)
     {
         $this->x12_version = $string;
     }
 
-    function get_x12_isa01()
+    public function get_x12_isa01()
     {
         return $this->x12_isa01;
     }
 
-    function set_x12_isa01($string)
+    public function set_x12_isa01($string)
     {
         $this->x12_isa01 = $string;
     }
 
-    function get_x12_isa02()
+    public function get_x12_isa02()
     {
         return $this->x12_isa02;
     }
 
-    function set_x12_isa02($string)
+    public function set_x12_isa02($string)
     {
         $this->x12_isa02 = str_pad((string) $string, 10);
     }
 
-    function get_x12_isa03()
+    public function get_x12_isa03()
     {
         return $this->x12_isa03;
     }
 
-    function set_x12_isa03($string)
+    public function set_x12_isa03($string)
     {
         $this->x12_isa03 = $string;
     }
 
-    function get_x12_isa04()
+    public function get_x12_isa04()
     {
         return $this->x12_isa04;
     }
 
-    function set_x12_isa04($string)
+    public function set_x12_isa04($string)
     {
         $this->x12_isa04 = str_pad((string) $string, 10);
     }
 
-    function get_x12_isa05()
+    public function get_x12_isa05()
     {
         return $this->x12_isa05;
     }
 
-    function set_x12_isa05($string)
+    public function set_x12_isa05($string)
     {
         $this->x12_isa05 = $string;
     }
 
-    function get_x12_isa07()
+    public function get_x12_isa07()
     {
         return $this->x12_isa07;
     }
 
-    function set_x12_isa07($string)
+    public function set_x12_isa07($string)
     {
         $this->x12_isa07 = $string;
     }
 
-    function get_x12_isa14()
+    public function get_x12_isa14()
     {
         return $this->x12_isa14;
     }
 
-    function set_x12_isa14($string)
+    public function set_x12_isa14($string)
     {
         $this->x12_isa14 = $string;
     }
 
-    function get_x12_isa15()
+    public function get_x12_isa15()
     {
         return $this->x12_isa15;
     }
 
-    function set_x12_isa15($string)
+    public function set_x12_isa15($string)
     {
         $this->x12_isa15 = $string;
     }
 
-    function get_x12_gs02()
+    public function get_x12_gs02()
     {
         return $this->x12_gs02;
     }
 
-    function set_x12_gs02($string)
+    public function set_x12_gs02($string)
     {
         $this->x12_gs02 = $string;
     }
 
-    function get_x12_dtp03()
+    public function get_x12_dtp03()
     {
         return $this->x12_dtp03;
     }
 
-    function set_x12_dtp03($string)
+    public function set_x12_dtp03($string)
     {
         $this->x12_dtp03 = $string;
     }
 
-    function get_x12_per06()
+    public function get_x12_per06()
     {
         return $this->x12_per06;
     }
 
-    function set_x12_per06($string)
+    public function set_x12_per06($string)
     {
         $this->x12_per06 = $string;
     }
 
-    function get_processing_format()
+    public function get_processing_format()
     {
         //this is enum so it can be string or int
         if (!is_numeric($this->processing_format)) {
@@ -365,28 +365,28 @@ class X12Partner extends ORDataObject
         return $this->processing_format;
     }
 
-    function get_processing_format_array()
+    public function get_processing_format_array()
     {
         //flip it because normally it is an id to name lookup, for templates it needs to be a name to id lookup
         return array_flip($this->processing_format_array);
     }
 
-    function set_processing_format($string)
+    public function set_processing_format($string)
     {
         $this->processing_format = $string;
     }
 
-    function get_x12_gs03()
+    public function get_x12_gs03()
     {
         return $this->x12_gs03;
     }
 
-    function set_x12_gs03($string)
+    public function set_x12_gs03($string)
     {
         $this->x12_gs03 = $string;
     }
 
-    function get_x12_isa14_array()
+    public function get_x12_isa14_array()
     {
         return [
         '0' => 'No',
@@ -394,7 +394,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    function get_x12_isa15_array()
+    public function get_x12_isa15_array()
     {
         return [
         'T' => 'Testing',
@@ -402,7 +402,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    function get_idqual_array()
+    public function get_idqual_array()
     {
         return [
         '01' => 'Duns (Dun & Bradstreet)',
@@ -417,7 +417,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    function get_x12_version_array()
+    public function get_x12_version_array()
     {
         return [
         '005010X222A1' => '005010X222A1',
@@ -425,7 +425,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    function get_x12_dtp03_type_array()
+    public function get_x12_dtp03_type_array()
     {
         return [
             'C' => 'Current Date',
@@ -434,62 +434,62 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    function set_x12_client_id($string)
+    public function set_x12_client_id($string)
     {
         $this->x12_client_id = $string;
     }
 
-    function get_x12_client_id()
+    public function get_x12_client_id()
     {
         return $this->x12_client_id;
     }
 
-    function set_x12_client_secret($string)
+    public function set_x12_client_secret($string)
     {
         $this->x12_client_secret = $string;
     }
 
-    function get_x12_client_secret()
+    public function get_x12_client_secret()
     {
         return $this->x12_client_secret;
     }
 
-    function set_x12_token_endpoint($string)
+    public function set_x12_token_endpoint($string)
     {
         $this->x12_token_endpoint = $string;
     }
 
-    function get_x12_token_endpoint()
+    public function get_x12_token_endpoint()
     {
         return $this->x12_token_endpoint;
     }
 
-    function set_x12_eligibility_endpoint($string)
+    public function set_x12_eligibility_endpoint($string)
     {
         $this->x12_eligibility_endpoint = $string;
     }
 
-    function get_x12_eligibility_endpoint()
+    public function get_x12_eligibility_endpoint()
     {
         return $this->x12_eligibility_endpoint;
     }
 
-    function set_x12_claim_status_endpoint($string)
+    public function set_x12_claim_status_endpoint($string)
     {
         $this->x12_claim_status_endpoint = $string;
     }
 
-    function get_x12_claim_status_endpoint()
+    public function get_x12_claim_status_endpoint()
     {
         return $this->x12_claim_status_endpoint;
     }
 
-    function set_x12_attachment_endpoint($string)
+    public function set_x12_attachment_endpoint($string)
     {
         $this->x12_attachment_endpoint = $string;
     }
 
-    function get_x12_attachment_endpoint()
+    public function get_x12_attachment_endpoint()
     {
         return $this->x12_attachment_endpoint;
     }

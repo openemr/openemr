@@ -17,7 +17,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/reminders.php");
 require_once($srcdir . "/clinical_rules.php");
-require_once($srcdir . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -280,8 +279,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     "WHERE a.active='1' AND a.pid=b.pid " . ($add_sql ?? '') .
                     "ORDER BY " . $escapedsortby . " " .
                       escape_sort_order($sortorder) . " " .
-                    "LIMIT " . escape_limit($begin) . ", " .
-                      escape_limit($listnumber);
+                    "LIMIT ? OFFSET ?";
+                    $sqlBindArray[] = $listnumber;
+                    $sqlBindArray[] = (is_numeric($begin) ? (int) $begin : 0);
                     $result = sqlStatement($sql, $sqlBindArray);
                 while ($myrow = sqlFetchArray($result)) { ?>
                         <tr>

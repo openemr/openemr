@@ -196,7 +196,7 @@ FAIL=0
 # Echoes the HTTP status; writes the body to ${TMP_REMOTE}.
 fetch_status() {
   local url="$1"
-  curl -sS --connect-timeout 10 --max-time 30 --retry 3 --retry-delay 2 --retry-connrefused \
+  curl -sS --connect-timeout 10 --max-time 30 --retry 3 --retry-delay 2 --retry-all-errors \
     -o "${TMP_REMOTE}" -w '%{http_code}' "${url}"
 }
 
@@ -245,7 +245,7 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
     echo "::group::Compare ${BRANCH} to master"
     # Per-branch expansion: skip entries whose exclude-branches list
     # contains this branch (e.g. release-mechanism files aren't
-    # expected on rel-800 / rel-704).
+    # expected on rel-800).
     declare -a FILES_ALL_EXPANDED=()
     expand_files_for_branch "${BRANCH}" FILES_ALL_EXPANDED
     for FILE in "${FILES_ALL_EXPANDED[@]}"; do

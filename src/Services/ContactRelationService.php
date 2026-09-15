@@ -375,13 +375,9 @@ class ContactRelationService extends BaseService
                     $indexedResults[] = $uuid;
                 }
                 $telecom_id = $record['telecom_id'];
-                if (!isset($personByUuids[$uuid]['telecom'][$telecom_id])) {
-                    $personByUuids[$uuid]['telecom'][$telecom_id] = $this->getTelecomFromRecord($record);
-                }
+                $personByUuids[$uuid]['telecom'][$telecom_id] ??= $this->getTelecomFromRecord($record);
                 $address_id = $record['address_id'];
-                if (!isset($personByUuids[$uuid]['addresses'][$address_id])) {
-                    $personByUuids[$uuid]['addresses'][$address_id] = $this->getAddressFromRecord($record);
-                }
+                $personByUuids[$uuid]['addresses'][$address_id] ??= $this->getAddressFromRecord($record);
             }
             foreach ($indexedResults as $recordUuid) {
                 $processingResult->addData($personByUuids[$recordUuid]);

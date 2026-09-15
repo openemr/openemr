@@ -849,8 +849,8 @@
                         "children": [],
                         "requirement": 0,
                         "acl_req": [
-                            "admin",
-                            "super"
+                            "patients",
+                            "merge"
                         ]
                     },
                     {
@@ -861,8 +861,8 @@
                         "children": [],
                         "requirement": 0,
                         "acl_req": [
-                            "admin",
-                            "super"
+                            "patients",
+                            "merge"
                         ]
                     }
                 ],
@@ -871,6 +871,10 @@
                     [
                         "admin",
                         "super"
+                    ],
+                    [
+                        "patients",
+                        "merge"
                     ]
                 ]
             },
@@ -1064,18 +1068,6 @@
                 "label": "System",
                 "icon": "fa-caret-right",
                 "children": [
-                    {
-                        "label": "Backup",
-                        "menu_id": "adm0",
-                        "target": "adm",
-                        "url": "/interface/main/backup.php",
-                        "children": [],
-                        "requirement": 0,
-                        "acl_req": [
-                            "admin",
-                            "super"
-                        ]
-                    },
                     {
                         "label": "Files",
                         "menu_id": "adm0",
@@ -1708,6 +1700,18 @@
                         "menu_id": "rep0",
                         "target": "rep",
                         "url": "/interface/reports/payment_processing_report.php",
+                        "children": [],
+                        "requirement": 0,
+                        "acl_req": [
+                            "acct",
+                            "rep_a"
+                        ]
+                    },
+                    {
+                        "label": "Prepay Balances",
+                        "menu_id": "rep0",
+                        "target": "rep",
+                        "url": "/interface/reports/prepayment_balance_report.php",
                         "children": [],
                         "requirement": 0,
                         "acl_req": [

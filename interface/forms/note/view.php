@@ -17,6 +17,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -24,8 +25,6 @@ use OpenEMR\Core\OEGlobalsBag;
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
-
-require_once("$srcdir/api.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -36,10 +35,14 @@ $provider_results = sqlQuery("select fname, lname from users where username=?", 
 /* name of this form */
 $form_name = "note";
 
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, $form_name);
+
 // get the record from the database
 $obj = [];
-if ($_GET['id'] != "") {
-    $obj = formFetch("form_" . $form_name, $_GET["id"]);
+if ($formId > 0) {
+    $obj = formFetch("form_" . $form_name, $formId);
 }
 
 ?>
@@ -62,7 +65,7 @@ $(function () {
         });
 
 function PrintForm() {
-    newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?id=" . urlencode((string) $_GET["id"])); ?>,"mywin");
+    newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?id=" . urlencode((string) $formId)); ?>,"mywin");
 }
 
 </script>
@@ -70,7 +73,7 @@ function PrintForm() {
 </head>
 <body class="body_top">
 
-<form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=update&id=" . attr_url($_GET["id"]);?>" name="my_form" id="my_form">
+<form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=update&id=" . attr_url((string) $formId);?>" name="my_form" id="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />

@@ -3,6 +3,7 @@
 //these are the functions used to access the forms registry database
 //
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
@@ -46,6 +47,7 @@ function updateRegistered($id, $mod)
 function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encounterType = 'all')
 {
     $sql = "select * from registry where state like ? ";
+    $sqlBindArray = [$state];
     if ($encounterType !== 'all') {
         switch ($encounterType) {
             case 'patient':
@@ -58,19 +60,11 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encou
     }
     $sql .= "order by priority, name ";
     if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
+        $sql .= " LIMIT ? OFFSET ?";
+        array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0));
     }
 
-    $res = sqlStatement($sql, [$state]);
-    if ($res) {
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-    } else {
-        return false;
-    }
-
-    return $all;
+    return QueryUtils::fetchRecords($sql, $sqlBindArray);
 }
 
 function getRegistryEntry($id, $cols = "*")
@@ -85,7 +79,7 @@ function getRegistryEntryByDirectory($directory, $cols = "*")
     return sqlQuery($sql, $directory);
 }
 
-function installSQL($dir)
+function installSQL($dir): bool
 {
     $sqltext = $dir . "/table.sql";
     if ($sqlarray = @file($sqltext)) {
@@ -116,7 +110,7 @@ function installSQL($dir)
  *            state => 0=inactive / 1=active
  *  OUTPUT = true or false
  */
-function isRegistered($directory, $state = 1)
+function isRegistered($directory, $state = 1): bool
 {
     $sql = "select id from registry where directory=? and state=?";
     $result = sqlQuery($sql, [$directory, $state]);

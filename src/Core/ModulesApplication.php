@@ -216,7 +216,7 @@ class ModulesApplication
      * @param string $file
      * @return bool
      */
-    public static function isSafeModuleFileForInclude($file)
+    public static function isSafeModuleFileForInclude($file): bool
     {
         $realpath = realpath($file);
         $moduleRootLocation = self::getModuleRootRealpath();

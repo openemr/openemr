@@ -144,9 +144,7 @@ class FHIRActionParticipantType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ActionParticipantType xmlns="http://hl7.org/fhir"></ActionParticipantType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ActionParticipantType xmlns="http://hl7.org/fhir"></ActionParticipantType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

@@ -14,6 +14,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -21,10 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc.php");
 
 formHeader("Form:Lab Requisition");
 
@@ -32,7 +30,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
 
-$formid = (int) ($_GET['id'] ?? 0);
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formid = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'requisition');
 $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;

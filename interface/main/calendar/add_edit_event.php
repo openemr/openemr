@@ -42,9 +42,6 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/calendar.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounter_events.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
@@ -1401,7 +1398,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
  </div> <!-- Done with providers now scheduling -->
 <?php
     //Check if repeat is using the new 'days every week' mechanism.
-function isDaysEveryWeek($repeat)
+function isDaysEveryWeek($repeat): bool
 {
     if ($repeat == 3) {
         return true;
@@ -1410,7 +1407,7 @@ function isDaysEveryWeek($repeat)
     }
 }
     //Check if using the regular repeat mechanism.
-function isRegularRepeat($repeat)
+function isRegularRepeat($repeat): bool
 {
     if ($repeat == 1 || $repeat == 2) {
         return true;

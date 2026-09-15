@@ -33,6 +33,8 @@ ccdaservice/node_modules
 
 # testing
 .phpunit.result.cache
+e2e-timeline.jsonl
+selenium-videos/
 
 # dev tool local overrides
 phpcs.xml

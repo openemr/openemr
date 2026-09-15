@@ -13,6 +13,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -24,18 +25,21 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'dictation');
+
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_dictation", $_POST, ($_GET["id"] ?? null), $userauthorized);
+    $newid = formSubmit("form_dictation", $_POST, $formId, $userauthorized);
     addForm($encounter, "Speech Dictation", $newid, "dictation", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlStatement("update form_dictation set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(), dictation=?, additional_notes=? where id=?", [$session->get('pid'),$session->get('authProvider'),$session->get('authUser'),$userauthorized,$_POST["dictation"],$_POST["additional_notes"],$_GET["id"]]);
+    EncounterFormAccess::requirePositiveFormId($formId, 'dictation');
+    sqlStatement("update form_dictation set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(), dictation=?, additional_notes=? where id=?", [$session->get('pid'),$session->get('authProvider'),$session->get('authUser'),$userauthorized,$_POST["dictation"],$_POST["additional_notes"],$formId]);
 }
 
 formHeader("Redirecting....");

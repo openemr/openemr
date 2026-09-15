@@ -68,9 +68,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
     public function getProcedureService(): ProcedureService
     {
-        if (!isset($this->service)) {
-            $this->service = new ProcedureService();
-        }
+        $this->service ??= new ProcedureService();
         return $this->service;
     }
 
@@ -96,7 +94,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         return ($category === self::CATEGORY);
     }
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
         // we support pretty much any LOINC code, we could hit procedure_order_code and procedure_results to be
         // specific but we'll just let the query execute.

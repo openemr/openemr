@@ -35,7 +35,7 @@ class FhirUserClaim {
             if ($practitionerService->isValidPractitionerUuid($fhirUserId)) {
                 $fhirUserResource = "Practitioner";
             }
-        } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
+        } elseif ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
             $fhirUserResource = "Patient";
         } else {
             ServiceContainer::getLogger()->error("user role not supported for fhirUser claim ", ['role' => $userRole]);

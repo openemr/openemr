@@ -26,6 +26,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Controllers\Portal\PatientPortalLoginController;
@@ -35,7 +36,6 @@ use OpenEMR\Controllers\Portal\SqlPortalLoginCredentialsRepository;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Globals\UserSettingsService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 
@@ -69,9 +69,7 @@ require_once(__DIR__ . '/lib/appsql.class.php');
 
 $logit = new ApplicationTable();
 
-// PortalAuditLogger adapter that delegates to ApplicationTable::portalLog. Defined as an
-// anonymous class here (rather than as a typed class in src/) so the legacy non-PSR-4
-// reference to ApplicationTable stays out of the autoloaded surface.
+// PortalAuditLogger adapter that delegates to ApplicationTable::portalLog.
 $auditLogger = new class ($logit) implements PortalAuditLogger {
     public function __construct(private readonly ApplicationTable $delegate)
     {
@@ -90,7 +88,7 @@ $controller = new PatientPortalLoginController(
     $auditLogger
 );
 
-$symfonyRequest = Request::createFromGlobals();
+$symfonyRequest = CurrentRequest::get();
 /** @var array<string, mixed> $post */
 $post = $symfonyRequest->request->all();
 // Controller only reads $request['redirect']; the legacy script sourced it from

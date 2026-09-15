@@ -24,17 +24,19 @@ require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Invoice", xl("EOB Posting - Invoice"));
+}
+
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcDir . '/patient.inc.php');
-require_once($srcDir . '/forms.inc.php');
-require_once($srcDir . '/user.inc.php');
-require_once($srcDir . '/payment.inc.php');
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = !empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1');
@@ -84,8 +86,12 @@ $info_msg = "";
             const pelement = f['form_line[' + code + '][pay]'];
             const aelement = f['form_line[' + code + '][adj]'];
             const relement = f['form_line[' + code + '][reason]'];
-            const tmp = belement.value - pelement.value;
-            aelement.value = Number(tmp).toFixed(2);
+            // The balance is rendered with FormatMoney::getBucks(), which inserts a
+            // thousands separator, so it must be parsed rather than coerced.
+            const bal = parseFloat(String(belement.value).replace(/,/g, '')) || 0;
+            const pay = parseFloat(String(pelement.value).replace(/,/g, '')) || 0;
+            const tmp = bal - pay;
+            aelement.value = tmp.toFixed(2);
             if (aelement.value && !relement.value) {
                 relement.selectedIndex = 1;
             }
@@ -119,7 +125,7 @@ $info_msg = "";
                     allempty = false;
                 }
                 if(adjDisable) {
-                    if ((cAdjust == 0 && ins_done.value == 'changed')) {
+                    if ((cAdjust == 0 && f['ins_done'].value == 'changed')) {
                         allempty = false;
                     }
                 }
@@ -228,12 +234,10 @@ $info_msg = "";
                 <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
+            $("#ins_done_group").on("change", "input[name='form_done']", function() {
+                $("#ins_done").val('changed');
+            });
         });
-
-        $("#ins_done").on("change", function() {
-            $("#ins_done").val('changed');
-        });
-
     </script>
     <style>
         @media only screen and (max-width: 768px) {
@@ -500,11 +504,14 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     <div class="card bg-light col-lg-4">
                         <div class="card-title mx-auto"><?php echo xlt('Insurance'); ?></div>
                         <?php
+                        $payer_names = [];
                         for ($i = 1; $i <= 3; ++$i) {
                             $payerid = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                             if ($payerid) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", [$payerid]);
-                                echo "$i: " . $tmp['name'] . "<br />";
+                                $name = $tmp['name'] ?? '';
+                                $payer_names[$i] = is_string($name) ? $name : '';
+                                echo text("$i: " . $payer_names[$i]) . "<br />";
                             }
                         }
                         ?>
@@ -579,7 +586,8 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia'] ?? '') ?>'/>
                         </div>
                     </div>
-                    <div class="form-group col-lg" id='ins_done'>
+                    <div class="form-group col-lg" id='ins_done_group'>
+                        <input type="hidden" name="ins_done" id="ins_done" value="" />
                         <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
                         <a class="btn btn-save bg-light text-primary"
                             onclick="document.forms[0].isLastClosed.value='3'; document.forms[0].submit()"><?php echo xlt("Save Level"); ?>
@@ -590,12 +598,18 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             // we no longer expect any payments from that company for the claim.
                             $last_level_closed = 0 + $ferow['last_level_closed'];
                             foreach ([0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3'] as $key => $value) {
-                                if ($key && !SLEOB::arGetPayerID($patient_id, $svcdate, $key)) {
+                                if ($key && !isset($payer_names[$key])) {
                                     continue;
+                                }
+                                $label = $key ? $value : xl('None');
+                                if ($key && $payer_names[$key] !== '') {
+                                    // Keep the level prefix so it stays identifiable
+                                    // when one carrier covers more than one level.
+                                    $label .= ': ' . $payer_names[$key];
                                 }
                                 $checked = ($last_level_closed == $key) ? " checked" : "";
                                 echo "<label class='radio-inline'>";
-                                echo "<input type='radio' name='form_done' value='" . attr($key) . "'$checked />" . text($value);
+                                echo "<input type='radio' name='form_done' value='" . attr($key) . "'$checked />" . text($label);
                                 echo "</label>";
                             }
                             ?>

@@ -196,7 +196,7 @@ class EventAuditLoggerTest extends TestCase
             ->method('record');
 
         $this->session->method('get')
-            ->willReturnCallback(fn (string $key) => match ($key) {
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
                 'authUser' => 'testuser',
                 'authProvider' => 'default',
                 default => null,
@@ -222,5 +222,109 @@ class EventAuditLoggerTest extends TestCase
         );
 
         $logger->auditSQLEvent($sql, true);
+    }
+
+    /**
+     * Statements emitted by the two database layers to control transactions.
+     *
+     * ADODB emits BEGIN/COMMIT/ROLLBACK; the DBAL logging middleware emits
+     * START TRANSACTION/COMMIT/ROLLBACK plus SAVEPOINT statements for nested
+     * transactions. Legacy call sites additionally toggle autocommit directly.
+     *
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function transactionControlStatementProvider(): array
+    {
+        return [
+            'adodb begin' => ['BEGIN'],
+            'dbal start transaction' => ['START TRANSACTION'],
+            'commit' => ['COMMIT'],
+            'rollback' => ['ROLLBACK'],
+            'dbal savepoint' => ['SAVEPOINT DOCTRINE_1'],
+            'dbal release savepoint' => ['RELEASE SAVEPOINT DOCTRINE_1'],
+            'dbal rollback to savepoint' => ['ROLLBACK TO SAVEPOINT DOCTRINE_1'],
+            'autocommit off' => ['SET autocommit=0'],
+            'autocommit on' => ['SET autocommit=1'],
+            'autocommit with spaces' => ['SET AUTOCOMMIT = 1'],
+            'trailing semicolon' => ['START TRANSACTION;'],
+            'lowercase' => ['start transaction'],
+            'leading whitespace' => ["  COMMIT\n"],
+        ];
+    }
+
+    #[DataProvider('transactionControlStatementProvider')]
+    public function testAuditSQLEventSkipsTransactionControl(string $sql): void
+    {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->never())
+            ->method('record');
+
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'testuser',
+                'authProvider' => 'default',
+                default => null,
+            });
+
+        // Maximally permissive config plus breakglass, so nothing but the
+        // transaction-control check itself can be responsible for the skip.
+        $this->breakglassChecker->method('isBreakglassUser')
+            ->willReturn(true);
+
+        $config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: true,
+            queryEvents: true,
+            httpRequestEvents: true,
+            enabledEventTypes: EventCategory::cases(),
+        );
+
+        $logger = new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: $config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        $logger->auditSQLEvent($sql, true);
+    }
+
+    /**
+     * Guards the provider above against becoming vacuous: a statement that
+     * merely starts with a transaction-control keyword must still be audited.
+     */
+    public function testAuditSQLEventStillLogsStatementsWithTransactionKeywordPrefix(): void
+    {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record');
+
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'testuser',
+                'authProvider' => 'default',
+                default => null,
+            });
+
+        $config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            enabledEventTypes: EventCategory::cases(),
+        );
+
+        $logger = new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: $config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        $logger->auditSQLEvent('UPDATE patient_data SET committed = 1 WHERE pid = 1', true);
     }
 }

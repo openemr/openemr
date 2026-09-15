@@ -57,7 +57,7 @@ if (isset($_POST['submit'])) {
                 ]
             );
         // TODO: @adunsulag we really should move all of this into a controller to be cleaner, but we are time crunched here.
-        } else if ($_POST['action'] == 'startExport') {
+        } elseif ($_POST['action'] == 'startExport') {
             $taskId = filter_input(INPUT_POST, 'taskId', FILTER_VALIDATE_INT) ?: 0;
             try {
                 $task = $exporter->runExportTask($taskId);
@@ -68,7 +68,7 @@ if (isset($_POST['submit'])) {
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
-        } else if ($_POST['action'] == 'statusUpdate') {
+        } elseif ($_POST['action'] == 'statusUpdate') {
             $taskId = filter_input(INPUT_POST, 'taskId', FILTER_VALIDATE_INT) ?: 0;
             try {
                 $task = $exporter->getExportTaskForStatusUpdate($taskId);

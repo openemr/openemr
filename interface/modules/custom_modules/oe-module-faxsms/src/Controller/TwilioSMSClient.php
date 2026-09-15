@@ -251,7 +251,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string|bool
      */
-    function fetchReminderCount(): string|bool
+    public function fetchReminderCount(): string|bool
     {
         return 0;
     }

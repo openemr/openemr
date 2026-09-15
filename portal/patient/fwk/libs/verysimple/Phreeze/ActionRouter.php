@@ -2,9 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-require_once("verysimple/HTTP/RequestUtil.php");
-require_once("verysimple/Util/UrlWriterMode.php");
-require_once("verysimple/Phreeze/IRouter.php");
 
 /**
  * class for dealing with URLs
@@ -140,7 +137,7 @@ class ActionRouter implements IRouter
      *          mode to check against the current mode
      * @return bool TRUE if arg passed in is the current mode
      */
-    public function ModeIs($value)
+    public function ModeIs($value): bool
     {
         if (strcmp((string) $this->_mode, (string) $value) == 0) {
             return true;

@@ -94,13 +94,11 @@ class GlobalConfig
     /**
      * Initialize the GlobalConfig object
      */
-    static function Init()
+    public static function Init()
     {
         if (!self::$IS_INITIALIZED) {
-            require_once 'verysimple/HTTP/RequestUtil.php';
             RequestUtil::NormalizeUrlRewrite();
 
-            require_once 'verysimple/Phreeze/PortalController.php';
             PortalController::$SmartyViewPrefix = '';
             PortalController::$DefaultRedirectMode = 'header';
 
@@ -112,7 +110,7 @@ class GlobalConfig
      * Returns an instance of the GlobalConfig singleton
      * @return GlobalConfig
      */
-    static function GetInstance()
+    public static function GetInstance()
     {
         if (!self::$IS_INITIALIZED) {
             self::Init();
@@ -129,7 +127,7 @@ class GlobalConfig
      * Returns the context, used for storing session information
      * @return Context
      */
-    function GetContext()
+    public function GetContext()
     {
         if ($this->context == null) {
         }
@@ -141,10 +139,9 @@ class GlobalConfig
      * Returns a URL Writer used to parse/generate URLs
      * @return UrlWriter
      */
-    function GetRouter()
+    public function GetRouter()
     {
         if ($this->router == null) {
-            require_once("verysimple/Phreeze/GenericRouter.php");
             $this->router = new GenericRouter(self::$ROOT_URL, self::GetDefaultAction(), self::$ROUTE_MAP);
         }
 
@@ -156,7 +153,7 @@ class GlobalConfig
      * Returns the requested action requested by the user
     * @return string
     */
-    function GetAction()
+    public function GetAction()
     {
         [$controller, $method] = $this->GetRouter()->GetRoute();
         return $controller . '.' . $method;
@@ -166,7 +163,7 @@ class GlobalConfig
      * Returns the default action if none is specified by the user
      * @return string
      */
-    function GetDefaultAction()
+    public function GetDefaultAction()
     {
         return self::$DEFAULT_ACTION;
     }
@@ -175,16 +172,14 @@ class GlobalConfig
      * Returns the Phreezer persistence layer
      * @return Phreezer
      */
-    function GetPhreezer()
+    public function GetPhreezer()
     {
         if ($this->phreezer == null) {
             if (!self::$CONVERT_NULL_TO_EMPTYSTRING) {
-                require_once("verysimple/DB/DatabaseConfig.php");
                 DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING = false;
             }
 
             if (self::$DEBUG_MODE) {
-                require_once("verysimple/Phreeze/ObserveToSmarty.php");
                 $observer = new ObserveToSmarty($this->GetRenderEngine());
                 $this->phreezer = new Phreezer(self::$CONNECTION_SETTING, $observer);
             } else {
@@ -203,14 +198,10 @@ class GlobalConfig
     /**
      * @return IRenderEngine
      */
-    function GetRenderEngine()
+    public function GetRenderEngine()
     {
         if ($this->render_engine == null) {
             $engine_class = self::$TEMPLATE_ENGINE;
-            if (!class_exists($engine_class)) {
-                require_once 'verysimple/Phreeze/' . $engine_class  . '.php';
-            }
-
             $engine = new $engine_class(self::$TEMPLATE_PATH, self::$TEMPLATE_CACHE_PATH);
             if (!$engine instanceof IRenderEngine) {
                 throw new \LogicException(sprintf('Template engine %s must implement %s', $engine_class, IRenderEngine::class));

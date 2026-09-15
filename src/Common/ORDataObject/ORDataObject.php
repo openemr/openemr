@@ -58,7 +58,11 @@ class ORDataObject
         $this->_isObjectModified = $isModified;
     }
 
-    public function persist()
+    /**
+     * While locally this is truly a boolean return type, several subclasses
+     * have overloaded persist() to return other types.
+     */
+    public function persist(): mixed
     {
         if (!$this->isObjectModified()) {
             return true;

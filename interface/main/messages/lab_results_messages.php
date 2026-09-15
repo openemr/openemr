@@ -14,10 +14,7 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root') . "/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 function lab_results_messages($set_pid, $rid, $provider_id = ""): void
 {

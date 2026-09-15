@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/openemr/openemr-devops/blob/master/tools/release/contracts/dispatch.schema.json",
+  "$id": "https://github.com/openemr/openemr/blob/master/tools/release/contracts/dispatch.schema.json",
   "title": "OpenEMR release dispatch payload",
-  "description": "Cross-repo repository_dispatch payloads emitted between openemr/openemr (conductor) and openemr/openemr-devops, openemr/website-openemr, openemr/website-openemr-files (consumers). See openemr/openemr-devops#664. The canonical copy lives here; consumers vendor it and CI fails on drift via tools/release/bin/check-vendored.php.",
+  "description": "Cross-repo repository_dispatch payloads emitted between openemr/openemr (conductor) and openemr/openemr-devops, openemr/website-openemr, openemr/website-openemr-files (consumers). See openemr/openemr-devops#664 for the original spec (issue stays there for history; the mechanism now lives here). The canonical copy lives here; consumers vendor it and CI fails on drift via tools/release/bin/check-vendored.php.",
   "type": "object",
   "required": [
     "event",

@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("DataPage.php");
-
-/**
  * DataSet stores zero or more Loadable objects
  * The DataSet is the object that is returned by every Phreezer Query operation.
  * The DataSet contains various methods to enumerate through , or retrieve all
@@ -55,7 +50,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * @param string $_sql code
      * @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
      */
-    function __construct(&$preezer, protected $_objectclass, private $_sql, $cache_timeout = null)
+    public function __construct(&$preezer, protected $_objectclass, private $_sql, $cache_timeout = null)
     {
         $this->_counter = - 1;
         $this->_totalcount = - 1;
@@ -87,10 +82,9 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * @return Preezable
      */
     #[\ReturnTypeWillChange]
-    function Next()
+    public function Next()
     {
         if ($this->UnableToCache) {
-            require_once("verysimple/Util/ExceptionFormatter.php");
             $info = ExceptionFormatter::FormatTrace(debug_backtrace());
             $this->_phreezer->Observe("(DataSet.Next: unable to cache query with cursor) " . $info . "  " . $this->_sql, OBSERVE_DEBUG);
 
@@ -178,7 +172,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @return bool
      */
-    function CountIsKnown()
+    public function CountIsKnown()
     {
         return $this->_totalcount > - 1;
     }
@@ -196,7 +190,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * @access public
      * @return int
      */
-    function Count()
+    public function Count()
     {
         if (! $this->CountIsKnown()) {
             // check the cache
@@ -246,7 +240,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * @param array $options options (only relevant if asSimpleObject is true) passed through to ToObject
      * @return array
      */
-    function ToObjectArray($asSimpleObject = false, $options = null)
+    public function ToObjectArray($asSimpleObject = false, $options = null)
     {
         $cachekey = $this->_sql . " OBJECTARRAY" . ($asSimpleObject ? '-AS-OBJECT-' . serialize($options) : '');
 
@@ -287,7 +281,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @deprecated Use GetLabelArray instead
      */
-    function ToLabelArray($val_prop, $label_prop)
+    public function ToLabelArray($val_prop, $label_prop)
     {
         return $this->GetLabelArray($val_prop, $label_prop);
     }
@@ -317,7 +311,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *          the object property to be used for the dropdown label
      * @return array
      */
-    function GetLabelArray($val_prop, $label_prop)
+    public function GetLabelArray($val_prop, $label_prop)
     {
         // check the cache
         // $cachekey = md5($this->_sql . " VAL=".$val_prop." LABEL=" . $label_prop);
@@ -351,7 +345,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @access public
      */
-    function Clear()
+    public function Clear()
     {
         $this->_phreezer->DataAdapter->Release($this->_rs);
     }
@@ -374,7 +368,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *          will eagerly fetch the total number of records with a count query
      * @return DataPage
      */
-    function GetDataPage($pagenum, $pagesize, $countrecords = true)
+    public function GetDataPage($pagenum, $pagesize, $countrecords = true)
     {
         // check the cache
         // $cachekey = md5($this->_sql . " PAGE=".$pagenum." SIZE=" . $pagesize);

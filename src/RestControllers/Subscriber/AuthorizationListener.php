@@ -59,10 +59,7 @@ class AuthorizationListener implements EventSubscriberInterface
 
     public function getGlobalsBag(): OEGlobalsBag
     {
-        // This method is intended to return the globals bag for the authorization listener.
-        if (!isset($this->globalsBag)) {
-            $this->globalsBag = new OEGlobalsBag();
-        }
+        $this->globalsBag ??= new OEGlobalsBag();
         return $this->globalsBag;
     }
 
@@ -74,12 +71,7 @@ class AuthorizationListener implements EventSubscriberInterface
     }
     public function getLogger(): LoggerInterface
     {
-        // This method is intended to return the logger for the authorization listener.
-        // Implementation details would depend on the specific requirements of the application.
-        if (!isset($this->logger)) {
-            // If the logger is not set, we can initialize it here.
-            $this->logger = ServiceContainer::getLogger();
-        }
+        $this->logger ??= ServiceContainer::getLogger();
         return $this->logger;
     }
 
@@ -209,10 +201,7 @@ class AuthorizationListener implements EventSubscriberInterface
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void
     {
-        if (!isset($this->authorizationStrategies)) {
-            // Initialize the authorization strategies if not already set.
-            $this->authorizationStrategies = [];
-        }
+        $this->authorizationStrategies ??= [];
         // This method is intended to add an authorization strategy.
         // Implementation details would depend on the specific requirements of the application.
         $this->authorizationStrategies[] = $strategy;

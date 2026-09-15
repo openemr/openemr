@@ -16,6 +16,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -27,17 +28,20 @@ $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 $userauthorized = PatientSessionUtil::getUserAuthorized();
 
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'reviewofs');
+
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_reviewofs", $_POST, ($_GET["id"] ?? ''), $userauthorized);
+    $newid = formSubmit("form_reviewofs", $_POST, $formId, $userauthorized);
     addForm($encounter, "Review of Systems Checks", $newid, "reviewofs", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'reviewofs');
     sqlStatement(
         "UPDATE form_reviewofs set pid = ?,
             groupname=?,
@@ -266,7 +270,7 @@ if ($_GET["mode"] == "new") {
             ($_POST["cushing_syndrom"] ?? null),
             ($_POST["addison_syndrom"] ?? null),
             ($_POST["additional_notes"] ?? null),
-            $_GET["id"]
+            $formId
         ]
     );
 }

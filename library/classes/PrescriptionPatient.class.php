@@ -29,7 +29,7 @@ class PrescriptionPatient extends ORDataObject
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct(public $id = "")
+    public function __construct(public $id = "")
     {
         $this->_table = "patient_data";
         $this->pubpid = "";
@@ -40,7 +40,7 @@ class PrescriptionPatient extends ORDataObject
         $this->provider = new Provider();
         $this->populate();
     }
-    function populate()
+    public function populate()
     {
         if (!empty($this->id)) {
             $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
@@ -58,31 +58,31 @@ class PrescriptionPatient extends ORDataObject
             }
         }
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
-    function get_pubpid()
+    public function get_pubpid()
     {
         return $this->pubpid;
     }
-    function get_lname()
+    public function get_lname()
     {
         return $this->lname;
     }
-    function get_name_display()
+    public function get_name_display()
     {
         return $this->fname . " " . $this->lname;
     }
-    function get_provider_id()
+    public function get_provider_id()
     {
         return $this->provider->id;
     }
-    function get_provider()
+    public function get_provider()
     {
         return $this->provider;
     }
-    function get_dob()
+    public function get_dob()
     {
         return $this->date_of_birth;
     }

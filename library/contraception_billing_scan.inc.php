@@ -76,7 +76,7 @@ function _contraception_billing_check($code_type, $code, $provider): void
 // provider of that service, $contraception_billing_prov, and the corresponding
 // CYP value $contraception_billing_cyp.
 //
-function contraception_billing_scan($patient_id, $encounter_id, $provider_id = 0)
+function contraception_billing_scan($patient_id, $encounter_id, $provider_id = 0): bool
 {
     global $contraception_billing_code, $contraception_billing_cyp, $contraception_billing_prov;
 

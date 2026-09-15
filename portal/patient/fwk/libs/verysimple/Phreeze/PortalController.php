@@ -3,17 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/HTTP/RequestUtil.php");
-require_once("verysimple/HTTP/Context.php");
-require_once("Phreezer.php");
-require_once("Criteria.php");
-require_once("IRouter.php");
-require_once("GenericRouter.php");
-require_once("verysimple/Authentication/IAuthenticatable.php");
-
-/**
  * Controller is a base controller object used for an MVC pattern
  * This controller uses Phreeze ORM and RenderEngine Template Engine
  * This controller could be extended to use a different ORM and
@@ -80,7 +69,7 @@ abstract class PortalController
      * @param Context $context (optional) a context object for persisting the state of the current page
      * @param IRouter|null $router (optional) a custom writer for URL formatting
      */
-    final function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
+    final public function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
     {
         $this->Phreezer = & $phreezer;
         $this->RenderEngine = & $renderEngine;
@@ -174,7 +163,6 @@ abstract class PortalController
      */
     protected function Require401Authentication(IAuthenticatable $authenticatable, $realm = "Login Required", $qs_username_field = "", $qs_password_field = "")
     {
-        require_once("verysimple/Authentication/Auth401.php");
 
         $user = $this->Get401Authentication($authenticatable, $qs_username_field, $qs_password_field);
 
@@ -259,7 +247,6 @@ abstract class PortalController
     protected function StartObserving($observer = null, $with_styles = true)
     {
         if ($observer == null) {
-            require_once "ObserveToBrowser.php";
             $observer = new ObserveToBrowser();
         }
 
@@ -376,7 +363,6 @@ abstract class PortalController
      */
     public function GetDevice()
     {
-        require_once("verysimple/HTTP/BrowserDevice.php");
         return BrowserDevice::GetInstance();
     }
 
@@ -437,7 +423,6 @@ abstract class PortalController
      */
     protected function RenderXML($page, $additionalProps = null, $supressProps = null, $noMap = false)
     {
-        require_once("verysimple/String/VerySimpleStringUtil.php");
 
         if (! is_array($supressProps)) {
             $supressProps =  [];
@@ -550,9 +535,8 @@ abstract class PortalController
      * if Request::Get("SaveInline") is set then validate will call Save instead of
      * rendering JSON. In which case, your Save method should render the ValidationResponse
      */
-    function ValidateInput()
+    public function ValidateInput()
     {
-        require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
 
         $save = RequestUtil::Get("SaveInline");
@@ -584,13 +568,12 @@ abstract class PortalController
     /**
      * Stub method
      */
-    function Save()
+    public function Save()
     {
         if (! RequestUtil::Get("SaveInline")) {
             throw new Exception("Save is not implemented by this controller");
         }
 
-        require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
         $vr->Success = false;
         $vr->Errors =  [];
@@ -639,7 +622,6 @@ abstract class PortalController
      */
     public function ClearCurrentUser()
     {
-        require_once("verysimple/Authentication/Authenticator.php");
 
         $this->_cu = null;
         Authenticator::ClearAuthentication($this->GUID);
@@ -667,7 +649,6 @@ abstract class PortalController
     protected function GetCurrentUser()
     {
         if (! $this->_cu) {
-            require_once("verysimple/Authentication/Authenticator.php");
 
             $this->Phreezer->Observe("Loading CurrentUser from Session");
             $this->_cu = Authenticator::GetCurrentUser($this->GUID);
@@ -966,7 +947,7 @@ abstract class PortalController
      * @param mixed $vars
      * @throws Exception
      */
-    function __call($name, $vars = null)
+    public function __call($name, $vars = null)
     {
         throw new Exception(static::class . "::" . $name . " is not implemented");
     }

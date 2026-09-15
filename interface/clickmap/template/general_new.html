@@ -3,8 +3,8 @@
     <head>
     {headerTemplate}
 {/if}
-<script src="{$GLOBALS.webroot}/library/js/clickmap.js"></script>
-<link rel="stylesheet" href="{$form->template_dir}/css/clickmap.css" />
+<script src="{$GLOBALS.webroot}/library/js/clickmap.js?v={assetVersionNumber}"></script>
+<link rel="stylesheet" href="{$form->template_dir}/css/clickmap.css?v={assetVersionNumber}" />
 {if !$reportMode}
 	</head>
 	<body>

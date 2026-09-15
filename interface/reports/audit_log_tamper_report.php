@@ -252,7 +252,8 @@ $check_sum = isset($_GET['check_sum']);
             $checkSumOldApi = $iter['checksum_api'];
             $checkSumNewApi = '';
             if (!empty($checkSumOldApi)) {
-                $checkSumNewApi = hash('sha3-512', $iter['log_id_api'] . $iter['user_id'] . $iter['patient_id_api'] . $iter['ip_address'] . $iter['method'] . $iter['request'] . $iter['request_url'] . $iter['request_body'] . $iter['response'] . $iter['created_time']);
+                $apiClientId = $iter['client_id'] ?? null;
+                $checkSumNewApi = hash('sha3-512', $iter['log_id_api'] . $iter['user_id'] . (is_string($apiClientId) ? $apiClientId : '') . $iter['patient_id_api'] . $iter['ip_address'] . $iter['method'] . $iter['request'] . $iter['request_url'] . $iter['request_body'] . $iter['response'] . $iter['created_time']);
             }
 
             $dispCheck = false;

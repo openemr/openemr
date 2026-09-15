@@ -40,8 +40,8 @@ jobs:
     - name: Setup PHP
       uses: ./.github/actions/setup-php-composer
       with:
-        php-version: '8.2'
-        extensions: bcmath, calendar, ctype, curl, dom, fileinfo, filter, gd, iconv, imagick, intl, json, ldap, libxml, mbstring, mysqli, openssl, pdo, pdo_mysql, phar, session, simplexml, soap, sockets, sodium, tokenizer, xml, xmlreader, xmlwriter, xsl, zip, zlib
+        php-version: '8.3'
+        extensions: bcmath, calendar, ctype, curl, dom, fileinfo, filter, gd, iconv, imagick, intl, json, ldap, libxml, mbstring, mysqli, openssl, pdo, pdo_mysql, phar, redis, session, simplexml, soap, sockets, sodium, tokenizer, xml, xmlreader, xmlwriter, xsl, zip, zlib
 
     - name: Run Composer Require Checker
       run: composer require-checker

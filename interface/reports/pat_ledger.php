@@ -17,7 +17,6 @@
  */
 
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
 
@@ -273,43 +272,25 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
 }
 
-if (!isset($_REQUEST['form_facility'])) {
-    $_REQUEST['form_facility'] = '';
-}
+$_REQUEST['form_facility'] ??= '';
 
-if (!isset($_REQUEST['form_provider'])) {
-    $_REQUEST['form_provider'] = '';
-}
+$_REQUEST['form_provider'] ??= '';
 
 if ($type_form == '0') {
-    if (!isset($_REQUEST['form_patient'])) {
-        $_REQUEST['form_patient'] = '';
-    }
+    $_REQUEST['form_patient'] ??= '';
 
-    if (!isset($_REQUEST['form_pid'])) {
-        $_REQUEST['form_pid'] = '';
-    }
+    $_REQUEST['form_pid'] ??= '';
 } else {
-    if (!isset($_REQUEST['form_patient'])) {
-        $_REQUEST['form_patient'] = $pat_pid;
-    }
+    $_REQUEST['form_patient'] ??= $pat_pid;
 
-    if (!isset($_REQUEST['form_pid'])) {
-        $_REQUEST['form_pid'] = $pat_pid;
-    }
+    $_REQUEST['form_pid'] ??= $pat_pid;
 }
 
-if (!isset($_REQUEST['form_csvexport'])) {
-    $_REQUEST['form_csvexport'] = '';
-}
+$_REQUEST['form_csvexport'] ??= '';
 
-if (!isset($_REQUEST['form_refresh'])) {
-    $_REQUEST['form_refresh'] = '';
-}
+$_REQUEST['form_refresh'] ??= '';
 
-if (!isset($_REQUEST['$form_dob'])) {
-    $_REQUEST['$form_dob'] = '';
-}
+$_REQUEST['$form_dob'] ??= '';
 
 $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - 1);
 if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'Y')) {
@@ -917,7 +898,7 @@ if (! $_REQUEST['form_csvexport']) {
             </div>
         </div>
     </div><!--end of container div-->
-    <?php $oemr_ui->oeBelowContainerDiv();?>
+    <?php assert(isset($oemr_ui)); $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id ?? null); ?>;
         $(function () {

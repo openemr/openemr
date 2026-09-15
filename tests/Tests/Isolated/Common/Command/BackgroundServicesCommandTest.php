@@ -329,7 +329,7 @@ class BackgroundServicesCommandTest extends TestCase
         // non-empty content emitted in --json mode.
         $lines = array_values(array_filter(
             preg_split('/\R/', $output) ?: [],
-            static fn($line) => trim((string) $line) !== '',
+            static fn($line): bool => trim((string) $line) !== '',
         ));
         $this->assertCount(1, $lines, "Expected exactly one output line in --json mode, got: {$output}");
         $decoded = json_decode($lines[0], true);
@@ -357,7 +357,7 @@ class BackgroundServicesCommandTest extends TestCase
         $output = trim($tester->getDisplay());
         $lines = array_values(array_filter(
             preg_split('/\R/', $output) ?: [],
-            static fn($line) => trim((string) $line) !== '',
+            static fn($line): bool => trim((string) $line) !== '',
         ));
         $this->assertCount(1, $lines);
         $this->assertSame(
@@ -587,7 +587,7 @@ class BackgroundServicesCommandStub extends BackgroundServicesCommand
     {
         return array_values(array_filter(
             $this->services,
-            fn(array $s) => (int) $s['active'] !== 0 && (int) $s['execute_interval'] > 0,
+            fn(array $s): bool => (int) $s['active'] !== 0 && (int) $s['execute_interval'] > 0,
         ));
     }
 
@@ -599,7 +599,7 @@ class BackgroundServicesCommandStub extends BackgroundServicesCommand
 
     protected function clearLease(string $name): bool
     {
-        $exists = array_filter($this->services, fn(array $s) => $s['name'] === $name);
+        $exists = array_filter($this->services, fn(array $s): bool => $s['name'] === $name);
         if ($exists === []) {
             return false;
         }

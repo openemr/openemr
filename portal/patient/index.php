@@ -8,6 +8,7 @@
  *
  */
 
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -25,9 +26,6 @@ if (!GlobalConfig::$CONNECTION_SETTING) {
     throw new Exception('GlobalConfig::$CONNECTION_SETTING is not configured.  Are you missing _machine_config.php?');
 }
 
-/* require framework libs */
-require_once("verysimple/Phreeze/Dispatcher.php");
-
 // the global config is used for all dependency injection
 $gc = GlobalConfig::GetInstance();
 
@@ -41,26 +39,13 @@ try {
         $globalsBag->set('bootstrap_register', false);
     }
     if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
-        // Need to bootstrap all requests to only allow the pid in the session's 'pid'
-        //  and to only allow access to api calls applicable to that pid (or patientId).
-        // Also need to collect the id of the patient to verify the correct id is used
-        //  in the uri check in GenericRouter.php .
+        // Bootstrap the session pid so downstream code can bind to it.
         $globalsBag->set('bootstrap_pid', $session->get('pid'));
         $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$globalsBag->get('bootstrap_pid')]);
         $globalsBag->set('bootstrap_uri_id', $sqlCollectPatientId['id']);
-        $bootstrap_pid = $globalsBag->get('bootstrap_pid');
-        if (
-            (!empty($_POST['pid']) && ($_POST['pid'] != $bootstrap_pid)) ||
-            (!empty($_GET['pid']) && ($_GET['pid'] != $bootstrap_pid)) ||
-            (!empty($_REQUEST['pid']) && ($_REQUEST['pid'] != $bootstrap_pid)) ||
-            (!empty($_POST['patientId']) && ($_POST['patientId'] != $bootstrap_pid)) ||
-            (!empty($_GET['patientId']) && ($_GET['patientId'] != $bootstrap_pid)) ||
-            (!empty($_REQUEST['patientId']) && ($_REQUEST['patientId'] != $bootstrap_pid))
-        ) {
-            // Unauthorized use
-            $error = 'Unauthorized';
-            throw new Exception($error);
-        }
+        // Scan every request source for any pid-family key that disagrees with
+        // the bootstrap pid (including Phreez ORM variant suffixes like Pid_Equals).
+        PortalSessionPidGuard::assertRequestKeysMatchSession($_POST, $_GET, $_REQUEST);
     }
     Dispatcher::Dispatch(
         $gc->GetPhreezer(),

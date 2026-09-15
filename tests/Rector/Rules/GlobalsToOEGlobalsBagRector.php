@@ -212,7 +212,7 @@ CODE_SAMPLE
         }
 
         // Filter out empty strings
-        $expressions = array_values(array_filter($expressions, fn($expr) => !($expr instanceof String_ && $expr->value === '')));
+        $expressions = array_values(array_filter($expressions, fn($expr): bool => !($expr instanceof String_ && $expr->value === '')));
 
         if (count($expressions) === 0) {
             return new String_('');

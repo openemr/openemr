@@ -159,7 +159,7 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function SetCredential($key,$value)
+    public Function SetCredential($key,$value)
     {
         $this->credentials[$key]=$value;
     }
@@ -213,24 +213,19 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function GetCredentials(&$credentials,$defaults,&$interactions)
+    public Function GetCredentials(&$credentials,$defaults,&$interactions)
     {
         Reset($credentials);
         $end=(GetType($key=Key($credentials))!="string");
-        for(;!$end;)
-        {
-            if(!IsSet($this->credentials[$key]))
-            {
-                if(IsSet($defaults[$key]))
+        for (;!$end;) {
+            if (!IsSet($this->credentials[$key])) {
+                if (IsSet($defaults[$key]))
                     $credentials[$key]=$defaults[$key];
-                else
-                {
+                else {
                     $this->error="the requested credential ".$key." is not defined";
                     return(SASL_NOMECH);
                 }
-            }
-            else
-                $credentials[$key]=$this->credentials[$key];
+            } else $credentials[$key]=$this->credentials[$key];
             Next($credentials);
             $end=(GetType($key=Key($credentials))!="string");
         }
@@ -298,30 +293,26 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function Start($mechanisms, &$message, &$interactions)
+    public Function Start($mechanisms, &$message, &$interactions)
     {
-        if(strlen((string) $this->error))
+        if (strlen((string) $this->error))
             return(SASL_FAIL);
-        if(IsSet($this->driver))
+        if (IsSet($this->driver))
             return($this->driver->Start($this,$message,$interactions));
         $no_mechanism_error="";
-        for($m=0;$m<count($mechanisms);$m++)
-        {
+        for ($m=0;$m<count($mechanisms);$m++) {
             $mechanism=$mechanisms[$m];
-            if(IsSet($this->drivers[$mechanism]))
-            {
-                if(!class_exists($this->drivers[$mechanism][0]))
+            if (IsSet($this->drivers[$mechanism])) {
+                if (!class_exists($this->drivers[$mechanism][0]))
                     require(__DIR__."/".$this->drivers[$mechanism][1]);
                 $this->driver=new $this->drivers[$mechanism][0];
-                if($this->driver->Initialize($this))
-                {
+                if ($this->driver->Initialize($this)) {
                     $this->encode_response=1;
                     $status=$this->driver->Start($this,$message,$interactions);
-                    switch($status)
-                    {
+                    switch ($status) {
                         case SASL_NOMECH:
                             Unset($this->driver);
-                            if(strlen((string) $no_mechanism_error)==0)
+                            if (strlen((string) $no_mechanism_error)==0)
                                 $no_mechanism_error=$this->error;
                             $this->error="";
                             break;
@@ -333,11 +324,9 @@ class sasl_client_class
                             $this->error="";
                             return($status);
                     }
-                }
-                else
-                {
+                } else {
                     Unset($this->driver);
-                    if(strlen((string) $no_mechanism_error)==0)
+                    if (strlen((string) $no_mechanism_error)==0)
                         $no_mechanism_error=$this->error;
                     $this->error="";
                 }
@@ -397,9 +386,9 @@ class sasl_client_class
         <do>
 {/metadocument}
 */
-    Function Step($response, &$message, &$interactions)
+    public Function Step($response, &$message, &$interactions)
     {
-        if(strlen((string) $this->error))
+        if (strlen((string) $this->error))
             return(SASL_FAIL);
         return($this->driver->Step($this,$response,$message,$interactions));
     }

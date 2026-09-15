@@ -11,6 +11,12 @@ class FormActionBarSettings
 
     // TODO: @adunsulag demographics_full.php does NOT like the TOP_AND_BOTTOM option so going to skip this for now as a valid setting.
     const ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM = '2';
+
+    /**
+     * Link target that leaves an encounter form without saving it.
+     */
+    public const EXIT_URL = 'javascript:parent.closeTab(window.name, false)';
+
     public static function getGlobalSettingsList()
     {
         return [
