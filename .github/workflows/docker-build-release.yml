@@ -84,6 +84,7 @@
 # G17 for the design rationale.
 
 name: Docker build release
+run-name: "Docker build release ${{ inputs.docker_tags }}${{ inputs.dry_run && ' (dry run)' || '' }}"
 
 on:
   workflow_dispatch:

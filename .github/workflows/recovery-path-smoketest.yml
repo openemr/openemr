@@ -885,10 +885,18 @@ jobs:
         set -euo pipefail
         # Snapshot existing matching runs BEFORE dispatch (same
         # pattern as the tarball job's build-release dispatch --
-        # gh workflow run doesn't return the new run's ID, and the
-        # display-title marker alone isn't unique across smoketest
-        # runs, so filter locate to "not in baseline" = definitely
-        # our new run).
+        # gh workflow run doesn't return the new run's ID).
+        #
+        # docker-build-release.yml's run-name renders docker_tags into
+        # the display title ("Docker build release <docker_tags>
+        # (dry run)"), and we pass CANARY_TAG (unique per smoketest)
+        # as docker_tags -- so filter on `contains(CANARY_TAG)`
+        # uniquely identifies THIS smoketest's dispatched run even
+        # if a concurrent independent docker-build-release dispatch
+        # (manual test, orchestrator run) fires in the same window.
+        # Baseline still applies as a belt-and-suspenders check
+        # against display-title collisions (near-impossible with a
+        # timestamp+run_id-derived canary, but cheap to include).
         BASELINE_DOCKER_BUILD_IDS=$(gh run list --workflow docker-build-release.yml \
           --event workflow_dispatch --limit 30 \
           --json databaseId,displayTitle \
@@ -903,7 +911,8 @@ jobs:
               sleep 10
               CANDIDATE_IDS=$(gh run list --workflow docker-build-release.yml \
                 --event workflow_dispatch --limit 10 \
-                --json databaseId --jq '[.[] | .databaseId] | .[]' \
+                --json databaseId,displayTitle \
+                --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\")) | .databaseId] | .[]" \
                 | tr '\n' ' ')
               NEW_ID=""
               for ID in ${CANDIDATE_IDS}; do
@@ -913,12 +922,12 @@ jobs:
                 fi
               done
               if [[ -n "${NEW_ID}" ]]; then
-                echo "==> Prior dispatch actually succeeded (run ${NEW_ID} is new since baseline); skipping retry"
+                echo "==> Prior dispatch actually succeeded (run ${NEW_ID} matches CANARY_TAG marker + new since baseline); skipping retry"
                 exit 0
               fi
-              echo "    (poll ${poll}/3) no new run yet..."
+              echo "    (poll ${poll}/3) no matching new run yet..."
             done
-            echo "  no new run after 30s -- prior dispatch really did fail; retrying"
+            echo "  no matching new run after 30s -- prior dispatch really did fail; retrying"
           fi
           echo "==> [attempt ${attempt}] gh workflow run docker-build-release.yml"
           # dry_run=true + gate_with_acceptance=true: produce a
@@ -948,11 +957,15 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Same snapshot-diff pattern as tarball build-release locate.
+        # Filter by CANARY_TAG (unique per smoketest, appears in
+        # docker-build-release's run-name via docker_tags input) +
+        # snapshot-diff (belt-and-suspenders). See dispatch step
+        # comment for the concurrency rationale.
         for attempt in $(seq 1 12); do
           CANDIDATE_IDS=$(gh run list --workflow docker-build-release.yml \
             --event workflow_dispatch --limit 10 \
-            --json databaseId --jq '[.[] | .databaseId] | .[]' \
+            --json databaseId,displayTitle \
+            --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\")) | .databaseId] | .[]" \
             | tr '\n' ' ')
           RUN_ID=""
           for ID in ${CANDIDATE_IDS}; do
@@ -972,7 +985,7 @@ jobs:
             echo "==> Located docker-build-release source run: ${RUN_ID}, candidate=${CANDIDATE_TAG_DOCKER}"
             exit 0
           fi
-          echo "  (attempt ${attempt}/12) waiting for new run to register..."
+          echo "  (attempt ${attempt}/12) waiting for matching new run to register..."
           sleep 10
         done
         echo "::error::Could not locate a NEW docker-build-release run within 2 minutes (baseline=[${BASELINE_DOCKER_BUILD_IDS}])"
@@ -1293,7 +1306,7 @@ jobs:
           echo "Purpose: keep the docker recovery workflow chain warm outside of real ship-day cascades."
           echo ""
           echo "- **Current-rel shipped version:** \`${SHIPPED_VERSION:-<not-computed>}\` (tag \`${RELEASE_TAG:-<not-computed>}\`)"
-          echo "- **Source docker-build-release run (last successful nightly):** \`${SOURCE_RUN_ID:-<not-found>}\`"
+          echo "- **Source docker-build-release run (fresh dry-run dispatch):** \`${SOURCE_RUN_ID:-<not-dispatched>}\`"
           echo "- **Candidate tag:** \`${CANDIDATE_TAG:-<not-computed>}\`"
           echo "- **Canary tag (unique per smoketest, must NEVER appear on Docker Hub):** \`${CANARY_TAG:-<not-computed>}\`"
           echo "- **Variant A (skip_acceptance + no_publish) run:** \`${DOCKER_RUN_ID_SKIP:-<not-dispatched>}\`"
