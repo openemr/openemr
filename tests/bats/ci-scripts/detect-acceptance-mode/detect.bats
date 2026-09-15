@@ -494,6 +494,82 @@ PHP
     [[ "${emitted}" == *"from_version=8.3.0"* ]]
 }
 
+@test "empty DISPATCH_FROM_VERSION + to_version equals highest matched candidate -> picks next-highest (excludes to_version)" {
+    # Real-recovery / recovery-path-smoketest scenario: an
+    # already-shipped version is passed as to_version (e.g. 8.4.0),
+    # and both the sql/ candidates AND the shipped manifest contain
+    # 8.4.0. Without the exclude-to_version filter,
+    # derive_from_version would pick from=8.4.0 (=to_version) and
+    # the resulting upgrade test would be a degenerate 8.4.0 ->
+    # 8.4.0 no-op. Filter ensures from = next-highest shipped that
+    # isn't to_version. Openemr/openemr#13991 nightly smoketest is
+    # the primary consumer.
+    seed_sql_upgrade_fixtures \
+        8_2_0-to-8_3_0 \
+        8_3_0-to-8_4_0 \
+        8_4_0-to-8_5_0
+    export MOCK_SHIPPED_VERSIONS=$'8.2.0\n8.3.0\n8.4.0'
+    # Reach derive_from_version via the workflow_call gate path
+    # (CALLER_*_ARTIFACT set + DISPATCH_TO_VERSION set).
+    export EVENT_NAME="workflow_call"
+    export CALLER_TARBALL_ARTIFACT="mock-artifact"
+    export CALLER_ZIP_ARTIFACT="mock-artifact"
+    export DISPATCH_TO_VERSION="8.4.0"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=8.4.0"* ]]
+    [[ "${emitted}" == *"from_version=8.3.0"* ]]
+    [[ "${emitted}" != *"from_version=8.4.0"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION + only candidate equals to_version -> exit 1 with actionable error" {
+    # Edge case: the only shipped candidate matches to_version.
+    # After exclude-to_version filter, matched is empty; must fail
+    # loudly (there's no valid upgrade path to test) rather than
+    # silently degenerate. Contrived setup -- in practice sql/
+    # always has many historic upgrade files.
+    seed_sql_upgrade_fixtures 8_4_0-to-8_5_0
+    export MOCK_SHIPPED_VERSIONS=$'8.4.0'
+    export EVENT_NAME="workflow_call"
+    export CALLER_TARBALL_ARTIFACT="mock-artifact"
+    export CALLER_ZIP_ARTIFACT="mock-artifact"
+    export DISPATCH_TO_VERSION="8.4.0"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::"* ]]
+    [[ "${output}" == *"after excluding to_version (8.4.0)"* ]]
+    [[ "${output}" == *"no from-version remains"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION + to_version not in candidates -> unchanged (filter is no-op)" {
+    # Real ship scenario (unchanged behavior): to_version is a NEW
+    # release (not yet in shipped manifest). Filter has nothing to
+    # remove; derivation picks the highest matched candidate as
+    # before. This is what real 8.5.0 ships look like today.
+    seed_sql_upgrade_fixtures \
+        8_2_0-to-8_3_0 \
+        8_3_0-to-8_4_0 \
+        8_4_0-to-8_5_0
+    export MOCK_SHIPPED_VERSIONS=$'8.2.0\n8.3.0\n8.4.0'
+    export EVENT_NAME="workflow_call"
+    export CALLER_TARBALL_ARTIFACT="mock-artifact"
+    export CALLER_ZIP_ARTIFACT="mock-artifact"
+    # to_version=8.5.0 is the version being shipped -- NOT yet in
+    # the shipped manifest.
+    export DISPATCH_TO_VERSION="8.5.0"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"to_version=8.5.0"* ]]
+    [[ "${emitted}" == *"from_version=8.4.0"* ]]
+}
+
 @test "explicit DISPATCH_FROM_VERSION overrides derivation" {
     # Operator explicitly passes a version; derivation skipped even
     # when sql/*.sql files exist and would derive something different.
