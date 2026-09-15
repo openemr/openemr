@@ -93,7 +93,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
     'PUT:api/patient/(:num)' => [
@@ -101,7 +102,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
     'DELETE:api/patient/(:num)' => [
@@ -117,7 +119,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
     'GET:api/portalpatient/(:num)' => [
@@ -125,7 +128,8 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_limited',
+        // Controller enforces portal ownership or staff demographics ACL.
+        'p_acl' => 'p_all',
         'p_reg' => false
     ],
 
