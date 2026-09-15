@@ -222,3 +222,44 @@ EOF
     [[ ${status} -eq 0 ]]
     [[ "${output}" == "rel-840 v8_4_0" ]]
 }
+
+@test "row boundary: adjacent list entries with no blank between rows" {
+    # YAML allows list entries to be adjacent (no blank between).
+    # Parser must use "- branch:" as the row boundary, not blank
+    # lines, or the unmarked row's fields would leak into the
+    # latest-marked row and misidentify it.
+    printf -- '- branch: rel-840\n  docker_tags: 8.4.0,latest\n  openemr_version_ref: v8_4_0\n- branch: rel-830\n  docker_tags: 8.3.0\n  openemr_version_ref: v8_3_0\n' \
+        > "${CWD}/release-targets.yml"
+    export RELEASE_TARGETS_FILE="${CWD}/release-targets.yml"
+    run bash "${PICK_SMOKETEST_TARGET_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ "${output}" == "rel-840 v8_4_0" ]]
+}
+
+@test "row boundary: adjacent entries, latest is on the second row" {
+    # Same as above, but latest is on the second row -- test that
+    # finalizing the first row on "- branch:" doesn't confuse the
+    # second row's state.
+    printf -- '- branch: rel-830\n  docker_tags: 8.3.0\n  openemr_version_ref: v8_3_0\n- branch: rel-840\n  docker_tags: 8.4.0,latest\n  openemr_version_ref: v8_4_0\n' \
+        > "${CWD}/release-targets.yml"
+    export RELEASE_TARGETS_FILE="${CWD}/release-targets.yml"
+    run bash "${PICK_SMOKETEST_TARGET_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ "${output}" == "rel-840 v8_4_0" ]]
+}
+
+@test "row boundary: blank line INSIDE an entry (between docker_tags and openemr_version_ref) does not break parsing" {
+    # YAML permits blank lines inside a list entry. Parser must
+    # ignore blanks (not treat them as row boundaries), otherwise
+    # it would emit the row with an empty version_ref.
+    write_fixture <<'EOF'
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+
+  openemr_version_ref: v8_4_0
+
+EOF
+    run bash "${PICK_SMOKETEST_TARGET_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ "${output}" == "rel-840 v8_4_0" ]]
+}

@@ -37,14 +37,24 @@ if [[ ! -f "${RELEASE_TARGETS_FILE}" ]]; then
     exit 1
 fi
 
-# Awk state machine: track current block's branch + docker_tags +
-# version_ref; on a blank line (end of block), emit if docker_tags
-# contains "latest".
+# Awk state machine: use `- branch:` as the row boundary (finalize
+# the previous row when a new one starts, and again in END for the
+# last row). Blank lines are ignored -- YAML permits adjacent list
+# entries with no blank between, and blank lines inside an entry;
+# either would break a blank-line-boundary parser.
 #
 # The `found` guard prevents double-print when `exit` triggers the
 # END block.
 result=$(awk '
+    function emit_current() {
+        if (!found && branch != "" && docker_tags ~ /(^|,)latest($|,)/) {
+            print branch, version_ref
+            found=1
+        }
+    }
     /^- branch:/ {
+        emit_current()
+        if (found) exit
         branch=$3
         docker_tags=""
         version_ref=""
@@ -52,19 +62,8 @@ result=$(awk '
     }
     /^  docker_tags:/ { docker_tags=$2; next }
     /^  openemr_version_ref:/ { version_ref=$2; next }
-    /^$/ {
-        if (!found && docker_tags ~ /(^|,)latest($|,)/) {
-            print branch, version_ref
-            found=1
-            exit
-        }
-        branch=""; docker_tags=""; version_ref=""
-    }
     END {
-        # Handle file that does not end with a blank line.
-        if (!found && docker_tags ~ /(^|,)latest($|,)/) {
-            print branch, version_ref
-        }
+        emit_current()
     }
 ' "${RELEASE_TARGETS_FILE}")
 
