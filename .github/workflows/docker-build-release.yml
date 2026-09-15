@@ -102,6 +102,10 @@ on:
         description: 'Phase 7c-docker: gate publish on acceptance-docker.yml passing. Orchestrator sets true from each release-target row''s explicit `gate_with_acceptance` flag (Phase 12).'
         type: boolean
         default: false
+      dry_run:
+        description: 'Smoketest support (openemr/openemr#TBD): build + push the candidate tag but SKIP acceptance-gate + publish-and-cleanup. The candidate tag stays on Docker Hub so a downstream docker-acceptance-only.yml dispatch can consume it (analogous to tarball build-release.yml''s dry_run producing the release-output artifact without publishing to GitHub Releases). Requires gate_with_acceptance=true (non-gated path publishes directly from merge-manifest without producing a candidate).'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -173,6 +177,19 @@ jobs:
       image_version: ${{ steps.image_version.outputs.value }}
       build_date: ${{ steps.build_date.outputs.date }}
     steps:
+    - name: Validate dry_run + gate_with_acceptance combination
+      # dry_run without gate_with_acceptance is nonsensical: the non-
+      # gated path publishes DIRECTLY from merge-manifest (build-arch
+      # pushes straight to final tags, no candidate produced). Only
+      # the gated path routes through a candidate suffix that
+      # docker-acceptance-only.yml can later consume. Fail loudly if
+      # a caller (typically the recovery-path-smoketest workflow)
+      # forgets to set both.
+      if: inputs.dry_run && !inputs.gate_with_acceptance
+      run: |
+        echo "::error::dry_run=true requires gate_with_acceptance=true. The non-gated publish path pushes directly to final tags without producing a candidate suffix -- dry_run has nothing to gate off. Re-dispatch with both inputs set."
+        exit 1
+
     - name: Checkout
       uses: actions/checkout@v7
 
@@ -527,7 +544,12 @@ jobs:
   acceptance-gate:
     name: Acceptance gate
     needs: [merge-manifest]
-    if: inputs.gate_with_acceptance
+    # dry_run mode (smoketest support): skip acceptance-gate here so
+    # the smoketest workflow can dispatch docker-acceptance-only.yml
+    # against the candidate itself (that's the whole point of the
+    # smoketest -- exercise the recovery workflow). Running acceptance
+    # here too would duplicate ~40 min of matrix work.
+    if: inputs.gate_with_acceptance && !inputs.dry_run
     uses: ./.github/workflows/acceptance-docker.yml
     with:
       # acceptance-docker.yml's matrix pulls both fresh-install-to and
@@ -567,7 +589,12 @@ jobs:
   publish-and-cleanup:
     name: Publish + cleanup
     needs: [merge-manifest, acceptance-gate]
-    if: inputs.gate_with_acceptance
+    # dry_run mode (smoketest support): skip publish + cleanup-
+    # candidate so the candidate tag stays on Docker Hub for a
+    # downstream docker-acceptance-only.yml dispatch to consume.
+    # Analogous to build-release.yml's dry_run gating on its own
+    # publish job.
+    if: inputs.gate_with_acceptance && !inputs.dry_run
     uses: ./.github/workflows/reusable-docker-publish.yml
     with:
       candidate_tag: ${{ needs.merge-manifest.outputs.candidate_tag }}

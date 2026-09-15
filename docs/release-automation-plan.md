@@ -444,15 +444,20 @@ recovery paths:
   was in the same "first-run-on-real-ship" category as the recovery
   workflows.
 
-- **`smoketest-docker` (docker sibling).** Uses the last successful
-  nightly `docker-build-release` run for the current-shipped rel-line
-  as the fresh source (docker-release-orchestrator dispatches one per
-  rel-branch at 06:17 UTC, always under the 48h age ceiling), so no
-  docker-side equivalent of `dry_run` is needed. Then chains that
-  source into two `docker-acceptance-only.yml` runs, both with
-  `no_publish=true` and `docker_tags` set to a globally-unique
-  `smoketest-canary-<runid>-<timestamp>` value — variant A with
-  `skip_acceptance=true`, variant B with the full acceptance matrix.
+- **`smoketest-docker` (docker sibling).** Dispatches
+  `docker-build-release.yml` fresh with `dry_run=true +
+  gate_with_acceptance=true` as the source. `dry_run` (added
+  specifically for the smoketest) skips both `acceptance-gate` and
+  `publish-and-cleanup` in docker-build-release, so the built
+  candidate tag stays on Docker Hub for docker-acceptance-only to
+  consume (analogous to how build-release's `dry_run` preserves the
+  release-output workflow-run artifact). `docker_tags` is set to a
+  globally-unique `smoketest-canary-<runid>-<timestamp>` value so any
+  accidental publish (in case dry_run gating regresses) would push
+  the canary rather than clobber real tags. Then chains that source
+  into two `docker-acceptance-only.yml` runs, both with
+  `no_publish=true` — variant A with `skip_acceptance=true`, variant
+  B with the full acceptance matrix.
 
 **Why it exists.** [G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13)'s
 systemic lesson: `acceptance-only.yml` had been untouched since
