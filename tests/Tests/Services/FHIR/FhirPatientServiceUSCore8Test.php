@@ -181,7 +181,7 @@ class FhirPatientServiceUSCore8Test extends TestCase
     #[Test]
     public function testSexExtension(): void
     {
-        $options = ['Male' => '248152002', 'Female' => '248153007', 'nonbinary' => '33791000087105'
+        $options = ['Male' => '248153007', 'Female' => '248152002', 'nonbinary' => '33791000087105'
             , 'UNK' => 'unknown', 'asked-declined' => 'asked-declined'];
         $validCodes = array_values($options);
         foreach ($options as $optionId => $code) {
@@ -543,7 +543,7 @@ class FhirPatientServiceUSCore8Test extends TestCase
         $valueCoding = $sexExtension->getValueCoding();
         $this->assertNull($valueCoding, "Sex extension must NOT have valueCoding for version 7.0.0");
         $this->assertNotNull($sexExtension->getValueCode(), "Sex extension should populate valueCode for version 7.0.0");
-        $this->assertEquals('248152002', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Male for version 7.0.0");
+        $this->assertEquals('248153007', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Male for version 7.0.0");
     }
     public function testHighestCompatibleVersion311_HasCorrectSexExtension(): void
     {
@@ -558,7 +558,7 @@ class FhirPatientServiceUSCore8Test extends TestCase
         $valueCoding = $sexExtension->getValueCoding();
         $this->assertNull($valueCoding, "Sex extension must NOT have valueCoding for version 3.1.1");
         $this->assertNotNull($sexExtension->getValueCode(), "Sex extension should populate valueCode for version 3.1.1");
-        $this->assertEquals('248152002', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Male for version 3.1.1");
+        $this->assertEquals('248153007', (string)$sexExtension->getValueCode(), "Sex code must have correct coding for Male for version 3.1.1");
     }
 
     public function testHighestCompatibleVersion8_0_HasCorrectSexExtension(): void
@@ -575,7 +575,7 @@ class FhirPatientServiceUSCore8Test extends TestCase
         $this->assertNotNull($valueCoding, "Sex extension must have valueCoding for version 8.0.0");
         $this->assertNotEmpty($valueCoding->getCode(), 'Sex must have code for version 8.0.0');
         $this->assertEquals(FhirCodeSystemConstants::SNOMED_CT, (string)$valueCoding->getSystem(), "Sex must use SNOMED CT system for version 8.0.0");
-        $this->assertEquals('248152002', (string)$valueCoding->getCode(), "Sex coding.code must have correct coding for Male for version 8.0.0");
+        $this->assertEquals('248153007', (string)$valueCoding->getCode(), "Sex coding.code must have correct coding for Male for version 8.0.0");
         $this->assertEquals("Male", (string)$valueCoding->getDisplay(), "Sex coding.display must have correct display");
 
         $this->assertNull($sexExtension->getValueCode(), "Sex extension should NOT populate valueCode for version 8.0.0");
