@@ -305,11 +305,21 @@ function updatePortalMailMessageStatus($id, $message_status, $owner): void
     }
 
     if ($message_status == "Delete") {
-        $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", [$id, $owner]);
+        // The UI archives a conversation by passing its mail_chain. Match the
+        // update scope so audit logging does not dereference an empty result
+        // after the archive itself has already succeeded.
+        $stats = sqlQuery(
+            "SELECT sender_name, recipient_name FROM onsite_mail " .
+            "WHERE (mail_chain = ? OR id = ?) AND `owner` = ? " .
+            "ORDER BY id DESC LIMIT 1",
+            [$id, $id, $owner]
+        );
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $by = $session->get('authUser') ?: $session->get('ptName');
         $loguser = $session->get('authUser') ?: $session->get('portal_username');
-        $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];
+        $senderName = $stats['sender_name'] ?? '';
+        $recipientName = $stats['recipient_name'] ?? '';
+        $evt = "secure message soft delete by " . $by . " msg id: $id from " . $senderName . " to recipient: " . $recipientName;
         $log_from = '';
         $puser = '';
         if ($session->get('patient_portal_onsite_two')) {
