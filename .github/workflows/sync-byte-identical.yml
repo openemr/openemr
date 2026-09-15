@@ -31,10 +31,14 @@
 #   both-missing in FILES_ALL but absent from both      -> warn (config bug)
 #
 # Token: the release App (vars.RELEASE_APP_CLIENT_ID + secrets.RELEASE_APP_PRIVATE_KEY),
-# same as release-prep.yml and build-release.yml. Auto-merge is intentionally
-# NOT enabled -- the sync PRs are review-gated by default so substantive
-# changes (refactor of a FILES_ALL workflow, not just a dependabot bump)
-# get human eyes before landing on the rel branches.
+# same as release-prep.yml and build-release.yml. The same App also enrolls
+# each sync PR for auto-merge (squash) right after peter-evans creates or
+# updates it. GitHub waits for the rel branch's configured merge requirements
+# -- required status checks + any required reviews -- before firing, so a
+# genuine CI failure still holds the PR for manual attention. See the "Enable
+# auto-merge on sync PR" step below for the exact enrollment gate + the
+# operator escape hatch (--disable-auto respected until peter-evans pushes
+# new content).
 #
 # Rel-branch inheritance note: future rel branches cut from master will
 # inherit this workflow file (plus the script + tests it references). That
