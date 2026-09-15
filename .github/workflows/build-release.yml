@@ -195,6 +195,44 @@ jobs:
         SKIP_MILESTONE="$SKIP_MILESTONE"
         SKIP_GHSA="$SKIP_GHSA"
 
+    # Recovery-path smoketest support (openemr/openemr#13991): the
+    # nightly recovery-path-smoketest.yml workflow dispatches this
+    # workflow with a synthetic 99.YYYYMMDD.HHMMSS version to exercise
+    # the recovery chain without touching real release artifacts. Real
+    # rel branches don't carry a CHANGELOG section for 99.x versions
+    # (by design -- the marker is chosen precisely to guarantee no
+    # collision with any real release), so the Extract-CHANGELOG step
+    # below would fail without a stub. Prepend a placeholder section
+    # so extract succeeds + the tarball assembles.
+    #
+    # Gate is a pure pattern-match on "99." -- no new workflow input
+    # to accidentally set on a real release. Real dry-run rehearsals
+    # of a real version still fail loudly here if their CHANGELOG
+    # isn't ready (working as intended -- that's the pre-ship
+    # rehearsal's entire purpose).
+    - name: Stub CHANGELOG for synthetic smoketest version
+      if: "startsWith(inputs.version, '99.')"
+      env:
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        DATE=$(date -u +%Y-%m-%d)
+        printf '## [%s] - %s\n\n- Synthetic recovery-path smoketest entry. No real release.\n\n' \
+          "${RELEASE_VERSION}" "${DATE}" \
+          | cat - CHANGELOG.md > CHANGELOG.md.tmp
+        mv CHANGELOG.md.tmp CHANGELOG.md
+        # PackageAssembler refuses to package a dirty checkout (it uses
+        # `git archive HEAD`, which ships the committed tree; a dirty
+        # modification would be silently dropped from the tarball).
+        # Commit the stub locally in the ephemeral runner so the
+        # subsequent "Build distribution package" step sees a clean
+        # tree with our stub included. Nothing is pushed anywhere --
+        # the runner's checkout is discarded at job end.
+        git -c user.email=recovery-path-smoketest@openemr.local \
+            -c user.name='recovery-path-smoketest' \
+            commit -am "chore(smoketest): stub CHANGELOG for ${RELEASE_VERSION}"
+        echo "==> Prepended + committed synthetic CHANGELOG stub for ${RELEASE_VERSION}"
+
     # Extract the target version's section from CHANGELOG.md for the
     # GitHub Release body + release-notes asset. Content is pre-computed
     # by ChangelogMutator + CompatibilityMutator during the release-prep
