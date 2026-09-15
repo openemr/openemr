@@ -10,8 +10,10 @@
  * @author    tony@mi-squared.com
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -118,6 +120,7 @@ $res = sqlStatement($query, $sqlBindArray);
     <div class="nav navbar-fixed-top body_title">
         <div class="col-md-12">
             <h3><?php echo xlt('Address Book'); ?></h3>
+            <p class="text-muted mb-1"><?php echo xlt('Person entries used as referring providers need an NPI and mailing address. Open the row and use Lookup to fill them from NPPES.'); ?></p>
 
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
@@ -142,7 +145,7 @@ $res = sqlStatement($query, $sqlBindArray);
                     <input type='text' class="form-control inputtext" name='form_specialty' size='10' value='<?php echo attr($form_specialty); ?>' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
                     </div>
                     <div class="col-sm-2">
-                    <label for="form_npi"><?php echo xlt('Specialty') ?>:</label>
+                    <label for="form_npi"><?php echo xlt('NPI') ?>:</label>
                     <input type='text' class="form-control inputtext" name='form_npi' size='10' value='<?php echo attr($form_npi); ?>' title='<?php echo xla("Any part of the desired NPI") ?>'/>&nbsp;
                     </div>
                     <div class="col-sm-2">
@@ -193,31 +196,46 @@ while ($row = sqlFetchArray($res)) {
         $displayName .= ", " . $row['suffix'];
     }
 
+    $person = ((string) ($row['ab_option'] ?? '') !== '3');
+    $npi_missing = $person && trim((string) ($row['npi'] ?? '')) === '';
+    $addr_missing = $person && (
+        trim((string) ($row['street'] ?? '')) === ''
+        || trim((string) ($row['city'] ?? '')) === ''
+        || trim((string) ($row['state'] ?? '')) === ''
+        || trim((string) ($row['zip'] ?? '')) === ''
+    );
+    $warn = $npi_missing || $addr_missing;
+    $trClass = 'address_names detail';
+    if ($warn) {
+        $trClass .= ' table-warning';
+    }
+
     if (AclMain::aclCheckCore('admin', 'practice') || (empty($username) && empty($row['ab_name']))) {
        // Allow edit, since have access or (no item type and not a local user)
         $trTitle = xl('Edit') . ' ' . $displayName;
-        echo " <tr class='address_names detail' style='cursor:pointer' " .
+        echo " <tr class='" . attr($trClass) . "' style='cursor:pointer' " .
         "onclick='doedclick_edit(" . attr_js($row['id']) . ")' title='" . attr($trTitle) . "'>\n";
     } else {
        // Do not allow edit, since no access and (item is a type or is a local user)
         $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-        echo " <tr class='address_names detail' title='" . attr($trTitle) . "'>\n";
+        echo " <tr class='" . attr($trClass) . "' title='" . attr($trTitle) . "'>\n";
     }
 
+    $missing = "<span class='text-danger'>" . xlt('Missing') . "</span>";
     echo "  <td>" . text($row['organization']) . "</td>\n";
     echo "  <td>" . text($displayName) . "</td>\n";
     echo "  <td>" . ($username ? '*' : '') . "</td>\n";
     echo "  <td>" . generate_display_field(['data_type' => '1','list_id' => 'abook_type'], $row['ab_name']) . "</td>\n";
     echo "  <td>" . text($row['specialty']) . "</td>\n";
-    echo "  <td>" . text($row['npi'])       . "</td>\n";
+    echo "  <td>" . ($npi_missing ? $missing : text($row['npi'])) . "</td>\n";
     echo "  <td>" . text($row['phonew1'])   . "</td>\n";
     echo "  <td>" . text($row['phonecell']) . "</td>\n";
     echo "  <td>" . text($row['fax'])       . "</td>\n";
     echo "  <td>" . text($row['email'])     . "</td>\n";
-    echo "  <td>" . text($row['street'])    . "</td>\n";
-    echo "  <td>" . text($row['city'])      . "</td>\n";
-    echo "  <td>" . text($row['state'])     . "</td>\n";
-    echo "  <td>" . text($row['zip'])       . "</td>\n";
+    echo "  <td>" . ($person && trim((string) ($row['street'] ?? '')) === '' ? $missing : text($row['street'])) . "</td>\n";
+    echo "  <td>" . ($person && trim((string) ($row['city'] ?? '')) === '' ? $missing : text($row['city'])) . "</td>\n";
+    echo "  <td>" . ($person && trim((string) ($row['state'] ?? '')) === '' ? $missing : text($row['state'])) . "</td>\n";
+    echo "  <td>" . ($person && trim((string) ($row['zip'] ?? '')) === '' ? $missing : text($row['zip'])) . "</td>\n";
     echo " </tr>\n";
 }
 ?>
