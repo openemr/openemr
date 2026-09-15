@@ -29,6 +29,7 @@ $application = new Application();
 $application->addCommand($container->get(Command\InstallCommand::class));
 $application->addCommand($container->get(Command\ShellCommand::class));
 $application->addCommand($container->get(Command\Codes\UpdateMappingsCommand::class));
+$application->addCommand($container->get(Command\Codes\ImportCommand::class));
 
 // Doctrine Migrations integration
 MigrationsConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
