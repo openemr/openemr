@@ -427,16 +427,21 @@ surface: the `acceptance-only.yml` recovery workflow chain.
 **Trigger.** Nightly cron at 02:00 UTC + `workflow_dispatch` for
 on-demand runs after landing recovery-workflow refactors. Master-only.
 
-**What it checks.** Dispatches `build-release.yml` with `dry_run=true`
-against the current-shipped rel-line + tag (read from
-`.github/release-targets.yml`'s `latest` row — same source-of-truth
-`docker-release-orchestrator.yml` uses). Then chains that fresh source
-into two `acceptance-only.yml` runs, both with `no_publish=true` —
+**What it checks.** Reads `.github/release-targets.yml`'s `latest` row
+(same source-of-truth `docker-release-orchestrator.yml` uses) to
+identify the current-shipped rel-line and `openemr_version_ref` tag.
+Dispatches `build-release.yml` with `dry_run=true` and the tag itself
+as `version_branch` — `actions/checkout` resolves the ref, so the
+source is the exact commit that was shipped, independent of any
+post-release drift on the rel-branch tip. Then chains that fresh
+source into two `acceptance-only.yml` runs, both with `no_publish=true` —
 variant A with `skip_acceptance=true` (exercises the skip-acceptance
 routing that a real recovery would use), variant B with the full
-acceptance matrix. Bonus: exercises `build-release.yml` itself, which
-otherwise was in the same "first-run-on-real-ship" category as the
-recovery workflows.
+acceptance matrix. The rel-branch name is passed to those acceptance
+dispatches as metadata only (mimics real recovery inputs; the value
+flows to the publish job which is gated off). Bonus: exercises
+`build-release.yml` itself, which otherwise was in the same
+"first-run-on-real-ship" category as the recovery workflows.
 
 **Why it exists.** [G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13)'s
 systemic lesson: `acceptance-only.yml` had been untouched since
