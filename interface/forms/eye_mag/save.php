@@ -710,8 +710,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     $subtypeCond = $panel
                         ? $panel->subtypeFilter()->condition()
                         : new SqlFragment('AND subtype = ?', [$subtype]);
-                    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $subtypeCond->sql is one of four literals from SubtypeFilter::condition(); -- $panelType only selects the case, and all values stay parameterized.
-                    $query = "SELECT id,pid from lists where title=? and type=? and pid=? {$subtypeCond->sql}";
+                    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $subtypeCond->sql is one of four literals from SubtypeFilter::condition(); $panelType only selects the case and all values stay parameterized                    $query = "SELECT id,pid from lists where title=? and type=? and pid=? {$subtypeCond->sql}";
                     $issue = QueryUtils::fetchSingleValue(
                         $query,
                         'id',
