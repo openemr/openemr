@@ -221,7 +221,17 @@ jobs:
           "${RELEASE_VERSION}" "${DATE}" \
           | cat - CHANGELOG.md > CHANGELOG.md.tmp
         mv CHANGELOG.md.tmp CHANGELOG.md
-        echo "==> Prepended synthetic CHANGELOG stub for ${RELEASE_VERSION}"
+        # PackageAssembler refuses to package a dirty checkout (it uses
+        # `git archive HEAD`, which ships the committed tree; a dirty
+        # modification would be silently dropped from the tarball).
+        # Commit the stub locally in the ephemeral runner so the
+        # subsequent "Build distribution package" step sees a clean
+        # tree with our stub included. Nothing is pushed anywhere --
+        # the runner's checkout is discarded at job end.
+        git -c user.email=recovery-path-smoketest@openemr.local \
+            -c user.name='recovery-path-smoketest' \
+            commit -am "chore(smoketest): stub CHANGELOG for ${RELEASE_VERSION}"
+        echo "==> Prepended + committed synthetic CHANGELOG stub for ${RELEASE_VERSION}"
 
     # Extract the target version's section from CHANGELOG.md for the
     # GitHub Release body + release-notes asset. Content is pre-computed
