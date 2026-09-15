@@ -90,7 +90,7 @@ DORA's original "four keys" were expanded in 2024 to five metrics, and MTTR was 
 
 **Followup potential (deferred to gap entries):**
 
-- If cascade rate stays at 100% across the next few ships, the "recovery-path smoketest outside real ships" idea (G35's proposed followup) becomes higher priority than intuition suggests.
+- Recovery-path smoketest SHIPPED 2026-09-15 as [G36](release-mechanism-gaps.md#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15) — nightly cron dispatches `acceptance-only.yml` (both variants) against the current-shipped version with `no_publish=true`. First observed regression from this smoketest will confirm whether the cascade pattern was systemic (in which case the smoketest catches it before the next ship) or per-ship bad luck.
 - 8.5.0 will be the third automated-ship data point. If bi-weekly cadence is adopted by then, that ship will start distinguishing "small batches help" from "the cascade pattern is unrelated to batch size."
 - Broader operational monitoring of the release-mechanism itself (e.g., "release-mechanism-smoketest.yml green %" as a leading indicator, per DORA's "Monitoring and Observability" capability) is worth considering once we have 4-5 data points.
 
