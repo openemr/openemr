@@ -53,14 +53,19 @@ class CdaValidateDocumentsTest extends TestCase {
         //   count returns, the versioned extension="2015-08-01" templateId has crept
         //   back into the generator; fix the generator, do not raise this count.
         //
-        // ignoredCount = 8: schematron rules the validator cannot resolve
-        //   ("Assertion skipped or malformed") -- voc.xml value-set lookups and the
-        //   R1.1-compatibility meta-rule. warningCount = 0.
+        // ignoredCount = 1: only the R1.1-compatibility meta-rule remains
+        //   unevaluable ($root sch:let variable). The prior Node-service snapshot
+        //   showed 8 ignored because the JS xpath library could not evaluate
+        //   `document('voc.xml')/...` value-set predicates and silently punted;
+        //   the pure-PHP validator (Services\Cda\Schematron\SchematronValidator)
+        //   rewrites those predicates against a precomputed vocab lookup and
+        //   evaluates them (they all pass on this fixture, so errorCount is
+        //   unchanged at 6). warningCount = 0.
         $context = $this->describeValidation($validationResponse);
 
         $this->assertEquals(6, $validationResponse['errorCount'], "Expected 6 validation errors for invalid CCDA document.\n" . $context);
         $this->assertEquals(0, $validationResponse['warningCount'], "Expected no validation warnings for invalid CCDA document.\n" . $context);
-        $this->assertEquals(8, $validationResponse['ignoredCount'], "Expected 8 ignored validation issues for invalid CCDA document.\n" . $context);
+        $this->assertEquals(1, $validationResponse['ignoredCount'], "Expected 1 ignored validation issue for invalid CCDA document.\n" . $context);
         $this->assertNotEmpty($validationResponse['errors'], "Expected validation errors for invalid CCDA document.");
         $this->assertCount(6, $validationResponse['errors'], "Expected 6 validation errors for invalid CCDA document.\n" . $context);
     }
