@@ -466,16 +466,15 @@ stomping on the real release the smoketest targets.
 
 **Zero side effects on real releases.** Four layers of defense
 against modifying real release artifacts (see G36 for details):
-`dry_run`/`no_publish` per dispatch, tag-exists + Release-exists +
-Docker-Hub-tag-exists preconditions before dispatch, server-side
-"already exists" rejection on the operations those flags gate
-(tarball only — docker has no L3 since Docker Hub accepts arbitrary
-re-push), and runtime post-verification hard-failing the smoketest
-if any real release artifact drifted during the run. The docker job's
-post-verification uses a publish-job-status check + canary-tag-absent
-check instead of a Docker Hub digest baseline (avoids false-positives
-from the nightly orchestrator's legitimate re-push of the target
-rel-line's tags).
+`dry_run`/`no_publish` per dispatch, tag-exists + Release-exists
+preconditions before dispatch, server-side "already exists" rejection
+on the operations those flags gate (tarball only — docker has no L3
+since Docker Hub accepts arbitrary re-push), and runtime post-
+verification hard-failing the smoketest if any real release artifact
+drifted during the run. The docker job's post-verification uses a
+publish-job-status check + canary-tag-absent check instead of a
+Docker Hub digest baseline (avoids false-positives from the nightly
+orchestrator's legitimate re-push of the target rel-line's tags).
 
 **Noise-handling.** One red in isolation is data, not signal (transient
 API 5xx / Docker Hub 502 flakes). Two-plus reds on consecutive nights
