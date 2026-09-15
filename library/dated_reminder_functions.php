@@ -387,11 +387,12 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
         // Normalize $sendTo to a list of scalar recipient IDs; callers pass
         // arrays from the multi-select sendTo[] form field, and
         // dated_reminders_add.php wraps single IDs as [$st] before dispatch.
-        $recipientIds = array_values(array_filter(
-            is_array($sendTo) ? $sendTo : [$sendTo],
-            is_numeric(...)
-        ));
-        if ($recipientIds === []) {
+        $rawRecipients = is_array($sendTo) ? $sendTo : [$sendTo];
+        $recipientIds = array_values(array_filter($rawRecipients, is_numeric(...)));
+        // Reject the whole batch on any non-numeric entry — otherwise a mixed
+        // request like [validId, 'bad-id'] would insert only the valid recipient
+        // and return true, giving the caller silent partial fulfillment.
+        if ($recipientIds === [] || count($recipientIds) !== count($rawRecipients)) {
             return false;
         }
         $placeholders = implode(',', array_fill(0, count($recipientIds), '?'));
