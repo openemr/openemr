@@ -15,6 +15,7 @@
  */
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -383,9 +384,25 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
         is_numeric($patID)
     ) {
 // ------- check for valid recipient
-        $cRow = sqlFetchArray(sqlStatement('SELECT count(id) as cnt FROM `users` WHERE `id` = ?', [$sendTo]));
-        $recipientCount = is_array($cRow) && is_numeric($cRow['cnt'] ?? null) ? (int) $cRow['cnt'] : 0;
-        if ($recipientCount === 0) {
+        // Normalize $sendTo to a list of scalar recipient IDs; callers pass
+        // arrays from the multi-select sendTo[] form field, and
+        // dated_reminders_add.php wraps single IDs as [$st] before dispatch.
+        $recipientIds = array_values(array_filter(
+            is_array($sendTo) ? $sendTo : [$sendTo],
+            is_numeric(...)
+        ));
+        if ($recipientIds === []) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($recipientIds), '?'));
+        $cRow = QueryUtils::querySingleRow(
+            "SELECT COUNT(id) AS cnt FROM `users` WHERE `id` IN ($placeholders)",
+            $recipientIds
+        );
+        $matchedCount = is_array($cRow) && is_numeric($cRow['cnt'] ?? null) ? (int) $cRow['cnt'] : 0;
+        // Any missing recipient rejects the whole batch — same fail-closed
+        // intent as the original single-id check, now actually enforced.
+        if ($matchedCount !== count($recipientIds)) {
             return false;
         }
 

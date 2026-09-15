@@ -39,6 +39,9 @@
         ->prependFile($this->basePath() . '/js/lib/jquery.easyui.min.js')
         ->prependFile($this->basePath() . '/js/lib/jquery-1.8.0.min.js')
 		?>
+        <script>
+            window.csrfTokenForm = <?php echo json_encode(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken()); ?>;
+        </script>
     </head>
     <body class="body-top bg-light text-dark">
         <div class="bg-light text-dark">

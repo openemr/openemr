@@ -23,6 +23,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
@@ -486,6 +487,7 @@ class InstallerController extends AbstractActionController
             echo xlt('Not Authorized');
             exit;
         }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $request = $this->getRequest();
         $moduleId = $request->getPost()->module_id;
@@ -513,6 +515,7 @@ class InstallerController extends AbstractActionController
             echo xlt('Not Authorized');
             exit;
         }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $request = $this->getRequest();
         $this->InstallerTable->DeleteAcl($request->getPost());
@@ -530,6 +533,7 @@ class InstallerController extends AbstractActionController
             echo xlt('Not Authorized');
             exit;
         }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $request = $this->getRequest();
         $this->InstallerTable->DeleteHooks($request->getPost());
@@ -547,6 +551,7 @@ class InstallerController extends AbstractActionController
             echo xlt('Not Authorized');
             exit;
         }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $request = $this->getRequest();
         $nickname = $request->getPost()->nickname;
