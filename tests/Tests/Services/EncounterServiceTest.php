@@ -177,4 +177,17 @@ class EncounterServiceTest extends TestCase
             QueryUtils::sqlStatementThrowException("DELETE FROM `form_groups_encounter` WHERE `reason` = ?", ['test-fixture-group-encounter']);
         }
     }
+    /**
+     * The legacy shims accept anything, as they always did. A non-scalar encounter must keep
+     * yielding "nothing found" instead of reaching the typed service methods and raising a
+     * TypeError.
+     */
+    #[Test]
+    public function testLegacyShimsTreatNonScalarEncountersAsUnknown(): void
+    {
+        $this->assertNull(fetchCategoryIdByEncounter(['not', 'an', 'id']));
+        $this->assertNull(fetchCategoryIdByEncounter(null));
+        $this->assertSame('', fetchDateService(['not', 'an', 'id']));
+        $this->assertSame('', fetchDateService(null));
+    }
 }
