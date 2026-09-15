@@ -15,9 +15,11 @@ namespace OpenEMR\Core;
 use OpenEMR\BC\Deprecation;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\Traits\SingletonTrait;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 use function array_key_exists;
+use function is_array;
 
 /**
  * Typed wrapper around $GLOBALS. Extends Symfony ParameterBag.
@@ -31,6 +33,7 @@ use function array_key_exists;
  * @see ParameterBag::getAlnum()    getAlnum(string $key, string $default = ''): string — alphanumeric only
  * @see ParameterBag::getDigits()   getDigits(string $key, string $default = ''): string — digits only
  * @see ParameterBag::getEnum()     getEnum(string $key, string $class, ?BackedEnum $default = null): ?BackedEnum
+ * @see self::getArray()            getArray(string $key, array $default = []): array
  *
  * @final — not enforced at runtime because tests mock this class
  */
@@ -104,6 +107,67 @@ class OEGlobalsBag extends ParameterBag
         }
 
         return array_key_exists($key, $GLOBALS);
+    }
+
+    /**
+     * Returns an array-valued global, falling back to $default when the key is absent or the
+     * stored value is not an array.
+     *
+     * This is the array member of the typed-getter family (getString(), getInt(), ...). It
+     * routes through {@see self::get()}, so the singleton reads the live $GLOBALS rather than
+     * the snapshot ParameterBag took at construction, and it narrows with is_array() instead of
+     * casting. Use it rather than {@see ParameterBag::all()} for globals that legacy code
+     * populates at runtime, such as `code_types`.
+     *
+     * @param array<mixed> $default
+     *
+     * @return array<mixed>
+     */
+    public function getArray(string $key, array $default = []): array
+    {
+        $value = $this->get($key, $default);
+        if (is_array($value)) {
+            return $value;
+        }
+
+        $this->reportUnusableValue($key, $default, new \UnexpectedValueException(sprintf(
+            'Unexpected value for parameter "%s": expecting "array", got "%s".',
+            $key,
+            get_debug_type($value),
+        )));
+
+        return $default;
+    }
+
+    /**
+     * With a key, reads the live value through {@see self::get()} instead of the construction-time
+     * snapshot, so the singleton sees globals written to $GLOBALS after getInstance(). Without a
+     * key, the parent's whole-snapshot behavior is unchanged.
+     *
+     * @template TKey of string|null
+     *
+     * @param TKey $key
+     *
+     * @return (TKey is null ? array<string, mixed> : array<mixed>)
+     *
+     * @throws BadRequestException if the value is not an array
+     */
+    public function all(?string $key = null): array
+    {
+        if ($key === null) {
+            return parent::all();
+        }
+
+        $value = $this->get($key, []);
+        if (!is_array($value)) {
+            throw new BadRequestException(sprintf(
+                'Unexpected value for parameter "%s": expecting "array", got "%s".',
+                $key,
+                get_debug_type($value),
+            ));
+        }
+
+        return $value;
     }
 
     /**
