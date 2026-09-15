@@ -13,6 +13,7 @@ namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
@@ -144,5 +145,36 @@ class EncounterServiceTest extends TestCase
         $this->assertSame($row['pc_catid'], EncounterService::fetchCategoryIdByEncounter($row['encounter']));
         $this->assertSame('', EncounterService::fetchDateService(-1), 'unknown encounter yields an empty date');
         $this->assertNull(EncounterService::fetchCategoryIdByEncounter(-1), 'unknown encounter yields no category');
+    }
+    /**
+     * With a therapy-group attendant the category comes from form_groups_encounter, through both
+     * the legacy shim and the service method; the same encounter number is unknown on the patient
+     * side, which proves the table switch rather than a coincidental match.
+     */
+    #[Test]
+    public function testCategoryLookupUsesTheGroupEncounterTableForTherapyGroups(): void
+    {
+        $bag = OEGlobalsBag::getInstance();
+        $previousAttendantType = $bag->getString('attendant_type');
+        $encounter = 987654321;
+        $groupCategory = 9;
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `form_groups_encounter` (`id`, `date`, `reason`, `group_id`, `encounter`, `pc_catid`) VALUES (?, ?, ?, ?, ?, ?)",
+            [987654321, self::FIXTURE_DATE_OF_SERVICE, 'test-fixture-group-encounter', 1, $encounter, $groupCategory]
+        );
+
+        try {
+            $bag->set('attendant_type', 'pid');
+            $patientSideCategory = fetchCategoryIdByEncounter($encounter);
+            $this->assertNull($patientSideCategory, 'no patient encounter carries this number');
+
+            $bag->set('attendant_type', 'gid');
+            $groupSideCategory = fetchCategoryIdByEncounter($encounter);
+            $this->assertSame($groupCategory, $groupSideCategory);
+            $this->assertSame($groupCategory, EncounterService::fetchCategoryIdByEncounter($encounter));
+        } finally {
+            $bag->set('attendant_type', $previousAttendantType);
+            QueryUtils::sqlStatementThrowException("DELETE FROM `form_groups_encounter` WHERE `reason` = ?", ['test-fixture-group-encounter']);
+        }
     }
 }
