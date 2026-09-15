@@ -232,10 +232,26 @@ jobs:
         fi
         echo "==> Safety gates confirmed: tag + Release exist on origin. Cannot stomp on this version."
 
+        # GUARDRAIL BASELINE (pre-dispatch). Snapshot the tag SHA
+        # and Release timestamps NOW so the post-dispatch guardrail
+        # verify step can detect any drift. Runtime verification of
+        # the static gates: dry_run + no_publish + tag-exists +
+        # Release-exists are the FIRST line of defense; drift-check
+        # is the SECOND, catching any silent regression through them.
+        BASELINE_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${PICKED_TAG}" | awk '{print $1}')
+        # `updated_at` isn't in the Release JSON, but `publishedAt`
+        # + assets' `updatedAt` are the mutation-visible fields.
+        # Capture both to detect body edits / asset re-uploads.
+        BASELINE_RELEASE_STATE=$(gh release view "${PICKED_TAG}" --repo "${{ github.repository }}" \
+          --json publishedAt,createdAt,assets \
+          --jq '"pub=\(.publishedAt) created=\(.createdAt) asset_updated=\([.assets[].updatedAt] | join(","))"')
+
         {
           echo "SHIPPED_VERSION=${PICKED_VERSION}"
           echo "REL_BRANCH=${PICKED_REL_BRANCH}"
           echo "RELEASE_TAG=${PICKED_TAG}"
+          echo "BASELINE_TAG_SHA=${BASELINE_TAG_SHA}"
+          echo "BASELINE_RELEASE_STATE=${BASELINE_RELEASE_STATE}"
         } >> "${GITHUB_ENV}"
         {
           echo "### Smoketest target"
@@ -244,6 +260,13 @@ jobs:
           echo "- shipped tag: \`${PICKED_TAG}\` (from release-targets.yml \`latest\` row)"
           echo "- version passed to build-release: ${PICKED_VERSION}"
           echo "- version_branch passed to build-release: \`${PICKED_TAG}\` (checks out the tag's commit, not the rel-branch tip -- source reports the exact shipped version regardless of any post-release drift on the rel branch)"
+          echo ""
+          echo "### Guardrail baseline"
+          echo ""
+          echo "- tag SHA: \`${BASELINE_TAG_SHA}\`"
+          echo "- release state: \`${BASELINE_RELEASE_STATE}\`"
+          echo ""
+          echo "The GUARDRAIL VERIFY step at the end of this job re-checks these values and hard-fails the smoketest if either has drifted (would indicate a real release was modified)."
         } >> "${GITHUB_STEP_SUMMARY}"
 
     - name: Dispatch build-release.yml (dry_run=true) as fresh source
@@ -566,6 +589,71 @@ jobs:
         set -euo pipefail
         echo "==> Watching variant B (full acceptance) run ${ACCEPTANCE_RUN_ID_FULL}"
         gh run watch "${ACCEPTANCE_RUN_ID_FULL}" --exit-status --repo "${{ github.repository }}"
+
+    # GUARDRAIL VERIFY -- runtime check that no real release
+    # artifact was modified by the dispatched workflows. This is
+    # the second line of defense (the first line is static: the
+    # dry_run + no_publish inputs on the dispatched workflows, and
+    # the tag-exists + Release-exists preconditions before
+    # dispatch). If any static gate ever regressed and a dispatched
+    # workflow slipped through to modify a real release, THIS step
+    # will detect it (tag SHA moved, or Release timestamps /
+    # asset-updated timestamps moved).
+    #
+    # if: always() so this fires even if any earlier step failed --
+    # a failure earlier doesn't mean nothing bad happened; we still
+    # want to know if a real release was touched.
+    #
+    # This step can only meaningfully run if the baseline was
+    # captured (i.e. we got past the target-picker step). If
+    # BASELINE_TAG_SHA is unset, skip (nothing to compare against).
+    - name: GUARDRAIL VERIFY -- release state unchanged
+      if: always()
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        if [[ -z "${BASELINE_TAG_SHA:-}" ]]; then
+          echo "==> Baseline not captured (target picker never ran or failed); nothing to verify."
+          exit 0
+        fi
+        FAILED=0
+        CURRENT_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
+        CURRENT_RELEASE_STATE=$(gh release view "${RELEASE_TAG}" --repo "${{ github.repository }}" \
+          --json publishedAt,createdAt,assets \
+          --jq '"pub=\(.publishedAt) created=\(.createdAt) asset_updated=\([.assets[].updatedAt] | join(","))"' 2>/dev/null || echo "<release-missing>")
+
+        if [[ "${CURRENT_TAG_SHA}" != "${BASELINE_TAG_SHA}" ]]; then
+          {
+            echo "::error::GUARDRAIL FAILED: tag ${RELEASE_TAG} SHA changed during smoketest."
+            echo "::error::  baseline: ${BASELINE_TAG_SHA}"
+            echo "::error::   current: ${CURRENT_TAG_SHA}"
+            echo "::error::This indicates a dry_run-gating regression let a tag push through. Investigate immediately -- the shipped tag now points at a different commit than at ship time."
+          } >&2
+          FAILED=1
+        fi
+        if [[ "${CURRENT_RELEASE_STATE}" != "${BASELINE_RELEASE_STATE}" ]]; then
+          {
+            echo "::error::GUARDRAIL FAILED: GitHub Release ${RELEASE_TAG} state changed during smoketest."
+            echo "::error::  baseline: ${BASELINE_RELEASE_STATE}"
+            echo "::error::   current: ${CURRENT_RELEASE_STATE}"
+            echo "::error::This indicates a no_publish-gating regression let a Release mutation through (body edit, asset re-upload, or the Release itself was recreated). Investigate immediately."
+          } >&2
+          FAILED=1
+        fi
+
+        if [[ ${FAILED} -eq 1 ]]; then
+          exit 1
+        fi
+        echo "==> Guardrail OK: tag SHA + Release state unchanged since pre-dispatch baseline."
+        {
+          echo ""
+          echo "### Guardrail verify"
+          echo ""
+          echo "- Result: **PASSED**"
+          echo "- Tag SHA: unchanged (\`${CURRENT_TAG_SHA}\`)"
+          echo "- Release state: unchanged"
+        } >> "${GITHUB_STEP_SUMMARY}"
 
     - name: Emit summary
       if: always()
