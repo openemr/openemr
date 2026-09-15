@@ -3,6 +3,24 @@
 # - "Isolated tests": Tests that run without secondary services, a data layer or significant initialization requirements
 # - "Tests": Tests that require a database and initialization before they can run or pass.
 # This workflow runs the kind that does not require initialization.
+#
+# PHP version strategy:
+# - Pull requests and pushes: supported, released PHP versions only.
+# - Scheduled nightly run and workflow_dispatch: supported versions plus the
+#   unreleased pre-release (8.6), which tracks a nightly php-src build.
+# - Pull requests that opt in via a commit trailer: supported versions plus 8.6.
+#
+# 8.6 is built from php-src nightlies and regresses from time to time for
+# reasons that have nothing to do with the PR under test, so it does not run
+# on PRs by default. To check a change against it -- e.g. when the change is
+# about 8.6 compatibility -- add either of these trailers to any commit in the
+# PR:
+#
+#   Test-PHP: 8.6
+#   Test-Mode: full
+#
+# When opted in, the 8.6 job reports honestly and a failure blocks the PR:
+# asking for the version means wanting its answer.
 
 name: Isolated Tests
 
@@ -16,34 +34,85 @@ on:
     branches:
     - master
     - rel-*
+  schedule:
+    # 8:00 UTC = 3:00 AM EST / 4:00 AM EDT
+  - cron: 0 8 * * *
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  collect:
+    name: Collect PHP Versions
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        # For PRs, check out the PR head ref to access commit trailers
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        # Fetch enough history to find the merge base with the target branch
+        fetch-depth: 0
+
+    - name: Collect PHP versions
+      id: php-versions
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        BASE_REF: ${{ github.event.pull_request.base.ref }}
+      ##
+      # Supported versions always run. The unreleased pre-release runs on the
+      # nightly schedule, on manual dispatch, and on PRs that ask for it by
+      # commit trailer.
+      run: |
+        supported=( '8.3' '8.4' '8.5' )
+        prerelease='8.6'
+
+        case "${EVENT_NAME}" in
+        schedule | workflow_dispatch)
+          supported+=( "${prerelease}" )
+          ;;
+        pull_request)
+          # The checkout with fetch-depth=0 already has full history
+          if merge_base=$(git merge-base "origin/${BASE_REF}" HEAD); then
+            echo "::debug::Checking commits ${merge_base}..HEAD for opt-in trailers"
+            # Test-PHP takes a comma- or space-separated list of versions;
+            # Test-Mode: full opts into everything, as it does in test-all.yml.
+            opt_in=$(git log --extended-regexp --regexp-ignore-case --format='%h' \
+                             --grep="^Test-PHP:([[:space:],]|.*[[:space:],])${prerelease//./\\.}([[:space:],]|\$)" \
+                             --grep='^Test-Mode:[[:space:]]*full[[:space:]]*$' \
+                             "${merge_base}..HEAD")
+            if [[ -n "${opt_in}" ]]; then
+              supported+=( "${prerelease}" )
+              echo "::notice::PHP ${prerelease} requested by commit ${opt_in//$'\n'/, }"
+            fi
+          else
+            echo "::warning::Could not find merge base, skipping trailer check"
+          fi
+          ;;
+        esac
+
+        printf '%s\n' "${supported[@]}" |
+          jq -Rrcn '[inputs] | "php-versions=\(.)"' >> "$GITHUB_OUTPUT"
+    outputs:
+      php-versions: ${{ steps.php-versions.outputs.php-versions }}
+
   isolated-tests:
+    needs: collect
     runs-on: ubuntu-24.04
 
     strategy:
-      # A failure on one PHP version says nothing about the others, and 8.6 is
-      # still in development — its nightly builds regress from time to time.
-      # Cancelling the production versions on an 8.6 failure hides whether the
-      # supported versions actually pass.
+      # A failure on one PHP version says nothing about the others. Cancelling
+      # the rest of the matrix on the first failure hides whether the remaining
+      # versions actually pass.
       fail-fast: false
       matrix:
-        php-version:
-        - '8.3'
-        - '8.4'
-        - '8.5'
-        - '8.6'
+        php-version: ${{ fromJson(needs.collect.outputs.php-versions) }}
 
     name: PHP ${{ matrix.php-version }} - Isolated Tests
-
-    # PHP 8.6 is not released yet, so it runs against a nightly build that can
-    # regress underneath us. Report those failures as warnings rather than
-    # blocking every PR on an upstream php-src bug. Drop this once 8.6 ships.
-    continue-on-error: ${{ matrix.php-version == '8.6' }}
 
     steps:
     - uses: actions/checkout@v7
