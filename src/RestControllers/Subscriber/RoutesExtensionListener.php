@@ -46,6 +46,11 @@ class RoutesExtensionListener implements EventSubscriberInterface
             return; // If the request is not an instance of HttpRestRequest, we cannot proceed with route extension.
         }
         // CORS request is handled by a separate listener, so we do not need to handle it here.
+        if ($request->getMethod() === 'OPTIONS') {
+            // No route is ever registered for OPTIONS, so without this guard we'd
+            // throw a 404 here before CORSListener (lower REQUEST priority) runs.
+            return;
+        }
 
         // handle each type of request separately
         if ($request->isFhirRequest()) {
