@@ -55,6 +55,18 @@ Both **must dispatch from `--ref master`** — workflows reject other refs. See 
 
 After each release completes (Conductor + Docs + Finalize all merged, tag + Release + Docker image all published, docker orchestration for the shipped tag green), add a row to the [Release performance metrics (DORA-aligned)](#release-performance-metrics-dora-aligned) table below with the four values for that ship. Keeps the baseline current so improvement/regression trends stay visible over time.
 
+## Release-mechanism health monitoring
+
+Three background workflows keep the release mechanism itself in a warm, tested state so a maintainer running Quick Actions 1–7 above hits code paths that have been exercised recently, not "first-real-use-on-ship-day". These fire automatically — no operator action required — but knowing they exist helps triage when something surprising surfaces during a ship.
+
+- **`.github/workflows/release-mechanism-smoketest.yml`** — path-gated CI check on every PR touching the release-mechanism surface (any release-mechanism workflow YAML, `src/Common/Command/ReleasePrepCommand.php`, `src/Common/Command/ReleasePrep/**`, `tools/release/**`, `.github/actions/setup-php-composer/**`). Runs `openemr:release-prep --scope=rel` end-to-end against `rel-820`, catching env-plumbing bugs the mutator unit tests can't see (they inject `FakeGitHubApi` instead of shelling out to `gh`). Zero side-effects — the mutator's diff gets `git checkout -- .`'d at the end.
+
+- **`.github/workflows/recovery-path-smoketest.yml`** — nightly (02:00 UTC) exercise of the recovery workflows themselves (`acceptance-only.yml` for tarball + `docker-acceptance-only.yml` for docker), which otherwise only fire on real ship-day failures. Dispatches both against the current-shipped rel-line + tag from `.github/release-targets.yml`'s `latest` row, with `no_publish=true` (both surfaces) and per-run canary tag (docker) to guarantee zero side-effects on real releases. Four-layer guardrail model detailed in [G36](release-mechanism-gaps.md#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15). Also enabled for manual `workflow_dispatch` — dispatch after landing recovery-workflow refactors to verify without waiting for the next cron.
+
+- **`.github/workflows/validate-byte-identical.yml`** — the drift canary paired with `sync-byte-identical.yml`. Fires on every PR + master push to detect if a rel-branch's copy of a byte-identical file has drifted from master's. Pairs with `sync-byte-identical.yml` which proactively closes any drift via auto-mergeable sync PRs.
+
+See [`docs/release-automation-plan.md`](release-automation-plan.md) for the full design + inventory of every release-mechanism workflow (both operator-triggered lifecycle workflows and these background monitors).
+
 ## Release performance metrics (DORA-inspired proxies)
 
 Per-release tracking of five release-process signals **modeled on** — but not literally identical to — the [current DORA five-metric framework](https://dora.dev/guides/dora-metrics/). DORA's metrics are defined against production observability (post-deploy incident tracking, production-user recovery, etc.); ours are proxies computed from release-mechanism artifacts (rel-branch cut dates, ship-time cascade counts, acceptance-gate recovery windows) because we don't currently collect production events at the granularity DORA assumes. The proxies are useful as trend signals over successive ships; comparing our absolute values against DORA's industry benchmarks would be apples-to-oranges.
