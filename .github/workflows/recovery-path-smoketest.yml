@@ -307,12 +307,18 @@ jobs:
           fi
           echo "==> [attempt ${attempt}] gh workflow run build-release.yml"
           # dry_run=true skips the publish job (tag push + GitHub
-          # Release create) at the build-release layer. We do NOT
-          # pass skip_milestone_check / skip_ghsa_check anymore:
-          # (a) build-release already gates the preflight step on
-          # !dry_run, so these inputs are no-ops under dry_run;
-          # (b) using the actual shipped version means those
-          # preflights would pass anyway (milestone + GHSAs exist).
+          # Release create) at the build-release layer.
+          # skip_milestone_check + skip_ghsa_check needed because
+          # the preflight step in build-release is NOT gated on
+          # dry_run -- it fires whenever skip_ghsa_check=false (or
+          # skip_milestone_check=false with a non-empty milestone).
+          # For the smoketest we want to exercise build + package,
+          # not milestone/GHSA gating (that gating already passed
+          # when the version originally shipped; re-running it now
+          # would fail on any post-ship PENDING GHSA on the
+          # already-shipped version and would gate the smoketest on
+          # ongoing security-workflow state unrelated to release-
+          # mechanism health).
           # Pass the tag (not the rel branch) as version_branch --
           # actions/checkout in build-release.yml resolves the ref, so
           # this checks out the exact commit that was shipped. Rules
@@ -325,7 +331,9 @@ jobs:
               -f version_branch="${RELEASE_TAG}" \
               -f version="${SHIPPED_VERSION}" \
               -f release_tag="${RELEASE_TAG}" \
-              -f dry_run=true; then
+              -f dry_run=true \
+              -f skip_milestone_check=true \
+              -f skip_ghsa_check=true; then
             exit 0
           fi
           echo "  dispatch attempt ${attempt} reported failure"
