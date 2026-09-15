@@ -415,7 +415,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
             [$fromID, $message, $dueDate, $patID, $priority]
         );
 
-        foreach ($sendTo as $st) {
+        foreach ($recipientIds as $st) {
             sqlStatement(
                 "INSERT INTO `dated_reminders_link`
                             (`dr_id` ,`to_id`)
