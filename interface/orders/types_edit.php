@@ -284,7 +284,7 @@ function recursiveDelete($typeid): void
                     "procedure_type_id = ?", [$typeid]);
                 $parent = $row['parent'];
             } else {
-                $bindValues[] = $parent;
+                array_unshift($bindValues, $parent);
                 $newid = sqlInsert("INSERT INTO procedure_type SET parent = ?, $sets", $bindValues);
                 // $newid is not really used in this script
             }
