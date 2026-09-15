@@ -914,6 +914,16 @@ jobs:
         # any accidental push during a gating regression creates a
         # detectable-and-cleanable artifact rather than clobbering
         # a real tag.
+        #
+        # Filter uniqueness for locate + pre-retry: CANARY_TAG is
+        # embedded at the front of skip_acceptance_reason /
+        # no_publish_reason below, which docker-acceptance-only.yml's
+        # run-name template renders as "[canary-tag] ..." in the
+        # display title. Filter on contains(CANARY_TAG) uniquely
+        # identifies THIS smoketest's dispatched runs -- source_run_id
+        # is NOT unique for docker (we reuse the nightly docker-build-
+        # release run across smoketest runs), so filtering on that
+        # alone could match a prior smoketest's runs.
         for attempt in 1 2; do
           if [[ ${attempt} -gt 1 ]]; then
             echo "  pre-retry: checking whether prior variant A dispatch actually landed..."
@@ -922,7 +932,7 @@ jobs:
               EXISTING=$(gh run list --workflow docker-acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
                 --json databaseId,displayTitle \
-                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+                --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
               if [[ -n "${EXISTING}" ]]; then
                 echo "==> Prior variant A dispatch actually succeeded (run ${EXISTING}); skipping retry"
                 exit 0
@@ -938,9 +948,9 @@ jobs:
               -f candidate_tag="${CANDIDATE_TAG}" \
               -f docker_tags="${CANARY_TAG}" \
               -f skip_acceptance=true \
-              -f skip_acceptance_reason="Nightly recovery-path smoketest variant A (docker): exercise skip_acceptance code path without touching real Docker Hub tags -- docker_tags=canary tag proves publish gate held" \
+              -f skip_acceptance_reason="[${CANARY_TAG}] Nightly recovery-path smoketest variant A (docker): exercise skip_acceptance code path without touching real Docker Hub tags -- docker_tags=canary tag proves publish gate held" \
               -f no_publish=true \
-              -f no_publish_reason="Nightly recovery-path smoketest (docker): verify docker-acceptance-only.yml works end-to-end without publishing to Docker Hub"; then
+              -f no_publish_reason="[${CANARY_TAG}] Nightly recovery-path smoketest (docker): verify docker-acceptance-only.yml works end-to-end without publishing to Docker Hub"; then
             exit 0
           fi
           echo "  dispatch attempt ${attempt} reported failure"
@@ -957,7 +967,7 @@ jobs:
           RUN_ID=$(gh run list --workflow docker-acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
             --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+            --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
           if [[ -n "${RUN_ID}" ]]; then
             echo "DOCKER_RUN_ID_SKIP=${RUN_ID}" >> "${GITHUB_ENV}"
             echo "==> Located variant A (docker skip_acceptance) run: ${RUN_ID}"
@@ -990,7 +1000,7 @@ jobs:
               EXISTING=$(gh run list --workflow docker-acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
                 --json databaseId,displayTitle \
-                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+                --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
               if [[ -n "${EXISTING}" ]]; then
                 echo "==> Prior variant B dispatch actually succeeded (run ${EXISTING}); skipping retry"
                 exit 0
@@ -1006,7 +1016,7 @@ jobs:
               -f candidate_tag="${CANDIDATE_TAG}" \
               -f docker_tags="${CANARY_TAG}" \
               -f no_publish=true \
-              -f no_publish_reason="Nightly recovery-path smoketest variant B (docker): run full docker acceptance matrix + verify no_publish gate correctly blocks publish -- docker_tags=canary tag proves publish gate held"; then
+              -f no_publish_reason="[${CANARY_TAG}] Nightly recovery-path smoketest variant B (docker): run full docker acceptance matrix + verify no_publish gate correctly blocks publish -- docker_tags=canary tag proves publish gate held"; then
             exit 0
           fi
           echo "  dispatch attempt ${attempt} reported failure"
@@ -1023,7 +1033,7 @@ jobs:
           RUN_ID=$(gh run list --workflow docker-acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
             --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+            --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
           if [[ -n "${RUN_ID}" ]]; then
             echo "DOCKER_RUN_ID_FULL=${RUN_ID}" >> "${GITHUB_ENV}"
             echo "==> Located variant B (docker full acceptance) run: ${RUN_ID}"
