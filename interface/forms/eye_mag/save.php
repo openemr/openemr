@@ -42,6 +42,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\PmsfhPanel;
+use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
@@ -572,7 +574,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $pid = $session->get('pid');
         $encounter = $session->get('encounter');
         $form_id = $_REQUEST['form_id'] ?? '';
-        $form_type = $_REQUEST['form_type'] ?? '';
+        $form_type = is_string($_REQUEST['form_type'] ?? null) ? $_REQUEST['form_type'] : '';
         $panelType = $form_type;
         $r_PMSFH = $_REQUEST['r_PMSFH'] ?? '';
         if ($deletion == 1 && $issue !== '') {
@@ -704,29 +706,20 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 }
 
                 if (!$issue) {
-                    if ($subtype == '') {
-                        $query = "SELECT id,pid from lists where title=? and type=? and pid=?";
-                        $issue2 = sqlQuery($query, [$_REQUEST['form_title'], $form_type, $pid]);
-                        $issue = $issue2['id'];
-                    } else {
-                        $query = "SELECT id,pid from lists where title=? and type=? and pid=? and subtype=?";
-                        $issue2 = sqlQuery($query, [$_REQUEST['form_title'], $form_type, $pid, $subtype]);
-                        $issue = $issue2['id'];
-                    }
+                    $panel = PmsfhPanel::tryFrom($panelType);
+                    $subtypeCond = $panel
+                        ? $panel->subtypeFilter()->condition()
+                        : new SqlFragment('AND subtype = ?', [$subtype]);
+
+                    $query = "SELECT id,pid from lists where title=? and type=? and pid=? {$subtypeCond->sql}";
+                    $issue2 = sqlQuery($query, [$_REQUEST['form_title'], $form_type, $pid, ...$subtypeCond->params]);
+                    $issue = $issue2['id'] ?? 0;
                 }
 
                 $issue = 0 + $issue;
-                if ($_REQUEST['form_reinjury_id'] == "") {
-                    $form_reinjury_id = "0";
-                }
-
-                if ($_REQUEST['form_injury_grade'] == "") {
-                    $form_injury_grade = "0";
-                }
-
-                if ($_REQUEST['form_outcome'] == '') {
-                    $_REQUEST['form_outcome'] = '0';
-                }
+                $form_reinjury_id = ($_REQUEST['form_reinjury_id'] ?? '') === '' ? '0' : $_REQUEST['form_reinjury_id'];
+                $form_injury_grade = ($_REQUEST['form_injury_grade'] ?? '') === '' ? '' : $_REQUEST['form_injury_grade'];
+                $form_outcome = ($_REQUEST['form_outcome'] ?? '') === '' ? '0' : $_REQUEST['form_outcome'];
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
                     // TODO: @adunsulag at some point update eye_mag to use PatientIssuesService for all lists management
@@ -765,12 +758,12 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                             $_REQUEST['form_diagnosis'],
                             $_REQUEST['form_occur'],
                             $_REQUEST['form_classification'],
-                            $_REQUEST['form_reinjury_id'],
+                            $form_reinjury_id,
                             $_REQUEST['form_referredby'],
-                            $_REQUEST['form_injury_grade'],
+                            $form_injury_grade,
                             $form_injury_part,
                             $form_injury_type,
-                            $_REQUEST['form_outcome'],
+                            $form_outcome,
                             $_REQUEST['form_destination'],
                             $_REQUEST['form_reaction'],
                             $subtype,
@@ -818,7 +811,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                             $_REQUEST['form_referredby'],
                             $session->get('authUser'),
                             $session->get('authProvider'),
-                            empty($_REQUEST['form_outcome']) ? null : $_REQUEST['form_outcome'],
+                            $form_outcome,
                             $_REQUEST['form_destination'],
                             $_REQUEST['form_reaction'],
                             $subtype,
