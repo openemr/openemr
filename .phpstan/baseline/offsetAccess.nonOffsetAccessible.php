@@ -29907,16 +29907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/encounter.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_catid\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/encounter.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'billing_facility\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
