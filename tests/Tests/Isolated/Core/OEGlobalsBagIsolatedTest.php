@@ -244,13 +244,22 @@ class OEGlobalsBagIsolatedTest extends TestCase
     }
 
     /**
-     * all() without a key is untouched: it still returns the construction-time snapshot.
+     * all() without a key is untouched: it still returns the construction-time snapshot, and a
+     * global written to $GLOBALS afterwards does not leak into it.
      */
     public function testAllWithoutKeyReturnsTheWholeSnapshot(): void
     {
+        $key = 'oeglobalsbag_isolated_test_late_unkeyed_all';
+        $this->assertArrayNotHasKey($key, $GLOBALS);
         $bag = new OEGlobalsBag(['a' => 1, 'b' => [2]]);
 
-        $this->assertSame(['a' => 1, 'b' => [2]], $bag->all());
+        try {
+            $GLOBALS[$key] = ['late' => true];
+
+            $this->assertSame(['a' => 1, 'b' => [2]], $bag->all());
+        } finally {
+            unset($GLOBALS[$key]);
+        }
     }
 
     public function testGlobalsBagInit(): void
