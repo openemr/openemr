@@ -2876,11 +2876,14 @@ Added as the `smoketest-docker` job parallel to the tarball `smoketest` job in `
 - `publish-and-cleanup`: same gating — skip so the candidate stays on Docker Hub for downstream consumption
 - Validation step at top of `prep` job: `dry_run=true` without `gate_with_acceptance=true` fails loudly (non-gated path publishes directly, no candidate produced)
 
-**Cleanup step:** unconditional delete-if-present of the canary tag from Docker Hub via `.github/scripts/dockerhub-delete-tag.sh` (same script the docker publish path's cleanup-candidate job uses). Runs with `if: always()` so even a mid-run failure hits cleanup — protection against a partial early-exit leaving a stray canary.
+**Cleanup step:** unconditional delete-if-present of BOTH the candidate tag AND the canary tag from Docker Hub via `.github/scripts/dockerhub-delete-tag.sh` (same script the docker publish path's cleanup-candidate job uses). Runs with `if: always()` so even a mid-run failure hits cleanup. Rationale:
+
+- **Candidate tag (`release-candidate-<runid>-<attempt>`)** — the dispatched dry-run docker-build-release DID push this to Docker Hub as its handoff point between merge-manifest and (skipped) publish/cleanup. Under normal ship flow, publish-and-cleanup's cleanup-candidate step would delete it on green publish — but the smoketest sets `no_publish=true` which skips publish-and-cleanup entirely. So the smoketest takes over that cleanup responsibility.
+- **Canary tag (`smoketest-canary-<runid>-<timestamp>`)** — should never have been pushed (publish gated off by no_publish), so the delete is a defensive no-op on green runs; on a red run from L4b (canary was found on Docker Hub, indicating the no_publish gate silently regressed) this deletes the stray.
+
+Each delete's non-zero status is downgraded to a warning rather than hard-failing the smoketest — a Docker Hub cleanup API flake shouldn't red-flag an otherwise green recovery-workflow validation.
 
 **Bonus: L4a also added to the tarball job** for consistency (belt-and-suspenders — the existing "state unchanged" hash-based check plus this direct publish-job-status assertion).
-
-**Known limitation.** The dispatched dry-run docker-build-release DOES leave the candidate tag (`release-candidate-<runid>-<attempt>`) on Docker Hub. Under normal ship flow, docker-acceptance-only.yml's own `publish-and-cleanup` job would delete it on green publish — but the smoketest's dispatched variants set `no_publish=true`, which skips publish-and-cleanup entirely. Candidate tag survives past smoketest end. Today acceptable because candidate tags don't clutter user-facing tag listings (name shape distinguishes from real tags); a periodic Docker Hub cleanup sweep for stale `release-candidate-*` tags would be a nice-to-have followup.
 
 Cascade of PRs that shipped the docker sibling: openemr/openemr#14035 (initial attempt, reverted in same PR chain), openemr/openemr#TBD (this PR — revert + `dry_run` mode + re-add smoketest job).
 

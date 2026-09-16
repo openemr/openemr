@@ -1272,30 +1272,46 @@ jobs:
           echo "- Canary tag absent from Docker Hub (L4b)"
         } >> "${GITHUB_STEP_SUMMARY}"
 
-    # Unconditional cleanup: delete the canary tag from Docker Hub if
-    # it exists. A green run should be a no-op (canary was never
-    # pushed); a red run from L4b would have found the canary and
-    # this deletes it. Safe to re-invoke -- dockerhub-delete-tag.sh
-    # treats 404 as success.
+    # Unconditional cleanup: delete BOTH temporary tags this smoketest
+    # left on Docker Hub.
     #
-    # if: always() so even a mid-run failure hits cleanup.
-    - name: Cleanup canary tag from Docker Hub (defensive)
-      if: always() && env.CANARY_TAG != ''
+    #   1. Candidate tag (release-candidate-<runid>-<attempt>) -- the
+    #      dispatched dry-run docker-build-release DID push this to
+    #      Docker Hub as its handoff point between merge-manifest and
+    #      (skipped) publish/cleanup. Under normal ship flow, the
+    #      publish path's own cleanup-candidate job would delete it
+    #      on green publish -- but the smoketest sets no_publish=true
+    #      which skips publish-and-cleanup, so we delete it ourselves.
+    #      This is the primary cleanup responsibility of this step.
+    #
+    #   2. Canary tag (smoketest-canary-<runid>-<timestamp>) -- should
+    #      never have been pushed (publish gated off by no_publish),
+    #      so this call is a defensive no-op on green runs; on a red
+    #      run from L4b (canary was found on Docker Hub, indicating
+    #      the no_publish gate silently regressed) this deletes the
+    #      stray.
+    #
+    # if: always() so even a mid-run failure hits cleanup. Each
+    # delete's non-zero status is downgraded to a warning -- don't
+    # hard-fail the smoketest on a Docker Hub cleanup flake; the next
+    # smoketest run's L4b check would still detect a stale canary,
+    # and stale candidate tags don't affect operator-visible state.
+    - name: Cleanup temporary tags from Docker Hub
+      if: always()
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        TAG: ${{ env.CANARY_TAG }}
       run: |
         set -euo pipefail
-        echo "==> Ensuring canary tag ${TAG} is deleted from Docker Hub (no-op if never pushed)"
-        .github/scripts/dockerhub-delete-tag.sh || {
-          # dockerhub-delete-tag.sh exits non-zero on unexpected API
-          # status. For a canary that should never have been pushed,
-          # this shouldn't happen -- but don't hard-fail the whole
-          # smoketest on a Docker Hub cleanup flake. The next
-          # smoketest run will re-attempt cleanup if needed.
-          echo "::warning::Cleanup of canary tag ${TAG} returned non-zero; if this recurs, investigate Docker Hub credentials or API state."
-        }
+        for TAG_TO_DELETE in "${CANDIDATE_TAG:-}" "${CANARY_TAG:-}"; do
+          if [[ -z "${TAG_TO_DELETE}" ]]; then
+            continue
+          fi
+          echo "==> Ensuring tag ${TAG_TO_DELETE} is deleted from Docker Hub (dockerhub-delete-tag.sh treats 404 as success)"
+          TAG="${TAG_TO_DELETE}" .github/scripts/dockerhub-delete-tag.sh || {
+            echo "::warning::Cleanup of tag ${TAG_TO_DELETE} returned non-zero; if this recurs across smoketest runs, investigate Docker Hub credentials or API state."
+          }
+        done
 
     - name: Emit summary (docker)
       if: always()
