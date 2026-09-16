@@ -16,7 +16,7 @@ Create the `rel-<MAJOR><MINOR>0` branch off master (e.g. `rel-840` for the 8.4.0
 
 ### 2. Start a new patch release cycle on an existing rel branch
 
-No new branch is cut — patch releases continue on the existing rel branch. Land a `$v_patch` bump into `-dev` in `version.php` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
+No new branch is cut — patch releases continue on the existing rel branch. Land a **single** PR against the rel branch that bumps `$v_patch` by exactly one AND sets `$v_tag = '-dev'` in `version.php` (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). **Note the leading hyphen** — `$v_tag = 'dev'` without the dash fails the dev-cycle guard in both `release-prep.yml` and `patch-prep-automation.yml`, and the automations early-exit as "not a dev-cycle entry". Both trigger conditions (patch++ + tag='-dev') must land in the same PR — splitting them across two PRs trips the delta gates independently and neither PR fires the automation (see [G38](release-mechanism-gaps.md#g38--split-fix-on-the-versionphp-trigger-pr-trips-patch-prep-automations-delta-gates--noted-2026-09-16) for the recovery pattern). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires on the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance); [`release-prep.yml`](../.github/workflows/release-prep.yml) opens the release-prep + release-finalize draft pair. See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
 
 ### 3. Ship the release
 
@@ -53,19 +53,7 @@ Both **must dispatch from `--ref master`** — workflows reject other refs. See 
 
 ### 7. Update release performance metrics after every ship
 
-After each release completes (Conductor + Docs + Finalize all merged, tag + Release + Docker image all published, docker orchestration for the shipped tag green), add a row to the [Release performance metrics (DORA-aligned)](#release-performance-metrics-dora-aligned) table below with the four values for that ship. Keeps the baseline current so improvement/regression trends stay visible over time.
-
-## Release-mechanism health monitoring
-
-Three background workflows keep the release mechanism itself in a warm, tested state so a maintainer running Quick Actions 1–7 above hits code paths that have been exercised recently, not "first-real-use-on-ship-day". These fire automatically — no operator action required — but knowing they exist helps triage when something surprising surfaces during a ship.
-
-- **`.github/workflows/release-mechanism-smoketest.yml`** — path-gated CI check on every PR touching the release-mechanism surface (any release-mechanism workflow YAML, `src/Common/Command/ReleasePrepCommand.php`, `src/Common/Command/ReleasePrep/**`, `tools/release/**`, `.github/actions/setup-php-composer/**`). Runs `openemr:release-prep --scope=rel` end-to-end against `rel-820`, catching env-plumbing bugs the mutator unit tests can't see (they inject `FakeGitHubApi` instead of shelling out to `gh`). Zero side-effects — the mutator's diff gets `git checkout -- .`'d at the end.
-
-- **`.github/workflows/recovery-path-smoketest.yml`** — nightly (02:00 UTC) exercise of the recovery workflows themselves (`acceptance-only.yml` for tarball + `docker-acceptance-only.yml` for docker), which otherwise only fire on real ship-day failures. Dispatches both against the current-shipped rel-line + tag from `.github/release-targets.yml`'s `latest` row, with `no_publish=true` (both surfaces) and per-run canary tag (docker) to guarantee zero side-effects on real releases. Four-layer guardrail model detailed in [G36](release-mechanism-gaps.md#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15). Also enabled for manual `workflow_dispatch` — dispatch after landing recovery-workflow refactors to verify without waiting for the next cron.
-
-- **`.github/workflows/validate-byte-identical.yml`** — the drift canary paired with `sync-byte-identical.yml`. Fires on every PR + master push to detect if a rel-branch's copy of a byte-identical file has drifted from master's. Pairs with `sync-byte-identical.yml` which proactively closes any drift via auto-mergeable sync PRs.
-
-See [`docs/release-automation-plan.md`](release-automation-plan.md) for the full design + inventory of every release-mechanism workflow (both operator-triggered lifecycle workflows and these background monitors).
+After each release completes (Conductor + Docs + Finalize all merged, tag + Release + Docker image all published, docker orchestration for the shipped tag green), add a row to the [Release performance metrics (DORA-inspired proxies)](#release-performance-metrics-dora-inspired-proxies) table below with the four values for that ship. Keeps the baseline current so improvement/regression trends stay visible over time.
 
 ## Release performance metrics (DORA-inspired proxies)
 
@@ -105,6 +93,18 @@ DORA's original "four keys" were expanded in 2024 to five metrics, and MTTR was 
 - Recovery-path smoketest SHIPPED 2026-09-15 as [G36](release-mechanism-gaps.md#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15) — nightly cron dispatches `acceptance-only.yml` (both variants) against the current-shipped version with `no_publish=true`. Per G36's noise-handling policy, a single red night is data (transient GitHub / Docker Hub API flakes exist); two-plus consecutive reds from the same failure class trigger investigation into whether the cascade pattern was systemic (in which case the smoketest catches such regressions before the next ship) or per-ship bad luck.
 - 8.5.0 will be the third automated-ship data point. If bi-weekly cadence is adopted by then, that ship will start distinguishing "small batches help" from "the cascade pattern is unrelated to batch size."
 - Broader operational monitoring of the release-mechanism itself (e.g., "release-mechanism-smoketest.yml green %" as a leading indicator, per DORA's "Monitoring and Observability" capability) is worth considering once we have 4-5 data points.
+
+## Release-mechanism health monitoring
+
+Three background workflows keep the release mechanism itself in a warm, tested state so a maintainer running Quick Actions 1–7 above hits code paths that have been exercised recently, not "first-real-use-on-ship-day". These fire automatically — no operator action required — but knowing they exist helps triage when something surprising surfaces during a ship.
+
+- **`.github/workflows/release-mechanism-smoketest.yml`** — path-gated CI check on every PR touching the release-mechanism surface (any release-mechanism workflow YAML, `src/Common/Command/ReleasePrepCommand.php`, `src/Common/Command/ReleasePrep/**`, `tools/release/**`, `.github/actions/setup-php-composer/**`). Runs `openemr:release-prep --scope=rel` end-to-end against `rel-820`, catching env-plumbing bugs the mutator unit tests can't see (they inject `FakeGitHubApi` instead of shelling out to `gh`). Zero side-effects — the mutator's diff gets `git checkout -- .`'d at the end.
+
+- **`.github/workflows/recovery-path-smoketest.yml`** — nightly (02:00 UTC) exercise of the recovery workflows themselves (`acceptance-only.yml` for tarball + `docker-acceptance-only.yml` for docker), which otherwise only fire on real ship-day failures. Dispatches both against the current-shipped rel-line + tag from `.github/release-targets.yml`'s `latest` row, with `no_publish=true` (both surfaces) and per-run canary tag (docker) to guarantee zero side-effects on real releases. Four-layer guardrail model detailed in [G36](release-mechanism-gaps.md#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15). Also enabled for manual `workflow_dispatch` — dispatch after landing recovery-workflow refactors to verify without waiting for the next cron.
+
+- **`.github/workflows/validate-byte-identical.yml`** — the drift canary paired with `sync-byte-identical.yml`. Fires on every PR + master push to detect if a rel-branch's copy of a byte-identical file has drifted from master's. Pairs with `sync-byte-identical.yml` which proactively closes any drift via auto-mergeable sync PRs.
+
+See [`docs/release-automation-plan.md`](release-automation-plan.md) for the full design + inventory of every release-mechanism workflow (both operator-triggered lifecycle workflows and these background monitors).
 
 ## Repositories involved
 
