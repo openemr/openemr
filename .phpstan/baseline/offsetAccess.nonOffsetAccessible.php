@@ -31772,11 +31772,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/templates/telecom_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'rules\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/validation/validate_core.php',

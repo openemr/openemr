@@ -23712,11 +23712,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/templates/telecom_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$s of function process_cols_escape expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$langId of static method OpenEMR\\\\Common\\\\Translation\\\\TranslationCache\\:\\:get\\(\\) expects int, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/translation.inc.php',
