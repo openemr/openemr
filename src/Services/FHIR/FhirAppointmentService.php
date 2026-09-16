@@ -402,8 +402,8 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                     $facilityUuidBytes = UuidRegistry::uuidToBytes($referenceUuid);
                     $facilityId = BaseService::getIdByUuid($facilityUuidBytes, 'facility', 'id');
                     // Honour any resolvable facility — the patients/appt ACL
-                    // already gates *who* can schedule, and FHIR R4 lets the
-                    // serviceProvider be any Location. Admin-only restrictions
+                    // already gates *who* can schedule, and FHIR R4 lets a
+                    // participant actor name any Location. Admin-only restrictions
                     // here would prevent clinical staff from scheduling their
                     // own appointments at the facilities they operate in.
                     if ($facilityId !== false) {
@@ -441,8 +441,8 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         $data['pc_hometext'] = $commentRaw === '' ? '' : strip_tags($commentRaw);
 
         // pc_billing_location is not carried by FHIR Appointment; default it to the
-        // facility resolved from serviceProvider so the validator's numeric requirement
-        // is satisfied without inventing a location.
+        // facility resolved from the Location participant so the validator's
+        // numeric requirement is satisfied without inventing a location.
         if (isset($data['pc_facility'])) {
             $data['pc_billing_location'] = $data['pc_facility'];
         }
@@ -508,7 +508,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         // parseFhirResource() sets pid only when a Patient participant reference resolves.
         // Falling back to 0 would create an appointment orphaned from every patient and
         // invisible to patient-scoped reads, so this is rejected the same way a missing
-        // serviceProvider is below.
+        // Location participant is below.
         $pidRaw = $openEmrRecord['pid'] ?? null;
         if (!is_numeric($pidRaw) || (int) $pidRaw <= 0) {
             $processingResult->setValidationMessages([
@@ -523,7 +523,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         // Require an explicit facility from the FHIR caller — silently
         // picking the first row would attribute the appointment to an arbitrary
         // facility (potentially the wrong tenant in a multi-site deployment).
-        // Callers must supply a serviceProvider Reference to a Location.
+        // Callers must supply a participant whose actor is a Location reference.
         $facilityId = $openEmrRecord['pc_facility'] ?? null;
         if (!is_numeric($facilityId) || (int) $facilityId <= 0) {
             $processingResult->setValidationMessages([
