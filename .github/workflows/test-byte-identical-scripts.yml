@@ -63,6 +63,7 @@ jobs:
         bats tests/bats/ci-scripts/extract-changelog-section/
         bats tests/bats/ci-scripts/build-release-body/
         bats tests/bats/ci-scripts/pick-smoketest-target/
+        bats tests/bats/ci-scripts/assert-inputs-nonempty/
         bats tests/bats/ci-scripts/assert-release-shipped/
         bats tests/bats/ci-scripts/recovery-smoketest-baseline/
         bats tests/bats/ci-scripts/recovery-smoketest-verify/
