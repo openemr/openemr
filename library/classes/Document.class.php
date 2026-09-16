@@ -327,7 +327,14 @@ class Document extends ORDataObject
     {
         if (!empty($this->date_expires)) {
             $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $this->date_expires);
-            return $dateTime->getTimestamp() >= time();
+            if ($dateTime === false) {
+                // An unparsable expiration timestamp cannot establish that
+                // the document is still within its retention window; treat
+                // the document as expired so callers deny + clean up rather
+                // than serving stale content indefinitely.
+                return true;
+            }
+            return $dateTime->getTimestamp() <= time();
         }
         return false;
     }

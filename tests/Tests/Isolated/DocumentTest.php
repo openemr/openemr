@@ -184,4 +184,54 @@ class DocumentTest extends TestCase
 
         self::assertSame($expected, $result['relativePath']);
     }
+
+    /**
+     * The document is expired iff its `date_expires` is at or before the
+     * current instant. `has_expired()` must return true for past timestamps
+     * (so callers deny + purge) and false for future timestamps (so valid
+     * documents remain accessible during their retention window).
+     */
+    public function testHasExpiredReturnsTrueForPastTimestamp(): void
+    {
+        $doc = self::makeDocumentWithExpires('-2 hours');
+        self::assertTrue($doc->has_expired());
+    }
+
+    public function testHasExpiredReturnsFalseForFutureTimestamp(): void
+    {
+        $doc = self::makeDocumentWithExpires('+30 minutes');
+        self::assertFalse($doc->has_expired());
+    }
+
+    public function testHasExpiredReturnsFalseWhenDateExpiresIsBlank(): void
+    {
+        $doc = self::makeDocumentWithExpires(null);
+        self::assertFalse($doc->has_expired());
+    }
+
+    /**
+     * Fail-closed: an unparsable `date_expires` string cannot be used to
+     * assert that the document is still within its retention window, so it
+     * must read as expired rather than as still valid.
+     */
+    public function testHasExpiredReturnsTrueWhenDateExpiresIsUnparsable(): void
+    {
+        $doc = self::makeDocumentWithExpires('not-a-date');
+        self::assertTrue($doc->has_expired());
+    }
+
+    private static function makeDocumentWithExpires(?string $when): Document
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $prop = new \ReflectionProperty(Document::class, 'date_expires');
+        if ($when === null) {
+            $prop->setValue($doc, null);
+        } elseif ($when === 'not-a-date') {
+            $prop->setValue($doc, 'not-a-date');
+        } else {
+            $prop->setValue($doc, (new \DateTime($when))->format('Y-m-d H:i:s'));
+        }
+        return $doc;
+    }
 }
