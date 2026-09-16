@@ -224,10 +224,13 @@ if ($popup) {
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();
 
-    $where = empty($where) ? $customWhere : "$customWhere AND $where";
+    $where = "$customWhere AND $where";
 
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT ? OFFSET ?";
+
+    // snapshot for the count query, before LIMIT/OFFSET binds are added
+    $countBindArray = $sqlBindArray;
 
     $sqlBindArray[] = $sqllimit;
     $sqlBindArray[] = (is_numeric($fstart) ? (int) $fstart : 0);
@@ -237,7 +240,7 @@ if ($popup) {
         $result[] = $row;
     }
 
-    _set_patient_inc_count($sqllimit, count($result), "$customWhere AND $where", $sqlBindArray);
+    _set_patient_inc_count($sqllimit, count($result), $where, $countBindArray);
 } elseif ($from_page == "cdr_report") {
   // Collect setting from cdr report
     echo "<input type='hidden' name='from_page' value='" . attr($from_page) . "' />\n";
