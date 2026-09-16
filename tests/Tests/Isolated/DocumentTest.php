@@ -220,6 +220,19 @@ class DocumentTest extends TestCase
         self::assertTrue($doc->has_expired());
     }
 
+    /**
+     * createFromFormat can return a valid DateTime for inputs that technically
+     * parse but overflow (e.g. Feb 30 rolls into March). Warnings from
+     * getLastErrors() mean the resulting timestamp is not the value the caller
+     * stored — must fail closed regardless of the rolled-over timestamp being
+     * past or future.
+     */
+    public function testHasExpiredReturnsTrueForRolledOverDateExpires(): void
+    {
+        $doc = self::makeDocumentWithExpires('rollover');
+        self::assertTrue($doc->has_expired());
+    }
+
     private static function makeDocumentWithExpires(?string $when): Document
     {
         $rc = new \ReflectionClass(Document::class);
@@ -229,6 +242,10 @@ class DocumentTest extends TestCase
             $prop->setValue($doc, null);
         } elseif ($when === 'not-a-date') {
             $prop->setValue($doc, 'not-a-date');
+        } elseif ($when === 'rollover') {
+            // Feb 30 does not exist; createFromFormat parses it into March 1
+            // with a "The parsed date was invalid" warning in getLastErrors().
+            $prop->setValue($doc, '2024-02-30 12:00:00');
         } else {
             $prop->setValue($doc, (new \DateTime($when))->format('Y-m-d H:i:s'));
         }

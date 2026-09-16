@@ -334,6 +334,15 @@ class Document extends ORDataObject
                 // than serving stale content indefinitely.
                 return true;
             }
+            // createFromFormat can return a valid DateTime for inputs that
+            // technically parse but overflow (e.g. "2024-02-30 12:00:00"
+            // rolls into March) or carry trailing data. Any warning or
+            // error means the retention window claim is not trustworthy;
+            // fail closed and treat the document as expired.
+            $parseErrors = DateTime::getLastErrors();
+            if ($parseErrors !== false && ($parseErrors['warning_count'] > 0 || $parseErrors['error_count'] > 0)) {
+                return true;
+            }
             return $dateTime->getTimestamp() <= time();
         }
         return false;
