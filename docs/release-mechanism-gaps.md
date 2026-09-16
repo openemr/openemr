@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-13
+**Last updated:** 2026-09-16
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -2891,6 +2891,40 @@ Cascade of PRs that shipped the docker sibling: openemr/openemr#14035 (initial a
 
 - **First observed regression → promote noise-handling policy to a G-entry.** The current policy is documented in the workflow header + this gap entry, but if we ever hit the "two consecutive same-class reds" trigger, that investigation deserves its own gap entry with the specific regression + fix.
 - **Retire the "hardcoded 8.2.0 fallback" in `detect-acceptance-mode.sh`.** #14018's `derive_from_version` filter incidentally fixed the degenerate case for that fallback path (the fallback would previously have returned `from=8.2.0`= `to=8.2.0`). Fallback is likely vestigial in practice (no known caller hits it), but removing it or replacing with a loud error would be cleaner than leaving both the fallback and the degeneracy-fix in place.
+
+### G37 — Audit of G36 smoketest scripts caught 2 latent bugs + 1 design gap  *(SHIPPED 2026-09-16)*
+
+**STATUS: SHIPPED 2026-09-16** across two PRs (openemr/openemr#14045 refactor + BATS extraction that surfaced the bugs during CodeRabbit review; follow-up PR for the reusable caller-must-gate contract + preflight validation). All findings were caught by static audit rather than by a failing nightly run — this entry documents the pattern for future reference: "first-green nightly run" is not the same as "audit-clean" and both are worth doing.
+
+**Trigger event:** refactor of `.github/workflows/recovery-path-smoketest.yml`'s inline safety-gate + baseline-capture + guardrail-verify bash blocks into three shared scripts under `.github/scripts/` (`assert-release-shipped.sh`, `recovery-smoketest-baseline.sh`, `recovery-smoketest-verify.sh`) with 36 total BATS tests. The refactor was pure code-organization + testability, but writing the tests + running them against the same mock payloads the CI reviewer exercised revealed the two latent bugs; the third finding was a design observation surfaced during a defense-in-depth audit of the surrounding workflow guards.
+
+**Findings + fixes:**
+
+1. **`set -euo pipefail` masked mapped exit codes in baseline + verify scripts.** Both scripts used `x=$(cmd | filter | filter)` capture assignments (`git ls-remote | awk`, `gh release view --jq '@json' | sha256sum | awk`, `gh run view --jq ... | head -1`). Under `set -euo pipefail`, a nonzero exit from `cmd` propagates through the pipeline and terminates the whole assignment BEFORE any custom error-handling branch can differentiate exit codes.
+
+   - **In baseline.sh:** the script's documented contract was "exit 2 on git failure, exit 3 on gh failure." A real git or gh failure would instead terminate at the assignment with the pipeline's exit code and lose the diagnostic.
+   - **In verify.sh:** worse impact — the script's documented contract was "aggregate all failures via FAILED=1 sentinel, then exit 2 at end." An early set-e termination skipped the sentinel AND all later checks AND the exit-2 aggregate. Callers `if: always()` still ran verify but verify's own internal aggregation was silently broken.
+
+   **Fix:** wrap each capture in `if ! output=$(...); then ...; fi`. In baseline, that branch emits the mapped diagnostic + exit code. In verify, that branch sets a sentinel value + `FAILED=1` and continues so subsequent checks still run. Also swapped `| head -1` for jq `[...] | first // empty` to eliminate SIGPIPE risk under pipefail. All three code paths (`git ls-remote`, `gh release view` for hash, `gh run view` for publish-status) now guarded consistently.
+
+2. **`downloadCount` in Release-hash caused L4a false-positive on every run.** `gh release view --json ... assets` returns each asset with `downloadCount` (CLI field name; REST API name is `download_count`) which increments on every asset download. The smoketest itself downloads the tarball as part of install-check → downloadCount bumps → sha256 of the emitted JSON differs from baseline → L4a "release state unchanged" check would false-positive.
+
+   **Fix:** strip `downloadCount` from each asset via `--jq '.assets |= map(del(.downloadCount))'` in BOTH baseline capture and verify comparison so the projection is identical on both sides. All other asset fields (`name`, `size`, `digest`, `contentType`, `url`, etc.) retained — those only change via `gh release upload --clobber`, which is the mutation the guardrail defends against. Regression test proves downloadCount-only changes don't alter the hash, and a companion sanity test proves an asset-digest change still DOES alter it.
+
+   **Why the nightly hadn't caught this:** the initial G36 nightly runs happened to use payloads where downloadCount had stabilized between baseline capture and verify (small time window; asset not being pulled by real users). Only sustained real-world use would have exposed the drift — and by then the guardrail would look flaky rather than broken. Reference memory added: `reference_gh_release_view_downloadcount.md`.
+
+3. **Reusable publish workflows had no self-defense; caller-must-gate contract was undocumented.** `.github/workflows/reusable-publish-release.yml` + `.github/workflows/reusable-docker-publish.yml` have no `dry_run` / `no_publish` input of their own. Every step below is unconditionally destructive (git tag push + `gh release create` in the tarball reusable; `docker buildx imagetools create` alias onto all real Docker Hub tags in the docker reusable). Safety of the whole L1 guard layer depends entirely on the two current call sites gating `uses:` at the job level. Current callers (`build-release.yml` publish job, `acceptance-only.yml` publish job, `docker-build-release.yml` publish-and-cleanup job, `docker-acceptance-only.yml` publish-and-cleanup job) all gate correctly, but the dependency on caller-side gating was undocumented — a future new caller could invoke either reusable from an ungated context and stomp real release artifacts the instant the workflow fires.
+
+   **Fix:** header-comment "CALLER-MUST-GATE contract" section added to both reusables explicitly documenting the requirement + linking to each current caller's gate pattern for reference; plus a preflight step at the top of each reusable's job that fails loudly if any required input is empty (`[[ -z "${INPUT}" ]] && exit 1`). The preflight closes the runtime side: even if a future caller wires the reusable with an empty candidate_tag / artifact_name, the destructive ops never fire.
+
+**Systemic lesson:** the recovery-path smoketest itself SHIPPED green (G36's `First fully-green end-to-end smoketest run: 34952720263`), and BATS tests all passed against the mock payloads — but the mock payloads had the same wrong-expectation bug that the real script had (both hashed the raw payload without stripping downloadCount, so both matched trivially in test). Two lessons for future recovery-path-adjacent work:
+
+- **"First-green nightly run" and "audit-clean" are different signals.** A workflow that runs successfully end-to-end has proven only that its happy path completes; it hasn't proven its error paths or its guardrails behave correctly under real drift. Post-ship code audit — reading the shipped scripts with a fresh critical eye + asking "under what conditions would this check silently pass when it shouldn't" — is a separate line of defense from "does the workflow go green."
+- **Mock payloads inherit the script's blind spots.** BATS test coverage of `sha256(json_payload)` doesn't catch the projection bug because the mock emits the same json_payload the real gh would, and both hash-under-test use the same buggy jq expression. Catch this class by adding tests that flex the FIELDS being hashed (e.g. "downloadCount-only change must not alter hash") rather than only "hash is deterministic across identical inputs."
+
+Both lessons apply beyond the recovery-path smoketest: any future guardrail-workflow that computes a mutation-detection hash over an external system's payload should include a fields-that-should-be-ignored test AND an audit-style read after first-green.
+
+**Cross-check on the guard model (audit output, not a fix):** the defense-in-depth model documented in G36 remains firmly in place — 5 layers (L1 input flags on each destructive job, L2 preflight `assert-release-shipped.sh`, L3 canary-tag substitution passing `docker_tags=${CANARY_TAG}` so even a regressed L1 gate would only clobber a synthetic tag never real ones, L4a runtime state-unchanged verify, L4b canary-tag-absent check on Docker Hub) verified against actual file:line references in the smoketest workflow. The two latent bugs above only weakened L4a's diagnostics + false-positive rate; they did not create a new stomp path. Fix #3 (preflight in reusables) adds a small hardening to L1's fail-closed behavior at the reusable layer.
 
 ## Followup opportunities (not yet gap-numbered)
 
