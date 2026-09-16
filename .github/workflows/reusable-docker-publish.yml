@@ -32,6 +32,33 @@
 # `secrets: inherit` on the caller side forwards DOCKERHUB_USERNAME +
 # DOCKERHUB_TOKEN into this workflow — no extra secrets: block needed
 # here.
+#
+# CALLER-MUST-GATE contract
+# -------------------------
+# This reusable is UNCONDITIONALLY destructive: every step below
+# aliases the candidate manifest onto each `expanded_tags` entry via
+# `docker buildx imagetools create` (real Docker Hub tag mutation),
+# then deletes the candidate suffix. There is NO built-in `dry_run` /
+# `no_publish` input here; callers MUST gate `uses:` on the appropriate
+# condition themselves. Existing patterns:
+#
+#   * docker-build-release.yml (primary ship): `if: inputs.gate_with_
+#     acceptance && !inputs.dry_run` on the publish-and-cleanup job.
+#     Smoketest passes dry_run=true so the job (and therefore this
+#     reusable) never runs.
+#
+#   * docker-acceptance-only.yml (recovery ship): `if: ... && inputs.no_
+#     publish != true && ...` on the publish-and-cleanup job.
+#     Smoketest passes no_publish=true so the job (and therefore this
+#     reusable) never runs.
+#
+# If you add a new caller, YOU MUST replicate a matching gate at the
+# `uses:` job level. This reusable has no self-defense; calling it
+# without gating will alias the candidate onto every real Docker Hub
+# tag in `expanded_tags` (`8.4.0`, `latest`, etc.) the instant the
+# workflow fires. See recovery-path-smoketest.yml's defense-in-depth
+# model (L1/L2/L3 canary-tag substitution/L4a/L4b) for the surrounding
+# context that assumes callers hold up their end of this contract.
 
 name: Reusable — Publish docker release
 
