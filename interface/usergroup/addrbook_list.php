@@ -196,7 +196,8 @@ while ($row = sqlFetchArray($res)) {
         $displayName .= ", " . $row['suffix'];
     }
 
-    $person = ((string) ($row['ab_option'] ?? '') !== '3');
+    $external = trim((string) ($row['username'] ?? '')) === '';
+    $person = $external && ((string) ($row['ab_option'] ?? '') !== '3');
     $npi_missing = $person && trim((string) ($row['npi'] ?? '')) === '';
     $addr_missing = $person && (
         trim((string) ($row['street'] ?? '')) === ''

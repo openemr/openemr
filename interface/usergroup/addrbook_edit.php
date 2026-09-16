@@ -439,8 +439,14 @@ if (!empty($_POST['form_save'])) {
 
     // Person types (option_value 1, 2, or empty) are the ones claims pick as
     // referring providers. Company types (3) are labs/vendors and skip this.
+    // Local login users are edited here too; do not block those saves.
     $save_ok = true;
-    if ((string) $option_abook_type !== '3') {
+    $existing_username = '';
+    if ($userid) {
+        $existing = sqlQuery("SELECT username FROM users WHERE id = ?", [$userid]) ?: [];
+        $existing_username = (string) ($existing['username'] ?? '');
+    }
+    if ($existing_username === '' && (string) $option_abook_type !== '3') {
         $npi_digits = preg_replace('/\D/', '', (string) ($_POST['form_npi'] ?? '')) ?? '';
         $street = trim((string) ($_POST['form_street'] ?? ''));
         $city = trim((string) ($_POST['form_city'] ?? ''));
