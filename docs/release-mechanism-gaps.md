@@ -2926,6 +2926,46 @@ Both lessons apply beyond the recovery-path smoketest: any future guardrail-work
 
 **Cross-check on the guard model (audit output, not a fix):** the defense-in-depth model documented in G36 remains firmly in place — 5 layers (L1 input flags on each destructive job, L2 preflight `assert-release-shipped.sh`, L3 canary-tag substitution passing `docker_tags=${CANARY_TAG}` so even a regressed L1 gate would only clobber a synthetic tag never real ones, L4a runtime state-unchanged verify, L4b canary-tag-absent check on Docker Hub) verified against actual file:line references in the smoketest workflow. The two latent bugs above only weakened L4a's diagnostics + false-positive rate; they did not create a new stomp path. Fix #3 (preflight in reusables) adds a small hardening to L1's fail-closed behavior at the reusable layer.
 
+### G38 — Split-fix on the version.php trigger PR trips patch-prep-automation's delta gates  *(noted 2026-09-16)*
+
+**STATUS: DOCUMENTED 2026-09-16** — not a code bug; the delta gates in `patch-prep-automation.yml` are correct as designed. Documenting the operator-side pattern that trips them so the next patch cycle doesn't repeat, plus recording the workflow_dispatch recovery path.
+
+**Trigger event:** 8.4.1 patch cycle start on rel-840 (2026-09-16). The `version.php` bump PR (#14066) landed with `$v_patch = '1'` + `$v_tag = 'dev'` (missing the leading hyphen). Follow-up PR #14067 corrected `$v_tag` to `'-dev'`. Neither push individually satisfied `patch-prep-automation.yml`'s dev-cycle-entry gate:
+
+- **#14066 push** (patch 0→1, tag='dev'): early-exit with `after $v_tag is 'dev', not '-dev'; not a dev-cycle entry, skipping.`
+- **#14067 push** (patch stayed 1, tag corrected to '-dev'): early-exit with `$v_patch did not increase by exactly one (before=1 after=1); skipping to avoid scaffolding for a skipped patch.`
+
+`release-prep.yml` had the same shape of skip on #14066 (`Branch rel-840 is not in an active dev cycle ($v_tag='dev', expected '-dev'); nothing to prep.`) — that surfaced first because release-prep runs on every rel-branch push, whereas patch-prep-automation only fires when `version.php` is in the diff.
+
+**Why the gates are strict:**
+
+Only `patch-prep-automation.yml` has the three delta gates that must ALL fire on a SINGLE push:
+
+1. `$v_patch` incremented by exactly one.
+2. `$v_tag = '-dev'` (with leading hyphen; distinguishes dev-cycle entry from release-prep's mid-flight `-dev` strip event that also touches `$v_patch` in some flows).
+3. Major + minor unchanged.
+
+`release-prep.yml` has a simpler gate: post-state `$v_tag = '-dev'` on the current tree (no before/after delta). Same hyphen requirement, different failure mode — release-prep re-fires cleanly on any subsequent rel-branch push whose `version.php` finally reaches `$v_tag='-dev'`, whereas patch-prep only fires when a single push crosses BOTH gates at once.
+
+Splitting a fix across two PRs violates patch-prep's single-push convention because neither PR carries both conditions. Release-prep isn't affected by the split (as long as one of the PRs eventually lands `$v_tag='-dev'`) — that's why #14067 re-fired release-prep successfully while patch-prep still had to be manually dispatched.
+
+**Recovery:** dispatch `patch-prep-automation.yml` manually with explicit inputs — the workflow_dispatch path bypasses the delta gates entirely and just opens the 2 patch-prep PRs:
+
+```bash
+gh workflow run patch-prep-automation.yml --repo openemr/openemr --ref master \
+  -f rel-branch=rel-840 \
+  -f target-version=8.4.1 \
+  -f prev-version=8.4.0
+```
+
+Exercised 2026-09-16 (openemr/openemr run 35160554535); opened PRs #14071 (rel-side) + #14072 (master-side) successfully. `release-prep.yml` had already re-fired successfully on the #14067 corrective push because its gate is simpler (post-state `$v_tag='-dev'` is sufficient, no delta requirement).
+
+**Prevention:** [Quick action 2](../docs/RELEASE_PROCESS.md#2-start-a-new-patch-release-cycle-on-an-existing-rel-branch) in `RELEASE_PROCESS.md` updated to spell out the single-PR + hyphen requirements explicitly, with a pointer to this gap for the recovery pattern.
+
+**Design choice worth remembering (why NOT weaken the gates):**
+
+The delta gates could technically be relaxed — e.g., accept two consecutive pushes as long as their combined state matches (patch++ AND tag='-dev') — but doing so would trade a rare operator inconvenience (split-fix, easily recovered via workflow_dispatch) for a fragile "combined state" tracking mechanism that would need to reason about push order, intervening pushes, force-pushes to the rel branch, and cross-run state. The delta gate is deliberately strict because "one clean push per patch-cycle entry" is the operator convention worth enforcing, and the workflow_dispatch escape hatch is already present for the exception cases.
+
 ## Followup opportunities (not yet gap-numbered)
 
 Items surfaced during planning discussions or from operator experience that don't yet warrant a full gap entry — typically because they're extrapolations from existing patterns rather than confirmed bugs, or because they're operator-side observations that haven't been formalized. Move to a real G-entry when concrete scope + investigation are lined up. Kept here so option-listing across future planning sessions doesn't depend on session context.
