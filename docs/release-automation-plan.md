@@ -417,6 +417,70 @@ against `rel-test` — that opens a `release-prep-test/<branch>` PR
 whose merge produces a throwaway `-test.<sha>` tag, exercising the
 whole conductor path without cutting a real release.
 
+## Recovery-path smoketest (proactive warm-up)
+
+Workflow: [`.github/workflows/recovery-path-smoketest.yml`](../.github/workflows/recovery-path-smoketest.yml)
+· Complements the CI-gated `release-mechanism-smoketest.yml` (release-prep
+mutator plumbing) by exercising the OTHER "only fires when needed"
+surface: the `acceptance-only.yml` recovery workflow chain.
+
+**Trigger.** Nightly cron at 02:00 UTC + `workflow_dispatch` for
+on-demand runs after landing recovery-workflow refactors. Master-only.
+
+**What it checks.** Two parallel jobs exercising the tarball + docker
+recovery paths:
+
+- **`smoketest` (tarball).** Reads `.github/release-targets.yml`'s
+  `latest` row (same source-of-truth `docker-release-orchestrator.yml`
+  uses) to identify the current-shipped rel-line and
+  `openemr_version_ref` tag. Dispatches `build-release.yml` with
+  `dry_run=true` and the tag itself as `version_branch` —
+  `actions/checkout` resolves the ref, so the source is the exact
+  commit that was shipped, independent of any post-release drift on
+  the rel-branch tip. Then chains that fresh source into two
+  `acceptance-only.yml` runs, both with `no_publish=true` — variant A
+  with `skip_acceptance=true`, variant B with the full acceptance
+  matrix. Bonus: exercises `build-release.yml` itself, which otherwise
+  was in the same "first-run-on-real-ship" category as the recovery
+  workflows.
+
+- **`smoketest-docker` (docker sibling).** Uses the last successful
+  nightly `docker-build-release` run for the current-shipped rel-line
+  as the fresh source (docker-release-orchestrator dispatches one per
+  rel-branch at 06:17 UTC, always under the 48h age ceiling), so no
+  docker-side equivalent of `dry_run` is needed. Then chains that
+  source into two `docker-acceptance-only.yml` runs, both with
+  `no_publish=true` and `docker_tags` set to a globally-unique
+  `smoketest-canary-<runid>-<timestamp>` value — variant A with
+  `skip_acceptance=true`, variant B with the full acceptance matrix.
+
+**Why it exists.** [G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13)'s
+systemic lesson: `acceptance-only.yml` had been untouched since
+a 2026-07-30 refactor when the 8.4.0 ship needed it. Two recovery-path
+bugs surfaced during that ship, together with the root-cause bug they
+were needed to work around. This smoketest keeps the recovery chain warm
+on a nightly cadence so refactors between ships surface immediately
+instead of at the next ship. See [G36](release-mechanism-gaps.md#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15)
+for the full design + four-layer guardrail model that prevents
+stomping on the real release the smoketest targets.
+
+**Zero side effects on real releases.** Four layers of defense
+against modifying real release artifacts (see G36 for details):
+`dry_run`/`no_publish` per dispatch, tag-exists + Release-exists
+preconditions before dispatch, server-side "already exists" rejection
+on the operations those flags gate (tarball only — docker has no L3
+since Docker Hub accepts arbitrary re-push), and runtime post-
+verification hard-failing the smoketest if any real release artifact
+drifted during the run. The docker job's post-verification uses a
+publish-job-status check + canary-tag-absent check instead of a
+Docker Hub digest baseline (avoids false-positives from the nightly
+orchestrator's legitimate re-push of the target rel-line's tags).
+
+**Noise-handling.** One red in isolation is data, not signal (transient
+API 5xx / Docker Hub 502 flakes). Two-plus reds on consecutive nights
+from the same failure class = investigate + likely file a G-entry. See
+the workflow header for the full policy.
+
 ## Lifecycle: rel-NNN0 cut event
 
 The most complex per-workflow interaction happens when a new `rel-NNN0`
