@@ -80,12 +80,16 @@
 # retired branches auto-drop).
 #
 # Docker sibling (docker-acceptance-only.yml) coverage: added as the
-# `smoketest-docker` job parallel to `smoketest`. Uses the last
-# successful nightly `docker-build-release` run as its fresh source
-# (docker-release-orchestrator dispatches one per rel-branch nightly
-# at 06:17 UTC, always under the 48h age ceiling), so no docker-side
-# equivalent of build-release's dry_run mode is needed. Docker-side
-# guardrails have two differences from tarball:
+# `smoketest-docker` job parallel to `smoketest`. Dispatches
+# `docker-build-release.yml` fresh with `dry_run=true +
+# gate_with_acceptance=true` to produce a candidate on Docker Hub
+# without publishing/cleaning-up (analogous to build-release.yml's
+# dry_run producing a release-output artifact without publishing).
+# Then chains that candidate into two `docker-acceptance-only.yml`
+# runs (skip_acceptance + full variant), same as the tarball
+# pattern.
+#
+# Docker-side guardrails have two differences from tarball:
 #   * NO L3 -- Docker Hub accepts arbitrary re-push (no "already
 #     exists" server rejection like git tag / gh release create).
 #     L4 is therefore more load-bearing.
@@ -764,27 +768,55 @@ jobs:
   #          race (canary name is unique per smoketest run, cannot
   #          collide with any real tag orchestrator would push).
   #
-  # Source-run selection: uses the last successful nightly
-  # docker-build-release run for the picked rel-branch. Orchestrator
-  # dispatches one per rel-branch nightly (06:17 UTC), so a fresh
-  # source under 48h is always available. No dry-run mode needed on
-  # docker-build-release (unlike tarball where we dispatch one dry-run
-  # per smoketest run) -- we ride the existing nightly build.
+  # Source-run acquisition: dispatches docker-build-release.yml fresh
+  # with `dry_run=true + gate_with_acceptance=true`. dry_run gates
+  # OFF both acceptance-gate + publish-and-cleanup so the built
+  # candidate tag stays on Docker Hub for docker-acceptance-only.yml
+  # to consume. Same pattern as the tarball job dispatching build-
+  # release.yml with dry_run=true.
+  #
+  # An earlier design attempted to REUSE the last successful nightly
+  # docker-build-release run as source, but that failed at
+  # docker-acceptance-only.yml's `verify-dockerhub-tag-exists` guard:
+  # docker-build-release's successful publish path deletes the
+  # candidate tag (via cleanup-candidate) as part of finishing
+  # publish. Every successful nightly run has therefore cleaned up
+  # its candidate, leaving no source for the smoketest to consume.
+  # The `dry_run` mode added to docker-build-release.yml preserves
+  # the candidate specifically for smoketest reuse.
+  #
+  # `docker_tags` is set to the canary value; even if dry_run
+  # gating regresses somehow and publish/cleanup fires, publish
+  # would alias the candidate to the canary (not real tags like
+  # `8.4.0`/`latest`) -- detected by the canary-tag-absent check
+  # post-run, cleaned up by the unconditional cleanup step. Real
+  # tags on Docker Hub are never at risk.
   #
   # Cleanup: unconditional delete of canary tag from Docker Hub at
   # step end (defensive; a partial early-exit could theoretically
   # leave a stray). Uses .github/scripts/dockerhub-delete-tag.sh (same
   # script the docker publish path's cleanup-candidate job uses).
+  #
+  # NOTE: the dispatched dry-run docker-build-release DOES leave the
+  # candidate tag on Docker Hub, which docker-acceptance-only.yml's
+  # publish-and-cleanup job would normally delete on green publish.
+  # Since our dispatched docker-acceptance-only runs have no_publish=
+  # true (which skips publish-and-cleanup entirely), the candidate
+  # tag survives past the smoketest end. A separate maintenance
+  # sweep or manual delete would be needed; today acceptable because
+  # candidate tags are named `release-candidate-<runid>-<attempt>`
+  # and don't clutter user-facing tag listings.
   smoketest-docker:
     if: >-
       github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
       && github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
-    # Serial run of: variant A skip_acceptance (~few min) + variant B
-    # full docker acceptance matrix (~40-60 min per arch, currently
-    # ~40 min for amd64-only per test topology). 90 min comfort
-    # margin.
-    timeout-minutes: 90
+    # Serial run of: docker-build-release dry-run (~20-30 min for
+    # multi-arch build) + variant A skip_acceptance (~few min) +
+    # variant B full docker acceptance matrix (~40-60 min per arch,
+    # currently ~40 min per topology). 120 min comfort margin over
+    # the ~90 min expected total.
+    timeout-minutes: 120
     steps:
     - uses: actions/checkout@v7
       with:
@@ -846,44 +878,126 @@ jobs:
           echo "- canary docker tag (should NEVER appear on Docker Hub): \`${CANARY_TAG}\`"
         } >> "${GITHUB_STEP_SUMMARY}"
 
-    - name: Find source docker-build-release run
+    - name: Dispatch docker-build-release.yml (dry_run + gate_with_acceptance) as fresh source
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        set -euo pipefail
+        # Snapshot existing matching runs BEFORE dispatch (same
+        # pattern as the tarball job's build-release dispatch --
+        # gh workflow run doesn't return the new run's ID).
+        #
+        # docker-build-release.yml's run-name renders docker_tags into
+        # the display title ("Docker build release <docker_tags>
+        # (dry run)"), and we pass CANARY_TAG (unique per smoketest)
+        # as docker_tags -- so filter on `contains(CANARY_TAG)`
+        # uniquely identifies THIS smoketest's dispatched run even
+        # if a concurrent independent docker-build-release dispatch
+        # (manual test, orchestrator run) fires in the same window.
+        # Baseline still applies as a belt-and-suspenders check
+        # against display-title collisions (near-impossible with a
+        # timestamp+run_id-derived canary, but cheap to include).
+        BASELINE_DOCKER_BUILD_IDS=$(gh run list --workflow docker-build-release.yml \
+          --event workflow_dispatch --limit 30 \
+          --json databaseId,displayTitle \
+          --jq "[.[] | .databaseId] | join(\",\")")
+        echo "BASELINE_DOCKER_BUILD_IDS=${BASELINE_DOCKER_BUILD_IDS}" >> "${GITHUB_ENV}"
+        echo "==> Baseline docker-build-release run IDs: [${BASELINE_DOCKER_BUILD_IDS:-<none>}]"
+
+        for attempt in 1 2; do
+          if [[ ${attempt} -gt 1 ]]; then
+            echo "  pre-retry: checking whether prior dispatch actually landed..."
+            for poll in 1 2 3; do
+              sleep 10
+              CANDIDATE_IDS=$(gh run list --workflow docker-build-release.yml \
+                --event workflow_dispatch --limit 10 \
+                --json databaseId,displayTitle \
+                --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\")) | .databaseId] | .[]" \
+                | tr '\n' ' ')
+              NEW_ID=""
+              for ID in ${CANDIDATE_IDS}; do
+                if [[ ",${BASELINE_DOCKER_BUILD_IDS}," != *",${ID},"* ]]; then
+                  NEW_ID="${ID}"
+                  break
+                fi
+              done
+              if [[ -n "${NEW_ID}" ]]; then
+                echo "==> Prior dispatch actually succeeded (run ${NEW_ID} matches CANARY_TAG marker + new since baseline); skipping retry"
+                exit 0
+              fi
+              echo "    (poll ${poll}/3) no matching new run yet..."
+            done
+            echo "  no matching new run after 30s -- prior dispatch really did fail; retrying"
+          fi
+          echo "==> [attempt ${attempt}] gh workflow run docker-build-release.yml"
+          # dry_run=true + gate_with_acceptance=true: produce a
+          # candidate on Docker Hub, then SKIP acceptance-gate +
+          # publish-and-cleanup so the candidate stays available for
+          # docker-acceptance-only.yml to consume. docker_tags is set
+          # to the canary so any accidental publish (in case dry_run
+          # gating regresses) would push the canary as an alias
+          # rather than clobbering a real tag; canary check post-run
+          # detects and cleanup deletes it.
+          if gh workflow run docker-build-release.yml \
+              --repo "${{ github.repository }}" \
+              --ref master \
+              -f docker_tags="${CANARY_TAG}" \
+              -f openemr_version_ref="${RELEASE_TAG}" \
+              -f gate_with_acceptance=true \
+              -f dry_run=true; then
+            exit 0
+          fi
+          echo "  dispatch attempt ${attempt} reported failure"
+        done
+        echo "::error::docker-build-release.yml dispatch failed after retry"
+        exit 1
+
+    - name: Locate the dispatched docker-build-release run
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Find the most recent successful docker-build-release run
-        # dispatched by the nightly orchestrator against our target
-        # rel-branch (head_branch matches inputs.branch since docker-
-        # build-release's checkout step lands on that ref). Under-48h
-        # constraint enforced by validate-source-run.sh downstream, so
-        # we don't need to duplicate that check here -- but if there's
-        # NO recent run, abort with a clear error rather than dispatch
-        # against a stale artifact that acceptance-only would then
-        # reject.
-        SOURCE_RUN_ID=$(gh run list --workflow docker-build-release.yml \
-          --repo "${{ github.repository }}" \
-          --branch "${REL_BRANCH}" \
-          --status success \
-          --limit 10 \
-          --json databaseId,createdAt \
-          --jq "[.[] | select(.createdAt > (now - 48*3600 | strftime(\"%Y-%m-%dT%H:%M:%SZ\")))] | .[0].databaseId // empty")
-        if [[ -z "${SOURCE_RUN_ID}" ]]; then
-          echo "::error::No successful docker-build-release run for ${REL_BRANCH} in the last 48 hours. Nightly orchestrator (06:17 UTC) may be broken -- check .github/workflows/docker-release-orchestrator.yml."
-          exit 1
-        fi
+        # Filter by CANARY_TAG (unique per smoketest, appears in
+        # docker-build-release's run-name via docker_tags input) +
+        # snapshot-diff (belt-and-suspenders). See dispatch step
+        # comment for the concurrency rationale.
+        for attempt in $(seq 1 12); do
+          CANDIDATE_IDS=$(gh run list --workflow docker-build-release.yml \
+            --event workflow_dispatch --limit 10 \
+            --json databaseId,displayTitle \
+            --jq "[.[] | select(.displayTitle | contains(\"${CANARY_TAG}\")) | .databaseId] | .[]" \
+            | tr '\n' ' ')
+          RUN_ID=""
+          for ID in ${CANDIDATE_IDS}; do
+            if [[ ",${BASELINE_DOCKER_BUILD_IDS}," != *",${ID},"* ]]; then
+              RUN_ID="${ID}"
+              break
+            fi
+          done
+          if [[ -n "${RUN_ID}" ]]; then
+            # candidate_tag is deterministic: release-candidate-<runid>-<attempt>.
+            # Fresh dispatches have attempt=1.
+            CANDIDATE_TAG_DOCKER="release-candidate-${RUN_ID}-1"
+            {
+              echo "SOURCE_RUN_ID=${RUN_ID}"
+              echo "CANDIDATE_TAG=${CANDIDATE_TAG_DOCKER}"
+            } >> "${GITHUB_ENV}"
+            echo "==> Located docker-build-release source run: ${RUN_ID}, candidate=${CANDIDATE_TAG_DOCKER}"
+            exit 0
+          fi
+          echo "  (attempt ${attempt}/12) waiting for matching new run to register..."
+          sleep 10
+        done
+        echo "::error::Could not locate a NEW docker-build-release run within 2 minutes (baseline=[${BASELINE_DOCKER_BUILD_IDS}])"
+        exit 1
 
-        # candidate_tag is deterministic: release-candidate-<runid>-<attempt>.
-        # For orchestrator-dispatched runs, attempt is 1 (no reruns unless
-        # a maintainer manually retriggered). Query the attempt to be
-        # safe -- rerun-with-failed-jobs would bump this.
-        RUN_ATTEMPT=$(gh api "repos/${{ github.repository }}/actions/runs/${SOURCE_RUN_ID}" --jq '.run_attempt')
-        CANDIDATE_TAG="release-candidate-${SOURCE_RUN_ID}-${RUN_ATTEMPT}"
-
-        {
-          echo "SOURCE_RUN_ID=${SOURCE_RUN_ID}"
-          echo "CANDIDATE_TAG=${CANDIDATE_TAG}"
-        } >> "${GITHUB_ENV}"
-        echo "==> Source docker-build-release run: ${SOURCE_RUN_ID} (attempt ${RUN_ATTEMPT}), candidate=${CANDIDATE_TAG}"
+    - name: Wait for docker-build-release run to complete
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        echo "==> Watching docker-build-release run ${SOURCE_RUN_ID}"
+        gh run watch "${SOURCE_RUN_ID}" --exit-status --repo "${{ github.repository }}"
 
     - name: Capture guardrail baseline (tag SHA + Release hash)
       env:
@@ -1158,30 +1272,46 @@ jobs:
           echo "- Canary tag absent from Docker Hub (L4b)"
         } >> "${GITHUB_STEP_SUMMARY}"
 
-    # Unconditional cleanup: delete the canary tag from Docker Hub if
-    # it exists. A green run should be a no-op (canary was never
-    # pushed); a red run from L4b would have found the canary and
-    # this deletes it. Safe to re-invoke -- dockerhub-delete-tag.sh
-    # treats 404 as success.
+    # Unconditional cleanup: delete BOTH temporary tags this smoketest
+    # left on Docker Hub.
     #
-    # if: always() so even a mid-run failure hits cleanup.
-    - name: Cleanup canary tag from Docker Hub (defensive)
-      if: always() && env.CANARY_TAG != ''
+    #   1. Candidate tag (release-candidate-<runid>-<attempt>) -- the
+    #      dispatched dry-run docker-build-release DID push this to
+    #      Docker Hub as its handoff point between merge-manifest and
+    #      (skipped) publish/cleanup. Under normal ship flow, the
+    #      publish path's own cleanup-candidate job would delete it
+    #      on green publish -- but the smoketest sets no_publish=true
+    #      which skips publish-and-cleanup, so we delete it ourselves.
+    #      This is the primary cleanup responsibility of this step.
+    #
+    #   2. Canary tag (smoketest-canary-<runid>-<timestamp>) -- should
+    #      never have been pushed (publish gated off by no_publish),
+    #      so this call is a defensive no-op on green runs; on a red
+    #      run from L4b (canary was found on Docker Hub, indicating
+    #      the no_publish gate silently regressed) this deletes the
+    #      stray.
+    #
+    # if: always() so even a mid-run failure hits cleanup. Each
+    # delete's non-zero status is downgraded to a warning -- don't
+    # hard-fail the smoketest on a Docker Hub cleanup flake; the next
+    # smoketest run's L4b check would still detect a stale canary,
+    # and stale candidate tags don't affect operator-visible state.
+    - name: Cleanup temporary tags from Docker Hub
+      if: always()
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        TAG: ${{ env.CANARY_TAG }}
       run: |
         set -euo pipefail
-        echo "==> Ensuring canary tag ${TAG} is deleted from Docker Hub (no-op if never pushed)"
-        .github/scripts/dockerhub-delete-tag.sh || {
-          # dockerhub-delete-tag.sh exits non-zero on unexpected API
-          # status. For a canary that should never have been pushed,
-          # this shouldn't happen -- but don't hard-fail the whole
-          # smoketest on a Docker Hub cleanup flake. The next
-          # smoketest run will re-attempt cleanup if needed.
-          echo "::warning::Cleanup of canary tag ${TAG} returned non-zero; if this recurs, investigate Docker Hub credentials or API state."
-        }
+        for TAG_TO_DELETE in "${CANDIDATE_TAG:-}" "${CANARY_TAG:-}"; do
+          if [[ -z "${TAG_TO_DELETE}" ]]; then
+            continue
+          fi
+          echo "==> Ensuring tag ${TAG_TO_DELETE} is deleted from Docker Hub (dockerhub-delete-tag.sh treats 404 as success)"
+          TAG="${TAG_TO_DELETE}" .github/scripts/dockerhub-delete-tag.sh || {
+            echo "::warning::Cleanup of tag ${TAG_TO_DELETE} returned non-zero; if this recurs across smoketest runs, investigate Docker Hub credentials or API state."
+          }
+        done
 
     - name: Emit summary (docker)
       if: always()
@@ -1192,7 +1322,7 @@ jobs:
           echo "Purpose: keep the docker recovery workflow chain warm outside of real ship-day cascades."
           echo ""
           echo "- **Current-rel shipped version:** \`${SHIPPED_VERSION:-<not-computed>}\` (tag \`${RELEASE_TAG:-<not-computed>}\`)"
-          echo "- **Source docker-build-release run (last successful nightly):** \`${SOURCE_RUN_ID:-<not-found>}\`"
+          echo "- **Source docker-build-release run (fresh dry-run dispatch):** \`${SOURCE_RUN_ID:-<not-dispatched>}\`"
           echo "- **Candidate tag:** \`${CANDIDATE_TAG:-<not-computed>}\`"
           echo "- **Canary tag (unique per smoketest, must NEVER appear on Docker Hub):** \`${CANARY_TAG:-<not-computed>}\`"
           echo "- **Variant A (skip_acceptance + no_publish) run:** \`${DOCKER_RUN_ID_SKIP:-<not-dispatched>}\`"
