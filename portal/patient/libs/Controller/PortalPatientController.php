@@ -108,6 +108,7 @@ class PortalPatientController extends AppBasePortalController
     {
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
+            // @phpstan-ignore method.nonObject
             $patient = $this->Phreezer->Get('Patient', $pk);
             if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
@@ -279,7 +280,10 @@ class PortalPatientController extends AppBasePortalController
             if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
-            PortalPatientAccessGuard::assertCanWrite($patient->Pid);
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             $patient->Delete();
 

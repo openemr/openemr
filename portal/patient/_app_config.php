@@ -58,6 +58,7 @@ GlobalConfig::$ROUTE_MAP = [
     //   p_all - available to all
     //   p_limited - only the data that is pertinent to the patient is available
     //   p_none - not available for patients
+    //   p_staff - available only through an authenticated core staff session
     // permission setting for p_reg:
     //   true - permission for patient registration
     //   false - no permission for patient registration
@@ -226,12 +227,12 @@ GlobalConfig::$ROUTE_MAP = [
     // OnsiteActivityView
     'GET:onsiteactivityviews' => [
         'route' => 'OnsiteActivityView.ListView',
-        'p_acl' => 'p_none',
+        'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityviews' => [
         'route' => 'OnsiteActivityView.Query',
-        'p_acl' => 'p_none',
+        'p_acl' => 'p_staff',
         'p_reg' => false
     ],
     'GET:api/onsiteactivityview/(:any)' => [
@@ -239,7 +240,7 @@ GlobalConfig::$ROUTE_MAP = [
         'params' => [
             'id' => 2
         ],
-        'p_acl' => 'p_none',
+        'p_acl' => 'p_staff',
         'p_reg' => false
     ],
 

@@ -110,9 +110,9 @@ class AppBasePortalController extends PortalController
 
     /**
      * Helper utility that calls RenderErrorJSON
-     * @param mixed $exception
+     * @param \Throwable $exception
      */
-    protected function RenderExceptionJSON(Exception $exception)
+    protected function RenderExceptionJSON(\Throwable $exception)
     {
         $this->RenderErrorJSON($exception->getMessage(), null, $exception);
     }

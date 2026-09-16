@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -167,7 +168,7 @@ class PatientController extends AppBasePortalController
 
             $page = RequestUtil::Get('page');
             // return all results
-            $patientdata = $this->Phreezer->Query('Patient', $criteria);
+            $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
             $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
             $output->totalResults = count($output->rows);
             $output->totalPages = 1;
@@ -442,7 +443,10 @@ class PatientController extends AppBasePortalController
             if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
-            PortalPatientAccessGuard::assertCanWrite($patient->Pid);
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid,
+                SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
+            );
             $patient->Delete();
             $output = new stdClass();
             $this->RenderJSON($output, $this->JSONPCallback());
