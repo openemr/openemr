@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+#
+# Capture the release-state baseline for a recovery-path smoketest run.
+#
+# The smoketest dispatches build-release / docker-build-release +
+# acceptance-only / docker-acceptance-only workflows against the
+# current-shipped rel-line's tag. The L4 runtime guardrail asserts
+# that neither the git tag SHA nor the GitHub Release's mutation-
+# visible state changed during the smoketest -- catching any
+# gating regression that would allow the dispatched workflows to
+# modify real release artifacts.
+#
+# This script captures those two values at the start of the smoketest.
+# The verify script (recovery-smoketest-verify.sh) reads them back
+# at the end and compares.
+#
+# Extracted from the previously-inline baseline capture blocks in
+# recovery-path-smoketest.yml (tarball `smoketest` job + docker
+# `smoketest-docker` job) so the logic lands once + gets BATS
+# coverage independent of the workflow YAML.
+#
+# Inputs (env):
+#   RELEASE_TAG    Git tag being smoketested (e.g. v8_4_0). Required.
+#   REPO           Fully-qualified repo (e.g. openemr/openemr). Required.
+#   GH_TOKEN       gh auth token. Required for `gh release view`.
+#   GITHUB_ENV     Path to the workflow's env file (auto-set by GitHub
+#                  Actions). Required. Script appends BASELINE_TAG_SHA
+#                  and BASELINE_RELEASE_HASH to it.
+#
+# Exit codes:
+#   0  baseline captured successfully
+#   1  required env var missing
+#   2  git ls-remote failed (network / auth)
+#   3  gh release view failed (Release doesn't exist -- shouldn't
+#      happen if assert-release-shipped.sh ran first, but guard
+#      defensively)
+#
+# Baseline fields hashed together via sha256:
+#   publishedAt, createdAt, body, name, isDraft, isPrerelease,
+#   targetCommitish, assets
+#
+# body + name are `gh release edit --notes/--title` mutation-visible.
+# isDraft + isPrerelease + targetCommitish are `gh release edit`
+# mutation-visible. assets is `gh release upload --clobber` mutation-
+# visible. publishedAt + createdAt round out the mutation surface.
+#
+# Unit-tested by tests/bats/ci-scripts/recovery-smoketest-baseline/.
+
+set -euo pipefail
+
+if [[ -z "${RELEASE_TAG:-}" ]]; then
+    echo "::error::recovery-smoketest-baseline.sh: RELEASE_TAG env var required" >&2
+    exit 1
+fi
+
+if [[ -z "${REPO:-}" ]]; then
+    echo "::error::recovery-smoketest-baseline.sh: REPO env var required" >&2
+    exit 1
+fi
+
+if [[ -z "${GITHUB_ENV:-}" ]]; then
+    echo "::error::recovery-smoketest-baseline.sh: GITHUB_ENV env var required (workflow-env file path -- normally auto-set by GitHub Actions)" >&2
+    exit 1
+fi
+
+# Capture git tag SHA on origin. Uses ls-remote to hit the remote
+# directly (avoids local-cache staleness). Extract just the SHA
+# (first whitespace-delimited field of the line).
+tag_sha=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
+if [[ -z "${tag_sha}" ]]; then
+    echo "::error::recovery-smoketest-baseline.sh: git ls-remote returned no tag SHA for ${RELEASE_TAG} (tag doesn't exist on origin, or ls-remote failed)" >&2
+    exit 2
+fi
+
+# Probe gh's exit code first with a bare `gh release view`. Under
+# `set -e pipefail`, running gh inside a `... | sha256sum | awk`
+# pipeline would abort the script on gh failure BEFORE any custom
+# error handling could differentiate exit codes. Split the concern:
+# probe here, capture on success below. Cheap (two gh calls; each is
+# a single API request).
+if ! gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+    echo "::error::recovery-smoketest-baseline.sh: gh release view failed for ${RELEASE_TAG} (Release doesn't exist? Run assert-release-shipped.sh first to fail fast on this)" >&2
+    exit 3
+fi
+
+# Capture GitHub Release state hash. Fetch the mutation-visible
+# fields as JSON, then sha256 the compact JSON payload. sha256
+# keeps the env var to 64 chars regardless of body length (release
+# notes for major versions can be many KB).
+release_hash=$(gh release view "${RELEASE_TAG}" --repo "${REPO}" \
+    --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
+    --jq '@json' | sha256sum | awk '{print $1}')
+
+{
+    echo "BASELINE_TAG_SHA=${tag_sha}"
+    echo "BASELINE_RELEASE_HASH=${release_hash}"
+} >> "${GITHUB_ENV}"
+
+echo "==> Baseline captured: tag SHA=${tag_sha}, release hash=${release_hash}"
