@@ -233,6 +233,38 @@ class DocumentTest extends TestCase
         self::assertTrue($doc->has_expired());
     }
 
+    /**
+     * set_date_expires must round-trip via the getter. The setter also needs
+     * to be present for ORDataObject::populate_array() to wire the field on
+     * every `new Document($id)` load — without it, has_expired() always sees
+     * a null date_expires regardless of the DB value.
+     */
+    public function testSetDateExpiresRoundTripsViaGetter(): void
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $doc->set_date_expires('2026-09-16 18:32:34');
+        self::assertSame('2026-09-16 18:32:34', $doc->get_date_expires());
+        $doc->set_date_expires(null);
+        self::assertNull($doc->get_date_expires());
+    }
+
+    /**
+     * ORDataObject::populate_array() calls set_<field> when callable, so
+     * feeding it a row with date_expires must land the value on the object.
+     * Regression guard for the "silently dropped" behavior that predated
+     * this fix.
+     */
+    public function testPopulateArrayWiresDateExpires(): void
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $doc->populate_array([
+            'date_expires' => '2026-09-16 18:32:34',
+        ]);
+        self::assertSame('2026-09-16 18:32:34', $doc->get_date_expires());
+    }
+
     private static function makeDocumentWithExpires(?string $when): Document
     {
         $rc = new \ReflectionClass(Document::class);

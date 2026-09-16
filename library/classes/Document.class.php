@@ -646,6 +646,19 @@ class Document extends ORDataObject
     {
         return $this->date_expires;
     }
+
+    /**
+     * ORDataObject::populate_array() only assigns fields whose set_<field>
+     * method is callable; without this setter, date_expires was silently
+     * dropped on every `new Document($id)` load, leaving has_expired()
+     * always returning false regardless of the stored value.
+     *
+     * @param string|null $date_expires The datetime that the document expires at
+     */
+    public function set_date_expires(?string $date_expires): void
+    {
+        $this->date_expires = $date_expires;
+    }
     public function set_hash($hash): void
     {
         $this->hash = $hash;
