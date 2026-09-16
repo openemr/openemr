@@ -2,6 +2,8 @@
 
 /** @package    Patient Portal::Controller */
 
+use OpenEMR\BC\ServiceContainer;
+
 /**
  * AppBaseController is a base class Controller class from which
  * the front controllers inherit.  it is not necessary to use this
@@ -114,7 +116,11 @@ class AppBasePortalController extends PortalController
      */
     protected function RenderExceptionJSON(\Throwable $exception)
     {
-        $this->RenderErrorJSON($exception->getMessage(), null, $exception);
+        ServiceContainer::getLogger()->error(
+            'Portal request failed',
+            ['exception' => $exception],
+        );
+        $this->RenderErrorJSON(xl('An unexpected error occurred'));
     }
 
     /**
@@ -122,7 +128,7 @@ class AppBasePortalController extends PortalController
      * @param string $message
      * @param array $errors key/value pairs where the key is the fieldname and the value is the error
      */
-    protected function RenderErrorJSON($message, $errors = null, $exception = null)
+    protected function RenderErrorJSON($message, $errors = null)
     {
         $err = new stdClass();
         $err->success = false;
@@ -133,10 +139,6 @@ class AppBasePortalController extends PortalController
             foreach ($errors as $key => $val) {
                 $err->errors[lcfirst((string) $key)] = $val;
             }
-        }
-
-        if ($exception) {
-            $err->stackTrace = explode("\n#", substr((string) $exception->getTraceAsString(), 1));
         }
 
         @header('HTTP/1.1 401 Unauthorized');
