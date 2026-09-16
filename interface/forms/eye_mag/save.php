@@ -64,12 +64,17 @@ $pid = $session->get('pid');
 // this object gets the values the browser actually sent.
 $request = Request::createFromGlobals();
 
-// Whitelist the mode before any downstream branch (lock flow, ACL check,
-// mutation dispatch) runs. An unknown mode does not have a valid dispatch
-// target and must not enter the pre-dispatch flow -- reject early.
+// Validate the mode before any downstream branch (lock flow, ACL check,
+// mutation dispatch) runs. An unrecognized mode has no valid dispatch target
+// and must not enter the pre-dispatch flow -- reject early.
+//
+// An absent mode is allowed: several eye_mag AJAX endpoints send no mode and
+// dispatch on their own parameter instead (AJAX_PREFS, canvas, copy/copy-forward).
+// All of them run after the ACL check below, so they are gated the same way the
+// moded paths are.
 $requestMode = $request->request->get('mode', $request->query->get('mode', ''));
 $allowedModes = ['new', 'update', 'retrieve', 'show_PDF'];
-if (!in_array($requestMode, $allowedModes, true)) {
+if ($requestMode !== '' && !in_array($requestMode, $allowedModes, true)) {
     AccessDeniedHelper::denyWithTemplate("Unsupported mode for Eye Form Save", xl("Eye Form"));
 }
 
@@ -91,7 +96,7 @@ $encounter = $_REQUEST['encounter'] ?? '';
 
 $AJAX_PREFS = $_REQUEST['AJAX_PREFS'] ?? '';
 $PMSFH_SAVE = ($_REQUEST['PMSFH_save'] ?? '') === '1';
-if ($encounter == "" && !$id && !$AJAX_PREFS && !$PMSFH_SAVE && (($_REQUEST['mode'] != "retrieve") or ($_REQUEST['mode'] == "show_PDF"))) {
+if ($encounter == "" && !$id && !$AJAX_PREFS && !$PMSFH_SAVE && (($requestMode != "retrieve") or ($requestMode == "show_PDF"))) {
     echo "Sorry Charlie..."; //should lead to a database of errors for explanation.
     exit;
 }
@@ -710,7 +715,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     $subtypeCond = $panel
                         ? $panel->subtypeFilter()->condition()
                         : new SqlFragment('AND subtype = ?', [$subtype]);
-                    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $subtypeCond->sql is one of four literals from SubtypeFilter::condition(); $panelType only selects the case and all values stay parameterized                    $query = "SELECT id,pid from lists where title=? and type=? and pid=? {$subtypeCond->sql}";
+                    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $subtypeCond->sql is one of four literals from SubtypeFilter::condition(); $panelType only selects the case and all values stay parameterized
+                    $query = "SELECT id,pid from lists where title=? and type=? and pid=? {$subtypeCond->sql}";
                     $issue = QueryUtils::fetchSingleValue(
                         $query,
                         'id',

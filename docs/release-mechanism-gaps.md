@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-13
+**Last updated:** 2026-09-16
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -2804,7 +2804,7 @@ Historical context: 8.3.0 shipped 2026-08-18 via a straight-through `ship-releas
 - **#13294 root cause.** Extracted inline validation into shared scripts + BATS-tested the scripts thoroughly, but the workflows calling those scripts weren't re-verified for the workspace-availability precondition. actionlint validates workflow syntax but doesn't cross-reference script existence against checkout presence — a class of workflow-shape invariant that no existing lint enforced. Added `lint-workflow-checkout-needed.py` in the same fix batch to close that gap.
 - **`EXPECTED_WORKFLOW_PATH` single-value assumption.** `acceptance-only.yml` was designed for the workflow_dispatch flow (manual re-run of a specific build-release.yml run), not the tag-triggered flow that ship-release uses in production. Both produce the same artifact shape — but the recovery-path validator didn't know that. Not a "bug" from the recovery-path author's perspective (they built for the intended use case) — surfaced only when the recovery path was first invoked from the tag-triggered pipeline.
 
-**Systemic lesson:** every recovery-workflow path is itself first-exercised on the ship where it's needed. Neither `acceptance-only.yml` nor `docker-acceptance-only.yml` had been dispatched end-to-end between the Phase 10e-2 refactor (2026-07-30) and this 8.4.0 ship — so the two blocker hotfixes (#13972 missing checkout, #13973 single-path hardcoding) surfaced together with the root-cause bug they were needed to work around. Pattern extends G31 / G33 / G34: **any code path that fires only in "the release didn't go smoothly" scenarios should be periodically exercised outside a real ship to keep it warm.** Followup addressed 2026-09-15 for both surfaces — see [G36](#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15) for the full design; the tarball-side implementation is described in the initial G36 entry and the docker-side sibling (parallel `smoketest-docker` job that rides existing nightly `docker-build-release` runs, sidestepping the need for a docker-side `dry_run` mode) is documented in G36's "Docker sibling smoketest (SHIPPED 2026-09-15)" subsection.
+**Systemic lesson:** every recovery-workflow path is itself first-exercised on the ship where it's needed. Neither `acceptance-only.yml` nor `docker-acceptance-only.yml` had been dispatched end-to-end between the Phase 10e-2 refactor (2026-07-30) and this 8.4.0 ship — so the two blocker hotfixes (#13972 missing checkout, #13973 single-path hardcoding) surfaced together with the root-cause bug they were needed to work around. Pattern extends G31 / G33 / G34: **any code path that fires only in "the release didn't go smoothly" scenarios should be periodically exercised outside a real ship to keep it warm.** Followup addressed 2026-09-15 for both surfaces — see [G36](#g36--recovery-path-smoketest-proactive-warm-up-of-the-recovery-workflow-chain--shipped-2026-09-15) for the full design; the tarball-side implementation is described in the initial G36 entry and the docker-side sibling (parallel `smoketest-docker` job that dispatches `docker-build-release.yml --dry_run` for a preserved-candidate source, then chains into `docker-acceptance-only.yml`) is documented in G36's "Docker sibling smoketest (SHIPPED 2026-09-15)" subsection.
 
 ### G36 — Recovery-path smoketest: proactive warm-up of the recovery-workflow chain  *(SHIPPED 2026-09-15)*
 
@@ -2854,27 +2854,77 @@ For a real release to be stomped, ALL FOUR layers would need to fail simultaneou
 
 **Docker sibling smoketest (SHIPPED 2026-09-15):**
 
-Added as the `smoketest-docker` job parallel to the tarball `smoketest` job in `.github/workflows/recovery-path-smoketest.yml`. Extends the recovery-path warm-up coverage from tarball (`acceptance-only.yml`) to docker (`docker-acceptance-only.yml`) — same G35 systemic-lesson motivation, same L1/L2/L4 guardrail model with two docker-specific differences that the initial G36 design correctly anticipated as blockers:
+Added as the `smoketest-docker` job parallel to the tarball `smoketest` job in `.github/workflows/recovery-path-smoketest.yml`. Extends the recovery-path warm-up coverage from tarball (`acceptance-only.yml`) to docker (`docker-acceptance-only.yml`) — same G35 systemic-lesson motivation, same L1/L2/L4 guardrail model with two docker-specific differences.
 
-- **Source-run selection doesn't need a docker-side `dry_run`.** The nightly `docker-release-orchestrator` at ~06:17 UTC dispatches one successful `docker-build-release` per rel-branch, always under the 48h age ceiling `validate-source-run.sh` enforces. The smoketest picks the most recent successful nightly for the current-shipped rel-line and uses it as the fresh source. No dry-run infrastructure needed on `docker-build-release.yml`; the smoketest rides existing nightly builds.
+**Design iteration:** an initial attempt (openemr/openemr#14035) tried to reuse the last successful nightly `docker-build-release` run as source, avoiding a docker-side `dry_run` mode. That first PR shipped and was immediately reverted when manual verification failed — the reuse approach hit `docker-acceptance-only.yml`'s `verify-dockerhub-tag-exists` guardrail: `docker-build-release`'s successful publish path deletes the candidate tag as part of the `cleanup-candidate` job, so every successful nightly run has already cleaned up its candidate. No preserved candidate = no source for the smoketest. The redesign (this PR, openemr/openemr#TBD) added a proper `dry_run` mode to `docker-build-release.yml` that skips both `acceptance-gate` + `publish-and-cleanup` so the candidate stays, and the smoketest dispatches docker-build-release fresh with that mode — directly analogous to how the tarball job dispatches `build-release.yml --dry_run` for its source.
+
+**Design:**
+
+- **Fresh docker-build-release dispatch per smoketest run.** `dry_run=true + gate_with_acceptance=true` produces a candidate on Docker Hub (via merge-manifest's multi-arch imagetools create) then SKIPS acceptance-gate + publish-and-cleanup. Candidate stays available for docker-acceptance-only to consume. `docker_tags` is set to a globally-unique `smoketest-canary-<runid>-<timestamp>` value so any accidental publish (in case dry_run gating regresses) would push the canary rather than clobber real tags. Same snapshot-before-dispatch pattern as tarball for run-ID capture.
+
+- **Two variants (mirrors tarball):** variant A (`skip_acceptance=true + no_publish=true`) fast fail-fast on skip-acceptance routing; variant B (`no_publish=true` only) full docker acceptance matrix.
 
 - **L3 does NOT exist for docker.** Docker Hub accepts arbitrary re-push (unlike git tag / GitHub Release which server-side reject "already exists"). L4 is therefore more load-bearing here. Two signals used instead of the tarball's digest-baseline approach:
 
   - **L4a (publish-job-status check):** assert the `publish` job in each dispatched `docker-acceptance-only` run has conclusion=`skipped` (proving the `if: inputs.no_publish != true` gate held). Direct signal on the gate we're relying on, immune to Docker Hub state churn.
-  - **L4b (canary-tag-absent check):** pass a globally-unique `smoketest-canary-<runid>-<timestamp>` value as the `docker_tags` input. If the publish gate silently regressed, publish would push that tag to Docker Hub as an alias of the candidate. Post-run: query Docker Hub for the canary tag; if it exists, publish leaked → hard FAIL. Deterministic + no orchestrator race (canary name is unique per smoketest run, cannot collide with real orchestrator activity on `8.4.0` / `latest`).
+  - **L4b (canary-tag-absent check):** query Docker Hub for the canary tag post-run; if it exists, publish leaked → hard FAIL. Deterministic + no orchestrator race (canary name is unique per smoketest run, cannot collide with real orchestrator activity on `8.4.0` / `latest`).
 
   Digest-baseline was rejected because the nightly orchestrator LEGITIMATELY re-pushes `8.4.0` + `latest` every day (fresh Alpine base, dep updates), so baseline-vs-verify comparison would false-positive on orchestrator overlap. The canary approach sidesteps the race entirely.
 
-**Cleanup step:** unconditional delete-if-present of the canary tag from Docker Hub via `.github/scripts/dockerhub-delete-tag.sh` (same script the docker publish path's cleanup-candidate job uses). Runs with `if: always()` so even a mid-run failure hits cleanup — protection against a partial early-exit leaving a stray canary.
+**docker-build-release.yml `dry_run` gating:**
+- `acceptance-gate`: `if: inputs.gate_with_acceptance && !inputs.dry_run` — skip so smoketest can run docker-acceptance-only itself (avoids duplicating ~40 min of matrix work)
+- `publish-and-cleanup`: same gating — skip so the candidate stays on Docker Hub for downstream consumption
+- Validation step at top of `prep` job: `dry_run=true` without `gate_with_acceptance=true` fails loudly (non-gated path publishes directly, no candidate produced)
+
+**Cleanup step:** unconditional delete-if-present of BOTH the candidate tag AND the canary tag from Docker Hub via `.github/scripts/dockerhub-delete-tag.sh` (same script the docker publish path's cleanup-candidate job uses). Runs with `if: always()` so even a mid-run failure hits cleanup. Rationale:
+
+- **Candidate tag (`release-candidate-<runid>-<attempt>`)** — the dispatched dry-run docker-build-release DID push this to Docker Hub as its handoff point between merge-manifest and (skipped) publish/cleanup. Under normal ship flow, publish-and-cleanup's cleanup-candidate step would delete it on green publish — but the smoketest sets `no_publish=true` which skips publish-and-cleanup entirely. So the smoketest takes over that cleanup responsibility.
+- **Canary tag (`smoketest-canary-<runid>-<timestamp>`)** — should never have been pushed (publish gated off by no_publish), so the delete is a defensive no-op on green runs; on a red run from L4b (canary was found on Docker Hub, indicating the no_publish gate silently regressed) this deletes the stray.
+
+Each delete's non-zero status is downgraded to a warning rather than hard-failing the smoketest — a Docker Hub cleanup API flake shouldn't red-flag an otherwise green recovery-workflow validation.
 
 **Bonus: L4a also added to the tarball job** for consistency (belt-and-suspenders — the existing "state unchanged" hash-based check plus this direct publish-job-status assertion).
 
-Cascade of PRs that shipped the docker sibling: openemr/openemr#14031 (or applicable PR number when merged).
+Cascade of PRs that shipped the docker sibling: openemr/openemr#14035 (initial attempt, reverted in same PR chain), openemr/openemr#TBD (this PR — revert + `dry_run` mode + re-add smoketest job).
 
 **Followup opportunities (deferred):**
 
 - **First observed regression → promote noise-handling policy to a G-entry.** The current policy is documented in the workflow header + this gap entry, but if we ever hit the "two consecutive same-class reds" trigger, that investigation deserves its own gap entry with the specific regression + fix.
 - **Retire the "hardcoded 8.2.0 fallback" in `detect-acceptance-mode.sh`.** #14018's `derive_from_version` filter incidentally fixed the degenerate case for that fallback path (the fallback would previously have returned `from=8.2.0`= `to=8.2.0`). Fallback is likely vestigial in practice (no known caller hits it), but removing it or replacing with a loud error would be cleaner than leaving both the fallback and the degeneracy-fix in place.
+
+### G37 — Audit of G36 smoketest scripts caught 2 latent bugs + 1 design gap  *(SHIPPED 2026-09-16)*
+
+**STATUS: SHIPPED 2026-09-16** across two PRs (openemr/openemr#14045 refactor + BATS extraction that surfaced the bugs during CodeRabbit review; follow-up PR for the reusable caller-must-gate contract + preflight validation). All findings were caught by static audit rather than by a failing nightly run — this entry documents the pattern for future reference: "first-green nightly run" is not the same as "audit-clean" and both are worth doing.
+
+**Trigger event:** refactor of `.github/workflows/recovery-path-smoketest.yml`'s inline safety-gate + baseline-capture + guardrail-verify bash blocks into three shared scripts under `.github/scripts/` (`assert-release-shipped.sh`, `recovery-smoketest-baseline.sh`, `recovery-smoketest-verify.sh`) with 36 total BATS tests. The refactor was pure code-organization + testability, but writing the tests + running them against the same mock payloads the CI reviewer exercised revealed the two latent bugs; the third finding was a design observation surfaced during a defense-in-depth audit of the surrounding workflow guards.
+
+**Findings + fixes:**
+
+1. **`set -euo pipefail` masked mapped exit codes in baseline + verify scripts.** Both scripts used `x=$(cmd | filter | filter)` capture assignments (`git ls-remote | awk`, `gh release view --jq '@json' | sha256sum | awk`, `gh run view --jq ... | head -1`). Under `set -euo pipefail`, a nonzero exit from `cmd` propagates through the pipeline and terminates the whole assignment BEFORE any custom error-handling branch can differentiate exit codes.
+
+   - **In baseline.sh:** the script's documented contract was "exit 2 on git failure, exit 3 on gh failure." A real git or gh failure would instead terminate at the assignment with the pipeline's exit code and lose the diagnostic.
+   - **In verify.sh:** worse impact — the script's documented contract was "aggregate all failures via FAILED=1 sentinel, then exit 2 at end." An early set-e termination skipped the sentinel AND all later checks AND the exit-2 aggregate. Callers `if: always()` still ran verify but verify's own internal aggregation was silently broken.
+
+   **Fix:** wrap each capture in `if ! output=$(...); then ...; fi`. In baseline, that branch emits the mapped diagnostic + exit code. In verify, that branch sets a sentinel value + `FAILED=1` and continues so subsequent checks still run. Also swapped `| head -1` for jq `[...] | first // empty` to eliminate SIGPIPE risk under pipefail. All three code paths (`git ls-remote`, `gh release view` for hash, `gh run view` for publish-status) now guarded consistently.
+
+2. **`downloadCount` in Release-hash caused L4a false-positive on every run.** `gh release view --json ... assets` returns each asset with `downloadCount` (CLI field name; REST API name is `download_count`) which increments on every asset download. The smoketest itself downloads the tarball as part of install-check → downloadCount bumps → sha256 of the emitted JSON differs from baseline → L4a "release state unchanged" check would false-positive.
+
+   **Fix:** strip `downloadCount` from each asset via `--jq '.assets |= map(del(.downloadCount))'` in BOTH baseline capture and verify comparison so the projection is identical on both sides. All other asset fields (`name`, `size`, `digest`, `contentType`, `url`, etc.) retained — those only change via `gh release upload --clobber`, which is the mutation the guardrail defends against. Regression test proves downloadCount-only changes don't alter the hash, and a companion sanity test proves an asset-digest change still DOES alter it.
+
+   **Why the nightly hadn't caught this:** the initial G36 nightly runs happened to use payloads where downloadCount had stabilized between baseline capture and verify (small time window; asset not being pulled by real users). Only sustained real-world use would have exposed the drift — and by then the guardrail would look flaky rather than broken. Reference memory added: `reference_gh_release_view_downloadcount.md`.
+
+3. **Reusable publish workflows had no self-defense; caller-must-gate contract was undocumented.** `.github/workflows/reusable-publish-release.yml` + `.github/workflows/reusable-docker-publish.yml` have no `dry_run` / `no_publish` input of their own. Every step below is unconditionally destructive (git tag push + `gh release create` in the tarball reusable; `docker buildx imagetools create` alias onto all real Docker Hub tags in the docker reusable). Safety of the whole L1 guard layer depends entirely on the two current call sites gating `uses:` at the job level. Current callers (`build-release.yml` publish job, `acceptance-only.yml` publish job, `docker-build-release.yml` publish-and-cleanup job, `docker-acceptance-only.yml` publish-and-cleanup job) all gate correctly, but the dependency on caller-side gating was undocumented — a future new caller could invoke either reusable from an ungated context and stomp real release artifacts the instant the workflow fires.
+
+   **Fix:** header-comment "CALLER-MUST-GATE contract" section added to both reusables explicitly documenting the requirement + linking to each current caller's gate pattern for reference; plus a preflight step at the top of each reusable's job that fails loudly if any required input is empty (`[[ -z "${INPUT}" ]] && exit 1`). The preflight closes the runtime side: even if a future caller wires the reusable with an empty candidate_tag / artifact_name, the destructive ops never fire.
+
+**Systemic lesson:** the recovery-path smoketest itself SHIPPED green (G36's `First fully-green end-to-end smoketest run: 34952720263`), and BATS tests all passed against the mock payloads — but the mock payloads had the same wrong-expectation bug that the real script had (both hashed the raw payload without stripping downloadCount, so both matched trivially in test). Two lessons for future recovery-path-adjacent work:
+
+- **"First-green nightly run" and "audit-clean" are different signals.** A workflow that runs successfully end-to-end has proven only that its happy path completes; it hasn't proven its error paths or its guardrails behave correctly under real drift. Post-ship code audit — reading the shipped scripts with a fresh critical eye + asking "under what conditions would this check silently pass when it shouldn't" — is a separate line of defense from "does the workflow go green."
+- **Mock payloads inherit the script's blind spots.** BATS test coverage of `sha256(json_payload)` doesn't catch the projection bug because the mock emits the same json_payload the real gh would, and both hash-under-test use the same buggy jq expression. Catch this class by adding tests that flex the FIELDS being hashed (e.g. "downloadCount-only change must not alter hash") rather than only "hash is deterministic across identical inputs."
+
+Both lessons apply beyond the recovery-path smoketest: any future guardrail-workflow that computes a mutation-detection hash over an external system's payload should include a fields-that-should-be-ignored test AND an audit-style read after first-green.
+
+**Cross-check on the guard model (audit output, not a fix):** the defense-in-depth model documented in G36 remains firmly in place — 5 layers (L1 input flags on each destructive job, L2 preflight `assert-release-shipped.sh`, L3 canary-tag substitution passing `docker_tags=${CANARY_TAG}` so even a regressed L1 gate would only clobber a synthetic tag never real ones, L4a runtime state-unchanged verify, L4b canary-tag-absent check on Docker Hub) verified against actual file:line references in the smoketest workflow. The two latent bugs above only weakened L4a's diagnostics + false-positive rate; they did not create a new stomp path. Fix #3 (preflight in reusables) adds a small hardening to L1's fail-closed behavior at the reusable layer.
 
 ## Followup opportunities (not yet gap-numbered)
 
