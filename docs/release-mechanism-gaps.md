@@ -2966,6 +2966,33 @@ Exercised 2026-09-16 (openemr/openemr run 35160554535); opened PRs #14071 (rel-s
 
 The delta gates could technically be relaxed — e.g., accept two consecutive pushes as long as their combined state matches (patch++ AND tag='-dev') — but doing so would trade a rare operator inconvenience (split-fix, easily recovered via workflow_dispatch) for a fragile "combined state" tracking mechanism that would need to reason about push order, intervening pushes, force-pushes to the rel branch, and cross-run state. The delta gate is deliberately strict because "one clean push per patch-cycle entry" is the operator convention worth enforcing, and the workflow_dispatch escape hatch is already present for the exception cases.
 
+### G39 — `PatchPrepReleaseTargetsMutator` didn't strip `next` from master row  *(SHIPPED 2026-09-16)*
+
+**STATUS: SHIPPED 2026-09-16** — code fix + 4 new BATS-adjacent PHPUnit tests. Also opens a small doc question about the finalize-time `next` re-add being load-bearing across the ship→patch-prep sequence (see "Design note" below).
+
+**Trigger event:** 8.4.1 patch cycle start on rel-840 (2026-09-16). Master-side patch-prep PR #14072 correctly added the new `- branch: rel-840 / docker_tags: 8.4.1,next / openemr_version_ref: rel-840` row but left the master row's existing `docker_tags: 8.5.0,dev,next` untouched. Result: **two rows claiming `next`** — master (8.5.0 dev) AND rel-840 (8.4.1 patch dev). Docker Hub's `next` tag can only point at one image at a time; the orchestrator's next run would push both, whichever ran last wins, and the tag would flap between them on each subsequent cycle.
+
+**Why it went latent this long:** patch-prep-automation.yml shipped 2026-07-01 via workstream 6 (see [G12](#g12--patch-cycle-bootstrap-on-rel--requires-manual-sql-skeleton--docker-scaffolding--master-file-rename--workstream-6-design)). Between then and now the only patch-cycle exercise was the 8.1.1 transition — but rel-810 was the current-latest at that point (no post-shipping `next` on master's row), so the strip was a no-op regardless. This is the first patch-cycle where a `latest` had shifted OFF the rel line during a prior finalize, leaving master carrying `next` post-finalize.
+
+**Diff between PatchPrep + BranchCut mutators (before fix):**
+
+`BranchCutReleaseTargetsMutator::bumpMasterDockerTags` (already correct) does three things to the master row on branch-cut events: (1) bump the bare `X.Y.0` version tag's minor, (2) drop `next`, (3) keep `dev`. That's how rel-840 branch-cut PR #13926 correctly transitioned master's `docker_tags: 8.4.0,dev,next` → `docker_tags: 8.5.0,dev` (next moved to the new rel-840 row).
+
+`PatchPrepReleaseTargetsMutator` (before this fix) only did two things: (1) insert the new dev row for the patch cycle, (2) drop any `unreleased: true` placeholder rows for the target branch. Never touched the master row's docker_tags — which is fine when master doesn't have `next` to begin with, but wrong when it does (as post-finalize state has).
+
+**Fix (this PR):** add `stripNextFromMasterRow()` to `PatchPrepReleaseTargetsMutator` (mirrors `BranchCutReleaseTargetsMutator::bumpMasterDockerTags` minus the version-bump; just the strip half). Called between insert-new-dev-row and the final YAML sanity check. Idempotent: no-op if master row has no `next` (protects the historical patch-prep cases where the strip wasn't load-bearing). 4 new PHPUnit tests: strips-when-present, idempotent-when-absent, idempotent-across-reruns, comments-and-ordering-preserved.
+
+**Recovery for #14072 specifically:** #14072 was already open when this gap was found. Fix landed AFTER the PR was opened; two paths:
+- (a) Merge #14072 as-is, then follow-up PR to strip `next` from master. Simple, one-off.
+- (b) Wait for this fix to land, then re-dispatch `patch-prep-automation.yml --ref master` with the same rel-branch/target/prev inputs — the workflow force-pushes to the existing `patch-prep/rel-840-master` branch on peter-evans re-run, so #14072 gets regenerated with the strip applied.
+
+**Design note (open question, worth remembering):** the `next` re-add on the master row happens at finalize time via `PostReleaseTargetsMutator` (fires on release-finalize/<rel-branch> merge; put `next` back on master since no rel branch is currently claiming it post-ship). That's followed by the operator's next-patch-cycle bump PR (which triggers patch-prep-automation), which now strips it again. The re-add + strip pair essentially cancels out over the ship→patch-prep window. Two design alternatives worth considering later:
+
+1. Drop the finalize-time re-add. Between ship and next-patch-prep, `next` is "unclaimed" — which is arguably the correct semantic (no active dev cycle claiming it). But it does mean a docker orchestrator tick in that window would push nothing tagged `next`, leaving the last-shipped image without that alias for potentially days. Not great for `docker pull openemr/openemr:next` users.
+2. Have finalize add `next` to the JUST-SHIPPED rel row (alongside `latest`) instead of to master. That row already carries `latest`; adding `next` there means "this image is both the latest published AND the current forward-looking tip until the next patch cycle starts." Then patch-prep only needs to move `next` off THAT row when the new patch dev row takes over, not off master. Slightly different mental model but eliminates the master-row bounce.
+
+Neither is in scope for this fix; the current cancel-out behavior is correct as long as both mutators are in sync. Filed here so a future release-targets refactor can revisit.
+
 ## Followup opportunities (not yet gap-numbered)
 
 Items surfaced during planning discussions or from operator experience that don't yet warrant a full gap entry — typically because they're extrapolations from existing patterns rather than confirmed bugs, or because they're operator-side observations that haven't been formalized. Move to a real G-entry when concrete scope + investigation are lined up. Kept here so option-listing across future planning sessions doesn't depend on session context.
