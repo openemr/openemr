@@ -96,33 +96,6 @@ jobs:
     name: Publish release
     timeout-minutes: 30
     steps:
-    # Preflight: enforce non-empty required inputs before any destructive
-    # step runs. workflow_call's `required: true` only validates the input
-    # is DECLARED at the call site, not that its value is non-empty --
-    # `-f artifact_name=""` satisfies `required: true` but would cause
-    # subsequent steps to malfunction. Since every step below performs a
-    # destructive publish op (git tag push + gh release create/upload),
-    # fail loudly HERE if any input is empty, before touching anything.
-    # Belt-and-suspenders complement to the CALLER-MUST-GATE contract in
-    # this workflow's header (see G37 in release-mechanism-gaps.md).
-    - name: Preflight (all required inputs non-empty)
-      env:
-        VERSION: ${{ inputs.version }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        VERSION_BRANCH: ${{ inputs.version_branch }}
-        ARTIFACT_NAME: ${{ inputs.artifact_name }}
-      run: |
-        missing=()
-        [[ -z "${VERSION}" ]] && missing+=("version")
-        [[ -z "${RELEASE_TAG}" ]] && missing+=("release_tag")
-        [[ -z "${VERSION_BRANCH}" ]] && missing+=("version_branch")
-        [[ -z "${ARTIFACT_NAME}" ]] && missing+=("artifact_name")
-        if (( ${#missing[@]} > 0 )); then
-          echo "::error::reusable-publish-release.yml: required input(s) missing or empty: ${missing[*]}. Caller must supply non-empty values -- this reusable performs destructive publish ops (git tag push + gh release create/upload). See the CALLER-MUST-GATE contract in this workflow's header for context."
-          exit 1
-        fi
-        echo "==> Preflight OK: version=${VERSION}, release_tag=${RELEASE_TAG}, version_branch=${VERSION_BRANCH}, artifact_name=${ARTIFACT_NAME}"
-
     # App-token regenerated here rather than passed as an output from
     # build-package — GitHub Actions redacts token outputs across job
     # boundaries anyway (writing a token to `$GITHUB_OUTPUT` masks it
@@ -150,6 +123,30 @@ jobs:
         filter: blob:none
         fetch-depth: 1
         persist-credentials: false
+
+    # Preflight: enforce non-empty required inputs before any destructive
+    # step runs. workflow_call's `required: true` only validates the
+    # input is DECLARED at the call site, not that its value is
+    # non-empty -- `-f artifact_name=""` satisfies `required: true` but
+    # would break downstream steps. Since every step below performs a
+    # destructive publish op (git tag push + gh release create/upload),
+    # fail loudly HERE if any input is empty, before touching anything.
+    # Belt-and-suspenders complement to the CALLER-MUST-GATE contract in
+    # this workflow's header (see G37 in release-mechanism-gaps.md).
+    # Positioned after the initial checkout so the shared preflight
+    # script is on disk; `version_branch=""` still gets caught (via
+    # checkout's own "ref doesn't exist" failure) even though its error
+    # is less friendly than the preflight's.
+    - name: Preflight (all required inputs non-empty)
+      env:
+        VERSION: ${{ inputs.version }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        ARTIFACT_NAME: ${{ inputs.artifact_name }}
+      run: >-
+        .github/scripts/assert-inputs-nonempty.sh
+        "reusable-publish-release.yml"
+        VERSION RELEASE_TAG VERSION_BRANCH ARTIFACT_NAME
 
     - name: Generate app token
       id: app-token
