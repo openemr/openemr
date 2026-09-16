@@ -20,10 +20,18 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php";
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient_tracker.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Flow-board output is scheduling data (appointment check-in/out timings +
+// provider); gate on patients/appt to match the sibling appointments report.
+if (!AclMain::aclCheckCore('patients', 'appt')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Patient Flow Board Report", xl("Patient Flow Board Report"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
