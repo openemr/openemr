@@ -107,3 +107,53 @@ teardown() {
     [[ ${status} -eq 0 ]]
     [[ "$(read_step_summary)" == *"Publish jobs = skipped on: variant-A:12345 variant-B:67890"* ]]
 }
+
+@test "git ls-remote nonzero exit -> exit 2 via FAILED sentinel (not early set -e)" {
+    # Before the pipefail-guard fix, this would abort during
+    # assignment and never reach the aggregate exit.
+    export MOCK_LS_REMOTE_EXIT="128"
+    export MOCK_LS_REMOTE_STDERR="fatal: unable to access remote"
+    run bash "${RECOVERY_SMOKETEST_VERIFY_SCRIPT}" "variant-A:12345"
+    [[ ${status} -eq 2 ]]
+    [[ "${output}" == *"git ls-remote failed"* ]]
+    # variant-A publish check still ran despite earlier failure --
+    # confirms aggregation past first failure.
+    [[ "${output}" == *"variant-A publish job: skipped"* ]]
+}
+
+@test "gh release view nonzero exit -> exit 2 via FAILED sentinel" {
+    export MOCK_GH_RELEASE_VIEW_EXIT="1"
+    run bash "${RECOVERY_SMOKETEST_VERIFY_SCRIPT}"
+    [[ ${status} -eq 2 ]]
+    [[ "${output}" == *"Release v8_4_0 state hash changed"* ]]
+    [[ "${output}" == *"release-missing-or-view-failed"* ]]
+}
+
+@test "gh run view nonzero exit -> exit 2 via FAILED sentinel (per-run guard)" {
+    export MOCK_GH_RUN_VIEW_EXIT_12345="1"
+    run bash "${RECOVERY_SMOKETEST_VERIFY_SCRIPT}" "variant-A:12345" "variant-B:67890"
+    [[ ${status} -eq 2 ]]
+    [[ "${output}" == *"gh run view failed for run 12345"* ]]
+    # variant-B not affected by variant-A's failure.
+    [[ "${output}" == *"variant-B publish job: skipped"* ]]
+}
+
+@test "downloadCount-only change does NOT trigger release-hash guardrail" {
+    # This is the mirror of the baseline-side downloadCount test:
+    # if the smoketest downloads the tarball (which it does during
+    # install-check) and downloadCount bumps, the verify step must
+    # NOT flag it as a mutation. The projection strips downloadCount
+    # from both sides.
+    export MOCK_GH_RELEASE_VIEW_JSON='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[{"name":"openemr-8.4.0.tar.gz","size":123,"downloadCount":0,"digest":"sha256:aaaa"}]}'
+    # Re-derive BASELINE_RELEASE_HASH against this new payload
+    # (the helper computed it against the empty-assets default).
+    BASELINE_RELEASE_HASH="$(compute_release_hash "${MOCK_GH_RELEASE_VIEW_JSON}")"
+    export BASELINE_RELEASE_HASH
+
+    # Now current state has bumped downloadCount but is otherwise
+    # identical. Verify should pass.
+    export MOCK_GH_RELEASE_VIEW_JSON='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[{"name":"openemr-8.4.0.tar.gz","size":123,"downloadCount":42,"digest":"sha256:aaaa"}]}'
+    run bash "${RECOVERY_SMOKETEST_VERIFY_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ "${output}" == *"Guardrail OK"* ]]
+}

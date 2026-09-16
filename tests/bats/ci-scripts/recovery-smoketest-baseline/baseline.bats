@@ -51,12 +51,63 @@ teardown() {
     [[ "${output}" == *"no tag SHA"* ]]
 }
 
-@test "gh release view fails -> exit 3 with actionable error" {
+@test "git ls-remote nonzero exit -> exit 2 with diagnostic (pipefail guard)" {
+    # `set -euo pipefail` would have aborted the assignment before
+    # the diagnostic if the ls-remote path weren't guarded with `if !`.
+    export MOCK_LS_REMOTE_EXIT="128"
+    export MOCK_LS_REMOTE_STDERR="fatal: unable to access 'https://github.com/foo/bar.git/': network unreachable"
+    run bash "${RECOVERY_SMOKETEST_BASELINE_SCRIPT}"
+    [[ ${status} -eq 2 ]]
+    [[ "${output}" == *"git ls-remote failed"* ]]
+    [[ "${output}" == *"network unreachable"* ]]
+}
+
+@test "gh release view probe fails -> exit 3 with actionable error" {
     export MOCK_GH_RELEASE_VIEW_EXIT="1"
     run bash "${RECOVERY_SMOKETEST_BASELINE_SCRIPT}"
     [[ ${status} -eq 3 ]]
     [[ "${output}" == *"gh release view failed"* ]]
     [[ "${output}" == *"Run assert-release-shipped.sh first"* ]]
+}
+
+@test "downloadCount-only change does NOT alter release hash (mutation-noise strip)" {
+    # Baseline with 2 assets, downloadCount=0.
+    export MOCK_GH_RELEASE_VIEW_JSON='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[{"name":"openemr-8.4.0.tar.gz","size":123,"downloadCount":0,"digest":"sha256:aaaa"},{"name":"SHA256SUMS","size":45,"downloadCount":0,"digest":"sha256:bbbb"}]}'
+    run bash "${RECOVERY_SMOKETEST_BASELINE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local first_hash
+    first_hash=$(grep 'BASELINE_RELEASE_HASH=' "${GITHUB_ENV}" | cut -d= -f2)
+
+    # Same assets, downloadCount bumped (as would happen after a
+    # smoketest downloaded the tarball). All other fields identical.
+    : > "${GITHUB_ENV}"
+    export MOCK_GH_RELEASE_VIEW_JSON='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[{"name":"openemr-8.4.0.tar.gz","size":123,"downloadCount":42,"digest":"sha256:aaaa"},{"name":"SHA256SUMS","size":45,"downloadCount":17,"digest":"sha256:bbbb"}]}'
+    run bash "${RECOVERY_SMOKETEST_BASELINE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local second_hash
+    second_hash=$(grep 'BASELINE_RELEASE_HASH=' "${GITHUB_ENV}" | cut -d= -f2)
+
+    [[ "${first_hash}" == "${second_hash}" ]]
+}
+
+@test "asset digest change DOES alter release hash (real mutation still caught)" {
+    # Sanity companion to the downloadCount test: the projection
+    # strips ONLY downloadCount -- other asset fields still matter.
+    export MOCK_GH_RELEASE_VIEW_JSON='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[{"name":"openemr-8.4.0.tar.gz","size":123,"downloadCount":0,"digest":"sha256:aaaa"}]}'
+    run bash "${RECOVERY_SMOKETEST_BASELINE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local first_hash
+    first_hash=$(grep 'BASELINE_RELEASE_HASH=' "${GITHUB_ENV}" | cut -d= -f2)
+
+    # digest changed (simulates `gh release upload --clobber`).
+    : > "${GITHUB_ENV}"
+    export MOCK_GH_RELEASE_VIEW_JSON='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[{"name":"openemr-8.4.0.tar.gz","size":123,"downloadCount":0,"digest":"sha256:CCCC"}]}'
+    run bash "${RECOVERY_SMOKETEST_BASELINE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local second_hash
+    second_hash=$(grep 'BASELINE_RELEASE_HASH=' "${GITHUB_ENV}" | cut -d= -f2)
+
+    [[ "${first_hash}" != "${second_hash}" ]]
 }
 
 @test "baseline hash is deterministic across identical inputs" {

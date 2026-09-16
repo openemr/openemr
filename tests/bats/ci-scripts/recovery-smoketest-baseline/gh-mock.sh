@@ -45,12 +45,26 @@ if [[ "${subcommand}" == "release" ]]; then
             # Distinguish the --jq call (emits JSON we hash) from the
             # bare call (just an exit-code probe). Both are `gh release
             # view <tag> --repo ...`; the --jq flag distinguishes.
-            if printf '%s\n' "$@" | grep -q -- '--jq'; then
-                # Compute default in a variable to avoid brace-
-                # counting ambiguity in ${VAR:-DEFAULT} when the
-                # DEFAULT itself contains braces (as JSON does).
-                default_json='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[]}'
-                printf '%s' "${MOCK_GH_RELEASE_VIEW_JSON:-$default_json}"
+            #
+            # When --jq is present, apply the expression via real jq
+            # against MOCK_GH_RELEASE_VIEW_JSON. This exercises the
+            # actual projection the script asks for (e.g. asset
+            # `downloadCount` stripping) instead of bypassing it.
+            args=("$@")
+            jq_expr=""
+            for ((i=0; i<${#args[@]}; i++)); do
+                if [[ "${args[i]}" == "--jq" ]] && ((i+1 < ${#args[@]})); then
+                    jq_expr="${args[i+1]}"
+                    break
+                fi
+            done
+            # Compute default in a variable to avoid brace-counting
+            # ambiguity in ${VAR:-DEFAULT} when the DEFAULT itself
+            # contains braces (as JSON does).
+            default_json='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[]}'
+            payload="${MOCK_GH_RELEASE_VIEW_JSON:-${default_json}}"
+            if [[ -n "${jq_expr}" ]]; then
+                printf '%s' "${payload}" | jq "${jq_expr}"
             fi
             exit "${MOCK_GH_RELEASE_VIEW_EXIT:-0}"
             ;;

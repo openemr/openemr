@@ -20,6 +20,9 @@ shift || true
 case "${subcommand}" in
     ls-remote)
         printf '%s' "${MOCK_LS_REMOTE_STDOUT:-}"
+        if [[ -n "${MOCK_LS_REMOTE_STDERR:-}" ]]; then
+            printf '%s' "${MOCK_LS_REMOTE_STDERR}" >&2
+        fi
         exit "${MOCK_LS_REMOTE_EXIT:-0}"
         ;;
     *)

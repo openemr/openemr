@@ -76,8 +76,24 @@ fi
 
 FAILED=0
 
+# All probes below use `if ! output=$(...)` guards. Under
+# `set -euo pipefail` a bare `x=$(cmd | ...)` exits the script on
+# any pipeline failure, which would skip the FAILED=1 sentinel,
+# skip later checks, and never reach the documented exit-2
+# aggregate. `if !` neutralizes set -e for the assignment while
+# still capturing exit status.
+
 # Check 1: tag SHA unchanged.
-current_tag_sha=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
+if ! ls_remote_output=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" 2>&1); then
+    echo "::error::GUARDRAIL FAILED: git ls-remote failed for ${RELEASE_TAG}: ${ls_remote_output}" >&2
+    current_tag_sha="<ls-remote-failed>"
+    FAILED=1
+else
+    current_tag_sha=$(printf '%s\n' "${ls_remote_output}" | awk '{print $1}')
+    if [[ -z "${current_tag_sha}" ]]; then
+        current_tag_sha="<tag-missing>"
+    fi
+fi
 if [[ "${current_tag_sha}" != "${BASELINE_TAG_SHA}" ]]; then
     {
         echo "::error::GUARDRAIL FAILED: tag ${RELEASE_TAG} SHA changed during smoketest."
@@ -89,21 +105,22 @@ if [[ "${current_tag_sha}" != "${BASELINE_TAG_SHA}" ]]; then
 fi
 
 # Check 2: Release state hash unchanged. Use IDENTICAL fields +
-# normalization as baseline capture -- see recovery-smoketest-
-# baseline.sh comment. Sentinel value on gh failure so we still get
-# a deterministic mismatch (fail-closed).
-current_release_hash=$(gh release view "${RELEASE_TAG}" --repo "${REPO}" \
+# projection as baseline capture -- see recovery-smoketest-
+# baseline.sh comment on `downloadCount` stripping.
+if ! release_json=$(gh release view "${RELEASE_TAG}" --repo "${REPO}" \
     --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
-    --jq '@json' 2>/dev/null | sha256sum | awk '{print $1}')
-if [[ -z "${current_release_hash}" ]]; then
+    --jq '.assets |= map(del(.downloadCount))' 2>/dev/null); then
     current_release_hash="<release-missing-or-view-failed>"
+    FAILED=1
+else
+    current_release_hash=$(printf '%s' "${release_json}" | sha256sum | awk '{print $1}')
 fi
 if [[ "${current_release_hash}" != "${BASELINE_RELEASE_HASH}" ]]; then
     {
         echo "::error::GUARDRAIL FAILED: GitHub Release ${RELEASE_TAG} state hash changed during smoketest."
         echo "::error::  baseline: ${BASELINE_RELEASE_HASH}"
         echo "::error::   current: ${current_release_hash}"
-        echo "::error::A field covered by the guardrail changed: body / name / isDraft / isPrerelease / targetCommitish / publishedAt / createdAt / any asset. This indicates a no_publish-gating regression let a Release mutation through. Investigate immediately."
+        echo "::error::A field covered by the guardrail changed: body / name / isDraft / isPrerelease / targetCommitish / publishedAt / createdAt / any asset (excluding per-asset downloadCount, which mutates on downloads). This indicates a no_publish-gating regression let a Release mutation through. Investigate immediately."
     } >&2
     FAILED=1
 fi
@@ -118,17 +135,22 @@ fi
 # Filter matches any job whose name contains "publish"
 # (case-insensitive). Both acceptance-only.yml ("Publish release")
 # and docker-acceptance-only.yml ("Publish + cleanup") satisfy
-# this pattern.
+# this pattern. `first // empty` picks the first match in jq (no
+# `head -1` pipe -- that would SIGPIPE gh under pipefail if gh
+# emitted multiple lines).
 for var_pair in "$@"; do
     label="${var_pair%%:*}"
     rid="${var_pair#*:}"
     if [[ -z "${rid}" ]]; then
         continue
     fi
-    publish_status=$(gh run view "${rid}" --repo "${REPO}" \
+    if ! publish_status=$(gh run view "${rid}" --repo "${REPO}" \
         --json jobs \
-        --jq '.jobs[] | select(.name | test("(?i)publish")) | .conclusion' \
-        | head -1)
+        --jq '[.jobs[] | select(.name | test("(?i)publish")) | .conclusion] | first // empty' 2>/dev/null); then
+        echo "::error::GUARDRAIL FAILED (${label}): gh run view failed for run ${rid}." >&2
+        FAILED=1
+        continue
+    fi
     if [[ "${publish_status}" != "skipped" ]]; then
         echo "::error::GUARDRAIL FAILED (${label}): publish job conclusion = '${publish_status:-<not-found>}' (expected 'skipped'). no_publish gate silently failed on run ${rid}." >&2
         FAILED=1

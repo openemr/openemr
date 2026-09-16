@@ -43,12 +43,25 @@ case "${subcommand}" in
         shift || true
         case "${verb}" in
             view)
-                if printf '%s\n' "$@" | grep -q -- '--jq'; then
-                    # Compute default in a variable to avoid brace-
-                    # counting ambiguity in ${VAR:-DEFAULT} when the
-                    # DEFAULT itself contains braces (as JSON does).
-                    default_json='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[]}'
-                    printf '%s' "${MOCK_GH_RELEASE_VIEW_JSON:-$default_json}"
+                # When --jq is present, apply the expression via real
+                # jq against MOCK_GH_RELEASE_VIEW_JSON so the actual
+                # projection the script asks for is exercised (e.g.
+                # asset `downloadCount` stripping).
+                args=("$@")
+                jq_expr=""
+                for ((i=0; i<${#args[@]}; i++)); do
+                    if [[ "${args[i]}" == "--jq" ]] && ((i+1 < ${#args[@]})); then
+                        jq_expr="${args[i+1]}"
+                        break
+                    fi
+                done
+                # Compute default in a variable to avoid brace-
+                # counting ambiguity in ${VAR:-DEFAULT} when the
+                # DEFAULT itself contains braces (as JSON does).
+                default_json='{"body":"","name":"OpenEMR 8.4.0","isDraft":false,"isPrerelease":false,"targetCommitish":"rel-840","publishedAt":"2026-09-10T00:00:00Z","createdAt":"2026-09-10T00:00:00Z","assets":[]}'
+                payload="${MOCK_GH_RELEASE_VIEW_JSON:-${default_json}}"
+                if [[ -n "${jq_expr}" ]]; then
+                    printf '%s' "${payload}" | jq "${jq_expr}"
                 fi
                 exit "${MOCK_GH_RELEASE_VIEW_EXIT:-0}"
                 ;;
@@ -66,6 +79,14 @@ case "${subcommand}" in
                 # `gh run view <RID> --repo ... --json jobs --jq ...`
                 # First positional after `view` is the run ID.
                 rid="${1:-}"
+                # MOCK_GH_RUN_VIEW_EXIT_<RID>: per-run exit code
+                # override (default 0). Lets tests exercise the
+                # gh-run-view-failed branch in verify.sh.
+                exit_var="MOCK_GH_RUN_VIEW_EXIT_${rid}"
+                run_exit="${!exit_var:-0}"
+                if [[ "${run_exit}" != "0" ]]; then
+                    exit "${run_exit}"
+                fi
                 # Look up per-RID conclusion; default 'skipped'.
                 var_name="MOCK_PUBLISH_CONCLUSION_${rid}"
                 # ${!var} does indirect variable expansion.

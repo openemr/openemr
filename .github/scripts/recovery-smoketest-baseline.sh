@@ -30,19 +30,28 @@
 # Exit codes:
 #   0  baseline captured successfully
 #   1  required env var missing
-#   2  git ls-remote failed (network / auth)
+#   2  git ls-remote failed (network / auth) or tag missing on origin
 #   3  gh release view failed (Release doesn't exist -- shouldn't
 #      happen if assert-release-shipped.sh ran first, but guard
 #      defensively)
 #
 # Baseline fields hashed together via sha256:
 #   publishedAt, createdAt, body, name, isDraft, isPrerelease,
-#   targetCommitish, assets
+#   targetCommitish, assets (with per-asset `downloadCount` stripped
+#   -- see below)
 #
 # body + name are `gh release edit --notes/--title` mutation-visible.
 # isDraft + isPrerelease + targetCommitish are `gh release edit`
 # mutation-visible. assets is `gh release upload --clobber` mutation-
 # visible. publishedAt + createdAt round out the mutation surface.
+#
+# `downloadCount` is stripped from each asset because it increments
+# on every download and the smoketest itself downloads the tarball
+# as part of install-check -- leaving it in would false-positive the
+# hash-unchanged guardrail on every run. All other asset fields
+# (name, size, digest, contentType, url, etc.) are retained since
+# they only change via `gh release upload --clobber`, which is what
+# the guardrail defends against.
 #
 # Unit-tested by tests/bats/ci-scripts/recovery-smoketest-baseline/.
 
@@ -63,33 +72,34 @@ if [[ -z "${GITHUB_ENV:-}" ]]; then
     exit 1
 fi
 
-# Capture git tag SHA on origin. Uses ls-remote to hit the remote
-# directly (avoids local-cache staleness). Extract just the SHA
-# (first whitespace-delimited field of the line).
-tag_sha=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
+# Capture git tag SHA on origin. `if !` guard so that a git failure
+# under `set -euo pipefail` doesn't abort the script before the
+# exit-2 branch fires (bare `x=$(git ... | awk ...)` would let
+# pipefail propagate git's exit and terminate before diagnostics).
+if ! ls_remote_output=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" 2>&1); then
+    echo "::error::recovery-smoketest-baseline.sh: git ls-remote failed for ${RELEASE_TAG}: ${ls_remote_output}" >&2
+    exit 2
+fi
+tag_sha=$(printf '%s\n' "${ls_remote_output}" | awk '{print $1}')
 if [[ -z "${tag_sha}" ]]; then
-    echo "::error::recovery-smoketest-baseline.sh: git ls-remote returned no tag SHA for ${RELEASE_TAG} (tag doesn't exist on origin, or ls-remote failed)" >&2
+    echo "::error::recovery-smoketest-baseline.sh: git ls-remote returned no tag SHA for ${RELEASE_TAG} (tag doesn't exist on origin)" >&2
     exit 2
 fi
 
-# Probe gh's exit code first with a bare `gh release view`. Under
-# `set -e pipefail`, running gh inside a `... | sha256sum | awk`
-# pipeline would abort the script on gh failure BEFORE any custom
-# error handling could differentiate exit codes. Split the concern:
-# probe here, capture on success below. Cheap (two gh calls; each is
-# a single API request).
-if ! gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null 2>&1; then
-    echo "::error::recovery-smoketest-baseline.sh: gh release view failed for ${RELEASE_TAG} (Release doesn't exist? Run assert-release-shipped.sh first to fail fast on this)" >&2
+# Capture GitHub Release payload. Same `if !` guard so a gh failure
+# maps to exit 3 with diagnostics rather than a bare pipefail
+# termination.
+if ! release_json=$(gh release view "${RELEASE_TAG}" --repo "${REPO}" \
+    --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
+    --jq '.assets |= map(del(.downloadCount))' 2>&1); then
+    echo "::error::recovery-smoketest-baseline.sh: gh release view failed for ${RELEASE_TAG}: ${release_json} (Release doesn't exist? Run assert-release-shipped.sh first to fail fast on this)" >&2
     exit 3
 fi
 
-# Capture GitHub Release state hash. Fetch the mutation-visible
-# fields as JSON, then sha256 the compact JSON payload. sha256
-# keeps the env var to 64 chars regardless of body length (release
-# notes for major versions can be many KB).
-release_hash=$(gh release view "${RELEASE_TAG}" --repo "${REPO}" \
-    --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
-    --jq '@json' | sha256sum | awk '{print $1}')
+# sha256 the projected JSON. Keeps the env var to 64 chars
+# regardless of body length (release notes for major versions can
+# be many KB).
+release_hash=$(printf '%s' "${release_json}" | sha256sum | awk '{print $1}')
 
 {
     echo "BASELINE_TAG_SHA=${tag_sha}"
