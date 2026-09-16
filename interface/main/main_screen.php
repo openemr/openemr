@@ -439,30 +439,49 @@ if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     }
 }
 
-// Fetch the password expiration date (note LDAP skips this)
+// Fetch the password expiration date and the forced-password-change flag (note LDAP skips this)
 $is_expired = false;
-if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->getInt('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days')))) {
-    $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$session->get('authUserID')]);
-    $current_date = date('Y-m-d');
-    if (!empty($result['last_update_password'])) {
-        $pwd_last_update = $result['last_update_password'];
-    } else {
-        error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
-        $pwd_last_update = $current_date;
+$force_new_password = false;
+if (!AuthUtils::useActiveDirectory()) {
+    $result = privQuery(
+        'SELECT `last_update_password`, `force_new_password` FROM `users_secure` WHERE `id` = ?',
+        [$session->get('authUserID')]
+    );
+    if (!is_array($result)) {
+        $result = [];
     }
 
-    // Display the password expiration message (will show during the grace time)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . OEGlobalsBag::getInstance()->getInt('password_expiration_days') . ' days'));
+    // An administrator has required this user to change their password on next login
+    $force_new_password_flag = $result['force_new_password'] ?? 0;
+    $force_new_password = is_numeric($force_new_password_flag) && (int) $force_new_password_flag !== 0;
 
-    if (empty(strtotime($pwd_alert_date))) {
-        error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
-    } elseif (strtotime($current_date) >= strtotime($pwd_alert_date)) {
-        $is_expired = true;
+    // Check for password expiration
+    $password_expiration_days = OEGlobalsBag::getInstance()->getInt('password_expiration_days');
+    if (($password_expiration_days !== 0) && check_integer($password_expiration_days)) {
+        $current_date = date('Y-m-d');
+        if (!empty($result['last_update_password'])) {
+            $pwd_last_update = $result['last_update_password'];
+        } else {
+            error_log('OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table');
+            $pwd_last_update = $current_date;
+        }
+
+        // Display the password expiration message (will show during the grace time)
+        $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $password_expiration_days . ' days'));
+
+        if (empty(strtotime($pwd_alert_date))) {
+            error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
+        } elseif (strtotime($current_date) >= strtotime($pwd_alert_date)) {
+            $is_expired = true;
+        }
     }
 }
 
 $listSvc = new ListService();
 $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
+if (!is_array($_tabs)) {
+    $_tabs = [];
+}
 
 if ($is_expired) {
     //display the php file containing the password expiration message.
@@ -470,6 +489,13 @@ if ($is_expired) {
         'notes' => "interface/main/pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
         'id' => "adm",
         "label" => xl("Password Reset"),
+    ]);
+} elseif ($force_new_password) {
+    // Admin has required this user to change their password
+    array_unshift($_tabs, [
+        'notes' => 'interface/usergroup/user_info.php',
+        'option_id' => 'adm',
+        'title' => xl('Password Change Required'),
     ]);
 } elseif (!empty($_POST['patientID'])) {
     // Patient is open, so add this to the list of tabs, at the end
