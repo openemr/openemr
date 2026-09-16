@@ -22,7 +22,10 @@ use Installer\Model\InstModuleTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
@@ -153,8 +156,7 @@ class InstallerController extends AbstractActionController
     public function registerAction()
     {
         if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-            echo xlt('Not Authorized');
-            exit;
+            AccessDeniedHelper::deny('Installer registerAction: admin/manage_modules');
         }
 
         $status = false;
@@ -192,8 +194,10 @@ class InstallerController extends AbstractActionController
     public function manageAction()
     {
         if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-            echo json_encode(["status" => xlt('Not Authorized')]);
-            exit;
+            AccessDeniedHelper::deny(
+                'Installer manageAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
         }
 
         $request = $this->getRequest();
@@ -482,6 +486,14 @@ class InstallerController extends AbstractActionController
      */
     public function saveConfigAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer saveConfigAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $moduleId = $request->getPost()->module_id;
 
@@ -504,6 +516,14 @@ class InstallerController extends AbstractActionController
      */
     public function DeleteAclAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer DeleteAclAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $this->InstallerTable->DeleteAcl($request->getPost());
         $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
@@ -516,6 +536,14 @@ class InstallerController extends AbstractActionController
      */
     public function DeleteHooksAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer DeleteHooksAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $this->InstallerTable->DeleteHooks($request->getPost());
         $return[0] = ['return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully")];
@@ -528,6 +556,11 @@ class InstallerController extends AbstractActionController
      */
     public function nickNameAction(): never
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny('Installer nickNameAction: admin/manage_modules');
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $nickname = $request->getPost()->nickname;
         echo $this->InstallerTable->validateNickName(trim((string) $nickname));

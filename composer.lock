@@ -1466,24 +1466,24 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "3.6.8",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "a4d13ed5b11e7f7b4d654b1adf95432031ae3ffc"
+                "reference": "f25c5e5385d3a0bca2dc364d556d3b83a06559ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/a4d13ed5b11e7f7b4d654b1adf95432031ae3ffc",
-                "reference": "a4d13ed5b11e7f7b4d654b1adf95432031ae3ffc",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/f25c5e5385d3a0bca2dc364d556d3b83a06559ed",
+                "reference": "f25c5e5385d3a0bca2dc364d556d3b83a06559ed",
                 "shasum": ""
             },
             "require": {
                 "composer-runtime-api": "^2",
-                "doctrine/collections": "^2.2",
+                "doctrine/collections": "^2.2 || ^3.1",
                 "doctrine/dbal": "^3.8.2 || ^4",
                 "doctrine/deprecations": "^0.5.3 || ^1",
-                "doctrine/event-manager": "^1.2 || ^2",
+                "doctrine/event-manager": "^2.1.1",
                 "doctrine/inflector": "^1.4 || ^2.0",
                 "doctrine/instantiator": "^1.3 || ^2",
                 "doctrine/lexer": "^3",
@@ -1492,6 +1492,7 @@
                 "php": "^8.1",
                 "psr/cache": "^1 || ^2 || ^3",
                 "symfony/console": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "symfony/polyfill-php86": "^1.37",
                 "symfony/var-exporter": "^6.3.9 || ^7.0 || ^8.0"
             },
             "require-dev": {
@@ -1549,9 +1550,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/3.6.8"
+                "source": "https://github.com/doctrine/orm/tree/3.7.0"
             },
-            "time": "2026-08-05T19:05:32+00:00"
+            "time": "2026-09-07T19:35:17+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -2101,16 +2102,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "9.0.38",
+            "version": "9.0.39",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "ba273135702a0d0c1f5954dc7291bfc4082da4f0"
+                "reference": "268d42f8f6401d94fd3c5c9dddb09290f81ed613"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/ba273135702a0d0c1f5954dc7291bfc4082da4f0",
-                "reference": "ba273135702a0d0c1f5954dc7291bfc4082da4f0",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/268d42f8f6401d94fd3c5c9dddb09290f81ed613",
+                "reference": "268d42f8f6401d94fd3c5c9dddb09290f81ed613",
                 "shasum": ""
             },
             "require": {
@@ -2173,7 +2174,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2026-09-01T10:42:16+00:00"
+            "time": "2026-09-10T13:00:24+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -5852,16 +5853,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "3.11.0",
+            "version": "3.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "147f303310f06334f03f409e49d7ad1e275ff05a"
+                "reference": "72c534fc0ab181ef52d92a68382318631e301608"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/147f303310f06334f03f409e49d7ad1e275ff05a",
-                "reference": "147f303310f06334f03f409e49d7ad1e275ff05a",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/72c534fc0ab181ef52d92a68382318631e301608",
+                "reference": "72c534fc0ab181ef52d92a68382318631e301608",
                 "shasum": ""
             },
             "require": {
@@ -5887,6 +5888,7 @@
                 "phpstan/phpstan-strict-rules": "^2",
                 "phpunit/phpunit": "^10.5.17 || ^11.0.7",
                 "predis/predis": "^1.1 || ^2",
+                "psr/clock": "^1.0",
                 "rollbar/rollbar": "^4.0",
                 "ruflin/elastica": "^7 || ^8",
                 "symfony/mailer": "^5.4 || ^6",
@@ -5905,6 +5907,7 @@
                 "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
                 "mongodb/mongodb": "Allow sending log messages to a MongoDB server (via library)",
                 "php-amqplib/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
+                "psr/clock": "Required to pass a clock to the Logger and control the timestamp of log records",
                 "rollbar/rollbar": "Allow sending log messages to Rollbar",
                 "ruflin/elastica": "Allow sending log messages to an Elastic Search server"
             },
@@ -5939,7 +5942,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/3.11.0"
+                "source": "https://github.com/Seldaek/monolog/tree/3.12.0"
             },
             "funding": [
                 {
@@ -5951,7 +5954,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-02T12:39:56+00:00"
+            "time": "2026-09-09T08:34:20+00:00"
         },
         {
             "name": "mpdf/mpdf",
@@ -11859,6 +11862,86 @@
             "time": "2026-07-01T12:47:55+00:00"
         },
         {
+            "name": "symfony/polyfill-php86",
+            "version": "v1.41.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php86.git",
+                "reference": "6bc356ed3d8dbfeea8f0de235e34d670704e880e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php86/zipball/6bc356ed3d8dbfeea8f0de235e34d670704e880e",
+                "reference": "6bc356ed3d8dbfeea8f0de235e34d670704e880e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php86\\": ""
+                },
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 8.6+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-php86/tree/v1.41.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-07-02T13:42:24+00:00"
+        },
+        {
             "name": "symfony/process",
             "version": "v7.4.18",
             "source": {
@@ -13402,20 +13485,21 @@
         },
         {
             "name": "ergebnis/composer-normalize",
-            "version": "2.52.0",
+            "version": "2.53.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ergebnis/composer-normalize.git",
-                "reference": "988f83f5e51a42cdd2337e5fcd935432f8dfa33c"
+                "reference": "f6592a43065f558322d2f1418f68a7bb8f009ed1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ergebnis/composer-normalize/zipball/988f83f5e51a42cdd2337e5fcd935432f8dfa33c",
-                "reference": "988f83f5e51a42cdd2337e5fcd935432f8dfa33c",
+                "url": "https://api.github.com/repos/ergebnis/composer-normalize/zipball/f6592a43065f558322d2f1418f68a7bb8f009ed1",
+                "reference": "f6592a43065f558322d2f1418f68a7bb8f009ed1",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0.0",
+                "composer-runtime-api": "^2.0.0",
                 "ergebnis/json": "^1.4.0",
                 "ergebnis/json-normalizer": "^4.9.0",
                 "ergebnis/json-printer": "^3.7.0",
@@ -13425,27 +13509,27 @@
                 "php": "~7.4.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0"
             },
             "require-dev": {
-                "composer/composer": "^2.9.8",
+                "composer/composer": "^2.10.3",
                 "ergebnis/license": "^2.7.0",
-                "ergebnis/php-cs-fixer-config": "^6.62.1",
+                "ergebnis/php-cs-fixer-config": "^6.63.2",
                 "ergebnis/phpstan-rules": "^2.13.1",
                 "ergebnis/phpunit-slow-test-detector": "^2.24.0",
-                "ergebnis/rector-rules": "^1.18.1",
+                "ergebnis/rector-rules": "^1.18.3",
                 "fakerphp/faker": "^1.24.1",
                 "phpstan/extension-installer": "^1.4.3",
-                "phpstan/phpstan": "^2.1.54",
-                "phpstan/phpstan-deprecation-rules": "^2.0.4",
-                "phpstan/phpstan-phpunit": "^2.0.16",
-                "phpstan/phpstan-strict-rules": "^2.0.11",
+                "phpstan/phpstan": "^2.1.55",
+                "phpstan/phpstan-deprecation-rules": "^2.0.5",
+                "phpstan/phpstan-phpunit": "^2.0.18",
+                "phpstan/phpstan-strict-rules": "^2.0.12",
                 "phpunit/phpunit": "^9.6.33",
-                "rector/rector": "^2.4.3",
+                "rector/rector": "^2.6.6",
                 "symfony/filesystem": "^5.4.41"
             },
             "type": "composer-plugin",
             "extra": {
                 "class": "Ergebnis\\Composer\\Normalize\\NormalizePlugin",
                 "branch-alias": {
-                    "dev-main": "2.52-dev"
+                    "dev-main": "2.53-dev"
                 },
                 "plugin-optional": true,
                 "composer-normalize": {
@@ -13482,7 +13566,7 @@
                 "security": "https://github.com/ergebnis/composer-normalize/blob/main/.github/SECURITY.md",
                 "source": "https://github.com/ergebnis/composer-normalize"
             },
-            "time": "2026-05-15T15:39:24+00:00"
+            "time": "2026-09-09T20:41:58+00:00"
         },
         {
             "name": "ergebnis/json",
@@ -13975,16 +14059,16 @@
         },
         {
             "name": "justinrainbow/json-schema",
-            "version": "6.11.0",
+            "version": "6.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jsonrainbow/json-schema.git",
-                "reference": "7e420a943a6fbc95e60e3cf67acfbee85b3b4da7"
+                "reference": "8ef236a1a37df364b518b7411a4b5bb95b040d79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/7e420a943a6fbc95e60e3cf67acfbee85b3b4da7",
-                "reference": "7e420a943a6fbc95e60e3cf67acfbee85b3b4da7",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/8ef236a1a37df364b518b7411a4b5bb95b040d79",
+                "reference": "8ef236a1a37df364b518b7411a4b5bb95b040d79",
                 "shasum": ""
             },
             "require": {
@@ -14034,9 +14118,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jsonrainbow/json-schema/issues",
-                "source": "https://github.com/jsonrainbow/json-schema/tree/6.11.0"
+                "source": "https://github.com/jsonrainbow/json-schema/tree/6.12.0"
             },
-            "time": "2026-08-21T10:30:42+00:00"
+            "time": "2026-09-04T12:54:20+00:00"
         },
         {
             "name": "league/flysystem-memory",

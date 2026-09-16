@@ -341,6 +341,35 @@ derive_from_version() {
         echo "::error::derive_from_version: no sql-derived from-version candidate matches the shipped-versions manifest. Candidates from sql/: ${candidates_line}. Shipped per manifest: ${shipped_line}. See ${SHIPPED_VERSIONS_MANIFEST_URL}." >&2
         exit 1
     fi
+    # Exclude to_version from candidates (see LAST_RESOLVED_TO_VERSION
+    # -- set by emit_to_version, which the caller runs before this).
+    # `from` == `to` is semantically nonsensical for an upgrade test
+    # (nothing to actually upgrade); the current code would return
+    # `from = to` in the case where `to` is an already-shipped
+    # version AND appears in the checkout's sql/ candidates. Real
+    # ships don't hit this because the target version isn't in the
+    # shipped manifest yet when acceptance runs. But recovery-mode
+    # acceptance-only against an already-shipped version (openemr/
+    # openemr#13991 nightly smoketest is the primary example; a
+    # manual re-run of the recovery workflow after a version has
+    # fully shipped is a rarer secondary case) hits this and
+    # degenerates. Filter here so those callers get a real upgrade
+    # transition (from = next-highest shipped, e.g. 8.3.0 when
+    # to=8.4.0). If the filter empties matched -- there's literally
+    # only one candidate and it equals `to` -- fail loudly with an
+    # actionable error; that's a real "no valid upgrade path" state
+    # the caller must know about.
+    if [[ -n "${LAST_RESOLVED_TO_VERSION}" ]]; then
+        local filtered
+        filtered=$(grep -v -x -F "${LAST_RESOLVED_TO_VERSION}" <<< "${matched}" || true)
+        if [[ -z "${filtered}" ]]; then
+            local matched_line
+            matched_line=$(tr '\n' ' ' <<< "${matched}" || true)
+            echo "::error::derive_from_version: after excluding to_version (${LAST_RESOLVED_TO_VERSION}) from candidates, no from-version remains. Shipped candidates matching sql/ upgrade files were: ${matched_line}. This indicates the checkout's sql/ has no historic upgrade path other than one that would end at to_version." >&2
+            exit 1
+        fi
+        matched="${filtered}"
+    fi
     # Candidates are already X.Y.Z-shaped (see grep filter above);
     # no post-max shape check needed.
     sort -V <<< "${matched}" | tail -1
@@ -418,7 +447,23 @@ if [[ -n "${CALLER_TARBALL_ARTIFACT}" || -n "${CALLER_ZIP_ARTIFACT}" ]]; then
     echo "==> workflow_call gate mode (tarball=${CALLER_TARBALL_ARTIFACT}, zip=${CALLER_ZIP_ARTIFACT}): forcing build_locally=true"
     echo "build_locally=true" >> "${GITHUB_OUTPUT}"
     emit_to_version "true"
-    emit_expected_version "true"
+    # emit_expected_version("false") — NOT "true" — even though the overall
+    # flow is build_locally=true. The two "build_locally" concepts differ:
+    #   - overall build_locally=true means "skip the git-diff dance; caller
+    #     already has the tarball" (see the block header above)
+    #   - emit_expected_version's build_locally parameter means "read
+    #     version.php from the checkout (auto-fire path where to_version
+    #     is cosmetic 99.99.99)" vs "use to_version (dispatch path with a
+    #     real version)"
+    # For the workflow_call gate, DISPATCH_TO_VERSION is a REAL X.Y.Z
+    # (guarded above) and the caller-supplied tarball was built with
+    # --release-version=to_version, so the artifact self-reports to_version
+    # verbatim — expected_version must equal to_version, not whatever
+    # happens to sit in the checkout's version.php (which is often master's
+    # `-dev` value when build-release runs against a tag). Passing "true"
+    # here was the openemr/openemr#13761 regression that made the 8.4.0
+    # ship's acceptance-gate fail with expected=8.5.0 vs actual=8.4.0.
+    emit_expected_version "false"
     emit_from_version
     exit 0
 fi

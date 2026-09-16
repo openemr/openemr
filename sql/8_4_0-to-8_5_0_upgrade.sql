@@ -112,3 +112,13 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+-- Fix swapped SNOMED CT codes for the administrative_sex list (see #13767).
+-- 248153007 is Male (finding), 248152002 is Female (finding); the seed had them reversed.
+#IfRow3D list_options list_id administrative_sex option_id Male codes SNOMED-CT:248152002
+UPDATE `list_options` SET `codes` = 'SNOMED-CT:248153007' WHERE `list_id` = 'administrative_sex' AND `option_id` = 'Male';
+#EndIf
+
+#IfRow3D list_options list_id administrative_sex option_id Female codes SNOMED-CT:248153007
+UPDATE `list_options` SET `codes` = 'SNOMED-CT:248152002' WHERE `list_id` = 'administrative_sex' AND `option_id` = 'Female';
+#EndIf
