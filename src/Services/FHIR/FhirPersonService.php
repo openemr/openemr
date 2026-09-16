@@ -217,6 +217,12 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
 
         // identifier[] -> npi (system http://hl7.org/fhir/sid/us-npi)
         foreach (($json['identifier'] ?? []) as $identifier) {
+            if (!is_array($identifier)) {
+                // identifier[] is a list of Identifier objects; a scalar here is malformed
+                // payload, and offsetting into it raises a TypeError rather than a validation
+                // error the write path can report.
+                continue;
+            }
             $system = $identifier['system'] ?? null;
             $value = $identifier['value'] ?? null;
             if ($system === self::US_NPI_SYSTEM && is_string($value) && $value !== '') {

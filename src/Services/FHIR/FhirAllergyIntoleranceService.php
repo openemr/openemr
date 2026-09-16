@@ -321,6 +321,12 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $clinicalStatus = FhirPayloadReader::firstCodingCode($json['clinicalStatus'] ?? null);
         if ($clinicalStatus !== '') {
             $data['outcome'] = ($clinicalStatus === 'resolved') ? '1' : '0';
+            // enddate carries the other half of the status. parseOpenEMRRecord() reads 'active'
+            // whenever enddate is unset and needs it set (with outcome '1') to read 'resolved',
+            // so writing outcome alone meant every non-active status read back as active.
+            if ($clinicalStatus !== 'active') {
+                $data['enddate'] = date('Y-m-d H:i:s');
+            }
         }
 
         // Criticality -> severity_al

@@ -308,7 +308,8 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.1';
             } elseif (self::CODE_TYPE_ICD10 == $codeType) {
                 $system = '2.16.840.1.113883.6.90';
-            } elseif (self::CODE_TYPE_ICD9 == $codeType) {
+            } elseif (self::CODE_TYPE_ICD9 == $codeType || 'ICD9-CM' === $codeType) {
+                // Both spellings, for the same reason as the URL branch below.
                 $system = '2.16.840.1.113883.6.103';
             } elseif (self::CODE_TYPE_RXCUI == $codeType || self::CODE_TYPE_RXNORM == $codeType) {
                 $system = '2.16.840.1.113883.6.88';
@@ -332,7 +333,14 @@ class CodeTypesService
                 self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10,
                 // The reverse of getCodeTypeListForSystem()'s HL7_ICD9_CM entry. Without it an
                 // ICD9:<code> read back out carried no system at all.
-                self::CODE_TYPE_ICD9 => FhirCodeSystemConstants::HL7_ICD9_CM,
+                //
+                // 'ICD9-CM' is listed alongside it because that is the spelling CODE_TYPE_OID
+                // uses for the same code system (ICD10's entry there is the CODE_TYPE_ICD10
+                // constant, ICD9's is a bare string). Matching only the constant left an
+                // ICD9-CM:<code> record falling through to the OID lookup below and coming back
+                // with the raw OID, so the same code system answered with two different systems
+                // depending on which spelling the row happened to carry.
+                self::CODE_TYPE_ICD9, 'ICD9-CM' => FhirCodeSystemConstants::HL7_ICD9_CM,
                 self::CODE_TYPE_DATE_ABSENT_REASON => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM,
                 self::CODE_TYPE_HL7_ROLE_CODE => FHIRCodeSystemConstants::HL7_ROLE_CODE,
                 self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION => FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE,

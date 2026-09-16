@@ -42527,16 +42527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'system\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',

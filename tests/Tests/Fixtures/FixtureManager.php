@@ -76,9 +76,13 @@ class FixtureManager
         }
 
         $records = [];
-        foreach ($decoded as $record) {
+        foreach ($decoded as $index => $record) {
             if (!is_array($record)) {
-                continue;
+                // Dropping it silently just shrinks the fixture set, and the tests that depend on
+                // it then pass against less data than they were written for.
+                throw new \RuntimeException(
+                    'Fixture record at index ' . (string) $index . ' is not an object: ' . $fileName
+                );
             }
             $keyed = [];
             foreach ($record as $key => $value) {

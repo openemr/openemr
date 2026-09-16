@@ -792,10 +792,17 @@ class ContactRelationService extends BaseService
                     $personByUuids[$record['person_uuid']] = $this->getPersonFromRecord($record);
                     $indexedResults[] = $uuid;
                 }
-                $telecom_id = $record['telecom_id'];
-                $personByUuids[$uuid]['telecom'][$telecom_id] ??= $this->getTelecomFromRecord($record);
-                $address_id = $record['address_id'];
-                $personByUuids[$uuid]['addresses'][$address_id] ??= $this->getAddressFromRecord($record);
+                // Guarded because contact_telecom and contact_address are LEFT JOINed: a person
+                // with neither comes back as one row with null ids, and keying on null would add
+                // an empty-keyed child built from a row that has no telecom or address in it.
+                $telecomId = $record['telecom_id'];
+                if ($telecomId !== null) {
+                    $personByUuids[$uuid]['telecom'][$telecomId] ??= $this->getTelecomFromRecord($record);
+                }
+                $addressId = $record['address_id'];
+                if ($addressId !== null) {
+                    $personByUuids[$uuid]['addresses'][$addressId] ??= $this->getAddressFromRecord($record);
+                }
             }
             foreach ($indexedResults as $recordUuid) {
                 $processingResult->addData($personByUuids[$recordUuid]);

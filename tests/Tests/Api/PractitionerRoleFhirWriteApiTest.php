@@ -95,8 +95,15 @@ class PractitionerRoleFhirWriteApiTest extends TestCase
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removePractitionerRoleFixtures();
         }
-        $this->practitionerFixtureManager->removePractitionerFixtures();
-        $this->facilityFixtureManager->removeInstalledFixtures();
+        // setUp() authenticates before this is assigned, so a failed token fetch leaves it
+        // uninitialized; PHPUnit still runs tearDown(), and touching a typed property before
+        // initialization raises an Error that skips the OAuth cleanup below it.
+        if (isset($this->practitionerFixtureManager)) {
+            $this->practitionerFixtureManager->removePractitionerFixtures();
+        }
+        if (isset($this->facilityFixtureManager)) {
+            $this->facilityFixtureManager->removeInstalledFixtures();
+        }
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }

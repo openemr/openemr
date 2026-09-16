@@ -527,7 +527,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         $facilityId = $openEmrRecord['pc_facility'] ?? null;
         if (!is_numeric($facilityId) || (int) $facilityId <= 0) {
             $processingResult->setValidationMessages([
-                'serviceProvider' => 'Appointment.serviceProvider (a Location reference) is required',
+                'participant' => 'Appointment requires a participant whose actor is a Location reference',
             ]);
             return $processingResult;
         }

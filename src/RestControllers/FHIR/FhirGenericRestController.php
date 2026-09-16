@@ -383,9 +383,21 @@ class FhirGenericRestController implements IGlobalsAware {
         }
         $bodyPatientUuid = self::extractPatientUuidFromFhirJson($fhirJson);
         if ($bodyPatientUuid === null) {
-            // Compartment resource that didn't supply a patient reference — let
-            // the service-level validator surface the missing-reference error.
-            return null;
+            // Fail closed. The token names a patient compartment, and this resource belongs to
+            // one, so a body that names no patient cannot be shown to fall inside it. Letting it
+            // through left the write to be keyed on the URL id alone, outside the compartment
+            // the token was issued for. A practitioner token can carry a bound patient too --
+            // SMART EHR launch context -- so isPatientRequest() being false does not mean there
+            // is no compartment to honour.
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource(
+                    'error',
+                    'forbidden',
+                    'Request body must name the token-bound patient for this resource'
+                ),
+                null,
+                403
+            );
         }
         if (strcasecmp($bodyPatientUuid, $boundPatientUuid) !== 0) {
             return RestControllerHelper::responseHandler(

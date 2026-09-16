@@ -248,26 +248,26 @@ return [
     },
 
     "POST /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "demo");
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirCareTeamService(), $globalsBag);
         $controller->setExpectedResourceType("CareTeam");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("patients", "demo");
         return $controller->post($data);
     },
 
     "PUT /fhir/CareTeam/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "demo");
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirCareTeamService(), $globalsBag);
         $controller->setExpectedResourceType("CareTeam");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("patients", "demo");
         return $controller->put($uuid, $data);
     },
 
@@ -830,26 +830,26 @@ return [
     },
 
     "POST /fhir/MedicationRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "rx");
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirMedicationRequestService(), $globalsBag);
         $controller->setExpectedResourceType("MedicationRequest");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("patients", "rx");
         return $controller->post($data);
     },
 
     "PUT /fhir/MedicationRequest/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "rx");
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirMedicationRequestService(), $globalsBag);
         $controller->setExpectedResourceType("MedicationRequest");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("patients", "rx");
         return $controller->put($uuid, $data);
     },
 

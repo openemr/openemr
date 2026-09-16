@@ -106,7 +106,12 @@ class CareTeamFhirWriteApiTest extends TestCase
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removePatientFixtures();
         }
-        $this->practitionerFixtureManager->removePractitionerFixtures();
+        // setUp() authenticates before this is assigned, so a failed token fetch leaves it
+        // uninitialized; PHPUnit still runs tearDown(), and touching a typed property before
+        // initialization raises an Error that skips the OAuth cleanup below it.
+        if (isset($this->practitionerFixtureManager)) {
+            $this->practitionerFixtureManager->removePractitionerFixtures();
+        }
         $this->testClient->cleanupRevokeAuth();
         $this->testClient->cleanupClient();
     }
