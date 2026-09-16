@@ -214,67 +214,21 @@ jobs:
     # only requires version_branch be a valid git ref (no
     # rel-<digits> shape check).
     - name: Pick smoketest target (from release-targets.yml "latest" row)
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
         # Delegate the release-targets.yml parse to the shared script
         # (unit-tested in tests/bats/ci-scripts/pick-smoketest-target/).
-        # Script emits "<branch> <version_ref>" on stdout on success,
-        # or exits non-zero with an ::error:: annotation on any of:
-        # missing file / no latest row / malformed version_ref.
         LATEST_ROW=$(.github/scripts/pick-smoketest-target.sh)
         PICKED_REL_BRANCH=$(echo "${LATEST_ROW}" | awk '{print $1}')
         PICKED_TAG=$(echo "${LATEST_ROW}" | awk '{print $2}')
         # Derive human-readable version from tag (v8_4_0 -> 8.4.0).
         # Shape already validated by pick-smoketest-target.sh.
         PICKED_VERSION=$(echo "${PICKED_TAG}" | sed -E 's/^v([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/')
-
         echo "==> Picker chose: rel branch=${PICKED_REL_BRANCH}, tag=${PICKED_TAG}, version=${PICKED_VERSION}"
-
-        # SAFETY GATE 1: tag must actually exist on origin. Guards
-        # against a race where release-targets.yml has been updated
-        # ahead of the tag push (would be a broken state, but the
-        # smoketest should NOT proceed against it).
-        if ! git ls-remote --tags origin "refs/tags/${PICKED_TAG}" | grep -q "refs/tags/${PICKED_TAG}$"; then
-          echo "::error::SAFETY GATE FAILED: tag ${PICKED_TAG} does not exist on origin. Refusing to proceed -- any accidental tag push during a dry_run-gating regression could create a NEW real tag."
-          exit 1
-        fi
-        # SAFETY GATE 2: GitHub Release must actually exist for that
-        # tag. Same rationale as above but for the API-level
-        # gh release create surface.
-        if ! gh release view "${PICKED_TAG}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-          echo "::error::SAFETY GATE FAILED: GitHub Release ${PICKED_TAG} does not exist. Refusing to proceed -- any accidental Release create during a no_publish-gating regression could create a NEW real Release."
-          exit 1
-        fi
-        echo "==> Safety gates confirmed: tag + Release exist on origin. Cannot stomp on this version."
-
-        # GUARDRAIL BASELINE (pre-dispatch). Snapshot the tag SHA
-        # and a hash of the Release state (all mutation-visible
-        # fields) NOW so the post-dispatch guardrail verify step
-        # can detect any drift. Runtime verification of the static
-        # gates: dry_run + no_publish + tag-exists + Release-exists
-        # are the FIRST line of defense; drift-check is the SECOND,
-        # catching any silent regression through them.
-        BASELINE_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${PICKED_TAG}" | awk '{print $1}')
-        # Hash the full editable-fields payload: body / name /
-        # isDraft / isPrerelease / targetCommitish (all reachable
-        # via `gh release edit`) plus publishedAt / createdAt / the
-        # assets list (name + updatedAt + size, all reachable via
-        # `gh release upload --clobber` or manual asset edits).
-        # sha256 keeps the env var to 64 chars regardless of body
-        # length.
-        BASELINE_RELEASE_HASH=$(gh release view "${PICKED_TAG}" --repo "${{ github.repository }}" \
-          --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
-          --jq '@json' \
-          | sha256sum | awk '{print $1}')
-
         {
           echo "SHIPPED_VERSION=${PICKED_VERSION}"
           echo "REL_BRANCH=${PICKED_REL_BRANCH}"
           echo "RELEASE_TAG=${PICKED_TAG}"
-          echo "BASELINE_TAG_SHA=${BASELINE_TAG_SHA}"
-          echo "BASELINE_RELEASE_HASH=${BASELINE_RELEASE_HASH}"
         } >> "${GITHUB_ENV}"
         {
           echo "### Smoketest target"
@@ -283,14 +237,33 @@ jobs:
           echo "- shipped tag: \`${PICKED_TAG}\` (from release-targets.yml \`latest\` row)"
           echo "- version passed to build-release: ${PICKED_VERSION}"
           echo "- version_branch passed to build-release: \`${PICKED_TAG}\` (checks out the tag's commit, not the rel-branch tip -- source reports the exact shipped version regardless of any post-release drift on the rel branch)"
-          echo ""
-          echo "### Guardrail baseline"
-          echo ""
-          echo "- tag SHA: \`${BASELINE_TAG_SHA}\`"
-          echo "- release state hash (sha256 of body/name/isDraft/isPrerelease/targetCommitish/publishedAt/createdAt/assets): \`${BASELINE_RELEASE_HASH}\`"
-          echo ""
-          echo "The GUARDRAIL VERIFY step at the end of this job re-checks these values and hard-fails the smoketest if either has drifted (would indicate a real release was modified, including body edits / title changes / draft-flag flip / asset re-uploads / etc.)."
         } >> "${GITHUB_STEP_SUMMARY}"
+
+    # SAFETY GATES (L2): tag must exist on origin AND GitHub Release
+    # must exist. Guards against a race where release-targets.yml
+    # has been updated ahead of the tag push (would be a broken
+    # state, but the smoketest should NOT proceed against it). See
+    # the assert-release-shipped.sh header + BATS coverage for the
+    # full contract; distinct exit codes distinguish tag-missing
+    # (exit 2) vs Release-missing (exit 3).
+    - name: Assert release shipped (SAFETY GATE)
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+      run: .github/scripts/assert-release-shipped.sh
+
+    # GUARDRAIL BASELINE (pre-dispatch): snapshot tag SHA + Release
+    # state hash so the post-dispatch verify step can detect any
+    # drift. Runtime verification of the static gates -- dry_run +
+    # no_publish + tag-exists + Release-exists are the FIRST line of
+    # defense; drift-check is the SECOND, catching any silent
+    # regression through them. See recovery-smoketest-baseline.sh
+    # header + BATS coverage for details.
+    - name: Capture guardrail baseline
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+      run: .github/scripts/recovery-smoketest-baseline.sh
 
     - name: Dispatch build-release.yml (dry_run=true) as fresh source
       env:
@@ -634,83 +607,11 @@ jobs:
       if: always()
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        set -euo pipefail
-        if [[ -z "${BASELINE_TAG_SHA:-}" ]]; then
-          echo "==> Baseline not captured (target picker never ran or failed); nothing to verify."
-          exit 0
-        fi
-        FAILED=0
-        CURRENT_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
-        # Use IDENTICAL fields + normalization as the baseline
-        # capture (see the pre-dispatch step). If the Release has
-        # been outright deleted, hash the sentinel "<release-missing>"
-        # so we compare deterministically against a non-hash of the
-        # baseline (and thus always mismatch = FAIL).
-        CURRENT_RELEASE_HASH=$(gh release view "${RELEASE_TAG}" --repo "${{ github.repository }}" \
-          --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
-          --jq '@json' 2>/dev/null \
-          | sha256sum | awk '{print $1}')
-        if [[ -z "${CURRENT_RELEASE_HASH}" ]]; then
-          CURRENT_RELEASE_HASH="<release-missing-or-view-failed>"
-        fi
-
-        if [[ "${CURRENT_TAG_SHA}" != "${BASELINE_TAG_SHA}" ]]; then
-          {
-            echo "::error::GUARDRAIL FAILED: tag ${RELEASE_TAG} SHA changed during smoketest."
-            echo "::error::  baseline: ${BASELINE_TAG_SHA}"
-            echo "::error::   current: ${CURRENT_TAG_SHA}"
-            echo "::error::This indicates a dry_run-gating regression let a tag push through. Investigate immediately -- the shipped tag now points at a different commit than at ship time."
-          } >&2
-          FAILED=1
-        fi
-        if [[ "${CURRENT_RELEASE_HASH}" != "${BASELINE_RELEASE_HASH}" ]]; then
-          {
-            echo "::error::GUARDRAIL FAILED: GitHub Release ${RELEASE_TAG} state hash changed during smoketest."
-            echo "::error::  baseline: ${BASELINE_RELEASE_HASH}"
-            echo "::error::   current: ${CURRENT_RELEASE_HASH}"
-            echo "::error::A field covered by the guardrail changed: body / name / isDraft / isPrerelease / targetCommitish / publishedAt / createdAt / any asset. This indicates a no_publish-gating regression let a Release mutation through (asset re-upload, body/title edit, draft-flag flip, or the Release itself was recreated). Investigate immediately."
-          } >&2
-          FAILED=1
-        fi
-
-        # L4a (belt-and-suspenders): assert publish job status =
-        # 'skipped' on each dispatched acceptance-only run. Direct
-        # signal that the `if: inputs.no_publish != true` gate held.
-        # Complements the "state unchanged" check above with a
-        # positive signal on the gate mechanism itself. Docker sibling
-        # job carries the same check; kept here for consistency.
-        for var_pair in "variant-A:${ACCEPTANCE_RUN_ID_SKIP:-}" "variant-B:${ACCEPTANCE_RUN_ID_FULL:-}"; do
-          VAR="${var_pair%%:*}"
-          RID="${var_pair#*:}"
-          if [[ -z "${RID}" ]]; then
-            continue
-          fi
-          PUBLISH_STATUS=$(gh run view "${RID}" --repo "${{ github.repository }}" \
-            --json jobs \
-            --jq '.jobs[] | select(.name | test("(?i)publish")) | .conclusion' \
-            | head -1)
-          if [[ "${PUBLISH_STATUS}" != "skipped" ]]; then
-            echo "::error::GUARDRAIL FAILED (${VAR}): publish job conclusion = '${PUBLISH_STATUS:-<not-found>}' (expected 'skipped'). no_publish gate silently failed on run ${RID}."
-            FAILED=1
-          else
-            echo "==> ${VAR} publish job: skipped (gate held)"
-          fi
-        done
-
-        if [[ ${FAILED} -eq 1 ]]; then
-          exit 1
-        fi
-        echo "==> Guardrail OK: tag SHA + Release state hash unchanged + publish jobs skipped on both variants."
-        {
-          echo ""
-          echo "### Guardrail verify"
-          echo ""
-          echo "- Result: **PASSED**"
-          echo "- Tag SHA: unchanged (\`${CURRENT_TAG_SHA}\`)"
-          echo "- Release state hash: unchanged (\`${CURRENT_RELEASE_HASH}\`)"
-          echo "- Both dispatched runs' publish jobs = skipped"
-        } >> "${GITHUB_STEP_SUMMARY}"
+        REPO: ${{ github.repository }}
+      run: >-
+        .github/scripts/recovery-smoketest-verify.sh
+        "variant-A:${ACCEPTANCE_RUN_ID_SKIP:-}"
+        "variant-B:${ACCEPTANCE_RUN_ID_FULL:-}"
 
     - name: Emit summary
       if: always()
@@ -832,29 +733,14 @@ jobs:
         repositories: openemr
 
     - name: Pick smoketest target (from release-targets.yml "latest" row)
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Reuse the picker + safety-gate logic the tarball job uses.
-        # See that step's comments for full rationale.
+        # Same picker + canary computation the tarball job uses.
         LATEST_ROW=$(.github/scripts/pick-smoketest-target.sh)
         PICKED_REL_BRANCH=$(echo "${LATEST_ROW}" | awk '{print $1}')
         PICKED_TAG=$(echo "${LATEST_ROW}" | awk '{print $2}')
         PICKED_VERSION=$(echo "${PICKED_TAG}" | sed -E 's/^v([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/')
         echo "==> Picker chose: rel branch=${PICKED_REL_BRANCH}, tag=${PICKED_TAG}, version=${PICKED_VERSION}"
-
-        # SAFETY GATES (L2) -- tag + Release exist on origin. Same
-        # rationale as the tarball job.
-        if ! git ls-remote --tags origin "refs/tags/${PICKED_TAG}" | grep -q "refs/tags/${PICKED_TAG}$"; then
-          echo "::error::SAFETY GATE FAILED: tag ${PICKED_TAG} does not exist on origin."
-          exit 1
-        fi
-        if ! gh release view "${PICKED_TAG}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-          echo "::error::SAFETY GATE FAILED: GitHub Release ${PICKED_TAG} does not exist."
-          exit 1
-        fi
-        echo "==> Safety gates confirmed."
 
         # Compute a globally-unique canary tag for this smoketest run.
         # If the publish gate silently regressed, publish would push
@@ -877,6 +763,14 @@ jobs:
           echo "- shipped tag: \`${PICKED_TAG}\`"
           echo "- canary docker tag (should NEVER appear on Docker Hub): \`${CANARY_TAG}\`"
         } >> "${GITHUB_STEP_SUMMARY}"
+
+    # Same L2 safety gates as the tarball job -- see the tarball
+    # job's step of the same name for full rationale.
+    - name: Assert release shipped (SAFETY GATE)
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+      run: .github/scripts/assert-release-shipped.sh
 
     - name: Dispatch docker-build-release.yml (dry_run + gate_with_acceptance) as fresh source
       env:
@@ -999,24 +893,15 @@ jobs:
         echo "==> Watching docker-build-release run ${SOURCE_RUN_ID}"
         gh run watch "${SOURCE_RUN_ID}" --exit-status --repo "${{ github.repository }}"
 
-    - name: Capture guardrail baseline (tag SHA + Release hash)
+    # Same baseline capture as the tarball job -- see that step's
+    # header + recovery-smoketest-baseline.sh for details. L4b (the
+    # docker-specific canary + publish-job-status checks) supplement
+    # this shared tag-SHA + Release-hash baseline.
+    - name: Capture guardrail baseline
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        set -euo pipefail
-        # Same baseline the tarball job takes. L4b (canary check) is
-        # the primary docker-specific guardrail; this baseline covers
-        # the tag + Release surfaces that docker-acceptance-only's
-        # publish job would also mutate under a gating regression.
-        BASELINE_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
-        BASELINE_RELEASE_HASH=$(gh release view "${RELEASE_TAG}" --repo "${{ github.repository }}" \
-          --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
-          --jq '@json' \
-          | sha256sum | awk '{print $1}')
-        {
-          echo "BASELINE_TAG_SHA=${BASELINE_TAG_SHA}"
-          echo "BASELINE_RELEASE_HASH=${BASELINE_RELEASE_HASH}"
-        } >> "${GITHUB_ENV}"
+        REPO: ${{ github.repository }}
+      run: .github/scripts/recovery-smoketest-baseline.sh
 
     - name: Dispatch docker-acceptance-only.yml (variant A - skip_acceptance + no_publish)
       env:
@@ -1167,110 +1052,49 @@ jobs:
         echo "==> Watching variant B (docker full acceptance) run ${DOCKER_RUN_ID_FULL}"
         gh run watch "${DOCKER_RUN_ID_FULL}" --exit-status --repo "${{ github.repository }}"
 
-    # GUARDRAIL VERIFY (docker) -- three checks:
-    #   L4-tag+release: same as tarball -- tag SHA + Release hash
-    #     unchanged since baseline. Catches any publish gate regression
-    #     that would touch git or GitHub Release surfaces.
-    #   L4a (publish-job-status): assert publish job status = 'skipped'
-    #     on each dispatched docker-acceptance-only run. Direct signal
-    #     the `if: inputs.no_publish != true` gate held. Immune to
-    #     Docker Hub orchestrator race.
-    #   L4b (canary-tag-absent): query Docker Hub for the canary tag
-    #     smoketest-canary-<runid>-<timestamp>. If it exists, publish
-    #     leaked and pushed the canary as an alias -- hard FAIL and
-    #     the cleanup step will delete the stray. Unique per run so no
-    #     collision risk with real orchestrator activity.
+    # GUARDRAIL VERIFY (docker) -- three-check split into two
+    # `if: always()` steps so both fire regardless of upstream
+    # failure or ordering:
     #
-    # if: always() so this fires even on earlier failure -- catch any
-    # partial-stomp regardless of overall run outcome.
-    - name: GUARDRAIL VERIFY (docker) -- publish job skipped + canary absent + tag/Release unchanged
+    #   (a) Shared L4-tag+release + L4a-publish-job-status: uses
+    #       the shared recovery-smoketest-verify.sh script (same
+    #       script the tarball job calls). BATS-tested independently.
+    #   (b) Docker-specific L4b canary-tag-absent: inline curl to
+    #       Docker Hub v2 API. Unique-per-run canary means 404 =
+    #       gate held, 200 = publish leaked, other = flake (fail
+    #       closed).
+    - name: GUARDRAIL VERIFY (docker, shared L4 + L4a)
       if: always()
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+      run: >-
+        .github/scripts/recovery-smoketest-verify.sh
+        "variant-A:${DOCKER_RUN_ID_SKIP:-}"
+        "variant-B:${DOCKER_RUN_ID_FULL:-}"
+
+    - name: GUARDRAIL VERIFY (docker, L4b canary-tag-absent)
+      if: always()
       run: |
         set -euo pipefail
-        if [[ -z "${RELEASE_TAG:-}" ]]; then
-          echo "==> Baseline not captured (target picker never ran); nothing to verify."
+        if [[ -z "${CANARY_TAG:-}" ]]; then
+          echo "==> Canary tag not computed (target picker never ran); nothing to check."
           exit 0
         fi
-        FAILED=0
-
-        # L4-tag+release: unchanged?
-        CURRENT_TAG_SHA=$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | awk '{print $1}')
-        CURRENT_RELEASE_HASH=$(gh release view "${RELEASE_TAG}" --repo "${{ github.repository }}" \
-          --json publishedAt,createdAt,body,name,isDraft,isPrerelease,targetCommitish,assets \
-          --jq '@json' 2>/dev/null | sha256sum | awk '{print $1}')
-        if [[ -z "${CURRENT_RELEASE_HASH}" ]]; then
-          CURRENT_RELEASE_HASH="<release-missing-or-view-failed>"
-        fi
-        if [[ "${CURRENT_TAG_SHA}" != "${BASELINE_TAG_SHA}" ]]; then
-          echo "::error::GUARDRAIL FAILED: tag ${RELEASE_TAG} SHA changed (baseline ${BASELINE_TAG_SHA} -> current ${CURRENT_TAG_SHA})"
-          FAILED=1
-        fi
-        if [[ "${CURRENT_RELEASE_HASH}" != "${BASELINE_RELEASE_HASH}" ]]; then
-          echo "::error::GUARDRAIL FAILED: Release ${RELEASE_TAG} state hash changed (baseline ${BASELINE_RELEASE_HASH} -> current ${CURRENT_RELEASE_HASH})"
-          FAILED=1
-        fi
-
-        # L4a (publish-job-status): assert 'skipped' on each dispatched
-        # docker-acceptance-only run's publish job. If the run didn't
-        # even locate, skip that specific check (already failed
-        # elsewhere and got its own error).
-        for var_pair in "variant-A:${DOCKER_RUN_ID_SKIP:-}" "variant-B:${DOCKER_RUN_ID_FULL:-}"; do
-          VAR="${var_pair%%:*}"
-          RID="${var_pair#*:}"
-          if [[ -z "${RID}" ]]; then
-            continue
-          fi
-          PUBLISH_STATUS=$(gh run view "${RID}" --repo "${{ github.repository }}" \
-            --json jobs \
-            --jq '.jobs[] | select(.name | test("(?i)publish")) | .conclusion' \
-            | head -1)
-          # 'skipped' is the correct expected conclusion when the
-          # `if: inputs.no_publish != true` gate holds. Any other
-          # value (success/failure/cancelled) means the publish job
-          # actually ran.
-          if [[ "${PUBLISH_STATUS}" != "skipped" ]]; then
-            echo "::error::GUARDRAIL FAILED (${VAR}): publish job conclusion = '${PUBLISH_STATUS:-<not-found>}' (expected 'skipped'). no_publish gate silently failed on run ${RID}."
-            FAILED=1
-          else
-            echo "==> ${VAR} publish job: skipped (gate held)"
-          fi
-        done
-
-        # L4b (canary-tag-absent): docker inspect the canary tag on
-        # Docker Hub. Uses the anonymous v2 API (public repo, no auth
-        # needed). A 404 = tag doesn't exist = gate held. Any 2xx =
-        # tag exists = publish leaked.
-        if [[ -n "${CANARY_TAG:-}" ]]; then
-          CANARY_STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
-            "https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANARY_TAG}/")
-          if [[ "${CANARY_STATUS}" == "404" ]]; then
-            echo "==> Canary tag ${CANARY_TAG} absent from Docker Hub (as expected -- publish gate held)"
-          elif [[ "${CANARY_STATUS}" == "200" ]]; then
-            echo "::error::GUARDRAIL FAILED: canary tag ${CANARY_TAG} EXISTS on Docker Hub. no_publish gate silently failed and publish pushed the canary as an alias. Cleanup step will delete it, but investigate immediately -- other real tags may also have been pushed."
-            FAILED=1
-          else
-            # Ambiguous -- Docker Hub API flake. Fail closed (safer
-            # to investigate a false alarm than miss a real leak).
-            echo "::error::GUARDRAIL INCONCLUSIVE: canary check returned HTTP ${CANARY_STATUS} (expected 404 or 200). Docker Hub API flake? Retry the smoketest to disambiguate. Failing closed for safety."
-            FAILED=1
-          fi
-        fi
-
-        if [[ ${FAILED} -eq 1 ]]; then
+        # Anonymous Docker Hub v2 API (public repo, no auth needed).
+        # 404 = tag doesn't exist = gate held. 200 = tag exists =
+        # publish leaked. Anything else = flake, fail closed.
+        CANARY_STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
+          "https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANARY_TAG}/")
+        if [[ "${CANARY_STATUS}" == "404" ]]; then
+          echo "==> Canary tag ${CANARY_TAG} absent from Docker Hub (as expected -- publish gate held)"
+        elif [[ "${CANARY_STATUS}" == "200" ]]; then
+          echo "::error::GUARDRAIL FAILED: canary tag ${CANARY_TAG} EXISTS on Docker Hub. no_publish gate silently failed and publish pushed the canary as an alias. Cleanup step will delete it, but investigate immediately -- other real tags may also have been pushed."
+          exit 1
+        else
+          echo "::error::GUARDRAIL INCONCLUSIVE: canary check returned HTTP ${CANARY_STATUS} (expected 404 or 200). Docker Hub API flake? Retry the smoketest to disambiguate. Failing closed for safety."
           exit 1
         fi
-        {
-          echo ""
-          echo "### Docker guardrail verify"
-          echo ""
-          echo "- Result: **PASSED**"
-          echo "- Tag SHA unchanged (\`${CURRENT_TAG_SHA}\`)"
-          echo "- Release state hash unchanged"
-          echo "- Both dispatched runs' publish jobs = skipped (L4a)"
-          echo "- Canary tag absent from Docker Hub (L4b)"
-        } >> "${GITHUB_STEP_SUMMARY}"
 
     # Unconditional cleanup: delete BOTH temporary tags this smoketest
     # left on Docker Hub.
