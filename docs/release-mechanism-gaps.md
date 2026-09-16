@@ -2939,13 +2939,15 @@ Both lessons apply beyond the recovery-path smoketest: any future guardrail-work
 
 **Why the gates are strict:**
 
-Both automations have gates that must fire on a SINGLE push to be recognized as a valid patch-cycle entry event:
+Only `patch-prep-automation.yml` has the three delta gates that must ALL fire on a SINGLE push:
 
 1. `$v_patch` incremented by exactly one.
 2. `$v_tag = '-dev'` (with leading hyphen; distinguishes dev-cycle entry from release-prep's mid-flight `-dev` strip event that also touches `$v_patch` in some flows).
 3. Major + minor unchanged.
 
-Splitting a fix across two PRs violates the single-push convention because neither PR carries both conditions.
+`release-prep.yml` has a simpler gate: post-state `$v_tag = '-dev'` on the current tree (no before/after delta). Same hyphen requirement, different failure mode — release-prep re-fires cleanly on any subsequent rel-branch push whose `version.php` finally reaches `$v_tag='-dev'`, whereas patch-prep only fires when a single push crosses BOTH gates at once.
+
+Splitting a fix across two PRs violates patch-prep's single-push convention because neither PR carries both conditions. Release-prep isn't affected by the split (as long as one of the PRs eventually lands `$v_tag='-dev'`) — that's why #14067 re-fired release-prep successfully while patch-prep still had to be manually dispatched.
 
 **Recovery:** dispatch `patch-prep-automation.yml` manually with explicit inputs — the workflow_dispatch path bypasses the delta gates entirely and just opens the 2 patch-prep PRs:
 
