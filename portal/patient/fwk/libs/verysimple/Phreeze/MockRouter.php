@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once('IRouter.php');
-
-/**
  * Mock router for unit testing purposes
  *
  * @package verysimple::Phreeze

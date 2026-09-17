@@ -10,15 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Services\Utils\TranslationService;
-
-require_once("AppBasePortalController.php");
-require_once("Model/OnsiteDocument.php");
 
 /**
  * OnsiteDocumentController is the controller class for the OnsiteDocument object.  The

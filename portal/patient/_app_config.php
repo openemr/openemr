@@ -35,33 +35,12 @@ if (ini_get('asp_tags')) {
 }
 
 /**
- * INCLUDE PATH
- * Adjust the include path as necessary so PHP can locate required libraries
- */
-set_include_path(GlobalConfig::$APP_ROOT . '/libs/' . PATH_SEPARATOR . GlobalConfig::$APP_ROOT . '/fwk/libs' . PATH_SEPARATOR . get_include_path());
-
-/**
- * COMPOSER AUTOLOADER
- * Uncomment if Composer is being used to manage dependencies
- */
-// $loader = require 'vendor/autoload.php';
-// $loader->setUseIncludePath(true);
-
-/**
- * SESSION CLASSES
- * Any classes that will be stored in the session can be added here
- * and will be pre-loaded on every page
- */
-//require_once "App/SecureApp.php";
-
-/**
  * RENDER ENGINE
  * You can use any template system that implements
  * IRenderEngine for the view layer.
  * Phreeze provides pre-built
  * implementations for Smarty, Savant and plain PHP.
  */
-require_once 'verysimple/Phreeze/SavantRenderEngine.php';
 GlobalConfig::$TEMPLATE_ENGINE = 'SavantRenderEngine';
 GlobalConfig::$TEMPLATE_PATH = GlobalConfig::$APP_ROOT . '/templates/';
 

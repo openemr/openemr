@@ -2,8 +2,6 @@
 
 /** @package    verysimple::HTTP */
 
-require_once("verysimple/Phreeze/ActionRouter.php");
-require_once("verysimple/HTTP/RequestUtil.php");
 
 /**
  * class for dealing with URLs
