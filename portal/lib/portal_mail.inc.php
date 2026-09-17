@@ -308,7 +308,7 @@ function updatePortalMailMessageStatus($id, $message_status, $owner): void
         // The UI archives a conversation by passing its mail_chain. Match the
         // update scope so audit logging does not dereference an empty result
         // after the archive itself has already succeeded.
-        $stats = sqlQuery(
+        $stats = QueryUtils::querySingleRow(
             "SELECT sender_name, recipient_name FROM onsite_mail " .
             "WHERE (mail_chain = ? OR id = ?) AND `owner` = ? " .
             "ORDER BY id DESC LIMIT 1",
