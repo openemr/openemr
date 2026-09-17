@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Tests\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Tests\Fixtures\AppointmentFixtureManager;
 use Particle\Validator\ValidationResult;
@@ -238,6 +239,46 @@ class AppointmentServiceTest extends TestCase
         // Verify it's gone
         $appointment = $this->appointmentService->getAppointment($insertId);
         $this->assertEmpty($appointment, "Appointment should be deleted");
+    }
+
+    #[Test]
+    public function testUpdateAppointmentStatusUpdatesLastModifiedTime(): void
+    {
+        $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
+        $this->assertGreaterThan(0, $insertId);
+
+        // Backdate pc_time so the assertion does not depend on how many appointment
+        // operations happen to land inside the same second.
+        $backdated = '2020-01-01 00:00:00';
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE openemr_postcalendar_events SET pc_time = ? WHERE pc_eid = ?",
+            [$backdated, $insertId]
+        );
+
+        $this->appointmentService->updateAppointmentStatus($insertId, '@', 'admin');
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT pc_apptstatus, pc_time FROM openemr_postcalendar_events WHERE pc_eid = ?",
+            [$insertId]
+        );
+
+        // updateAppointmentStatus writes a patient_tracker row that the fixture manager
+        // does not own, so clean it up here before asserting.
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM patient_tracker_element WHERE pt_tracker_id IN "
+            . "(SELECT id FROM patient_tracker WHERE eid = ?)",
+            [$insertId]
+        );
+        QueryUtils::sqlStatementThrowException("DELETE FROM patient_tracker WHERE eid = ?", [$insertId]);
+
+        $this->assertIsArray($row);
+        $this->assertEquals('@', $row['pc_apptstatus'], "Status should be updated to Arrived");
+        $this->assertGreaterThan(
+            $backdated,
+            $row['pc_time'],
+            "pc_time is surfaced as meta.lastUpdated by FhirAppointmentService and backs the "
+            . "_lastUpdated search parameter, so a status change must advance it"
+        );
     }
 
     #[Test]
