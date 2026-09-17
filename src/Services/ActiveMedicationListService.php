@@ -24,14 +24,14 @@ class ActiveMedicationListService
     /**
      * @param list<array<string, mixed>> $issues
      * @param list<array<string, mixed>> $prescriptions
-     * @return list<array<string, mixed>>
+     * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
      */
     public static function merge(array $issues, array $prescriptions): array
     {
         $out = [];
         $seen = [];
         foreach ($issues as $row) {
-            $title = trim((string) ($row['title'] ?? ''));
+            $title = self::cell($row['title'] ?? null);
             if ($title === '') {
                 continue;
             }
@@ -43,14 +43,14 @@ class ActiveMedicationListService
             $out[] = [
                 'source' => 'issue',
                 'title' => $title,
-                'dose' => trim((string) ($row['drug_dosage_instructions'] ?? '')),
+                'dose' => self::cell($row['drug_dosage_instructions'] ?? null),
                 'start' => self::optionalDate($row['begdate'] ?? null),
                 'end' => self::optionalDate($row['enddate'] ?? null),
-                'comments' => trim((string) ($row['comments'] ?? '')),
+                'comments' => self::cell($row['comments'] ?? null),
             ];
         }
         foreach ($prescriptions as $row) {
-            $title = trim((string) ($row['drug'] ?? ''));
+            $title = self::cell($row['drug'] ?? null);
             if ($title === '') {
                 continue;
             }
@@ -60,8 +60,8 @@ class ActiveMedicationListService
             }
             $seen[$key] = true;
             $doseParts = [
-                trim((string) ($row['dosage'] ?? '')),
-                trim((string) ($row['drug_dosage_instructions'] ?? '')),
+                self::cell($row['dosage'] ?? null),
+                self::cell($row['drug_dosage_instructions'] ?? null),
             ];
             $out[] = [
                 'source' => 'prescription',
@@ -76,15 +76,15 @@ class ActiveMedicationListService
     }
 
     /**
-     * @param list<array<string, mixed>> $rows
-     * @param list<array<string, mixed>> $already
-     * @return list<array<string, mixed>>
+     * @param list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}> $rows
+     * @param list<array{title: string}> $already
+     * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
      */
     public static function excludeListedNames(array $rows, array $already): array
     {
         $seen = [];
         foreach ($already as $row) {
-            $title = trim((string) ($row['title'] ?? ''));
+            $title = self::cell($row['title']);
             if ($title === '') {
                 continue;
             }
@@ -92,7 +92,7 @@ class ActiveMedicationListService
         }
         $out = [];
         foreach ($rows as $row) {
-            $title = trim((string) ($row['title'] ?? ''));
+            $title = self::cell($row['title']);
             if ($title === '' || isset($seen[self::nameKey($title)])) {
                 continue;
             }
@@ -104,11 +104,14 @@ class ActiveMedicationListService
     /**
      * activity = 1 (or prescriptions.active = 1) and no end date, or end date today or later.
      *
-     * @return list<array<string, mixed>>
+     * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
      */
     public function getActiveList(int $pid): array
     {
-        $erx = $this->hideUploadedErx() ? "AND l.erx_uploaded != '1' " : '';
+        $hideErx = $this->hideUploadedErx();
+        $erx = self::erxExcludeSql('l.', $hideErx);
+        $rxErx = self::erxExcludeSql('', $hideErx);
+        /** @var list<array<string, mixed>> $issues */
         $issues = QueryUtils::fetchRecords(
             "SELECT l.title, l.begdate, l.enddate, l.comments, m.drug_dosage_instructions "
             . "FROM lists l "
@@ -120,10 +123,12 @@ class ActiveMedicationListService
             . "ORDER BY l.begdate, l.id",
             [$pid]
         ) ?: [];
+        /** @var list<array<string, mixed>> $prescriptions */
         $prescriptions = QueryUtils::fetchRecords(
             "SELECT drug, dosage, drug_dosage_instructions, start_date, end_date "
             . "FROM prescriptions "
             . "WHERE patient_id = ? AND active = '1' "
+            . $rxErx
             . "AND (end_date IS NULL OR end_date = '0000-00-00' "
             . "OR end_date = '0000-00-00 00:00:00' OR end_date >= CURDATE()) "
             . "ORDER BY start_date, id",
@@ -135,12 +140,15 @@ class ActiveMedicationListService
     /**
      * Stopped, activity = 0, or an end date before today. Skips names already on the active list.
      *
-     * @param list<array<string, mixed>>|null $active
-     * @return list<array<string, mixed>>
+     * @param list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>|null $active
+     * @return list<array{source: string, title: string, dose: string, start: ?string, end: ?string, comments: string}>
      */
     public function getInactiveList(int $pid, ?array $active = null): array
     {
-        $erx = $this->hideUploadedErx() ? "AND l.erx_uploaded != '1' " : '';
+        $hideErx = $this->hideUploadedErx();
+        $erx = self::erxExcludeSql('l.', $hideErx);
+        $rxErx = self::erxExcludeSql('', $hideErx);
+        /** @var list<array<string, mixed>> $issues */
         $issues = QueryUtils::fetchRecords(
             "SELECT l.title, l.begdate, l.enddate, l.comments, m.drug_dosage_instructions "
             . "FROM lists l "
@@ -153,10 +161,12 @@ class ActiveMedicationListService
             . "ORDER BY l.begdate, l.id",
             [$pid]
         ) ?: [];
+        /** @var list<array<string, mixed>> $prescriptions */
         $prescriptions = QueryUtils::fetchRecords(
             "SELECT drug, dosage, drug_dosage_instructions, start_date, end_date "
             . "FROM prescriptions "
             . "WHERE patient_id = ? "
+            . $rxErx
             . "AND (active != '1' "
             . "OR (end_date IS NOT NULL AND end_date != '0000-00-00' "
             . "AND end_date != '0000-00-00 00:00:00' AND end_date < CURDATE())) "
@@ -165,6 +175,16 @@ class ActiveMedicationListService
         ) ?: [];
         $merged = self::merge($issues, $prescriptions);
         return self::excludeListedNames($merged, $active ?? $this->getActiveList($pid));
+    }
+
+    private static function cell(mixed $value): string
+    {
+        return is_string($value) ? trim($value) : '';
+    }
+
+    public static function erxExcludeSql(string $columnPrefix, bool $hide): string
+    {
+        return $hide ? ('AND ' . $columnPrefix . "erx_uploaded != '1' ") : '';
     }
 
     private function hideUploadedErx(): bool
@@ -183,7 +203,10 @@ class ActiveMedicationListService
         if ($value === null) {
             return null;
         }
-        $s = trim((string) $value);
+        if (!is_string($value)) {
+            return null;
+        }
+        $s = trim($value);
         if ($s === '' || str_starts_with($s, '0000-00-00')) {
             return null;
         }
