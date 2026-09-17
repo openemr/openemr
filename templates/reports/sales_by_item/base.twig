@@ -1,0 +1,150 @@
+{% extends "base.html.twig" %}
+
+{% block head %}
+    {{ setupHeader(['chart-js']) }}
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid mt-3">
+        {% block report_content %}{% endblock %}
+    </div>
+{% endblock %}
+
+{% block custom_head %}
+    <style>
+        .report-filter-section {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .report-results-section {
+            margin-top: 20px;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .sales-table thead {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .sales-table thead th {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+
+        .sales-table tbody td {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+        }
+
+        .sales-table tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .sales-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .detail-row {
+            font-size: 0.95rem;
+        }
+
+        .product-total-row {
+            background-color: #e8f4f8;
+            font-weight: 600;
+        }
+
+        .category-total-row {
+            background-color: #ffebee;
+            font-weight: 700;
+        }
+
+        .grand-total-row {
+            background-color: #fff3e0;
+            font-weight: 700;
+            border-top: 3px solid #333;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .currency {
+            font-family: monospace;
+        }
+
+        .btn-group {
+            margin: 10px 0;
+        }
+
+        .alert-no-results {
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            text-align: center;
+            color: #666;
+        }
+
+        .report-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .report-date-range {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .charts-container {
+            margin: 20px 0;
+        }
+
+        .chart-wrapper {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .chart-canvas {
+            max-height: 300px;
+        }
+
+        @media print {
+            .report-filter-section {
+                display: none;
+            }
+            .btn-group {
+                display: none;
+            }
+            .sales-table {
+                page-break-inside: avoid;
+            }
+            .charts-container {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+{% endblock %}

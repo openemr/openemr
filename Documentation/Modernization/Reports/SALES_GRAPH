@@ -1,0 +1,29 @@
+# Add Chart.js Visualizations to Sales by Item Report
+Problem Statement
+The Sales by Item Report currently displays data only in tabular format. Users would benefit from visual representations (pie charts, bar charts) to better understand sales distribution by category and item.
+## Current State
+The report displays: summary statistics, detailed table, and summary totals. Twig templates exist under templates/reports/sales_by_item and the controller is interface/reports/sales_by_item_new.php. Data preparation returns rows with types: item, product_total, category_total, grand_total.
+## Proposed Changes
+### Phase 6: Visualization Layer
+1. Update base.twig to load Chart.js assets via setupHeader.
+2. Add ChartDataService to aggregate category and item totals for charts.
+3. Add Twig partials for charts: _category_pie_chart.twig and _top_items_bar_chart.twig.
+4. Update sales_by_item.twig to render charts when report_data is present.
+5. Update controller to compute chart payloads and pass to Twig.
+6. Add tests for ChartDataService and template rendering.
+## Data Needed for Charts
+* Category pie: labels = category names; data = sum(amount) per category; colors = generated palette.
+* Top items bar: labels = top N items by amount (default 10); data = amounts; optional secondary dataset for quantity.
+## Implementation Steps
+1. base.twig: add {{ setupHeader(['chart-js']) }} within custom_head or a new block.
+2. New service src/Reports/SalesByItems/Services/ChartDataService.php with methods:
+    * buildCategoryPieData(rows): returns {labels:[], datasets:[{data:[], backgroundColor:[]}]}
+    * buildTopItemsBarData(rows, limit=10): returns {labels:[], datasets:[{label:'Amount', data:[]},{label:'Qty', data:[]}]}.
+3. Twig partial templates with <canvas> tags and inline JS to instantiate Chart with provided JSON-encoded data using |json_encode filter and |raw.
+4. sales_by_item.twig: insert a charts section above the results table with two columns on desktop (col-md-6), stacked on mobile.
+5. Controller: after preparing $reportData, instantiate ChartDataService and compute $categoryPie and $topItemsBar; pass to Twig as chart data arrays.
+6. Tests: unit tests for ChartDataService aggregations; template smoke test to ensure canvases render when chart data present.
+## Notes
+* Use translation filters for chart titles and legends.
+* Respect themes; no custom CSS beyond layout wrappers.
+* Handle empty data by not rendering charts or showing a small note.
