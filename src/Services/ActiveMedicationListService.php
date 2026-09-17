@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ActiveMedicationListService
 {
@@ -107,11 +108,13 @@ class ActiveMedicationListService
      */
     public function getActiveList(int $pid): array
     {
+        $erx = $this->hideUploadedErx() ? "AND l.erx_uploaded != '1' " : '';
         $issues = QueryUtils::fetchRecords(
             "SELECT l.title, l.begdate, l.enddate, l.comments, m.drug_dosage_instructions "
             . "FROM lists l "
             . "LEFT JOIN lists_medication m ON m.list_id = l.id "
             . "WHERE l.pid = ? AND l.type = 'medication' AND l.activity = 1 "
+            . $erx
             . "AND (l.enddate IS NULL OR l.enddate = '0000-00-00' "
             . "OR l.enddate = '0000-00-00 00:00:00' OR l.enddate >= CURDATE()) "
             . "ORDER BY l.begdate, l.id",
@@ -137,11 +140,13 @@ class ActiveMedicationListService
      */
     public function getInactiveList(int $pid, ?array $active = null): array
     {
+        $erx = $this->hideUploadedErx() ? "AND l.erx_uploaded != '1' " : '';
         $issues = QueryUtils::fetchRecords(
             "SELECT l.title, l.begdate, l.enddate, l.comments, m.drug_dosage_instructions "
             . "FROM lists l "
             . "LEFT JOIN lists_medication m ON m.list_id = l.id "
             . "WHERE l.pid = ? AND l.type = 'medication' "
+            . $erx
             . "AND (l.activity != 1 "
             . "OR (l.enddate IS NOT NULL AND l.enddate != '0000-00-00' "
             . "AND l.enddate != '0000-00-00 00:00:00' AND l.enddate < CURDATE())) "
@@ -162,6 +167,12 @@ class ActiveMedicationListService
         return self::excludeListedNames($merged, $active ?? $this->getActiveList($pid));
     }
 
+    private function hideUploadedErx(): bool
+    {
+        $g = OEGlobalsBag::getInstance();
+        return $g->getBoolean('erx_enable') && $g->getBoolean('erx_medication_display');
+    }
+
     private static function nameKey(string $title): string
     {
         return mb_strtoupper($title, 'UTF-8');
@@ -174,6 +185,12 @@ class ActiveMedicationListService
         }
         $s = trim((string) $value);
         if ($s === '' || str_starts_with($s, '0000-00-00')) {
+            return null;
+        }
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $s, $m) !== 1) {
+            return null;
+        }
+        if (!checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {
             return null;
         }
         return $s;
