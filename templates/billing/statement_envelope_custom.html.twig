@@ -1,0 +1,46 @@
+<style>
+#stmt-env-custom{overflow-x:hidden;}
+#stmt-env-custom .stmt-env-boxes{display:flex;flex-wrap:nowrap;gap:0.35rem;max-width:100%;}
+#stmt-env-custom .stmt-env-box{flex:1 1 0;min-width:0;}
+#stmt-env-custom .stmt-env-box .form-control,
+#stmt-env-custom #stmt-env-slot-height .form-control{
+width:100%;max-width:100%;box-sizing:border-box;
+height:calc(1.5em + 0.5rem + 2px);padding:0.25rem 0.3rem;font-size:0.8125rem;}
+#stmt-env-custom #stmt-env-slot-height .form-control{max-width:5.5rem;}
+</style>
+<div id="stmt-env-custom" class="mb-2" style="display:none">
+  <div class="row form-group">
+    <div class="col-sm-6">{{ "Envelope units"|xlt }}</div>
+    <div class="col-sm-6">
+      <label class="mr-3 font-weight-normal">
+        <input type="radio" name="stmt_env_units_ui" value="in"> {{ "Inches"|xlt }}
+      </label>
+      <label class="font-weight-normal">
+        <input type="radio" name="stmt_env_units_ui" value="cm"> {{ "Centimeters"|xlt }}
+      </label>
+    </div>
+  </div>
+  <div class="row form-group">
+    <div class="col-sm-6">{{ "Envelope height"|xlt }}</div>
+    <div class="col-sm-6" id="stmt-env-slot-height"></div>
+  </div>
+  <div class="row form-group">
+    <div class="col-sm-6">{{ "Return window"|xlt }}</div>
+    <div class="col-sm-6"><div class="stmt-env-boxes">
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "Height"|xlt }}</label><div id="stmt-env-slot-rh"></div></div>
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "Width"|xlt }}</label><div id="stmt-env-slot-rw"></div></div>
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "From left"|xlt }}</label><div id="stmt-env-slot-rl"></div></div>
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "From bottom"|xlt }}</label><div id="stmt-env-slot-rb"></div></div>
+    </div></div>
+  </div>
+  <div class="row form-group">
+    <div class="col-sm-6">{{ "Patient window"|xlt }}</div>
+    <div class="col-sm-6"><div class="stmt-env-boxes">
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "Height"|xlt }}</label><div id="stmt-env-slot-th"></div></div>
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "Width"|xlt }}</label><div id="stmt-env-slot-tw"></div></div>
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "From left"|xlt }}</label><div id="stmt-env-slot-tl"></div></div>
+      <div class="stmt-env-box"><label class="small font-weight-normal mb-0 d-block">{{ "From bottom"|xlt }}</label><div id="stmt-env-slot-tb"></div></div>
+    </div></div>
+  </div>
+</div>
+<script src="{{ webroot|attr }}/interface/super/statement_envelope_globals.js"></script>
