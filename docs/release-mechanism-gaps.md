@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-16
+**Last updated:** 2026-09-17
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -63,9 +63,13 @@ acceptance-testing owns the *verification that they work*.
     end-to-end automated ship via `ship-release.yml`. Surfaced 7
     latent preflight-deadlock gates + a merge-API permission bug;
     see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
-- **Next expected release event:** an `8.3.1` or `8.4.1` patch
-  (patch-cadence — no fixed date; happens when the QA team signs
-  off + ship-release.yml is triggered for either rel branch).
+- **Next expected release event:** `8.4.1` targeted for ~2026-09-20
+  (~3 days out from patch-prep cut). Patch-prep PRs merged
+  2026-09-17 (openemr/openemr#14071 rel-side + openemr/openemr#14072
+  master-side), release-prep + release-finalize draft pair open on
+  rel-840. First patch-cadence exercise of the automated ship
+  pipeline; surfaced 3 new gaps in the cut phase alone (see G38 /
+  G39 / G40) — worth watching what surfaces on ship day.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -2925,6 +2929,109 @@ Cascade of PRs that shipped the docker sibling: openemr/openemr#14035 (initial a
 Both lessons apply beyond the recovery-path smoketest: any future guardrail-workflow that computes a mutation-detection hash over an external system's payload should include a fields-that-should-be-ignored test AND an audit-style read after first-green.
 
 **Cross-check on the guard model (audit output, not a fix):** the defense-in-depth model documented in G36 remains firmly in place — 5 layers (L1 input flags on each destructive job, L2 preflight `assert-release-shipped.sh`, L3 canary-tag substitution passing `docker_tags=${CANARY_TAG}` so even a regressed L1 gate would only clobber a synthetic tag never real ones, L4a runtime state-unchanged verify, L4b canary-tag-absent check on Docker Hub) verified against actual file:line references in the smoketest workflow. The two latent bugs above only weakened L4a's diagnostics + false-positive rate; they did not create a new stomp path. Fix #3 (preflight in reusables) adds a small hardening to L1's fail-closed behavior at the reusable layer.
+
+### G38 — Split-fix on the version.php trigger PR trips patch-prep-automation's delta gates  *(noted 2026-09-16)*
+
+**STATUS: DOCUMENTED 2026-09-16** — not a code bug; the delta gates in `patch-prep-automation.yml` are correct as designed. Documenting the operator-side pattern that trips them so the next patch cycle doesn't repeat, plus recording the workflow_dispatch recovery path.
+
+**Trigger event:** 8.4.1 patch cycle start on rel-840 (2026-09-16). The `version.php` bump PR (#14066) landed with `$v_patch = '1'` + `$v_tag = 'dev'` (missing the leading hyphen). Follow-up PR #14067 corrected `$v_tag` to `'-dev'`. Neither push individually satisfied `patch-prep-automation.yml`'s dev-cycle-entry gate:
+
+- **#14066 push** (patch 0→1, tag='dev'): early-exit with `after $v_tag is 'dev', not '-dev'; not a dev-cycle entry, skipping.`
+- **#14067 push** (patch stayed 1, tag corrected to '-dev'): early-exit with `$v_patch did not increase by exactly one (before=1 after=1); skipping to avoid scaffolding for a skipped patch.`
+
+`release-prep.yml` had the same shape of skip on #14066 (`Branch rel-840 is not in an active dev cycle ($v_tag='dev', expected '-dev'); nothing to prep.`) — that surfaced first because release-prep runs on every rel-branch push, whereas patch-prep-automation only fires when `version.php` is in the diff.
+
+**Why the gates are strict:**
+
+Only `patch-prep-automation.yml` has the three delta gates that must ALL fire on a SINGLE push:
+
+1. `$v_patch` incremented by exactly one.
+2. `$v_tag = '-dev'` (with leading hyphen; distinguishes dev-cycle entry from release-prep's mid-flight `-dev` strip event that also touches `$v_patch` in some flows).
+3. Major + minor unchanged.
+
+`release-prep.yml` has a simpler gate: post-state `$v_tag = '-dev'` on the current tree (no before/after delta). Same hyphen requirement, different failure mode — release-prep re-fires cleanly on any subsequent rel-branch push whose `version.php` finally reaches `$v_tag='-dev'`, whereas patch-prep only fires when a single push crosses BOTH gates at once.
+
+Splitting a fix across two PRs violates patch-prep's single-push convention because neither PR carries both conditions. Release-prep isn't affected by the split (as long as one of the PRs eventually lands `$v_tag='-dev'`) — that's why #14067 re-fired release-prep successfully while patch-prep still had to be manually dispatched.
+
+**Recovery:** dispatch `patch-prep-automation.yml` manually with explicit inputs — the workflow_dispatch path bypasses the delta gates entirely and just opens the 2 patch-prep PRs:
+
+```bash
+gh workflow run patch-prep-automation.yml --repo openemr/openemr --ref master \
+  -f rel-branch=rel-840 \
+  -f target-version=8.4.1 \
+  -f prev-version=8.4.0
+```
+
+Exercised 2026-09-16 (openemr/openemr run 35160554535); opened PRs #14071 (rel-side) + #14072 (master-side) successfully. `release-prep.yml` had already re-fired successfully on the #14067 corrective push because its gate is simpler (post-state `$v_tag='-dev'` is sufficient, no delta requirement).
+
+**Prevention:** [Quick action 2](../docs/RELEASE_PROCESS.md#2-start-a-new-patch-release-cycle-on-an-existing-rel-branch) in `RELEASE_PROCESS.md` updated to spell out the single-PR + hyphen requirements explicitly, with a pointer to this gap for the recovery pattern.
+
+**Design choice worth remembering (why NOT weaken the gates):**
+
+The delta gates could technically be relaxed — e.g., accept two consecutive pushes as long as their combined state matches (patch++ AND tag='-dev') — but doing so would trade a rare operator inconvenience (split-fix, easily recovered via workflow_dispatch) for a fragile "combined state" tracking mechanism that would need to reason about push order, intervening pushes, force-pushes to the rel branch, and cross-run state. The delta gate is deliberately strict because "one clean push per patch-cycle entry" is the operator convention worth enforcing, and the workflow_dispatch escape hatch is already present for the exception cases.
+
+### G39 — `PatchPrepReleaseTargetsMutator` didn't strip `next` from master row  *(SHIPPED 2026-09-16)*
+
+**STATUS: SHIPPED 2026-09-16** — code fix + 4 new BATS-adjacent PHPUnit tests. Also opens a small doc question about the finalize-time `next` re-add being load-bearing across the ship→patch-prep sequence (see "Design note" below).
+
+**Trigger event:** 8.4.1 patch cycle start on rel-840 (2026-09-16). Master-side patch-prep PR #14072 correctly added the new `- branch: rel-840 / docker_tags: 8.4.1,next / openemr_version_ref: rel-840` row but left the master row's existing `docker_tags: 8.5.0,dev,next` untouched. Result: **two rows claiming `next`** — master (8.5.0 dev) AND rel-840 (8.4.1 patch dev). Docker Hub's `next` tag can only point at one image at a time; the orchestrator's next run would push both, whichever ran last wins, and the tag would flap between them on each subsequent cycle.
+
+**Why it went latent this long:** patch-prep-automation.yml shipped 2026-07-01 via workstream 6 (see [G12](#g12--patch-cycle-bootstrap-on-rel--requires-manual-sql-skeleton--docker-scaffolding--master-file-rename--workstream-6-design)). Between then and now the only patch-cycle exercise was the 8.1.1 transition — but rel-810 was the current-latest at that point (no post-shipping `next` on master's row), so the strip was a no-op regardless. This is the first patch-cycle where a `latest` had shifted OFF the rel line during a prior finalize, leaving master carrying `next` post-finalize.
+
+**Diff between PatchPrep + BranchCut mutators (before fix):**
+
+`BranchCutReleaseTargetsMutator::bumpMasterDockerTags` (already correct) does three things to the master row on branch-cut events: (1) bump the bare `X.Y.0` version tag's minor, (2) drop `next`, (3) keep `dev`. That's how rel-840 branch-cut PR #13926 correctly transitioned master's `docker_tags: 8.4.0,dev,next` → `docker_tags: 8.5.0,dev` (next moved to the new rel-840 row).
+
+`PatchPrepReleaseTargetsMutator` (before this fix) only did two things: (1) insert the new dev row for the patch cycle, (2) drop any `unreleased: true` placeholder rows for the target branch. Never touched the master row's docker_tags — which is fine when master doesn't have `next` to begin with, but wrong when it does (as post-finalize state has).
+
+**Fix (this PR):** add `stripNextFromMasterRow()` to `PatchPrepReleaseTargetsMutator` (mirrors `BranchCutReleaseTargetsMutator::bumpMasterDockerTags` minus the version-bump; just the strip half). Called between insert-new-dev-row and the final YAML sanity check. Idempotent: no-op if master row has no `next` (protects the historical patch-prep cases where the strip wasn't load-bearing). 4 new PHPUnit tests: strips-when-present, idempotent-when-absent, idempotent-across-reruns, comments-and-ordering-preserved.
+
+**Recovery for #14072 specifically:** #14072 was already open when this gap was found. Fix landed AFTER the PR was opened; two paths considered:
+- (a) Merge #14072 as-is, then follow-up PR to strip `next` from master. Simple, one-off.
+- (b) Wait for this fix to land, then re-dispatch `patch-prep-automation.yml --ref master` with the same rel-branch/target/prev inputs — the workflow force-pushes to the existing `patch-prep/rel-840-master` branch on peter-evans re-run, so #14072 gets regenerated with the strip applied.
+
+**Chose (b), exercised 2026-09-16** (run 35174594744): master row went from `docker_tags: 8.5.0,dev,next` → `docker_tags: 8.5.0,dev`, rel-840 dev row correctly retained `docker_tags: 8.4.1,next`. Only one row claiming `next` post-fix. #14072 subsequently merged 2026-09-17.
+
+**Design note (open question, worth remembering):** the `next` re-add on the master row happens at finalize time via `PostReleaseTargetsMutator` (fires on release-finalize/<rel-branch> merge; put `next` back on master since no rel branch is currently claiming it post-ship). That's followed by the operator's next-patch-cycle bump PR (which triggers patch-prep-automation), which now strips it again. The re-add + strip pair essentially cancels out over the ship→patch-prep window. Two design alternatives worth considering later:
+
+1. Drop the finalize-time re-add. Between ship and next-patch-prep, `next` is "unclaimed" — which is arguably the correct semantic (no active dev cycle claiming it). But it does mean a docker orchestrator tick in that window would push nothing tagged `next`, leaving the last-shipped image without that alias for potentially days. Not great for `docker pull openemr/openemr:next` users.
+2. Have finalize add `next` to the JUST-SHIPPED rel row (alongside `latest`) instead of to master. That row already carries `latest`; adding `next` there means "this image is both the latest published AND the current forward-looking tip until the next patch cycle starts." Then patch-prep only needs to move `next` off THAT row when the new patch dev row takes over, not off master. Slightly different mental model but eliminates the master-row bounce.
+
+Neither is in scope for this fix; the current cancel-out behavior is correct as long as both mutators are in sync. Filed here so a future release-targets refactor can revisit.
+
+### G40 — Docker Upgrade Process test's recreate wait_for_healthy clocked out 5s before Apache started  *(SHIPPED 2026-09-17)*
+
+**STATUS: SHIPPED 2026-09-17** — timeout bump from 600s to 1200s on the recreate-boot `wait_for_healthy` call in `docker/container_benchmarking/test_suite.sh`. Does NOT weaken the test — the upgrade + Apache start completed correctly on the failing run, the 600s window just no longer fit.
+
+**Trigger event:** Master-side patch-prep PR openemr/openemr#14072 (8.4.1 dev cycle on rel-840, adding `fsupgrade-15.sh`). Container Functionality release check failed with `Container did not become healthy after recreate` on both attempts of both matrix cells. Container health log showed `curl: (7) Failed to connect to localhost:80` right up to the 600s deadline, then the test's own captured stdout showed:
+
+```
+Completed: Processing fsupgrade-15.sh upgrade script
+Version marker updated to: 15
+OpenEMR upgrade completed successfully
+[TIMING] Total script execution time: 605.0s before Apache start
+Starting Apache!
+[Thu Sep 17 03:26:07] Apache/2.4.68 configured -- resuming normal operations
+```
+
+Missed the 600s window by 5s despite the upgrade succeeding.
+
+**Root cause:** `test_suite.sh:1442` sets `sites/default/docker-version=1` deliberately (worst-case starting point) so openemr.sh walks EVERY `fsupgrade-N.sh` from 2 up to the current `/root/docker-version`. That's the point of the test — catch accidental regressions on ANY prior fsupgrade script, not just the one the PR added. Total pre-Apache time therefore grows linearly with N (14 scripts currently, ~5s each on the runner + SQL upgrade + SSL/cert/config setup = ~600s at N=15). Every future patch cycle adds another script and pushes further past the threshold. Sites=1 is intentional and worth keeping (confirmed 2026-09-17); the timeout was the load-bearing wrong value.
+
+**Fix (this PR):** two changes, both scoped to the recreate step:
+
+1. Bump the recreate-boot `wait_for_healthy` timeout from 600s to 1200s (only that one call site — the sibling `wait_for_healthy` calls that don't run the full upgrade cascade stay at 600s).
+2. Bump the openemr healthcheck's `start_period` in the recreate compose override from 10m (base) to 20m (matches the wait_for_healthy budget). Without this, `wait_for_healthy` would return early on Docker's `unhealthy` verdict — the base healthcheck's `start_period: 10m + interval: 1m * retries: 3` produces `unhealthy` ~13m after startup if Apache isn't up, and wait_for_healthy short-circuits on that state (`test_suite.sh:151-154`). Keeping start_period >= max_wait means the container can only be `starting` or `healthy` for the whole window. Healthcheck fields kept explicitly in sync with the base (retries, interval, timeout, etc.) rather than relying on compose partial-merge semantics.
+
+Adds a long inline comment on both changes documenting why THIS wait is bigger than the others, the sites=1 rationale, the paired healthcheck + wait_for_healthy budget requirement, and the "1200s = a real regression" tripwire.
+
+**Why the G34 fix wasn't enough:** G34 fixed the `check_upgrade` guard failure on branch-cut PRs where `/root/docker-version` was AHEAD of the git-cloned code copy (bind-mount override pins them equal across the recreate wipe). That fix works correctly — the upgrade DOES run on #14072. The remaining problem was orthogonal: the upgrade itself takes longer than the healthcheck timeout. G34 unblocked the guard; G40 gives the guard's downstream work enough time to finish.
+
+**Design note (informed by 2026-09-17 review):** the sites=1 choice trades runtime for regression coverage. Alternatives considered + rejected: (a) sites=N-1 → test only the newest script — fast (~5s) but loses coverage of prior scripts; (b) hybrid where PR-triggered runs use sites=N-1 and a weekly cron uses sites=1 — more infrastructure without a demonstrated need. Sites=1 is worst-case-realistic (any user upgrading from an old install hits this path). Keeping it, paying the ~600s per PR for now. If this cost becomes onerous, hybrid is the escape hatch.
+
+**Prevention:** none needed — the timeout accommodates ~40 more patch cycles at the current per-script cost before hitting 1200s again. If it does hit, the inline comment names the next step (investigate real slowdown or bump timeout further).
+
+**Outcome (2026-09-17):** #14081 (G40 fix) landed; #14072 close/reopened to force fresh CI against master with the bump applied (fresh Functionality release run 35182676471 succeeded). #14072 then merged the same day. Post-CodeRabbit review a second commit landed within the same PR that also extends the recreate compose override's healthcheck `start_period` from 10m to 20m (paired with the wait_for_healthy budget), sidestepping a latent early-return on Docker's `unhealthy` verdict that would have capped the extended wait at ~13m.
 
 ## Followup opportunities (not yet gap-numbered)
 

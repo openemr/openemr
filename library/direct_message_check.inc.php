@@ -31,7 +31,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 use OpenEMR\Services\VersionService;
-use PHPMailer\PHPMailer\PHPMailer;
 
 /**
  * Connect to a phiMail Direct Messaging server
@@ -671,12 +670,9 @@ function phimail_notify($subj, $body)
         return false;
     }
 
-    $mail = new PHPMailer();
+    $mail = new MyMailer();
     $mail->From = $recipient;
     $mail->FromName = 'phiMail Gateway';
-    $mail->isMail();
-    $mail->Host = "localhost";
-    $mail->Mailer = "mail";
     $mail->Body = $body;
     $mail->Subject = $subj;
     $mail->AddAddress($recipient);
