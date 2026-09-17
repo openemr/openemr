@@ -63,9 +63,13 @@ acceptance-testing owns the *verification that they work*.
     end-to-end automated ship via `ship-release.yml`. Surfaced 7
     latent preflight-deadlock gates + a merge-API permission bug;
     see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
-- **Next expected release event:** an `8.3.1` or `8.4.1` patch
-  (patch-cadence — no fixed date; happens when the QA team signs
-  off + ship-release.yml is triggered for either rel branch).
+- **Next expected release event:** `8.4.1` targeted for ~2026-09-20
+  (~3 days out from patch-prep cut). Patch-prep PRs merged
+  2026-09-17 (openemr/openemr#14071 rel-side + openemr/openemr#14072
+  master-side), release-prep + release-finalize draft pair open on
+  rel-840. First patch-cadence exercise of the automated ship
+  pipeline; surfaced 3 new gaps in the cut phase alone (see G38 /
+  G39 / G40) — worth watching what surfaces on ship day.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -2982,9 +2986,11 @@ The delta gates could technically be relaxed — e.g., accept two consecutive pu
 
 **Fix (this PR):** add `stripNextFromMasterRow()` to `PatchPrepReleaseTargetsMutator` (mirrors `BranchCutReleaseTargetsMutator::bumpMasterDockerTags` minus the version-bump; just the strip half). Called between insert-new-dev-row and the final YAML sanity check. Idempotent: no-op if master row has no `next` (protects the historical patch-prep cases where the strip wasn't load-bearing). 4 new PHPUnit tests: strips-when-present, idempotent-when-absent, idempotent-across-reruns, comments-and-ordering-preserved.
 
-**Recovery for #14072 specifically:** #14072 was already open when this gap was found. Fix landed AFTER the PR was opened; two paths:
+**Recovery for #14072 specifically:** #14072 was already open when this gap was found. Fix landed AFTER the PR was opened; two paths considered:
 - (a) Merge #14072 as-is, then follow-up PR to strip `next` from master. Simple, one-off.
 - (b) Wait for this fix to land, then re-dispatch `patch-prep-automation.yml --ref master` with the same rel-branch/target/prev inputs — the workflow force-pushes to the existing `patch-prep/rel-840-master` branch on peter-evans re-run, so #14072 gets regenerated with the strip applied.
+
+**Chose (b), exercised 2026-09-16** (run 35174594744): master row went from `docker_tags: 8.5.0,dev,next` → `docker_tags: 8.5.0,dev`, rel-840 dev row correctly retained `docker_tags: 8.4.1,next`. Only one row claiming `next` post-fix. #14072 subsequently merged 2026-09-17.
 
 **Design note (open question, worth remembering):** the `next` re-add on the master row happens at finalize time via `PostReleaseTargetsMutator` (fires on release-finalize/<rel-branch> merge; put `next` back on master since no rel branch is currently claiming it post-ship). That's followed by the operator's next-patch-cycle bump PR (which triggers patch-prep-automation), which now strips it again. The re-add + strip pair essentially cancels out over the ship→patch-prep window. Two design alternatives worth considering later:
 
@@ -3024,6 +3030,8 @@ Adds a long inline comment on both changes documenting why THIS wait is bigger t
 **Design note (informed by 2026-09-17 review):** the sites=1 choice trades runtime for regression coverage. Alternatives considered + rejected: (a) sites=N-1 → test only the newest script — fast (~5s) but loses coverage of prior scripts; (b) hybrid where PR-triggered runs use sites=N-1 and a weekly cron uses sites=1 — more infrastructure without a demonstrated need. Sites=1 is worst-case-realistic (any user upgrading from an old install hits this path). Keeping it, paying the ~600s per PR for now. If this cost becomes onerous, hybrid is the escape hatch.
 
 **Prevention:** none needed — the timeout accommodates ~40 more patch cycles at the current per-script cost before hitting 1200s again. If it does hit, the inline comment names the next step (investigate real slowdown or bump timeout further).
+
+**Outcome (2026-09-17):** #14081 (G40 fix) landed; #14072 close/reopened to force fresh CI against master with the bump applied (fresh Functionality release run 35182676471 succeeded). #14072 then merged the same day. Post-CodeRabbit review a second commit landed within the same PR that also extends the recreate compose override's healthcheck `start_period` from 10m to 20m (paired with the wait_for_healthy budget), sidestepping a latent early-return on Docker's `unhealthy` verdict that would have capped the extended wait at ~13m.
 
 ## Followup opportunities (not yet gap-numbered)
 
