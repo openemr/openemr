@@ -505,25 +505,6 @@ if (!empty($_POST['pricelevel'])) {
 
 $current_checksum = $fs->visitChecksum();
 
-// this is for a save before we open justify dialog.
-// otherwise current form state is over written in justify process.
-if (!empty($_POST['running_as_ajax']) && !empty($_POST['dx_update'])) {
-    $main_provid = (int) $_POST['ProviderID'];
-    $main_supid  = (int) $_POST['SupervisorID'];
-    $fs->save(
-        $_POST['bill'],
-        $_POST['prod'],
-        $main_provid,
-        $main_supid,
-        $_POST['default_warehouse'] ?? null,
-        $_POST['bn_save_close'] ?? null
-    );
-
-    unset($_POST['dx_update']);
-    unset($_POST['bill']);
-    unset($_POST['prod']);
-}
-
 // It's important to look for a checksum mismatch even if we're just refreshing
 // the display, otherwise the error goes undetected on a refresh-then-save.
 if (isset($_POST['form_checksum'])) {
@@ -541,6 +522,30 @@ if (isset($_POST['form_checksum'])) {
             'fee sheet'
         );
     }
+}
+
+// this is for a save before we open justify dialog.
+// otherwise current form state is over written in justify process.
+if (!$alertmsg && !empty($_POST['running_as_ajax']) && !empty($_POST['dx_update'])) {
+    $main_provid = (int) $_POST['ProviderID'];
+    $main_supid  = (int) $_POST['SupervisorID'];
+    $fs->save(
+        $_POST['bill'],
+        $_POST['prod'],
+        $main_provid,
+        $main_supid,
+        $_POST['default_warehouse'] ?? null,
+        $_POST['bn_save_close'] ?? null
+    );
+
+    // The justify dialog posts dx_update then keeps using this form. Refresh
+    // the checksum the same way as the ajax save path so the next post is
+    // not compared against the pre-save value.
+    $current_checksum = $fs->visitChecksum(true);
+
+    unset($_POST['dx_update']);
+    unset($_POST['bill']);
+    unset($_POST['prod']);
 }
 
 if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))) {
