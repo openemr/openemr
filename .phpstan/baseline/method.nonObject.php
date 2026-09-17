@@ -3662,11 +3662,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getTraceAsString\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method GetDataPage\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
