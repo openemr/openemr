@@ -26,6 +26,7 @@ class PortalMailArchiveTest extends TestCase
 {
     private const OWNER = 'phpunit-portal-archive-owner';
     private const OTHER_OWNER = 'phpunit-portal-archive-other-owner';
+    private const AUDIT_USER = 'phpunit-portal-auditor';
     private const MAIL_CHAIN = 9913963;
 
     /** @var array<string, mixed> */
@@ -52,7 +53,7 @@ class PortalMailArchiveTest extends TestCase
             }
         }
         SessionUtil::setSession([
-            'authUser' => 'phpunit-portal-auditor',
+            'authUser' => self::AUDIT_USER,
             'patient_portal_onsite_two' => false,
         ]);
     }
@@ -101,6 +102,65 @@ class PortalMailArchiveTest extends TestCase
         $this->assertEmpty($otherOwnerRow['delete_date']);
     }
 
+    #[Test]
+    public function archiveByMessageIdUpdatesOnlyTheTargetedMessage(): void
+    {
+        $targetId = $this->insertMessage(self::OWNER, 'Target Sender', 'Target Recipient');
+        $sameOwnerId = $this->insertMessage(self::OWNER, 'Same Owner Sender', 'Same Owner Recipient');
+        $otherOwnerId = $this->insertMessage(self::OTHER_OWNER, 'Other Sender', 'Other Recipient');
+
+        updatePortalMailMessageStatus($targetId, 'Delete', self::OWNER);
+
+        $targetRow = $this->getMessageState($targetId);
+        $this->assertSame('Delete', $targetRow['message_status']);
+        $this->assertEquals(1, $targetRow['activity']);
+        $this->assertEquals(1, $targetRow['deleted']);
+        $this->assertNotEmpty($targetRow['delete_date']);
+
+        foreach ([$sameOwnerId, $otherOwnerId] as $unchangedId) {
+            $unchangedRow = $this->getMessageState($unchangedId);
+            $this->assertSame('New', $unchangedRow['message_status']);
+            $this->assertEquals(1, $unchangedRow['activity']);
+            $this->assertEquals(0, $unchangedRow['deleted']);
+            $this->assertEmpty($unchangedRow['delete_date']);
+        }
+    }
+
+    #[Test]
+    public function archiveAuditIncludesSenderAndRecipientDetails(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $this->insertMessage(self::OWNER, 'Portal Sender', 'Staff Recipient');
+        $this->insertMessage(self::OWNER, 'Staff Sender', 'Portal Recipient');
+
+        updatePortalMailMessageStatus(self::MAIL_CHAIN, 'Delete', self::OWNER);
+
+        $this->assertSame(
+            'secure message soft delete by ' . self::AUDIT_USER . ' msg id: ' . self::MAIL_CHAIN .
+            ' from Staff Sender to recipient: Portal Recipient',
+            $this->getLatestAuditComment(),
+        );
+    }
+
+    #[Test]
+    public function archiveWithEmptyOptionalAuditContextStillSucceeds(): void
+    {
+        $GLOBALS['enable_auditlog'] = true;
+        $messageId = $this->insertMessage(self::OWNER, '', '');
+
+        updatePortalMailMessageStatus($messageId, 'Delete', self::OWNER);
+
+        $archivedRow = $this->getMessageState($messageId);
+        $this->assertSame('Delete', $archivedRow['message_status']);
+        $this->assertEquals(1, $archivedRow['deleted']);
+        $this->assertNotEmpty($archivedRow['delete_date']);
+        $this->assertSame(
+            'secure message soft delete by ' . self::AUDIT_USER . ' msg id: ' . $messageId .
+            ' from  to recipient: ',
+            $this->getLatestAuditComment(),
+        );
+    }
+
     private function insertMessage(string $owner, string $senderName, string $recipientName): int
     {
         return (int) QueryUtils::sqlInsert(
@@ -130,11 +190,60 @@ class PortalMailArchiveTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function getMessageState(int $id): array
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT message_status, activity, deleted, delete_date FROM onsite_mail WHERE id = ?',
+            [$id],
+        );
+        if (!is_array($row)) {
+            throw new \RuntimeException('Portal mail fixture was not found');
+        }
+
+        return [
+            'message_status' => $row['message_status'] ?? null,
+            'activity' => $row['activity'] ?? null,
+            'deleted' => $row['deleted'] ?? null,
+            'delete_date' => $row['delete_date'] ?? null,
+        ];
+    }
+
+    private function getLatestAuditComment(): string
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT comments FROM `log` WHERE user = ? AND event = ? AND groupname = ? ORDER BY id DESC LIMIT 1',
+            [self::AUDIT_USER, 'delete', 'Portal'],
+        );
+        if (!is_array($row) || !isset($row['comments']) || !is_string($row['comments'])) {
+            throw new \RuntimeException('Portal mail archive audit event was not found');
+        }
+
+        $comment = base64_decode($row['comments'], true);
+        if ($comment === false) {
+            throw new \RuntimeException('Portal mail archive audit comment was not valid base64');
+        }
+
+        return $comment;
+    }
+
     private function removeFixtures(): void
     {
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM onsite_mail WHERE `owner` IN (?, ?)',
             [self::OWNER, self::OTHER_OWNER],
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM log_comment_encrypt WHERE log_id IN (' .
+            'SELECT id FROM `log` WHERE user = ? AND event = ? AND groupname = ?' .
+            ')',
+            [self::AUDIT_USER, 'delete', 'Portal'],
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM `log` WHERE user = ? AND event = ? AND groupname = ?',
+            [self::AUDIT_USER, 'delete', 'Portal'],
         );
     }
 }
