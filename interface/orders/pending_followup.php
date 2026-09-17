@@ -13,10 +13,10 @@
  */
 
 require_once("../globals.php");
-require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -39,7 +39,7 @@ $facilityService = new FacilityService();
  */
 function pendingFollowupLineItem(array $row, string $codetype, string $code): void
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     $provname = $row['provider_lname'];
     if (!empty($row['provider_fname'])) {

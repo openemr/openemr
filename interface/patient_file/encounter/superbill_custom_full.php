@@ -18,11 +18,11 @@
 
 require_once("../../globals.php");
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-require_once("../../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
@@ -48,7 +48,7 @@ function ffescape($field)
 }
 
 /** @var array<string, array<string, mixed>> $code_types */
-$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$code_types = CodeTypeRegistry::codeTypes();
 
 $alertmsg = '';
 $pagesize = 100;

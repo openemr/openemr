@@ -52,7 +52,6 @@ $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report.inc.php");
-require_once(__DIR__ . "/../../custom/code_types.inc.php");
 require_once("$srcdir/ESign/Api.php");
 require_once("{$globalsBag->getIncludeRoot()}/orders/single_order_results.inc.php");
 require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");

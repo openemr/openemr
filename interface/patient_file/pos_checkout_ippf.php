@@ -52,13 +52,13 @@
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/options.inc.php");
-require_once("../../custom/code_types.inc.php");
 require_once($srcdir . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -495,11 +495,12 @@ function invoiceChecksum($pid, $encounter)
 function ippf_generate_receipt($patient_id, $encounter = 0): void
 {
     global $details, $rapid_data_entry, $aAdjusts;
-    global $web_root, $webserver_root, $code_types;
+    global $web_root, $webserver_root;
     global $aTaxNames, $aInvTaxes, $checkout_times, $current_checksum;
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
     global $TAXES_AFTER_ADJUSTMENT;
     global $alertmsg;
+    $code_types = CodeTypeRegistry::codeTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

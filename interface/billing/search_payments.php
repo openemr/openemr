@@ -18,7 +18,6 @@
 */
 
 require_once("../globals.php");
-require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;

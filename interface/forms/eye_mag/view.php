@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -3884,7 +3885,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                                 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
                                                                   "WHERE list_id = 'superbill' ORDER BY seq");
                                                                 while ($prow = sqlFetchArray($pres)) {
-                                                                    global $code_types;
+                                                                    $code_types = CodeTypeRegistry::codeTypes();
                                                                     echo "    <option value=''> " . text($prow['title']) . "\n";
                                                                     $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
                                                                       "WHERE superbill = ? AND active = 1 " .
