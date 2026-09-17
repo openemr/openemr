@@ -40,6 +40,9 @@ and semantic choices
         document.addEventListener('DOMContentLoaded', function () {
             const passInput = document.getElementById('clearPass');
             const toggle = document.getElementById('password-icon');
+            if (!passInput || !toggle) {
+                return;
+            }
             toggle.addEventListener('click', function () {
                 const isPassword = passInput.getAttribute('type') === 'password';
                 passInput.setAttribute('type', isPassword ? 'text' : 'password');
