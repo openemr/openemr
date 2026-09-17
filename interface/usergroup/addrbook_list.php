@@ -26,6 +26,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AddressBookReferrerFields;
 
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Address Book", xl("Address Book"));
@@ -196,14 +197,13 @@ while ($row = sqlFetchArray($res)) {
         $displayName .= ", " . $row['suffix'];
     }
 
-    $external = trim((string) ($row['username'] ?? '')) === '';
-    $person = $external && ((string) ($row['ab_option'] ?? '') !== '3');
-    $npi_missing = $person && trim((string) ($row['npi'] ?? '')) === '';
-    $addr_missing = $person && (
-        trim((string) ($row['street'] ?? '')) === ''
-        || trim((string) ($row['city'] ?? '')) === ''
-        || trim((string) ($row['state'] ?? '')) === ''
-        || trim((string) ($row['zip'] ?? '')) === ''
+    $person = AddressBookReferrerFields::isExternalPerson($row['username'] ?? '', $row['ab_option'] ?? '');
+    $npi_missing = $person && AddressBookReferrerFields::npiMissingOnList($row['npi'] ?? '');
+    $addr_missing = $person && !AddressBookReferrerFields::mailingAddressComplete(
+        $row['street'] ?? '',
+        $row['city'] ?? '',
+        $row['state'] ?? '',
+        $row['zip'] ?? ''
     );
     $warn = $npi_missing || $addr_missing;
     $trClass = 'address_names detail';
@@ -233,10 +233,10 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td>" . text($row['phonecell']) . "</td>\n";
     echo "  <td>" . text($row['fax'])       . "</td>\n";
     echo "  <td>" . text($row['email'])     . "</td>\n";
-    echo "  <td>" . ($person && trim((string) ($row['street'] ?? '')) === '' ? $missing : text($row['street'])) . "</td>\n";
-    echo "  <td>" . ($person && trim((string) ($row['city'] ?? '')) === '' ? $missing : text($row['city'])) . "</td>\n";
-    echo "  <td>" . ($person && trim((string) ($row['state'] ?? '')) === '' ? $missing : text($row['state'])) . "</td>\n";
-    echo "  <td>" . ($person && trim((string) ($row['zip'] ?? '')) === '' ? $missing : text($row['zip'])) . "</td>\n";
+    echo "  <td>" . ($person && AddressBookReferrerFields::asString($row['street'] ?? '') === '' ? $missing : text($row['street'])) . "</td>\n";
+    echo "  <td>" . ($person && AddressBookReferrerFields::asString($row['city'] ?? '') === '' ? $missing : text($row['city'])) . "</td>\n";
+    echo "  <td>" . ($person && AddressBookReferrerFields::asString($row['state'] ?? '') === '' ? $missing : text($row['state'])) . "</td>\n";
+    echo "  <td>" . ($person && AddressBookReferrerFields::asString($row['zip'] ?? '') === '' ? $missing : text($row['zip'])) . "</td>\n";
     echo " </tr>\n";
 }
 ?>
