@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-16
+**Last updated:** 2026-09-17
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -2992,6 +2992,38 @@ The delta gates could technically be relaxed — e.g., accept two consecutive pu
 2. Have finalize add `next` to the JUST-SHIPPED rel row (alongside `latest`) instead of to master. That row already carries `latest`; adding `next` there means "this image is both the latest published AND the current forward-looking tip until the next patch cycle starts." Then patch-prep only needs to move `next` off THAT row when the new patch dev row takes over, not off master. Slightly different mental model but eliminates the master-row bounce.
 
 Neither is in scope for this fix; the current cancel-out behavior is correct as long as both mutators are in sync. Filed here so a future release-targets refactor can revisit.
+
+### G40 — Docker Upgrade Process test's recreate wait_for_healthy clocked out 5s before Apache started  *(SHIPPED 2026-09-17)*
+
+**STATUS: SHIPPED 2026-09-17** — timeout bump from 600s to 1200s on the recreate-boot `wait_for_healthy` call in `docker/container_benchmarking/test_suite.sh`. Does NOT weaken the test — the upgrade + Apache start completed correctly on the failing run, the 600s window just no longer fit.
+
+**Trigger event:** Master-side patch-prep PR openemr/openemr#14072 (8.4.1 dev cycle on rel-840, adding `fsupgrade-15.sh`). Container Functionality release check failed with `Container did not become healthy after recreate` on both attempts of both matrix cells. Container health log showed `curl: (7) Failed to connect to localhost:80` right up to the 600s deadline, then the test's own captured stdout showed:
+
+```
+Completed: Processing fsupgrade-15.sh upgrade script
+Version marker updated to: 15
+OpenEMR upgrade completed successfully
+[TIMING] Total script execution time: 605.0s before Apache start
+Starting Apache!
+[Thu Sep 17 03:26:07] Apache/2.4.68 configured -- resuming normal operations
+```
+
+Missed the 600s window by 5s despite the upgrade succeeding.
+
+**Root cause:** `test_suite.sh:1442` sets `sites/default/docker-version=1` deliberately (worst-case starting point) so openemr.sh walks EVERY `fsupgrade-N.sh` from 2 up to the current `/root/docker-version`. That's the point of the test — catch accidental regressions on ANY prior fsupgrade script, not just the one the PR added. Total pre-Apache time therefore grows linearly with N (14 scripts currently, ~5s each on the runner + SQL upgrade + SSL/cert/config setup = ~600s at N=15). Every future patch cycle adds another script and pushes further past the threshold. Sites=1 is intentional and worth keeping (confirmed 2026-09-17); the timeout was the load-bearing wrong value.
+
+**Fix (this PR):** two changes, both scoped to the recreate step:
+
+1. Bump the recreate-boot `wait_for_healthy` timeout from 600s to 1200s (only that one call site — the sibling `wait_for_healthy` calls that don't run the full upgrade cascade stay at 600s).
+2. Bump the openemr healthcheck's `start_period` in the recreate compose override from 10m (base) to 20m (matches the wait_for_healthy budget). Without this, `wait_for_healthy` would return early on Docker's `unhealthy` verdict — the base healthcheck's `start_period: 10m + interval: 1m * retries: 3` produces `unhealthy` ~13m after startup if Apache isn't up, and wait_for_healthy short-circuits on that state (`test_suite.sh:151-154`). Keeping start_period >= max_wait means the container can only be `starting` or `healthy` for the whole window. Healthcheck fields kept explicitly in sync with the base (retries, interval, timeout, etc.) rather than relying on compose partial-merge semantics.
+
+Adds a long inline comment on both changes documenting why THIS wait is bigger than the others, the sites=1 rationale, the paired healthcheck + wait_for_healthy budget requirement, and the "1200s = a real regression" tripwire.
+
+**Why the G34 fix wasn't enough:** G34 fixed the `check_upgrade` guard failure on branch-cut PRs where `/root/docker-version` was AHEAD of the git-cloned code copy (bind-mount override pins them equal across the recreate wipe). That fix works correctly — the upgrade DOES run on #14072. The remaining problem was orthogonal: the upgrade itself takes longer than the healthcheck timeout. G34 unblocked the guard; G40 gives the guard's downstream work enough time to finish.
+
+**Design note (informed by 2026-09-17 review):** the sites=1 choice trades runtime for regression coverage. Alternatives considered + rejected: (a) sites=N-1 → test only the newest script — fast (~5s) but loses coverage of prior scripts; (b) hybrid where PR-triggered runs use sites=N-1 and a weekly cron uses sites=1 — more infrastructure without a demonstrated need. Sites=1 is worst-case-realistic (any user upgrading from an old install hits this path). Keeping it, paying the ~600s per PR for now. If this cost becomes onerous, hybrid is the escape hatch.
+
+**Prevention:** none needed — the timeout accommodates ~40 more patch cycles at the current per-script cost before hitting 1200s again. If it does hit, the inline comment names the next step (investigate real slowdown or bump timeout further).
 
 ## Followup opportunities (not yet gap-numbered)
 
