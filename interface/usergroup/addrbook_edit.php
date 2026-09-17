@@ -22,6 +22,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
@@ -443,18 +444,20 @@ if (!empty($_POST['form_save'])) {
     $save_ok = true;
     $existing_username = '';
     if ($userid) {
-        $existing = sqlQuery("SELECT username FROM users WHERE id = ?", [$userid]) ?: [];
+        $existing = QueryUtils::querySingleRow("SELECT username FROM users WHERE id = ?", [$userid]) ?: [];
         $existing_username = (string) ($existing['username'] ?? '');
     }
     if ($existing_username === '' && (string) $option_abook_type !== '3') {
-        $npi_digits = preg_replace('/\D/', '', (string) ($_POST['form_npi'] ?? '')) ?? '';
+        $npi = trim((string) ($_POST['form_npi'] ?? ''));
         $street = trim((string) ($_POST['form_street'] ?? ''));
         $city = trim((string) ($_POST['form_city'] ?? ''));
         $state = trim((string) ($_POST['form_state'] ?? ''));
         $zip = trim((string) ($_POST['form_zip'] ?? ''));
-        if (strlen($npi_digits) !== 10 || $street === '' || $city === '' || $state === '' || $zip === '') {
+        if (!preg_match('/^\d{10}$/', $npi) || $street === '' || $city === '' || $state === '' || $zip === '') {
             $info_msg = xl('Person entries need a 10-digit NPI and a mailing address (street, city, state, postal code). Use Lookup to fill them from NPPES.');
             $save_ok = false;
+        } else {
+            $_POST['form_npi'] = $npi;
         }
     }
 
