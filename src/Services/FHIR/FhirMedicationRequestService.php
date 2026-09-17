@@ -328,10 +328,16 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $dispenseRequest->setNumberOfRepeatsAllowed($dataRecord['refills'] ?? 0);
         if (!empty($dataRecord['quantity']) && is_numeric($dataRecord['quantity'])) {
             $quantity = intval($dataRecord['quantity']);
+            // dispenseRequest.quantity is the amount dispensed for one fill, which is counted in the
+            // prescribed form (30 tablet) and not in the dose unit (10 mg). Only fall back to the
+            // dose unit when no form was recorded, so prescriptions without a form are unchanged.
+            $dispenseUnit = !empty($dataRecord['drug_form_title'])
+                ? $dataRecord['drug_form_title']
+                : ($dataRecord['unit_title'] ?? '');
             $dispenseRequest->setQuantity(UtilsService::createQuantity(
                 $quantity,
-                $dataRecord['unit_title'] ?? '',
-                $dataRecord['unit_title'] ?? ''
+                $dispenseUnit,
+                $dispenseUnit
             ));
         }
         $medRequestResource->setDispenseRequest($dispenseRequest);
