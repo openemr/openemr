@@ -21,6 +21,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,29 +40,46 @@ require_once($globalsBag->getString('fileroot') . "/controllers/C_Document.class
 
 
 
-// Get all the documents of the patient
-$sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ? AND `deleted` = 0";
+// Get all the documents of the patient, excluding any that belong to a
+// restricted category.  A document is hidden when ANY of its categories has an
+// aco_spec other than 'patients|docs' (e.g. 'patients|high', 'admin|super').
+// Using NOT EXISTS rather than a JOIN avoids duplicate rows when a document
+// belongs to multiple categories and ensures the strictest possible check.
+$sql = "SELECT d.url, d.id, d.mimetype, d.`name`
+        FROM `documents` AS d
+        WHERE d.`foreign_id` = ?
+          AND d.`deleted` = 0
+          AND NOT EXISTS (
+              SELECT 1
+              FROM `categories_to_documents` AS ctd
+              INNER JOIN `categories` AS c ON c.id = ctd.category_id
+              WHERE ctd.document_id = d.id
+                AND c.`aco_spec` != 'patients|docs'
+          )";
 /**
  * @Global $pid Patient id setup during verify_session.php
  */
-$fres = sqlStatement($sql, [$pid]);
+$files = QueryUtils::fetchRecords($sql, [$pid]);
+
+$categorySql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
+        WHERE `categories_to_documents`.`category_id` = `categories`.`id`
+        AND `categories_to_documents`.`document_id` = ?";
+$categoryPathSql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
 
 $documents = [];
-while ($file = sqlFetchArray($fres)) {
-    // Find the document category
-    $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
-            WHERE `categories_to_documents`.`category_id` = `categories`.`id`
-            AND `categories_to_documents`.`document_id` = ?";
-    $catres = sqlStatement($sql, [$file['id']]);
-    $cat = sqlFetchArray($catres);
+foreach ($files as $file) {
+    // Find the document category (already confirmed to be patients|docs above)
+    $cat = QueryUtils::querySingleRow($categorySql, [$file['id']]);
+    if ($cat === false) {
+        continue;
+    }
 
     // Find the tree of the document's category
-    $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
+    $parents = QueryUtils::fetchRecords($categoryPathSql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $displayPath = "";
-    while ($parent = sqlFetchArray($pathres)) {
+    foreach ($parents as $parent) {
         $displayPath .= $parent['name'] . "/";
     }
 
