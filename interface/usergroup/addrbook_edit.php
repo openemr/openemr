@@ -23,8 +23,10 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\AddressBookReferrerFields;
 
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Address Book", xl("Address Book"));
@@ -445,19 +447,21 @@ if (!empty($_POST['form_save'])) {
     $existing_username = '';
     if ($userid) {
         $existing = QueryUtils::querySingleRow("SELECT username FROM users WHERE id = ?", [$userid]) ?: [];
-        $existing_username = (string) ($existing['username'] ?? '');
+        $existing_username = AddressBookReferrerFields::asString($existing['username'] ?? '');
     }
-    if ($existing_username === '' && (string) $option_abook_type !== '3') {
-        $npi = trim((string) ($_POST['form_npi'] ?? ''));
-        $street = trim((string) ($_POST['form_street'] ?? ''));
-        $city = trim((string) ($_POST['form_city'] ?? ''));
-        $state = trim((string) ($_POST['form_state'] ?? ''));
-        $zip = trim((string) ($_POST['form_zip'] ?? ''));
-        if (!preg_match('/^\d{10}$/', $npi) || $street === '' || $city === '' || $state === '' || $zip === '') {
+    $posted = CurrentRequest::get()->request;
+    if (AddressBookReferrerFields::isExternalPerson($existing_username, $option_abook_type)) {
+        if (
+            !AddressBookReferrerFields::saveAllowed(
+                $posted->get('form_npi'),
+                $posted->get('form_street'),
+                $posted->get('form_city'),
+                $posted->get('form_state'),
+                $posted->get('form_zip')
+            )
+        ) {
             $info_msg = xl('Person entries need a 10-digit NPI and a mailing address (street, city, state, postal code). Use Lookup to fill them from NPPES.');
             $save_ok = false;
-        } else {
-            $_POST['form_npi'] = $npi;
         }
     }
 
@@ -579,12 +583,16 @@ if ((!empty($_POST['form_save']) && $save_ok) || !empty($_POST['form_delete'])) 
     exit();
 }
 
+$row = [];
 if ($userid) {
-    $row = sqlQuery("SELECT * FROM users WHERE id = ?", [$userid]);
+    $loaded = sqlQuery("SELECT * FROM users WHERE id = ?", [$userid]);
+    if (is_array($loaded)) {
+        $row = $loaded;
+    }
 }
 
-if (!empty($_POST['form_save']) && !$save_ok) {
-    $row = $row ?? [];
+$posted = CurrentRequest::get()->request;
+if ($posted->has('form_save') && !$save_ok) {
     foreach (
         [
             'abook_type', 'title', 'fname', 'lname', 'mname', 'suffix',
@@ -593,8 +601,8 @@ if (!empty($_POST['form_save']) && !$save_ok) {
         ] as $col
     ) {
         $postkey = 'form_' . $col;
-        if (array_key_exists($postkey, $_POST)) {
-            $row[$col] = $_POST[$postkey];
+        if ($posted->has($postkey)) {
+            $row[$col] = $posted->get($postkey);
         }
     }
 }
@@ -618,7 +626,7 @@ if ($type) { // note this only happens when its new
 
 <form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-<?php if (!empty($info_msg) && !$save_ok) { ?>
+<?php if ($info_msg !== '' && !$save_ok) { ?>
 <div class="alert alert-danger"><?php echo text($info_msg); ?></div>
 <?php } ?>
 
