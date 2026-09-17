@@ -8,6 +8,7 @@
  *
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -62,33 +63,40 @@ try {
     // uncaught errors.  If the endpoint appears to be an API request then
     // render it as JSON, otherwise attempt to render a friendly HTML page
 
+    ServiceContainer::getLogger()->error(
+        'Portal request failed',
+        ['exception' => $ex],
+    );
+
+    $publicMessage = xl('An unexpected error occurred');
     $url = RequestUtil::GetCurrentURL();
     $isApiRequest = (str_contains($url, 'api/'));
 
     if ($isApiRequest) {
         $result = new stdClass();
         $result->success = false;
-        $result->message = $ex->getMessage();
-        $result->data = $ex->getTraceAsString();
+        $result->message = $publicMessage;
 
         @header('HTTP/1.1 401 Unauthorized');
         echo json_encode($result);
     } else {
-        $gc->GetRenderEngine()->assign("message", $ex->getMessage());
-        $gc->GetRenderEngine()->assign("stacktrace", $ex->getTraceAsString());
-        $gc->GetRenderEngine()->assign("code", $ex->getCode());
+        $gc->GetRenderEngine()->assign("message", $publicMessage);
+        $gc->GetRenderEngine()->assign("stacktrace", '');
+        $gc->GetRenderEngine()->assign("code", 0);
 
         try {
             $gc->GetRenderEngine()->display("DefaultErrorFatal.tpl");
         } catch (\Throwable $ex2) {
-            // this means there is an error with the template, in which case we can't display it nicely
+            ServiceContainer::getLogger()->error(
+                'Portal error template failed',
+                ['exception' => $ex2],
+            );
+
+            // This means there is an error with the template, in which case
+            // render a minimal response without exposing either exception.
             echo "<style>* { font-family: verdana, arial, helvetica, sans-serif; }</style>\n";
             echo "<h1>Fatal Error:</h1>\n";
-            echo '<h3>' . htmlentities($ex->getMessage()) . "</h3>\n";
-            echo "<h4>Original Stack Trace:</h4>\n";
-            echo '<textarea wrap="off" style="height: 200px; width: 100%;">' . htmlentities($ex->getTraceAsString()) . '</textarea>';
-            echo "<h4>In addition to the above error, the default error template could not be displayed:</h4>\n";
-            echo '<textarea wrap="off" style="height: 200px; width: 100%;">' . htmlentities($ex2->getMessage()) . "\n\n" . htmlentities($ex2->getTraceAsString()) . '</textarea>';
+            echo '<h3>' . text($publicMessage) . "</h3>\n";
         }
     }
 }

@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
@@ -39,7 +41,12 @@ class OnsiteActivityViewController extends AppBasePortalController
     {
         parent::Init();
 
-        // $this->RequirePermission(User::$PERMISSION_USER,'SecureApp.LoginForm');
+        if (
+            !AclMain::aclCheckCore('patientportal', 'portal') ||
+            !AclMain::aclCheckCore('patients', 'demo')
+        ) {
+            AccessDeniedHelper::deny('Unauthorized access to onsite activity review');
+        }
     }
 
     /**

@@ -16,6 +16,7 @@
 require_once("AppBasePortalController.php");
 require_once("Model/Patient.php");
 
+use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 
 /**
@@ -112,10 +113,15 @@ class PortalPatientController extends AppBasePortalController
     public function Read()
     {
         try {
-            // not required here but, represents patient rec id, not audit id.
             $pk = $this->GetRouter()->GetUrlParam('id');
+            // @phpstan-ignore method.nonObject
+            $patient = $this->Phreezer->Get('Patient', $pk);
+            if (!($patient instanceof Patient)) {
+                throw new Exception('Not found');
+            }
+            PortalPatientAccessGuard::assertCanRead($patient->Pid);
             $appsql = new ApplicationTable();
-            $edata = $appsql->getPortalAudit(PortalSessionPidGuard::requireBootstrapPid(), 'review');
+            $edata = $appsql->getPortalAudit($patient->Pid, 'review');
             $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
             $newv = [];
             foreach ($changed as $key => $val) {
@@ -145,10 +151,7 @@ class PortalPatientController extends AppBasePortalController
             if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid,
-                PortalSessionPidGuard::requireBootstrapPid(),
-            );
+            PortalPatientAccessGuard::assertCanWrite($patient->Pid);
 
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
