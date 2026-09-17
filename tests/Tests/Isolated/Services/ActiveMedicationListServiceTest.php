@@ -130,4 +130,21 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertCount(1, $rows);
         $this->assertSame('Old statin', $rows[0]['title']);
     }
+
+    public function testMergeDropsImpossibleCalendarDates(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [
+                [
+                    'title' => 'Aspirin',
+                    'begdate' => '2026-02-31',
+                    'enddate' => '2026-13-01',
+                ],
+            ],
+            []
+        );
+        $this->assertCount(1, $rows);
+        $this->assertNull($rows[0]['start']);
+        $this->assertNull($rows[0]['end']);
+    }
 }
