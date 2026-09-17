@@ -58,6 +58,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 if (!isset($pid)) {
     throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
 }
+$portalAssetRoot = $globalsBag->getString('webroot') . '/portal';
 
 if (!$isPortal) {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
@@ -468,7 +469,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     </style>
     <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="portal_payment.js?v=<?=$v_js_includes?>"></script>
+    <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
@@ -1129,7 +1130,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                                             <input name="cardCode" id="cardCode" type="text" class="form-control" autocomplete="off" maxlength="4" onfocus="validateCC()" title="<?php echo xla('Three or four digits at back of your card'); ?>" value="" />
                                         </div>
                                         <div class="col-md-3">
-                                            <img src='./images/img_cvc.png' style='height: 40px; width: auto' />
+                                            <img src='<?php echo attr($portalAssetRoot); ?>/images/img_cvc.png' style='height: 40px; width: auto' />
                                         </div>
                                         <div class="col-md-6">
                                             <h4 style="display: inline-block;"><?php echo xlt('Payment Amount'); ?>:&nbsp;
@@ -1241,11 +1242,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <script>
             var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
         </script>
-        <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
+        <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.authorizenet.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php }  // end authorize.net ?>
 
     <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
-        <script src="portal_payment.stripe.js?v=<?=$v_js_includes?>"></script>
+        <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.stripe.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php } ?>
 
     <?php

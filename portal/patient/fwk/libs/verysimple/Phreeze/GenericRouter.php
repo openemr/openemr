@@ -92,13 +92,11 @@ class GenericRouter implements IRouter
                     throw new Exception($error);
                 }
             } else {
-                // Core-user fallback (patient-portal session absent):
-                // still enforce the route's `p_acl`. Any route not marked
-                // `p_all` is patient-scoped and must not be reachable via
-                // the core-mode fallback because those controllers bind
-                // patient identity via `bootstrap_pid` (which is empty in
-                // this branch) and therefore leak data across patients.
-                if ($pAcl != 'p_all') {
+                // Core-user fallback (patient-portal session absent): allow
+                // routes explicitly marked for all users or staff. The
+                // bootstrap requires the patientportal/portal ACL before
+                // dispatch reaches this point.
+                if ($pAcl != 'p_all' && $pAcl != 'p_staff') {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }
@@ -142,6 +140,7 @@ class GenericRouter implements IRouter
                     // p_acl check for patient-portal sessions
                     if (
                         ($p_acl == 'p_none') ||
+                        ($p_acl == 'p_staff') ||
                         (($p_acl == 'p_limited') && ($globalsBag->get('bootstrap_uri_id') != $match[1]))
                     ) {
                         // failed p_acl check
@@ -149,12 +148,10 @@ class GenericRouter implements IRouter
                         throw new Exception($error);
                     }
                 } else {
-                    // Core-user fallback (no patient session): deny anything
-                    // that isn't explicitly p_all. p_limited routes bind to
-                    // `bootstrap_uri_id` which is empty here, and p_none
-                    // routes are patient-scoped writes that must never
-                    // execute for core-user traffic reaching /portal/patient/*.
-                    if ($p_acl != 'p_all') {
+                    // Core-user fallback (no patient session): allow routes
+                    // explicitly marked for all users or staff. Continue to
+                    // deny patient-scoped p_limited and p_none routes.
+                    if ($p_acl != 'p_all' && $p_acl != 'p_staff') {
                         $error = 'Unauthorized';
                         throw new Exception($error);
                     }
