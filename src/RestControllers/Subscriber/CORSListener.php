@@ -17,7 +17,12 @@ class CORSListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::REQUEST => [['onKernelRequest', 25]],
+            // Must run before RoutesExtensionListener (REQUEST priority 40): routes
+            // are only ever registered per-verb, never for OPTIONS, so an OPTIONS
+            // preflight that reaches RoutesExtensionListener first 404s there and
+            // that exception aborts the REQUEST event chain before this listener
+            // gets a chance to build the actual preflight response.
+            KernelEvents::REQUEST => [['onKernelRequest', 50]],
             KernelEvents::RESPONSE => [['onKernelResponse', 0]]
         ];
     }
