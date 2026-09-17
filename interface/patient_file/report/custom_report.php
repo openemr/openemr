@@ -19,7 +19,8 @@
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
+$sessionPid = $session->get('pid', 0);
+$pid = is_numeric($sessionPid) ? (int) $sessionPid : 0;
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
@@ -38,8 +39,8 @@ use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
-use OpenEMR\Services\ActiveMedicationListService;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\ActiveMedicationListService;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -435,8 +436,8 @@ function getContent()
                             echo "<div class='text medications'>\n";
                             print "<h4>" . xlt('Medications') . ":</h4>";
                             $medListService = new ActiveMedicationListService();
-                            $activeMeds = $medListService->getActiveList((int) $pid);
-                            $inactiveMeds = $medListService->getInactiveList((int) $pid, $activeMeds);
+                            $activeMeds = $medListService->getActiveList($pid);
+                            $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds);
                             echo "<span class='font-weight-bold'>" . xlt('Active') . ":</span><br />";
                             if ($activeMeds === []) {
                                 echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
