@@ -1514,9 +1514,29 @@ EOF
     # Wait a moment for container to recreate
     sleep 5
 
-    # Wait for container to be healthy again after recreate
+    # Wait for container to be healthy again after recreate.
+    #
+    # Timeout deliberately higher than the sibling wait_for_healthy calls
+    # in this file: this is the only path that runs the FULL upgrade
+    # cascade. Step 2 above sets sites/default/docker-version=1
+    # intentionally (worst-case starting point) so openemr.sh walks
+    # every fsupgrade-N.sh from 2 up to /root/docker-version, processes
+    # the SQL upgrade file, then sets up SSL/cert/config before Apache
+    # starts. That's the point of this test -- catch accidental
+    # regressions on ANY prior fsupgrade-N.sh script, not just the one
+    # the PR added. Total pre-Apache time grows linearly with N because
+    # each patch cycle adds one more fsupgrade-N.sh to walk (see G12 /
+    # G34 / G40 for the surrounding history). Patch-prep PR
+    # openemr/openemr#14072 (8.4.1 dev cycle on rel-840, adding
+    # fsupgrade-15.sh) was the first observation that the classic 600s
+    # window is now tight; total-time was 605s on the runner, missing
+    # the health check by 5s even though the upgrade + Apache start
+    # completed successfully. 1200s gives comfortable headroom for
+    # future fsupgrade-N additions without hiding a real slowdown --
+    # if the recreate ever exceeds 1200s that's a genuine regression
+    # worth investigating.
     # shellcheck disable=SC2310
-    if ! wait_for_healthy "${container_name}" 600; then
+    if ! wait_for_healthy "${container_name}" 1200; then
         log_test_result "${test_name}" "FAIL" "Container did not become healthy after recreate"
         docker logs "${container_name}" --tail 50 2>&1 | tee -a "${LOG_FILE}" || true
         cd "${test_dir}"
