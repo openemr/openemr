@@ -32447,16 +32447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'recipient_name\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'sender_name\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'action\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/track_portal_events.php',
