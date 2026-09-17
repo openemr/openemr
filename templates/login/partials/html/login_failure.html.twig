@@ -10,10 +10,14 @@ A block to render if the login attempt failed
 @copyright Copyright (c) 2023 Providence Healthtech
 @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
-{% if loginFail == 1 %}
+{% if loginFail == 1 or oidcLoginError|default('') %}
 {% block login_failure %}
 <div class="{{ login_failure_container_class_list|default(['text-center', 'login-failure'])|join(' ') }}">
-    <p class="text-danger font-weight-bold">{{ "Invalid username or password"|xlt }}</p>
+    {% if oidcLoginError|default('') %}
+        <p class="text-danger font-weight-bold">{{ oidcLoginError|text }}</p>
+    {% else %}
+        <p class="text-danger font-weight-bold">{{ "Invalid username or password"|xlt }}</p>
+    {% endif %}
 </div>
 {% endblock %}
 {% endif %}

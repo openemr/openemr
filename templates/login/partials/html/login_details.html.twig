@@ -27,8 +27,10 @@ A partial used to build out the login form.
 <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site={{ siteID|attr_url }}" target="_top" name="login_form">
     <input type="hidden" name="new_login_session_management" value="1">
     <input type="hidden" name="languageChoice" value="{{ defaultLangID|attr }}">
+    {% if not oidcHideLocalLogin|default(false) %}
     {% include "login/partials/input/username.html.twig" %}
     {% include "login/partials/input/password.html.twig" %}
+    {% endif %}
     {{ divApp }}
     {% include "login/partials/input/languages.html.twig" %}
     {% include "login/partials/input/facilities.html.twig" %}

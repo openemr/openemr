@@ -64,6 +64,8 @@ class ForbidDirectSessionWriteRule implements Rule
         'library/auth.inc.php',
         // Login/setup flows with $sessionAllowWrite = true
         'interface/login/login.php',
+        'interface/login/oidc_start.php',
+        'interface/login/oidc_callback.php',
         'interface/main/main_screen.php',
         'interface/main/tabs/main.php',
         'interface/usergroup/mfa_totp.php',
