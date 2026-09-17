@@ -13,7 +13,12 @@ Render the login button, and google signin button, if set
 #}
 {% block buttons %}
 <div class="{{ button_container_class_list|default(['form-group', 'd-flex', 'justify-content-between'])|join(' ') }}">
-    <button id="login-button" class="btn btn-primary flex-fill" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
+    {% if not oidcHideLocalLogin|default(false) %}
+        <button id="login-button" class="btn btn-primary flex-fill" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
+    {% endif %}
+    {% if displayOidcSso|default(false) %}
+        <a id="oidc-sso-button" class="btn btn-secondary flex-fill{% if not oidcHideLocalLogin|default(false) %} ml-2{% endif %}" href="{{ oidcSsoStartUrl|attr }}">{{ oidcSsoButtonLabel|default('Sign in with SSO')|text }}</a>
+    {% endif %}
     {% if displayGoogleSignin %}
         <div class="g_id_signin flex-fill" data-type="standard"></div>
     {% endif %}

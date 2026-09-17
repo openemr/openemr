@@ -30,6 +30,7 @@ rather than baking it in — there's nothing branch-specific to vary.
 | [`development-easy/`](development-easy/) | Primary dev environment (used by `openemr-cmd worktree` and the contributor workflow in [`../CONTRIBUTING.md`](../CONTRIBUTING.md)). |
 | [`development-easy-light/`](development-easy-light/) | Slimmer variant of easy-dev. |
 | [`development-easy-redis/`](development-easy-redis/) | Easy-dev plus Redis session store. |
+| [`development-oidc/`](development-oidc/) | Easy-dev plus a local Keycloak for staff OpenID Connect login. Ports are offset from easy-dev. See its [README](development-oidc/README.md). |
 | [`development-insane/`](development-insane/) | Full-stack dev environment with extra services. See its [README](development-insane/README.md). |
 
 Image references in the development-* composes are pinned by SHA and bumped

@@ -23,6 +23,7 @@ require_once('../globals.php');
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\OidcRp\OidcRpSettings;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
@@ -138,6 +139,11 @@ function generate_html_end()
     echo "</div></body></html>\n";
     SessionWrapperFactory::getInstance()->destroyCoreSession();
     return 0;
+}
+
+$oidcNewLogin = $session->get(OidcRpSettings::SESSION_NEW_LOGIN) === true;
+if ($oidcNewLogin) {
+    $session->remove(OidcRpSettings::SESSION_NEW_LOGIN);
 }
 
 if (isset($_POST['new_login_session_management'])) {
@@ -413,6 +419,9 @@ if (isset($_POST['new_login_session_management'])) {
     //  Generated only on the new-login path. Rotating it on every main_screen.php load
     //  invalidates CSRF tokens already embedded in long-lived iframes (e.g. dated_reminders,
     //  which polls every 60s with the token captured at render time).
+    CsrfUtils::setupCsrfKey($session);
+} elseif ($oidcNewLogin) {
+    $session->migrate(true);
     CsrfUtils::setupCsrfKey($session);
 } else {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

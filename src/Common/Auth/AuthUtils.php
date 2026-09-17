@@ -15,7 +15,9 @@
  *     3. Google sign in is also supported (via Google Workspace with Google Open ID) via the static function
  *         verifyGoogleSignIn($token). In this case, the login counter and expired password mechanisms
  *         are ignored.
- *     4. Timing attack prevention. The time will be the same for a user that does not exist versus a user
+ *     4. OpenID Connect staff login (Keycloak, Authentik, Zitadel, and other OIDC providers) uses
+ *         OpenEMR\Common\Auth\OidcRp and keeps OpenEMR groups/ACL on the local user record.
+ *     5. Timing attack prevention. The time will be the same for a user that does not exist versus a user
  *         that does exist. This is done in standard authentication and ldap authentication by simulating
  *         the password verification in each via the preventTimingAttack() function.
  *        (There is one issue in this mechanism when using ldap with a user that is excluded from it. In

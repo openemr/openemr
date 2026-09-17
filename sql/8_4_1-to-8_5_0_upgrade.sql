@@ -122,3 +122,19 @@ UPDATE `list_options` SET `codes` = 'SNOMED-CT:248153007' WHERE `list_id` = 'adm
 #IfRow3D list_options list_id administrative_sex option_id Female codes SNOMED-CT:248153007
 UPDATE `list_options` SET `codes` = 'SNOMED-CT:248152002' WHERE `list_id` = 'administrative_sex' AND `option_id` = 'Female';
 #EndIf
+
+#IfNotTable oidc_external_identity
+CREATE TABLE `oidc_external_identity` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `user_id` bigint(20) NOT NULL,
+  `issuer` varchar(191) NOT NULL,
+  `subject` varchar(128) NOT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `last_login` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `issuer_subject` (`issuer`,`subject`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB;
+#EndIf

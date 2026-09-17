@@ -2258,6 +2258,97 @@ $GLOBALS_METADATA = [
             xl('This Client ID Is Provided By Google For Your App (Required For Google Sign-in)')
         ],
 
+        'oidc_rp_enabled' => [
+            xl('Enable OpenID Connect Staff Login'),
+            'bool',
+            '0',
+            xl('Let staff sign in through an external OpenID Connect provider such as Keycloak, Authentik, or Zitadel. OpenEMR groups and access control stay in OpenEMR.')
+        ],
+        'oidc_rp_issuer' => [
+            xl('OIDC Issuer URL'),
+            'text',
+            '',
+            xl('Provider issuer, for example https://keycloak.example.com/realms/openemr. OpenEMR uses OpenID discovery at this issuer.')
+        ],
+        'oidc_rp_client_id' => [
+            xl('OIDC Client ID'),
+            'text',
+            '',
+            xl('Confidential or public client ID registered at the identity provider.')
+        ],
+        'oidc_rp_client_secret' => [
+            xl('OIDC Client Secret'),
+            'encrypted',
+            '',
+            xl('Client secret for confidential clients. Leave empty for a public client that uses PKCE only.')
+        ],
+        'oidc_rp_button_label' => [
+            xl('OIDC Login Button Label'),
+            'text',
+            'Sign in with SSO',
+            xl('Label shown on the login page for the identity-provider button.')
+        ],
+        'oidc_rp_username_claim' => [
+            xl('OIDC Username Claim'),
+            'text',
+            'preferred_username',
+            xl('ID token claim that must match the OpenEMR username. preferred_username is typical for Keycloak.')
+        ],
+        'oidc_rp_auto_redirect' => [
+            xl('OIDC Default Login'),
+            'bool',
+            '0',
+            xl('Send the login page straight to the identity provider. Append ?local=1 to use the OpenEMR username and password form.')
+        ],
+        'oidc_rp_hide_local_login' => [
+            xl('OIDC Hide Local Login Form'),
+            'bool',
+            '0',
+            xl('Hide the username and password fields when OpenID Connect is enabled. Append ?local=1 to show them.')
+        ],
+        'oidc_rp_match_email' => [
+            xl('OIDC Match Users by Email'),
+            'bool',
+            '1',
+            xl('If the username claim does not match, link a unique OpenEMR user email to the identity provider account.')
+        ],
+        'oidc_rp_create_users' => [
+            xl('OIDC Create Missing Users'),
+            'bool',
+            '0',
+            xl('If no OpenEMR user exists, create one in the group and ACL below. Administrators still assign permissions in Administration → Users / ACL.')
+        ],
+        'oidc_rp_new_user_acl' => [
+            xl('OIDC New User Access Control Group'),
+            'text',
+            'Clinicians',
+            xl('phpGACL group title used when creating a user. Administrators and Emergency Login are not allowed; those stay Clinicians.')
+        ],
+        'oidc_rp_new_user_group' => [
+            xl('OIDC New User Auth Group'),
+            'text',
+            'Default',
+            xl('Name stored in the OpenEMR groups table for newly created users (the same group name used at install, often Default).')
+        ],
+        'oidc_rp_allow_http' => [
+            xl('OIDC Allow HTTP Issuer (Development)'),
+            'bool',
+            '0',
+            xl('Allow an http:// issuer for local development. Production must use HTTPS.')
+        ],
+        'oidc_rp_redirect_uri' => [
+            xl('OIDC Redirect URI Override'),
+            'text',
+            '',
+            xl('Leave blank to use site_addr_oath plus /interface/login/oidc_callback.php. Register that exact URI at the identity provider.')
+        ],
+        'oidc_rp_scopes' => [
+            xl('OIDC Scopes'),
+            'text',
+            'openid profile email',
+            xl('Space-separated scopes requested from the identity provider. openid is required.')
+        ],
+
         'gbl_ldap_enabled' => [
             xl('Use LDAP for Authentication'),
             'bool',

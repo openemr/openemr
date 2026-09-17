@@ -17,6 +17,8 @@
  */
 
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\OidcRp\OidcLoginService;
+use OpenEMR\Common\Auth\OidcRp\OidcRpException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -83,6 +85,17 @@ if (
     // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
     $authUser = $session->get('authUser');
     $authProvider = $session->get('authProvider');
+    $oidcLogoutUrl = null;
+    try {
+        $oidcService = OidcLoginService::fromContainer(OEGlobalsBag::getInstance(), $session);
+        $loginScreen = OEGlobalsBag::getInstance()->getString('login_screen');
+        if ($loginScreen === '') {
+            $loginScreen = OEGlobalsBag::getInstance()->getWebRoot() . '/interface/login/login.php';
+        }
+        $oidcLogoutUrl = $oidcService->logoutRedirect($loginScreen);
+    } catch (OidcRpException) {
+        $oidcLogoutUrl = null;
+    }
     if (!empty($authUser) && !empty($authProvider)) {
         if ((isset($_GET['timeout'])) && ($_GET['timeout'] == "1")) {
             EventAuditLogger::getInstance()->newEvent("logout", $authUser, $authProvider, 0, "timeout, so force logout");
@@ -91,6 +104,10 @@ if (
         }
     }
     authCloseSession();
+    if (is_string($oidcLogoutUrl) && $oidcLogoutUrl !== '') {
+        header('Location: ' . $oidcLogoutUrl);
+        exit;
+    }
     authLoginScreen(true);
 } else {
     // Check if session is valid (already logged in user)
