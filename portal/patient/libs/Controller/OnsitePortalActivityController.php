@@ -10,8 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\PortalSessionPidGuard;
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\PortalPatientAccessGuard;
 
 /**
  * OnsitePortalActivityController is the controller class for the OnsitePortalActivity object.  The
@@ -50,11 +49,12 @@ class OnsitePortalActivityController extends AppBasePortalController
         try {
             $criteria = new OnsitePortalActivityCriteria();
 
-            $bootstrapPid = PortalSessionPidGuard::requireBootstrapPid();
+            $patientId = self::requirePositivePatientId(RequestUtil::Get('patientId'));
+            PortalPatientAccessGuard::assertCanRead($patientId);
             $activity = RequestUtil::Get('activity');
             $doc = RequestUtil::Get('doc');
             $doc = $doc ?: 0;
-            $criteria->PatientId_Equals = $bootstrapPid;
+            $criteria->PatientId_Equals = $patientId;
             $criteria->Activity_Equals = $activity;
             $criteria->TableArgs_Equals = $doc;
 
@@ -107,10 +107,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
                 throw new Exception('Not found');
             }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $onsiteportalactivity->PatientId,
-                PortalSessionPidGuard::requireBootstrapPid(),
-            );
+            PortalPatientAccessGuard::assertCanRead($onsiteportalactivity->PatientId);
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
@@ -138,9 +135,9 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date')));
 
-            // only allow patient to create onsiteportalactivity about themself
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            $onsiteportalactivity->PatientId = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'patientId');
+            $patientId = self::requirePositivePatientId($this->SafeGetVal($json, 'patientId'));
+            PortalPatientAccessGuard::assertCanWrite($patientId);
+            $onsiteportalactivity->PatientId = $patientId;
 
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity');
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit');
@@ -185,10 +182,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
                 throw new Exception('Not found');
             }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $onsiteportalactivity->PatientId,
-                PortalSessionPidGuard::requireBootstrapPid(),
-            );
+            PortalPatientAccessGuard::assertCanWrite($onsiteportalactivity->PatientId);
 
             // TODO: any fields that should not be updated by the user should be commented out
 
@@ -236,10 +230,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
                 throw new Exception('Not found');
             }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $onsiteportalactivity->PatientId,
-                PortalSessionPidGuard::requireBootstrapPid(),
-            );
+            PortalPatientAccessGuard::assertCanWrite($onsiteportalactivity->PatientId);
 
             $onsiteportalactivity->Delete();
 
@@ -249,5 +240,17 @@ class OnsitePortalActivityController extends AppBasePortalController
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
+    }
+
+    /**
+     * Normalize a patient identifier before using it in activity criteria.
+     */
+    private static function requirePositivePatientId(mixed $value): int
+    {
+        $patientId = filter_var($value, FILTER_VALIDATE_INT);
+        if (!is_int($patientId) || $patientId <= 0) {
+            throw new InvalidArgumentException('A valid patient ID is required');
+        }
+        return $patientId;
     }
 }
