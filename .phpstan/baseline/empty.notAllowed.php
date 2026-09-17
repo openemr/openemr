@@ -413,7 +413,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -738,7 +738,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 5,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
@@ -3050,11 +3050,6 @@ $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 12,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
