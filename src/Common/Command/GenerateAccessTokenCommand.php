@@ -24,7 +24,6 @@ use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\RefreshTokenEntity;
-//use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -36,7 +35,7 @@ use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
+use OpenEMR\Services\Traits\GlobalInterfaceTrait;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Random\RandomException;
@@ -50,6 +49,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
+
+//use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 
 class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 {
