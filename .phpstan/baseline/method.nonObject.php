@@ -2897,11 +2897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getTimestamp\\(\\) on DateTime\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get_city\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
