@@ -311,6 +311,7 @@ COPY upgrade/docker-version \
      upgrade/fsupgrade-12.sh \
      upgrade/fsupgrade-13.sh \
      upgrade/fsupgrade-14.sh \
+     upgrade/fsupgrade-15.sh \
      /root/
 
 # Set upgrade scripts as executable (read and execute for owner only)
@@ -328,7 +329,8 @@ RUN chmod 500 \
     /root/fsupgrade-11.sh \
     /root/fsupgrade-12.sh \
     /root/fsupgrade-13.sh \
-    /root/fsupgrade-14.sh
+    /root/fsupgrade-14.sh \
+    /root/fsupgrade-15.sh
 
 # ============================================================================
 # APACHE RUNTIME DIRECTORY
