@@ -147,4 +147,11 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertNull($rows[0]['start']);
         $this->assertNull($rows[0]['end']);
     }
+
+    public function testErxExcludeSqlAppliesToListsAndPrescriptions(): void
+    {
+        $this->assertSame('', ActiveMedicationListService::erxExcludeSql('l.', false));
+        $this->assertSame("AND l.erx_uploaded != '1' ", ActiveMedicationListService::erxExcludeSql('l.', true));
+        $this->assertSame("AND erx_uploaded != '1' ", ActiveMedicationListService::erxExcludeSql('', true));
+    }
 }
