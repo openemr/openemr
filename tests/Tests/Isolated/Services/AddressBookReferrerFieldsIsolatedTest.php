@@ -119,4 +119,30 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         $this->assertSame('', AddressBookReferrerFields::asString(10));
         $this->assertSame('npi', AddressBookReferrerFields::asString(' npi '));
     }
+
+    /**
+     * A rejected save restores every editor field that was posted, not a subset.
+     */
+    public function testApplyPostedEditorFieldsCopiesTheFullForm(): void
+    {
+        $posted = [
+            'form_email' => 'doc@example.com',
+            'form_notes' => 'keep this',
+            'form_zip2' => '58104',
+            'form_npi' => '1234567893',
+        ];
+        $row = AddressBookReferrerFields::applyPostedEditorFields(
+            ['email' => 'old@example.com', 'organization' => 'Clinic'],
+            static fn (string $key): bool => array_key_exists($key, $posted),
+            static fn (string $key): mixed => $posted[$key]
+        );
+        $this->assertSame('doc@example.com', $row['email']);
+        $this->assertSame('keep this', $row['notes']);
+        $this->assertSame('58104', $row['zip2']);
+        $this->assertSame('1234567893', $row['npi']);
+        $this->assertSame('Clinic', $row['organization']);
+        $this->assertContains('email_direct', AddressBookReferrerFields::editorRowColumns());
+        $this->assertContains('taxonomy', AddressBookReferrerFields::editorRowColumns());
+        $this->assertContains('country_code2', AddressBookReferrerFields::editorRowColumns());
+    }
 }
