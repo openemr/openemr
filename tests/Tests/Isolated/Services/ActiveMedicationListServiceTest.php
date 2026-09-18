@@ -64,6 +64,9 @@ final class ActiveMedicationListServiceTest extends TestCase
     /**
      * Blank titles and zero dates do not become rows.
      */
+    /**
+     * Empty titles and 0000-00-00 dates are not printable rows.
+     */
     public function testMergeSkipsEmptyTitlesAndZeroDates(): void
     {
         $rows = ActiveMedicationListService::merge(
@@ -81,6 +84,9 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertNull($rows[0]['end']);
     }
 
+    /**
+     * Prescription end dates copy onto the merged issue row.
+     */
     public function testMergeCopiesEndDates(): void
     {
         $rows = ActiveMedicationListService::merge(
@@ -106,6 +112,9 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame('2021-01-01', $rows[1]['end']);
     }
 
+    /**
+     * Name de-dupe is case-insensitive.
+     */
     public function testExcludeListedNamesIsCaseInsensitive(): void
     {
         $inactive = ActiveMedicationListService::merge(
@@ -131,6 +140,9 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame('Old statin', $rows[0]['title']);
     }
 
+    /**
+     * Impossible calendar dates become null instead of a fake start or end.
+     */
     public function testMergeDropsImpossibleCalendarDates(): void
     {
         $rows = ActiveMedicationListService::merge(
@@ -168,6 +180,9 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame('2026-02-28 08:15:00', $rows[0]['end']);
     }
 
+    /**
+     * The eRx SQL fragment applies to both lists and prescriptions columns.
+     */
     public function testErxExcludeSqlAppliesToListsAndPrescriptions(): void
     {
         $this->assertSame('', ActiveMedicationListService::erxExcludeSql('l.', false));
@@ -190,5 +205,17 @@ final class ActiveMedicationListServiceTest extends TestCase
             '/interface/patient_file/summary/active_medications_print.php?pid=7',
             ActiveMedicationListService::printHref('', 7)
         );
+    }
+
+    /**
+     * Print uses the session chart. A different query pid is rejected.
+     */
+    public function testPrintPatientIdStaysOnTheSessionChart(): void
+    {
+        $this->assertSame(7, ActiveMedicationListService::printPatientId('7', '7'));
+        $this->assertSame(7, ActiveMedicationListService::printPatientId(null, '7'));
+        $this->assertSame(0, ActiveMedicationListService::printPatientId('99', '7'));
+        $this->assertSame(7, ActiveMedicationListService::printPatientId('7.5', '7'));
+        $this->assertSame(0, ActiveMedicationListService::printPatientId('7', '0'));
     }
 }
