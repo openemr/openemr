@@ -14,6 +14,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services;
 
+if (!defined('OPENEMR_STATIC_ANALYSIS')) {
+    define('OPENEMR_STATIC_ANALYSIS', true);
+}
+
 use OpenEMR\Services\ActiveMedicationListService;
 use PHPUnit\Framework\TestCase;
 
