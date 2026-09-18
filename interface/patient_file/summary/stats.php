@@ -227,11 +227,14 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
         if ($id == "medication_ps_expand") {
             $medListService = new ActiveMedicationListService();
-            $activeMeds = $medListService->getActiveList((int) $pid);
+            $medPid = ActiveMedicationListService::requestedPatientId(null, $pid);
+            $activeMeds = $medListService->getActiveList($medPid);
             $viewArgs['list'] = $activeMeds;
-            $viewArgs['inactiveCount'] = count($medListService->getInactiveList((int) $pid, $activeMeds));
-            $viewArgs['printHref'] = OEGlobalsBag::getInstance()->getWebRoot()
-                . "/interface/patient_file/summary/active_medications_print.php";
+            $viewArgs['inactiveCount'] = count($medListService->getInactiveList($medPid, $activeMeds));
+            $viewArgs['printHref'] = ActiveMedicationListService::printHref(
+                OEGlobalsBag::getInstance()->getWebRoot(),
+                $medPid
+            );
             echo $t->render('patient/card/medication.html.twig', $viewArgs);
         } else {
             echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);

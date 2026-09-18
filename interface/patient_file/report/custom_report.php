@@ -438,6 +438,13 @@ function getContent()
                             $medListService = new ActiveMedicationListService();
                             $activeMeds = $medListService->getActiveList($pid);
                             $inactiveMeds = $medListService->getInactiveList($pid, $activeMeds);
+                            $medDate = static function (?string $d): string {
+                                if ($d === null) {
+                                    return '';
+                                }
+                                $formatted = oeFormatShortDate($d);
+                                return is_string($formatted) ? $formatted : '';
+                            };
                             echo "<span class='font-weight-bold'>" . xlt('Active') . ":</span><br />";
                             if ($activeMeds === []) {
                                 echo "<span>" . xlt('None{{Issues}}') . "</span><br />\n";
@@ -451,8 +458,8 @@ function getContent()
                                 foreach ($activeMeds as $med) {
                                     echo "<tr><td class='text'>" . text($med['title']) . "</td>";
                                     echo "<td class='text'>" . text($med['dose']) . "</td>";
-                                    echo "<td class='text'>" . text($med['start'] !== null ? oeFormatShortDate($med['start']) : '') . "</td>";
-                                    echo "<td class='text'>" . text($med['end'] !== null ? oeFormatShortDate($med['end']) : '') . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['start'])) . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['end'])) . "</td>";
                                     echo "<td class='text'>" . text($med['comments']) . "</td></tr>\n";
                                 }
                                 echo "</table></div>";
@@ -470,8 +477,8 @@ function getContent()
                                 foreach ($inactiveMeds as $med) {
                                     echo "<tr><td class='text'>" . text($med['title']) . "</td>";
                                     echo "<td class='text'>" . text($med['dose']) . "</td>";
-                                    echo "<td class='text'>" . text($med['start'] !== null ? oeFormatShortDate($med['start']) : '') . "</td>";
-                                    echo "<td class='text'>" . text($med['end'] !== null ? oeFormatShortDate($med['end']) : '') . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['start'])) . "</td>";
+                                    echo "<td class='text'>" . text($medDate($med['end'])) . "</td>";
                                     echo "<td class='text'>" . text($med['comments']) . "</td></tr>\n";
                                 }
                                 echo "</table></div>";
