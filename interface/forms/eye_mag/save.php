@@ -20,7 +20,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <rmagauran@gmail.com>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -46,6 +48,7 @@ use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientIssuesService;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -923,8 +926,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                         "VALUES (?,NOW(),?,?,?,?)";
                     QueryUtils::sqlStatementThrowException($sql, [$tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)]);
-                    $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
-                    QueryUtils::sqlStatementThrowException($sql, [$_POST['new_status'], $tracker['eid']]);
+                    AppointmentService::persistAppointmentStatus($tracker['eid'], $_POST['new_status'], '');
                 }
             } catch (\OpenEMR\Common\Database\SqlQueryException $e) {
                 ServiceContainer::getLogger()->error(

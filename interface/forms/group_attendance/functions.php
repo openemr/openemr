@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +18,7 @@ require_once(__DIR__ . "/../../../library/patient_tracker.inc.php");
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\AppointmentService;
 
 /**
  * Returns form_id of an existing attendance form for group encounter (if one already exists);
@@ -88,8 +91,7 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
     $result = sqlStatement($select_sql, [$pid, $gid, $pc_eventDate, $pc_startTime]);
     $result_array = sqlFetchArray($result);
     if ($result_array) {
-        $insert_sql = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?;";
-        sqlStatement($insert_sql, [$participantData['status'], $result_array['pc_eid']]);
+        AppointmentService::persistAppointmentStatus($result_array['pc_eid'], $participantData['status']);
         return $result_array['pc_eid'];
     } else {
         $insert_sql =

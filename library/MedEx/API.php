@@ -6,9 +6,11 @@
  * @package MedEx
  * @author MedEx <support@MedExBank.com>
  * @author Michael A. Smith <michael@opencoreemr.com>
+ * @author Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @link http://www.MedExBank.com
  * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,6 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\VersionService;
 
 error_reporting(0);
@@ -1460,9 +1463,17 @@ class Callback extends Base
             }
             sqlQuery($sqlINSERT, [$data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']]);
 
+            // receive() falls back to $_POST, so these come off the wire.
+            // persistAppointmentStatus() rejects a non-numeric event id, and an
+            // uncaught throw here would 500 the callback after medex_outgoing
+            // was already written -- a retry would then insert it again.
+            $medexEid = $data['pc_eid'] ?? null;
+            $medexEidUsable = is_int($medexEid) || (is_string($medexEid) && ctype_digit($medexEid));
+
             if ($data['msg_reply'] == "CONFIRMED") {
-                $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid=?";
-                sqlStatement($sqlUPDATE, [$data['msg_type'],$data['pc_eid']]);
+                if ($medexEidUsable && is_string($data['msg_type'])) {
+                    AppointmentService::persistAppointmentStatus($medexEid, $data['msg_type']);
+                }
                 $query = "SELECT * FROM patient_tracker WHERE eid=?";
                 $tracker = sqlFetchArray(sqlStatement($query, [$data['pc_eid']]));
                 if (!empty($tracker['id'])) {
@@ -1479,8 +1490,9 @@ class Callback extends Base
                     );
                 }
             } elseif ($data['msg_reply'] == "CALL") {
-                $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
-                sqlQuery($sqlUPDATE, [$data['pc_eid']]);
+                if ($medexEidUsable) {
+                    AppointmentService::persistAppointmentStatus($medexEid, 'CALL');
+                }
                 //this requires attention.  Send up the FLAG!
                 //$this->MedEx->logging->new_message($data);
             } elseif (($data['msg_type'] == "AVM") && ($data['msg_reply'] == "STOP")) {
