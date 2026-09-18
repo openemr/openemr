@@ -56,6 +56,33 @@ class LayoutCatalog
     }
 
     /**
+     * True when $formId is an active LBF layout (LBF%, top-level, activity 1).
+     */
+    public function isActiveLbfForm(string $formId): bool
+    {
+        if (!Identifiers::isFieldId($formId) || !str_starts_with($formId, 'LBF')) {
+            return false;
+        }
+        $row = $this->sql->querySingleRow(
+            "SELECT grp_form_id FROM layout_group_properties " .
+            "WHERE grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
+            [$formId]
+        );
+        $assoc = Values::assocRow(is_array($row) ? $row : null);
+        return $assoc !== null && Values::rowString($assoc, 'grp_form_id') === $formId;
+    }
+
+    /**
+     * @throws \InvalidArgumentException When the form is not an active LBF layout.
+     */
+    public function assertActiveLbfForm(string $formId): void
+    {
+        if (!$this->isActiveLbfForm($formId)) {
+            throw new \InvalidArgumentException('Form is not an active LBF layout.');
+        }
+    }
+
+    /**
      * Visible fields on one layout, keyed by field_id.
      *
      * @return array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string}>
@@ -137,7 +164,7 @@ class LayoutCatalog
      */
     public function saveParagraphField(string $formId, string $fieldId): void
     {
-        Identifiers::assertFieldId($formId);
+        $this->assertActiveLbfForm($formId);
         Identifiers::assertFieldId($fieldId);
         $meta = $this->fieldMeta($formId);
         if (!isset($meta[$fieldId]) || $meta[$fieldId]['data_type'] !== 3) {
