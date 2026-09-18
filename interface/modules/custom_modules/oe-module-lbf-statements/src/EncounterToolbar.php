@@ -49,36 +49,16 @@ class EncounterToolbar
             ];
         }
         $flags = JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
-        $json = json_encode($payload, $flags);
-        $label = json_encode(xl('Form statements'), $flags);
-        echo "<script>\n"
-            . "(function() {\n"
-            . "  const items = " . $json . ";\n"
-            . "  const label = " . $label . ";\n"
-            . "  items.forEach(function(item) {\n"
-            . "    const holder = document.getElementById(item.holder);\n"
-            . "    if (!holder) { return; }\n"
-            . "    const bar = holder.querySelector('.form_header_controls');\n"
-            . "    if (!bar || bar.querySelector('.lbf-stmt-btn')) { return; }\n"
-            . "    const a = document.createElement('a');\n"
-            . "    a.className = 'btn btn-text btn-sm lbf-stmt-btn';\n"
-            . "    a.href = item.url;\n"
-            . "    a.title = label;\n"
-            . "    a.textContent = label;\n"
-            . "    a.addEventListener('click', function(e) {\n"
-            . "      if (top.restoreSession) { top.restoreSession(); }\n"
-            . "      if (typeof top.navigateTab === 'function') {\n"
-            . "        e.preventDefault();\n"
-            . "        top.navigateTab(item.url, 'mod', function() {\n"
-            . "          if (typeof top.activateTabByName === 'function') {\n"
-            . "            top.activateTabByName('mod', true);\n"
-            . "          }\n"
-            . "        });\n"
-            . "      }\n"
-            . "    });\n"
-            . "    bar.appendChild(a);\n"
-            . "  });\n"
-            . "})();\n"
-            . "</script>\n";
+        $json = json_encode(
+            [
+                'items' => $payload,
+                'label' => xl('Form statements'),
+            ],
+            $flags
+        );
+        $src = OEGlobalsBag::getInstance()->getWebRoot() . Bootstrap::MODULE_INSTALLATION_PATH
+            . Bootstrap::MODULE_NAME . '/public/assets/toolbar.js';
+        echo "<script>window.lbfStatementsToolbar = " . $json . ";</script>\n"
+            . "<script src=\"" . attr($src) . "\"></script>\n";
     }
 }
