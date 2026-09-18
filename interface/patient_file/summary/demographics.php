@@ -1169,7 +1169,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // MEDICATION CARD
                 if ($meds === 1) {
                     $medListService = new ActiveMedicationListService();
-                    $activeMeds = $medListService->getActiveList((int) $pid);
+                    $activeMeds = $medListService->getActiveList($carePlanCardPid);
                     $id = 'medication_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medications'),
@@ -1179,12 +1179,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
                         'list' => $activeMeds,
-                        'inactiveCount' => count($medListService->getInactiveList((int) $pid, $activeMeds)),
+                        'inactiveCount' => count($medListService->getInactiveList($carePlanCardPid, $activeMeds)),
                         'listTouched' => !empty(getListTouch($pid, 'medication')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
                         'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')",
-                        'printHref' => OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/active_medications_print.php",
+                        'printHref' => ActiveMedicationListService::printHref(
+                            OEGlobalsBag::getInstance()->getWebRoot(),
+                            $carePlanCardPid
+                        ),
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medication.html.twig', $viewArgs);
