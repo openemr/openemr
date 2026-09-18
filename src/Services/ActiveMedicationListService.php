@@ -237,17 +237,19 @@ class ActiveMedicationListService extends BaseService
     }
 
     /**
-     * Patient id for the print page: the session chart, or 0 if the query pid disagrees.
+     * Patient id for the print page.
      *
-     * A query pid is only a consistency check. It cannot select a different chart.
+     * When a session chart exists, a query pid is only a consistency check.
+     * When the session has no patient, a validated query pid is used so a
+     * demographics card that loaded via GET pid can still print.
      */
     public static function printPatientId(mixed $queryPid, mixed $sessionPid): int
     {
         $session = self::requestedPatientId(null, $sessionPid);
-        if ($session < 1) {
-            return 0;
-        }
         $query = self::requestedPatientId($queryPid, 0);
+        if ($session < 1) {
+            return $query;
+        }
         if ($query > 0 && $query !== $session) {
             return 0;
         }
