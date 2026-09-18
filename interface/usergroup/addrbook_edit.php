@@ -421,7 +421,11 @@ function addrbook_invalue(string $name): string
 if (!empty($_POST['form_save'])) {
  // Collect the form_abook_type option value
  //  (ie. patient vs company centric)
-    $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", [trim((string) $_POST['form_abook_type'])]);
+    $posted = CurrentRequest::get()->request;
+    $type_sql_row = QueryUtils::querySingleRow(
+        "SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1",
+        [AddressBookReferrerFields::asString($posted->get('form_abook_type'))]
+    ) ?: [];
     $option_abook_type = $type_sql_row['option_value'] ?? '';
  // Set up any abook_type specific settings
     if ($option_abook_type == 3) {
@@ -449,7 +453,6 @@ if (!empty($_POST['form_save'])) {
         $existing = QueryUtils::querySingleRow("SELECT username FROM users WHERE id = ?", [$userid]) ?: [];
         $existing_username = AddressBookReferrerFields::asString($existing['username'] ?? '');
     }
-    $posted = CurrentRequest::get()->request;
     if (AddressBookReferrerFields::isExternalPerson($existing_username, $option_abook_type)) {
         if (
             !AddressBookReferrerFields::saveAllowed(
@@ -460,7 +463,9 @@ if (!empty($_POST['form_save'])) {
                 $posted->get('form_zip')
             )
         ) {
-            $info_msg = xl('Person entries need a 10-digit NPI and a mailing address (street, city, state, postal code). Use Lookup to fill them from NPPES.');
+            $info_msg = xl(
+                'Person entries need a valid 10-digit NPI and a mailing address (street, city, state, postal code). Use Lookup to fill them from NPPES.'
+            );
             $save_ok = false;
         }
     }
@@ -585,7 +590,7 @@ if ((!empty($_POST['form_save']) && $save_ok) || !empty($_POST['form_delete'])) 
 
 $row = [];
 if ($userid) {
-    $loaded = sqlQuery("SELECT * FROM users WHERE id = ?", [$userid]);
+    $loaded = QueryUtils::querySingleRow("SELECT * FROM users WHERE id = ?", [$userid]);
     if (is_array($loaded)) {
         $row = $loaded;
     }
