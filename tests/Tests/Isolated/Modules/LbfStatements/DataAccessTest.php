@@ -80,6 +80,20 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
         public function querySingleRow(string $sql, array $params = []): mixed
         {
             $this->calls[] = ['op' => 'one', 'sql' => $sql, 'binds' => $params];
+            if (
+                str_contains($sql, 'layout_group_properties')
+                && str_contains($sql, 'grp_activity = 1')
+                && str_contains($sql, "grp_group_id = ''")
+            ) {
+                if (array_key_exists(0, $this->queue)) {
+                    $peek = $this->queue[0];
+                    if ($peek === null || (is_array($peek) && array_key_exists('grp_form_id', $peek))) {
+                        return array_shift($this->queue);
+                    }
+                }
+                $form = $params[0] ?? '';
+                return is_string($form) ? ['grp_form_id' => $form] : null;
+            }
             if ($this->queue === []) {
                 return null;
             }
@@ -235,7 +249,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             ];
             $catalog->saveParagraphField('LBFecho', 'notes');
             $ops = array_column($this->sql->calls, 'op');
-            $this->assertSame('exec', $ops[1] ?? null);
+            $this->assertSame('exec', $ops[2] ?? null);
         }
 
         /**
@@ -648,6 +662,25 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             }
             $this->assertNotSame('', $sql);
             $this->assertStringContainsString("op = 'band'", $sql);
+        }
+
+        /**
+         * Saving a rule on a non-LBF or inactive form is rejected.
+         */
+        public function testSaveRuleRejectsInactiveForm(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = null;
+            $this->expectException(\InvalidArgumentException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFold',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 1,
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
         }
     }
 }
