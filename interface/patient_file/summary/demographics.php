@@ -1184,10 +1184,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'auth' => true,
                         'btnLabel' => 'Edit',
                         'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')",
-                        'printHref' => ActiveMedicationListService::printHref(
-                            OEGlobalsBag::getInstance()->getWebRoot(),
-                            $carePlanCardPid
-                        ),
+                        'printPid' => $carePlanCardPid,
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medication.html.twig', $viewArgs);
