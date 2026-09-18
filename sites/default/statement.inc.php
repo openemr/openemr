@@ -517,10 +517,6 @@ function create_HTML_statement($stmt)
 
     if ($windowed) {
         $out .= '</div>';
-        $to3 = StatementEnvelope::stmtToLine($stmt, 3);
-        if ($to3 !== '') {
-            $out .= '<div>' . text($to3) . '</div>';
-        }
         $out .= '<div style="width:100%;border-top:1pt solid black;margin-top:8pt;padding-top:8pt;">';
         $out .= '<table width="100%" style="width:100%;margin:0;"><tr>';
         $out .= '<td style="width:3.3in;vertical-align:top;text-align:left;"><b>'
@@ -754,7 +750,8 @@ function create_statement($stmt)
         $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
         $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, StatementEnvelope::stmtString($stmt, 'amount'));
         $out .= "\n";
-        $count = $block['lines'] + 5;
+        // 5 clinic/patient lines plus 13 payment-stub header lines that follow.
+        $count = $block['lines'] + 18;
     } else {
         $out = "\n\n";
         $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
@@ -1259,8 +1256,11 @@ function osp_create_HTML_statement($stmt)
     $out .= "</td></tr></table>";
 
     $out .= '</div><br />';
-    if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    if (!$env->isWindowed()) {
+        $to3 = StatementEnvelope::stmtToLine($stmt, 3);
+        if ($to3 !== '') {
+            $out .= sprintf("   %-32s\n", text($to3));
+        }
     }
 
     $out .= ' </pre>
