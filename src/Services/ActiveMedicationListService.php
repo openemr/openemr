@@ -230,6 +230,25 @@ class ActiveMedicationListService
     }
 
     /**
+     * Patient id for the print page: the session chart, or 0 if the query pid disagrees.
+     *
+     * A query pid is only a consistency check. It cannot select a different chart.
+     */
+    public static function printPatientId(mixed $queryPid, mixed $sessionPid): int
+    {
+        $session = self::requestedPatientId(null, $sessionPid);
+        if ($session < 1) {
+            return 0;
+        }
+        $query = self::requestedPatientId($queryPid, 0);
+        if ($query > 0 && $query !== $session) {
+            return 0;
+        }
+
+        return $session;
+    }
+
+    /**
      * Print URL for the medication list of one patient.
      */
     public static function printHref(string $webRoot, int $pid): string
