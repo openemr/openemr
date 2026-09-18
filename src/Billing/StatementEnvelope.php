@@ -94,7 +94,7 @@ final readonly class StatementEnvelope
     }
 
     /**
-     * Billing-facility mailing address, or physical address if mailing is empty.
+     * Billing-facility mailing address, or physical address if mailing is incomplete.
      *
      * @return array{0: string, 1: string}
      */
@@ -109,7 +109,7 @@ final readonly class StatementEnvelope
         $mailCity = $str($row['mail_city'] ?? '');
         $mailState = $str($row['mail_state'] ?? '');
         $mailZip = $str($row['mail_zip'] ?? '');
-        if ($mailStreet !== '' || $mailStreet2 !== '' || $mailCity !== '' || $mailZip !== '') {
+        if ($mailStreet !== '' && $mailCity !== '' && $mailState !== '' && $mailZip !== '') {
             $street = $mailStreet;
             if ($mailStreet2 !== '') {
                 $street = $street === '' ? $mailStreet2 : ($street . "\n" . $mailStreet2);
@@ -161,8 +161,8 @@ final readonly class StatementEnvelope
         $cpi = 10.0;
         $lpi = 6.0;
         $inset = self::WINDOW_INSET_IN;
-        $returnPad = str_repeat(' ', max(0, (int) round($g['return']['left'] * $cpi)));
-        $toPad = str_repeat(' ', max(0, (int) round($g['to']['left'] * $cpi)));
+        $returnPad = str_repeat(' ', max(0, (int) round(($g['return']['left'] + $inset) * $cpi)));
+        $toPad = str_repeat(' ', max(0, (int) round(($g['to']['left'] + $inset) * $cpi)));
         $returnLines = [$remitName];
         foreach (preg_split("/\n/", $remitStreet) ?: [] as $ln) {
             $ln = trim($ln);
