@@ -103,6 +103,9 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertEqualsWithDelta(0.375, StatementEnvelope::parseInch('0.375'), 0.0001);
         $this->assertEqualsWithDelta(1.1875, StatementEnvelope::parseInch('1.1875'), 0.0001);
         $this->assertNull(StatementEnvelope::parseInch(''));
+        $this->assertNull(StatementEnvelope::parseInch('1/0'));
+        $this->assertNull(StatementEnvelope::parseInch('1-3/0'));
+        $this->assertNull(StatementEnvelope::parseInch('3 1/0'));
     }
 
     /**
@@ -286,7 +289,7 @@ final class StatementEnvelopeTest extends TestCase
     }
 
     /**
-     * Recipient text starts at to.top for both short and long remit addresses.
+     * Recipient text starts at to.top plus the window inset for both short and long remit addresses.
      */
     public function testTextAddressBlockPinsRecipientToWindowTop(): void
     {
@@ -294,7 +297,7 @@ final class StatementEnvelopeTest extends TestCase
         $g = $env->geometry();
         $this->assertNotNull($g);
         $lpi = 6.0;
-        $toStart = (int) round($g['to']['top'] * $lpi);
+        $toStart = (int) ceil(($g['to']['top'] + StatementEnvelope::WINDOW_INSET_IN) * $lpi);
         $panelLines = (int) round($g['panel'] * $lpi);
         $indexOf = static function (string $text, string $needle): int {
             foreach (explode("\n", $text) as $i => $line) {
