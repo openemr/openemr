@@ -21,6 +21,9 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 class AddressBookReferrerFieldsIsolatedTest extends TestCase
 {
+    /**
+     * Local login users and company types skip the referring-provider save guard.
+     */
     public function testLocalUsersAndCompaniesSkipTheGuard(): void
     {
         $this->assertFalse(AddressBookReferrerFields::isExternalPerson('admin', '1'));
@@ -30,6 +33,9 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         $this->assertTrue(AddressBookReferrerFields::isExternalPerson(null, '2'));
     }
 
+    /**
+     * NPI checks use ValidationUtils::isValidNPI (Luhn), not a 10-digit shape.
+     */
     public function testNpiUsesValidationUtils(): void
     {
         $this->assertTrue(AddressBookReferrerFields::npiIsValid('1234567893'));
@@ -43,6 +49,9 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         $this->assertFalse(AddressBookReferrerFields::npiIsValid(null));
     }
 
+    /**
+     * Street, city, state, and postal code are all required.
+     */
     public function testMailingAddressNeedsEveryLine(): void
     {
         $this->assertTrue(
@@ -62,6 +71,9 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         );
     }
 
+    /**
+     * A save needs both a valid NPI and a complete mailing address.
+     */
     public function testSaveAllowedRequiresNpiAndAddress(): void
     {
         $this->assertTrue(AddressBookReferrerFields::saveAllowed(
@@ -87,6 +99,9 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         ));
     }
 
+    /**
+     * The list flags an empty NPI, not an invalid format.
+     */
     public function testListFlagsEmptyNpiNotInvalidFormat(): void
     {
         $this->assertTrue(AddressBookReferrerFields::npiMissingOnList(''));
@@ -95,6 +110,9 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         $this->assertFalse(AddressBookReferrerFields::npiMissingOnList('1234567890'));
     }
 
+    /**
+     * asString trims strings and turns anything else into ''.
+     */
     public function testAsStringDropsNonStrings(): void
     {
         $this->assertSame('', AddressBookReferrerFields::asString(null));
