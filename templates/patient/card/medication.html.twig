@@ -24,7 +24,10 @@
 </div>
 {% if printPid is defined and printPid %}
 <div class="p-1">
-    <a href="{{ webroot|attr }}/interface/patient_file/summary/active_medications_print.php?pid={{ printPid|attr_url }}" target="_blank" rel="noopener" onclick="top.restoreSession()">{{ "Print"|xlt }}</a>
+    <form method="get" action="active_medications_print.php" target="_blank" class="d-inline">
+        <input type="hidden" name="pid" value="{{ printPid|attr }}">
+        <button type="submit" class="btn btn-link p-0 border-0 align-baseline" onclick="top.restoreSession()">{{ "Print"|xlt }}</button>
+    </form>
     {% if inactiveCount is defined and inactiveCount > 0 %}
         <span class="text-muted">({{ inactiveCount|text }} {{ "inactive"|xlt }})</span>
     {% endif %}
