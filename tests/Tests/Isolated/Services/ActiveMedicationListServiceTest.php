@@ -212,7 +212,7 @@ final class ActiveMedicationListServiceTest extends TestCase
     }
 
     /**
-     * Print uses the session chart. A different query pid is rejected.
+     * Print uses the session chart when one exists; otherwise a validated query pid.
      */
     public function testPrintPatientIdStaysOnTheSessionChart(): void
     {
@@ -220,6 +220,8 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame(7, ActiveMedicationListService::printPatientId(null, '7'));
         $this->assertSame(0, ActiveMedicationListService::printPatientId('99', '7'));
         $this->assertSame(7, ActiveMedicationListService::printPatientId('7.5', '7'));
-        $this->assertSame(0, ActiveMedicationListService::printPatientId('7', '0'));
+        $this->assertSame(7, ActiveMedicationListService::printPatientId('7', '0'));
+        $this->assertSame(0, ActiveMedicationListService::printPatientId(null, '0'));
+        $this->assertSame(0, ActiveMedicationListService::printPatientId('7.5', '0'));
     }
 }
