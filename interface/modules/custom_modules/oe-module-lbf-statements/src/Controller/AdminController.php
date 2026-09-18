@@ -61,14 +61,22 @@ class AdminController
         $message = '';
         $error = '';
         $formId = $this->stringParam($request, 'form_id');
-        if ($formId !== '' && !Identifiers::isFieldId($formId)) {
+        $activeIds = [];
+        foreach ($layouts as $layout) {
+            $activeIds[] = $layout['form_id'];
+        }
+        if ($formId !== '' && !in_array($formId, $activeIds, true)) {
             $error = xl('Invalid form.');
             $formId = '';
-        } elseif ($formId === '') {
-            $withRules = $repo->formIdsWithRules();
-            if ($withRules !== []) {
-                $formId = $withRules[0];
-            } elseif ($layouts !== []) {
+        }
+        if ($formId === '') {
+            foreach ($repo->formIdsWithRules() as $withRulesId) {
+                if (in_array($withRulesId, $activeIds, true)) {
+                    $formId = $withRulesId;
+                    break;
+                }
+            }
+            if ($formId === '' && $layouts !== []) {
                 $formId = $layouts[0]['form_id'];
             }
         }
