@@ -16,7 +16,7 @@ const actpage = {
     modelView: null,
     isInitialized: false,
     isInitializing: false,
-    fetchParams: {filter: '', orderBy: 'patientId', orderDesc: 'DESC', page: 1, status: 'waiting'},
+    fetchParams: {filter: '', orderBy: 'patientId', orderDesc: 'DESC', page: 1, status: 'waiting', requireAudit: 1},
     fetchInProgress: false,
     dialogIsOpen: false,
 
@@ -204,7 +204,19 @@ const actpage = {
             actpage.isInitializing = false;
         });
 
-        this.fetchOnsiteActivityViews({filter: '', orderBy: 'Date', orderDesc: 'DESC', page: 1, status: 'waiting'});
+        const initialParams = {
+            filter: '',
+            orderBy: 'Date',
+            orderDesc: 'DESC',
+            page: 1,
+            status: 'waiting',
+            requireAudit: 1
+        };
+        const requestedActivity = new URLSearchParams(window.location.search).get('activity');
+        if (requestedActivity === 'payment') {
+            initialParams.activity = requestedActivity;
+        }
+        this.fetchOnsiteActivityViews(initialParams);
 
         // initialize the model view
         this.modelView = new view.ModelView({
