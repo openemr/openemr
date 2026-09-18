@@ -11027,11 +11027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/templates/telecom_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'form_\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/validation/LBF_Validation.php',
