@@ -254,6 +254,25 @@ final class StatementEnvelopeTest extends TestCase
     }
 
     /**
+     * A partial mailing address does not hide a complete physical address.
+     */
+    public function testFacilityRemitAddrFallsBackWhenMailingIsIncomplete(): void
+    {
+        [$street, $csz] = StatementEnvelope::facilityRemitAddr([
+            'street' => '1 Physical',
+            'city' => 'Town',
+            'state' => 'ND',
+            'postal_code' => '00000',
+            'mail_street' => 'PO Box 9',
+            'mail_city' => '',
+            'mail_state' => 'ND',
+            'mail_zip' => '',
+        ]);
+        $this->assertSame('1 Physical', $street);
+        $this->assertSame('Town, ND, 00000', $csz);
+    }
+
+    /**
      * Plain-text address block left-pads to the window from-left measurement.
      */
     public function testTextAddressBlockUsesGeometryLeftPad(): void
