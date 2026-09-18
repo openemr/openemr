@@ -30,15 +30,17 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         $this->assertTrue(AddressBookReferrerFields::isExternalPerson(null, '2'));
     }
 
-    public function testNpiMustBeTenDigits(): void
+    public function testNpiUsesValidationUtils(): void
     {
-        $this->assertTrue(AddressBookReferrerFields::npiIsTenDigits('1234567890'));
-        $this->assertFalse(AddressBookReferrerFields::npiIsTenDigits('123456789'));
-        $this->assertFalse(AddressBookReferrerFields::npiIsTenDigits('12345678901'));
-        $this->assertFalse(AddressBookReferrerFields::npiIsTenDigits('123456789a'));
-        $this->assertTrue(AddressBookReferrerFields::npiIsTenDigits(' 1234567890'));
-        $this->assertFalse(AddressBookReferrerFields::npiIsTenDigits(''));
-        $this->assertFalse(AddressBookReferrerFields::npiIsTenDigits(null));
+        $this->assertTrue(AddressBookReferrerFields::npiIsValid('1234567893'));
+        $this->assertTrue(AddressBookReferrerFields::npiIsValid('1245319599'));
+        $this->assertTrue(AddressBookReferrerFields::npiIsValid(' 1003000126'));
+        $this->assertFalse(AddressBookReferrerFields::npiIsValid('1234567890'));
+        $this->assertFalse(AddressBookReferrerFields::npiIsValid('123456789'));
+        $this->assertFalse(AddressBookReferrerFields::npiIsValid('12345678901'));
+        $this->assertFalse(AddressBookReferrerFields::npiIsValid('123456789a'));
+        $this->assertFalse(AddressBookReferrerFields::npiIsValid(''));
+        $this->assertFalse(AddressBookReferrerFields::npiIsValid(null));
     }
 
     public function testMailingAddressNeedsEveryLine(): void
@@ -63,14 +65,7 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
     public function testSaveAllowedRequiresNpiAndAddress(): void
     {
         $this->assertTrue(AddressBookReferrerFields::saveAllowed(
-            '1234567890',
-            '1 Main',
-            'Fargo',
-            'ND',
-            '58103'
-        ));
-        $this->assertFalse(AddressBookReferrerFields::saveAllowed(
-            '123456789a',
+            '1234567893',
             '1 Main',
             'Fargo',
             'ND',
@@ -78,6 +73,13 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         ));
         $this->assertFalse(AddressBookReferrerFields::saveAllowed(
             '1234567890',
+            '1 Main',
+            'Fargo',
+            'ND',
+            '58103'
+        ));
+        $this->assertFalse(AddressBookReferrerFields::saveAllowed(
+            '1234567893',
             '',
             'Fargo',
             'ND',
