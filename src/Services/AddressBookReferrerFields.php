@@ -103,4 +103,42 @@ final class AddressBookReferrerFields
     {
         return self::asString($npi) === '';
     }
+
+    /**
+     * users columns that have a matching form_* field on the address-book editor.
+     *
+     * @return list<string>
+     */
+    public static function editorRowColumns(): array
+    {
+        return [
+            'abook_type', 'title', 'fname', 'lname', 'mname', 'suffix',
+            'specialty', 'organization', 'valedictory', 'assistant',
+            'federaltaxid', 'upin', 'npi', 'taxonomy', 'cpoe',
+            'email', 'email_direct', 'url', 'street', 'streetb',
+            'city', 'state', 'country_code', 'zip', 'street2',
+            'streetb2', 'city2', 'state2', 'country_code2', 'zip2',
+            'phone', 'phonew1', 'phonew2', 'phonecell', 'fax', 'notes',
+        ];
+    }
+
+    /**
+     * Copy posted form_* values onto a users row after a rejected save.
+     *
+     * @param array<mixed> $row
+     * @param callable(string): bool $has
+     * @param callable(string): mixed $get
+     * @return array<mixed>
+     */
+    public static function applyPostedEditorFields(array $row, callable $has, callable $get): array
+    {
+        foreach (self::editorRowColumns() as $col) {
+            $postkey = 'form_' . $col;
+            if ($has($postkey)) {
+                $row[$col] = $get($postkey);
+            }
+        }
+
+        return $row;
+    }
 }
