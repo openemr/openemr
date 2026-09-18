@@ -249,6 +249,10 @@ if (isset($_POST['new_login_session_management'])) {
                         is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
                         'TOTP code incorrect'
                     );
+                    // Count the TOTP miss against the same user/IP lockout
+                    // counters the password step uses, so repeated TOTP
+                    // guesses trip the standard block on the next login.
+                    (new AuthUtils())->recordFailedAuthChallenge(is_string($mfaUsername) ? $mfaUsername : null);
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }

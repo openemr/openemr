@@ -104,32 +104,45 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                 }
                 $user->setIdentifier(UuidRegistry::uuidToString($uuid));
 
-                // If an mfa_token was provided, then will force TOTP MFA (U2F impossible to support via password grant)
-                //  (note that this is only forced if mfa_token is provided)
+                // TOTP is the only second factor supportable via password
+                // grant (U2F needs an interactive browser exchange). If the
+                // user has TOTP enrolled and MFA is required, the mfa_token
+                // parameter must be present and valid — omitting it must not
+                // skip the check.
                 $mfa = new MfaUtils($id);
                 $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
-                if (!is_null($mfaToken)) {
-                    if (!$mfa->isMfaRequired() || !in_array(MfaUtils::TOTP, $mfa->getType())) {
-                        // A mfa_token was provided, however the user is not configured for totp
+                $totpEnrolled = $mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType(), true);
+
+                if ($totpEnrolled) {
+                    if (empty($mfaToken)) {
                         throw new OAuthServerException(
-                            'MFA not supported.',
-                            11,
-                            'mfa_not_supported',
-                            403
+                            'MFA token required.',
+                            13,
+                            'mfa_token_required',
+                            401
                         );
-                    } else {
-                        //Check the validity of the totp token, if applicable
-                        if (!empty($mfaToken) && $mfa->check($mfaToken, MfaUtils::TOTP)) {
-                            return true;
-                        } else {
-                            throw new OAuthServerException(
-                                $mfa->errorMessage(),
-                                12,
-                                'mfa_token_invalid',
-                                401
-                            );
-                        }
                     }
+                    if (!$mfa->check($mfaToken, MfaUtils::TOTP)) {
+                        throw new OAuthServerException(
+                            $mfa->errorMessage(),
+                            12,
+                            'mfa_token_invalid',
+                            401
+                        );
+                    }
+                    return true;
+                }
+
+                // No TOTP enrolled. Reject an unexpected mfa_token — it
+                // signals a client error (user is not configured for MFA)
+                // rather than silently accepting the token.
+                if (!is_null($mfaToken)) {
+                    throw new OAuthServerException(
+                        'MFA not supported.',
+                        11,
+                        'mfa_not_supported',
+                        403
+                    );
                 }
 
                 return true;
