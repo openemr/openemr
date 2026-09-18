@@ -4650,6 +4650,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -4753,6 +4755,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -4828,6 +4832,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -4967,6 +4973,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5049,6 +5057,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5131,6 +5141,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5235,6 +5247,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5310,6 +5324,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5404,6 +5420,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5486,6 +5504,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5561,6 +5581,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5636,6 +5658,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5720,6 +5744,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6141,6 +6167,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6243,6 +6271,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6318,6 +6348,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6400,6 +6432,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6585,6 +6619,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6664,6 +6700,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6944,6 +6982,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -7020,6 +7060,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -7244,6 +7286,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -7334,6 +7378,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8497,6 +8543,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8600,6 +8648,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8984,6 +9034,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9066,6 +9118,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9341,6 +9395,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9409,6 +9465,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9470,6 +9528,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9539,6 +9599,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9614,6 +9676,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9723,6 +9787,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9826,6 +9892,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9912,6 +9980,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -10309,6 +10379,28 @@ components:
             example:
               validationErrors:
                 _id: 'The search field argument was invalid, improperly formatted, or could not be parsed.  Inner message: UUID columns must be a valid UUID string'
+    forbidden:
+      description: Forbidden
+      content:
+        application/fhir+json:
+          schema:
+            properties:
+              resourceType:
+                description: 'Always OperationOutcome for a refused FHIR request.'
+                type: string
+              issue:
+                description: 'The issues that caused the request to be refused.'
+                type: array
+                items:
+                  type: object
+            type: object
+            example:
+              resourceType: OperationOutcome
+              issue:
+                -
+                  severity: error
+                  code: forbidden
+                  diagnostics: 'FHIR write endpoints do not accept patient-context tokens'
     standard:
       description: 'Standard Response'
       content:

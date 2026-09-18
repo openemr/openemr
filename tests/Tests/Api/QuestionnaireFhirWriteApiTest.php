@@ -28,6 +28,9 @@ class QuestionnaireFhirWriteApiTest extends TestCase
     private const RESOURCE_TYPE = 'Questionnaire';
     private const TITLE_PREFIX = 'test-fixture Questionnaire';
 
+    /** The exact per-run title, so teardown deletes this run's rows and no one else's. */
+    private string $title;
+
     private ApiTestClient $testClient;
     /** @var array<string, mixed> */
     private array $fhirFixture;
@@ -46,7 +49,8 @@ class QuestionnaireFhirWriteApiTest extends TestCase
         $fixture = $fixtureData[0];
         $this->assertIsArray($fixture);
         // the repository keys questionnaires by title, so each run gets its own
-        $fixture['title'] = self::TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        $this->title = self::TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        $fixture['title'] = $this->title;
         unset($fixture['id'], $fixture['url']);
 
         $stringKeyedFixture = [];
@@ -59,16 +63,30 @@ class QuestionnaireFhirWriteApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name LIKE ?)",
-            [self::TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM questionnaire_repository WHERE name LIKE ?",
-            [self::TITLE_PREFIX . '%']
-        );
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        // This run's rows only, matched on the exact title rather than the shared prefix: the
+        // title already carries random bytes per run, and a LIKE 'prefix%' sweep would delete
+        // rows belonging to another worker running this suite at the same time. Guarded because
+        // tearDown() still runs when setUp() failed before the title was assigned.
+        if (isset($this->title)) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE uuid IN "
+                . "(SELECT uuid FROM questionnaire_repository WHERE name = ?)",
+                [$this->title]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_repository WHERE name = ?",
+                [$this->title]
+            );
+        }
+        // cleanupClient() goes in finally. setAuthTokenOrFail() can fail after getClient()
+        // has already registered the OAuth client, and id_token is still null at that point,
+        // so cleanupRevokeAuth() posts a logout with no id_token_hint. If that request throws,
+        // the registered client outlives the run and every rerun leaves another behind.
+        try {
+            $this->testClient->cleanupRevokeAuth();
+        } finally {
+            $this->testClient->cleanupClient();
+        }
     }
 
     public function testPostCreatesQuestionnaire(): void

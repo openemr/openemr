@@ -83,11 +83,12 @@ class FhirCoverageServiceCrudTest extends TestCase
     #[Test]
     public function testInsertWithUnresolvableBeneficiary(): void
     {
-        $bogusPatientUuid = UuidRegistry::uuidToString(
-            (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
-        );
-        // The UuidRegistry::createUuid call above reserved a registry row but did not insert a
-        // patient_data row, so the beneficiary reference cannot be resolved.
+        // getUnregisteredUuid(), not UuidRegistry::createUuid(): createUuid() inserts a
+        // uuid_registry row, and this test never creates the patient_data row that would
+        // carry it, so teardown -- which finds rows to delete through their targets --
+        // cannot see it and the registry row survives every run. An unregistered uuid is
+        // just as unresolvable, which is all the test needs.
+        $bogusPatientUuid = $this->fixtureManager->getUnregisteredUuid();
         $this->fhirCoverageFixture->setId(new FHIRId());
         $payload = $this->fhirCoverageFixture->jsonSerialize();
         $payload['beneficiary'] = ['reference' => 'Patient/' . $bogusPatientUuid];

@@ -186,6 +186,24 @@ class PractitionerRoleService extends BaseService
 
         try {
             QueryUtils::inTransaction(function () use ($uid, $facilityId, $data): void {
+                // Serialise concurrent updates of the same role on the provider_id marker row.
+                // upsertEavRow() reads for an existing sibling and inserts when it finds none,
+                // and the uid index is not unique, so two updates arriving together both see no
+                // role_code row and both insert one. search() joins role_codes on
+                // (user_id, facility_id), so the duplicate surfaces as a duplicated
+                // PractitionerRole in every later read.
+                //
+                // The lock is taken on the provider_id row rather than on the sibling being
+                // written because that row is known to exist -- the caller resolved this uuid
+                // through it above. Locking the absent sibling key would rely on a gap lock,
+                // which serialises under REPEATABLE READ but not under READ COMMITTED; a row
+                // lock holds under both.
+                QueryUtils::fetchSingleValue(
+                    "SELECT id FROM facility_user_ids "
+                    . "WHERE uid = ? AND facility_id = ? AND field_id = 'provider_id' FOR UPDATE",
+                    'id',
+                    [$uid, $facilityId]
+                );
                 if (isset($data['role_code']) && is_string($data['role_code'])) {
                     $this->upsertEavRow($uid, $facilityId, 'role_code', $data['role_code']);
                 }

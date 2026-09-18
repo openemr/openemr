@@ -108,14 +108,27 @@ class CarePlanFhirWriteApiTest extends TestCase
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removeCarePlanFixtures();
         }
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%'"
-        );
+        // This run's encounter only. A reason LIKE 'test-fixture%' sweep also deletes the
+        // encounters of any other worker running this suite concurrently; setUp() already
+        // captured the uuid.
+        if (isset($this->encounterUuid)) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM form_encounter WHERE uuid = ?",
+                [UuidRegistry::uuidToBytes($this->encounterUuid)]
+            );
+        }
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removePatientFixtures();
         }
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        // cleanupClient() goes in finally. setAuthTokenOrFail() can fail after getClient()
+        // has already registered the OAuth client, and id_token is still null at that point,
+        // so cleanupRevokeAuth() posts a logout with no id_token_hint. If that request throws,
+        // the registered client outlives the run and every rerun leaves another behind.
+        try {
+            $this->testClient->cleanupRevokeAuth();
+        } finally {
+            $this->testClient->cleanupClient();
+        }
     }
 
     public function testPostCreatesCarePlan(): void

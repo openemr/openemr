@@ -90,9 +90,15 @@ class FhirGoalServiceCrudTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removeGoalFixtures();
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%'"
-        );
+        // This run's encounter only. The old sweep matched reason LIKE 'test-fixture%', which
+        // also deletes the encounters of any other worker running this suite concurrently and
+        // fails them with rows that disappeared mid-test. setUp() already captured the uuid.
+        if (isset($this->encounterUuid)) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM form_encounter WHERE uuid = ?",
+                [UuidRegistry::uuidToBytes($this->encounterUuid)]
+            );
+        }
         $this->fixtureManager->removePatientFixtures();
     }
 

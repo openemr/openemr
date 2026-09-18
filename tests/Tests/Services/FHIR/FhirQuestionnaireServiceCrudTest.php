@@ -62,14 +62,20 @@ class FhirQuestionnaireServiceCrudTest extends TestCase
     protected function tearDown(): void
     {
         $this->session->clear();
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name LIKE ?)",
-            [self::TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM questionnaire_repository WHERE name LIKE ?",
-            [self::TITLE_PREFIX . '%']
-        );
+        // This run's rows only, matched on the exact title. Each run already appends random
+        // bytes to the title, so equality is enough to own them; a LIKE 'prefix%' sweep also
+        // deletes rows belonging to another worker running this suite at the same time.
+        if (isset($this->title)) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE uuid IN "
+                . "(SELECT uuid FROM questionnaire_repository WHERE name = ?)",
+                [$this->title]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_repository WHERE name = ?",
+                [$this->title]
+            );
+        }
     }
 
     #[Test]

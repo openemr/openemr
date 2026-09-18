@@ -280,6 +280,7 @@ class FhirRelatedPersonRestController
             new OA\Response(response: '201', description: 'RelatedPerson resource created'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
         ],
         security: [['openemr_auth' => []]]
     )]
@@ -319,6 +320,7 @@ class FhirRelatedPersonRestController
             new OA\Response(response: '200', description: 'RelatedPerson resource updated'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
         ],
         security: [['openemr_auth' => []]]
     )]

@@ -36,6 +36,8 @@ class FhirQuestionnaireResponseServiceCrudTest extends TestCase
     private array $fixture;
     private string $patientUuid;
     private string $questionnaireUuid;
+    /** The exact per-run title, so teardown deletes this run's rows and no one else's. */
+    private string $questionnaireTitle;
 
     protected function setUp(): void
     {
@@ -79,22 +81,29 @@ class FhirQuestionnaireResponseServiceCrudTest extends TestCase
     protected function tearDown(): void
     {
         $this->session->clear();
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_name LIKE ?)",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM questionnaire_response WHERE questionnaire_name LIKE ?",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name LIKE ?)",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM questionnaire_repository WHERE name LIKE ?",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
+        // This run's rows only, matched on the exact title. Each run already appends random
+        // bytes to the title, so equality is enough to own them; a LIKE 'prefix%' sweep also
+        // deletes rows belonging to another worker running this suite at the same time.
+        if (isset($this->questionnaireTitle)) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE uuid IN "
+                . "(SELECT uuid FROM questionnaire_response WHERE questionnaire_name = ?)",
+                [$this->questionnaireTitle]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_response WHERE questionnaire_name = ?",
+                [$this->questionnaireTitle]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE uuid IN "
+                . "(SELECT uuid FROM questionnaire_repository WHERE name = ?)",
+                [$this->questionnaireTitle]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_repository WHERE name = ?",
+                [$this->questionnaireTitle]
+            );
+        }
         $this->fixtureManager->removePatientFixtures();
     }
 
@@ -261,7 +270,8 @@ class FhirQuestionnaireResponseServiceCrudTest extends TestCase
         $this->assertIsArray($questionnaireData);
         $questionnaire = $questionnaireData[0];
         $this->assertIsArray($questionnaire);
-        $questionnaire['title'] = self::QUESTIONNAIRE_TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        $this->questionnaireTitle = self::QUESTIONNAIRE_TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        $questionnaire['title'] = $this->questionnaireTitle;
         unset($questionnaire['id'], $questionnaire['url']);
 
         $rowId = (new QuestionnaireService())->saveQuestionnaireResource($questionnaire);

@@ -81,9 +81,12 @@ class FhirRelatedPersonServiceCrudTest extends TestCase
     #[Test]
     public function testInsertWithUnresolvablePatient(): void
     {
-        $bogusUuid = UuidRegistry::uuidToString(
-            (new UuidRegistry(['table_name' => 'patient_data']))->createUuid()
-        );
+        // getUnregisteredUuid(), not UuidRegistry::createUuid(): createUuid() inserts a
+        // uuid_registry row, and this test never creates the patient_data row that would
+        // carry it, so teardown -- which finds rows to delete through their targets --
+        // cannot see it and the registry row survives every run. An unregistered uuid is
+        // just as unresolvable, which is all the test needs.
+        $bogusUuid = $this->fixtureManager->getUnregisteredUuid();
         $this->fhirRelatedPersonFixture->setId(new FHIRId());
         $payload = $this->fhirRelatedPersonFixture->jsonSerialize();
         $payload['patient'] = ['reference' => 'Patient/' . $bogusUuid];

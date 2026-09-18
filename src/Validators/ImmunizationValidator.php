@@ -29,7 +29,13 @@ class ImmunizationValidator extends BaseValidator
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context): void {
-                $context->required('patient_id')->numeric();
+                // Positive integers only, not numeric(). particle/validator's numeric() is a
+                // bare is_numeric(), which passes '-1', '1.9' and '1e3'; patient_id and
+                // administered_by_id land in bigint identifier columns, and insert() casts
+                // patient_id only for the encounter lookup -- the original value is what
+                // buildInsertColumns() hands to the INSERT. Same shape check cvx_code already
+                // uses below.
+                $context->required('patient_id')->regex('/^[1-9][0-9]*$/');
                 // CVX codes are 1-4 digit integers per https://www2.cdc.gov/vaccines/iis/iisstandards/vaccines.asp
                 // We don't enumerate the full set here (large + updated frequently); the
                 // shape check rejects free text and length 255 abuses but defers value
@@ -42,7 +48,7 @@ class ImmunizationValidator extends BaseValidator
                 // dots). Reject control characters / HTML so a stored-XSS path cannot be
                 // smuggled through this field.
                 $context->optional('lot_number')->regex('/^[A-Za-z0-9 .\-_\/]{1,255}$/');
-                $context->optional('administered_by_id')->numeric();
+                $context->optional('administered_by_id')->regex('/^[1-9][0-9]*$/');
                 $context->optional('note');
                 $context->optional('route')->lengthBetween(1, 255);
                 $context->optional('administration_site')->lengthBetween(1, 255);

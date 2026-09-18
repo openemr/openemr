@@ -36,6 +36,8 @@ class QuestionnaireResponseFhirWriteApiTest extends TestCase
     /** @var array<string, mixed> */
     private array $fhirFixture;
     private string $questionnaireUuid;
+    /** The exact per-run title, so teardown deletes this run's rows and no one else's. */
+    private string $questionnaireTitle;
 
     protected function setUp(): void
     {
@@ -83,27 +85,42 @@ class QuestionnaireResponseFhirWriteApiTest extends TestCase
         // after a failed setUp(), and touching a typed property before initialization raises an
         // Error that aborts the rest of the cleanup -- taking the OAuth client teardown below
         // with it and leaking a registered client per failed run.
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_name LIKE ?)",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM questionnaire_response WHERE questionnaire_name LIKE ?",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name LIKE ?)",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM questionnaire_repository WHERE name LIKE ?",
-            [self::QUESTIONNAIRE_TITLE_PREFIX . '%']
-        );
+        // Matched on this run's exact title, not on the shared prefix. installQuestionnaire()
+        // already appends random bytes per run, so an equality match is enough to own the rows;
+        // a LIKE 'prefix%' sweep deletes rows belonging to any other worker running this suite
+        // at the same time, which fails them with rows that vanished mid-test.
+        if (isset($this->questionnaireTitle)) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE uuid IN "
+                . "(SELECT uuid FROM questionnaire_response WHERE questionnaire_name = ?)",
+                [$this->questionnaireTitle]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_response WHERE questionnaire_name = ?",
+                [$this->questionnaireTitle]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE uuid IN "
+                . "(SELECT uuid FROM questionnaire_repository WHERE name = ?)",
+                [$this->questionnaireTitle]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_repository WHERE name = ?",
+                [$this->questionnaireTitle]
+            );
+        }
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removePatientFixtures();
         }
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        // cleanupClient() goes in finally. setAuthTokenOrFail() can fail after getClient()
+        // has already registered the OAuth client, and id_token is still null at that point,
+        // so cleanupRevokeAuth() posts a logout with no id_token_hint. If that request throws,
+        // the registered client outlives the run and every rerun leaves another behind.
+        try {
+            $this->testClient->cleanupRevokeAuth();
+        } finally {
+            $this->testClient->cleanupClient();
+        }
     }
 
     public function testPostCreatesQuestionnaireResponse(): void
@@ -182,7 +199,8 @@ class QuestionnaireResponseFhirWriteApiTest extends TestCase
         $this->assertIsArray($questionnaireData);
         $questionnaire = $questionnaireData[0];
         $this->assertIsArray($questionnaire);
-        $questionnaire['title'] = self::QUESTIONNAIRE_TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        $this->questionnaireTitle = self::QUESTIONNAIRE_TITLE_PREFIX . ' ' . bin2hex(random_bytes(4));
+        $questionnaire['title'] = $this->questionnaireTitle;
         unset($questionnaire['id'], $questionnaire['url']);
 
         $rowId = (new QuestionnaireService())->saveQuestionnaireResource($questionnaire);

@@ -109,9 +109,12 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
     #[Test]
     public function testInsertWithUnresolvablePractitioner(): void
     {
-        $bogusUuid = UuidRegistry::uuidToString(
-            (new UuidRegistry(['table_name' => 'users']))->createUuid()
-        );
+        // getUnregisteredUuid(), not UuidRegistry::createUuid(): createUuid() inserts a
+        // uuid_registry row, and this test never creates the users row that would
+        // carry it, so teardown -- which finds rows to delete through their targets --
+        // cannot see it and the registry row survives every run. An unregistered uuid is
+        // just as unresolvable, which is all the test needs.
+        $bogusUuid = $this->fixtureManager->getUnregisteredUuid();
         $this->fhirPractitionerRoleFixture->setId(new FHIRId());
         $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
         $payload['practitioner'] = ['reference' => 'Practitioner/' . $bogusUuid];
@@ -125,9 +128,12 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
     #[Test]
     public function testInsertWithUnresolvableOrganization(): void
     {
-        $bogusUuid = UuidRegistry::uuidToString(
-            (new UuidRegistry(['table_name' => 'facility']))->createUuid()
-        );
+        // getUnregisteredUuid(), not UuidRegistry::createUuid(): createUuid() inserts a
+        // uuid_registry row, and this test never creates the facility row that would
+        // carry it, so teardown -- which finds rows to delete through their targets --
+        // cannot see it and the registry row survives every run. An unregistered uuid is
+        // just as unresolvable, which is all the test needs.
+        $bogusUuid = $this->fixtureManager->getUnregisteredUuid();
         $this->fhirPractitionerRoleFixture->setId(new FHIRId());
         $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
         $payload['organization'] = ['reference' => 'Organization/' . $bogusUuid];

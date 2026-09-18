@@ -72,8 +72,15 @@ class PersonFhirWriteApiTest extends TestCase
         if (isset($this->practitionerFixtureManager)) {
             $this->practitionerFixtureManager->removePractitionerFixtures();
         }
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        // cleanupClient() goes in finally. setAuthTokenOrFail() can fail after getClient()
+        // has already registered the OAuth client, and id_token is still null at that point,
+        // so cleanupRevokeAuth() posts a logout with no id_token_hint. If that request throws,
+        // the registered client outlives the run and every rerun leaves another behind.
+        try {
+            $this->testClient->cleanupRevokeAuth();
+        } finally {
+            $this->testClient->cleanupClient();
+        }
     }
 
     public function testPostCreatesPerson(): void
