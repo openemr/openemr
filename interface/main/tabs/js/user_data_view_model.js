@@ -99,7 +99,7 @@ function viewPortalMail()
 
 function viewPortalPayments()
 {
-    navigateTab(webroot_url+"/portal/patient/onsiteactivityviews","msc", function () {
+    navigateTab(webroot_url+"/portal/patient/onsiteactivityviews?activity=payment","msc", function () {
         activateTabByName("msc",true);
     });
 }
