@@ -103,11 +103,48 @@ class FhirAllergyIntoleranceServiceCrudTest extends TestCase
         $fhirId = $dataResult['uuid'];
         $this->assertIsString($fhirId);
 
-        // Update the allergy - change the verification status
-        $this->fhirAllergyIntoleranceFixture->setId(self::fhirId($fhirId));
-        $actualResult = $this->fhirAllergyIntoleranceService->update($fhirId, $this->fhirAllergyIntoleranceFixture);
+        // Update with a changed clinicalStatus, then read it back. Asserting only that update()
+        // answered a valid, non-empty result would pass for a service that accepted the write and
+        // persisted none of it; the fresh getOne() is what shows the change reached the database.
+        // clinicalStatus is the field worth exercising here: the read side reports 'resolved' only
+        // for outcome = '1' together with an enddate, so a write that set one without the other
+        // silently read back as something the caller never sent.
+        $updatedFixture = (array) $this->fixtureManager->getSingleFhirAllergyIntoleranceFixture();
+        $updatedFixture['patient'] = ['reference' => 'Patient/' . $this->patientUuid];
+        $updatedFixture['clinicalStatus'] = [
+            'coding' => [
+                [
+                    'system' => 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical',
+                    'code' => 'resolved',
+                ],
+            ],
+        ];
+        $updatedResource = new FHIRAllergyIntolerance($updatedFixture);
+        $updatedResource->setId(self::fhirId($fhirId));
+
+        $actualResult = $this->fhirAllergyIntoleranceService->update($fhirId, $updatedResource);
         $this->assertTrue($actualResult->isValid(), "Update should succeed: " . json_encode($actualResult->getValidationMessages()));
         $this->assertNotEmpty($actualResult->getData());
+
+        $readBack = $this->fhirAllergyIntoleranceService->getOne($fhirId);
+        $this->assertTrue($readBack->isValid(), 'Read-back should succeed');
+        $readRecords = $readBack->getData();
+        $this->assertIsArray($readRecords);
+        $this->assertArrayHasKey(0, $readRecords);
+        $serialized = json_decode((string) json_encode($readRecords[0]), true);
+        $this->assertIsArray($serialized);
+        $clinicalStatus = $serialized['clinicalStatus'] ?? null;
+        $this->assertIsArray($clinicalStatus);
+        $statusCodings = $clinicalStatus['coding'] ?? null;
+        $this->assertIsArray($statusCodings);
+        $this->assertArrayHasKey(0, $statusCodings);
+        $firstStatusCoding = $statusCodings[0];
+        $this->assertIsArray($firstStatusCoding);
+        $this->assertSame(
+            'resolved',
+            $firstStatusCoding['code'] ?? null,
+            'clinicalStatus should survive the update round trip'
+        );
     }
 
     #[Test]

@@ -178,6 +178,29 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             'Update should succeed: ' . json_encode($result->getValidationMessages())
         );
         $this->assertNotEmpty($result->getData());
+
+        // Read back rather than trusting update()'s answer: a service that accepted the write
+        // and stored nothing satisfies every assertion above.
+        //
+        // The assertion looks for the code anywhere in the serialized `code` block rather than
+        // at a fixed path. parseOpenEMRRecord() calls FHIRCodeableConcept::addCoding() with the
+        // bare stored string, and that method appends its argument as-is, so `coding` currently
+        // serializes as a list of strings instead of Coding objects. Pinning that path would
+        // bake the malformed shape into the test; searching the block proves the new code was
+        // persisted and is reported either way.
+        $readBack = $this->fhirPractitionerRoleService->getOne($fhirId);
+        $this->assertTrue($readBack->isValid(), 'Read-back should succeed');
+        $readRecords = $readBack->getData();
+        $this->assertIsArray($readRecords);
+        $this->assertArrayHasKey(0, $readRecords);
+        $serialized = json_decode((string) json_encode($readRecords[0]), true);
+        $this->assertIsArray($serialized);
+        $this->assertArrayHasKey('code', $serialized);
+        $this->assertStringContainsString(
+            '111N00000X',
+            (string) json_encode($serialized['code']),
+            'PractitionerRole role code should be updated'
+        );
     }
 
     #[Test]

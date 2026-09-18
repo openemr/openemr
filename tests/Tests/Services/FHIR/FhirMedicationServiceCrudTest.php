@@ -103,6 +103,17 @@ class FhirMedicationServiceCrudTest extends TestCase
         $code['coding'] = $coding;
         $code['text'] = 'test-fixture-medication-001-updated';
         $payload['code'] = $code;
+        // form is the field asserted below: tablet (C42998) -> capsule (C25158). Both sides of
+        // that mapping are literal tables in FhirMedicationService, so the round trip depends on
+        // nothing but the stored `drugs`.`form` value. code.coding[].display is deliberately not
+        // asserted -- the read rebuilds it from the drug-code registry and only falls back to
+        // `drugs`.`name` when the registry has no description for the code, so what comes back
+        // depends on whether RxNorm data is loaded in the test database.
+        $payload['form'] = [
+            'coding' => [
+                ['system' => 'http://ncimeta.nci.nih.gov', 'code' => 'C25158', 'display' => 'capsule'],
+            ],
+        ];
         $updated = new FHIRMedication($payload);
 
         $actualResult = $this->fhirMedicationService->update($fhirId, $updated);
@@ -111,6 +122,28 @@ class FhirMedicationServiceCrudTest extends TestCase
             "Update should succeed: " . json_encode($actualResult->getValidationMessages())
         );
         $this->assertNotEmpty($actualResult->getData());
+
+        // Read back rather than trusting update()'s own answer: a service that accepted the
+        // write and persisted none of it satisfies every assertion above.
+        $readBack = $this->fhirMedicationService->getOne($fhirId);
+        $this->assertTrue($readBack->isValid(), 'Read-back should succeed');
+        $readRecords = $readBack->getData();
+        $this->assertIsArray($readRecords);
+        $this->assertArrayHasKey(0, $readRecords);
+        $serialized = json_decode((string) json_encode($readRecords[0]), true);
+        $this->assertIsArray($serialized);
+        $form = $serialized['form'] ?? null;
+        $this->assertIsArray($form);
+        $formCodings = $form['coding'] ?? null;
+        $this->assertIsArray($formCodings);
+        $this->assertArrayHasKey(0, $formCodings);
+        $firstFormCoding = $formCodings[0];
+        $this->assertIsArray($firstFormCoding);
+        $this->assertSame(
+            'C25158',
+            $firstFormCoding['code'] ?? null,
+            'Medication.form should be updated to capsule'
+        );
     }
 
     #[Test]

@@ -128,9 +128,10 @@ class FhirCareTeamServiceCrudTest extends TestCase
         $fhirId = $this->firstDataRow($insertResult)['uuid'];
         $this->assertIsString($fhirId);
 
+        $updatedName = 'test-fixture Care Team Updated';
         $payload = $this->fhirCareTeamFixture->jsonSerialize();
         $payload['id'] = $fhirId;
-        $payload['name'] = 'test-fixture Care Team Updated';
+        $payload['name'] = $updatedName;
         $updated = new FHIRCareTeam($payload);
 
         $result = $this->fhirCareTeamService->update($fhirId, $updated);
@@ -139,6 +140,17 @@ class FhirCareTeamServiceCrudTest extends TestCase
             'Update should succeed: ' . json_encode($result->getValidationMessages())
         );
         $this->assertNotEmpty($result->getData());
+
+        // The renamed team is read back rather than trusted from update()'s own answer: a
+        // service that accepted the write and stored nothing satisfies every assertion above.
+        $readBack = $this->fhirCareTeamService->getOne($fhirId);
+        $this->assertTrue($readBack->isValid(), 'Read-back should succeed');
+        $readRecords = $readBack->getData();
+        $this->assertIsArray($readRecords);
+        $this->assertArrayHasKey(0, $readRecords);
+        $serialized = json_decode((string) json_encode($readRecords[0]), true);
+        $this->assertIsArray($serialized);
+        $this->assertSame($updatedName, $serialized['name'] ?? null, 'CareTeam.name should be updated');
     }
 
     #[Test]
