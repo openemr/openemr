@@ -183,6 +183,90 @@ XML;
         self::assertSame([], $result->errors, 'a sibling with the same root must satisfy the rule');
     }
 
+    /**
+     * The XML snippet attached to a finding is capped at a byte budget. Cutting on a
+     * byte boundary can split a multibyte character, and the whole finding list is
+     * json_encode()d into documents.document_data by CdaValidateDocuments -
+     * json_encode() returns false on malformed UTF-8, which stores an empty column
+     * and renders as "No Errors". A validation failure disguised as a pass.
+     *
+     * The padding sweep walks the multibyte character across the cut so one of the
+     * cases lands on the boundary regardless of how long the serialized prefix is.
+     */
+    /**
+     * oe-cda-schematron's validate() read an absent includeWarnings option as true, and
+     * the legacy PHP posted documents with no options at all, so SHOULD-level findings
+     * were always reported. Defaulting the flag to false silently drops 215 of
+     * Consolidation.sch's 433 patterns while still rendering a warnings column.
+     */
+    public function testWarningsAreCollectedByDefault(): void
+    {
+        $sch = <<<'XML'
+            <?xml version="1.0"?>
+            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+              <sch:ns prefix="cda" uri="urn:hl7-org:v3"/>
+              <sch:phase id="errors"><sch:active pattern="p-strict"/></sch:phase>
+              <sch:phase id="warnings"><sch:active pattern="p-lenient"/></sch:phase>
+              <sch:pattern id="p-strict">
+                <sch:rule context="//cda:patient">
+                  <sch:assert id="a-shall" test="@absent">SHALL carry the attribute.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+              <sch:pattern id="p-lenient">
+                <sch:rule context="//cda:patient">
+                  <sch:assert id="a-should" test="@alsoAbsent">has the optional attribute.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+            </sch:schema>
+            XML;
+        $xml = '<?xml version="1.0"?><ClinicalDocument xmlns="urn:hl7-org:v3"><patient/></ClinicalDocument>';
+
+        $default = (new SchematronValidator(new ArrayVocabularyLookup([])))->validate($xml, $sch)->toArray();
+        self::assertSame(1, $default['errorCount']);
+        self::assertSame(1, $default['warningCount'], 'warnings must be collected unless explicitly disabled');
+        self::assertSame('a-should', $default['warnings'][0]['assertionId']);
+
+        $off = (new SchematronValidator(new ArrayVocabularyLookup([]), includeWarnings: false))->validate($xml, $sch)->toArray();
+        self::assertSame(1, $off['errorCount'], 'disabling warnings must not change the error count');
+        self::assertSame(0, $off['warningCount']);
+    }
+
+    public function testTruncatedSnippetStaysValidUtf8(): void
+    {
+        $sch = <<<'XML'
+            <?xml version="1.0"?>
+            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+              <sch:ns prefix="cda" uri="urn:hl7-org:v3"/>
+              <sch:phase id="errors"><sch:active pattern="p-snippet"/></sch:phase>
+              <sch:pattern id="p-snippet">
+                <sch:rule context="//cda:patient">
+                  <sch:assert id="a-snippet" test="@absent">SHALL have the attribute.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+            </sch:schema>
+            XML;
+
+        for ($pad = 150; $pad <= 260; $pad++) {
+            $name = str_repeat('a', $pad) . 'é' . str_repeat('b', 40);
+            $xml = '<?xml version="1.0" encoding="UTF-8"?>'
+                . '<ClinicalDocument xmlns="urn:hl7-org:v3"><patient>' . $name . '</patient></ClinicalDocument>';
+
+            $out = (new SchematronValidator(new ArrayVocabularyLookup([])))->validate($xml, $sch)->toArray();
+            self::assertCount(1, $out['errors'], "pad=$pad: expected the assertion to fail");
+
+            $snippet = $out['errors'][0]['xml'];
+            self::assertIsString($snippet);
+            self::assertTrue(
+                mb_check_encoding($snippet, 'UTF-8'),
+                "pad=$pad: snippet was cut mid-character and is not valid UTF-8"
+            );
+            self::assertNotFalse(
+                json_encode($out),
+                "pad=$pad: the finding list could not be encoded, which would store an empty report"
+            );
+        }
+    }
+
     public function testExtendsNamingAnUndefinedRuleThrows(): void
     {
         $sch = <<<'XML'

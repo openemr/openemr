@@ -57,9 +57,17 @@ final readonly class SchematronValidator
     private DocumentPredicateRewriter $rewriter;
     private XPathVariableExpander $expander;
 
+    /**
+     * @param bool $includeWarnings Defaults true to match oe-cda-schematron's validate(),
+     *                              which treated an absent option as warnings-on. The
+     *                              legacy PHP posted the document with no options, so the
+     *                              warning half of Consolidation.sch - 215 of its 433
+     *                              patterns - was reported. Defaulting false here silently
+     *                              dropped every SHOULD-level finding.
+     */
     public function __construct(
         VocabularyLookup $vocabulary,
-        private bool $includeWarnings = false,
+        private bool $includeWarnings = true,
         private int $xmlSnippetMaxLength = 200,
     ) {
         $this->rewriter = new DocumentPredicateRewriter($vocabulary);
@@ -287,8 +295,16 @@ final readonly class SchematronValidator
                     if ($ownerDoc !== null) {
                         $snippet = $ownerDoc->saveXML($node);
                         if (is_string($snippet)) {
+                            // mb_strcut, not substr: the limit is a byte budget, but cutting
+                            // mid-character produces invalid UTF-8, and the whole finding list
+                            // is later json_encode()d into documents.document_data. json_encode
+                            // returns false on malformed UTF-8, which stores an empty column and
+                            // renders as "No Errors" - a validation failure disguised as a pass.
+                            // C-CDA content carries plenty of non-ASCII (accented names, degree
+                            // signs in vitals, en-dashes in notes), and in practice almost every
+                            // snippet is long enough to be truncated.
                             $xmlSnippet = strlen($snippet) > $this->xmlSnippetMaxLength
-                                ? substr($snippet, 0, $this->xmlSnippetMaxLength) . '...'
+                                ? mb_strcut($snippet, 0, $this->xmlSnippetMaxLength, 'UTF-8') . '...'
                                 : $snippet;
                         }
                     }

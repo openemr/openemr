@@ -1,6 +1,6 @@
 {
     "errorCount": 14,
-    "warningCount": 0,
+    "warningCount": 3,
     "ignoredCount": 0,
     "errors": [
         {
@@ -186,6 +186,46 @@
             "xml": "<ClinicalDocument xmlns=\"urn:hl7-org:v3\">\n  <realmCode code=\"US\"/>\n  <typeId root=\"2.16.840.1.113883.1.3\" extension=\"POCD_HD000040\"/>\n  <templateId root=\"2.16.840.1.113883.10.20.27.1.1\" extension=\"202..."
         }
     ],
-    "warnings": [],
+    "warnings": [
+        {
+            "type": "warning",
+            "test": "count(cda:reference[count(cda:externalObservation)=1])=1",
+            "simplifiedTest": null,
+            "description": "SHOULD contain exactly one [1..1] reference (CONF:3259-18353) such that it SHALL contain exactly one [1..1] externalObservation (CONF:3259-18354).",
+            "patternId": "Measure_Reference_and_Results-pattern-warnings",
+            "ruleId": "Measure_Reference_and_Results-warnings",
+            "assertionId": "a-3259-18353-warning",
+            "context": "cda:organizer[cda:templateId[@root='2.16.840.1.113883.10.20.27.3.1'][@extension='2016-09-01']]",
+            "line": 117,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[1]/section[1]/entry[1]/organizer[1]",
+            "xml": "<organizer classCode=\"CLUSTER\" moodCode=\"EVN\">\n              <templateId root=\"2.16.840.1.113883.10.20.27.3.1\" extension=\"2016-09-01\"/>\n              <id root=\"a1b2c3d4-0000-4000-8000-000000000002\"/>\n..."
+        },
+        {
+            "type": "warning",
+            "test": "count(cda:code)=1",
+            "simplifiedTest": null,
+            "description": "This externalDocument SHOULD contain zero or one [0..1] code (CodeSystem: LOINC urn:oid:2.16.840.1.113883.6.1 STATIC) (CONF:3259-17896).",
+            "patternId": "Measure_Reference_and_Results-pattern-warnings",
+            "ruleId": "Measure_Reference_and_Results-reference-externalDocument-warnings",
+            "assertionId": "a-3259-17896-warning",
+            "context": "cda:organizer[cda:templateId[@root='2.16.840.1.113883.10.20.27.3.1'][@extension='2016-09-01']]/cda:reference/cda:externalDocument",
+            "line": 122,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[1]/section[1]/entry[1]/organizer[1]/reference[1]/externalDocument[1]",
+            "xml": "<externalDocument classCode=\"DOC\" moodCode=\"EVN\">\n                  <id root=\"2.16.840.1.113883.4.738\" extension=\"CMS000v0\"/>\n                </externalDocument>"
+        },
+        {
+            "type": "warning",
+            "test": "count(cda:text)=1",
+            "simplifiedTest": null,
+            "description": "This externalDocument SHOULD contain zero or one [0..1] text (CONF:3259-17897).",
+            "patternId": "Measure_Reference_and_Results-pattern-warnings",
+            "ruleId": "Measure_Reference_and_Results-reference-externalDocument-warnings",
+            "assertionId": "a-3259-17897-warning",
+            "context": "cda:organizer[cda:templateId[@root='2.16.840.1.113883.10.20.27.3.1'][@extension='2016-09-01']]/cda:reference/cda:externalDocument",
+            "line": 122,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[1]/section[1]/entry[1]/organizer[1]/reference[1]/externalDocument[1]",
+            "xml": "<externalDocument classCode=\"DOC\" moodCode=\"EVN\">\n                  <id root=\"2.16.840.1.113883.4.738\" extension=\"CMS000v0\"/>\n                </externalDocument>"
+        }
+    ],
     "ignored": []
 }

@@ -291,7 +291,21 @@ class CdaValidateDocuments
      */
     public function saveValidationLog($docId, $log)
     {
-        $content = json_encode($log ?? []);
+        // JSON_INVALID_UTF8_SUBSTITUTE: a validation report is assembled from document
+        // content, and one malformed byte anywhere in it would otherwise make
+        // json_encode() return false. That would store an empty column, which reads back
+        // as "no findings" - a silent pass. Substituting U+FFFD keeps the rest readable.
+        $content = json_encode($log ?? [], JSON_INVALID_UTF8_SUBSTITUTE);
+        if ($content === false) {
+            // ServiceContainer::getLogger(), not the deprecated getSystemLogger(): the
+            // PHPStan baseline pins this file at three deprecated calls, and new code
+            // should use the supported accessor anyway.
+            ServiceContainer::getLogger()->error('Could not encode CDA validation log', [
+                'documentId' => $docId,
+                'jsonError' => json_last_error_msg(),
+            ]);
+            return;
+        }
         sqlStatement("UPDATE `documents` SET `document_data` = ? WHERE `id` = ?", [$content, $docId]);
     }
 
