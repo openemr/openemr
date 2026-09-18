@@ -128,6 +128,9 @@ final class AddressBookReferrerFields
     /**
      * Copy posted form_* values onto a users row after a rejected save.
      *
+     * form_cpoe is a checkbox with no hidden fallback, so an absent key means
+     * unchecked. Other missing keys keep the loaded row value.
+     *
      * @param array<mixed> $row
      * @param callable(string): bool $has
      * @param callable(string): mixed $get
@@ -139,6 +142,8 @@ final class AddressBookReferrerFields
             $postkey = 'form_' . $col;
             if ($has($postkey)) {
                 $row[$col] = $get($postkey);
+            } elseif ($col === 'cpoe') {
+                $row['cpoe'] = '0';
             }
         }
 
