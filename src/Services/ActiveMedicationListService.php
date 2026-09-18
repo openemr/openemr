@@ -20,8 +20,15 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
-class ActiveMedicationListService
+class ActiveMedicationListService extends BaseService
 {
+    public const TABLE_NAME = 'lists';
+
+    public function __construct()
+    {
+        parent::__construct(self::TABLE_NAME);
+    }
+
     /**
      * @param list<array<string, mixed>> $issues
      * @param list<array<string, mixed>> $prescriptions
