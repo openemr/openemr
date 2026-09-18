@@ -34,11 +34,20 @@ document.addEventListener('DOMContentLoaded', function () {
   function parseMeasure(s) {
     s = String(s).trim();
     var m = s.match(/^(\d+)\s*-\s*(\d+)\s*\/\s*(\d+)$/);
-    if (m) { return +m[1] + (+m[2] / +m[3]); }
+    if (m) {
+      var mixedDen = +m[3];
+      return mixedDen === 0 ? null : +m[1] + (+m[2] / mixedDen);
+    }
     m = s.match(/^(\d+)\s+(\d+)\s*\/\s*(\d+)$/);
-    if (m) { return +m[1] + (+m[2] / +m[3]); }
+    if (m) {
+      var spacedDen = +m[3];
+      return spacedDen === 0 ? null : +m[1] + (+m[2] / spacedDen);
+    }
     m = s.match(/^(\d+)\s*\/\s*(\d+)$/);
-    if (m) { return +m[1] / +m[2]; }
+    if (m) {
+      var den = +m[2];
+      return den === 0 ? null : +m[1] / den;
+    }
     if (s !== '' && isFinite(s)) { return +s; }
     return null;
   }
