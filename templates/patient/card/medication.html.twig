@@ -22,9 +22,9 @@
     {% endfor %}
 {% endif %}
 </div>
-{% if printHref is defined and printHref %}
+{% if printPid is defined and printPid %}
 <div class="p-1">
-    <a href="{{ printHref|attr }}" target="_blank" onclick="top.restoreSession()">{{ "Print"|xlt }}</a>
+    <a href="{{ webroot|attr }}/interface/patient_file/summary/active_medications_print.php?pid={{ printPid|attr_url }}" target="_blank" rel="noopener" onclick="top.restoreSession()">{{ "Print"|xlt }}</a>
     {% if inactiveCount is defined and inactiveCount > 0 %}
         <span class="text-muted">({{ inactiveCount|text }} {{ "inactive"|xlt }})</span>
     {% endif %}
