@@ -325,7 +325,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             // whenever enddate is unset and needs it set (with outcome '1') to read 'resolved',
             // so writing outcome alone meant every non-active status read back as active.
             if ($clinicalStatus !== 'active') {
-                $data['enddate'] = date('Y-m-d H:i:s');
+                // Date, not datetime: AllergyIntoleranceValidator declares
+                // optional('enddate')->datetime('Y-m-d'), so a value carrying a time component
+                // fails validation and the whole write comes back 422. The column is a datetime
+                // and stores the midnight that results, which is what the read side compares.
+                $data['enddate'] = date('Y-m-d');
             }
         }
 

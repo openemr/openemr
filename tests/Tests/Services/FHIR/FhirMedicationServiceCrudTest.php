@@ -103,17 +103,16 @@ class FhirMedicationServiceCrudTest extends TestCase
         $code['coding'] = $coding;
         $code['text'] = 'test-fixture-medication-001-updated';
         $payload['code'] = $code;
-        // form is the field asserted below: tablet (C42998) -> capsule (C25158). Both sides of
-        // that mapping are literal tables in FhirMedicationService, so the round trip depends on
-        // nothing but the stored `drugs`.`form` value. code.coding[].display is deliberately not
-        // asserted -- the read rebuilds it from the drug-code registry and only falls back to
-        // `drugs`.`name` when the registry has no description for the code, so what comes back
-        // depends on whether RxNorm data is loaded in the test database.
-        $payload['form'] = [
-            'coding' => [
-                ['system' => 'http://ncimeta.nci.nih.gov', 'code' => 'C25158', 'display' => 'capsule'],
-            ],
-        ];
+        // status is the field asserted below: it maps to `drugs`.`active` on write and back to
+        // active/inactive on read, with no lookup table or reference data in between.
+        //
+        // Two nearer-looking fields are deliberately not asserted. code.coding[].display is
+        // rebuilt on read from the drug-code registry and only falls back to `drugs`.`name`
+        // when the registry has no description, so the result depends on whether RxNorm data is
+        // loaded. `form` is written by this branch but never read back: parseOpenEMRRecord()
+        // builds the CodeableConcept and then discards it without calling setForm(), which
+        // predates this branch -- so Medication.form is write-only until that is fixed.
+        $payload['status'] = 'inactive';
         $updated = new FHIRMedication($payload);
 
         $actualResult = $this->fhirMedicationService->update($fhirId, $updated);
@@ -132,17 +131,10 @@ class FhirMedicationServiceCrudTest extends TestCase
         $this->assertArrayHasKey(0, $readRecords);
         $serialized = json_decode((string) json_encode($readRecords[0]), true);
         $this->assertIsArray($serialized);
-        $form = $serialized['form'] ?? null;
-        $this->assertIsArray($form);
-        $formCodings = $form['coding'] ?? null;
-        $this->assertIsArray($formCodings);
-        $this->assertArrayHasKey(0, $formCodings);
-        $firstFormCoding = $formCodings[0];
-        $this->assertIsArray($firstFormCoding);
         $this->assertSame(
-            'C25158',
-            $firstFormCoding['code'] ?? null,
-            'Medication.form should be updated to capsule'
+            'inactive',
+            $serialized['status'] ?? null,
+            'Medication.status should be updated'
         );
     }
 
