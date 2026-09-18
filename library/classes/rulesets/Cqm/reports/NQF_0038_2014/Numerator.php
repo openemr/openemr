@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0038_2014_Numerator implements CqmFilterIF
@@ -29,7 +29,7 @@ class NQF_0038_2014_Numerator implements CqmFilterIF
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         if (
             (Immunizations::checkDtap($patient, $beginDate, $endDate) ) ||

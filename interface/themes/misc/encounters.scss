@@ -28,6 +28,17 @@ $enable-responsive-font-sizes: true;
     background-color: #f7f5d1;
   }
 
+  .billing_note_clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .note-expand-toggle {
+    font-size: 0.75rem;
+  }
+
   table {
     border-collapse: collapse;
     width: 100%;

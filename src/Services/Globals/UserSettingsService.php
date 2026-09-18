@@ -4,7 +4,7 @@
  * UserSettingService manage user global settings. Originally refactored from user.inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 Brady Miller <brady.g.miller@gmail.com>
@@ -14,24 +14,28 @@
 
 namespace OpenEMR\Services\Globals;
 
-use function sqlStatement;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 use function sqlQuery;
+use function sqlStatement;
 
 class UserSettingsService
 {
 // Set effective user - If no user id is provided, then use the currently logged in user
     public static function effectiveUser($user)
     {
-        return (is_null($user) ? $_SESSION['authUserID'] : $user);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return ($user ?? $session->get('authUserID'));
     }
 
     /**
      * Return user setting(s) from the 'users' table
      *
      * @param string $label - Setting key
-     * @param int $user - user id number from users table
+     * @param ?int $user - user id number from users table
      * @param int $defaultUser - user id to check as alternative/default
-     * @return Effective user setting for $label (NULL if does not exist)
+     * @return ?string Effective user setting for $label (NULL if it does not exist)
      */
     public static function getUserSetting($label, $user = null, $defaultUser = 0)
     {
@@ -41,10 +45,10 @@ class UserSettingsService
         // Collect entry for specified user or 0 (global default user)
         $res = sqlQuery("SELECT setting_value FROM user_settings
       WHERE (setting_user=? OR setting_user=?) AND setting_label=?
-      ORDER BY setting_user DESC", array($user, $defaultUser, $label));
+      ORDER BY setting_user DESC", [$user, $defaultUser, $label]);
 
         // If no entries exist, then return NULL.
-        return (isset($res['setting_value']) ? $res['setting_value'] : null);
+        return ($res['setting_value'] ?? null);
     }
 
     /**
@@ -53,7 +57,7 @@ class UserSettingsService
      * @param string $label - Setting key
      * @param string $value - Setting value
      * @param int $user - user id number from users table
-     * @return boolean - true if setting exist and false if does not exist
+     * @return bool - true if setting exist and false if does not exist
      */
     public static function checkUserSetting($label, $value, $user = null)
     {
@@ -74,8 +78,8 @@ class UserSettingsService
      * @param string $label - Setting key
      * @param string $value - Setting value
      * @param int $user - user id number from users table
-     * @param boolean $createDefault - If no current global default value, create one.
-     * @param boolean $overwrite - If this is set to true, then overwrite the current setting
+     * @param bool $createDefault - If no current global default value, create one.
+     * @param bool $overwrite - If this is set to true, then overwrite the current setting
      */
     public static function setUserSetting($label, $value, $user = null, $createDefault = true, $overwrite = true)
     {
@@ -87,10 +91,10 @@ class UserSettingsService
         // Check for a custom settings
         if (is_null($cur_value)) {
             sqlStatement("INSERT INTO user_settings(setting_user, setting_label, setting_value) " .
-                "VALUES (?,?,?)", array($user, $label, $value));
+                "VALUES (?,?,?)", [$user, $label, $value]);
         } elseif (($cur_value !== $value) && $overwrite) {
             sqlStatement("UPDATE user_settings SET setting_value=? " .
-                "WHERE setting_user=? AND setting_label=?", array($value, $user, $label));
+                "WHERE setting_user=? AND setting_label=?", [$value, $user, $label]);
         }
 
         // Call self to create default token
@@ -110,12 +114,12 @@ class UserSettingsService
 
         // mdsupport - DELETE has implicit select, no need to check and delete
         sqlQuery("DELETE FROM user_settings " .
-            "WHERE setting_user=? AND setting_label=?", array($user, $label));
+            "WHERE setting_user=? AND setting_label=?", [$user, $label]);
     }
 
     public static function getUserIDInfo($id)
     {
-        return sqlQuery("SELECT fname, lname, username FROM users where id=?", array($id));
+        return sqlQuery("SELECT fname, lname, username FROM users where id=?", [$id]);
     }
 
     /**
@@ -153,17 +157,17 @@ class UserSettingsService
      * Function to set the state of expandable forms as per user choice, user default or global default
      * @return string the current state of the file after updating table user_settings
      */
-    public static function collectAndOrganizeExpandSetting($filenames = array())
+    public static function collectAndOrganizeExpandSetting($filenames = [])
     {
         $current_filename = $filenames[0];
-        $global_value = $GLOBALS['expand_form'];
+        $global_value = OEGlobalsBag::getInstance()->getBoolean('expand_form');
 
         if (self::getUserSetting($current_filename) > -1) {
             $current_state = self::getUserSetting($current_filename);
         } elseif ($global_value) {
-            $current_state = $global_value;
+            $current_state = '1';
         } else {
-            $current_state = 0;
+            $current_state = '0';
         }
 
         if (count($filenames)) {

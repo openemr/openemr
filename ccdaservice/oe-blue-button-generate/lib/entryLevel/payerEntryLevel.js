@@ -16,7 +16,9 @@ var policyActivity = {
         moodCode: "EVN"
     },
     content: [
-        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.61"), {
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.61", "2015-08-01"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.61"),
+        {
             key: "id",
             attributes: {
                 root: leafLevel.inputProperty("identifier"),
@@ -26,13 +28,40 @@ var policyActivity = {
             existsWhen: condition.keyExists('identifier'),
             required: true
         },
-
         {
             key: "code",
             attributes: leafLevel.code,
             dataKey: "policy.code"
         },
-        fieldLevel.statusCodeCompleted, {
+        // Add text element for policy description
+        {
+            key: "text",
+            text: leafLevel.input,
+            dataKey: "policy.description",
+            existsWhen: condition.keyExists('policy.description')
+        },
+        fieldLevel.statusCodeCompleted,
+        // Add effectiveTime for the policy period
+        {
+            key: "effectiveTime",
+            content: [
+                {
+                    key: "low",
+                    attributes: {
+                        value: leafLevel.inputProperty("low")
+                    }
+                },
+                {
+                    key: "high",
+                    attributes: {
+                        value: leafLevel.inputProperty("high")
+                    }
+                }
+            ],
+            dataKey: "policy.effectiveTime",
+            existsWhen: condition.keyExists('policy.effectiveTime')
+        },
+        {
             key: "performer",
             attributes: {
                 typeCode: "PRF"
@@ -42,37 +71,52 @@ var policyActivity = {
                 fieldLevel.assignedEntity
             ],
             dataKey: "policy.insurance.performer"
-        }, {
+        },
+        {
             key: "performer",
             attributes: {
                 typeCode: "PRF"
             },
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.88"),
+                [fieldLevel.effectiveTime, key("time")],
                 fieldLevel.assignedEntity
             ],
             dataKey: "guarantor"
-        }, {
+        },
+        {
             key: "participant",
             attributes: {
                 typeCode: "COV"
             },
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.89"), [fieldLevel.effectiveTime, key("time")], {
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.89"),
+                [fieldLevel.effectiveTime, key("time")],
+                {
                     key: "participantRole",
                     attributes: {
                         classCode: "PAT"
                     },
                     content: [
                         fieldLevel.id,
-                        fieldLevel.usRealmAddress,
-                        fieldLevel.telecom, {
+                        {
                             key: "code",
                             attributes: leafLevel.code,
                             dataKey: "code"
-                        }, {
+                        },
+                        fieldLevel.usRealmAddress,
+                        fieldLevel.telecom,
+                        {
                             key: "playingEntity",
-                            content: fieldLevel.usRealmName
+                            content: [
+                                fieldLevel.usRealmName,
+                                {
+                                    key: "sdtc:birthTime",
+                                    attributes: {
+                                        value: leafLevel.inputProperty("birthTime")
+                                    },
+                                }
+                            ]
                         }
                     ]
                 }
@@ -86,23 +130,36 @@ var policyActivity = {
                 }
                 return input;
             }
-        }, {
+        },
+        {
             key: "participant",
             attributes: {
                 typeCode: "HLD"
             },
             content: [
-                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.90"), {
+                fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.90"),
+                {
                     key: "participantRole",
                     content: [
                         fieldLevel.id,
-                        fieldLevel.usRealmAddress
+                        fieldLevel.usRealmAddress,
+                        // Add playingEntity for policy holder details
+                        {
+                            key: "playingEntity",
+                            content: [
+                                fieldLevel.usRealmName
+                            ],
+                            dataKey: "name",
+                            existsWhen: condition.keyExists('name')
+                        }
                     ],
                     dataKey: "performer"
                 }
             ],
             dataKey: "policy_holder"
-        }, {
+        },
+        // Authorization/Plan entryRelationship with proper code
+        {
             key: "entryRelationship",
             attributes: {
                 typeCode: "REFR"
@@ -111,28 +168,25 @@ var policyActivity = {
                 key: "act",
                 attributes: {
                     classCode: "ACT",
-                    moodCode: "EVN"
+                    moodCode: "DEF"
                 },
                 content: [
-                    fieldLevel.templateId("2.16.840.1.113883.10.20.1.19"),
-                    fieldLevel.id, {
-                        key: "entryRelationship",
+                    fieldLevel.id,
+                    {
+                        key: "code",
                         attributes: {
-                            typeCode: "SUBJ"
+                            code: leafLevel.inputProperty("authorization_code"),
+                            displayName: "Health Insurance Plan Policy",
+                            codeSystem: "2.16.840.1.113883.3.221.5",
+                            codeSystemName: "Source of Payment Typology"
                         },
-                        content: {
-                            key: "procedure",
-                            attributes: {
-                                classCode: "PROC",
-                                moodCode: "PRMS"
-                            },
-                            content: {
-                                key: "code",
-                                attributes: leafLevel.code,
-                                dataKey: "code"
-                            }
-                        },
-                        dataKey: "procedure"
+                        // Fallback to nullFlavor if no code provided (but preferably always provide code)
+                        existsWhen: condition.keyExists('authorization_code')
+                    },
+                    {
+                        key: "text",
+                        text: leafLevel.input,
+                        dataKey: "plan_name"
                     }
                 ]
             },
@@ -148,6 +202,7 @@ exports.coverageActivity = {
         moodCode: "EVN"
     },
     content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.60", "2015-08-01"),
         fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.60"),
         fieldLevel.uniqueId,
         fieldLevel.id,

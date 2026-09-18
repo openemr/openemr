@@ -26,25 +26,27 @@
 //
 // +------------------------------------------------------------------------------+
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CouchDB
 {
-    function __construct()
+    public function __construct()
     {
-        $this->host = $GLOBALS['couchdb_host'];
-        $this->user = ($GLOBALS['couchdb_user'] != '') ? $GLOBALS['couchdb_user'] : null;
-        $cryptoGen = new CryptoGen();
-        $this->pass = ($cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) != '') ? $cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) : null;
-        $this->port = $GLOBALS['couchdb_port'];
-        $this->dbase = $GLOBALS['couchdb_dbase'];
+        $this->host = OEGlobalsBag::getInstance()->getString('couchdb_host');
+        $this->user = (OEGlobalsBag::getInstance()->getString('couchdb_user') != '') ? OEGlobalsBag::getInstance()->getString('couchdb_user') : null;
+        $cryptoGen = ServiceContainer::getCrypto();
+        $decryptedPass = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('couchdb_pass'));
+        $this->pass = $decryptedPass !== '' ? $decryptedPass : null;
+        $this->port = OEGlobalsBag::getInstance()->getString('couchdb_port');
+        $this->dbase = OEGlobalsBag::getInstance()->getString('couchdb_dbase');
     }
 
-    function check_connection()
+    public function check_connection(): bool
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
-        $response = json_decode($resp);
+        $response = json_decode((string) $resp);
         if ($response->couchdb && $response->version) {
             return true;
         } else {
@@ -52,14 +54,14 @@ class CouchDB
         }
     }
 
-    function createDB()
+    public function createDB(): bool
     {
         $resp = $this->send("PUT", "/" . $this->dbase);
         return true;
     }
 
     // note this will include _id (and not allow _rev) in the $data
-    function save_doc($data)
+    public function save_doc($data)
     {
         $couch_json = [];
         foreach ($data as $key => $value) {
@@ -69,72 +71,72 @@ class CouchDB
             $couch_json[$key] = $value;
         }
         $resp = $this->send("PUT", "/" . $this->dbase . "/" . $data['_id'], json_encode($couch_json));
-        return json_decode($resp);
+        return json_decode((string) $resp);
     }
 
     // note this will include _id and _rev in the $data
-    function update_doc($data)
+    public function update_doc($data)
     {
         $couch_json = [];
         foreach ($data as $key => $value) {
             $couch_json[$key] = $value;
         }
         $resp = $this->send("PUT", "/" . $this->dbase . "/" . $data['_id'], json_encode($couch_json));
-        return json_decode($resp);
+        return json_decode((string) $resp);
     }
 
-    function DeleteDoc($docid, $revid)
+    public function DeleteDoc($docid, $revid): bool
     {
         $resp = $this->send("DELETE", "/" . $this->dbase . "/" . $docid . "?rev=" . $revid);
         return true;
     }
 
-    function retrieve_doc($docid)
+    public function retrieve_doc($docid)
     {
         $resp = $this->send("GET", "/" . $this->dbase . "/" . $docid);
-        return json_decode($resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
+        return json_decode((string) $resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
     }
 
     // category is either documents or ccda
-    function createDocId($category)
+    public function createDocId($category)
     {
         return UuidRegistry::uuidToString((new UuidRegistry(['couchdb' => $category]))->createUuid());
     }
 
-    function send($method, $url, $post_data = null)
+    public function send($method, $url, $post_data = null)
     {
-        if ($GLOBALS['couchdb_connection_ssl']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('couchdb_connection_ssl')) {
             // encrypt couchdb over the wire
             if (
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-cert") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-key")
+                file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca") &&
+                file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-cert") &&
+                file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-key")
             ) {
                 // support cacert_file and client certificates
                 $stream_context = stream_context_create(
                     [
                         'ssl' =>
                             [
-                                'cafile' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca",
-                                'local_cert' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-cert",
-                                'local_pk' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-key"
+                                'cafile' => OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca",
+                                'local_cert' => OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-cert",
+                                'local_pk' => OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-key"
                             ]
                     ]
                 );
                 $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
-            } elseif (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca")) {
+            } elseif (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca")) {
                 // support cacert_file
                 $stream_context = stream_context_create(
                     [
                         'ssl' =>
                             [
-                                'cafile' => "${GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca"
+                                'cafile' => OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca"
                             ]
                     ]
                 );
                 $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
             } else {
-                if ($GLOBALS['couchdb_ssl_allow_selfsigned']) {
+                if (OEGlobalsBag::getInstance()->getBoolean('couchdb_ssl_allow_selfsigned')) {
                     // support self-signed
                     $stream_context = stream_context_create(
                         [
@@ -167,7 +169,7 @@ class CouchDB
         }
 
         if ($post_data) {
-            $request .= "Content-Length: " . strlen($post_data) . "\r\n\r\n";
+            $request .= "Content-Length: " . strlen((string) $post_data) . "\r\n\r\n";
             $request .= "$post_data\r\n";
         } else {
             $request .= "\r\n";
@@ -180,7 +182,7 @@ class CouchDB
             $response .= fgets($s);
         }
 
-        list($this->headers, $this->body) = explode("\r\n\r\n", $response);
+        [$this->headers, $this->body] = explode("\r\n\r\n", $response);
         return $this->body;
     }
 }

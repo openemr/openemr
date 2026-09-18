@@ -92,7 +92,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     public $dateDateTime = null;
 
     /**
-     * Applcations submitted to obtain a marketing authorization.
+     * Applications submitted to obtain a marketing authorization.
      * @var \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure[]
      */
     public $application = [];
@@ -179,7 +179,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     }
 
     /**
-     * Applcations submitted to obtain a marketing authorization.
+     * Applications submitted to obtain a marketing authorization.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure[]
      */
     public function getApplication()
@@ -188,7 +188,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     }
 
     /**
-     * Applcations submitted to obtain a marketing authorization.
+     * Applications submitted to obtain a marketing authorization.
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure $application
      * @return $this
      */
@@ -242,7 +242,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -275,15 +275,13 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductAuthorizationProcedure xmlns="http://hl7.org/fhir"></MedicinalProductAuthorizationProcedure>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductAuthorizationProcedure xmlns="http://hl7.org/fhir"></MedicinalProductAuthorizationProcedure>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {
             $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));

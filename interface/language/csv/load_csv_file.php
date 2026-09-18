@@ -2,7 +2,7 @@
 
 /*
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2014 Kevin Yeh <kevin.y@integralemr.com>
@@ -12,9 +12,10 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
-if ($langModuleFlag !== true) {
+if (!isset($langModuleFlag) || $langModuleFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
@@ -31,15 +32,16 @@ if (!$thisauth) {
 $defaultLangID = 3;
 
 $sqlLanguages = "SELECT *, lang_description as trans_lang_description FROM lang_languages ORDER BY lang_id";
-$resLanguages = SqlStatement($sqlLanguages);
-$languages = array();
+$resLanguages = sqlStatement($sqlLanguages);
+$languages = [];
 while ($row = sqlFetchArray($resLanguages)) {
     array_push($languages, $row);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <form name="process_csv" method="post" enctype="multipart/form-data"
-    action="?m=csvval&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
+    action="?m=csvval&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
     onsubmit="return top.restoreSession()">
 
     <!-- Select Language. Cloned from lang_definition.php. -->
@@ -48,7 +50,8 @@ while ($row = sqlFetchArray($resLanguages)) {
         <select class="form-control" name='language_id' id="selectLanguage">
             <?php
             // sorting order of language titles depends on language translation options.
-            $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+            $language_choice = $session->get('language_choice');
+            $mainLangID = empty($language_choice) ? '1' : $language_choice;
             // Use and sort by the translated language name.
             $sql = "SELECT ll.lang_id, " .
                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS lang_description " .
@@ -57,10 +60,10 @@ while ($row = sqlFetchArray($resLanguages)) {
                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                 "ld.lang_id = ? " .
                 "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-            $res = SqlStatement($sql, array($mainLangID));
+            $res = sqlStatement($sql, [$mainLangID]);
             // collect the default selected language id, and then display list
-            $tempLangID = isset($_POST['language_id']) ? $_POST['language_id'] : $mainLangID;
-            while ($row = SqlFetchArray($res)) {
+            $tempLangID = $_POST['language_id'] ?? $mainLangID;
+            while ($row = sqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
                     echo "<option value='" . attr($row['lang_id']) . "' selected>" .
                         text($row['lang_description']) . "</option>";

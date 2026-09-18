@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0038_2014_Denominator implements CqmFilterIF
@@ -29,9 +29,9 @@ class NQF_0038_2014_Denominator implements CqmFilterIF
         return "Denominator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
-        $oneEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        $oneEncounter = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OUT_PCP_OBGYN, $patient, $beginDate, $endDate, $oneEncounter)) {
             return true;
         }

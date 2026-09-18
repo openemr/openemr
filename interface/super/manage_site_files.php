@@ -5,41 +5,41 @@
  * for uploading site-specific image files.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use GuzzleHttp\Client;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("File management")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: File management", xl("File management"));
 }
 
-$educationdir = "$OE_SITE_DIR/documents/education";
-
+$educationdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/education";
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_save'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
      // Handle PDF uploads for patient education.
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
         $form_dest_filename = $_FILES['form_education']['name'];
-        $form_dest_filename = strtolower(basename($form_dest_filename));
-        if (substr($form_dest_filename, -4) != '.pdf') {
+        $form_dest_filename = strtolower(basename((string) $form_dest_filename));
+        if (!str_ends_with($form_dest_filename, '.pdf')) {
             die(xlt('Filename must end with ".pdf"'));
         }
 
@@ -54,9 +54,7 @@ if (!empty($_POST['bn_save'])) {
         }
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
-        if ($GLOBALS['drive_encryption']) {
-            $fileData = (new Cryptogen())->encryptStandard($fileData, null, 'database');
-        }
+        $fileData = ServiceContainer::getCrypto()->encryptForFilesystem($fileData);
         if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));
         }
@@ -69,10 +67,7 @@ if (!empty($_POST['bn_save'])) {
  */
 
 if (isset($_POST['generate_thumbnails'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $thumb_generator = new ThumbnailGenerator();
     $results = $thumb_generator->generate_all();
@@ -97,59 +92,58 @@ if (isset($_POST['generate_thumbnails'])) {
  * Dependence - turn on global setting 'secure_upload'
  */
 
-if ($GLOBALS['secure_upload']) {
-    $mime_types  = array('image/*', 'text/*', 'audio/*', 'video/*');
+if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) {
+    // Seed the "Black list" picker with wildcard categories plus the document
+    // types uploads commonly need. This pool only populates the picker: the
+    // "Add manually" box accepts any type name, and isWhiteFile() in
+    // library/sanitize.inc.php enforces whatever list the admin saves.
+    $mime_types = [
+        'image/*',
+        'text/*',
+        'audio/*',
+        'video/*',
+        'application/dicom',
+        'application/dicom+zip',
+        'application/json',
+        'application/msword',
+        'application/pdf',
+        'application/rtf',
+        'application/vnd.ms-excel',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.oasis.opendocument.presentation',
+        'application/vnd.oasis.opendocument.spreadsheet',
+        'application/vnd.oasis.opendocument.text',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/xml',
+        'application/zip',
+        'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/tiff',
+        'text/csv',
+        'text/plain',
+        'text/xml',
+    ];
 
-    $responseError = false;
-    $responseErrorAsString = "";
-    try {
-        $resp = (new GuzzleHttp\Client())->get('https://cdn.rawgit.com/jshttp/mime-db/master/db.json', [
-            'timeout' => 5
-        ]);
-    } catch (GuzzleHttp\Exception\ClientException $e) {
-        $responseErrorAsString = $e->getResponse()->getBody()->getContents();
-        $responseError = true;
-    }
+    $request = CurrentRequest::get();
+    if ($request->request->has('submit_form')) {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-    if (!$responseError && empty($responseErrorAsString) && !empty($resp) && ($resp->getStatusCode() == 200) && $resp->getBody()) {
-        $all_mime_types = json_decode($resp->getBody(), true);
-        foreach ($all_mime_types as $name => $value) {
-            $mime_types[] = $name;
-        }
-    } else {
-        if (!empty($resp)) {
-            $errorStatusCode = $resp->getStatusCode();
-        }
-        error_log('Get list of mime-type error: "' . errorLogEscape($responseErrorAsString) . '" - Code: ' . errorLogEscape($errorStatusCode ?? 0));
-        $mime_types_list = array(
-            'application/pdf',
-            'image/jpeg',
-            'image/png',
-            'image/gif',
-            'application/msword',
-            'application/vnd.oasis.opendocument.spreadsheet',
-            'text/plain'
-        );
-        $mime_types = array_merge($mime_types, $mime_types_list);
-    }
-
-    if (isset($_POST['submit_form'])) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
-
-        $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];
+        // The multi-select submits nothing when the admin clears the whole
+        // list; all() returns [] for a missing key and rejects a scalar.
+        $new_white_list = $request->request->all('white_list');
 
         // truncate white list from list_options table
         sqlStatement("DELETE FROM `list_options` WHERE `list_id` = 'files_white_list'");
         foreach ($new_white_list as $mimetype) {
-            sqlStatement("INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', ?, ?, 1)", array($mimetype, $mimetype));
+            sqlStatement("INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', ?, ?, 1)", [$mimetype, $mimetype]);
         }
 
         $white_list = $new_white_list;
     } else {
-        $white_list = array();
+        $white_list = [];
         $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
         while ($lrow = sqlFetchArray($lres)) {
             $white_list[] = $lrow['option_id'];
@@ -210,7 +204,7 @@ function msfFileChanged() {
 <body class="body_top">
 <form method='post' action='manage_site_files.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 
@@ -246,7 +240,7 @@ function msfFileChanged() {
             </td>
             <td  class="thumb_form" style="width: 17%; border-right: none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input style="margin-top: 10px" class="btn btn-primary" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>" />
                 </form>
             </td>
@@ -254,7 +248,7 @@ function msfFileChanged() {
     </table>
 </div>
 
-<?php if ($GLOBALS['secure_upload']) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) { ?>
 <div id="file_type_whitelist">
     <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">
@@ -316,7 +310,7 @@ function msfFileChanged() {
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" class="btn btn-primary" value="<?php echo xla('Save'); ?>" />
             <input type="hidden" name="submit_form" value="1" />
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         </div>
     </form>
 

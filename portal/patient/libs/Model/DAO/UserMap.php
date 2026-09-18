@@ -10,10 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/IDaoMap.php");
-require_once("verysimple/Phreeze/IDaoMap2.php");
-
 /**
  * UserMap is a static class with functions used to get FieldMap and KeyMap information that
  * is used by Phreeze to map the UserDAO to the users datastore.
@@ -57,7 +53,7 @@ class UserMap implements IDaoMap, IDaoMap2
     public static function GetFieldMaps()
     {
         if (self::$FM == null) {
-            self::$FM = array();
+            self::$FM = [];
             self::$FM["Id"] = new FieldMap("Id", "users", "id", true, FM_TYPE_BIGINT, 20, null, true);
             self::$FM["Username"] = new FieldMap("Username", "users", "username", false, FM_TYPE_VARCHAR, 255, null, false);
             self::$FM["Password"] = new FieldMap("Password", "users", "password", false, FM_TYPE_LONGTEXT, null, null, false);
@@ -123,7 +119,7 @@ class UserMap implements IDaoMap, IDaoMap2
     public static function GetKeyMaps()
     {
         if (self::$KM == null) {
-            self::$KM = array();
+            self::$KM = [];
             self::$KM["examinerlkup"] = new KeyMap("examinerlkup", "Id", "FormHearing", "ExaminerId", KM_TYPE_ONETOMANY, KM_LOAD_LAZY);  // use KM_LOAD_EAGER with caution here (one-to-one relationships only)
             self::$KM["reviewerlkup"] = new KeyMap("reviewerlkup", "Id", "FormHearing", "ReviewerId", KM_TYPE_ONETOMANY, KM_LOAD_LAZY);  // use KM_LOAD_EAGER with caution here (one-to-one relationships only)
         }

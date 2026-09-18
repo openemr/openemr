@@ -1,0 +1,87 @@
+{#
+ # care_plan_form.html.twig - Main care plan encounter form.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jacob T Paul <jacob@zhservices.com>
+ # @author    Vinish K <vinish@zhservices.com>
+ # @author    Brady Miller <brady.g.miller@gmail.com>
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ # @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ # @copyright Copyright (c) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<!DOCTYPE html>
+<html lang="{{ language|default('en')|attr }}">
+<head>
+    <meta charset="utf-8" />
+    <title>{{ 'Care Plan Form'|xlt }}</title>
+    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
+    <script src="{{ webroot|attr }}/interface/forms/care_plan/careplan.js?v={{ v_js_includes|attr }}" type="text/javascript"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            window.careplanForm.init({{ webroot|js_url }}, null, {
+                confirmDelete: {{ 'Are you sure you want to delete this entry?'|xl|js_escape }}
+            });
+        });
+
+        $(function () {
+            {% if existingFormMessage %}
+            alert({{ existingFormMessage|js_escape }});
+            {% endif %}
+
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ 'Care Plan Form'|xlt }}</h2>
+                <form method="post" name="my_form" action="{{ rootdir|attr }}/forms/care_plan/save.php?id={{ formId|attr_url }}">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                    <fieldset>
+                        <legend>{{ 'Enter Details'|xlt }}</legend>
+                        <div class="container" id="care-plan-rows-container">
+                            {% for key, row in (rows is empty ? [{}] : rows) %}
+                                {% include '/forms/care_plan/templates/partials/_care_plan_row.html.twig' with {
+                                    row: row,
+                                    rowIndex: key + 1,
+                                    reasonCodeStatii: reasonCodeStatii,
+                                    authUser: authUser
+                                } only %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+
+                    <div class="form-group">
+                        <div class="col-sm-12 position-override">
+                            <div class="btn-group" role="group">
+                                <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save">{{ 'Save'|xlt }}</button>
+                                <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);">{{ 'Cancel'|xlt }}</button>
+                            </div>
+                            <input type="hidden" id="clickId" value="" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {# Pristine row the JS clones when adding. A <template> keeps its inputs out of the
+       form submission and out of document.querySelectorAll(), so it cannot pollute the
+       saved rows or the reason-code widget registry. Must stay outside the <form>. #}
+    <template id="care-plan-row-template">
+        {% include '/forms/care_plan/templates/partials/_care_plan_row.html.twig' with {
+            row: {},
+            rowIndex: 0,
+            reasonCodeStatii: reasonCodeStatii,
+            authUser: ''
+        } only %}
+    </template>
+</body>
+</html>

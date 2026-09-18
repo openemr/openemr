@@ -2,7 +2,7 @@
 * general document list
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -14,7 +14,7 @@
 
 {headerTemplate assets='datetime-picker|select2'}
 
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css?v={assetVersionNumber}">
 
 <style>
 .select2-selection {
@@ -36,21 +36,26 @@ border-radius: 4px 0 0 4px!important;
 	min-width: 20vw !important;
 }
 </style>
-<script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
-<script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
+<script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js?v={assetVersionNumber}"></script>
+<script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js?v={assetVersionNumber}"></script>
 
 <script>
 	function callTemplateModule(patient_id, cuser, templateName, id, edit) {
 		top.restoreSession();
-        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?is_module=1' +
-            '&catid=' + {$category_id|js_url} +
-            '&pid=' + encodeURIComponent(patient_id) +
-            '&cuser=' + encodeURIComponent(cuser) +
-            '&recid=' + encodeURIComponent(id) +
-            '&edit=' + encodeURIComponent(edit) +
-            '&new=' + encodeURIComponent(templateName) +
-            '&referer_flag=' + encodeURIComponent(isNewRefererFlag)
-		location.assign(callUrl);
+		const queryParams = {
+			is_module: '1',
+			pid: patient_id,
+			cuser: cuser,
+			recid: id,
+			edit: edit,
+			'new': templateName,
+			referer_flag: isNewRefererFlag
+		};
+{if isset($category_id)}
+		queryParams.catid = {$category_id|js_escape};
+{/if}
+		const params = new URLSearchParams(queryParams);
+		location.assign('{$GLOBALS.webroot}/portal/patient/onsitedocuments?' + params.toString());
 	}
 </script>
 <title id="new-doc-title">{xlt t='Documents'}</title>
@@ -192,7 +197,7 @@ $(function () {
         if (!popsrc.includes('&view&')) {
             return false;
         } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
-            popsrc = "{$GLOBALS.webroot}/library/dicom_frame.php?web_path=" + popsrc;
+            popsrc = "{$GLOBALS.webroot}/library/dicom_frame.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}&web_path=" + popsrc;
             dflg = true;
         }
         popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';

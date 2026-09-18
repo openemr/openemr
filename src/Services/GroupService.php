@@ -3,7 +3,7 @@
 /**
  * GroupService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -42,7 +42,7 @@ class GroupService extends BaseService
      * @param bool $isAndCondition
      * @return ProcessingResult
      */
-    public function searchPatientProviderGroups($search = array(), $isAndCondition = true)
+    public function searchPatientProviderGroups($search = [], $isAndCondition = true)
     {
         // we inner join on status in case we ever decide to add a status property (and layers above this one can rely
         // on the property without changing code).

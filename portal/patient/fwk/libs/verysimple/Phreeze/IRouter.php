@@ -28,9 +28,8 @@ interface IRouter
     /**
      * Returns the controller and method for the given URI
      *
-     * @param
-     *          string the url, if not provided will be obtained using the current URL
-     * @return array($controller,$method)
+     * @param string $uri the url, if not provided will be obtained using the current URL
+     * @return array
      */
     public function GetRoute($uri = "");
 
@@ -41,8 +40,7 @@ interface IRouter
      * are parsed and the param with the given index is returned
      *
      * @return string (or $default if not provided)
-     * @param
-     *          string default value to return if parameter is empty
+     * @param string $default default value to return if parameter is empty
      */
     public function GetUrlParam($key, $default = '');
 

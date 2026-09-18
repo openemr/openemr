@@ -19,9 +19,8 @@
 //
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
-use OpenEMR\ClinicalDecisionRules\Interface\stdClass;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager;
 
 class ControllerAlerts extends BaseController
 {
@@ -30,70 +29,61 @@ class ControllerAlerts extends BaseController
         parent::__construct();
     }
 
-    function _action_listactmgr()
+    public function _action_listactmgr()
     {
         $c = new CdrAlertManager();
-        // Instantiating object if does not exist to avoid
-        //    "creating default object from empty value" warning.
-        if (!isset($this->viewBean)) {
-            $this->viewBean = new stdClass();
-        }
+        $this->viewBean ??= new \stdClass();
 
         $this->viewBean->rules = $c->populate();
         $this->set_view("list_actmgr.php");
     }
 
 
-    function _action_submitactmgr()
+    public function _action_submitactmgr()
     {
 
 
-        $ids = $_POST["id"];
-        $actives = $_POST["active"] ?? null;
-        $passives = $_POST["passive"];
-        $reminders = $_POST["reminder"] ?? null;
-        $access_controls = $_POST["access_control"];
+        $ids = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $actives = filter_input(INPUT_POST, 'active', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $passives = filter_input(INPUT_POST, 'passive', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $reminders = filter_input(INPUT_POST, 'reminder', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $access_controls = filter_input(INPUT_POST, 'access_control', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
 
+        // CdrAlertManager::update() consumes id[] and access_control[]
+        // by zero-based positional offset, so reindex both via
+        // array_values() to defang sparse/non-sequential POST data
+        // (e.g. id[3]=… without id[0..2]) and then require the two to
+        // line up by length. The active/passive/reminder checkbox
+        // arrays are sparse on purpose — only checked boxes get
+        // submitted — and the loop below already collapses absent
+        // indices to "0", so they intentionally aren't checked here.
+        $ids = array_values($ids);
+        $access_controls = array_values($access_controls);
+        $numrows = count($ids);
+        if (count($access_controls) !== $numrows) {
+            http_response_code(400);
+            die(xlt('Malformed request: access_control must be aligned with id.'));
+        }
 
         // The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.
         // So, we have to manually create the entitre arrays with right values.
-        $actives_final = array();
-        $passives_final = array();
-        $reminders_final = array();
+        $actives_final = [];
+        $passives_final = [];
+        $reminders_final = [];
 
 
-        $numrows = count($ids);
         for ($i = 0; $i < $numrows; ++$i) {
-            if (!empty($actives[$i]) && ($actives[$i] == "on")) {
-                $actives_final[] = "1";
-            } else {
-                $actives_final[] = "0";
-                ;
-            }
+            $actives_final[] = !empty($actives[$i]) && $actives[$i] == "on" ? "1" : "0";
 
-            if (!empty($passives[$i]) && ($passives[$i] == "on")) {
-                $passives_final[] = "1";
-            } else {
-                $passives_final[] = "0";
-                ;
-            }
+            $passives_final[] = !empty($passives[$i]) && $passives[$i] == "on" ? "1" : "0";
 
-            if (!empty($reminders[$i]) && ($reminders[$i] == "on")) {
-                $reminders_final[] = "1";
-            } else {
-                $reminders_final[] = "0";
-                ;
-            }
+            $reminders_final[] = !empty($reminders[$i]) && $reminders[$i] == "on" ? "1" : "0";
         }
 
         // Reflect the changes to the database.
         $c = new CdrAlertManager();
         $c->update($ids, $actives_final, $passives_final, $reminders_final, $access_controls);
-        // Instantiating object if does not exist to avoid
-        //    "creating default object from empty value" warning.
-        if (!isset($this->viewBean)) {
-            $this->viewBean = new stdClass();
-        }
+        $this->viewBean ??= new \stdClass();
 
         $this->forward("listactmgr");
     }

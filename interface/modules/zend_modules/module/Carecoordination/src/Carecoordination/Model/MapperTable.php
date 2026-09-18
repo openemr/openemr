@@ -12,11 +12,9 @@
 
 namespace Carecoordination\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
+use OpenEMR\Common\Database\QueryUtils;
 
-class MapperTable extends AbstractTableGateway
+class MapperTable
 {
     /*
     * This function will return an array of CCDA components and its sections, which will be displayed in the configuration screen.
@@ -26,19 +24,11 @@ class MapperTable extends AbstractTableGateway
     */
     public function getSections()
     {
-        $sections   = array();
-
         $query      = "select com.ccda_components_field, com.ccda_components_name, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping
                         from ccda_components as com
                         left join ccda_sections as sec on sec.ccda_components_id = com.ccda_components_id
                         where 1=1 ORDER BY sec.ccda_components_id, sec.ccda_sections_id";
-        $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query, array());
-        foreach ($row as $result) {
-            $sections[] = $result;
-        }
-
-        return $sections;
+        return QueryUtils::fetchRecords($query, []);
     }
 
     /*
@@ -49,15 +39,14 @@ class MapperTable extends AbstractTableGateway
     */
     public function getFormsList()
     {
-        $forms = array();
+        $forms = [];
 
         $query      = "select name, directory, nickname from registry where state=? ORDER BY name";
-        $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query, array(1));
+        $row        = QueryUtils::fetchRecords($query, [1]);
         foreach ($row as $result) {
-            $name       = $result['nickname'] ? $result['nickname'] : $result['name'];
+            $name       = $result['nickname'] ?: $result['name'];
             $directory  = "1|" . $result['directory'];
-            $forms[]    = array($name, $directory);
+            $forms[]    = [$name, $directory];
         }
 
         return $forms;
@@ -71,19 +60,18 @@ class MapperTable extends AbstractTableGateway
     */
     public function getLbfList()
     {
-        $lbf = array();
+        $lbf = [];
 
         $query      = "select option_id, title from list_options where list_id = ? ORDER BY seq,title";
-        $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query, array('lbfnames'));
+        $row        = QueryUtils::fetchRecords($query, ['lbfnames']);
         $count      = 0;
         foreach ($row as $result) {
             $lbf[$count][0]     = $result['title'];
             $lbf[$count][1]     = "2|" . $result['option_id'];
-            $res_1 =  $appTable->zQuery("SELECT field_id,title FROM layout_options WHERE form_id=? ORDER BY title", array($result['option_id']));
+            $res_1 =  QueryUtils::fetchRecords("SELECT field_id,title FROM layout_options WHERE form_id=? ORDER BY title", [$result['option_id']]);
             $count_sub      = 0;
             foreach ($res_1 as $row_1) {
-                $lbf[$count][2][$count_sub][0] = ($row_1['title'] ? $row_1['title'] : $row_1['field_id']);
+                $lbf[$count][2][$count_sub][0] = ($row_1['title'] ?: $row_1['field_id']);
                 $lbf[$count][2][$count_sub][1] = $lbf[$count][1] . "|" . $row_1['field_id'];
                 $count_sub++;
             }
@@ -102,17 +90,16 @@ class MapperTable extends AbstractTableGateway
     */
     public function getTableList()
     {
-        $tables = array();
+        $tables = [];
 
         $query  = "SHOW TABLES LIKE 'form_%'";
-        $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query, array());
+        $res        = QueryUtils::fetchRecords($query, []);
         $count  = 0;
         foreach ($res as $row) {
             $table_name     = array_shift($row);
             $tables[$count][0]  = $table_name;
             $tables[$count][1]  = "3|" . $table_name;
-            $res_desc       = $appTable->zQuery("DESCRIBE " . $table_name);
+            $res_desc       = QueryUtils::fetchRecords("DESCRIBE " . $table_name);
             $count_sub      = 0;
             foreach ($res_desc as $row_desc) {
                 $tables[$count][2][$count_sub][0] = $row_desc['Field'];
@@ -134,13 +121,12 @@ class MapperTable extends AbstractTableGateway
     */
     public function getDocuments()
     {
-        $document_categories = array();
+        $document_categories = [];
 
         $query      = "SELECT * FROM categories WHERE id != ? ORDER BY NAME ASC";
-        $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query, array(1));
+        $res        = QueryUtils::fetchRecords($query, [1]);
         foreach ($res as $row) {
-            $document_categories[] = array($row['name'], '4|' . $row['id']);
+            $document_categories[] = [$row['name'], '4|' . $row['id']];
         }
 
         return $document_categories;
@@ -154,7 +140,7 @@ class MapperTable extends AbstractTableGateway
     */
     public function getMappedFields($id)
     {
-        $mapped_values  = array();
+        $mapped_values  = [];
 
         $query      = "SELECT *, reg.name AS form_name, lo.title as title, cat.name, cat.id FROM ccda_table_mapping AS tab1
 			    LEFT JOIN ccda_field_mapping AS tab2 ON tab1.id = tab2.table_id
@@ -162,8 +148,7 @@ class MapperTable extends AbstractTableGateway
 			    LEFT JOIN list_options AS lo ON lo.list_id = ? AND tab1.form_dir=lo.option_id
                             LEFT JOIN categories AS cat ON cat.id = tab1.form_dir
 			    WHERE tab1.deleted = ?";
-        $appTable       = new ApplicationTable();
-        $res            = $appTable->zQuery($query, array('lbfnames',0));
+        $res            = QueryUtils::fetchRecords($query, ['lbfnames', 0]);
 
         $count      = 0;
         $class      = '';
@@ -210,8 +195,7 @@ class MapperTable extends AbstractTableGateway
     public function getMaxIdCcda()
     {
         $query      = "select max(id) as id from ccda_table_mapping where user_id=?";
-        $appTable       = new ApplicationTable();
-        $res            = $appTable->zQuery($query, array(1));
+        $res            = QueryUtils::fetchRecords($query, [1]);
         foreach ($res as $row) {
             return $row['id'];
         }
@@ -226,11 +210,9 @@ class MapperTable extends AbstractTableGateway
     {
         $sql        = "insert into ccda_table_mapping (ccda_component, ccda_component_section, form_dir, form_type, form_table, user_id)
 	values (?, ?, ?, ?, ?, ?)";
-        $appTable   = new ApplicationTable();
-        $appTable->zQuery($sql, $values);
+        QueryUtils::sqlStatementThrowException($sql, $values);
         $query      = "select max(id) as id from ccda_table_mapping";
-        $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query, array());
+        $res        = QueryUtils::fetchRecords($query, []);
         foreach ($res as $row) {
             return $row['id'];
         }
@@ -244,8 +226,7 @@ class MapperTable extends AbstractTableGateway
     public function insertChild($values)
     {
         $sql_sub    = "insert into ccda_field_mapping (table_id, ccda_field) values (?, ?)";
-        $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($sql_sub, $values);
+        QueryUtils::sqlStatementThrowException($sql_sub, $values);
     }
 
     /*Deleted existing CCDA mapped fields
@@ -255,7 +236,6 @@ class MapperTable extends AbstractTableGateway
     */
     public function updateExistingMappedFields($values)
     {
-        $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery("update ccda_table_mapping set deleted = 1 where id <= ? and user_id = ?", $values);
+        QueryUtils::sqlStatementThrowException("update ccda_table_mapping set deleted = 1 where id <= ? and user_id = ?", $values);
     }
 }

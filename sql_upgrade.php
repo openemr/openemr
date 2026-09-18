@@ -17,18 +17,38 @@
 
 /* @TODO add language selection. needs RTL testing */
 
+// Set these via $GLOBALS before the autoloader is available (interface/globals.php
+// loads it later). The globals bag picks them up once globals.php runs.
 $GLOBALS['ongoing_sql_upgrade'] = true;
 
-if (php_sapi_name() === 'cli') {
+$cliFromVersion = null;
+$isCli = php_sapi_name() === 'cli';
+if ($isCli) {
     // setting for when running as command line script
     // need this for output to be readable when running as command line
     $GLOBALS['force_simple_sql_upgrade'] = true;
+
+    // Set HTTP_HOST for CLI mode so globals.php can determine the site
+    // @phpstan-ignore openemr.forbiddenRequestGlobals (Required for write)
+    $_SERVER['HTTP_HOST'] = 'default';
+
+    // Parse --from=VERSION argument for CLI upgrades
+    foreach ($argv ?? [] as $arg) {
+        if (str_starts_with($arg, '--from=')) {
+            $cliFromVersion = substr($arg, 7);
+            break;
+        }
+    }
 }
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
+    if ($isCli) {
+        fwrite(STDERR, $response . "\n");
+        exit(1);
+    }
     die(htmlspecialchars($response));
 }
 
@@ -37,6 +57,12 @@ if ($response !== true) {
 @ob_end_clean();
 // Disable PHP timeout.  This will not work in safe mode.
 @ini_set('max_execution_time', '0');
+// Decouple the upgrade continuation from browser connection state --
+// prevents a client disconnect (tab close, network glitch, or a false-
+// positive fallback trip in the polling loop that scares the user into
+// closing the tab) from aborting the sql_upgrade script mid-flight,
+// which could leave the schema in an inconsistent partial-upgrade state.
+ignore_user_abort(true);
 if (ob_get_level() === 0) {
     ob_start();
 }
@@ -44,24 +70,55 @@ if (ob_get_level() === 0) {
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
 $GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
+$skipAuditLog = true; // disable audit logging during upgrades
 
 require_once('interface/globals.php');
-require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
-// Force logging off
-$GLOBALS["enable_auditlog"] = 0;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$versions = array();
+// Capture the DB version at the start of this request. Two version-
+// dependent features below use this:
+//   1. The prior-version dropdown preselects the row that matches the
+//      current DB state, guiding users to the right starting point and
+//      reducing the "re-run on already-complete install" mistake.
+//   2. The client-side version-check polling loop only fires COMPLETE
+//      when the DB version differs from the initial value AND matches
+//      the target -- avoids firing COMPLETE prematurely if someone runs
+//      the upgrade on an install already at the target.
+$initialDbHumanVersion = '';
+$verRow = QueryUtils::querySingleRow("SELECT v_major, v_minor, v_patch FROM version LIMIT 1");
+if (
+    is_array($verRow)
+    && is_string($verRow['v_major'] ?? null)
+    && is_string($verRow['v_minor'] ?? null)
+    && is_string($verRow['v_patch'] ?? null)
+) {
+    $initialDbHumanVersion = $verRow['v_major'] . '.' . $verRow['v_minor'] . '.' . $verRow['v_patch'];
+}
+$targetHumanVersion = '';
+if (isset($v_major, $v_minor, $v_patch) && is_string($v_major) && is_string($v_minor) && is_string($v_patch)) {
+    $targetHumanVersion = $v_major . '.' . $v_minor . '.' . $v_patch;
+}
+
+$versions = [];
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
 if (!$dh) {
-    die("Cannot read $sqldir");
+    if ($isCli) {
+        fwrite(STDERR, "Cannot read $sqldir\n");
+        exit(1);
+    }
+    die("Cannot read " . htmlspecialchars($sqldir));
 }
 
 while (false !== ($sfname = readdir($dh))) {
@@ -78,7 +135,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default'] ?? ''));
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->getString('language_default')]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }
@@ -93,10 +150,11 @@ if (count($result2 ?? []) == 1) {
     $defaultLangName = "English";
 }
 
-$_SESSION['language_choice'] = $defaultLangID;
-$_SESSION['language_direction'] = $direction ?? '';
-CsrfUtils::setupCsrfKey();
-session_write_close();
+SessionUtil::setSession([
+    'language_choice' => $defaultLangID,
+    'language_direction' => $direction ?? '',
+]);
+CsrfUtils::setupCsrfKey($session);
 
 $sqlUpgradeService = new SQLUpgradeService();
 
@@ -109,334 +167,414 @@ header('Content-type: text/html; charset=utf-8');
     <title>OpenEMR Database Upgrade</title>
     <?php Header::setupHeader(); ?>
     <link rel="shortcut icon" href="public/images/favicon.ico" />
-<script>
-    let currentVersion;
-    let processProgress = 0;
-    let doPoll = 0;
-    let serverPaused = 0;
-    // recursive long polling where ending is based
-    // on global doPoll true or false.
-    // added a forcePollOff parameter to avoid polling from staying on indefinitely when updating from patch.sql
-    async function serverStatus(version = '', start = 0, forcePollOff = 0) {
-        let updateMsg = "";
-        let endMsg = "<li class='text-success bg-light'>" +
-            <?php echo  xlj("End watching server processes for upgrade version"); ?>  + " " + currentVersion + "</li>";
-        if (version) {
-            currentVersion = version;
-            updateMsg = "<li class='text-light bg-success'>" +
-              <?php echo  xlj("Start watching server processes for upgrade version"); ?> + " " + version + "</li>";
-        }
-
-        // start polling
-        let url = "library/ajax/sql_server_status.php?poll=" + encodeURIComponent(currentVersion);
-        let data = new FormData;
-        data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('sqlupgrade')); ?>);
-        data.append("poll", currentVersion);
-
-        let response = await fetch(url, {
-            method: 'post',
-            body: data
-        });
-
-        if (response.status === 502) {
-            progressStatus("<li class='text-light bg-danger'> ERROR: Restarting. " + response.statusText) + "</li>";
-            // connection timeout, just reconnect
-            if (doPoll) {
-                await serverStatus();
-            }
-        } else if (response.status !== 200) {
-            // show error
-            progressStatus("<li class='text-light bg-danger'> ERROR: " + response.statusText) + "</li>";
-            // reconnect in one second
-            if (doPoll) {
-                await serverStatus();
-            }
-        } else {
-            // await status
-            let status = await response.text();
-            if (status === 'Internal Server Error') {
-                let errorMsg = "<li class='text-light bg-danger'>" +
-                    <?php echo xlj("Stopping activity status checks. Internal Server Error"); ?> +"</li>";
-                progressStatus(errorMsg);
-                // end polling
-                doPoll = 0;
-            }
-            if (status === 'Authentication Error') {
-                let errorMsg = "<li class='text-light bg-danger'>" +
-                    <?php echo xlj("Stopping status checks. Csrf Error. No harm to upgrade and will continue."); ?> +"</li>";
-                progressStatus(errorMsg);
-                // end polling
-                doPoll = 0;
-            }
+    <script>
+        let currentVersion;
+        let processProgress = 0;
+        let doPoll = 0;
+        let serverPaused = 0;
+        // Backup completion detection. Runs independently of the recursive
+        // polling loop below. Every 15 seconds, checks whether the DB's
+        // v_major.v_minor.v_patch has changed since page load AND caught up
+        // to what version.php on disk says is the target. sql_upgrade.php's
+        // last DB write is $versionService->update(), so a match means
+        // "upgrade complete." This survives every failure mode that can
+        // affect the primary termination signal (streaming chunk swallowed
+        // by output buffering, poll endpoint self-noise from globals.php
+        // bootstrap queries polluting the "no DB activity" signal, etc.).
+        // Whichever mechanism notices completion first wins the race to
+        // doPoll = 0.
+        //
+        // The "changed since page load" gate (INITIAL_VERSION comparison)
+        // prevents COMPLETE from firing in the fringe case of someone re-
+        // running the upgrade on an install already at the target version.
+        // In that case the current DB version equals the target on the first
+        // check; without the initial-version gate the polling display would
+        // terminate before the (idempotent-no-op) upgrade script finishes.
+        let versionCheckIntervalId = null;
+        const VERSION_CHECK_INTERVAL_MS = 15000;
+        const INITIAL_VERSION = <?php echo json_encode($initialDbHumanVersion); ?>;
+        const TARGET_VERSION = <?php echo json_encode($targetHumanVersion); ?>;
+        // recursive long polling where ending is based
+        // on global doPoll true or false.
+        // added a forcePollOff parameter to avoid polling from staying on indefinitely when updating from patch.sql
+        async function serverStatus(version = '', start = 0, forcePollOff = 0) {
+            let updateMsg = "";
+            let endMsg = "<li class='text-success bg-light'>" +
+                <?php echo xlj("End watching server processes for upgrade version"); ?>  +" " + currentVersion + "</li>";
             if (version) {
-                progressStatus(updateMsg);
-            }
-            if (start === 1) {
-                doPoll = 1;
-            }
-            if (forcePollOff === 1) {
-                doPoll = 0;
-            }
-            // display to screen div
-            if (status > "") {
-                progressStatus(status);
+                currentVersion = version;
+                updateMsg = "<li class='text-light bg-success'>" +
+                    <?php echo xlj("Start watching server processes for upgrade version"); ?> +" " + version + "</li>";
             }
 
-            // and so forth.
-            if (doPoll) {
-                await serverStatus();
+            // start polling
+            let url = "library/ajax/sql_server_status.php?poll=" + encodeURIComponent(currentVersion);
+            let data = new FormData;
+            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
+            data.append("poll", currentVersion);
+
+            let response = await fetch(url, {
+                method: 'post',
+                body: data
+            });
+
+            if (response.status === 502) {
+                progressStatus("<li class='text-light bg-danger'> ERROR: Restarting. " + response.statusText) + "</li>";
+                // connection timeout, just reconnect
+                if (doPoll) {
+                    await serverStatus();
+                }
+            } else if (response.status !== 200) {
+                // show error
+                progressStatus("<li class='text-light bg-danger'> ERROR: " + response.statusText) + "</li>";
+                // reconnect in one second
+                if (doPoll) {
+                    await serverStatus();
+                }
             } else {
-                progressStatus(endMsg);
+                // await status
+                let status = await response.text();
+                if (status === 'Internal Server Error') {
+                    let errorMsg = "<li class='text-light bg-danger'>" +
+                        <?php echo xlj("Stopping activity status checks. Internal Server Error"); ?> +"</li>";
+                    progressStatus(errorMsg);
+                    // end polling
+                    doPoll = 0;
+                }
+                if (status === 'Authentication Error') {
+                    let errorMsg = "<li class='text-light bg-danger'>" +
+                        <?php echo xlj("Stopping status checks. Csrf Error. No harm to upgrade and will continue."); ?> +"</li>";
+                    progressStatus(errorMsg);
+                    // end polling
+                    doPoll = 0;
+                }
+                if (version) {
+                    progressStatus(updateMsg);
+                }
+                if (start === 1) {
+                    doPoll = 1;
+                    startVersionCheckIfNotRunning();
+                }
+                if (forcePollOff === 1) {
+                    doPoll = 0;
+                }
+                // display to screen div
+                if (status > "") {
+                    progressStatus(status);
+                }
+
+                // and so forth.
+                if (doPoll) {
+                    await serverStatus();
+                } else {
+                    stopVersionCheck();
+                    progressStatus(endMsg);
+                }
             }
         }
-}
-/*
-* Focus scrolls to bottom of view
-* */
-function doScrolls() {
-    let serverStatus = document.getElementById("serverStatus");
-    let isServerBottom = serverStatus.scrollHeight - serverStatus.clientHeight <= serverStatus.scrollTop + 1;
-    let processDetails = document.getElementById("processDetails");
-    let isDetailsBottom = processDetails.scrollHeight - processDetails.clientHeight <= processDetails.scrollTop + 1;
 
-    if(!isServerBottom) {
-        serverStatus.scrollTop = serverStatus.scrollHeight - serverStatus.clientHeight;
-    }if(!isDetailsBottom) {
-        processDetails.scrollTop = processDetails.scrollHeight - processDetails.clientHeight;
-    }
-}
+        // Independent completion detection -- polls a lightweight endpoint
+        // every VERSION_CHECK_INTERVAL_MS to see if the DB's v_database
+        // has caught up to what version.php on disk says is the target.
+        // Runs alongside serverStatus() polling; whichever notices
+        // completion first drops doPoll = 0 and ends the loop.
+        function startVersionCheckIfNotRunning() {
+            if (versionCheckIntervalId !== null) {
+                return;
+            }
+            versionCheckIntervalId = setInterval(async () => {
+                if (!doPoll) {
+                    stopVersionCheck();
+                    return;
+                }
+                try {
+                    let data = new FormData;
+                    data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
+                    let resp = await fetch('library/ajax/sql_upgrade_version_check.php', {
+                        method: 'post',
+                        body: data
+                    });
+                    if (resp.status === 200) {
+                        let currentVersion = (await resp.text()).trim();
+                        if (currentVersion !== ''
+                                && currentVersion !== INITIAL_VERSION
+                                && currentVersion === TARGET_VERSION) {
+                            doPoll = 0;
+                            // Note -- serverStatus()'s next iteration checks
+                            // doPoll and takes the else branch, calling
+                            // stopVersionCheck() + rendering endMsg. No need
+                            // to render here.
+                        }
+                    }
+                } catch (e) {
+                    // Network hiccup or similar -- try again next interval.
+                }
+            }, VERSION_CHECK_INTERVAL_MS);
+        }
 
-function progressStatus(msg = '') {
-    let eventList = document.getElementById('status-message');
-    let progressEl = document.getElementById('progress');
-
-    if (currentVersion == "UUID") {
-        if (processProgress < 30) {
-            processProgress++;
-        } else if (processProgress < 40) {
-            if (Math.random() > 0.9) {
-                processProgress++;
-            }
-        } else if (processProgress < 50) {
-            if (Math.random() > 0.95) {
-                processProgress++;
-            }
-        } else if (processProgress < 60) {
-            if (Math.random() > 0.97) {
-                processProgress++;
-            }
-        } else if (processProgress < 70) {
-            if (Math.random() > 0.98) {
-                processProgress++;
-            }
-        } else if (processProgress < 80) {
-            if (Math.random() > 0.99) {
-                processProgress++;
-            }
-        } else if (processProgress < 96) {
-            if (Math.random() > 0.999) {
-                processProgress++;
-            }
-        } else if (processProgress < 99) {
-            if (Math.random() > 0.9999) {
-                processProgress++;
+        function stopVersionCheck() {
+            if (versionCheckIntervalId !== null) {
+                clearInterval(versionCheckIntervalId);
+                versionCheckIntervalId = null;
             }
         }
-        progressEl.style.width = processProgress + "%";
-        progressEl.innerHTML = processProgress + "%" + " UUID Update";
-    } else {
-        progressEl.style.width = processProgress + "%";
-        progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
-    }
-    if (msg) {
-        eventList.innerHTML += msg;
-        doScrolls();
-    }
-}
 
-function setWarnings(othis) {
-    if (othis.value < '5.0.0') {
-        document.querySelector('.version-warning').classList.remove("d-none");
-    } else {
-        document.querySelector('.version-warning').classList.add("d-none");
-    }
-}
+        /*
+        * Focus scrolls to bottom of view
+        * */
+        function doScrolls() {
+            let serverStatus = document.getElementById("serverStatus");
+            let isServerBottom = serverStatus.scrollHeight - serverStatus.clientHeight <= serverStatus.scrollTop + 1;
+            let processDetails = document.getElementById("processDetails");
+            let isDetailsBottom = processDetails.scrollHeight - processDetails.clientHeight <= processDetails.scrollTop + 1;
 
-function pausePoll(othis) {
-    if (serverPaused === 0 && doPoll === 1) {
-        let alertMsg = "<li class='text-dark bg-warning'>" +
-            <?php echo xlj("Paused status checks."); ?> +"</li>";
-        progressStatus(alertMsg);
-        serverPaused = 1;
-        doPoll = 0;
-        document.querySelector('.pause-server').classList.remove("btn-success");
-        document.querySelector('.pause-server').classList.add("btn-warning");
-    } else if (serverPaused === 1) {
-        let alertMsg = "<li class='text-dark bg-success'>" +
-            <?php echo xlj("Resuming status checks."); ?> +"</li>";
-        progressStatus(alertMsg);
-        serverPaused = 0;
-        doPoll = 1;
-        serverStatus('', 1);
-        document.querySelector('.pause-server').classList.remove("btn-warning");
-        document.querySelector('.pause-server').classList.add("btn-success");
-    }
-}
-</script>
+            if (!isServerBottom) {
+                serverStatus.scrollTop = serverStatus.scrollHeight - serverStatus.clientHeight;
+            }
+            if (!isDetailsBottom) {
+                processDetails.scrollTop = processDetails.scrollHeight - processDetails.clientHeight;
+            }
+        }
+
+        function progressStatus(msg = '') {
+            let eventList = document.getElementById('status-message');
+            let progressEl = document.getElementById('progress');
+
+            if (currentVersion == "UUID") {
+                if (processProgress < 30) {
+                    processProgress++;
+                } else if (processProgress < 40) {
+                    if (Math.random() > 0.9) {
+                        processProgress++;
+                    }
+                } else if (processProgress < 50) {
+                    if (Math.random() > 0.95) {
+                        processProgress++;
+                    }
+                } else if (processProgress < 60) {
+                    if (Math.random() > 0.97) {
+                        processProgress++;
+                    }
+                } else if (processProgress < 70) {
+                    if (Math.random() > 0.98) {
+                        processProgress++;
+                    }
+                } else if (processProgress < 80) {
+                    if (Math.random() > 0.99) {
+                        processProgress++;
+                    }
+                } else if (processProgress < 96) {
+                    if (Math.random() > 0.999) {
+                        processProgress++;
+                    }
+                } else if (processProgress < 99) {
+                    if (Math.random() > 0.9999) {
+                        processProgress++;
+                    }
+                }
+                progressEl.style.width = processProgress + "%";
+                progressEl.innerHTML = processProgress + "%" + " UUID Update";
+            } else {
+                progressEl.style.width = processProgress + "%";
+                progressEl.innerHTML = processProgress + "%" + " v" + currentVersion;
+            }
+            if (msg) {
+                eventList.innerHTML += msg;
+                doScrolls();
+            }
+        }
+
+        function setWarnings(othis) {
+            if (othis.value < '5.0.0') {
+                document.querySelector('.version-warning').classList.remove("d-none");
+            } else {
+                document.querySelector('.version-warning').classList.add("d-none");
+            }
+        }
+
+        function pausePoll(othis) {
+            if (serverPaused === 0 && doPoll === 1) {
+                let alertMsg = "<li class='text-dark bg-warning'>" +
+                    <?php echo xlj("Paused status checks."); ?> +"</li>";
+                progressStatus(alertMsg);
+                serverPaused = 1;
+                doPoll = 0;
+                document.querySelector('.pause-server').classList.remove("btn-success");
+                document.querySelector('.pause-server').classList.add("btn-warning");
+            } else if (serverPaused === 1) {
+                let alertMsg = "<li class='text-dark bg-success'>" +
+                    <?php echo xlj("Resuming status checks."); ?> +"</li>";
+                progressStatus(alertMsg);
+                serverPaused = 0;
+                doPoll = 1;
+                serverStatus('', 1);
+                document.querySelector('.pause-server').classList.remove("btn-warning");
+                document.querySelector('.pause-server').classList.add("btn-success");
+            }
+        }
+    </script>
 </head>
 <body>
-<div class="container my-3">
-    <div class="row">
-        <div class="col-12">
-            <h2><?php echo xlt("OpenEMR Database Upgrade"); ?></h2>            
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <p><?php echo xlt("If you are unsure or were using a development version between two releases, then choose the older of possible releases."); ?></p>
-        </div>
-    </div>
-    <div>
-        <form class="form-inline" method='post' action='sql_upgrade.php'>
-            <div class="form-group mb-1">
-                <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
-                <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">
-                    <?php
-                    $cnt_versions = count($versions);
-                    foreach ($versions as $version => $filename) {
-                        --$cnt_versions;
-                        echo " <option value='$version'";
-                        // Defaulting to most recent version or last version in list.
-                        if ($version == ($_POST['form_old_version'] ?? '')) {
-                            echo " selected";
-                        } elseif ($cnt_versions === 0 && !($_POST['form_old_version'] ?? '')) {
-                            echo " selected";
-                        }
-                        echo ">$version</option>\n";
-                    }
-                    ?>
-                </select>
+    <div class="container-fluid my-3">
+        <div class="text-center">
+            <div class="row">
+                <div class="col-12">
+                    <h2><?php echo xlt("OpenEMR Database Upgrade"); ?></h2>
+                </div>
             </div>
-            <span class="alert alert-warning text-danger version-warning d-none">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p><?php echo xlt("If you are unsure or were using a development version between two releases, then choose the older of possible releases."); ?></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10 mx-auto">
+            <form class="form-inline col-sm-6 mx-auto" method='post' action='sql_upgrade.php'>
+                <div class="form-group mb-1">
+                    <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
+                    <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">
+                        <?php
+                        // Selection priority (highest first):
+                        //   1. POSTed value (page re-render after form submit)
+                        //   2. Current DB version (best guess for where the user is)
+                        //   3. Most recent version in the list (historical fallback)
+                        $defaultSelection = $_POST['form_old_version'] ?? '';
+                        if ($defaultSelection === '' && isset($versions[$initialDbHumanVersion])) {
+                            $defaultSelection = $initialDbHumanVersion;
+                        }
+                        if ($defaultSelection === '') {
+                            $defaultSelection = array_key_last($versions);
+                        }
+                        foreach ($versions as $version => $filename) {
+                            echo " <option value='$version'";
+                            if ($version === $defaultSelection) {
+                                echo " selected";
+                            }
+                            echo ">$version</option>\n";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <span class="alert alert-warning text-danger version-warning d-none">
                 <?php echo xlt("If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data)"); ?>.
             </span>
-            <button type='submit' class='btn btn-primary btn-transmit' name='form_submit' value='Upgrade Database'>
-                <?php echo xlt("Upgrade Database"); ?>
-            </button>
-            <div class="btn-group">
-            </div>
-        </form>
-        <!-- server status card -->
-        <div class="card card-header">
+                <button type='submit' class='btn btn-primary btn-transmit' name='form_submit' value='Upgrade Database'>
+                    <?php echo xlt("Upgrade Database"); ?>
+                </button>
+                <div class="btn-group">
+                </div>
+            </form>
+            <!-- server status card -->
+            <div class="card card-header">
             <span class="btn-group">
                 <a class="btn btn-success pause-server fa fa-pause float-left" onclick="pausePoll(this)" title="<?php echo xla("Click to start or end sql server activity checks."); ?>"></a>
                 <a class="btn btn-primary w-100" data-toggle="collapse" href="#serverStatus">
                     <?php echo xlt("Server Status"); ?><i class="fa fa-angle-down rotate-icon float-right"></i>
                 </a>
             </span>
+            </div>
+            <div id="serverStatus" class="card card-body mb-1 mt-0 pb-2 h-25 overflow-auto collapse show">
+                <div class="bg-light text-dark">
+                    <ul id="status-message"></ul>
+                </div>
+            </div>
         </div>
-        <div id="serverStatus" class="card card-body pb-2 h-25 overflow-auto collapse show">
-            <div class="bg-light text-dark">
-                <ul id="status-message"></ul>
+        <!-- collapse place holder for upgrade processing on submit. -->
+        <div class="card card-header">
+            <a class="btn btn-primary" data-toggle="collapse" href="#processDetails">
+                <?php echo xlt("Processing Details"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
+            </a>
+            <div id="progress-div" class="bg-secondary float-left">
+                <div id="progress" class="mt-1 progress-bar bg-success" style="height:1.125rem;width:0;"></div>
+            </div>
+        </div>
+        <div id='processDetails' class='card card-body pb-2 h-50 overflow-auto collapse show'>
+            <div class='col-md bg-light text-dark'>
+                <?php if (!empty($_POST['form_submit']) || $cliFromVersion !== null) {
+                    $form_old_version = $cliFromVersion ?? ($_POST['form_old_version'] ?? '');
+
+                    foreach ($versions as $version => $filename) {
+                        if (strcmp($version, (string) $form_old_version) < 0) {
+                            continue;
+                        }
+                        // set polling version and start
+                        $sqlUpgradeService->flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
+                        $sqlUpgradeService->upgradeFromSqlFile($filename);
+                        // end polling
+                        sleep(5); // gives the streaming doPoll=0 chunk a delivery margin (client-side fallback counter picks up if it's still lost)
+                        $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
+                    }
+
+                    if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
+                        // Upgrade custom stuff for IPPF.
+                        $sqlUpgradeService->upgradeFromSqlFile('ippf_upgrade.sql');
+                    }
+
+                    if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
+                        // This release contains a patch file, so process it.
+                        echo "<script>serverStatus('Patch', 0, 1);</script>";
+                        $sqlUpgradeService->upgradeFromSqlFile('patch.sql');
+                    }
+                    flush();
+
+                    echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
+                    $sqlUpgradeService->flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
+                    $updateUuidLog = UuidRegistry::populateAllMissingUuids();
+                    if (!empty($updateUuidLog)) {
+                        echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
+                    } else {
+                        echo "Did not need to update or add any new UUIDs</p><br />\n";
+                    }
+                    sleep(5); // gives the streaming doPoll=0 chunk a delivery margin (client-side fallback counter picks up if it's still lost)
+                    $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
+
+                    echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
+                    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
+                    require_once("library/globals.inc.php");
+                    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+                        foreach ($grparr as $fldid => $fldarr) {
+                            [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
+                            if (is_array($fldtype) || (!str_starts_with((string) $fldtype, 'm_'))) {
+                                $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+                                if (empty($row['count'])) {
+                                    sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                                        "VALUES ( '$fldid', '0', '$flddef' )");
+                                }
+                            }
+                        }
+                    }
+
+                    echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
+                    require("acl_upgrade.php");
+                    echo "<br />\n";
+
+                    $versionService = new VersionService();
+                    $currentVersion = $versionService->fetch();
+                    $desiredVersion = $currentVersion;
+                    $desiredVersion['v_database'] = $v_database;
+                    $desiredVersion['v_tag'] = $v_tag;
+                    $desiredVersion['v_realpatch'] = $v_realpatch;
+                    $desiredVersion['v_patch'] = $v_patch;
+                    $desiredVersion['v_minor'] = $v_minor;
+                    $desiredVersion['v_major'] = $v_major;
+
+                    $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
+                    $line = "Updating version indicators";
+
+                    if ($canRealPatchBeApplied) {
+                        $line = $line . ". " . xlt("Patch was also installed, updating version patch indicator");
+                    }
+
+                    echo "<p class='text-success'>" . $line . "...</p><br />\n";
+                    $versionService->update($desiredVersion);
+
+                    echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
+                    echo "</div></body></html>\n";
+                    exit();
+                }
+                ?>
             </div>
         </div>
     </div>
-    <!-- collapse place holder for upgrade processing on submit. -->
-    <div class="card card-header">
-        <a class="btn btn-primary" data-toggle="collapse" href="#processDetails">
-            <?php echo xlt("Processing Details"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
-        </a>
-        <div id="progress-div" class="bg-secondary float-left">
-            <div id="progress" class="mt-1 progress-bar bg-success" style="height:1.125rem;width:0;"></div>
-        </div>
-    </div>
-    <div id='processDetails' class='card card-body pb-2 h-50 overflow-auto collapse show'>
-        <div class='bg-light text-dark'>
-    <?php if (!empty($_POST['form_submit'])) {
-        $form_old_version = $_POST['form_old_version'];
-
-        foreach ($versions as $version => $filename) {
-            if (strcmp($version, $form_old_version) < 0) {
-                continue;
-            }
-            // set polling version and start
-            $sqlUpgradeService->flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
-            $sqlUpgradeService->upgradeFromSqlFile($filename);
-            // end polling
-            sleep(2); // fixes odd bug, where if the sql upgrade goes to fast, then the polling does not stop
-            $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
-        }
-
-        if (!empty($GLOBALS['ippf_specific'])) {
-            // Upgrade custom stuff for IPPF.
-            $sqlUpgradeService->upgradeFromSqlFile('ippf_upgrade.sql');
-        }
-
-        if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
-            // This release contains a patch file, so process it.
-            echo "<script>serverStatus('Patch', 0, 1);</script>";
-            $sqlUpgradeService->upgradeFromSqlFile('patch.sql');
-        }
-        flush();
-
-        echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
-        $sqlUpgradeService->flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
-        $updateUuidLog = UuidRegistry::populateAllMissingUuids();
-        if (!empty($updateUuidLog)) {
-            echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
-        } else {
-            echo "Did not need to update or add any new UUIDs</p><br />\n";
-        }
-        sleep(2); // fixes odd bug, where if process goes to fast, then the polling does not stop
-        $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
-
-        echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
-        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
-        require_once("library/globals.inc.php");
-        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-            foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
-                    $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-                    if (empty($row['count'])) {
-                        sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                            "VALUES ( '$fldid', '0', '$flddef' )");
-                    }
-                }
-            }
-        }
-
-        echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
-        require("acl_upgrade.php");
-        echo "<br />\n";
-
-        $versionService = new VersionService();
-        $currentVersion = $versionService->fetch();
-        $desiredVersion = $currentVersion;
-        $desiredVersion['v_database'] = $v_database;
-        $desiredVersion['v_tag'] = $v_tag;
-        $desiredVersion['v_realpatch'] = $v_realpatch;
-        $desiredVersion['v_patch'] = $v_patch;
-        $desiredVersion['v_minor'] = $v_minor;
-        $desiredVersion['v_major'] = $v_major;
-
-        $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
-        $line = "Updating version indicators";
-
-        if ($canRealPatchBeApplied) {
-            $line = $line . ". " . xlt("Patch was also installed, updating version patch indicator");
-        }
-
-        echo "<p class='text-success'>" . $line . "...</p><br />\n";
-        $versionService->update($desiredVersion);
-
-        echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
-        echo "</div></body></html>\n";
-        exit();
-    }
-    ?>
-        </div>
-    </div>
-</div>
 </body>
 </html>

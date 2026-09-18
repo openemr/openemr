@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("IObservable.php");
-
-/**
  * Observable is an abstract implementation of IObservable
  *
  * @package verysimple::Phreeze
@@ -18,7 +13,7 @@ require_once("IObservable.php");
  */
 abstract class Observable implements IObservable
 {
-    private $_observers = array ();
+    private $_observers =  [];
 
     /**
      * Registers an observer with this object
@@ -36,7 +31,7 @@ abstract class Observable implements IObservable
      * Fires and observable event.
      * All registered observers will be notified
      *
-     * @param variant $obj
+     * @param mixed $obj
      *          a string, numeric or object that contains the observable message
      * @param int $ltype
      *          specified the "level" as defined in IObservable

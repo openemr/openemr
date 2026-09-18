@@ -2,19 +2,20 @@
 
 require_once(dirname(__DIR__, 5) . "/interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Update Pharmacy", xl("Update Pharmacy"));
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-if (!CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($data["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -25,24 +26,24 @@ $sql = "SELECT primary_ncpdp, alternate_ncpdp, is_history, search_persist FROM w
 $result = sqlQuery($sql, [$pid]);
 
 if (!$result) {
-    $persist = array(
+    $persist = [
         'all_day' => '',
         'weno_only' => '',
         'weno_coverage' => 'Local',
         'weno_zipcode' => '',
         'weno_city' => '',
         'weno_state' => '',
-    );
+    ];
     $persist = json_encode($persist);
 } else {
     $persist = $result['search_persist'] ?? '';
 }
 
-$updateData = array(
+$updateData = [
     "primary_pharmacy" => $data['primary'] ?? '',
     "alternate_pharmacy" => $data['alternate'] ?? '',
     "search_persist" => $persist
-);
+];
 
 $pharmacyService->updatePatientWenoPharmacy($data['pid'], $updateData);
 // TODO: query weno_assigned_pharmacy if $result is now unique for primary_ncpdp or alternate_ncpdp and add back as history

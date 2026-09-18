@@ -184,7 +184,7 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -208,15 +208,13 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceSpecificationOfficial xmlns="http://hl7.org/fhir"></SubstanceSpecificationOfficial>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceSpecificationOfficial xmlns="http://hl7.org/fhir"></SubstanceSpecificationOfficial>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->authority)) {
             $this->authority->xmlSerialize(true, $sxe->addChild('authority'));

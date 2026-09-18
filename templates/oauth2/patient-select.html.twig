@@ -1,7 +1,7 @@
 {#
  # patient-select.html.twig
  # @package openemr
- # @link      http://www.open-emr.org
+ # @link      https://www.open-emr.org
  # @author    Stephen Nielson <stephen@nielson.org>
  # @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -77,7 +77,7 @@
         </div>
         {% endif %}
         <form method="post" name="patientForm" id="patientForm" action="{{ redirect|attr }}">
-            <input type="hidden" name="csrf_token" value="{{ csrfTokenRaw('oauth2')|attr }}" />
+            <input type="hidden" name="csrf_token" value="{{ csrfToken|attr }}" />
             <input id="patient_id" type="hidden" name="patient_id" value="" />
         </form>
     </div>

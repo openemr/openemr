@@ -22,46 +22,55 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 //setting the session & other config options
 
-// Will start the (patient) portal OpenEMR session/cookie.
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
+use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\LogoService;
 
-require_once __DIR__ . "/../src/Common/Session/SessionUtil.php";
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Will start the (patient) portal OpenEMR session/cookie.
+//  Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+SessionUtil::setAppCookie(SessionUtil::PORTAL_SESSION_ID);
+// Ensure that the cookie is there when we select session wrapper on first page load of login page
+$_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
+// Login/registration flow writes heavily to the session
+$sessionAllowWrite = true;
+SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth_onsite_portal = true;
 
 //includes
-
 require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
-use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
-use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
-use OpenEMR\Services\LogoService;
-
 //For redirect if the site on session does not match
-$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = $globalsBag->getString('web_root') . "/portal/index.php?site=" . urlencode((string) $session->get('site_id', ''));
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
 
 //exit if portal is turned off
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
 $auth['portal_pwd'] = '';
 if (isset($_GET['woops'])) {
     unset($_GET['woops']);
-    unset($_SESSION['password_update']);
+    SessionUtil::unsetSession('password_update');
 }
 /*
     The below will test and set the where to session variable when redirecting from the login page.
@@ -70,9 +79,9 @@ if (isset($_GET['woops'])) {
 unset($_REQUEST['whereto']);
 unset($_GET['whereto']);
 // set the where to session variable to the page from previous session.
-$whereto = $_SESSION['whereto'] ?? null;
+$whereto = $session->get('whereto', null);
 // set the landOn session variable to the redirect page after successfully login.
-$_SESSION['landOn'] = $_GET['landOn'] ?? null;
+SessionUtil::setSession('landOn', $_GET['landOn'] ?? null);
 // unset the landOn super.
 unset($_REQUEST['landOn']);
 unset($_GET['landOn']);
@@ -97,29 +106,57 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
         $token = $_GET['service_auth'];
-        $ot = $oneTime->decodePortalOneTime($token, null, false);
+        try {
+            // Decoding now enforces the token's consumption policy (expiry,
+            // one-time use, max access count), so an already-consumed or expired
+            // token is refused here instead of rendering the autologin form.
+            $ot = $oneTime->decodePortalOneTime($token, logUpdate: false);
+        } catch (OneTimeAuthExpiredException $exception) {
+            // '&oe' is read below (see the $_GET['oe'] handler) to alert the
+            // patient that the one-time link has expired.
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oe');
+            exit();
+        } catch (OneTimeAuthException $exception) {
+            // '&oi' is read below (see the $_GET['oi'] handler) to alert the
+            // patient that the one-time link is invalid or already consumed.
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oi');
+            exit();
+        }
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
-        CsrfUtils::setupCsrfKey();
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
-        echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
-            'action' => $GLOBALS['web_root'] . '/portal/index.php',
-            'service_auth' => $_GET['service_auth'],
-            'target' => $_GET['target'] ?? null,
-            'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
+        CsrfUtils::setupCsrfKey($session);
+        echo ServiceContainer::getTwig()->render('portal/login/autologin.html.twig', [
+            'action' => $globalsBag->getString('web_root') . '/portal/index.php',
+            'service_auth' => text($_GET['service_auth']),
+            'csrf_token' => CsrfUtils::collectCsrfToken($session, 'autologin'),
             'pagetitle' => xl("OpenEMR Patient Portal"),
-            'images_static_relative' => $GLOBALS['images_static_relative'] ?? '',
+            'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
             'pin_required' => $pin_required,
         ]);
         exit;
     } elseif (!empty($_POST['service_auth'] ?? null)) {
         $token = $_POST['service_auth'];
-        $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
         try {
-            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, $session, 'autologin')) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
-            $auth = $oneTime->processOnetime($token, $redirect_token);
+            $auth = $oneTime->processOnetime($token);
             $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
             exit();
         } catch (OneTimeAuthExpiredException $exception) {
@@ -131,7 +168,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
                 '0'
             );
             // do we want a separate message that their token has expired?
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             header('Location: ' . $landingpage . '&oe');
             exit();
         } catch (OneTimeAuthException $exception) {
@@ -142,60 +179,52 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
                 '',
                 '0'
             );
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             header('Location: ' . $landingpage . '&oi');
             exit();
         }
     } else {
-        (new SystemLogger())->errorLogCaller("Invalid service_auth request - should never reach here");
+        ServiceContainer::getLogger()->error("Invalid service_auth request - should never reach here");
         exit();
     }
 }
 
 if (!empty($_GET['forward_email_verify'])) {
-    if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
-        (new SystemLogger())->debug("registration not supported, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->getString('google_recaptcha_site_key')) || empty($globalsBag->getString('google_recaptcha_secret_key'))) {
+        ServiceContainer::getLogger()->debug("registration not supported, so stopped attempt to use forward_email_verify token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
 
-    $crypto = new CryptoGen();
-    if (!$crypto->cryptCheckStandard($_GET['forward_email_verify'])) {
-        (new SystemLogger())->debug("illegal token, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w&u');
-        exit();
-    }
-
-    $token_one_time = $crypto->decryptStandard($_GET['forward_email_verify'], null, 'drive', 6);
-    if (empty($token_one_time)) {
-        (new SystemLogger())->debug("unable to decrypt token, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    $token_one_time = is_string($_GET['forward_email_verify']) ? $_GET['forward_email_verify'] : '';
+    if (strlen($token_one_time) !== RandomGenUtils::DEFAULT_TOKEN_LENGTH || !ctype_alnum($token_one_time)) {
+        ServiceContainer::getLogger()->debug("invalid token format, so stopped attempt to use forward_email_verify token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
 
     $sqlResource = sqlStatementNoLog("SELECT `id`, `token_onetime`, `fname`, `mname`, `lname`, `dob`, `email`, `language` FROM `verify_email` WHERE `active` = 1 AND `token_onetime` LIKE BINARY ?", [$token_one_time . '%']);
     if (sqlNumRows($sqlResource) > 1) {
-        (new SystemLogger())->debug("active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        ServiceContainer::getLogger()->debug("active token found more than once, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token found more than once, so stopped attempt to use forward_email_verify token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
     if (!sqlNumRows($sqlResource)) {
-        (new SystemLogger())->debug("active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        ServiceContainer::getLogger()->debug("active token not found, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token not found, so stopped attempt to use forward_email_verify token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
     $sqlVerify = sqlFetchArray($sqlResource);
     if (empty($sqlVerify['id']) || empty($sqlVerify['token_onetime'])) {
-        (new SystemLogger())->debug("active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        ServiceContainer::getLogger()->debug("active token not properly set up, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token not properly set up, so stopped attempt to use forward_email_verify token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
@@ -204,89 +233,107 @@ if (!empty($_GET['forward_email_verify'])) {
 
     $validateTime = hex2bin(str_replace($token_one_time, '', $sqlVerify['token_onetime']));
     if ($validateTime <= time()) {
-        (new SystemLogger())->debug("active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        ServiceContainer::getLogger()->debug("active token has expired, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token has expired, so stopped attempt to use forward_email_verify token");
+        SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your email verification link has expired. Reset and try again."));
     }
 
     if (!empty($sqlVerify['fname']) && !empty($sqlVerify['lname']) && !empty($sqlVerify['dob']) && !empty($sqlVerify['email']) && !empty($sqlVerify['language'])) {
         // token has passed and have all needed data
         $fnameRegistration = $sqlVerify['fname'];
-        $_SESSION['fnameRegistration'] = $fnameRegistration;
         $mnameRegistration = $sqlVerify['mname'] ?? '';
-        $_SESSION['mnameRegistration'] = $mnameRegistration;
         $lnameRegistration = $sqlVerify['lname'];
-        $_SESSION['lnameRegistration'] = $lnameRegistration;
         $dobRegistration = $sqlVerify['dob'];
-        $_SESSION['dobRegistration'] = $dobRegistration;
         $emailRegistration = $sqlVerify['email'];
-        $_SESSION['emailRegistration'] = $emailRegistration;
         $languageRegistration = $sqlVerify['language'];
-        $_SESSION['language_choice'] = (int)($languageRegistration ?? 1);
         $portalRegistrationAuthorization = true;
-        $_SESSION['token_id_holder'] = $sqlVerify['id'];
-        (new SystemLogger())->debug("token worked for forward_email_verify token, now on to registration");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 1, "token (" . $token_one_time . ") was successful for forward_email_verify token");
+        SessionUtil::setSession([
+            'fnameRegistration' => $fnameRegistration,
+            'mnameRegistration' => $mnameRegistration,
+            'lnameRegistration' => $lnameRegistration,
+            'dobRegistration' => $dobRegistration,
+            'emailRegistration' => $emailRegistration,
+            'language_choice' => (int)($languageRegistration ?? 1),
+            'token_id_holder' => $sqlVerify['id'],
+        ]);
+        ServiceContainer::getLogger()->debug("token worked for forward_email_verify token, now on to registration");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 1, "token was successful for forward_email_verify token");
         require_once(__DIR__ . "/account/register.php");
         exit();
     } else {
-        (new SystemLogger())->debug("active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        ServiceContainer::getLogger()->debug("active token did not have all required data, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token did not have all required data, so stopped attempt to use forward_email_verify token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
 } elseif (isset($_GET['forward'])) {
-    if ((empty($GLOBALS['portal_two_pass_reset']) && empty($GLOBALS['portal_onsite_two_register'])) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
-        (new SystemLogger())->debug("reset password and registration not supported, so stopped attempt to use forward token");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    if ((!$globalsBag->getBoolean('portal_two_pass_reset') && !$globalsBag->getBoolean('portal_onsite_two_register')) || empty($globalsBag->getString('google_recaptcha_site_key')) || empty($globalsBag->getString('google_recaptcha_secret_key'))) {
+        ServiceContainer::getLogger()->debug("reset password and registration not supported, so stopped attempt to use forward token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
-    $auth = false;
-    if (strlen($_GET['forward']) >= 64) {
-        $crypto = new CryptoGen();
-        if ($crypto->cryptCheckStandard($_GET['forward'])) {
-            $one_time = $crypto->decryptStandard($_GET['forward'], null, 'drive', 6);
-            if (!empty($one_time)) {
-                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", array($one_time . '%'));
-            }
-        }
+    $one_time = is_string($_GET['forward']) ? $_GET['forward'] : '';
+    if (strlen($one_time) !== RandomGenUtils::DEFAULT_TOKEN_LENGTH || !ctype_alnum($one_time)) {
+        ServiceContainer::getLogger()->error('One time reset: invalid token format');
+        $logit->portalLog('login attempt', '', 'invalid one time token', '', '0');
+        SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
     }
-    if ($auth === false) {
-        error_log("PORTAL ERROR: " . errorLogEscape('One time reset:' . $_GET['forward']), 0);
-        $logit->portalLog('login attempt', '', ($_GET['forward'] . ':invalid one time'), '', '0');
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    $records = QueryUtils::fetchRecordsNoLog("SELECT * FROM `patient_access_onsite` WHERE `portal_onetime` LIKE BINARY ?", [$one_time . '%']);
+    if (count($records) > 1) {
+        ServiceContainer::getLogger()->debug("token found more than once, so stopped attempt to use forward token");
+        EventAuditLogger::getInstance()->newEvent('patient-reset-credentials', '', '', 0, "token found more than once, so stopped attempt to use forward token");
+        SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    if (count($records) === 0) {
+        ServiceContainer::getLogger()->error("One time reset: token not found");
+        $logit->portalLog('login attempt', '', 'invalid one time token', '', '0');
+        SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    $auth = $records[0];
+    if (!array_key_exists('portal_onetime', $auth)) {
+        ServiceContainer::getLogger()->debug("token data not properly set up, so stopped attempt to use forward token");
+        EventAuditLogger::getInstance()->newEvent('patient-reset-credentials', '', '', 0, "token data not properly set up, so stopped attempt to use forward token");
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
     $parse = str_replace($one_time, '', $auth['portal_onetime']);
     $validate = hex2bin(substr($parse, 6));
     if ($validate <= time()) {
-        error_log("PORTAL ERROR: " . errorLogEscape('One time reset link expired. Dying.'), 0);
+        ServiceContainer::getLogger()->error('One time reset link expired');
         $logit->portalLog('password reset attempt', '', ($_POST['uname'] . ':link expired'), '', '0');
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time());
     }
-    $_SESSION['pin'] = substr($parse, 0, 6);
-    $_SESSION['forward'] = $auth['portal_onetime'];
-    $_SESSION['portal_username'] = $auth['portal_username'];
-    $_SESSION['portal_login_username'] = $auth['portal_login_username'];
-    $_SESSION['password_update'] = 2;
-    $_SESSION['onetime'] = $auth['portal_pwd'];
+    SessionUtil::setSession([
+        'pin' => substr($parse, 0, 6),
+        'forward' => $auth['portal_onetime'],
+        'portal_username' => $auth['portal_username'],
+        'portal_login_username' => $auth['portal_login_username'],
+        'password_update' => 2,
+        'onetime' => $auth['portal_pwd'],
+    ]);
     unset($auth);
 }
 // security measure -- will check on next page.
-$_SESSION['itsme'] = 1;
+SessionUtil::setSession('itsme', 1);
 //
 
 //
 // Deal with language selection
 //
 // collect default language id (skip this if this is a password update or reset)
-if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])))) {
-    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
+if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key')) && isset($_GET['requestNew'])))) {
+    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [$globalsBag->getString('language_default')]);
     for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
         $result2[$iter] = $row;
     }
@@ -301,11 +348,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
     }
 
     // set session variable to default so login information appears in default language
-    $_SESSION['language_choice'] = $defaultLangID;
+    SessionUtil::setSession('language_choice', $defaultLangID);
     // collect languages if showing language menu
-    if ($GLOBALS['language_menu_login']) {
+    if ($globalsBag->get('language_menu_login')) {
         // sorting order of language titles depends on language translation options.
-        $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+        $languageChoice = $session->get('language_choice');
+        $mainLangID = empty($languageChoice) ? '1' : $languageChoice;
         // Use and sort by the translated language name.
         $sql = "SELECT ll.lang_id, " .
             "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
@@ -315,7 +363,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
             "ld.lang_id = ? " .
             "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-        $res3 = SqlStatement($sql, array($mainLangID));
+        $res3 = sqlStatement($sql, [$mainLangID]);
         for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
             $result3[$iter] = $row;
         }
@@ -431,7 +479,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         });
     </script>
 
-    <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
+    <?php if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <script>
             function enableVerifyBtn() {
@@ -439,7 +487,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             }
         </script>
         <?php // add csrf mechanism for the password reset ui
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($session);
         ?>
     <?php } ?>
     <style>
@@ -474,8 +522,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 </head>
 <body class="login">
     <div id="wrapper" class="login-wrapper mx-auto">
-        <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
-            $_SESSION['password_update'] = 1;
+        <?php if ($session->has('password_update') || isset($_GET['password_update'])) {
+            SessionUtil::setSession('password_update', 1);
             ?>
             <h2 class="title"><?php echo xlt('Please Enter New Credentials'); ?></h2>
             <form class="form pb-5" action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()">
@@ -485,24 +533,24 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($_SESSION['portal_username']); ?>" />
+                        <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($session->get('portal_username')); ?>" />
                     </div>
                 </div>
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be a minimum of 8 characters'); ?>" pattern=".{8,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
+                        <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be a minimum of 8 characters'); ?>" pattern=".{8,80}" value="<?php echo attr($session->get('portal_login_username')); ?>" onblur="checkUserName()" />
                     </div>
                 </div>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($_SESSION['onetime'] ?? null) ? xlt('Current Password') : ''; ?></label>
+                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($session->get('onetime')) ? xlt('Current Password') : ''; ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="pass" id="pass" <?php echo ($_SESSION['onetime'] ?? null) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime'] ?? '');
-                        $_SESSION['password_update'] = ($_SESSION['onetime'] ?? null) ? 2 : 1;
-                        unset($_SESSION['onetime']); ?>" required />
+                        <input class="form-control" name="pass" id="pass" <?php echo ($session->get('onetime')) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($session->get('onetime') ?? '');
+                        SessionUtil::setSession('password_update', ($session->get('onetime') ? 2 : 1));
+                        SessionUtil::unsetSession('onetime'); ?>" required />
                     </div>
                 </div>
-                <?php if ($_SESSION['pin'] ?? null) { ?>
+                <?php if ($session->get('pin', null)) { ?>
                     <div class="form-row my-3">
                         <label class="col-md-2 col-form-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
                         <div class="col-md">
@@ -522,7 +570,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                     </div>
                 </div>
-                <?php if ($GLOBALS['enforce_signin_email']) { ?>
+                <?php if ($globalsBag->getBoolean('enforce_signin_email')) { ?>
                     <div class="form-row my-3">
                         <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('Confirm Email Address'); ?></label>
                         <div class="col-md">
@@ -530,13 +578,13 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                     </div>
                 <?php } ?>
-                <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                     echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
-        <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
+        <?php } elseif ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
-                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
+                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo CsrfUtils::collectCsrfToken($session, 'passwordResetCsrf'); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
@@ -571,10 +619,10 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                         <div class="form-group">
                             <div class="d-flex justify-content-center">
-                                <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
+                                <div class="g-recaptcha" data-sitekey="<?php echo attr($globalsBag->getString('google_recaptcha_site_key')); ?>" data-callback="enableVerifyBtn"></div>
                             </div>
                         </div>
-                        <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                        <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                             echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                         <button id="submitRequest" class="btn btn-primary nextBtn" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
                     </fieldset>
@@ -584,24 +632,24 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             ?> <!-- Main logon -->
         <div class="container-xl p-1">
             <!-- Optionally show two logos, and in either order -->
-            <?php if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'second') { ?>
-                <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
+            <?php if ($globalsBag->get('secondary_portal_logo_position') === 'second') { ?>
+                <?php if ($globalsBag->getBoolean('show_portal_primary_logo')) { ?>
                     <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                 <?php } ?>
-                <?php if ($GLOBALS['extra_portal_logo_login'] ?? null) { ?>
+                <?php if ($globalsBag->getBoolean('extra_portal_logo_login')) { ?>
                     <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                 <?php } ?>
             <?php } else {
-                if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'first') { ?>
-                    <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
+                if ($globalsBag->get('secondary_portal_logo_position') === 'first') { ?>
+                    <?php if ($globalsBag->getBoolean('extra_portal_logo_login')) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                     <?php } ?>
-                    <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
+                    <?php if ($globalsBag->getBoolean('show_portal_primary_logo')) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                     <?php } ?>
                 <?php } ?>
             <?php } ?>
-            <legend class="text-center bg-light text-dark pt-2 py-1"><h2><?php echo $GLOBALS['openemr_name'] . ' ' . xlt('Portal Login'); ?></h2></legend>
+            <legend class="text-center bg-light text-dark pt-2 py-1"><h2><?php echo $globalsBag->getString('openemr_name') . ' ' . xlt('Portal Login'); ?></h2></legend>
             <form class="mx-1" action="get_patient_info.php" method="POST" onsubmit="return process()">
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
@@ -621,13 +669,13 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                             </div>
                         </div>
                     </div>
-                <?php if ($GLOBALS['enforce_signin_email']) { ?>
+                <?php if ($globalsBag->getBoolean('enforce_signin_email')) { ?>
                     <div class="form-group">
                         <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
                         <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
                     </div>
                 <?php } ?>
-                <?php if ($GLOBALS['language_menu_login']) { ?>
+                <?php if ($globalsBag->get('language_menu_login')) { ?>
                     <?php if (count($result3) != 1) { ?>
                 <div class="form-group">
                     <label for="selLanguage"><?php echo xlt('Language'); ?></label>
@@ -636,19 +684,21 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                             text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                         foreach ($result3 as $iter) {
-                            if ($GLOBALS['language_menu_showall']) {
-                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                            /** @var string $transLangDesc */
+                            $transLangDesc = $iter['trans_lang_description'];
+                            if ($globalsBag->getBoolean('language_menu_showall')) {
+                                if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                     continue; // skip the dummy language
                                 }
                                 echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                    text($iter['trans_lang_description']) . "</option>\n";
+                                    text($transLangDesc) . "</option>\n";
                             } else {
-                                if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
+                                    if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
                                     echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                        text($iter['trans_lang_description']) . "</option>\n";
+                                        text($transLangDesc) . "</option>\n";
                                 }
                             }
                         }
@@ -659,11 +709,11 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 </div>
                 <div class="col col-md col-sm">
                     <button class="btn btn-success btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
-                    <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
-                        <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
+                    <?php if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key'))) { ?>
+                        <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($session->get('site_id')); ?>')"><?php echo xlt('Register'); ?></button>
                     <?php } ?>
-                    <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                        <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                    <?php if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key')) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
+                        <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                     <?php } ?>
                 </div>
@@ -686,7 +736,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 
     <script>
         var tab_mode = true;
-        var webroot_url = <?php echo js_escape($GLOBALS['web_root']) ?>;
+        var webroot_url = <?php echo js_escape($globalsBag->get('web_root')) ?>;
 
         function restoreSession() {
             //dummy functions so the dlgopen function will work in the patient portal
@@ -697,16 +747,18 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 
         $(function () {
             <?php // if something went wrong
-            if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) {
-                $_SESSION['register'] = true;
-                $_SESSION['authUser'] = 'portal-user';
-                $_SESSION['pid'] = true;
+            if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->getString('google_recaptcha_site_key')) && !empty($globalsBag->getString('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) {
+                SessionUtil::setSession([
+                    'register' => true,
+                    'authUser' => 'portal-user',
+                    'pid' => true,
+                ]);
                 ?>
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require $globalsBag->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             });
             $(document.body).on('hidden.bs.modal', function () {
                 callServer('cleanup');
@@ -761,10 +813,11 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 data: data
             }).done(function (rtn) {
                 if (action === "cleanup") {
-                    let url = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let url = "./index.php?site=" + <?php echo js_url($session->get('site_id')); ?>; // Goto landing page.
                     let redirectUrl = $("#redirect").val();
                     if (redirectUrl) {
-                        url += "&redirect=" + encodeURIComponent(redirectUrl);
+                        const params = new URLSearchParams({ redirect: redirectUrl });
+                        url += "&" + params;
                     }
                     window.location.href = url;
                 } else if (action === "reset_password") {

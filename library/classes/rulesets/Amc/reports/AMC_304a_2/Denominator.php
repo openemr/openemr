@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_304a_2_Denominator implements AmcFilterIF
@@ -29,7 +29,7 @@ class AMC_304a_2_Denominator implements AmcFilterIF
         return "AMC_304a_2 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // MEASURE STAGE2: Procedure Order(s) Check
         return true;

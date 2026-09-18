@@ -12,11 +12,10 @@
 
 namespace Documents;
 
-use Laminas\Mvc\ModuleRouteListener;
-use Laminas\Mvc\MvcEvent;
 use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
 use Laminas\ModuleManager\ModuleManager;
-use Documents\Model\DocumentsTable;
+use Laminas\Mvc\ModuleRouteListener;
+use Laminas\Mvc\MvcEvent;
 
 class Module implements AutoloaderProviderInterface
 {
@@ -29,7 +28,7 @@ class Module implements AutoloaderProviderInterface
 
     public function init(ModuleManager $mm)
     {
-        $mm->getEventManager()->getSharedManager()->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $mm->getEventManager()->getSharedManager()->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $controller             = $e->getTarget();
             $route                      = $controller->getEvent()->getRouteMatch();
             $controller_name    = $route->getParam('controller');
@@ -37,10 +36,10 @@ class Module implements AutoloaderProviderInterface
                 default:
                     $controller->layout('documents/layout');
             };
-            $controller->getEvent()->getViewModel()->setVariables(array(
+            $controller->getEvent()->getViewModel()->setVariables([
                         'current_controller' => $route->getParam('controller'),
                         'current_action'         => $route->getParam('action'),
-                    ));
+                    ]);
         });
     }
 
@@ -51,12 +50,12 @@ class Module implements AutoloaderProviderInterface
 
     public function getAutoloaderConfig()
     {
-        return array(
-        'Laminas\Loader\StandardAutoloader' => array(
-          'namespaces' => array(
+        return [
+        \Laminas\Loader\StandardAutoloader::class => [
+          'namespaces' => [
             __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-          ),
-        ),
-        );
+          ],
+        ],
+        ];
     }
 }

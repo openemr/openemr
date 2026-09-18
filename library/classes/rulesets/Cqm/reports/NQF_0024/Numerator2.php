@@ -14,7 +14,7 @@ class NQF_0024_Numerator2 implements CqmFilterIF
         return "Numerator 2";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         //if ( Helper::check( ClinicalType::COMMUNICATION, Communication::COUNS_NUTRITION, $patient, $beginDate, $endDate ) ) {
         //    return true;
@@ -22,7 +22,7 @@ class NQF_0024_Numerator2 implements CqmFilterIF
 
         $nutrition = sqlQuery("SELECT * FROM `rule_patient_data` " .
                               "WHERE `category`='act_cat_edu' AND `item`='act_nutrition' AND `complete`='YES' " .
-                              "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginDate,$endDate));
+                              "AND `pid`=? AND `date`>=? AND `date`<=?", [$patient->id,$beginDate,$endDate]);
         if (!empty($nutrition)) {
             return true;
         }

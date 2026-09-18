@@ -207,7 +207,7 @@ class FHIRMeasure extends FHIRDomainResource implements \JsonSerializable
     public $topic = [];
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public $author = [];
@@ -782,7 +782,7 @@ class FHIRMeasure extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public function getAuthor()
@@ -791,7 +791,7 @@ class FHIRMeasure extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $author
      * @return $this
      */
@@ -1400,7 +1400,7 @@ class FHIRMeasure extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -1587,15 +1587,13 @@ class FHIRMeasure extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Measure xmlns="http://hl7.org/fhir"></Measure>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Measure xmlns="http://hl7.org/fhir"></Measure>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

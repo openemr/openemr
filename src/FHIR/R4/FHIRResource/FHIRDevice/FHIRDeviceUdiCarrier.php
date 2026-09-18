@@ -295,7 +295,7 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -328,15 +328,13 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceUdiCarrier xmlns="http://hl7.org/fhir"></DeviceUdiCarrier>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceUdiCarrier xmlns="http://hl7.org/fhir"></DeviceUdiCarrier>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->deviceIdentifier)) {
             $this->deviceIdentifier->xmlSerialize(true, $sxe->addChild('deviceIdentifier'));

@@ -5,19 +5,25 @@
  * For DataTables documentation see: http://legacy.datatables.net/
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Thomas Pantelis <tompantelis@gmail.com>
  * @copyright Copyright (c) 2020 Thomas Pantelis <tompantelis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
 
 $codetype = empty($_GET['codetype']) ? '' : $_GET['codetype'];
 if (!empty($codetype)) {
@@ -46,7 +52,7 @@ if (!empty($codetype)) {
 
                 // Next 2 lines invoke server side processing
                 "bServerSide": true,
-                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
+                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>,
 
                 // Vertical length options and their default
                 "aLengthMenu": [15, 25, 50, 100],
@@ -58,7 +64,7 @@ if (!empty($codetype)) {
 
                 // This callback function passes some form data on each call to the ajax handler.
                 "fnServerParams": function (aoData) {
-                    aoData.push({"name": "what", "value": <?php echo js_escape('codes'); ?>});
+                    aoData.push({"name": "what", "value": "codes"});
                     aoData.push({"name": "codetype", "value": document.forms[0].form_code_type.value});
                     aoData.push({"name": "inactive", "value": (document.forms[0].form_include_inactive.checked ? 1 : 0)});
                 },
@@ -103,8 +109,8 @@ if (!empty($codetype)) {
                     }
                 },
                 initComplete: function () {
-                    // const input = $('.dataTables_filter input').unbind(),
-                        const self = this.api(),
+                     const input = $('.dataTables_filter input').unbind(),
+                        self = this.api(),
                         $searchButton = $('<button class="btn btn-sm btn-outline-primary fa fa-search p-2">').click(function () {
                             event.preventDefault();
                             event.stopPropagation();
@@ -114,6 +120,13 @@ if (!empty($codetype)) {
                         .click(function () {
                             input.val('');
                         });
+                    // Enter key handler for the search input
+                    input.on('keypress', function (e) {
+                        if (e.which === 13) { // Enter key
+                            e.preventDefault();
+                            self.search(input.val()).draw();
+                        }
+                    });
                     $('.dataTables_filter').append($searchButton, $clearButton);
                 }
             });

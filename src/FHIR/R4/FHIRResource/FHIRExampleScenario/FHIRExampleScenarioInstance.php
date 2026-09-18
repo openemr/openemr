@@ -283,7 +283,7 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -322,15 +322,13 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExampleScenarioInstance xmlns="http://hl7.org/fhir"></ExampleScenarioInstance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExampleScenarioInstance xmlns="http://hl7.org/fhir"></ExampleScenarioInstance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->resourceId)) {
             $this->resourceId->xmlSerialize(true, $sxe->addChild('resourceId'));

@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -41,13 +41,13 @@ class Cat1 extends \Mustache_Engine
      */
     protected $_measures;
 
-    public function __construct(Patient $patient, $measures = array(), $options = array())
+    public function __construct(Patient $patient, $measures = [], $options = [])
     {
         parent::__construct(
-            array(
+            [
                 'entity_flags' => ENT_QUOTES,
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            )
+            ]
         );
 
         $this->_qrda_guid = UuidV4::uuid4();

@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_304b_STG1_Numerator implements AmcFilterIF
@@ -29,7 +29,7 @@ class AMC_304b_STG1_Numerator implements AmcFilterIF
         return "AMC_304b_STG1 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // The number of prescriptions in the denominator transmitted electronically.
         $amcElement = amcCollect('e_prescribe_amc', $patient->id, 'prescriptions', $patient->object['id']);

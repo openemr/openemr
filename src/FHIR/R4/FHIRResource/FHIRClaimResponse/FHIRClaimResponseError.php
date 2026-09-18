@@ -213,7 +213,7 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -240,15 +240,13 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimResponseError xmlns="http://hl7.org/fhir"></ClaimResponseError>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ClaimResponseError xmlns="http://hl7.org/fhir"></ClaimResponseError>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->itemSequence)) {
             $this->itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));

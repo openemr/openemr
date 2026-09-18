@@ -4,7 +4,7 @@
  * ExternalCodesEvent
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -21,15 +21,12 @@ class ExternalCodesCreatedEvent extends Event
      */
     const EVENT_HANDLE = 'external_codes.register';
 
-    private $externalCodeData;
-
     /**
      * ExternalCodesEvent constructor.
      * @param $externalCodes
      */
-    public function __construct($externalCodeData)
+    public function __construct(private $externalCodeData)
     {
-        $this->externalCodeData = $externalCodeData;
     }
 
     /**

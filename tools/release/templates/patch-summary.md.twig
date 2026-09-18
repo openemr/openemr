@@ -1,0 +1,55 @@
+## Patch Build Results
+
+### Inputs
+| Parameter | Value |
+|-----------|-------|
+| Start tag | `{{ start_tag }}` |
+| Release branch | `{{ version_branch }}` |
+| Patch filename | `{{ patch_filename }}` |
+| Milestone | `{{ milestone }}` |
+| Patch number | `{{ patch_number }}` |
+| Release tag | `{{ release_tag ?? '(dry run)' }}` |
+| Dry run | `{{ dry_run ? 'true' : 'false' }}` |
+| Copy styles | `{{ copy_styles ? 'true' : 'false' }}` |
+
+{% if checksums is not empty %}
+### Checksums
+```
+{% for checksum in checksums %}
+{{ checksum }}
+{% endfor %}
+```
+
+{% endif %}
+{% if changelog is not empty %}
+### Changelog
+{{ changelog }}
+
+{% endif %}
+{% if changed_files is not empty %}
+<details><summary>Changed files ({{ changed_files | length }})</summary>
+
+```
+{% for file in changed_files %}
+{{ file }}
+{% endfor %}
+```
+</details>
+
+{% endif %}
+---
+
+### Announcement template
+
+> **OpenEMR {{ milestone }} Patch Release**
+>
+> OpenEMR {{ milestone }} has been released.
+{% if changed_files is not empty %}
+> This patch includes {{ changed_files | length }} updated files with bug fixes and improvements.
+{% endif %}
+>
+> Download: https://github.com/openemr/openemr/releases/tag/{{ release_tag ?? '(tag)' }}
+
+---
+
+{% include 'patch-checklist.md' %}

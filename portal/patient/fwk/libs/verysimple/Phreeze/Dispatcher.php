@@ -3,12 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/HTTP/RequestUtil.php");
-require_once("verysimple/Util/ExceptionThrower.php");
-
-/**
  * Dispatcher direct a web request to the correct controller & method
  *
  * @package verysimple::Phreeze
@@ -22,16 +16,16 @@ class Dispatcher
     /**
      * Set to true and Phreeze will not try to handle deprecated function warnings
      *
-     * @var boolean default = true
+     * @var bool default = true
      */
     static $IGNORE_DEPRECATED = true;
 
     /**
      * FAST_LOOKUP mode instructs the dispatcher to assume that the controller and method
-     * supplied by the router are valid and not do any checking for the existance of
+     * supplied by the router are valid and not do any checking for the existence of
      * the controller file or the method before trying to call it
      *
-     * @var boolean use fast lookup mode if true
+     * @var bool use fast lookup mode if true
      */
     static $FAST_LOOKUP = false;
 
@@ -40,7 +34,7 @@ class Dispatcher
      *
      * @param string $fileName
      */
-    static function ControllerFileExists($fileName)
+    public static function ControllerFileExists($fileName)
     {
         if (file_exists($fileName)) {
             return $fileName;
@@ -73,22 +67,18 @@ class Dispatcher
      *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
-     * @param
-     *          string (optional) $action the user requested action (if not provided will use router->GetRoute())
-     * @param
-     *          Context (optional) a context object for persisting state
-     * @param
-     *          IRouter (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
+     * @param string $action (optional) the user requested action (if not provided will use router->GetRoute())
+     * @param Context $context (optional) a context object for persisting state
+     * @param IRouter $router (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
      */
-    static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null)
+    public static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null): bool
     {
         if ($router == null) {
-            require_once('GenericRouter.php');
             $router = new GenericRouter();
         }
 
         // get the route and normalize the controller name
-        list ( $controller_param, $method_param ) = $router->GetRoute($action);
+        [$controller_param, $method_param] = $router->GetRoute($action);
         $controller_class = $controller_param . "Controller";
 
         if (self::$FAST_LOOKUP) {
@@ -116,10 +106,10 @@ class Dispatcher
             $controller_filepath = null;
 
             // search for the controller file in the default locations, then the include path
-            $paths = array_merge(array (
+            $paths = array_merge([
                     './libs/',
                     './'
-            ), explode(PATH_SEPARATOR, get_include_path()));
+            ], explode(PATH_SEPARATOR, get_include_path()));
 
             $found = false;
             foreach ($paths as $path) {
@@ -156,10 +146,10 @@ class Dispatcher
 
         // we have a valid instance, just verify there is a matching method
         if (
-            ! is_callable(array (
+            ! is_callable([
                 $controller,
                 $method_param
-            ))
+            ])
         ) {
             throw new Exception("'" . $controller_class . "." . $method_param . "' is not a valid action");
         }
@@ -167,10 +157,7 @@ class Dispatcher
         // do not call the requested method/route if the controller request has been cancelled
         if (! $controller->IsTerminated()) {
             // file, class and method all are ok, go ahead and call it
-            call_user_func(array (
-                    &$controller,
-                    $method_param
-            ));
+            $controller->$method_param();
         }
 
         // reset error handling back to whatever it was
@@ -184,7 +171,7 @@ class Dispatcher
      * Fired by the PHP error handler function.
      * Calling this function will
      * always throw an exception unless error_reporting == 0. If the
-     * PHP command is called with @ preceeding it, then it will be ignored
+     * PHP command is called with @ preceding it, then it will be ignored
      * here as well.
      *
      * @deprecated use ExceptionThrower::HandleError instead
@@ -194,7 +181,7 @@ class Dispatcher
      * @param string $line
      * @param string $context
      */
-    static function HandleException($code, $string, $file, $line, $context = '')
+    public static function HandleException($code, $string, $file, $line, $context = '')
     {
         ExceptionThrower::HandleError($code, $string, $file, $line, $context);
     }

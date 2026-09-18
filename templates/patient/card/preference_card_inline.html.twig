@@ -1,0 +1,422 @@
+{# Unified inline card for both Care Experience and Treatment Intervention preferences #}
+{% extends "patient/card/card_base.html.twig" %}
+
+{# expects in context:
+    title, pid, webroot, auth, can_write,
+    csrf_token,
+    type            ("care_experience" | "treatment_intervention")
+    loinc_codes     (array of { loinc_code, display_name })
+    preferences     (array rows)
+    message         (string|optional)
+#}
+
+{% block card_title %}
+    {{ title|xlt }}
+{% endblock %}
+
+{% block card_header_actions %}
+    <button type="button" class="btn btn-primary btn-sm js-toggle-edit" data-target="#{{ type|attr }}-edit">
+        <i class="fa fa-plus"></i> {{ "Add / Edit"|xlt }}
+    </button>
+{% endblock %}
+
+{% block content %}
+    <html>
+    <head>
+        {% block head %}
+            {{ setupHeader(['no_bootstrap', 'datetime-picker','datetime-picker-translated']) }}
+        {% endblock %}
+        <script>
+            $(function () {
+                $('.datepicker').datetimepicker({
+                    timepicker: true,
+                    formatDate: 'Y-m-d',
+                    format: 'Y-m-d'
+                });
+            });
+        </script>
+    </head>
+    {# success flash #}
+    {% if message %}
+        <div class="alert alert-success py-2 mb-2">
+            <i class="fa fa-check-circle"></i> {{ message|text }}
+        </div>
+    {% endif %}
+
+    {# VIEW SECTION #}
+    <div class="js-view" id="{{ type|attr }}-view">
+        {% if preferences is empty %}
+            <div class="alert alert-info mb-0">
+                <i class="fa fa-info-circle"></i>
+                {% if type == 'care_experience' %}
+                    {{ "No care experience preferences recorded."|xlt }}
+                {% else %}
+                    {{ "No treatment intervention preferences recorded."|xlt }}
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>{{ "Date"|xlt }}</th>
+                        <th>{{ "Preference"|xlt }}</th>
+                        <th>{{ "Patient's Choice"|xlt }}</th>
+                        <th>{{ "Status"|xlt }}</th>
+                        {% if auth and can_write %}
+                            <th class="text-center">{{ "Actions"|xlt }}</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for pref in preferences %}
+                        <tr>
+                            <td><small class="text-muted">{{ pref.effective_datetime ? pref.effective_datetime|date('Y-m-d') : pref.recorded_date|date('Y-m-d') }}</small></td>
+                            <td>
+                                <strong>{{ pref.observation_code_text ?? pref.code_display|default('')|text }}</strong>
+                                {% if pref.note %}
+                                    <br><small class="text-muted"><i class="fa fa-comment"></i> {{ pref.note|text }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if pref.value_display %}
+                                    <span class="badge badge-info">{{ pref.value_display|text }}</span>
+                                {% elseif pref.value_code_display %}
+                                    <span class="badge badge-info">{{ pref.value_code_display|text }}</span>
+                                {% elseif pref.value_type == 'boolean' %}
+                                    {% if pref.value_boolean in ['1', 1, true] %}
+                                        <span class="badge badge-success"><i class="fa fa-check"></i> {{ "Yes"|xlt }}</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa fa-times"></i> {{ "No"|xlt }}</span>
+                                    {% endif %}
+                                {% elseif pref.value_text %}
+                                    {{ pref.value_text|text }}
+                                {% else %}
+                                    <span class="text-muted">{{ "Not specified"|xlt }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set st = pref.status|default('') %}
+                                {% if st == 'final' %}
+                                    <span class="badge badge-success">{{ "Final"|xlt }}</span>
+                                {% elseif st == 'preliminary' %}
+                                    <span class="badge badge-warning">{{ "Preliminary"|xlt }}</span>
+                                {% elseif st == 'amended' %}
+                                    <span class="badge badge-info">{{ "Amended"|xlt }}</span>
+                                {% elseif st == 'entered-in-error' %}
+                                    <span class="badge badge-danger">{{ "Error"|xlt }}</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ st|text }}</span>
+                                {% endif %}
+                            </td>
+                            {% if auth and can_write %}
+                                <td class="float-right">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button"
+                                                class="btn btn-outline-primary btn-sm js-edit-row"
+                                                data-pref='{{ pref|json_encode }}' {# json_encode needs quotes #}
+                                                title="{{ 'Edit'|xla }}">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                        <form method="post" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}">
+                                            <input type="hidden" name="pref_type" value="{{ type|attr }}">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id" value="{{ pref.id|attr }}">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="{{ 'Delete'|xla }}">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {# EDIT SECTION (hidden by default) #}
+    {% if auth and can_write %}
+        <div class="js-edit" id="{{ type|attr }}-edit" style="display:none;">
+            <form method="post" id="{{ type|attr }}-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}">
+                <input type="hidden" name="pref_type" value="{{ type|attr }}">
+                <input type="hidden" name="action" value="save">
+                <input type="hidden" name="id" id="{{ type|attr }}-id">
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="{{ type|attr }}-observation_code">
+                            {{ type == 'care_experience' ? "Preference Category"|xlt : "Preference Type"|xlt }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-control" name="observation_code" id="{{ type|attr }}-observation_code" required>
+                            <option value="">{{ "Select..."|xlt }}</option>
+                            {% for code in loinc_codes %}
+                                <option value="{{ code.loinc_code|attr }}" data-text="{{ code.display_name|attr }}">
+                                    {{ code.display_name|text }} ({{ code.loinc_code|text }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="observation_code_text" id="{{ type|attr }}-observation_code_text">
+                        <small class="form-text text-muted">{{ "LOINC-coded list for FHIR compliance"|xlt }}</small>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label for="{{ type|attr }}-effective_datetime">{{ "Date Recorded"|xlt }} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control datepicker" name="effective_datetime" id="{{ type|attr }}-effective_datetime" value="{{ current_datetime|attr }}" required>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label for="{{ type|attr }}-status">{{ "Status"|xlt }}</label>
+                        <select class="form-control" name="status" id="{{ type|attr }}-status">
+                            <option value="final">{{ "Final"|xlt }}</option>
+                            <option value="preliminary">{{ "Preliminary"|xlt }}</option>
+                            <option value="amended">{{ "Amended"|xlt }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>{{ "Response Type"|xlt }} <span class="text-danger">*</span></label>
+                    <div class="form-check">
+                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type|attr }}-vt-coded" value="coded" checked>
+                        <label class="form-check-label" for="{{ type|attr }}-vt-coded">{{ "Coded Value (from answer list)"|xlt }}</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type|attr }}-vt-text" value="text">
+                        <label class="form-check-label" for="{{ type|attr }}-vt-text">{{ "Free Text"|xlt }}</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type|attr }}-vt-boolean" value="boolean">
+                        <label class="form-check-label" for="{{ type|attr }}-vt-boolean">{{ "Yes/No"|xlt }}</label>
+                    </div>
+                </div>
+
+                <div id="{{ type|attr }}-codedValueSection">
+                    <div class="form-group">
+                        <label for="{{ type|attr }}-value_code">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
+                        <select class="form-control" name="value_code" id="{{ type|attr }}-value_code">
+                            <option value="">{{ "Select preference first..."|xlt }}</option>
+                        </select>
+                        <input type="hidden" name="value_code_system" id="{{ type|attr }}-value_code_system">
+                        <input type="hidden" name="value_display" id="{{ type|attr }}-value_display">
+                    </div>
+                </div>
+
+                <div id="{{ type|attr }}-textValueSection" style="display:none;">
+                    <div class="form-group">
+                        <label for="{{ type|attr }}-value_text">{{ "Patient's Preference (Free Text)"|xlt }} <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="value_text" id="{{ type|attr }}-value_text" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div id="{{ type|attr }}-booleanValueSection" style="display:none;">
+                    <div class="form-group">
+                        <label for="{{ type|attr }}-value_boolean">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
+                        <select class="form-control" name="value_boolean" id="{{ type|attr }}-value_boolean">
+                            <option value="1">{{ "Yes"|xlt }}</option>
+                            <option value="0">{{ "No"|xlt }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ type|attr }}-note">{{ "Additional Notes"|xlt }}</label>
+                    <textarea class="form-control" name="note" id="{{ type|attr }}-note" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {{ "Save Preference"|xlt }}</button>
+                    <button type="button" class="btn btn-secondary btn-sm js-cancel-edit"><i class="fa fa-undo"></i> {{ "Cancel"|xlt }}</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <script>
+        (function ($) {
+            const type = "{{ type|attr }}";
+
+            function setObsText($scope) {
+                const $sel = $scope.find("#" + type + "-observation_code option:selected");
+                $scope.find("#" + type + "-observation_code_text").val($sel.data("text") || "");
+            }
+
+            function toggleSections(mode, $scope) {
+                if (mode === "edit") {
+                    $scope.find("#" + type + "-view").hide();
+                    $scope.find("#" + type + "-edit").show();
+                } else {
+                    $scope.find("#" + type + "-edit").hide();
+                    $scope.find("#" + type + "-view").show();
+                    resetForm($scope);
+                }
+            }
+
+            function toggleValueFields($scope) {
+                const vt = $scope.find("input[name='value_type']:checked").val();
+                // Use hide/show instead of toggle to ensure consistent state
+                if (vt === "coded") {
+                    $scope.find("#" + type + "-codedValueSection").show();
+                    $scope.find("#" + type + "-textValueSection").hide();
+                    $scope.find("#" + type + "-booleanValueSection").hide();
+                } else if (vt === "text") {
+                    $scope.find("#" + type + "-codedValueSection").hide();
+                    $scope.find("#" + type + "-textValueSection").show();
+                    $scope.find("#" + type + "-booleanValueSection").hide();
+                } else if (vt === "boolean") {
+                    $scope.find("#" + type + "-codedValueSection").hide();
+                    $scope.find("#" + type + "-textValueSection").hide();
+                    $scope.find("#" + type + "-booleanValueSection").show();
+                }
+            }
+
+            function resetForm($scope) {
+                const $f = $scope.find("#" + type + "-form");
+                if ($f.length && $f[0]) $f[0].reset();
+                $scope.find("#" + type + "-id").val("");
+                $scope.find("#" + type + "-value_code").html(
+                    '<option value="">{{ "Select preference first..."|xlt }}</option>'
+                );
+                $scope.find("#" + type + "-value_code_system").val("");
+                $scope.find("#" + type + "-value_display").val("");
+                toggleValueFields($scope);
+            }
+
+            //  robust loader for answers from library/ajax/get_preference_answers.php
+            function loadAnswers(loinc, $scope, afterPopulate) {
+                const $sel = $scope.find("#" + type + "-value_code");
+                // empty / placeholder
+                if (!loinc) {
+                    $sel.html('<option value="">{{ "Select preference first..."|xlt }}</option>');
+                    if (afterPopulate) afterPopulate();
+                    return;
+                }
+                // show a tiny loading placeholder
+                $sel.html('<option value="">{{ "Loading…"|xlt }}</option>');
+
+                $.getJSON("{{ webroot }}/library/ajax/get_preference_answers.php", {
+                    loinc_code: loinc,
+                    csrf_token: {{ csrfTokenRaw()|js_escape }}
+                }).done(function (list) {
+                    if (!Array.isArray(list) || list.length === 0) {
+                        // No coded answers found: show a hint and optionally switch to free text
+                        $sel.html('<option value="">{{ "No codified answers available"|xlt }}</option>');
+                        // OPTIONAL: auto-switch to text entry if no answers
+                        $scope.find("input[name='value_type'][value='text']").prop('checked', true);
+                        toggleValueFields($scope);
+                        if (afterPopulate) {
+                            afterPopulate();
+                        }
+                        return;
+                    }
+                    // Build options
+                    let html = '<option value="">{{ "Select response…"|xlt }}</option>';
+                    list.forEach(function (a) {
+                        // a = { answer_code, answer_display, answer_system }
+                        html += '<option value="' + jsAttr(a.answer_code || '') + '"'
+                            + ' data-system="' + jsAttr(a.answer_system || '') + '"'
+                            + ' data-display="' + jsAttr(a.answer_display || '') + '">'
+                            + (jsAttr(a.answer_display) || jsAttr(a.answer_code) || '') + '</option>';
+                    });
+                    $sel.html(html);
+                    if (afterPopulate) {
+                        afterPopulate();
+                    }
+                }).fail(function (xhr) {
+                    console.error("Preference answers XHR failed", xhr && xhr.status, xhr && xhr.responseText);
+                    $sel.html('<option value="">{{ "Failed to load answers"|xlt }}</option>');
+                    if (afterPopulate) {
+                        afterPopulate();
+                    }
+                });
+            }
+
+            function setValueDisplay($scope) {
+                const $opt = $scope.find("#" + type + "-value_code option:selected");
+                $scope.find("#" + type + "-value_code_system").val($opt.data("system") || "");
+                $scope.find("#" + type + "-value_display").val($opt.data("display") || "");
+            }
+
+            // Bind header icon (from card_base) if you used Option A (recommended)
+            $(document).on("click", ".js-card-toggle-edit", function (e) {
+                e.preventDefault();
+                const $section = $(this).closest("section");
+                toggleSections("edit", $section);
+            });
+
+            // Body buttons
+            $(document).on("click", ".js-toggle-edit", function () {
+                const $section = $(this).closest("section");
+                toggleSections("edit", $section);
+            });
+            $(document).on("click", ".js-cancel-edit", function () {
+                const $section = $(this).closest("section");
+                toggleSections("view", $section);
+            });
+
+            // FIXED: Add radio button change listener to toggle value fields
+            $(document).on("change", ".js-value-type-radio", function () {
+                const $section = $(this).closest("section");
+                toggleValueFields($section);
+            });
+
+            // Observation preference changed → load answers for that LOINC
+            $(document).on("change", "#" + type + "-observation_code", function () {
+                const $section = $(this).closest("section");
+                setObsText($section);
+                loadAnswers(this.value, $section);
+            });
+
+            // Answer changed → update hidden fields for system and display
+            $(document).on("change", "#" + type + "-value_code", function () {
+                const $section = $(this).closest("section");
+                setValueDisplay($section);
+            });
+
+            // Row edit → preload form and answers, then select existing answer
+            $(document).on("click", ".js-edit-row", function () {
+                const $section = $(this).closest("section");
+                const pref = $(this).data("pref");
+                toggleSections("edit", $section);
+
+                // Fill basics
+                $section.find("#" + type + "-id").val(pref.id || "");
+                $section.find("#" + type + "-observation_code").val(pref.observation_code || "");
+                $section.find("#" + type + "-observation_code_text").val(pref.observation_code_text || "");
+                $section.find("#" + type + "-effective_datetime").val((pref.effective_datetime || "").replace(" ", "T").substring(0, 16));
+                $section.find("#" + type + "-status").val(pref.status || "final");
+                $section.find("#" + type + "-note").val(pref.note || "");
+
+                const vt = (pref.value_type || "coded");
+                $section.find("input[name='value_type'][value='" + vt + "']").prop("checked", true);
+                toggleValueFields($section);
+
+                if (vt === "coded") {
+                    loadAnswers(pref.observation_code, $section, function () {
+                        $section.find("#" + type + "-value_code").val(pref.value_code || "").trigger("change");
+                        setValueDisplay($section);
+                    });
+                } else if (vt === "text") {
+                    $section.find("#" + type + "-value_text").val(pref.value_text || "");
+                } else if (vt === "boolean") {
+                    $section.find("#" + type + "-value_boolean").val(
+                        (pref.value_boolean === '1' || pref.value_boolean === 1 || pref.value_boolean === true) ? '1' : '0'
+                    );
+                }
+            });
+
+            // Initialize state for this card instance
+            (function init() {
+                const $section = $(document).find("#{{ type|attr }}-form").closest("section");
+                toggleValueFields($section);
+            })();
+
+        })(jQuery);
+    </script>
+    </html>
+{% endblock %}

@@ -14,42 +14,42 @@
 class ConnectionSetting
 {
     /** @var string database type, for example mysql, mysqli, sqlite */
-    var $Type = "mysql";
+    public $Type = "mysql";
 
     /** @var string connection string used to connect to the database, for example  localhost:3306 */
-    var $ConnectionString;
+    public $ConnectionString;
 
     /** @var string name of the database/schema */
-    var $DBName;
+    public $DBName;
 
     /** @var string database username used to connect */
-    var $Username;
+    public $Username;
 
     /** @var string database password used to connect */
-    var $Password;
+    public $Password;
 
     /** @var string if all tables share a common prefix, this can be used so object names do not include the prefix */
-    var $TablePrefix;
+    public $TablePrefix;
 
     /** @var string any arbitrary SQL that should be run upon first opening the connection, for example SET SQL_BIG_SELECTS=1 */
-    var $BootstrapSQL;
+    public $BootstrapSQL;
 
     /** @var string characterset used for the database, for example 'utf8' */
-    var $Charset;
+    public $Charset;
 
     /** @var boolean set to true and multi-byte functions will be used when evaluating strings */
-    var $Multibyte = false;
+    public $Multibyte = false;
 
     /** @var boolean set to true and write operations will not be allowed */
-    var $IsReadOnlySlave = false;
+    public $IsReadOnlySlave = false;
 
     /** @var ConnectionSetting if this is a slave connection, this is key of the master server */
-    var $MasterConnectionDelegate = '';
+    public $MasterConnectionDelegate = '';
 
     /**
      * Constructor
      */
-    function __construct($connection_code = "")
+    public function __construct($connection_code = "")
     {
         if ($connection_code != "") {
             $this->Unserialize($connection_code);
@@ -59,25 +59,25 @@ class ConnectionSetting
     /**
      * Returns an DSN array compatible with PEAR::DB
      */
-    function GetDSN()
+    public function GetDSN()
     {
-        return array (
+        return  [
                 'phptype' => $this->Type,
                 'username' => $this->Username,
                 'password' => $this->Password,
                 'hostspec' => $this->ConnectionString,
                 'database' => $this->DBName
-        );
+        ];
     }
 
     /**
      * Returns an options array compatible with PEAR::DB
      */
-    function GetOptions()
+    public function GetOptions()
     {
-        return array (
+        return  [
                 'debug' => 2
-        )
+        ]
         // 'portability' => DB_PORTABILITY_NONE,
         ;
     }
@@ -85,7 +85,7 @@ class ConnectionSetting
     /**
      * Serialize to string
      */
-    function Serialize()
+    public function Serialize()
     {
         return base64_encode(serialize($this));
     }
@@ -93,10 +93,14 @@ class ConnectionSetting
     /**
      * Populate info from serialized string
      */
-    function Unserialize(&$serialized)
+    public function Unserialize(&$serialized)
     {
         // load the util from the serialized code
-        $tmp = unserialize(base64_decode($serialized));
+        $tmp = unserialize(base64_decode((string) $serialized), ['allowed_classes' => [self::class]]);
+        if (!($tmp instanceof self)) {
+            return;
+        }
+
         $this->Type = $tmp->Type;
         $this->Username = $tmp->Username;
         $this->Password = $tmp->Password;

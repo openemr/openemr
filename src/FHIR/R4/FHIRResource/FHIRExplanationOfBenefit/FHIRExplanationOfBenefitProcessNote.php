@@ -213,7 +213,7 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -240,15 +240,13 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitProcessNote xmlns="http://hl7.org/fhir"></ExplanationOfBenefitProcessNote>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExplanationOfBenefitProcessNote xmlns="http://hl7.org/fhir"></ExplanationOfBenefitProcessNote>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->number)) {
             $this->number->xmlSerialize(true, $sxe->addChild('number'));

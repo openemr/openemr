@@ -21,7 +21,7 @@ class LabResult extends ClinicalType
         return 'Clinical_Rules_Lab_Res_Types';
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $data = Codes::lookup($this->getOptionId());
 
@@ -65,7 +65,7 @@ class LabResult extends ClinicalType
                     $sql .= "AND procedure_result.result < ? ";
                 }
 
-                $bindings = array( $codeType . ':' . $code, $code, $beginDate, $endDate, $patient->id );
+                $bindings = [ $codeType . ':' . $code, $code, $beginDate, $endDate, $patient->id ];
                 if ($range->lowerBound != Range::NEG_INF) {
                     $bindings [] = $range->lowerBound;
                 }

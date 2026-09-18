@@ -1,0 +1,8 @@
+# Test results and logs
+test_results/
+tests/
+
+# Benchmark results (keep directory structure)
+results/*.txt
+results/*.log
+!results/.gitkeep

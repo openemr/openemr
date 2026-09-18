@@ -10,12 +10,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// block of code to securely support use by the patient portal
-//   since need this class before autoloader, need to manually include it and then set it in line below with use command
-require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // block of code to securely support use by the patient portal
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../../../vendor/autoload.php");
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
@@ -23,27 +28,38 @@ if ($patientPortalSession) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
 
-if ($encounter == "") {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+if (!$encounter) {
     $encounter = date("Ymd");
 }
 
+$formid = null;
 if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_sdoh", $_POST, '', $userauthorized);
     addForm($encounter, "Social Screening Tool", $newid, "sdoh", $pid, $userauthorized);
     $formid = $newid;
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'sdoh');
     // if running from patient portal, then below will ensure patient can only see their forms
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $_SESSION['pid']);
-    $formid = $_GET["id"];
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $formId, 'sdoh', $session->get('pid'));
+    if (!$patientPortalSession) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'sdoh');
+    }
+    $formid = $formId;
     sqlStatement(
         "UPDATE form_sdoh set pid = ?,
             groupname=?,
@@ -181,9 +197,9 @@ totalscore=? ,
 additional_notes=?
 WHERE id=?",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"] ?? null,
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             ($_POST["education"] ?? null),
         ($_POST["disability"] ?? null),
@@ -313,7 +329,7 @@ WHERE id=?",
         ($_POST["contactotherinput"] ?? ''),
         ($_POST["totalscore"] ?? null),
         ($_POST["additional_notes"] ?? null),
-            $_GET["id"]
+            $formId
         ]
     );
 }

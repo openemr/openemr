@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_314g_1_2_19_Numerator implements AmcFilterIF
@@ -29,11 +29,11 @@ class AMC_314g_1_2_19_Numerator implements AmcFilterIF
         return "AMC_314g_1_2_19 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //Secure electronic message received by EP using secure electronic messaging function of CEHRT
         $smQry = "SELECT  * FROM `pnotes` WHERE `user` = ? AND `date` >= ? AND `date` <= ?";
-        $check = sqlQuery($smQry, array($patient->id, $beginDate, $endDate));
+        $check = sqlQuery($smQry, [$patient->id, $beginDate, $endDate]);
         if (!(empty($check))) {
             return true;
         } else {

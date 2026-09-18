@@ -184,7 +184,7 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -208,15 +208,13 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisSampleSize xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisSampleSize>');
-        }
+        $sxe ??= new \SimpleXMLElement('<RiskEvidenceSynthesisSampleSize xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisSampleSize>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

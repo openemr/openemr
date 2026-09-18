@@ -4,40 +4,48 @@
  * Weno users id.
  *
  * @package   OpenEMR Module
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // a recheck as was checked in setup script that calls this script in an iframe.
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Users", xl("Weno Users"));
 }
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $wenoLog = new WenoLogService();
+$moduleService = new ModuleService();
+// Greenway import display staff (gwstaff*/GS:) are not Weno prescribers.
+$usersData = $moduleService->getWenoProviderUsers();
 
-$fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > ''");
-while ($row = sqlFetchArray($fetch)) {
-    $usersData[] = $row;
-}
-
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", array($_SESSION['authUserID'] ?? 0));
+$defaultUserFacility = sqlQuery(
+    "SELECT id,username,lname,fname,weno_prov_id,facility,facility_id
+       FROM `users`
+      WHERE active = 1
+        AND `username` > ''
+        AND `username` NOT LIKE 'gwstaff%'
+        AND (`info` IS NULL OR `info` NOT LIKE 'GS:%')
+        AND id = ?",
+    [$session->get('authUserID') ?? 0]
+);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -46,17 +54,58 @@ while ($row = sqlFetchArray($list)) {
 
 if (($_POST['save'] ?? false) == 'true') {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
-        sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
-        sqlQuery(
-            "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-            array('global:weno_provider_uid', $weno_prov_id, $id, $weno_prov_id, $id)
+        $postedUid = trim(is_scalar($weno_prov_id) ? (string) $weno_prov_id : '');
+        // Never configure Greenway migration display staff as Weno providers.
+        $isGreenwayStaff = sqlQuery(
+            "SELECT id FROM users
+              WHERE id = ?
+                AND (username LIKE 'gwstaff%' OR info LIKE 'GS:%')
+              LIMIT 1",
+            [$id]
         );
+        if (!empty($isGreenwayStaff['id'])) {
+            continue;
+        }
+        $currentUser = QueryUtils::querySingleRow("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
+        $currentSetting = QueryUtils::querySingleRow(
+            "SELECT setting_value FROM user_settings WHERE setting_label = 'global:weno_provider_uid' AND setting_user = ? LIMIT 1",
+            [$id]
+        );
+
+        $currentUserUidRaw = $currentUser['weno_prov_id'] ?? '';
+        $currentSettingUidRaw = $currentSetting['setting_value'] ?? '';
+        $currentUserUid = trim(is_scalar($currentUserUidRaw) ? (string) $currentUserUidRaw : '');
+        $currentSettingUid = trim(is_scalar($currentSettingUidRaw) ? (string) $currentSettingUidRaw : '');
+        $resolvedUid = $postedUid;
+
+        if ($resolvedUid === '' && $currentUserUid !== '') {
+            $resolvedUid = $currentUserUid;
+        }
+        if ($resolvedUid === '' && $currentSettingUid !== '') {
+            $resolvedUid = $currentSettingUid;
+        }
+
+        if ($resolvedUid === '') {
+            continue;
+        }
+
+        if ($currentUserUid !== $resolvedUid) {
+            sqlStatement("UPDATE users SET weno_prov_id = ? WHERE id = ?", [$resolvedUid, $id]);
+        }
+
+        if ($currentSettingUid !== $resolvedUid) {
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO user_settings (setting_label, setting_value, setting_user) VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), setting_user = VALUES(setting_user)",
+                ['global:weno_provider_uid', $resolvedUid, $id]
+            );
+        }
     }
 
     $posted = json_encode($_POST);
     $wenoLog->insertWenoLog("Module setup modified.", "Setup Users modified", $posted);
     unset($_POST['save']);
-    Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
+    Header("Location: " . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
 }
 ?>
@@ -68,7 +117,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo xlt("Prescriber Weno Ids"); ?></title>
     <?php Header::setupHeader(); ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
         $(function () {
             const persistChange = document.querySelectorAll('.persist-uid');
@@ -77,7 +126,7 @@ if (($_POST['save'] ?? false) == 'true') {
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
                     top.restoreSession();
-                    syncAlertMsg(successMsg, 750, 'success').then(() => {
+                    asyncAlertMsg(successMsg, 750, 'success').then(() => {
                         isPersistEvent = true;
                         $("#form_save_users").click();
                     });
@@ -90,7 +139,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <div class="container-fluid">
         <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Weno UID."); ?></cite></small></h6>
         <form method="POST">
-            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
             <table class="table table-sm table-hover table-striped table-borderless">
                 <thead>
                 <tr>
@@ -105,7 +154,8 @@ if (($_POST['save'] ?? false) == 'true') {
                 </thead>
                 <tbody>
                 <?php foreach ($usersData as $user) {
-                    if (empty($user['facility'])) {
+                    $userFacility = $user['facility'] ?? null;
+                    if ($userFacility === null || $userFacility === '') {
                         $user['facility'] = xlt("Please add Users Default Facility");
                     }
                     ?>

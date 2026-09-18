@@ -76,7 +76,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     public $identifier = [];
 
     /**
-     * Type of plan. For example, "Platinum" or "High Deductable".
+     * Type of plan. For example, "Platinum" or "High Deductible".
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $type = null;
@@ -131,7 +131,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * Type of plan. For example, "Platinum" or "High Deductable".
+     * Type of plan. For example, "Platinum" or "High Deductible".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getType()
@@ -140,7 +140,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * Type of plan. For example, "Platinum" or "High Deductable".
+     * Type of plan. For example, "Platinum" or "High Deductible".
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
@@ -301,7 +301,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -349,15 +349,13 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<InsurancePlanPlan xmlns="http://hl7.org/fhir"></InsurancePlanPlan>');
-        }
+        $sxe ??= new \SimpleXMLElement('<InsurancePlanPlan xmlns="http://hl7.org/fhir"></InsurancePlanPlan>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

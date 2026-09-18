@@ -1,0 +1,65 @@
+# .github/workflows/claude-review-reusable.yml
+# Lives ONCE in openemr/openemr. All four repos (including openemr itself)
+# call it via the thin caller workflow claude-review.yml.
+#
+# On-demand only: fires when an OWNER/MEMBER/COLLABORATOR comments
+# "@claude review" on a PR. Auto-review on open is intentionally off;
+# CodeRabbit covers the every-PR baseline and Claude is invoked for
+# deeper looks on demand. (issue_comment is also the only fork-PR-safe
+# trigger — secrets are shared with fork PRs on that event.)
+name: Claude PR Review (reusable)
+
+on:
+  workflow_call:
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+
+jobs:
+  review:
+    if: >-
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request != null &&
+      contains(github.event.comment.body, '@claude review') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
+               github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read          # read-only: this bot reviews, it does not push
+      pull-requests: write     # needed to post review + inline comments
+      issues: read
+      id-token: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 1
+        persist-credentials: false
+        # issue_comment events fire in base-branch context; pin to the PR
+        # head so the review sees the actual proposed code, not master.
+        ref: refs/pull/${{ github.event.issue.number }}/head
+
+    - name: Claude review
+      uses: anthropics/claude-code-action@v1
+      with:
+          # Metered API-key auth (platform.claude.com). Billed per token against
+          # the org's API workspace — independent of Pro/Max subscription limits.
+          # Cap spend on the workspace's Limits page. Set as an ORG secret.
+        anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Install Anthropic's official code-review plugin and invoke its
+          # /code-review skill. The skill orchestrates parallel review agents
+          # (Haiku for skip-check, Sonnet for CLAUDE.md compliance, Opus for
+          # bug detection), scores each finding 0-100 for confidence, and
+          # auto-skips draft / closed / trivial / already-reviewed PRs.
+          # https://github.com/anthropics/claude-code/tree/main/plugins/code-review
+        plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
+        plugins: "code-review@claude-code-plugins"
+          # Pin the orchestrator to Sonnet. Without this pin the action
+          # defaults to claude-opus-4-8[1m] (Opus with 1M-context, the
+          # premium tier) — a large PR with the plugin was $5+ in that
+          # config. Sonnet drives cost 3-5x lower for the orchestration
+          # work. The skill's subagents (Haiku for skip-check, Sonnet for
+          # CLAUDE.md compliance, Opus for bug detection) are hardcoded
+          # in the skill and ignore this flag.
+        claude_args: "--model claude-sonnet-4-6"
+        prompt: "/code-review:code-review --comment"

@@ -19,7 +19,10 @@
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
-use OpenEMR\Services\UserService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $incoming_site_id = '';
 // This is the conditional that ensures that the submission has the required parameters to attempt a login
@@ -30,20 +33,16 @@ if (
     && (
         // Either normal login or google sign-in
         (isset($_POST['authUser']) && isset($_POST['clearPass']))
-        || (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id']) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
+        || (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
     )
 ) {
     // Attempt login
 
     // set the language
-    if (!empty($_POST['languageChoice'])) {
-        $_SESSION['language_choice'] = $_POST['languageChoice'];
-    } else {
-        $_SESSION['language_choice'] = 1;
-    }
+    $session->set('language_choice', (!empty($_POST['languageChoice']) ? $_POST['languageChoice'] : 1));
 
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
-    $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
+    $session->set('language_direction', getLanguageDir($session->get('language_choice')));
 
     // Note we are purposefully keeping $_POST['clearPass'], which is needed for MFA to work. It is cleared from memory after a
     //  unsuccessful or successful login
@@ -51,8 +50,8 @@ if (
 
     $login_success = false;
     if (
-        !empty($GLOBALS['google_signin_enabled']) &&
-        !empty($GLOBALS['google_signin_client_id']) &&
+        OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
+        !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) &&
         !empty($_POST['used_google_signin']) &&
         !empty($_POST['google_signin_token'])
     ) {
@@ -65,7 +64,7 @@ if (
 
     if ($login_success !== true) {
         // login attempt failed
-        $_SESSION['loginfailure'] = 1;
+        $session->set('loginfailure', 1);
         if (function_exists('sodium_memzero')) {
             sodium_memzero($_POST["clearPass"]);
         } else {
@@ -75,19 +74,20 @@ if (
     }
 
     // login attempt success
-    $_SESSION['loginfailure'] = null;
-    unset($_SESSION['loginfailure']);
+    $session->remove('loginfailure');
 
     // skip the session expiration check below since the entry in session_tracker is not ready yet
     $skipSessionExpirationCheck = true;
 } elseif ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
     // Logout
     // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
-    if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
+    $authUser = $session->get('authUser');
+    $authProvider = $session->get('authProvider');
+    if (!empty($authUser) && !empty($authProvider)) {
         if ((isset($_GET['timeout'])) && ($_GET['timeout'] == "1")) {
-            EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
+            EventAuditLogger::getInstance()->newEvent("logout", $authUser, $authProvider, 0, "timeout, so force logout");
         } else {
-            EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
+            EventAuditLogger::getInstance()->newEvent("logout", $authUser, $authProvider, 1, "success");
         }
     }
     authCloseSession();
@@ -96,25 +96,24 @@ if (
     // Check if session is valid (already logged in user)
     if (!AuthUtils::authCheckSession()) {
         // Session is not valid (this should only happen if a user's password is changed via another session while the user is logged in)
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'] ?? '', $_SESSION['authProvider'] ?? '', 0, "authCheckSession() check failed, so force logout");
+        EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser') ?? '', $session->get('authProvider') ?? '', 0, "authCheckSession() check failed, so force logout");
         authCloseSession();
         authLoginScreen(true);
     }
 }
 
-// Ensure user has not timed out, if applicable
-// Have a mechanism to skip the timeout and timeout reset mechanisms if a skip_timeout_reset parameter exists. This
-//  can be used by scripts that continually request information from the server; for example the Messages
-//  and Reminders automated intermittent requests.
-// Also skipping this all on login since entry in session_tracker is not ready yet
-if (empty($skipSessionExpirationCheck) && empty($_REQUEST['skip_timeout_reset'])) {
-    if (!SessionTracker::isSessionExpired()) {
-        SessionTracker::updateSessionExpiration();
-    } else {
+// Ensure user has not timed out, if applicable.
+// Skip on login since the session_tracker entry is not ready yet.
+if (empty($skipSessionExpirationCheck)) {
+    if (SessionTracker::isSessionExpired()) {
         // User has timed out.
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
+        EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser'), $session->get('authProvider'), 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
+    } elseif (empty($_REQUEST['skip_timeout_reset'])) {
+        // Reset the session expiration timer unless the request opts out (e.g. background
+        // polling from Messages, Reminders, or the Flow Board).
+        SessionTracker::updateSessionExpiration();
     }
 }
 
@@ -126,17 +125,17 @@ if (empty($skipSessionExpirationCheck) && $throttleDownWaitMilliseconds > 0) {
     SessionTracker::processSessionThrottleDown($throttleDownWaitMilliseconds);
 }
 
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
-function authCloseSession()
+function authCloseSession(): void
 {
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
     global $incoming_site_id;
-    $incoming_site_id = $_SESSION['site_id'];
-    OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $incoming_site_id = $session->get('site_id') ?? '';
+    SessionWrapperFactory::getInstance()->destroyCoreSession();
 }
 
-function authLoginScreen($timed_out = false)
+function authLoginScreen($timed_out = false): void
 {
   // See comment in authCloseSession().
     global $incoming_site_id;
@@ -154,7 +153,7 @@ function authLoginScreen($timed_out = false)
     <?php if ($timed_out) { ?>
  w.top.timed_out = true;
 <?php } ?>
- w.top.location.href = '<?php echo "{$GLOBALS['login_screen']}?error=1&site=$incoming_site_id"; ?>';
+ w.top.location.href = '<?php echo OEGlobalsBag::getInstance()->get('login_screen') . "?error=1&site=" . $incoming_site_id; ?>';
 </script>
     <?php
     exit;

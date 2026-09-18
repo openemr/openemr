@@ -7,19 +7,23 @@ use PHPUnit\Framework\TestCase;
 
 class CommonTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        // The class caches the Symfony Request that wraps $_GET/$_POST,
+        // so tests that mutate the superglobals must drop the snapshot
+        // before each case to see their own assignments.
+        Common::resetRequestCache();
+    }
+
     /**
      * Test for implode_funcs method
      */
-    public function testImplodeFuncs()
+    public function testImplodeFuncs(): void
     {
         $pieces = ['apple', 'banana', 'cherry'];
         $funcs = [
-            function ($value) {
-                return strtoupper($value);
-            },
-            function ($value) {
-                return substr($value, 0, 3);
-            }
+            fn($value): string => strtoupper((string) $value),
+            fn($value): string => substr((string) $value, 0, 3)
         ];
         $result = Common::implode_funcs('!', $pieces, $funcs);
         $this->assertEquals('APP!BAN!CHE', $result);
@@ -28,7 +32,7 @@ class CommonTest extends TestCase
     /**
      * Test for get method
      */
-    public function testGet()
+    public function testGet(): void
     {
         $_GET['testVar'] = 'testValue';
         $result = Common::get('testVar', 'defaultValue');
@@ -41,7 +45,7 @@ class CommonTest extends TestCase
     /**
      * Test for post method
      */
-    public function testPost()
+    public function testPost(): void
     {
         $_POST['testVar'] = 'testValue';
         $result = Common::post('testVar', 'defaultValue');
@@ -52,9 +56,51 @@ class CommonTest extends TestCase
     }
 
     /**
+     * postString() should return the scalar string when POST is a string.
+     */
+    public function testPostStringReturnsScalarString(): void
+    {
+        $_POST['testVar'] = 'scalar';
+        $this->assertSame('scalar', Common::postString('testVar'));
+    }
+
+    /**
+     * postString() should return the default when POST is an array — this is
+     * the whole reason the helper exists (protect typed string properties
+     * from array POST values).
+     */
+    public function testPostStringReturnsDefaultWhenPostIsArray(): void
+    {
+        $_POST['testVar'] = ['not', 'a', 'scalar'];
+        $this->assertSame('', Common::postString('testVar'));
+        $this->assertSame('fallback', Common::postString('testVar', 'fallback'));
+    }
+
+    /**
+     * postString() should fall back to the default for missing keys, the same
+     * way post() does.
+     */
+    public function testPostStringReturnsDefaultWhenKeyMissing(): void
+    {
+        unset($_POST['nonExistentVar']);
+        $this->assertSame('', Common::postString('nonExistentVar'));
+        $this->assertSame('fallback', Common::postString('nonExistentVar', 'fallback'));
+    }
+
+    /**
+     * post() treats an empty string the same as a missing key (returns the
+     * default). postString() must preserve that behavior.
+     */
+    public function testPostStringReturnsDefaultForEmptyString(): void
+    {
+        $_POST['testVar'] = '';
+        $this->assertSame('fallback', Common::postString('testVar', 'fallback'));
+    }
+
+    /**
      * Test for base_url method
      */
-    public function testBaseUrl()
+    public function testBaseUrl(): void
     {
         $webroot = $GLOBALS['webroot'];
         $result = Common::base_url();
@@ -64,7 +110,7 @@ class CommonTest extends TestCase
     /**
      * Test for src_dir method
      */
-    public function testSrcDir()
+    public function testSrcDir(): void
     {
         $srcdir = $GLOBALS['srcdir'];
         $result = Common::src_dir();
@@ -74,7 +120,7 @@ class CommonTest extends TestCase
     /**
      * Test for base_dir method
      */
-    public function testBaseDir()
+    public function testBaseDir(): void
     {
         $rootdir = $GLOBALS['incdir'];
         $result = Common::base_dir();
@@ -84,7 +130,7 @@ class CommonTest extends TestCase
     /**
      * Test for library_dir method
      */
-    public function testLibraryDir()
+    public function testLibraryDir(): void
     {
         $rootdir = $GLOBALS['incdir'];
         $result = Common::library_dir();
@@ -94,7 +140,7 @@ class CommonTest extends TestCase
     /**
      * Test for library_src method
      */
-    public function testLibrarySrc()
+    public function testLibrarySrc(): void
     {
         $rootdir = $GLOBALS['incdir'];
         $result = Common::library_src('somefile.php');

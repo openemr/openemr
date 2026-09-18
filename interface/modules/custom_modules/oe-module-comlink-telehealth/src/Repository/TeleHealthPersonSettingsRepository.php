@@ -4,7 +4,7 @@
  * Handles the saving, retrieving, and creating of telehealth settings for patients and users.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,18 +14,12 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class TeleHealthPersonSettingsRepository
 {
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
-
-    public function __construct(SystemLogger $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     public function saveSettingsForPerson(TeleHealthPersonSettings $settings): TeleHealthPersonSettings
@@ -40,9 +34,7 @@ class TeleHealthPersonSettingsRepository
         $columnKeys = array_keys($columns);
         $bind = array_values($columns);
         if (!empty($settings->getId())) {
-            $updateColumns = implode(",", array_map(function ($val) {
-                return "`$val` = ?";
-            }, $columnKeys));
+            $updateColumns = implode(",", array_map(fn($val): string => "`$val` = ?", $columnKeys));
 
             // do an update
             $sql = "UPDATE comlink_telehealth_person_settings SET ";
@@ -51,9 +43,7 @@ class TeleHealthPersonSettingsRepository
             QueryUtils::sqlStatementThrowException($sql, $bind);
         } else {
             $sql = 'INSERT INTO comlink_telehealth_person_settings( ' . implode(",", $columnKeys)
-                    . ') VALUES (' . implode(",", array_map(function ($val) {
-                        return "?";
-                    }, $columnKeys)) . ')';
+                    . ') VALUES (' . implode(",", array_map(fn($val): string => "?", $columnKeys)) . ')';
             $id = QueryUtils::sqlInsert($sql, $bind);
         }
         // get the most up to date db record
@@ -95,9 +85,7 @@ class TeleHealthPersonSettingsRepository
         $records = QueryUtils::fetchRecords("Select id,user_id, patient_id,date_created,date_updated,enabled "
             . " from comlink_telehealth_person_settings WHERE enabled = 1 ORDER BY user_id ");
         if (!empty($records)) {
-            return array_map(function ($record) {
-                return $this->createResultRecordFromDatabaseResult($record);
-            }, $records);
+            return array_map($this->createResultRecordFromDatabaseResult(...), $records);
         }
         return [];
     }
@@ -122,7 +110,7 @@ class TeleHealthPersonSettingsRepository
             if ($date !== false) {
                 $settings->setDateCreated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_created', ['value' => $row['date_created']]);
+                $this->logger->error('TeleHealthPersonSettingsRepository: failed to create date_created from {value}', ['value' => $row['date_created']]);
             }
         }
         if (isset($row['date_updated'])) {
@@ -130,7 +118,7 @@ class TeleHealthPersonSettingsRepository
             if ($date !== false) {
                 $settings->setDateUpdated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_updated', ['value' => $row['date_updated']]);
+                $this->logger->error('TeleHealthPersonSettingsRepository: failed to create date_updated from {value}', ['value' => $row['date_updated']]);
             }
         }
         return $settings;

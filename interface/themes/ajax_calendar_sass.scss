@@ -235,26 +235,44 @@ $side-calendar-date-padding: 0.3rem !default;
     }
   }
 
-  /* the DIV of times */
-  #times {
+  /* Fixed-width time gutter — keep a stable readable times column. */
+  #times,
+  .calendar-times-col {
     background-color: $white;
+    box-sizing: border-box;
+    max-width: 3.25rem !important;
+    min-width: 3.25rem !important;
+    overflow: hidden;
     padding: 0.3125rem !important;
-    width: 1%;
+    vertical-align: top;
+    width: 3.25rem !important;
 
-    table {
+    table,
+    .calendar-times-table {
       background-color: $white;
       border-collapse: collapse;
       margin: 0;
       padding: 0;
+      table-layout: fixed;
       width: 100%;
 
       td {
         @include font-size("0.8rem");
         margin: 0;
+        overflow: hidden;
         padding: 0;
+        text-overflow: clip;
+        white-space: nowrap;
       }
     }
     border-#{$right}: 1px solid $gray-300;
+  }
+
+  .calendar-times-inner {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
+    width: 100%;
   }
 
   .timeslot {
@@ -363,6 +381,25 @@ $side-calendar-date-padding: 0.3rem !default;
       padding: 0.0625rem 0.125rem;
       text-align: $right;
       width: 95%;
+
+      // .month_daylink has a hardcoded white background, so the
+      // day-number link inside needs a hardcoded dark text color
+      // independent of the active theme. Note that even SCSS-level
+      // grays ($gray-900, $dark, etc.) get redefined by the dark /
+      // cobalt theme cascades to be light colors against a dark
+      // background — so we use literal hex values here that no
+      // theme can override.
+      a,
+      a:link,
+      a:visited,
+      a:active {
+        color: #111827;
+      }
+
+      a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+      }
     }
 
     &_dateheader {

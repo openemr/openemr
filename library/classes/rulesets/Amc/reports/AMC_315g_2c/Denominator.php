@@ -7,7 +7,7 @@
  * report period.  Note to be seen means that the provider/billing facility had to have had some kind of encounter with the patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright 2022 Discover and Change, Inc.
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,13 +22,8 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
 
     private $lastTestActionData;
 
-    private $billingFacilityId;
-    private $providerId;
-
-    public function __construct($billingFacilityId, $providerId)
+    public function __construct(private $billingFacilityId, private $providerId)
     {
-        $this->billingFacilityId = $billingFacilityId;
-        $this->providerId = $providerId;
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 
@@ -37,7 +32,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         return "AMC_315g_2c Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // dates are already filtered so we don't have to worry about that, but we do need to filter by our denom
         // criteria
@@ -108,7 +103,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_SEEN) {
             $newDetails = xl("Encounters during period") . ':' . $details['enc'];
-        } else if ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
             $newDetails = xl("Not seen");
         }
         return $newDetails;

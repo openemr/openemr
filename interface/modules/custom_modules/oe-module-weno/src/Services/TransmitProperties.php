@@ -4,23 +4,25 @@
  * TransmitProperties class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PhoneNumberService;
 
 class TransmitProperties
 {
@@ -36,8 +38,8 @@ class TransmitProperties
     private $cryptoGen;
     private $pharmacy;
     private $encounter;
-    private mixed $wenoProviderID;
-    private string|false $csrf;
+    private readonly mixed $wenoProviderID;
+    private readonly string $csrf;
     private mixed $responsibleParty;
     public mixed $wenoLocation;
 
@@ -64,22 +66,19 @@ class TransmitProperties
      */
     public function __construct($returnFlag = false)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->wenoLocation = $_GET['location'] ?? '';
         $this->setWenoLocation($this->wenoLocation);
         $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
-        $this->csrf = js_escape(CsrfUtils::collectCsrfToken());
-        $this->cryptoGen = new CryptoGen();
+        $this->csrf = js_escape(CsrfUtils::collectCsrfToken(session: $session));
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();
         $this->vitals = $this->getVitals();
         $this->patient = $this->getPatientInfo();
         $this->provider_email = $this->getProviderEmail();
         $this->provider_pass = $this->getProviderPassword();
-        if (!empty($this->wenoLocation)) {
-            $this->locid = $this->getFacilityForWenoId();
-        } else {
-            $this->locid = $this->getFacilityInfo();
-        }
+        $this->locid = !empty($this->wenoLocation) ? $this->getFacilityForWenoId() : $this->getFacilityInfo();
         $this->pharmacy = $this->getPharmacy();
         $this->subscriber = $this->getSubscriber();
         // check if patient is under 19 years old
@@ -106,7 +105,7 @@ class TransmitProperties
 
     public function parseExternalId($external_id): mixed
     {
-        $match = explode(":", $external_id);
+        $match = explode(":", (string) $external_id);
         if (is_countable($match) && count($match) > 1) {
             $external_id = $match;
         }
@@ -157,33 +156,36 @@ class TransmitProperties
             if (is_string($value)) {
                 $values = [$value];
             } elseif ($this->isJson($value)) {
-                $values = json_decode($value, true);
+                $values = json_decode((string) $value, true);
             } elseif (is_array($value)) {
                 $values = $value;
             } else {
                 continue; // Skip non-array and non-string properties
             }
+
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $authUserID = $session->get('authUserID') ?? 0;
             // Iterate through the values
             foreach ($values as $v) {
-                if (str_contains($v, "REQED")) {
+                if (str_contains((string) $v, "REQED")) {
                     $type = 'errors';
-                } elseif (str_contains($v, "WARNS")) {
+                } elseif (str_contains((string) $v, "WARNS")) {
                     $type = 'warnings';
-                } elseif (str_contains($v, "INFO")) {
+                } elseif (str_contains((string) $v, "INFO")) {
                     $type = 'info';
                 } else {
                     continue; // Skip if no error type detected
                 }
                 // Extract action from value
                 $action = '';
-                if (preg_match('/{([^}]*)}/', $v, $matches)) {
+                if (preg_match('/{([^}]*)}/', (string) $v, $matches)) {
                     $action = $matches[1];
                     $v = str_replace('{' . $matches[1] . '}', '', $v);
                 }
                 // Add error to the respective error type if not already present
-                if (!str_contains($error[$type], $v)) {
+                if (!str_contains($error[$type], (string) $v)) {
                     // Append error with icon and onclick event
-                    $uid = attr_js($_SESSION['authUserID'] ?? 0);
+                    $uid = attr_js($authUserID);
                     $action = attr_js($action);
                     $error[$type] .= "<i onclick='renderDialog($action, $uid, event)' role='button' class='fas fa-pen text-warning mx-1'></i>$v<br>";
                 }
@@ -200,25 +202,22 @@ class TransmitProperties
      */
     public function createJsonObject(): false|string
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //default is testing mode
-        $testing = isset($GLOBALS['weno_rx_enable_test']);
-        if ($testing) {
-            $mode = 'Y';
-        } else {
-            $mode = 'N';
-        }
+        $testing = OEGlobalsBag::getInstance()->has('weno_rx_enable_test');
+        $mode = $testing ? 'Y' : 'N';
         $gender = $this->patient['sex'];
         $heightDate = explode(" ", $this->vitals['date'] ?? '');
-        $phonePrimary = $this->formatPhoneNumber($this->patient['phone_cell']);
+        $phonePrimary = PhoneNumberService::toNationalDigits($this->patient['phone_cell'] ?? '') ?? '';
         $age = self::getAge($this->patient['dob']);
         //create json array
         $wenObj = [];
         $wenObj['UserEmail'] = $this->provider_email['email'];
-        $wenObj['MD5Password'] = md5($this->provider_pass);
+        $wenObj['MD5Password'] = md5((string) $this->provider_pass);
         $wenObj['LocationID'] = $this->locid['weno_id'];
         $wenObj['TestPatient'] = $mode;
         $wenObj['PatientType'] = 'Human';
-        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . $_SESSION['authUserID'] ?? 0;
+        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . ($session->get('authUserID') ?? 0);
         $wenObj['LastName'] = $this->patient['lname'];
 
         $wenObj['FirstName'] = $this->patient['fname'];
@@ -253,7 +252,7 @@ class TransmitProperties
             $wenObj['ResponsiblePartyState'] = $this->responsibleParty['ResponsiblePartyState'];
             $wenObj['ResponsiblePartyPostalCode'] = $this->responsibleParty['ResponsiblePartyPostalCode'];
             $wenObj['ResponsiblePartyCountryCode'] = 'US';
-            $wenObj['ResponsiblePartyPrimaryPhone'] = self::formatPhoneNumber($this->responsibleParty['ResponsiblePartyPrimaryPhone']);
+            $wenObj['ResponsiblePartyPrimaryPhone'] = PhoneNumberService::toNationalDigits($this->responsibleParty['ResponsiblePartyPrimaryPhone'] ?? '') ?? '';
         }
         $wenObj['PatientLocation'] = "Home";
 
@@ -270,18 +269,39 @@ class TransmitProperties
      */
     private function getResponsibleParty(): mixed
     {
-        $guardian = <<<guardian
-select guardiansname as ResponsiblePartyLastName, guardiansname as ResponsiblePartyFirstName, guardianaddress as ResponsiblePartyAddressLine1, guardianpostalcode as ResponsiblePartyPostalCode, guardiancity as ResponsiblePartyCity, guardianstate as ResponsiblePartyState, guardianphone as ResponsiblePartyPrimaryPhone from patient_data where pid = ?;
-guardian;
+        $guardian = <<<SQL
+            SELECT guardiansname AS ResponsiblePartyLastName,
+                   guardiansname AS ResponsiblePartyFirstName,
+                   guardianaddress AS ResponsiblePartyAddressLine1,
+                   guardianpostalcode AS ResponsiblePartyPostalCode,
+                   guardiancity AS ResponsiblePartyCity,
+                   guardianstate AS ResponsiblePartyState,
+                   guardianphone AS ResponsiblePartyPrimaryPhone
+              FROM patient_data
+             WHERE pid = ?;
+        SQL;
 
-        $insurance = <<<insurance
-select subscriber_lname as ResponsiblePartyLastName, subscriber_fname as ResponsiblePartyFirstName, subscriber_street as ResponsiblePartyAddressLine1, subscriber_postal_code as ResponsiblePartyPostalCode, subscriber_city as ResponsiblePartyCity, subscriber_state as ResponsiblePartyState, subscriber_phone as ResponsiblePartyPrimaryPhone, subscriber_street_line_2 as ResponsiblePartyAddressLine2 from insurance_data where pid = ? and subscriber_relationship > '' and subscriber_relationship != 'self' and type = 'primary'
-insurance;
+        $insurance = <<<SQL
+        select subscriber_lname AS ResponsiblePartyLastName,
+               subscriber_fname AS ResponsiblePartyFirstName,
+               subscriber_street AS ResponsiblePartyAddressLine1,
+               subscriber_postal_code AS ResponsiblePartyPostalCode,
+               subscriber_city AS ResponsiblePartyCity,
+               subscriber_state AS ResponsiblePartyState,
+               subscriber_phone AS ResponsiblePartyPrimaryPhone,
+               subscriber_street_line_2 AS ResponsiblePartyAddressLine2
+          FROM insurance_data
+         WHERE pid = ?
+           AND subscriber_relationship > ''
+           AND subscriber_relationship != 'self'
+           AND type = 'primary'
+        SQL;
 
-        $relation = sqlQuery($guardian, [$_SESSION['pid']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $relation = sqlQuery($guardian, [$session->get('pid')]);
         // if no guardian then check for primary insurance subscriber
         if (empty($relation['ResponsiblePartyLastName'])) {
-            $relation = sqlQuery($insurance, [$_SESSION['pid']]);
+            $relation = sqlQuery($insurance, [$session->get('pid')]);
         }
         if (empty($relation)) {
             return 'REQED:{demographics}' . xlt("Patient is under 19 years old. A Responsible Party is required. From the Patient Chart select Demographics Primary Insurance or Guardian to add a person.");
@@ -303,27 +323,14 @@ insurance;
         if (empty($as_of)) {
             $as_of = date('Y-m-d');
         }
-        $a1 = explode('-', substr($dob, 0, 10));
-        $a2 = explode('-', substr($as_of, 0, 10));
+        $a1 = explode('-', substr((string) $dob, 0, 10));
+        $a2 = explode('-', substr((string) $as_of, 0, 10));
         $age = (int)$a2[0] - (int)$a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
             --$age;
         }
 
-        return (int)$age;
-    }
-
-    /**
-     * @param $phone
-     * @return string
-     */
-    public function formatPhoneNumber($phone): string
-    {
-        $phone = preg_replace('/\D+/', '', $phone);
-        if (strlen($phone) == 11) {
-            $phone = substr($phone, 1, 10);
-        }
-        return $phone;
+        return $age;
     }
 
     /**
@@ -331,7 +338,7 @@ insurance;
      */
     public function getProviderEmail(): array|string
     {
-        $provider_info = ['email' => ($GLOBALS['weno_provider_email'] ?? '')];
+        $provider_info = ['email' => (OEGlobalsBag::getInstance()->get('weno_provider_email') ?? '')];
         if (empty($provider_info['email'])) {
             return "REQED:{user_settings}" . (xlt('Weno Prescriber Email is missing. Go to User Settings Weno Tab and enter your Weno User Email'));
         } else {
@@ -344,13 +351,15 @@ insurance;
      */
     public function getFacilityInfo(): array|null|false
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // is user logged into a facility
-        if (!empty($_SESSION['facilityId'])) {
-            $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where weno_id > '' and id = ?", [$_SESSION['facilityId'] ?? null]);
+        $facilityId = $session->get('facilityId');
+        if (!empty($facilityId)) {
+            $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where weno_id > '' and id = ?", [$facilityId]);
         } else {
             // from users facility
             $facilityService = new FacilityService();
-            $locId = $facilityService->getFacilityForUser($_SESSION['authUserID'] ?? '');
+            $locId = $facilityService->getFacilityForUser($session->get('authUserID') ?? '');
         }
 
         if (empty($locId['weno_id'] ?? '')) {
@@ -375,7 +384,7 @@ insurance;
 
     public function getFacilityForWenoId()
     {
-        $record = array();
+        $record = [];
         return sqlQuery("SELECT * from facility where weno_id = ? limit 1", [$this->wenoLocation]);
     }
 
@@ -388,7 +397,8 @@ insurance;
         // Since the transmitProperties is called in the logproperties
         // need to check to see if in an encounter or not. Patient data is not required to view the Weno log
 
-        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, phone_home, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, phone_home, postal_code, dob, sex, pid from patient_data where pid=?", [$session->get('pid')]);
         if (empty($patient['fname'])) {
             $patient['fname'] = "REQED:{demographics}" . xlt("First Name Missing, From the Patient Chart select Demographics select Who.");
         }
@@ -437,11 +447,7 @@ insurance;
      */
     public static function echoError($errors): void
     {
-        if (is_array($errors)) {
-            $error = $errors['errors'] . $errors['warnings'] . $errors['info'];
-        } else {
-            $error = $errors;
-        }
+        $error = is_array($errors) ? $errors['errors'] . $errors['warnings'] . $errors['info'] : $errors;
         $log = self::styleErrors($error);
         echo($log);
     }
@@ -453,7 +459,11 @@ insurance;
     public function cipherPayload(): string
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
-        $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        try {
+            $enc_key = $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_encryption_key'));
+        } catch (CryptoGenException) {
+            return "error";
+        }
 
         if (!$enc_key) {
             return "error";
@@ -471,12 +481,12 @@ insurance;
      */
     public function getProviderPassword(): mixed
     {
-        if (!empty($GLOBALS['weno_provider_password'])) {
-            $ret = $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
-            if (!$ret) {
+        if (!empty(OEGlobalsBag::getInstance()->get('weno_provider_password'))) {
+            try {
+                return $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_provider_password'));
+            } catch (CryptoGenException) {
                 return ("REQED:{user_settings}" . xlt('Your Weno Prescriber Password fails decryption. Go to User Settings Weno Tab and reenter your Weno User Password'));
             }
-            return $ret;
         } else {
             return "REQED:{user_settings}" . xlt('Your Weno Prescriber Password is missing. Go to User Settings Weno Tab and enter your Weno User Password');
         }
@@ -487,7 +497,8 @@ insurance;
      */
     public function getVitals(): ?array
     {
-        $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$session->get('pid')]);
         // Check if vitals are empty or missing height and weight
         $patient = $this->getPatientInfo();
         if (self::getAge($patient['dob']) < 19) {
@@ -511,8 +522,9 @@ insurance;
      */
     private function getSubscriber(): mixed
     {
-        $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
-        $relation = $relation ?? ['subscriber_relationship' => ''];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$session->get('pid')]);
+        $relation ??= ['subscriber_relationship' => ''];
 
         return $relation['subscriber_relationship'] ?? '';
     }
@@ -522,11 +534,12 @@ insurance;
      */
     public function getPharmacy(): string|array
     {
-        $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
-        $response = array(
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$session->get('pid')]);
+        $response = [
             "primary" => $data['primary_ncpdp'] ?? '',
             "alternate" => $data['alternate_ncpdp'] ?? ''
-        );
+        ];
         if (empty($data)) {
             $response['errors'] = true;
             // both primary and alternate are empty
@@ -546,8 +559,9 @@ insurance;
      */
     public function getProviderName(): string
     {
-        $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
-        $provider_info = $provider_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$session->get('authUser')]);
+        $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }
 
@@ -556,8 +570,9 @@ insurance;
      */
     public function getPatientName(): string
     {
-        $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
-        $patient_info = $patient_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$session->get('pid')]);
+        $patient_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
 
@@ -566,7 +581,8 @@ insurance;
      */
     private function getEncounter(): mixed
     {
-        return $_SESSION['encounter'] ?? 0;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get('encounter') ?? 0;
     }
 
     /**
@@ -575,41 +591,60 @@ insurance;
      */
     public function getWenoProviderId($id = null): mixed
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserId = $session->get('authUserID') ?? '';
         if (empty($id)) {
-            $id = $_SESSION['authUserID'] ?? '';
+            $id = $authUserId;
         }
-        // get the Weno User id from the user table (weno_prov_id)
+        // weno_provider_uid is an in-memory value for whoever is logged in, so it
+        // is only a valid fallback when the target user is the session user.
+        // Compared as strings: a loose == would treat 0 == '' as a match.
+        $targetId = is_scalar($id) ? (string) $id : '';
+        $sessionId = is_scalar($authUserId) ? (string) $authUserId : '';
+        $isSessionUser = $targetId !== '' && $targetId === $sessionId;
+        // Read all known sources for Weno UID.
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
+        $userSetting = sqlQuery(
+            "SELECT setting_value FROM user_settings WHERE setting_label = 'global:weno_provider_uid' AND setting_user = ? LIMIT 1",
+            [$id]
+        );
 
-        if ((!empty($GLOBALS['weno_provider_uid'])) && !empty($provider['weno_prov_id'])) {
-            $doIt = ($GLOBALS['weno_provider_uid']) != trim($provider['weno_prov_id']);
-            if ($doIt) {
-                $provider['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
-                $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
-                    VALUES (?, ?, 'global:weno_provider_uid') 
-                    ON DUPLICATE KEY UPDATE `setting_value` = ?";
-                sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
-            }
-            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update users
-            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
-            sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
-            return $provider['weno_prov_id'];
-        } elseif (!empty($provider['weno_prov_id'] ?? '') && empty($GLOBALS['weno_provider_uid'])) {
-            $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
-                VALUES (?, ?, 'global:weno_provider_uid') 
-                ON DUPLICATE KEY UPDATE `setting_value` = ?";
-            sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
+        $settingValue = $userSetting['setting_value'] ?? '';
+        $globalValue = OEGlobalsBag::getInstance()->get('weno_provider_uid') ?? '';
 
-            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id'];
-            return $provider['weno_prov_id'];
-        } elseif (empty($provider['weno_prov_id'] ?? '') && !empty($GLOBALS['weno_provider_uid'])) {
-            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
-            sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
+        $userUid = trim((string) ($provider['weno_prov_id'] ?? ''));
+        $settingsUid = trim(is_scalar($settingValue) ? (string) $settingValue : '');
+        $globalUid = trim(is_scalar($globalValue) ? (string) $globalValue : '');
 
-            $provider['weno_prov_id'] = $GLOBALS['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
-            return $provider['weno_prov_id'];
-        } else {
+        // Priority: users table -> user_settings -> in-memory global.
+        // Never allow a blank source to overwrite a populated one.
+        $resolvedUid = $userUid;
+        if ($resolvedUid === '' && $settingsUid !== '') {
+            $resolvedUid = $settingsUid;
+        }
+        if ($resolvedUid === '' && $isSessionUser && $globalUid !== '') {
+            $resolvedUid = $globalUid;
+        }
+
+        if ($resolvedUid === '') {
             return "REQED:{users}" . xlt("Weno User Id missing. Select Admin then Users and edit the user to add Weno User Id");
         }
+
+        if ($userUid !== $resolvedUid) {
+            sqlQuery("UPDATE users SET weno_prov_id = ? WHERE id = ?", [$resolvedUid, $id]);
+        }
+
+        if ($settingsUid !== $resolvedUid) {
+            sqlQuery(
+                "INSERT INTO user_settings (setting_value, setting_user, setting_label)
+                VALUES (?, ?, 'global:weno_provider_uid')
+                ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)",
+                [$resolvedUid, $id]
+            );
+        }
+
+        OEGlobalsBag::getInstance()->set('weno_prov_id', $resolvedUid);
+        OEGlobalsBag::getInstance()->set('weno_provider_uid', $resolvedUid);
+        return $resolvedUid;
     }
 }

@@ -214,7 +214,7 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -241,15 +241,13 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionMapping xmlns="http://hl7.org/fhir"></ElementDefinitionMapping>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ElementDefinitionMapping xmlns="http://hl7.org/fhir"></ElementDefinitionMapping>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identity)) {
             $this->identity->xmlSerialize(true, $sxe->addChild('identity'));

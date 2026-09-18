@@ -132,6 +132,11 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="clinical_notes_procedure_results.procedure_result_id references procedure_result.procedure_result_id"><a href='clinical_notes_procedure_results.html'>clinical_notes_procedure_results</a><span class='relatedKey'>.procedure_result_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -139,6 +144,23 @@
                                         </table>
                                     </td>
                                     <td><p>Surrogate id of the record used as the primary incrementing key</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="procedure_report_id">procedure_report_id</span></td>
@@ -317,8 +339,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="comments">comments</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -370,23 +392,6 @@
                                         </table>
                                     </td>
                                     <td><p>Result status (preliminary, cannot be done, final, corrected, incomplete, etc.)</p></td>
-                                </tr>
-                                <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date_end">date_end</span></td>

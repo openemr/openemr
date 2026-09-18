@@ -1,32 +1,12 @@
-# docker-compose.yml for travis ci testing
+x-includes:
+  node-version: "24"
+  selenium-template: "compose-shared-selenium/docker-compose.yml"
+  webserver-template: "compose-shared-nginx/compose.yml"
+  database-template: "compose-shared-mariadb.yml"
+  mailpit-template: "compose-shared-mailpit/compose.yml"
+
 services:
   mysql:
-    restart: always
-    image: mariadb:11.4
-    command: ['mariadbd','--character-set-server=utf8mb4']
-    environment:
-      MYSQL_ROOT_PASSWORD: root
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
   openemr:
-    restart: always
-    image: openemr/dev-php-fpm:8.3
-    environment:
-      OPENEMR_BASE_URL_API: "https://nginx"
-      OPENEMR_BASE_URL_E2E: "http://nginx"
-    volumes:
-    - ../../:/usr/share/nginx/html/openemr
-    - ./php.ini:/usr/local/etc/php/php.ini:ro
-    depends_on:
-    - mysql
-  nginx:
-    restart: always
-    image: openemr/dev-nginx
-    ports:
-    - 80:80
-    - 443:443
-    volumes:
-    - ../../:/usr/share/nginx/html/openemr
-    - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    - ../nginx/dummy-cert:/etc/nginx/dummy-cert:ro
-    - ../nginx/dummy-key:/etc/nginx/dummy-key:ro
-    depends_on:
-    - openemr
+    image: openemr/dev-php-fpm:8.3@sha256:543f8b1b9db0260c8238f5b9412a139dc29168fb59c8a3fe7dfad6cc99d09b4c

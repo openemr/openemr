@@ -306,7 +306,7 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -345,15 +345,13 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalRouteOfAdministration xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalRouteOfAdministration>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductPharmaceuticalRouteOfAdministration xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalRouteOfAdministration>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

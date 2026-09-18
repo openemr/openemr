@@ -1,0 +1,3 @@
+{% for y in range("now"|date("Y"), "now"|date("Y") + 12) %}
+  <option value="{{ y }}">{{ y }}</option>
+{% endfor %}

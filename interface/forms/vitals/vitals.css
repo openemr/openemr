@@ -82,3 +82,14 @@ select {
 .error {
   border: 2px solid var(--danger);
 }
+
+.warning {
+  border: 2px solid var(--warning);
+}
+
+.vitals-warning-message {
+  display: block;
+  color: var(--warning);
+  font-size: 0.8rem;
+  margin-top: 2px;
+}

@@ -16,7 +16,7 @@
  *
  * @package OpenEMR
  * @author  ViSolve Inc <services@visolve.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0059_Denominator implements CqmFilterIF
@@ -26,7 +26,7 @@ class NQF_0059_Denominator implements CqmFilterIF
         return "NQF 0059 Denominator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // Same as IPP
         return true ;

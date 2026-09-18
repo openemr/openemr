@@ -98,7 +98,7 @@ exports.serviceDeliveryLocation = {
                 key: "name",
                 text: leafLevel.inputProperty("name"),
             },
-            existsWhen: condition.keyExists("name")
+            existsWhen: condition.propertyValueNotEmpty("name")
         }
     ]
 };

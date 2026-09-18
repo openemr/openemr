@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -10,12 +10,10 @@
 
 namespace OpenEMR\Services\Qdm;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\LazyOpenStream;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
-use OpenEMR\Cqm\Qdm\Diagnosis;
-use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
@@ -122,7 +120,7 @@ class CqmCalculator
             'doPretty' => true,
             'includeClauseResults' => true,
             'requestDocument' => true,
-            'effectiveDate' => date('YmdHi', strtotime($effectiveDate)) . '00',
+            'effectiveDate' => date('YmdHi', strtotime((string) $effectiveDate)) . '00',
             'effectiveDateEnd' => null // !empty($effectiveEndDate) ? date('YmdHi', strtotime($effectiveEndDate)) . '00' : null
         ];
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));

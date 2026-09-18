@@ -10,10 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/IDaoMap.php");
-require_once("verysimple/Phreeze/IDaoMap2.php");
-
 /**
  * OnsiteDocumentMap is a static class with functions used to get FieldMap and KeyMap information that
  * is used by Phreeze to map the OnsiteDocumentDAO to the onsite_documents datastore.
@@ -57,7 +53,7 @@ class OnsiteDocumentMap implements IDaoMap, IDaoMap2
     public static function GetFieldMaps()
     {
         if (self::$FM == null) {
-            self::$FM = array();
+            self::$FM = [];
             self::$FM["Id"] = new FieldMap("Id", "onsite_documents", "id", true, FM_TYPE_INT, 10, null, true);
             self::$FM["Pid"] = new FieldMap("Pid", "onsite_documents", "pid", false, FM_TYPE_INT, 10, null, false);
             self::$FM["Facility"] = new FieldMap("Facility", "onsite_documents", "facility", false, FM_TYPE_INT, 10, null, false);
@@ -89,7 +85,7 @@ class OnsiteDocumentMap implements IDaoMap, IDaoMap2
     public static function GetKeyMaps()
     {
         if (self::$KM == null) {
-            self::$KM = array();
+            self::$KM = [];
         }
 
         return self::$KM;

@@ -17,16 +17,16 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleAction;
  */
 class RuleActions
 {
-    var $actions = array();
+    public $actions = [];
 
-    function __construct()
+    public function __construct()
     {
     }
 
     /**
      * @param RuleAction $action
      */
-    function add($action)
+    public function add($action)
     {
         array_push($this->actions, $action);
     }

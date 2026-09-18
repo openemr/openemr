@@ -1,0 +1,41 @@
+# Filename-policy checks.
+#
+# Kept separate from pre-commit.yml because that workflow is `paths:`-filtered
+# to workflow/hook-config changes -- a PR that adds a forbidden filename and
+# nothing else would never trigger it. This one runs on every PR, with no
+# `paths:` filter, so it can safely be made a required check.
+#
+# The rules themselves live in .pre-commit-config.yaml so contributors get the
+# same verdict locally at commit time; this workflow just runs those hooks
+# against the whole tree. They are `language: fail` hooks, so no PHP, Node or
+# Python toolchain is needed.
+name: Filenames
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  filenames:
+    name: Check filenames
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - uses: j178/prek-action@v2
+      with:
+        extra-args: --all-files forbid-inc-extension

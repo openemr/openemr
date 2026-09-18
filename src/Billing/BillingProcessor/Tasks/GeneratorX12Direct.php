@@ -8,7 +8,7 @@
  * the global is enabled "Generate X-12 Based On Insurance Company"
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -18,29 +18,22 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
-use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
 {
     use WritesToBillingLog;
-
-    /**
-     * If "Allow Encounter Claims" is enabled, this allows the claims to use
-     * the alternate payor ID on the claim and sets the claims to report,
-     * not chargeable. ie: RP = reporting, CH = chargeable
-     *
-     * @var bool|mixed
-     */
-    protected $encounter_claim = false;
 
     /**
      * An array of batches, one for each x-12 partner, indexed by partner id
@@ -68,10 +61,15 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     protected $pat_segment_counts = [];
 
-    public function __construct($action, $encounter_claim = false)
-    {
+    /**
+     * @param mixed $action
+     * @param bool $encounter_claim If "Allow Encounter Claims" is enabled, this allows the claims to use the alternate payor ID on the claim and sets the claims to report, not chargeable. ie: RP = reporting, CH = chargeable
+     */
+    public function __construct(
+        $action,
+        protected $encounter_claim = false
+    ) {
         parent::__construct($action);
-        $this->encounter_claim = $encounter_claim;
     }
 
     /**
@@ -240,7 +238,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         }
 
         //$is_self_of_insured = $claim->isSelfOfInsured();
-        $segs = explode("~\n", X125010837P::genX12837P(
+        $segs = explode("~\n", (string) X125010837P::genX12837P(
             $claim->getPid(),
             $claim->getEncounter(),
             $claim->getPartner(),
@@ -273,7 +271,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function completeToFile(array $context)
     {
-        $this->finish($context, function ($context) {
+        $this->finish($context, function ($context): void {
 
             // Get the created_batches from the finish method
             $created_batches = $context['created_batches'];
@@ -283,10 +281,11 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $html = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'>";
 
             // If the global is enabled to SFTP claim files, tell the user
-            if ($GLOBALS['auto_sftp_claims_to_x12_partner']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
                 $html .= "<div class='alert alert-primary' role='alert'>" . xlt("Sending Claims via STFP. Check status on the `Claim File Tracker`") . "</div>";
             }
 
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // Build the download URLs for our claim files so we can present them to the
             // user for download.
             $html .= "<ul class='list-group'>";
@@ -296,10 +295,10 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $x12_partner_name = text($this->x12_partners[$x12_partner_id]['name']);
                 // For the modal, build a list of downloads
                 $file = $created_batch->getBatFilename();
-                $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
+                $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
                     '&partner=' . urlencode($x12_partner_id) .
-                    '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken());
+                    '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session));
                 $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
                         <a href='" . attr($url) . "'>" . text($file) . "</a>
@@ -315,7 +314,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
     public function completeToScreen(array $context)
     {
-        $this->finish($context, function ($context) {
+        $this->finish($context, function ($context): void {
 
             // Get the format_bat string from the finish method
             $format_bat = $context['format_bat'];

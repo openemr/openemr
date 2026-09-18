@@ -69,10 +69,10 @@ class Savant3_Plugin_date extends Savant3_Plugin
      * @var array
      *
      */
-    public $custom = array (
+    public $custom =  [
             'date' => '%Y-%m-%d',
             'time' => '%H:%M:%S'
-    );
+    ];
 
     /**
      *
@@ -91,16 +91,14 @@ class Savant3_Plugin_date extends Savant3_Plugin
      * @return string The formatted date string.
      *
      */
-    function date($datestring, $format = null)
+    public function date($datestring, $format = null)
     {
         settype($format, 'string');
 
-        if (is_null($format)) {
-            $format = $this->default;
-        }
+        $format ??= $this->default;
 
         // does the format string have a % sign in it?
-        if (strpos($format, '%') === false) {
+        if (!str_contains($format, '%')) {
             // no, look for a custom format string
             if (! empty($this->custom [$format])) {
                 // found a custom format string

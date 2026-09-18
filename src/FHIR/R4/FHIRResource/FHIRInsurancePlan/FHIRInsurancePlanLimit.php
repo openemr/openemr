@@ -155,7 +155,7 @@ class FHIRInsurancePlanLimit extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -176,15 +176,13 @@ class FHIRInsurancePlanLimit extends FHIRBackboneElement implements \JsonSeriali
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<InsurancePlanLimit xmlns="http://hl7.org/fhir"></InsurancePlanLimit>');
-        }
+        $sxe ??= new \SimpleXMLElement('<InsurancePlanLimit xmlns="http://hl7.org/fhir"></InsurancePlanLimit>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->value)) {
             $this->value->xmlSerialize(true, $sxe->addChild('value'));

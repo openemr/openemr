@@ -44,7 +44,7 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType = false)
     }
 
     //    create our temporary arrays
-    $arySort = $aryResult = array();
+    $arySort = $aryResult = [];
     //    loop through the array
     foreach ($aryData as $aryRow) {
         //    set up the value in the array
@@ -97,7 +97,7 @@ function getBillsBetweendayReport(
     "WHERE 1=1 $query_part AND billing.fee!=0 " . " $auth " . " $billstring " .
     "ORDER BY  fulname ASC, date ASC, pid ";
 
-    $res = sqlStatement($sql, array($code_type));
+    $res = sqlStatement($sql, [$code_type]);
     $all = false;
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;

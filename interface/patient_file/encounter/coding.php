@@ -5,16 +5,23 @@
  * coding.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
+
 ?>
 <html>
 <head>
@@ -42,11 +49,11 @@ use OpenEMR\Core\Header;
 <dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Copay'); ?></a></dd>
 <dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Other'); ?></a></dd><br />
 
-<?php if (!$GLOBALS['disable_prescriptions']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')) { ?>
 <dt><span href="coding.php" class="title"><?php echo xlt('Prescriptions'); ?></span></dt>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
+<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
  target="Codes" onclick="top.restoreSession()"><?php echo xlt('List Prescriptions'); ?></a></dd>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid); ?>"
+<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid); ?>"
  target="Codes" onclick="top.restoreSession()"><?php echo xlt('Add Prescription'); ?></a></dd>
 <?php }; // if (!$GLOBALS['disable_prescriptions']) ?>
 </dl>

@@ -190,7 +190,7 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -217,15 +217,13 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationGeneElement xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGeneElement>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceReferenceInformationGeneElement xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGeneElement>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

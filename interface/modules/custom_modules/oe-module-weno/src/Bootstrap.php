@@ -4,7 +4,7 @@
  * Contains all of the Weno global settings and configuration
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Omega Systems Group <https://omegasystemsgroup.com/>
@@ -14,9 +14,11 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
@@ -27,18 +29,13 @@ use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Utils\SQLUpgradeService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class Bootstrap
 {
     const MODULE_MENU_NAME = "Weno";
-
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
 
     private $moduleDirectoryName;
 
@@ -54,32 +51,34 @@ class Bootstrap
      */
     private $globalsConfig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    private string $modulePath;
+    private readonly string $modulePath;
 
     /**
      * @var SelectedPatientPharmacy
      */
-    private SelectedPatientPharmacy $selectedPatientPharmacy;
+    private readonly SelectedPatientPharmacy $selectedPatientPharmacy;
     public string $installPath;
     /**
      * @var mixed|string
      */
     public mixed $isWenoUser;
     public bool $isAuthorized;
+    public bool $isConfigured = false;
 
-    public function __construct(EventDispatcher $dispatcher)
-    {
-        $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
-        $this->eventDispatcher = $dispatcher;
+    /**
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     */
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->installPath = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
         $this->isWenoUser = !empty($this->isWenoUser());
         $this->isAuthorized = AclMain::aclCheckCore('patients', 'rx');
@@ -93,13 +92,18 @@ class Bootstrap
         $modService = new ModuleService();
         // let Admin configure Weno if module is not configured.
         $this->addGlobalSettings();
-        if (!$modService->isWenoConfigured()) {
+        $this->isConfigured = $modService->isWenoConfigured();
+
+        // Always register demographics pharmacy hooks so the UI can render diagnostics
+        // explaining which gate is failing instead of silently hiding the selector.
+        $this->demographicsSelectorEvents();
+        $this->demographicsDisplaySelectedEvents();
+
+        if (!$this->isConfigured) {
             return;
         }
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
-        $this->demographicsSelectorEvents();
-        $this->demographicsDisplaySelectedEvents();
         $this->patientSaveEvents();
         $this->patientUpdateEvents();
         $modService::setModuleState('oe-module-weno', '1', '0');
@@ -130,7 +134,7 @@ class Bootstrap
         $service->addUserSpecificTab(self::MODULE_MENU_NAME);
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             if ($userMode) {
                 $service->appendToSection(
                     self::MODULE_MENU_NAME,
@@ -167,7 +171,7 @@ class Bootstrap
      */
     public function registerDemographicsEvents(): void
     {
-        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, [$this, 'renderWenoSection']);
+        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, $this->renderWenoSection(...));
     }
 
     /**
@@ -176,7 +180,7 @@ class Bootstrap
      */
     public function renderWenoSection(pRenderEvent $event): void
     {
-        if (!$this->isWenoUser || !$this->isAuthorized) {
+        if (!$this->isAuthorized) {
             return;
         }
 
@@ -222,7 +226,7 @@ class Bootstrap
      */
     public function addGlobalSettings(): void
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalWenoSettings']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalWenoSettings(...));
     }
 
     /**
@@ -230,7 +234,7 @@ class Bootstrap
      */
     public function registerMenuItems(): void
     {
-        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomMenuItem(...));
     }
 
     /**
@@ -326,7 +330,7 @@ class Bootstrap
      */
     public function demographicsSelectorEvents(): void
     {
-        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, [$this, 'renderWenoPharmacySelector']);
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, $this->renderWenoPharmacySelector(...));
     }
 
     /**
@@ -334,11 +338,13 @@ class Bootstrap
      */
     public function renderWenoPharmacySelector(): void
     {
-        if (!$this->isWenoUser) {
-            return;
-        }
+        $wenoDiagnostics = [
+            'configured' => $this->isConfigured,
+            'user' => !empty($this->isWenoUser),
+            'acl' => $this->isAuthorized,
+        ];
 
-        include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
+        include_once $this->modulePath . '/templates/pharmacy_list_form.php';
     }
 
     /**
@@ -346,7 +352,7 @@ class Bootstrap
      */
     public function demographicsDisplaySelectedEvents(): void
     {
-        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, $this->renderSelectedWenoPharmacies(...));
     }
 
     /**
@@ -355,7 +361,7 @@ class Bootstrap
     public function renderSelectedWenoPharmacies(): void
     {
         echo "<br>";
-        include_once($this->modulePath) . "/templates/pharmacy_list_display.php";
+        include_once $this->modulePath . '/templates/pharmacy_list_display.php';
     }
 
     /**
@@ -363,7 +369,7 @@ class Bootstrap
      */
     public function patientSaveEvents(): void
     {
-        $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
+        $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, $this->persistPatientWenoPharmacies(...));
     }
 
     /**
@@ -381,7 +387,7 @@ class Bootstrap
      */
     public function patientUpdateEvents(): void
     {
-        $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
+        $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, $this->updatePatientWenoPharmacies(...));
     }
 
     /**
@@ -396,9 +402,8 @@ class Bootstrap
 
     public function isWenoUser()
     {
-        if (empty($id)) {
-            $id = $_SESSION['authUserID'] ?? '';
-        }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $id = $session->get('authUserID') ?? '';
         // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
 
@@ -408,17 +413,17 @@ class Bootstrap
     public function moduleSqlUpgrade($installScript): string
     {
         try {
-            $fileName = basename($installScript);
-            $dir = dirname($installScript);
+            $fileName = basename((string) $installScript);
+            $dir = dirname((string) $installScript);
             $sqlUpgradeService = new SQLUpgradeService();
             $sqlUpgradeService->setThrowExceptionOnError(true);
             $sqlUpgradeService->setRenderOutputToScreen(false);
             $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
             return true;
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->errorLogCaller(
+            ServiceContainer::getLogger()->error(
                 "Error: " . $exception->getMessage(),
-                ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'statement' => $exception->getSqlStatement()]
             );
             return false;
         }

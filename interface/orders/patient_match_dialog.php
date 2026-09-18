@@ -7,24 +7,40 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013-2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$form_key = $_REQUEST['key'];
-$args = unserialize($form_key, ['allowed_classes' => false]);
-$form_ss = preg_replace('/[^0-9]/', '', $args['ss']);
-$form_fname = $args['fname'];
-$form_lname = $args['lname'];
-$form_DOB = $args['DOB'];
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    echo ServiceContainer::getTwig()->render(
+        'core/unauthorized.html.twig',
+        ['pageTitle' => xl('Patient Matching')]
+    );
+    exit;
+}
+
+$form_key = filter_input(INPUT_GET, 'key') ?: '';
+$args = is_array($decoded = json_decode($form_key, true)) ? $decoded : [];
+$form_ss = preg_replace('/[^0-9]/', '', (string) ($args['ss'] ?? ''));
+$argFname = $args['fname'] ?? '';
+$form_fname = is_string($argFname) ? $argFname : '';
+$argLname = $args['lname'] ?? '';
+$form_lname = is_string($argLname) ? $argLname : '';
+$argDOB = $args['DOB'] ?? '';
+$form_DOB = is_string($argDOB) ? $argDOB : '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -67,10 +83,10 @@ $form_DOB = $args['DOB'];
 
 <body class="body_top">
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <?php
 if ($form_key) {
-    $clarr = array();
+    $clarr = [];
     $clsql = "0";
 // First name.
     if ($form_fname !== '') {
@@ -91,9 +107,9 @@ if ($form_key) {
     }
 
 // SSN match is worth a lot and we allow for matching on last 4 digits.
-    if (strlen($form_ss) > 3) {
+    if (strlen((string) $form_ss) > 3) {
         $clsql .= " + ((ss IS NOT NULL AND ss LIKE ?) * 10)";
-        $clarr[] = "%$form_ss";
+        $clarr[] = "%" . $form_ss;
     }
 
     $sql = "SELECT $clsql AS closeness, " .
@@ -111,7 +127,7 @@ if ($form_key) {
                 <?php
                 echo xlt('Matching for Patient') . ": " .
                     text("$form_lname, $form_fname") . text(" Dob = $form_DOB") .
-                    " SS = " . text(($form_ss ? $form_ss : "unk"))
+                    " SS = " . text(($form_ss ?: "unk"))
                 ?>
             </h5>
             <tr>
@@ -146,7 +162,7 @@ if ($form_key) {
                 echo " onclick=\"openPatient(" . attr_js($row['pid']) . ")\">\n";
                 echo "   <td>" . text($row['lname'] . ", " . $row['fname']) . "</td>\n";
                 echo "   <td>" . text($row['DOB']) . "</td>\n";
-                echo "   <td>" . text(substr($row['sex'], 0, 1)) . "</td>\n";
+                echo "   <td>" . text(substr((string) $row['sex'], 0, 1)) . "</td>\n";
                 echo "   <td>" . text($phone) . "</td>\n";
                 echo "   <td>" . text($row['ss']) . "</td>\n";
                 echo "   <td>" . text($row['street'] . ' ' . $row['postal_code']) . "</td>\n";

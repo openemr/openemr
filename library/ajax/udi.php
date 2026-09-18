@@ -13,19 +13,21 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\MedicalDevice\MedicalDevice;
 
 header('Content-type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'udi')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], $session, 'udi')) {
     CsrfUtils::csrfNotVerified(false);
 }
 
 $udi = $_GET["udi"] ?? null;
 if (empty($udi)) {
-    (new SystemLogger())->error("OpenEMR ERROR: Called udi.php script without sending a udi");
+    ServiceContainer::getLogger()->error("OpenEMR ERROR: Called udi.php script without sending a udi");
     die;
 }
 

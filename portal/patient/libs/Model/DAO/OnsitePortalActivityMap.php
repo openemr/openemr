@@ -10,10 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/IDaoMap.php");
-require_once("verysimple/Phreeze/IDaoMap2.php");
-
 /**
  * OnsitePortalActivityMap is a static class with functions used to get FieldMap and KeyMap information that
  * is used by Phreeze to map the OnsitePortalActivityDAO to the onsite_portal_activity datastore.
@@ -57,7 +53,7 @@ class OnsitePortalActivityMap implements IDaoMap, IDaoMap2
     public static function GetFieldMaps()
     {
         if (self::$FM == null) {
-            self::$FM = array();
+            self::$FM = [];
             self::$FM["Id"] = new FieldMap("Id", "onsite_portal_activity", "id", true, FM_TYPE_BIGINT, 20, null, true);
             self::$FM["Date"] = new FieldMap("Date", "onsite_portal_activity", "date", false, FM_TYPE_DATETIME, null, null, false);
             self::$FM["PatientId"] = new FieldMap("PatientId", "onsite_portal_activity", "patient_id", false, FM_TYPE_BIGINT, 20, null, false);
@@ -83,7 +79,7 @@ class OnsitePortalActivityMap implements IDaoMap, IDaoMap2
     public static function GetKeyMaps()
     {
         if (self::$KM == null) {
-            self::$KM = array();
+            self::$KM = [];
         }
 
         return self::$KM;

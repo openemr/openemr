@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -30,7 +30,7 @@ class PopulationGroup
         // denominator_count - denominator_exclusions_count - denominator_exceptions_count
     }
 
-    public function is_cv()
+    public function is_cv(): bool
     {
         foreach ($this->populations as $population) {
             if ($population->type == 'MSRPOPL') {

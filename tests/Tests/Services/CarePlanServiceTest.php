@@ -3,7 +3,7 @@
 /**
  * CarePlanServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,30 +12,29 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\CarePlanService;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\CarePlanFixtureManager;
-use OpenEMR\Tests\Fixtures\FormFixtureManager;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\PractitionerService;
-use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
- * Practitioner Service Tests
- * @coversDefaultClass OpenEMR\Services\PractitionerService
+ * CarePlan Service Tests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 class CarePlanServiceTest extends TestCase
 {
     /**
      * @var CarePlanService
      */
     private $service;
+
+    /** @var array<string, mixed> */
+    private $fixture;
 
     /**
      * @var CarePlanFixtureManager
@@ -54,18 +53,14 @@ class CarePlanServiceTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @cover ::getOne
-     */
-    public function testGetOne()
+    #[Test]
+    public function testGetOne(): void
     {
         $this->markTestIncomplete("This test is not implemented");
     }
 
-    /**
-     * @cover ::getSurrogateKeyForRecord
-     */
-    public function testGetSurrogateKeyForRecord()
+    #[Test]
+    public function testGetSurrogateKeyForRecord(): void
     {
         // we are going to use the old care plan
         $expectedResult = sqlQuery("SELECT `fcp`.`id` AS `form_id`,`fe`.`uuid` AS `euuid`, `fcp`.`encounter` FROM `form_care_plan` fcp "

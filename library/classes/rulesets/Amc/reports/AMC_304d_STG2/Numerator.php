@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_304d_STG2_Numerator implements AmcFilterIF
@@ -29,10 +29,10 @@ class AMC_304d_STG2_Numerator implements AmcFilterIF
         return "AMC_304d_STG2 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Were sent an appropriate reminder during the EHR reporting period
-        $result_query = sqlQuery("SELECT * FROM `patient_reminders` WHERE `pid`=? AND `date_sent`>=? AND `date_sent`<=?", array($patient->id,$beginDate,$endDate));
+        $result_query = sqlQuery("SELECT * FROM `patient_reminders` WHERE `pid`=? AND `date_sent`>=? AND `date_sent`<=?", [$patient->id,$beginDate,$endDate]);
         if (!(empty($result_query))) {
             return true;
         } else {

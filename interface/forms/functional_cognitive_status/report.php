@@ -4,7 +4,7 @@
  * Functional cognitive status form report.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -14,13 +14,11 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
-
-function functional_cognitive_status_report($pid, $encounter, $cols, $id)
+function functional_cognitive_status_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($id, $pid, $encounter));
+    $res = sqlStatement($sql, [$id, $pid, $encounter]);
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
@@ -40,7 +38,7 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
             </thead>
             <tbody>
             <?php
-            foreach ($data as $key => $value) {
+            foreach ($data as $value) {
                 ?>
                 <tr>
                     <td class="border p-1"><span class=text><?php echo text($value['code']); ?></span></td>

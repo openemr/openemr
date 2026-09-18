@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 // Denominator:
 // Reporting period start and end date
@@ -31,7 +31,7 @@ class AMC_304b_1_STG2_Denominator implements AmcFilterIF
         return "AMC_304b_1_STG2 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         return true;
     }

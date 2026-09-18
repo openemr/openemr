@@ -25,41 +25,38 @@ use OpenEMR\Services\ListService;
  */
 class RuleCriteriaSex extends RuleCriteria
 {
-    var $value;
-
-    function __construct($value)
+    public function __construct(public $value)
     {
-        $this->value = $value;
     }
 
-    function getRequirements()
+    public function getRequirements()
     {
         return xl_list_label($this->value);
     }
 
-    function getTitle()
+    public function getTitle()
     {
         return xl("Sex");
     }
 
-    function getView()
+    public function getView()
     {
         return "sex.php";
     }
 
-    function getOptions()
+    public function getOptions()
     {
         $listService = new ListService();
         $optionsByListName  = $listService->getOptionsByListName('sex', ['active' => 1]);
         $options = [];
         foreach ($optionsByListName as $row) {
-            $options[] = array( "id" => $row['option_id'], "label" => xl_list_label($row['title']) );
+            $options[] = [ "id" => $row['option_id'], "label" => xl_list_label($row['title']) ];
         }
 
         return $options;
     }
 
-    function getDbView()
+    public function getDbView()
     {
         $dbView = parent::getDbView();
 
@@ -69,7 +66,7 @@ class RuleCriteriaSex extends RuleCriteria
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         parent::updateFromRequest();
 

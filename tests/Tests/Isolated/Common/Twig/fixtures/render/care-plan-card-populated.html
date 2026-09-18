@@ -1,0 +1,65 @@
+<section class="card ">
+    <div class="card-body p-1">
+        <h6 class="card-title mb-0 d-flex p-1 justify-content-between">
+            <a class="text-left font-weight-bolder" href="#"  data-toggle="collapse" data-target="#card_care_plan"  aria-expanded="true" aria-controls="card_care_plan">Care Plan<i class="ml-1 fa fa-fw  fa-compress " data-target="#card_care_plan"></i></a>
+                    </h6>
+        <div id="card_care_plan" class="card-text collapse show">
+            <div class="clearfix pt-2">
+                            <div class="px-1">
+            <p class="mb-1">Most recent care plan &mdash; 2026-01-05</p>
+            <div class="table-responsive">
+                <table class="table table-sm w-100">
+                    <thead>
+                        <tr>
+                            <th class="border p-1">Author</th>
+                            <th class="border p-1">Type</th>
+                            <th class="border p-1">Engagement</th>
+                            <th class="border p-1">Code</th>
+                            <th class="border p-1">Code Text</th>
+                            <th class="border p-1">Description</th>
+                            <th class="border p-1">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                                                    <tr>
+                                <td class="border p-1"><span class="text">admin</span></td>
+                                <td class="border p-1"><span class="text">[Plan_of_Care_Type:plan_of_care]</span></td>
+                                <td class="border p-1"><span class="text">[care_plan_engagement_category:]</span></td>
+                                <td class="border p-1"><span class="text">SNOMED-CT:168731009</span></td>
+                                <td class="border p-1"><span class="text">Standard chest x-ray</span></td>
+                                <td class="border p-1"><span class="text">First line<br />
+Second line</span></td>
+                                <td class="border p-1"><span class="text">2026-01-05 09:00:00</span></td>
+                            </tr>
+                                            </tbody>
+                </table>
+            </div>
+                            <p class="mb-0">
+                    <a class="btn btn-sm btn-link js-care-plan-goto-encounter" href="#" role="button">
+                        Go to the care plan encounter
+                    </a>
+                </p>
+                <script>
+                    // Scoped to this card so the feature stays self-contained rather than
+                    // leaking encounter-navigation code into demographics.php.
+                    $(function () {
+                        $('.js-care-plan-goto-encounter').on('click', function (e) {
+                            e.preventDefault();
+                            if (!parent.left_nav) {
+                                return;
+                            }
+                            const encParams = new URLSearchParams({
+                                pid: 1,
+                                set_encounter: 12
+                            });
+                            parent.left_nav.setEncounter("2026-01-05", 12, 'enc');
+                            top.restoreSession();
+                            parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/encounter/encounter_top.php?' + encParams.toString());
+                        });
+                    });
+                </script>
+                    </div>
+                </div>
+        </div>
+    </div>
+</section>

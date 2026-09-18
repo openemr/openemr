@@ -7,7 +7,7 @@
  * installation.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,30 +15,21 @@
 
 namespace OpenEMR\Common\Command\Runner;
 
-use MongoDB\Driver\Command;
 use OpenEMR\Common\Command\IOpenEMRCommand;
 
 class CommandRunner
 {
-    /**
-     * The OpenEMR root installation folder
-     * @var string
-     */
-    private $rootPath;
-
-    /**
-     * The name of the script that is calling the command runner
-     * @var string
-     */
-    private $scriptName;
-
     const COMMAND_NAMESPACE = 'OpenEMR\\Common\\Command\\';
     const COMMAND_SUFFIX = "Command";
 
-    public function __construct($rootPath, $scriptName)
-    {
-        $this->rootPath = $rootPath;
-        $this->scriptName = $scriptName;
+    /**
+     * @param string $rootPath The OpenEMR root installation folder
+     * @param string $scriptName The name of the script that is calling the command runner
+     */
+    public function __construct(
+        private $rootPath,
+        private $scriptName
+    ) {
     }
 
     public function run()
@@ -133,7 +124,7 @@ class CommandRunner
                 }
             }
             return $availableCommands;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             echo "Error in attempting to find commands " . $ex->getMessage() . "\n";
             die();
         }

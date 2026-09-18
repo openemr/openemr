@@ -4,7 +4,7 @@
  * Handles the TeleHealthUserRepository Unit Tests
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -29,7 +29,7 @@ class TeleHealthUserRepositoryTest extends TestCase
             . " WHERE username LIKE ?", ["%" . self::TEST_USERNAME . "%"]);
     }
 
-    public function testSaveUserWithEmptyUsernameThrowsException()
+    public function testSaveUserWithEmptyUsernameThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("username cannot be empty");
@@ -40,7 +40,7 @@ class TeleHealthUserRepositoryTest extends TestCase
         $repo->saveUser($user);
     }
 
-    public function testSaveUserWithEmptyAuthTokenThrowsException()
+    public function testSaveUserWithEmptyAuthTokenThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("authToken cannot be empty");
@@ -51,7 +51,7 @@ class TeleHealthUserRepositoryTest extends TestCase
         $repo->saveUser($user);
     }
 
-    public function testSaveUserCreatesProviderDatabaseRecord()
+    public function testSaveUserCreatesProviderDatabaseRecord(): void
     {
         $user = new TeleHealthUser();
         $user->setUsername(self::TEST_USERNAME);
@@ -76,7 +76,7 @@ class TeleHealthUserRepositoryTest extends TestCase
         $this->assertNotEmpty($record['date_registered']);
     }
 
-    public function testGetUser()
+    public function testGetUser(): void
     {
         $user = new TeleHealthUser();
         $user->setUsername(self::TEST_USERNAME);

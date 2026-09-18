@@ -26,4 +26,4 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields([ "criteria" => $criteria]); ?>

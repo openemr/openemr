@@ -19,15 +19,15 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 abstract class RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
-    abstract function resolveRuleCriteriaType($method, $methodDetail, $value);
+    abstract public function resolveRuleCriteriaType($method, $methodDetail, $value);
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
-    abstract function build($ruleCriteriaType, $value, $methodDetail);
+    abstract public function build($ruleCriteriaType, $value, $methodDetail);
 
-    abstract function newInstance($criteriaType);
+    abstract public function newInstance($criteriaType);
 }

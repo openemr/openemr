@@ -10,27 +10,8 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 
 class TeleHealthProvisioningService
 {
-    /**
-     * @var TeleHealthUserRepository
-     */
-    private $telehealthUserRepo;
-
-    /**
-     * @var TeleHealthProviderRepository
-     */
-    private $providerRepository;
-
-    /**
-     * @var TeleHealthRemoteRegistrationService
-     */
-    private $telehealthRegistration;
-
-
-    public function __construct(TeleHealthUserRepository $userRepo, TeleHealthProviderRepository $providerRepo, TeleHealthRemoteRegistrationService $registrationService)
+    public function __construct(private readonly TeleHealthUserRepository $telehealthUserRepo, private readonly TeleHealthProviderRepository $providerRepository, private readonly TeleHealthRemoteRegistrationService $telehealthRegistration)
     {
-        $this->telehealthUserRepo = $userRepo;
-        $this->providerRepository = $providerRepo;
-        $this->telehealthRegistration = $registrationService;
     }
 
     /**
@@ -59,7 +40,7 @@ class TeleHealthProvisioningService
                 // we should never hit this situation as we are supposed to prevent launching of appointments on the client side of things.
                 throw new TelehealthProviderNotEnrolledException("Provider is either suspended or not enrolled in telehealth. Cannot create telehealth registration for user " . $user['uuid']);
             }
-        } else if (!$providerTelehealthSettings->getIsActive()) {
+        } elseif (!$providerTelehealthSettings->getIsActive()) {
             // provider is disabled... can't launch settings with this provider
             throw new TeleHealthProviderSuspendedException("Provider's telehealth subscription is suspended for user " . $user['uuid']);
         }

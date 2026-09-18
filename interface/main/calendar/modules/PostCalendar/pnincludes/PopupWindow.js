@@ -26,7 +26,7 @@ DESCRIPTION: This object allows you to easily and quickly popup a window
 in a certain place. The window can either be a DIV or a separate browser
 window.
 
-COMPATABILITY: Works with Netscape 4.x, 6.x, IE 5.x on Windows. Some small
+COMPATIBILITY: Works with Netscape 4.x, 6.x, IE 5.x on Windows. Some small
 positioning errors - usually with Window positioning - occur on the
 Macintosh platform. Due to bugs in Netscape 4.x, populating the popup
 window with <STYLE> tags may cause errors.

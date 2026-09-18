@@ -6,7 +6,7 @@ class TelehealthAuthUtils
 {
     public static function getFormattedPassword($password)
     {
-        $hash = hash('sha256', $password);
+        $hash = hash('sha256', (string) $password);
         return $hash;
     }
 }

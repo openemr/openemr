@@ -4,7 +4,7 @@
  * ResourceServiceSearchTrait handles the creating of openemr search parameters for a resource.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,14 +12,22 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use InvalidArgumentException;
+use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldOrder;
 
 trait ResourceServiceSearchTrait
 {
-    public function setSearchFieldFactory(FHIRSearchFieldFactory $factory)
+    /**
+     * @var FHIRSearchFieldFactory
+     */
+    private FHIRSearchFieldFactory $searchFieldFactory;
+
+    public function setSearchFieldFactory(FHIRSearchFieldFactory $factory): void
     {
         $this->searchFieldFactory = $factory;
     }
@@ -35,13 +43,13 @@ trait ResourceServiceSearchTrait
      *
      * to either add search fields or change the functionality of the created ISearchFields.
      *
-     * @param $fhirSearchParameters
-     * @param $puuidBind The patient unique id if searching in a patient context
+     * @param array $fhirSearchParameters
+     * @param string|null $puuidBind The patient unique id if searching in a patient context
      * @return ISearchField[] where the keys are the search fields.
      */
-    protected function createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind)
+    protected function createOpenEMRSearchParameters(array $fhirSearchParameters, ?string $puuidBind = null): array
     {
-        $oeSearchParameters = array();
+        $oeSearchParameters = [];
 
         $specialColumns = ['_sort' => '', '_count' => '', '_offset' => ''];
         $hasSort = false;
@@ -67,7 +75,7 @@ trait ResourceServiceSearchTrait
                 // precedence and ALL values will be UNIONED (AND clause).
                 $searchField = $this->createSearchParameterForField($fhirSearchField, $searchValue);
                 $oeSearchParameters[$searchField->getName()] = $searchField;
-            } catch (\InvalidArgumentException $exception) {
+            } catch (InvalidArgumentException $exception) {
                 $message = "The search field argument was invalid, improperly formatted, or could not be parsed. "
                     . " Inner message: " . $exception->getMessage();
                 throw new SearchFieldException($fhirSearchField, $message, $exception->getCode(), $exception);
@@ -79,25 +87,37 @@ trait ResourceServiceSearchTrait
             $oeSearchParameters['_config']['_sort'] = $this->createSortParameter($fhirSearchParameters['_sort']);
         }
 
-        // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
-        // we restrict the data to JUST that patient.
-        if (!empty($puuidBind) && $this instanceof IPatientCompartmentResourceService) {
-            $searchFactory = $this->getSearchFieldFactory();
-            $patientField = $this->getPatientContextSearchField();
-            // TODO: @adunsulag not sure if every service will already have a defined binding for the patient... I'm assuming for Patient compartments we would...
-            // yet we may need to extend the factory in the future to handle this.
-            $oeSearchParameters[$patientField->getName()] = $searchFactory->buildSearchField($patientField->getName(), [$puuidBind]);
+        // Patient-compartment enforcement. If a patient-scope bind is present,
+        // the service MUST declare IPatientCompartmentResourceService (or
+        // INonPatientCompartmentResourceService for opt-out). Non-declaring
+        // services throw so the outer getAll() logs a SearchFieldException
+        // and returns an empty result rather than returning another patient's
+        // data.
+        if (!empty($puuidBind)) {
+            if ($this instanceof IPatientCompartmentResourceService) {
+                $searchFactory = $this->getSearchFieldFactory();
+                $patientField = $this->getPatientContextSearchField();
+                $oeSearchParameters[$patientField->getName()] = $searchFactory->buildSearchField($patientField->getName(), [$puuidBind]);
+            } elseif (!($this instanceof INonPatientCompartmentResourceService)) {
+                throw new SearchFieldException(
+                    'patient',
+                    'Patient-scoped access to this resource is not permitted.'
+                );
+            }
+            // Non-patient-compartment services drop the bind (patient tokens
+            // legitimately reach these endpoints per FHIR spec; the bind is a
+            // no-op there).
         }
 
         return $oeSearchParameters;
     }
 
-    private function createSortParameter($sort)
+    private function createSortParameter($sort): array
     {
         $newSortOrder = [];
-        $sortFields = explode(',', $sort);
+        $sortFields = explode(',', (string) $sort);
         $searchFactory = $this->getSearchFieldFactory();
-        foreach ($sortFields as $key => $sortField) {
+        foreach ($sortFields as $sortField) {
             $isDescending = ($sortField[0] ?? '') === '-';
             if ($isDescending) {
                 $sortField = substr($sortField, 1);
@@ -115,12 +135,11 @@ trait ResourceServiceSearchTrait
         return $newSortOrder;
     }
 
-    protected function createSearchParameterForField($fhirSearchField, $searchValue)
+    protected function createSearchParameterForField($fhirSearchField, $searchValue): ISearchField
     {
         $searchFactory = $this->getSearchFieldFactory();
         if ($searchFactory->hasSearchField($fhirSearchField)) {
-            $searchField = $searchFactory->buildSearchField($fhirSearchField, $searchValue);
-            return $searchField;
+            return $searchFactory->buildSearchField($fhirSearchField, $searchValue);
         } else {
             throw new SearchFieldException($fhirSearchField, xlt("This search field does not exist or is not supported"));
         }

@@ -7,8 +7,8 @@
         "children": [],
         "requirement": 0,
         "acl_req": [
-          "patients",
-          "demo"
+            "patients",
+            "demo"
         ]
     },
     {

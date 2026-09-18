@@ -21,7 +21,7 @@ class NQF_0064_PopulationCriteria implements CqmPopulationCrtiteriaFactory
 
     public function createNumerators()
     {
-        $numerators = array();
+        $numerators = [];
         $numerators [] = new NQF_0064_Numerator1();
         $numerators [] = new NQF_0064_Numerator2();
         return $numerators;

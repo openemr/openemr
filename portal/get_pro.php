@@ -4,7 +4,7 @@
  * Easipro class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Cassian LUP <cassi.lup@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>

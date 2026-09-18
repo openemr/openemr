@@ -4,7 +4,7 @@
  * User password change tool
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -16,17 +16,20 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 if (AuthUtils::useActiveDirectory()) {
     exit();
 }
-$userid = $_SESSION['authUserID'];
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$userid = $session->get('authUserID');
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 ?>
@@ -35,11 +38,11 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Change Password'); ?></title>
 
-<script src="checkpwd_validation.js"></script>
+<script src="checkpwd_validation.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
 //Validating password and display message if password field is empty - starts
-var webroot=<?php echo js_escape($webroot); ?>;
+var webroot=<?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
 function update_password()
 {
     top.restoreSession();
@@ -52,7 +55,7 @@ function update_password()
             curPass:    $("input[name='curPass']").val(),
             newPass:    $("input[name='newPass']").val(),
             newPass2:   $("input[name='newPass2']").val(),
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         },
         function(data)
         {
@@ -66,17 +69,17 @@ function update_password()
 
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Change Password'),
     'include_patient_name' => false,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
     'help_file_name' => ""
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -84,7 +87,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <?php
 
-$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION['authUserID']));
+$res = sqlStatement("select fname,lname,username from users where id=?", [$session->get('authUserID')]);
 $row = sqlFetchArray($res);
       $iter = $row;
 ?>
@@ -102,7 +105,7 @@ $row = sqlFetchArray($res);
     <div class="row">
         <div class="col-sm-12">
             <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
-                <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
+                <input type=hidden name=secure_pwd value="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
                 <fieldset>
                     <legend><?php echo xlt('Change Password for') . " " . text($user_full_name); ?></legend>
                     <div class="form-group">

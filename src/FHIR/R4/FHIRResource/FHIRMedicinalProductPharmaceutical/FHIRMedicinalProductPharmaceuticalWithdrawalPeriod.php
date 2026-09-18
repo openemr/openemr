@@ -184,7 +184,7 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -208,15 +208,13 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalWithdrawalPeriod xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalWithdrawalPeriod>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductPharmaceuticalWithdrawalPeriod xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalWithdrawalPeriod>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->tissue)) {
             $this->tissue->xmlSerialize(true, $sxe->addChild('tissue'));

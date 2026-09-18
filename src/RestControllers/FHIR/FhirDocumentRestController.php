@@ -6,7 +6,7 @@
  * this class cleans it up if it is needed.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,20 +14,19 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use http\Exception\InvalidArgumentException;
-use OpenEMR\Common\Database\QueryUtils;
+use OpenApi\Attributes as OA;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
 use OpenEMR\Services\FHIR\Document\IDocumentDownloader;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\Search\ReferenceSearchField;
 use Psr\Http\Message\ResponseInterface;
-use Ramsey\Uuid\Uuid;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirDocumentRestController
 {
@@ -41,11 +40,16 @@ class FhirDocumentRestController
      */
     private $defaultMimeTypeHandler;
 
+    private readonly LoggerInterface $logger;
+
+    private readonly SessionInterface $session;
+
     public function __construct(HttpRestRequest $request)
     {
         $this->mimeTypeHandlers = [];
         $this->defaultMimeTypeHandler = new BaseDocumentDownloader();
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
+        $this->session = $request->getSession();
     }
 
     /**
@@ -53,6 +57,29 @@ class FhirDocumentRestController
      * expiration are checked against the document.
      * @param $documentId  The document we are requesting to access
      */
+    #[OA\Get(
+        path: '/fhir/Binary/{id}',
+        description: "Used for downloading binary documents generated either with BULK FHIR Export or with the \$docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                description: 'The id for the Document.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: "The documentation for working with BULK FHIR or \$docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function downloadDocument($documentId, $patientUuid = null): ResponseInterface
     {
         $document = $this->findDocumentForDocumentId($documentId);
@@ -77,7 +104,7 @@ class FhirDocumentRestController
             }
         }
 
-        if (!$document->can_access()) {
+        if (!$document->can_access($this->session->get('authUser'))) {
             return (new Psr17Factory())->createResponse(StatusCode::UNAUTHORIZED);
         }
 
@@ -87,11 +114,11 @@ class FhirDocumentRestController
                 if (!$document->is_deleted()) {
                     $document->process_deleted();
                 }
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 // we just continue as we still wanto to reject the response
                 $this->logger->error(
                     "FhirDocumentRestController->downloadDocument() Failed to delete document with id",
-                    ['document' => $documentId, 'username' => $_SESSION['authUser'], 'exception' => $exception->getMessage()]
+                    ['document' => $documentId, 'username' => $this->session->get('authUser'), 'exception' => $exception->getMessage()]
                 );
             }
             // need to return the fact that the document has expired
@@ -105,12 +132,12 @@ class FhirDocumentRestController
             }
             $this->logger->debug(
                 "FhirDocumentRestController->downloadDocument() Sending to default mime type handler",
-                ['document' => $documentId, 'username' => $_SESSION['authUser']]
+                ['document' => $documentId, 'username' => $this->session->get('authUser')]
             );
             $response = $this->defaultMimeTypeHandler->downloadDocument($document);
             $this->logger->debug(
                 "FhirDocumentRestController->downloadDocument() Response returned",
-                ['document' => $documentId, 'username' => $_SESSION['authUser'], 'contentLength' => $response->getHeader("Content-Length")]
+                ['document' => $documentId, 'username' => $this->session->get('authUser'), 'contentLength' => $response->getHeader("Content-Length")]
             );
             return $response;
         }
@@ -124,14 +151,14 @@ class FhirDocumentRestController
     public function addMimeTypeHandler($mimeType, IDocumentDownloader $handler)
     {
         if (!is_string($mimeType)) {
-            throw new InvalidArgumentException("invalid mime type");
+            throw new \InvalidArgumentException("invalid mime type");
         }
         $this->mimeTypeHandlers[$mimeType] = $handler;
     }
 
     private function findDocumentForDocumentId(string $documentId)
     {
-        if (Uuid::isValid($documentId)) {
+        if (ValidationUtils::isValidUuid($documentId)) {
             $document = \Document::getDocumentForUuid($documentId);
         } else {
             // use our integer values

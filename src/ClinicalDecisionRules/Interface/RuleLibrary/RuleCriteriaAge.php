@@ -19,27 +19,20 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
  */
 class RuleCriteriaAge extends RuleCriteria
 {
-    var $type;
-    var $value;
-    var $timeUnit;
-
     /**
      *
      * @param TimeUnit $timeUnit
      */
-    function __construct($type, $value = null, $timeUnit = null)
+    public function __construct(public $type, public $value = null, public $timeUnit = null)
     {
-        $this->type = $type;
-        $this->value = $value;
-        $this->timeUnit = $timeUnit;
     }
 
-    function getRequirements()
+    public function getRequirements()
     {
         return $this->value;
     }
 
-    function getTitle()
+    public function getTitle()
     {
         $title = xl("Age");
         if ($this->type == "min") {
@@ -52,7 +45,7 @@ class RuleCriteriaAge extends RuleCriteria
         return $title;
     }
 
-    function getType()
+    public function getType()
     {
         if ($this->type == "min") {
             return xl("Min");
@@ -61,12 +54,12 @@ class RuleCriteriaAge extends RuleCriteria
         }
     }
 
-    function getView()
+    public function getView()
     {
         return "age.php";
     }
 
-    function getDbView()
+    public function getDbView()
     {
         $dbView = parent::getDbView();
 
@@ -76,7 +69,7 @@ class RuleCriteriaAge extends RuleCriteria
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         parent::updateFromRequest();
         $age = Common::post("fld_value");

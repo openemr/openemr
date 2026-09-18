@@ -1,0 +1,67 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+    {% if rows is empty %}
+        <div class="list-group list-group-flush">
+            <div class="list-group-item p-0 pl-1">{{ "Nothing Recorded"|xlt }}</div>
+        </div>
+    {% else %}
+        <div class="px-1">
+            <p class="mb-1">{{ "Most recent care plan"|xlt }}{% if mostRecentDate %} &mdash; {{ mostRecentDate|shortDate|text }}{% endif %}</p>
+            <div class="table-responsive">
+                <table class="table table-sm w-100">
+                    <thead>
+                        <tr>
+                            <th class="border p-1">{{ "Author"|xlt }}</th>
+                            <th class="border p-1">{{ "Type"|xlt }}</th>
+                            <th class="border p-1">{{ "Engagement"|xlt }}</th>
+                            <th class="border p-1">{{ "Code"|xlt }}</th>
+                            <th class="border p-1">{{ "Code Text"|xlt }}</th>
+                            <th class="border p-1">{{ "Description"|xlt }}</th>
+                            <th class="border p-1">{{ "Date"|xlt }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            <tr>
+                                <td class="border p-1"><span class="text">{{ row.user|default('')|text }}</span></td>
+                                <td class="border p-1"><span class="text">{{ getListItemTitle('Plan_of_Care_Type', row.care_plan_type|default(''))|text }}</span></td>
+                                <td class="border p-1"><span class="text">{{ getListItemTitle('care_plan_engagement_category', row.plan_engagement_category|default(''))|text }}</span></td>
+                                <td class="border p-1"><span class="text">{{ row.code|default('')|text }}</span></td>
+                                <td class="border p-1"><span class="text">{{ row.codetext|default('')|text }}</span></td>
+                                <td class="border p-1"><span class="text">{{ row.description|default('')|text|nl2br }}</span></td>
+                                <td class="border p-1"><span class="text">{{ row.date|default('')|text }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if encounter %}
+                <p class="mb-0">
+                    <a class="btn btn-sm btn-link js-care-plan-goto-encounter" href="#" role="button">
+                        {{ "Go to the care plan encounter"|xlt }}
+                    </a>
+                </p>
+                <script>
+                    // Scoped to this card so the feature stays self-contained rather than
+                    // leaking encounter-navigation code into demographics.php.
+                    $(function () {
+                        $('.js-care-plan-goto-encounter').on('click', function (e) {
+                            e.preventDefault();
+                            if (!parent.left_nav) {
+                                return;
+                            }
+                            const encParams = new URLSearchParams({
+                                pid: {{ pid|js_escape }},
+                                set_encounter: {{ encounter|js_escape }}
+                            });
+                            parent.left_nav.setEncounter({{ mostRecentDate|shortDate|js_escape }}, {{ encounter|js_escape }}, 'enc');
+                            top.restoreSession();
+                            parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/encounter/encounter_top.php?' + encParams.toString());
+                        });
+                    });
+                </script>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

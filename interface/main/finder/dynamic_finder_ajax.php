@@ -6,22 +6,24 @@
  * Sponsored by David Eschelbacher, MD
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2012 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019, 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../globals.php");
-require_once($GLOBALS['srcdir'] . "/options.inc.php");
+require_once(__DIR__ . "/../../globals.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
-use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
+use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 
 // Not checking csrf since it breaks when opening up a patient in a new frame.
 //  Also note that csrf checking is not needed in this script because of following 2 reasons.
@@ -29,39 +31,52 @@ use OpenEMR\Events\PatientFinder\ColumnFilter;
 //  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
-$searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['search_any'] : "";
+$getSearchAny = (string) (filter_input(INPUT_GET, 'search_any') ?? '');
+$getSSearchRaw = (string) (filter_input(INPUT_GET, 'sSearch') ?? '');
+$getSColumns = (string) (filter_input(INPUT_GET, 'sColumns') ?? '');
+$getSearchType = (string) (filter_input(INPUT_GET, 'searchType') ?? '');
+$searchAny = ($getSearchAny !== '' && $getSSearchRaw === '') ? $getSearchAny : "";
 
 // With the ColReorder or ColReorderWithResize plug-in, the expected column
 // ordering may have been changed by the user.  So we cannot depend on
 // list_options to provide that.
 // Addition of an any column search from dem layouts. sjp 05/04/2019
 // Probably could have used a session var here because datatable server url
-// presists not allowing easy way to unset any for normal search but opted not.
+// persists not allowing easy way to unset any for normal search but opted not.
 //
+$aColumns = [];
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(
         "SELECT field_id FROM layout_options WHERE form_id = 'DEM'
-            AND field_id not like ? AND field_id not like ? AND uor !=0",
-        array('em\_%', 'add%')
+            AND field_id not like ? AND field_id not like ? AND field_id not like ? AND uor !=0",
+        ['em\_%', 'add%', 'related\_%']
     );
     for ($iter = 0; $row = sqlFetchArray($layoutCols); $iter++) {
         $aColumns[] = $row['field_id'];
     }
 } else {
-    $aColumns = explode(',', $_GET['sColumns']);
+    $aColumns = explode(',', $getSColumns);
 }
 // Paging parameters.  -1 means not applicable.
 //
-$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] : -1;
-$iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
+$iDisplayStart  = filter_input(INPUT_GET, 'iDisplayStart', FILTER_VALIDATE_INT);
+$iDisplayLength = filter_input(INPUT_GET, 'iDisplayLength', FILTER_VALIDATE_INT);
+if (!is_int($iDisplayStart)) {
+    $iDisplayStart = -1;
+}
+if (!is_int($iDisplayLength)) {
+    $iDisplayLength = -1;
+}
 $limit = '';
+$limitBinds = [];
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-    $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
+    $limit = "LIMIT ? OFFSET ?";
+    $limitBinds = [$iDisplayLength, $iDisplayStart];
 }
 // Search parameter.  -1 means .
 //
-$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ] === "true" ?  true : false;
+$searchMethodInPatientList = $getSearchType === "true";
 
 // Column sorting parameters.
 //
@@ -77,7 +92,7 @@ if (isset($_GET['iSortCol_0'])) {
             if ($aColumns[$iSortCol] == 'name') {
                 $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
             } else {
-                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('patient_data')) . "` $sSortDir";
+                $orderby .= escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . " $sSortDir";
             }
         }
     }
@@ -97,20 +112,20 @@ function dateSearch($sSearch)
 {
     // Determine if MDY date format is used, preferring Date Display Format from
     // global settings if it's not YMD, otherwise guessing from country code.
-    $mdy = empty($GLOBALS['date_display_format']) ?
-        ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
+    $mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
+        (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
     // If no delimiters then just search the whole date.
     $mystr = "%$sSearch%";
-    if (preg_match('/[^0-9]/', $sSearch)) {
+    if (preg_match('/[^0-9]/', (string) $sSearch)) {
         // Delimiter found. Separate it all into year, month and day components.
-        $parts = preg_split('/[^0-9]/', $sSearch);
-        $parts[1] = $parts[1] ?? '';
-        $parts[2] = $parts[2] ?? '';
+        $parts = preg_split('/[^0-9]/', (string) $sSearch);
+        $parts[1] ??= '';
+        $parts[2] ??= '';
         // If the first part is more than 2 digits then assume y/m/d format.
         // Otherwise assume MDY or DMY format as appropriate.
         if (strlen($parts[0]) <= 2) {
-            $parts = $mdy ? array($parts[2], $parts[0], $parts[1]) :
-                array($parts[2], $parts[1], $parts[0]);
+            $parts = $mdy ? [$parts[2], $parts[0], $parts[1]] :
+                [$parts[2], $parts[1], $parts[0]];
         }
         // A single-digit day or month is zero-filled. Fill in other missing
         // digits with wildcards. A 2-digit year like 19 becomes 19__, not __19.
@@ -133,9 +148,9 @@ function dateSearch($sSearch)
 // Global filtering.
 //
 $where = "";
-$srch_bind = array();
+$srch_bind = [];
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = trim($_GET['sSearch']);
+    $sSearch = trim((string) $_GET['sSearch']);
     foreach ($aColumns as $colname) {
         $where .= $where ? " OR " : " ( ";
         if ($colname == 'name') {
@@ -149,13 +164,13 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } elseif ($searchAny) {
-            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ?"; // any search
+            $where .= " " . escape_sql_column_name($colname, ['patient_data']) . " LIKE ?"; // any search
             array_push($srch_bind, ('%' . $sSearch . '%'));
         } else {
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -185,13 +200,13 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($colname == 'DOB') {
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, dateSearch($sSearch));
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } else {
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -201,7 +216,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
-$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE, 10);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
 $customWhere = $boundFilter->getFilterClause();
 $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);
@@ -210,7 +225,7 @@ $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);
 // Always includes pid because we need it for row identification.
 //
 if ($searchAny) {
-    $aColumns = explode(',', $_GET['sColumns']);
+    $aColumns = explode(',', (string) $_GET['sColumns']);
 }
 $sellist = 'pid';
 foreach ($aColumns as $colname) {
@@ -222,7 +237,7 @@ foreach ($aColumns as $colname) {
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
     } else {
-        $sellist .= "`" . escape_sql_column_name($colname, array('patient_data')) . "`";
+        $sellist .= escape_sql_column_name($colname, ['patient_data']);
     }
 }
 
@@ -233,25 +248,21 @@ $iTotal = $row['count'];
 
 // Get total number of rows in the table after filtering.
 //
-if (empty($where)) {
-    $where = $customWhere;
-} else {
-    $where = "$customWhere AND ( $where )";
-}
+$where = empty($where) ? $customWhere : "$customWhere AND ( $where )";
 $row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $where", $srch_bind);
 $iFilteredTotal = $row['count'];
 
 // Build the output data array.
 //
-$out = array(
+$out = [
     "sEcho"                => intval($_GET['sEcho']),
     "iTotalRecords"        => $iTotal,
     "iTotalDisplayRecords" => $iFilteredTotal,
-    "aaData"               => array()
-);
+    "aaData"               => []
+];
 
 // save into variable data about fields of 'patient_data' from 'layout_options'
-$fieldsInfo = array();
+$fieldsInfo = [];
 $quoteSellist = preg_replace('/(\w+)/i', '"${1}"', str_replace('`', '', $sellist));
 $res = sqlStatement('SELECT data_type, field_id, list_id FROM layout_options WHERE form_id = "DEM" AND field_id IN(' . $quoteSellist . ')');
 while ($row = sqlFetchArray($res)) {
@@ -259,10 +270,10 @@ while ($row = sqlFetchArray($res)) {
 }
 
 $query = "SELECT $sellist FROM patient_data WHERE $where $orderby $limit";
-$res = sqlStatement($query, $srch_bind);
-while ($row = sqlFetchArray($res)) {
+$res = QueryUtils::fetchRecords($query, array_merge($srch_bind, $limitBinds));
+foreach ($res as $row) {
     // Each <tr> will have an ID identifying the patient.
-    $arow = array('DT_RowId' => 'pid_' . $row['pid']);
+    $arow = ['DT_RowId' => 'pid_' . $row['pid']];
     foreach ($aColumns as $colname) {
         if ($colname == 'name') {
             $name = $row['lname'];

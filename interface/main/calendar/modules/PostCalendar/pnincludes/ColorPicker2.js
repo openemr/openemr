@@ -26,7 +26,7 @@ DESCRIPTION: This widget is used to select a color, in hexadecimal #RRGGBB
 form. It uses a color "swatch" to display the standard 216-color web-safe
 palette. The user can then click on a color to select it.
 
-COMPATABILITY: See notes in AnchorPosition.js and PopupWindow.js.
+COMPATIBILITY: See notes in AnchorPosition.js and PopupWindow.js.
 Only the latest DHTML-capable browsers will show the color and hex values
 at the bottom as your mouse goes over them.
 

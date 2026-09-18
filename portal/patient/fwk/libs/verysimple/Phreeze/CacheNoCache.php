@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("ICache.php");
-
-/**
  * CacheRam is an implementation of a Cache that doesn't actually cache at all
  *
  * @package verysimple::Phreeze
@@ -18,13 +13,14 @@ require_once("ICache.php");
  */
 class CacheNoCache implements ICache
 {
-    private $ram = array ();
+    private $ram =  [];
     public function Get($key, $flags = null)
     {
         return null;
     }
     public function Set($key, $val, $flags = null, $timeout = 0)
     {
+        return $val;
     }
     public function Delete($key)
     {

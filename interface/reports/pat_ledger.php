@@ -5,7 +5,7 @@
  * applied.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    WMT
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -17,22 +17,22 @@
  */
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -49,13 +49,12 @@ $pat_pid = $_GET['patient_id'] ?? null;
 $type_form = $_GET['form'];
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Ledger by Date")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Patient Ledger by Date", xl("Patient Ledger by Date"));
 }
 
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {
-    $all = array();
+    $all = [];
     if (!$pat) {
         return($all);
     }
@@ -70,7 +69,7 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
       "WHERE " .
       "ar_session.created_time >= ? AND ar_session.created_time <= ? " .
       "AND ar_session.patient_id=?";
-    $result = sqlStatement($sql, array($from_dt, $to_dt, $pat));
+    $result = sqlStatement($sql, [$from_dt, $to_dt, $pat]);
     $iter = 0;
     while ($row = sqlFetchArray($result)) {
         if (!$row['applied']) {
@@ -81,22 +80,6 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     }
 
     return($all);
-}
-
-function User_Id_Look($thisField)
-{
-    if (!$thisField) {
-        return '';
-    }
-
-    $ret = '';
-    $rlist = sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
-    $rrow = sqlFetchArray($rlist);
-    if ($rrow) {
-        $ret = $rrow['lname'] . ', ' . $rrow['fname'] . ' ' . $rrow['mname'];
-    }
-
-    return $ret;
 }
 
 function List_Look($thisData, $thisList)
@@ -112,7 +95,7 @@ function List_Look($thisData, $thisList)
     }
 
     $fres = sqlStatement("SELECT title FROM list_options WHERE list_id = ? " .
-        "AND option_id = ? AND activity = 1", array($thisList, $thisData));
+        "AND option_id = ? AND activity = 1", [$thisList, $thisData]);
     if ($fres) {
         $rret = sqlFetchArray($fres);
         $dispValue = xl_list_label($rret['title']);
@@ -128,7 +111,7 @@ function List_Look($thisData, $thisList)
 
 function GetAllCredits($enc = '', $pat = '')
 {
-    $all = array();
+    $all = [];
     if (!$enc || !$pat) {
         return($all);
     }
@@ -138,7 +121,7 @@ function GetAllCredits($enc = '', $pat = '')
     "LEFT JOIN insurance_companies AS ins ON session.payer_id = " .
     "ins.id WHERE encounter = ? AND pid = ? AND activity.deleted IS NULL " .
     "ORDER BY sequence_no";
-    $result = sqlStatement($sql, array($enc, $pat));
+    $result = sqlStatement($sql, [$enc, $pat]);
     $iter = 0;
     while ($row = sqlFetchArray($result)) {
         $all[$iter] = $row;
@@ -147,21 +130,8 @@ function GetAllCredits($enc = '', $pat = '')
 
     return($all);
 }
-function PrintEncHeader($dt, $rsn, $dr)
-{
-    global $bgcolor, $orow;
-    $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-    echo "<tr class='bg-white'>";
-    if (strlen($rsn) > 50) {
-        $rsn = substr($rsn, 0, 50) . '...';
-    }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
-    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
-    echo "</tr>\n";
-    $orow++;
-}
-function PrintEncFooter()
+function PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
     echo "<tr style='background-color: var(--gray300)'>";
@@ -174,7 +144,7 @@ function PrintEncFooter()
     echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
-function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances)
+function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances = []): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;
@@ -182,7 +152,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $uap_flag = false;
         if ($unassigned) {
             if (($pmt['pay_total'] - $pmt['applied']) == 0) {
-                if (!$GLOBALS['show_payment_history']) {
+                if (!OEGlobalsBag::getInstance()->getBoolean('show_payment_history')) {
                     continue;
                 }
                 $uap_flag = true;
@@ -195,11 +165,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $method = List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
         $ref = $pmt['reference'];
-        if ($unassigned) {
-              $memo = List_Look($pmt['adjustment_code'], 'payment_adjustment_code');
-        } else {
-              $memo = $pmt['memo'];
-        }
+        $memo = $unassigned ? List_Look($pmt['adjustment_code'], 'payment_adjustment_code') : $pmt['memo'];
 
         $description = $method;
         if ($ref) {
@@ -239,11 +205,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
             $payerId = $effectiveInsurances[$pmt['payer_type'] - 1]['provider'];
             $payer = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$payerId])['name'];
         }
-        if ($unassigned) {
-              $pmt_date = substr($pmt['post_to_date'], 0, 10);
-        } else {
-              $pmt_date = substr($pmt['post_time'], 0, 10);
-        }
+        $pmt_date = $unassigned ? substr((string) $pmt['post_to_date'], 0, 10) : substr((string) $pmt['post_time'], 0, 10);
 
         $print .= "<td class='detail'>" .
         text($pmt_date) . "&nbsp;/&nbsp;" . text($payer) . "</td>";
@@ -255,17 +217,17 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
               $uac_appl = $pmt['applied'];
               $uac_total = $pmt['pay_total'];
               $pmt_amt = $pmt['pay_total'];
-              $total_pmt = $total_pmt - $uac_bal;
+              $total_pmt -= $uac_bal;
         } else {
               $uac_total = '';
               $uac_bal = '';
               $uac_appl = '';
               $pmt_amt = $pmt['pay_amount'];
               $adj_amt = $pmt['adj_amount'];
-              $enc_pmt = $enc_pmt + $pmt['pay_amount'];
-              $total_pmt = $total_pmt + $pmt['pay_amount'];
-              $enc_adj = $enc_adj + $pmt['adj_amount'];
-              $total_adj = $total_adj + $pmt['adj_amount'];
+              $enc_pmt += $pmt['pay_amount'];
+              $total_pmt += $pmt['pay_amount'];
+              $enc_adj += $pmt['adj_amount'];
+              $total_adj += $pmt['adj_amount'];
         }
 
         $print_pmt = '';
@@ -298,7 +260,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         }
 
         if ($unassigned) {
-            $total_bal = $total_bal + $uac_bal;
+            $total_bal += $uac_bal;
         } else {
             $enc_bal = $enc_bal - $pmt_amt - $adj_amt;
             $total_bal = $total_bal - $pmt_amt - $adj_amt;
@@ -310,52 +272,35 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
 }
 
-if (!isset($_REQUEST['form_facility'])) {
-    $_REQUEST['form_facility'] = '';
-}
+$_REQUEST['form_facility'] ??= '';
 
-if (!isset($_REQUEST['form_provider'])) {
-    $_REQUEST['form_provider'] = '';
-}
+$_REQUEST['form_provider'] ??= '';
 
 if ($type_form == '0') {
-    if (!isset($_REQUEST['form_patient'])) {
-        $_REQUEST['form_patient'] = '';
-    }
+    $_REQUEST['form_patient'] ??= '';
 
-    if (!isset($_REQUEST['form_pid'])) {
-        $_REQUEST['form_pid'] = '';
-    }
+    $_REQUEST['form_pid'] ??= '';
 } else {
-    if (!isset($_REQUEST['form_patient'])) {
-        $_REQUEST['form_patient'] = $pat_pid;
-    }
+    $_REQUEST['form_patient'] ??= $pat_pid;
 
-    if (!isset($_REQUEST['form_pid'])) {
-        $_REQUEST['form_pid'] = $pat_pid;
-    }
+    $_REQUEST['form_pid'] ??= $pat_pid;
 }
 
-if (!isset($_REQUEST['form_csvexport'])) {
-    $_REQUEST['form_csvexport'] = '';
-}
+$_REQUEST['form_csvexport'] ??= '';
 
-if (!isset($_REQUEST['form_refresh'])) {
-    $_REQUEST['form_refresh'] = '';
-}
+$_REQUEST['form_refresh'] ??= '';
 
-if (!isset($_REQUEST['$form_dob'])) {
-    $_REQUEST['$form_dob'] = '';
-}
+$_REQUEST['$form_dob'] ??= '';
 
-if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+$last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - 1);
+if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'Y')) {
+    $ledger_time = substr((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'M') {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'M')) {
+    $ledger_time = substr((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'D') {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'D')) {
+    $ledger_time = substr((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -458,39 +403,39 @@ if ($_REQUEST['form_csvexport']) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
     </script>
     <script>
-    <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal?>
+    <?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal?>
     </script>
     <?php
     if ($type_form == '0') {
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
         'heading_title' => xl('Report') . " - " . xl('Patient Ledger by Date'),
         'include_patient_name' => false,
         'expandable' => false,
-        'expandable_files' => array("patient_ledger_report_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["patient_ledger_report_xpd"],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link and back
         'show_help_icon' => false,
         'help_file_name' => ""
-        );
+        ];
     } else {
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
         'heading_title' => xl('Patient Ledger'),
         'include_patient_name' => true,
         'expandable' => true,
-        'expandable_files' => array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd"],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link and back
         'show_help_icon' => true,
         'help_file_name' => "ledger_dashboard_help.php"
-        );
+        ];
     }
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
@@ -501,7 +446,7 @@ if ($_REQUEST['form_csvexport']) {
             <div class="col-sm-12">
                 <?php
                 if ($type_form != '0') {
-                    require_once("$include_root/patient_file/summary/dashboard_header.php");
+                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/summary/dashboard_header.php");
                 } else {
                     echo  $oemr_ui->pageHeading() . "\r\n";
                 } ?>
@@ -524,7 +469,7 @@ if ($_REQUEST['form_csvexport']) {
         <div class="row hideaway" >
             <div class="col-sm-12">
                 <form method='post' action='pat_ledger.php?form=<?php echo attr_url($type_form); ?>&patient_id=<?php echo attr_url($form_pid); ?>' id='theform' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div id="report_parameters">
                         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
                         <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -641,8 +586,8 @@ if ($_REQUEST['form_csvexport']) {
 $from_date = $form_from_date . ' 00:00:00';
 $to_date = $form_to_date . ' 23:59:59';
 if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
-    $rows = array();
-    $sqlBindArray = array();
+    $rows = [];
+    $sqlBindArray = [];
     $query = "select b.code_type, b.code, b.code_text, b.modifier, b.pid, b.provider_id, " .
     "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, " .
     "ins.name, " .
@@ -677,13 +622,9 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             echo csvEscape("Chg/Pmt Amount") . "\n";
         }
     } else {
-        if (!$form_facility) {
-            $facility = $facilityService->getPrimaryBusinessEntity();
-        } else {
-            $facility = $facilityService->getById($form_facility);
-        }
+        $facility = !$form_facility ? $facilityService->getPrimaryBusinessEntity() : $facilityService->getById($form_facility);
 
-        $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
+        $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", [$form_patient]);
         $pat_dob = $patient['DOB'] ?? null;
         $pat_name = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
         ?>
@@ -786,9 +727,10 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $orow = 0;
     $prev_encounter_id = -1;
     $hdr_printed = false;
-    $prev_row = array();
+    $prev_row = [];
+    $effectiveInsurances = [];
     while ($erow = sqlFetchArray($res)) {
-        $effectiveInsurances = getEffectiveInsurances($pid, $erow['date']);
+        $effectiveInsurances = getEffectiveInsurances(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'), $erow['date']);
         $print = '';
         $csv = '';
         if ($erow['encounter'] != $prev_encounter_id) {
@@ -828,8 +770,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
 
             $code_desc = $erow['code_text'];
-            if (strlen($code_desc) > 50) {
-                $code_desc = substr($code_desc, 0, 50) . '...';
+            if (strlen((string) $code_desc) > 50) {
+                $code_desc = substr((string) $code_desc, 0, 50) . '...';
             }
 
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -915,7 +857,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     </table>
     <tr><td>&nbsp;</td></tr><br /><br />
         <?php
-        if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+        if (OEGlobalsBag::getInstance()->getBoolean('print_next_appointment_on_ledger')) {
             $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
             $current_date2 = date('Y-m-d', $next_day);
@@ -956,7 +898,7 @@ if (! $_REQUEST['form_csvexport']) {
             </div>
         </div>
     </div><!--end of container div-->
-    <?php $oemr_ui->oeBelowContainerDiv();?>
+    <?php assert(isset($oemr_ui)); $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id ?? null); ?>;
         $(function () {

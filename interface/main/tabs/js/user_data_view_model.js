@@ -2,7 +2,7 @@
  * user_data_view_model.js
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -97,16 +97,9 @@ function viewPortalMail()
     });
 }
 
-function viewPortalChats()
-{
-    navigateTab(webroot_url+"/portal/messaging/secure_chat.php","pop", function () {
-        activateTabByName("pop",true);
-    });
-}
-
 function viewPortalPayments()
 {
-    navigateTab(webroot_url+"/portal/patient/onsiteactivityviews","msc", function () {
+    navigateTab(webroot_url+"/portal/patient/onsiteactivityviews?activity=payment","msc", function () {
         activateTabByName("msc",true);
     });
 }

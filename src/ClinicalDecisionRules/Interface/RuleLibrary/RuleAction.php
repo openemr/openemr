@@ -18,28 +18,28 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
  */
 class RuleAction
 {
-    var $guid;
-    var $id;
-    var $category;
-    var $categoryLbl;
-    var $item;
-    var $itemLbl;
-    var $reminderLink;
-    var $reminderMessage;
-    var $customRulesInput;
-    var $groupId;
-    var $targetCriteria;
+    public $guid;
+    public $id;
+    public $category;
+    public $categoryLbl;
+    public $item;
+    public $itemLbl;
+    public $reminderLink;
+    public $reminderMessage;
+    public $customRulesInput;
+    public $groupId;
+    public $targetCriteria;
 
-    function __construct()
+    public function __construct()
     {
     }
 
-    function getTitle()
+    public function getTitle()
     {
         return RuleTemplateExtension::getLabel($this->category, 'rule_action_category') . " - " . RuleTemplateExtension::getLabel($this->item, 'rule_action');
     }
 
-    function getCategoryLabel()
+    public function getCategoryLabel()
     {
         if (!$this->categoryLbl) {
             $this->categoryLbl = RuleTemplateExtension::getLabel($this->category, 'rule_action_category');
@@ -48,7 +48,7 @@ class RuleAction
         return $this->categoryLbl;
     }
 
-    function getItemLabel()
+    public function getItemLabel()
     {
         if (!$this->itemLbl) {
             $this->itemLbl = RuleTemplateExtension::getLabel($this->item, 'rule_action');

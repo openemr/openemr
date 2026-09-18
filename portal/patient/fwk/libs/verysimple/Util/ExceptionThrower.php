@@ -13,7 +13,7 @@
  *          // @TODO PHP command here
  *          ExceptionThrower::Stop();
  *          }
- *          catch (Exception $ex)
+ *          catch (\Throwable $ex)
  *          {
  *          ExceptionThrower::Stop();
  *          // handle or re-throw exception
@@ -34,7 +34,7 @@ class ExceptionThrower
      * @param int $level
      *          PHP Error level to catch (Default = E_ALL & ~E_DEPRECATED)
      */
-    static function Start($level = null)
+    public static function Start($level = null)
     {
         if ($level == null) {
             if (defined("E_DEPRECATED")) {
@@ -46,16 +46,16 @@ class ExceptionThrower
             }
         }
 
-        set_error_handler(array (
+        set_error_handler([
                 "ExceptionThrower",
                 "HandleError"
-        ), $level);
+        ], $level);
     }
 
     /**
      * Stop redirecting PHP errors
      */
-    static function Stop()
+    public static function Stop()
     {
         restore_error_handler();
     }
@@ -64,7 +64,7 @@ class ExceptionThrower
      * Fired by the PHP error handler function.
      * Calling this function will
      * always throw an exception unless error_reporting == 0. If the
-     * PHP command is called with @ preceeding it, then it will be ignored
+     * PHP command is called with @ preceding it, then it will be ignored
      * here as well.
      *
      * @param string $code
@@ -73,9 +73,9 @@ class ExceptionThrower
      * @param string $line
      * @param string $context
      */
-    static function HandleError($code, $string, $file, $line, $context = '')
+    public static function HandleError($code, $string, $file, $line, $context = '')
     {
-        // ignore supressed errors
+        // ignore suppressed errors
         if (error_reporting() == 0) {
             return;
         }

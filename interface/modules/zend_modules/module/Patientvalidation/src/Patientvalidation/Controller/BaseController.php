@@ -19,11 +19,9 @@
  */
 namespace Patientvalidation\Controller;
 
-use Laminas\InputFilter\InputFilter;
-use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
-use Laminas\Mvc\Controller\ActionController;
-use Laminas\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class BaseController extends AbstractActionController
 {
@@ -31,22 +29,24 @@ class BaseController extends AbstractActionController
      * path to file after base pass from ModuleconfigController
      * @var array
      */
-    protected $jsFiles = array(
+    protected $jsFiles = [
         //jquery
         '/jquery/dist/jquery.min.js',
         //bootstrap
         '/bootstrap/dist/js/bootstrap.bundle.min.js',
 
-    );
+    ];
+
+    protected Listener $translate;
 
     /**
      * path to file after base pass from ModuleconfigController
      * @var array
      */
-    protected $cssFiles = array(
+    protected $cssFiles = [
         //bootstrap
         '/bootstrap/dist/css/bootstrap.min.css',
-    );
+    ];
 
     public function __construct()
     {
@@ -75,15 +75,13 @@ class BaseController extends AbstractActionController
      */
     protected function getCssFiles()
     {
-
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //adding bootstrap rtl for rtl languages
-        if ($_SESSION['language_direction'] == 'rtl') {
+        if ($session->get('language_direction') === 'rtl') {
             $this->cssFiles[] = '/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
         }
 
-
-                $this->cssFiles[] = '/datatables.net-bs4/css/dataTables.bootstrap4.min.css';
-
+        $this->cssFiles[] = '/datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 
         return $this->cssFiles;
     }
@@ -109,8 +107,8 @@ class BaseController extends AbstractActionController
      */
     protected function getPostParamsArray()
     {
-        $putParams = array();
-        parse_str($this->getRequest()->getContent(), $putParams);
+        $putParams = [];
+        parse_str((string) $this->getRequest()->getContent(), $putParams);
         return $putParams;
     }
     /**
@@ -119,8 +117,8 @@ class BaseController extends AbstractActionController
      */
     protected function getUserId()
     {
-
-        return $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get('authUserID');
     }
 
     /**

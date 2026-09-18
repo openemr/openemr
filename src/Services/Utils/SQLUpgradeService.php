@@ -5,7 +5,7 @@
  * and upgrade their SQL.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Teny <teny@zhservices.com>
@@ -20,13 +20,20 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
+use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
+use OpenEMR\Services\VersionService;
 
-class SQLUpgradeService
+class SQLUpgradeService implements ISQLUpgradeService
 {
+    const CARE_TEAMS_V1_MIGRATION_VERSION = 529;
     private $renderOutputToScreen = true;
     private $throwExceptionOnError = false;
     private $outputBuffer = [];
+    private $failureCount = 0;
 
     public function __construct()
     {
@@ -74,8 +81,6 @@ class SQLUpgradeService
         $this->throwExceptionOnError = $throwExceptionOnError;
         return $this;
     }
-
-
 
 
     private function flush()
@@ -206,20 +211,25 @@ class SQLUpgradeService
      *  desc: Change date from zeroes to date of vitals form creation.
      *  arguments: none
      *
+     * #IfCareTeamsV1MigrationNeeded
+     *  desc: Migrate care teams v1 data to care teams v2 structure.
+     *  arguments: none
+     *
      * #EndIf
      *   all blocks are terminated with a #EndIf statement.
      *
      * @param string $filename Sql upgrade/patch filename
      */
-    function upgradeFromSqlFile($filename, $path = '')
+    public function upgradeFromSqlFile($filename, $path = '')
     {
         global $webserver_root;
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
         }
 
         $skip_msg = xlt("Skipping section");
@@ -244,8 +254,7 @@ class SQLUpgradeService
         $special = false;
         $trim = true;
         $progress = 0;
-        while (!feof($fd)) {
-            $line = fgets($fd, 2048);
+        while (($line = fgets($fd)) !== false) {
             $line = rtrim($line);
 
             $progress += strlen($line);
@@ -258,7 +267,7 @@ class SQLUpgradeService
                 continue;
             }
 
-            if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
                 // this is skipped when running sql upgrade from command line
                 $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
                 $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
@@ -404,11 +413,7 @@ class SQLUpgradeService
                     // If either check exist, then will skip
                     $firstCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
                     $secondCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[6], $matches[7]);
-                    if ($firstCheck || $secondCheck) {
-                        $skipping = true;
-                    } else {
-                        $skipping = false;
-                    }
+                    $skipping = $firstCheck || $secondCheck;
                 } else {
                     // If no such table then the row is deemed not "missing".
                     $skipping = true;
@@ -461,7 +466,7 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotMigrateClickOptions/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotMigrateClickOptions')) {
                 if ($this->tableExists("issue_types")) {
                     $skipping = true;
                 } else {
@@ -473,7 +478,7 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListOccupation/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListOccupation')) {
                 if (($this->listExists("Occupation")) || (!$this->columnExists('patient_data', 'occupation'))) {
                     $skipping = true;
                 } else {
@@ -486,7 +491,7 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListReaction/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListReaction')) {
                 if (($this->listExists("reaction")) || (!$this->columnExists('lists', 'reaction'))) {
                     $skipping = true;
                 } else {
@@ -499,7 +504,7 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListImmunizationManufacturer/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListImmunizationManufacturer')) {
                 if ($this->listExists("Immunization_Manufacturer")) {
                     $skipping = true;
                 } else {
@@ -512,7 +517,7 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotWenoRx/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotWenoRx')) {
                 if ($this->tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
                     $skipping = true;
                 } else {
@@ -525,7 +530,7 @@ class SQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
                 // convert all *text types to use default null setting
-            } elseif (preg_match('/^#IfTextNullFixNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfTextNullFixNeeded')) {
                 $items_to_convert = sqlStatement(
                     "SELECT col.`table_name` AS table_name, col.`column_name` AS column_name,
       col.`data_type` AS data_type, col.`column_comment` AS column_comment
@@ -533,7 +538,7 @@ class SQLUpgradeService
       ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
       WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext')
       AND col.is_nullable = 'NO' AND col.table_schema = ? AND tab.table_type = 'BASE TABLE'",
-                    array($this->databaseName())
+                    [$this->databaseName()]
                 );
                 $skipping = true;
                 while ($item = sqlFetchArray($items_to_convert)) {
@@ -542,7 +547,7 @@ class SQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n");
+                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>');
                         $this->flush_echo();
                     }
                     if (!empty($item['column_comment'])) {
@@ -570,21 +575,21 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfInnoDBMigrationNeeded')) {
                 // find MyISAM tables and attempt to convert them
                 //tables that need to skip InnoDB migration (stay at MyISAM for now)
-                $tables_skip_migration = array('form_eye_mag');
+                $tables_skip_migration = ['form_eye_mag'];
 
-                $tables_list = $this->getTablesList(array('engine' => 'MyISAM'));
+                $tables_list = $this->getTablesList(['engine' => 'MyISAM']);
 
                 $skipping = true;
-                foreach ($tables_list as $k => $t) {
+                foreach ($tables_list as $t) {
                     if (empty($t)) {
                         continue;
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>', "\n");
+                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>');
                         $this->flush_echo();
                     }
 
@@ -605,7 +610,7 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#ConvertLayoutProperties/', $line)) {
+            } elseif (str_starts_with($line, '#ConvertLayoutProperties')) {
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 } else {
@@ -613,7 +618,7 @@ class SQLUpgradeService
                     $this->flush_echo();
                     $this->convertLayoutProperties();
                 }
-            } elseif (preg_match('/^#IfDocumentNamingNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfDocumentNamingNeeded')) {
                 $emptyNames = sqlStatementNoLog("SELECT `id`, `url`, `name`, `couch_docid` FROM `documents` WHERE `name` = '' OR `name` IS NULL");
                 if (sqlNumRows($emptyNames) > 0) {
                     $this->echo("<p>Converting document names.</p>\n");
@@ -639,7 +644,7 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfVitalsDatesNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfVitalsDatesNeeded')) {
                 $emptyDates = sqlStatementNoLog("SELECT fv.id as vitals_id, f.date as new_date FROM form_vitals fv LEFT JOIN forms f on fv.id = f.form_id WHERE fv.date = '0000-00-00 00:00:00' AND f.form_name = 'Vitals'");
                 if (sqlNumRows($emptyDates) > 0) {
                     $this->echo("<p>Converting empty vital dates.</p>\n");
@@ -656,13 +661,121 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#EndIf/', $line)) {
+            } elseif (str_starts_with($line, '#IfMBOEncounterNeeded')) {
+                $emptyMBOEncounters = sqlStatementNoLog("SELECT `pid` FROM `form_misc_billing_options` WHERE `encounter` IS NULL");
+                if (sqlNumRows($emptyMBOEncounters) > 0) {
+                    $this->echo("<p class='text-info'>Linking encounters to misc billing options forms.</p>\n");
+                    $this->flush_echo();
+                    $pids = [];
+                    while ($mBORow = sqlFetchArray($emptyMBOEncounters)) {
+                        $pids[] = $mBORow['pid'];
+                    }
+                    $batchSize = 100;
+                    $pidChunks = array_chunk($pids, $batchSize);
+                    try {
+                        QueryUtils::startTransaction();
+                        foreach ($pidChunks as $chunk) {
+                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map(intval(...), $chunk)) . ")";
+                            $encounters = sqlStatementNoLog($encStatement);
+
+                            while ($row = sqlFetchArray($encounters)) {
+                                $mboquery = sqlQueryNoLog("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
+                                INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
+                                `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
+                                `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", [$row['encounter']]);
+                                if (!empty($mboquery['id'])) {
+                                    $formid = (int)$mboquery['id'];
+                                    QueryUtils::sqlStatementThrowException("UPDATE `form_misc_billing_options` SET `encounter` = ? WHERE `id` = ? AND `encounter` IS NULL", [$row['encounter'], $formid], true);
+                                }
+                            }
+                        }
+                        QueryUtils::commitTransaction();
+                        $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
+                    } catch (\Throwable) {
+                        QueryUtils::rollbackTransaction();
+                        $this->echo("<p class='text-danger'>Failed linking encounters to misc billing options forms.</p>\n");
+                    }
+                    $this->flush_echo();
+                    $skipping = false;
+                } else {
+                    $skipping = true;
+                }
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
+            } elseif (str_starts_with($line, '#IfEyeFormLaserCategoriesNeeded')) {
+                $eyeFormCategoryParent = sqlQueryNoLog("SELECT `id`, `rght` FROM `categories` WHERE `name` = 'Eye Module'");
+                $eyeFormAntSegLaser = sqlQueryNoLog("SELECT `id` FROM `categories` WHERE `name` = 'AntSeg Laser - Eye'");
+                if (!empty($eyeFormCategoryParent) && empty($eyeFormAntSegLaser)) {
+                    $this->echo("<p>Inserting eye module laser categories.</p>\n");
+                    $this->flush_echo();
+                    // update non eye form categories affected
+                    sqlStatementNoLog("UPDATE `categories` SET `rght` = `rght` + 6 WHERE `rght` >= ?", [$eyeFormCategoryParent['rght']]);
+                    sqlStatementNoLog("UPDATE `categories` SET `lft` = `lft` + 6 WHERE `lft` >= ?", [$eyeFormCategoryParent['rght']]);
+                    // insert new eye form categories
+                    sqlStatementNoLog(
+                        "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`, `codes`) select (select MAX(id) from categories) + 1, 'AntSeg Laser - Eye', '', ?, ?, ?, 'patients|docs', ''",
+                        [
+                            $eyeFormCategoryParent['id'],
+                            $eyeFormCategoryParent['rght'],
+                            $eyeFormCategoryParent['rght'] + 1
+                        ]
+                    );
+                    sqlStatementNoLog(
+                        "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`, `codes`) select (select MAX(id) from categories) + 1, 'Retina Laser - Eye', '', ?, ?, ?, 'patients|docs', ''",
+                        [
+                            $eyeFormCategoryParent['id'],
+                            $eyeFormCategoryParent['rght'] + 2,
+                            $eyeFormCategoryParent['rght'] + 3
+                        ]
+                    );
+                    sqlStatementNoLog(
+                        "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`, `codes`) select (select MAX(id) from categories) + 1, 'Injections - Eye', '', ?, ?, ?, 'patients|docs', ''",
+                        [
+                            $eyeFormCategoryParent['id'],
+                            $eyeFormCategoryParent['rght'] + 4,
+                            $eyeFormCategoryParent['rght'] + 5
+                        ]
+                    );
+                    // Resynchronize categories_seq after manually assigning category ids above.
+                    // categories_seq is a single-row sequence table consumed by ADODB GenID()
+                    // (see Tree.class.php). Historical upgrade data may have left multiple rows,
+                    // so collapse to a single row holding the current max id. DELETE-then-INSERT
+                    // is safe for 0, 1, or N starting rows and avoids the multi-row UPDATE that
+                    // fatals on a duplicate PRIMARY KEY.
+                    QueryUtils::fetchRecordsNoLog("DELETE FROM `categories_seq`");
+                    QueryUtils::fetchRecordsNoLog("INSERT INTO `categories_seq` (`id`) SELECT COALESCE(MAX(`id`), 0) FROM `categories`");
+                    $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
+                    $this->flush_echo();
+                    $skipping = false;
+                } else {
+                    $skipping = true;
+                }
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
+            } elseif (str_starts_with($line, '#IfCareTeamsV1MigrationNeeded')) {
+                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated
+                    FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'patient_data' AND COLUMN_NAME = 'care_team_status';";
+                $is_migrated = QueryUtils::querySingleRow($sql)['is_migrated'];
+                $is_version = $this->shouldExecuteVersionUpdate(self::CARE_TEAMS_V1_MIGRATION_VERSION);
+                if (empty($is_migrated) && !empty($is_version)) {
+                    $skipping = false;
+                    $this->migrateCareTeamsV1ToV2();
+                } else {
+                    $skipping = true;
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
+            } elseif (str_starts_with($line, '#EndIf')) {
                 $skipping = false;
             }
-            if (preg_match('/^#SpecialSql/', $line)) {
+
+            if (str_starts_with($line, '#SpecialSql')) {
                 $special = true;
                 $line = " ";
-            } elseif (preg_match('/^#EndSpecialSql/', $line)) {
+            } elseif (str_starts_with($line, '#EndSpecialSql')) {
                 $special = false;
                 $trim = false;
                 $line = " ";
@@ -679,9 +792,17 @@ class SQLUpgradeService
                 continue;
             }
 
-            $query = $query . $line;
+            // Insert a space separator between concatenated lines so a
+            // continuation line starting at column 0 cannot fuse with the
+            // previous token (same bug class as #10935 in Installer). fgets()
+            // is unbounded, so every call returns a complete logical line
+            // and the separator is always safe to insert.
+            if ($query !== "") {
+                $query .= " ";
+            }
+            $query .= $line;
 
-            if (substr(trim($query), -1) == ';') {
+            if (str_ends_with(trim($query), ';')) {
                 if ($trim) {
                     $query = rtrim($query, ';');
                 } else {
@@ -694,12 +815,18 @@ class SQLUpgradeService
                     // structured and we don't want to be backwards compatible.
                     if (!QueryUtils::sqlStatementThrowException($query, [])) {
                         if ($this->isThrowExceptionOnError()) {
-                            throw new SqlQueryException($query, getSqlLastError());
+                            $error = QueryUtils::getLastError();
+                            throw new SqlQueryException(
+                                sqlStatement: $query,
+                                message: $error,
+                                sqlError: $error,
+                            );
                         }
                     }
                 } catch (SqlQueryException $exception) {
+                    $this->failureCount++;
                     $this->echo("<p class='text-danger'>The above statement failed: " .
-                        getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
+                        $exception->sqlError . "<br />Upgrading will continue.<br /></p>\n");
                     $this->flush_echo();
                     if ($this->isThrowExceptionOnError()) {
                         throw $exception;
@@ -711,11 +838,16 @@ class SQLUpgradeService
 
         $this->flush();
 
+        // This file just ran DDL, so any schema memoized before now describes
+        // the old shape. Cleared before the POST event so listeners -- which may
+        // construct services -- read the post-upgrade schema.
+        QueryUtils::clearSchemaCache();
+
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
         }
     } // end function
 
@@ -729,7 +861,7 @@ class SQLUpgradeService
             echo $string;
         }
         // now flush to force browser to pay attention.
-        if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
             // this is skipped when running sql upgrade from command line
             echo str_pad('', 4096) . "\n";
         }
@@ -749,14 +881,13 @@ class SQLUpgradeService
     }
 
 
-
     /**
      * Check if a Sql table exists.
      *
      * @param string $tblname Sql Table Name
-     * @return boolean           returns true if the sql table exists
+     * @return bool returns true if the sql table exists
      */
-    private function tableExists($tblname)
+    private function tableExists($tblname): bool
     {
         $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
         if (empty($row)) {
@@ -772,9 +903,9 @@ class SQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
-     * @return boolean           returns true if the sql column exists
+     * @return bool returns true if the sql column exists
      */
-    private function columnExists($tblname, $colname)
+    private function columnExists($tblname, $colname): bool
     {
         $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
         if (empty($row)) {
@@ -791,7 +922,7 @@ class SQLUpgradeService
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
      * @param string $coltype Sql Column Type
-     * @return boolean           returns true if the sql column is of the specified type
+     * @return bool returns true if the sql column is of the specified type
      */
     private function columnHasType($tblname, $colname, $coltype)
     {
@@ -800,7 +931,7 @@ class SQLUpgradeService
             return true;
         }
 
-        return (strcasecmp($row['Type'], $coltype) == 0);
+        return (strcasecmp((string)$row['Type'], $coltype) == 0);
     }
 
 
@@ -811,7 +942,7 @@ class SQLUpgradeService
      * @param string $colname    Sql Column Name
      * @param string $coltype    Sql Column Type
      * @param string $coldefault Sql Column Default
-     * @return boolean              returns true if the sql column is of the specified type and default
+     * @return bool returns true if the sql column is of the specified type and default
      */
     private function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
     {
@@ -821,7 +952,7 @@ class SQLUpgradeService
         }
 
         // Check if the type matches
-        if (strcasecmp($row['Type'], $coltype) != 0) {
+        if (strcasecmp((string)$row['Type'], $coltype) != 0) {
             return false;
         }
 
@@ -836,7 +967,7 @@ class SQLUpgradeService
             return (!empty($row));
         } else {
             // Standard case when checking if default is neither NULL or ""(blank)
-            return (strcasecmp($row['Default'], $coldefault) == 0);
+            return (strcasecmp((string)$row['Default'], $coldefault) == 0);
         }
     }
 
@@ -846,13 +977,13 @@ class SQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
-     * @return boolean           returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRowNull($tblname, $colname)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname IS NULL");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -862,13 +993,13 @@ class SQLUpgradeService
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
      * @param string $value   Sql value
-     * @return boolean           returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow($tblname, $colname, $value)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -880,13 +1011,13 @@ class SQLUpgradeService
      * @param string $value    Sql value 1
      * @param string $colname2 Sql Column Name 2
      * @param string $value2   Sql value 2
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow2D($tblname, $colname, $value, $colname2, $value2)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -900,13 +1031,13 @@ class SQLUpgradeService
      * @param string $value2   Sql value 2
      * @param string $colname3 Sql Column Name 3
      * @param string $value3   Sql value 3
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -922,13 +1053,13 @@ class SQLUpgradeService
      * @param string $value3   Sql value 3
      * @param string $colname4 Sql Column Name 4
      * @param string $value4   Sql value 4
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -937,12 +1068,12 @@ class SQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Index/Key
-     * @return boolean           returns true if the sql tables has the specified index/key
+     * @return bool returns true if the sql tables has the specified index/key
      */
     private function tableHasIndex($tblname, $colname)
     {
         $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
-        return (empty($row)) ? false : true;
+        return !empty($row);
     }
 
     /**
@@ -950,23 +1081,23 @@ class SQLUpgradeService
      *
      * @param string $tblname database table Name
      * @param string $engine  engine name ( myisam, memory, innodb )...
-     * @return boolean true if the table has been created using specified engine
+     * @return bool true if the table has been created using specified engine
      */
     private function tableHasEngine($tblname, $engine)
     {
-        $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname, $engine));
-        return (empty($row)) ? false : true;
+        $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', [$tblname, $engine]);
+        return !empty($row);
     }
 
     /**
      * Check if a list exists.
      *
      * @param string $option_id Sql List Option ID
-     * @return boolean           returns true if the list exists
+     * @return bool returns true if the list exists
      */
-    private function listExists($option_id)
+    private function listExists($option_id): bool
     {
-        $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", array($option_id));
+        $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", [$option_id]);
         if (empty($row)) {
             return false;
         }
@@ -982,19 +1113,21 @@ class SQLUpgradeService
      */
     private function clickOptionsMigrate()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = (string) $session->get('site_id');
         // If the clickoptions.txt file exist, then import it.
-        if (file_exists(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
-            $file_handle = fopen(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
+        if (file_exists(__DIR__ . "/../sites/{$site_id}/clickoptions.txt")) {
+            $file_handle = fopen(__DIR__ . "/../sites/{$site_id}/clickoptions.txt", "rb");
             $seq = 10;
             $prev = '';
             $this->echo("Importing clickoption setting<br />");
             while (!feof($file_handle)) {
                 $line_of_text = fgets($file_handle);
-                if (preg_match('/^#/', $line_of_text)) {
+                if ($line_of_text === false || $line_of_text === "") {
                     continue;
                 }
 
-                if ($line_of_text == "") {
+                if (str_starts_with($line_of_text, '#')) {
                     continue;
                 }
 
@@ -1003,13 +1136,13 @@ class SQLUpgradeService
                 $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
                 if ($parts[0] != $prev) {
                     $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                    SqlStatement($sql1, array('lists', $parts[0] . '_issue_list', ucwords(str_replace("_", " ", $parts[0])) . ' Issue List'));
+                    sqlStatement($sql1, ['lists', $parts[0] . '_issue_list', ucwords(str_replace("_", " ", $parts[0])) . ' Issue List']);
                     $seq = 10;
                 }
 
                 $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
-                SqlStatement($sql2, array($parts[0] . '_issue_list', $parts[1], $parts[1], $seq));
-                $seq = $seq + 10;
+                sqlStatement($sql2, [$parts[0] . '_issue_list', $parts[1], $parts[1], $seq]);
+                $seq += 10;
                 $prev = $parts[0];
             }
 
@@ -1033,9 +1166,9 @@ class SQLUpgradeService
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
         if (count($records) > 0) {
             $seq = 0;
-            foreach ($records as $key => $value) {
-                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq + 10)));
-                $seq = $seq + 10;
+            foreach ($records as $value) {
+                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", [$value, $value, ($seq + 10)]);
+                $seq += 10;
             }
         }
     }
@@ -1056,9 +1189,9 @@ class SQLUpgradeService
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
         if (count($records) > 0) {
             $seq = 0;
-            foreach ($records as $key => $value) {
-                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq + 10)));
-                $seq = $seq + 10;
+            foreach ($records as $value) {
+                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", [$value, $value, ($seq + 10)]);
+                $seq += 10;
             }
         }
     }
@@ -1070,6 +1203,7 @@ class SQLUpgradeService
     private function CreateImmunizationManufacturerList()
     {
         $res = sqlStatement("SELECT DISTINCT manufacturer FROM immunizations WHERE manufacturer <> ''");
+        $records = [];
         while ($row = sqlFetchArray($res)) {
             $records[] = $row['manufacturer'];
         }
@@ -1077,9 +1211,9 @@ class SQLUpgradeService
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer')");
         if (count($records) > 0) {
             $seq = 0;
-            foreach ($records as $key => $value) {
-                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq + 10)));
-                $seq = $seq + 10;
+            foreach ($records as $value) {
+                sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", [$value, $value, ($seq + 10)]);
+                $seq += 10;
             }
         }
     }
@@ -1090,24 +1224,19 @@ class SQLUpgradeService
      */
     private function ImportDrugInformation()
     {
-        if ($GLOBALS['weno_rx_enable'] ?? false) {
+        if (OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false) {
             $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
             $drugsArray = preg_split('/;\R/', $drugs);
 
-            // Settings to drastically speed up import with InnoDB
-            sqlStatementNoLog("SET autocommit=0");
-            sqlStatementNoLog("START TRANSACTION");
-
-            foreach ($drugsArray as $drug) {
-                if (empty($drug)) {
-                    continue;
+            // Batching the inserts into one transaction drastically speeds up import with InnoDB
+            QueryUtils::inTransaction(function () use ($drugsArray): void {
+                foreach ($drugsArray as $drug) {
+                    if (empty($drug)) {
+                        continue;
+                    }
+                    sqlStatementNoLog($drug);
                 }
-                sqlStatementNoLog($drug);
-            }
-
-            // Settings to drastically speed up import with InnoDB
-            sqlStatementNoLog("COMMIT");
-            sqlStatementNoLog("SET autocommit=1");
+            });
         }
     }
 
@@ -1118,9 +1247,9 @@ class SQLUpgradeService
      * @param array $arg possible arguments: engine, table_name
      * @return SQLStatement
      */
-    private function getTablesList($arg = array())
+    private function getTablesList($arg = [])
     {
-        $binds = array($this->databaseName());
+        $binds = [$this->databaseName()];
         $sql = 'SELECT TABLE_NAME AS table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = "BASE TABLE"';
 
         if (!empty($arg['engine'])) {
@@ -1135,7 +1264,7 @@ class SQLUpgradeService
 
         $res = sqlStatement($sql, $binds);
 
-        $records = array();
+        $records = [];
         while ($row = sqlFetchArray($res)) {
             $records[$row['table_name']] = $row['table_name'];
         }
@@ -1146,11 +1275,12 @@ class SQLUpgradeService
 
     /**
      * Convert table engine.
+     *
      * @param string $table
-     * @param string $engine  has to be set to InnoDB 8-7-24
-     * ADODB will fail if there was an error during conversion
+     * @param string $engine has to be set to InnoDB 8-7-24
+     *                       ADODB will fail if there was an error during conversion
      */
-    private function MigrateTableEngine($table, $engine)
+    private function MigrateTableEngine($table, $engine): bool
     {
         if ($engine != "InnoDB") {
             return false;
@@ -1166,18 +1296,18 @@ class SQLUpgradeService
     {
         $res = sqlStatement("SELECT DISTINCT form_id FROM layout_options ORDER BY form_id");
         while ($row = sqlFetchArray($res)) {
-            $form_id = $row['form_id'];
-            $props = array(
+            $form_id = (string)$row['form_id'];
+            $props = [
                 'title' => 'Unknown',
                 'mapping' => 'Core',
                 'notes' => '',
                 'activity' => '1',
                 'option_value' => '0',
-            );
-            if (substr($form_id, 0, 3) == 'LBF') {
+            ];
+            if (str_starts_with($form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
-                    array($form_id)
+                    [$form_id]
                 );
                 if (empty($props)) {
                     continue;
@@ -1185,10 +1315,10 @@ class SQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (substr($form_id, 0, 3) == 'LBT') {
+            } elseif (str_starts_with($form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
-                    array($form_id)
+                    [$form_id]
                 );
                 if (empty($props)) {
                     continue;
@@ -1217,9 +1347,9 @@ class SQLUpgradeService
                 "grp_mapping = ?, " .
                 "grp_activity = ?, " .
                 "grp_repeats = ?";
-            $sqlvars = array($form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']);
+            $sqlvars = [$form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']];
             if ($props['notes']) {
-                $jobj = json_decode($props['notes'], true);
+                $jobj = json_decode((string)$props['notes'], true);
                 if (isset($jobj['columns'])) {
                     $query .= ", grp_columns = ?";
                     $sqlvars[] = $jobj['columns'];
@@ -1239,24 +1369,24 @@ class SQLUpgradeService
                 if (isset($jobj['services'])) {
                     $query .= ", grp_services = ?";
                     // if present but empty, means all services
-                    $sqlvars[] = $jobj['services'] ? $jobj['services'] : '*';
+                    $sqlvars[] = $jobj['services'] ?: '*';
                 }
                 if (isset($jobj['products'])) {
                     $query .= ", grp_products = ?";
                     // if present but empty, means all products
-                    $sqlvars[] = $jobj['products'] ? $jobj['products'] : '*';
+                    $sqlvars[] = $jobj['products'] ?: '*';
                 }
                 if (isset($jobj['diags'])) {
                     $query .= ", grp_diags = ?";
                     // if present but empty, means all diags
-                    $sqlvars[] = $jobj['diags'] ? $jobj['diags'] : '*';
+                    $sqlvars[] = $jobj['diags'] ?: '*';
                 }
             }
             sqlStatement($query, $sqlvars);
 
             $gres = sqlStatement(
                 "SELECT DISTINCT group_name FROM layout_options WHERE form_id = ? ORDER BY group_name",
-                array($form_id)
+                [$form_id]
             );
 
             // For each group within this layout...
@@ -1264,21 +1394,21 @@ class SQLUpgradeService
                 $group_name = $grow['group_name'];
                 $group_id = '';
                 $title = '';
-                $a = explode('|', $group_name);
+                $a = explode('|', (string)$group_name);
                 foreach ($a as $tmp) {
                     $group_id .= substr($tmp, 0, 1);
                     $title = substr($tmp, 1);
                 }
                 sqlStatement(
                     "UPDATE layout_options SET group_id = ? WHERE form_id = ? AND group_name = ?",
-                    array($group_id, $form_id, $group_name)
+                    [$group_id, $form_id, $group_name]
                 );
                 $query = "INSERT IGNORE INTO layout_group_properties SET " .
                     "grp_form_id = ?, " .
                     "grp_group_id = ?, " .
                     "grp_title = '" . add_escape_custom($title) . "'";
                 // grp_title not using $sqlvars because of a bug causing '' to become '0'.
-                $sqlvars = array($form_id, $group_id);
+                $sqlvars = [$form_id, $group_id];
                 /****************************************************************
                 if ($props['notes']) {
                 if (isset($jobj['columns'])) {
@@ -1297,7 +1427,7 @@ class SQLUpgradeService
         } // end form
     }
 
-    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values): bool
+    private function updateLayoutEditOptions(string $mode, $form_id, $add_option, $values): bool
     {
         $flag = true;
         $subject = explode(',', str_replace(' ', '', $values));
@@ -1306,47 +1436,49 @@ class SQLUpgradeService
             return true;
         }
         $sql = "SELECT `field_id`, `edit_options`, `seq` FROM `layout_options` WHERE `form_id` = ? ";
-        $result = sqlStatementNoLog($sql, array($form_id));
+        $result = sqlStatementNoLog($sql, [$form_id]);
         if (empty(sqlNumRows($result))) {
             $this->echo("<p class='text-danger'>No results returned for " . text($form_id) . ".</p>");
             return true;
         }
 
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
-            while ($row = sqlFetchArray($result)) {
-                if (in_array($row['field_id'], $subject)) {
-                    $options = json_decode($row['edit_options'], true) ?? [];
-                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
-                        $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
-                        $key = array_search($add_option, $options);
-                        unset($options[$key]);
-                    } else {
-                        continue;
+        $flag = QueryUtils::inTransaction(function () use ($result, $subject, $mode, $add_option, $form_id, $flag): bool {
+            try {
+                while ($row = sqlFetchArray($result)) {
+                    if (in_array($row['field_id'], $subject)) {
+                        $options = (json_decode((string)$row['edit_options'], true)) ?? [];
+                        if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
+                            $options[] = $add_option;
+                        } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
+                            $key = array_search($add_option, $options);
+                            unset($options[$key]);
+                        } else {
+                            continue;
+                        }
+                        if ($flag) {
+                            // just show this prior first change (so will be not shown if this is "skipped")
+                            $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
+                        }
+                        $new_options = json_encode($options);
+                        $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = ? AND `field_id` = ? AND `seq` = ? ";
+                        $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
+                        sqlStatementNoLog($update_sql, [$new_options, $form_id, $row['field_id'], $row['seq']]);
+                        $flag = false;
                     }
-                    if ($flag) {
-                        // just show this prior first change (so will be not shown if this is "skipped")
-                        $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
-                    }
-                    $new_options = json_encode($options);
-                    $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = 'DEM' AND `field_id` = ? AND `seq` = ? ";
-                    $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
-                    sqlStatementNoLog($update_sql, array($new_options, $row['field_id'], $row['seq']));
-                    $flag = false;
+                }
+            } catch (SqlQueryException $e) {
+                $this->failureCount++;
+                $this->echo("<p class='text-danger'>The above statement failed: " .
+                    text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
+                $this->flush_echo();
+                if ($this->isThrowExceptionOnError()) {
+                    throw $e;
                 }
             }
-        } catch (SqlQueryException $e) {
-            $this->echo("<p class='text-danger'>The above statement failed: " .
-                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
-            $this->flush_echo();
-            if ($this->isThrowExceptionOnError()) {
-                throw $e;
-            }
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+
+            return $flag;
+        });
+
         if (!$flag) {
             // so will be not shown if this is "skipped"
             $this->echo("<p class='text-success'>Layout Edit Options " . text($mode) . " " . text($add_option) . " done.</p><br />");
@@ -1354,5 +1486,186 @@ class SQLUpgradeService
         }
 
         return $flag;
+    }
+
+    private function shouldExecuteVersionUpdate(int $versionToCheck): bool
+    {
+        $currentDbVersion = $this->getCurrentDBVersion();
+        return $currentDbVersion <= $versionToCheck;
+    }
+
+    protected function getCurrentDBVersion(): int
+    {
+        $versionService = new VersionService();
+        $versionRecord = $versionService->fetch();
+        return $versionRecord['v_database'];
+    }
+
+    protected function migrateCareTeamsV1ToV2()
+    {
+        // we need to grab all of our uuid mappings
+        $this->echo("<p>Migrating Care Teams v1 data to Care Teams v2 data.</p>\n");
+        $this->flush_echo();
+
+        // we need to grab all of the uuid mappings for care team and join them with patient_data
+        $committed = false;
+        try {
+            QueryUtils::startTransaction();
+            $fromClause = "FROM patient_data pd
+                LEFT JOIN uuid_mapping um ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
+                WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL) OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)";
+
+            $sql = "
+                SELECT pd.pid, pd.care_team_provider, pd.care_team_facility, IFNULL(pd.care_team_status, 'active') AS care_team_status,
+                um.uuid AS care_team_uuid, pd.last_updated, pd.created_by, pd.updated_by " . $fromClause;
+            $records = QueryUtils::fetchRecords($sql, [], true);
+            $this->createCareTeamRecordsList($records);
+            $this->cleanupCareTeamUUIDMappingsForPatientData();
+
+            // now do patient history
+            $fromClause = "FROM patient_history ph
+                LEFT JOIN uuid_mapping um ON um.target_uuid = ph.uuid AND um.resource='CareTeam' AND um.`table` = 'patient_data'
+                WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL) OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)";
+            $sql = "
+                SELECT ph.pid, ph.care_team_provider, ph.care_team_facility, 'inactive' AS care_team_status,
+                um.uuid AS care_team_uuid, ph.date AS last_updated, ph.created_by, ph.created_by AS updated_by
+            " . $fromClause;
+            $records = QueryUtils::fetchRecords($sql, [], true);
+            $this->createCareTeamRecordsList($records);
+            $this->cleanupCareTeamUUIDMappingsForPatientHistory();
+            QueryUtils::commitTransaction();
+            $committed = true;
+        } catch (\Throwable $exception) {
+            $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
+                text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
+            $this->flush_echo();
+            if ($this->isThrowExceptionOnError()) {
+                throw $exception;
+            }
+        } finally {
+            // we let errors percolate up
+            if (!$committed) {
+                QueryUtils::rollbackTransaction();
+            }
+        }
+    }
+
+    protected function getCareTeamForRecord(array $record): array
+    {
+        $uuid = $record['care_team_uuid'] ?? UuidRegistry::getRegistryForTable('care_teams')->createUuid();
+        $careTeam = [
+            'uuid' => $uuid
+            , 'pid' => $record['pid']
+            , 'status' => $record['care_team_status'] ?? 'active'
+            , 'team_name' => xl("Care Team")
+            , 'note' => xl("Migrated from Care Teams v1 data.")
+            , 'date_created' => $record['last_updated']
+            , 'created_by' => $record['created_by']
+            , 'updated_by' => $record['updated_by']
+        ];
+        $providers = explode("|", $record['care_team_provider'] ?? '');
+        $facilities = explode("|", $record['care_team_facility'] ?? '');
+        $facilitiesIds = array_filter(array_map(intval(...), $facilities));
+        foreach ($providers as $providerId) {
+            // skip invalid provider ids
+            if (intval($providerId) <= 0) {
+                continue;
+            }
+            $userRoleFacilities = QueryUtils::fetchRecords("SELECT fui.facility_id AS role_facility_id, "
+                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE (fui.id IS NULL OR fui.field_id='provider_id') AND u.id = ? ", [$providerId]);
+            $userRoleFacilityIds = array_map(static fn($item): int => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
+            if (!empty($facilitiesIds)) {
+                // intersect user role facilities with care team facilities
+                $facilitiesIds = array_values(array_intersect($facilitiesIds, $userRoleFacilityIds));
+            } else {
+                // assign all user role facilities to care team facilities
+                $facilitiesIds = $userRoleFacilityIds;
+            }
+            $provider = [
+                'user_id' => $providerId,
+                'role' => 'healthcare_professional', // we didn't track role before so we default them to healthcare professional
+                'facility_id' => null,
+            ];
+            if (!empty($facilitiesIds)) {
+                foreach ($facilitiesIds as $facility) {
+                    $provider = [
+                        'user_id' => $providerId,
+                        'role' => 'healthcare_professional', // we didn't track role before so we default them to healthcare professional
+                        'facility_id' => $facility
+                    ];
+                    $careTeam['providers'][] = $provider;
+                }
+            } else {
+                $careTeam['providers'][] = $provider;
+            }
+        }
+        return $careTeam;
+    }
+
+    protected function createCareTeamRecordsList(array $records)
+    {
+        foreach ($records as $record) {
+            $careTeamRecord = $this->getCareTeamForRecord($record);
+            $this->insertCareTeam($careTeamRecord);
+        }
+    }
+
+    protected function insertCareTeam(array $careTeamRecord)
+    {
+        // first insert the care team
+        $sql = "INSERT INTO care_teams (uuid, pid, status, team_name, note, date_created, created_by, updated_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $this->echo("<p>Inserting a Care Team.</p>\n");
+        $careTeamId = QueryUtils::sqlInsert($sql, [
+            $careTeamRecord['uuid'],
+            $careTeamRecord['pid'],
+            $careTeamRecord['status'],
+            $careTeamRecord['team_name'],
+            $careTeamRecord['note'],
+            $careTeamRecord['date_created'],
+            $careTeamRecord['created_by'],
+            $careTeamRecord['updated_by'],
+        ]);
+        // now insert each provider
+        if (!empty($careTeamRecord['providers'])) {
+            foreach ($careTeamRecord['providers'] as $provider) {
+                $sql = "INSERT INTO care_team_member (care_team_id, user_id, role, facility_id)
+                    VALUES (?, ?, ?, ?)";
+                QueryUtils::sqlStatementThrowException($sql, [
+                    $careTeamId,
+                    $provider['user_id'],
+                    $provider['role'],
+                    $provider['facility_id'],
+                ], true);
+            }
+        }
+    }
+
+    private function cleanupCareTeamUUIDMappingsForPatientData() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_data pd ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL)
+            OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
+    }
+
+    private function cleanupCareTeamUUIDMappingsForPatientHistory() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_history ph ON um.target_uuid = ph.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL)
+            OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
     }
 }

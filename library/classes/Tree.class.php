@@ -1,11 +1,13 @@
 <?php
 
+use OpenEMR\Core\OEGlobalsBag;
+
 define("ROOT_TYPE_ID", 1);
 define("ROOT_TYPE_NAME", 2);
 
 /**
  * class Tree
- * This class is a clean implementation of a modified preorder tree traversal hierachy to relational model
+ * This class is a clean implementation of a modified preorder tree traversal hierarchy to relational model
  * Don't use this class directly as it won't work, extend it and set the $this->_table variable, currently
  * this class needs its own sequence per table. MPTT uses a lot of self referential parent child relationships
  * and having ids that are more or less sequential makes human reading, fixing and reconstruction much easier.
@@ -17,52 +19,47 @@ class Tree
     *   This is the name of the table this tree is stored in
     *   @var string
     */
-    var $_table;
+    public $_table;
 
     /*
     *   This is a lookup table so that you can get a node name or parent id from its id
     *   @var array
     */
-    var $_id_name;
+    public $_id_name;
 
     /*
     *   This is a db abstraction object compatible with ADODB
     *   @var object the constructor expects it to be available as $GLOBALS['adodb']['db']
     */
-    var $_db;
-
-    var $_root;
-    var $_root_type;
-    var $tree;
+    public $_db;
+    public $tree;
 
     /*
     *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
     *   @param mixed $root name or id of desired root node
     *   @param int $root_type optional flag indicating if $root is a name or id, defaults to id
     */
-    function __construct($root, $root_type = ROOT_TYPE_ID)
+    public function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
     {
-        $this->_db = $GLOBALS['adodb']['db'];
-        $this->_root = $root;
-        $this->_root_type = $root_type;
+        $this->_db = OEGlobalsBag::getInstance()->get('adodb')['db'];
         $this->load_tree();
     }
 
-    function should_translate_name()
+    public function should_translate_name(): bool
     {
         return false;
     }
 
-    function get_translated_name($name)
+    public function get_translated_name($name)
     {
         return $name;
     }
 
-    function load_tree()
+    public function load_tree()
     {
         $root = $this->_root;
-        $tree = array();
-        $tree_tmp = array();
+        $tree = [];
+        $tree_tmp = [];
 
         //get the left and right value of the root node
         $sql = "SELECT * FROM " . $this->_table . " WHERE id=?";
@@ -72,25 +69,25 @@ class Tree
         }
 
         $result = $this->_db->Execute($sql, [$root]) or die("Error: " . text($this->_db->ErrorMsg()));
-        $row = array();
+        $row = [];
 
         if ($result && !$result->EOF) {
             $row = $result->fields;
         } else {
-            $this->tree = array();
+            $this->tree = [];
         }
 
         // start with an empty right stack
-        $right = array();
+        $right = [];
 
         // now, retrieve all descendants of the root node
         $sql = "SELECT * FROM " . $this->_table . " WHERE lft BETWEEN ? AND ? ORDER BY parent,name ASC;";
         $result = $this->_db->Execute($sql, [$row['lft'], $row['rght']]);
-        $this->_id_name = array();
+        $this->_id_name = [];
 
 
         while ($result && !$result->EOF) {
-            $ar = array();
+            $ar = [];
             $row = $result->fields;
 
             //create a lookup table of id to name for every node that will end up in this tree, this is used
@@ -118,32 +115,33 @@ class Tree
             $parent = $row['parent'];
             $loop = 0;
 
-            //this is a string that gets evaled below to create the array representing the tree
-            $ar_string = "[\"" . ($row['id']) . "\"] = \$row[\"value\"]";
+            // Collect the chain of ancestor ids from the root down to this node. The
+            // node's own id is the innermost key; each parent is prepended as we walk
+            // up the hierarchy via the id -> parent lookup table.
+            $keys = [$row['id']];
 
             //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
             //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
             while ($parent != 0 && $loop < count($this->_id_name)) {
-                $ar_string = "[\"" . ($this->_id_name[$parent]['id']) . "\"]" . $ar_string;
+                array_unshift($keys, $this->_id_name[$parent]['id']);
                 $loop++;
                 $parent = $this->_id_name[$parent]['parent'];
             }
 
-            $ar_string = '$ar' . $ar_string . ";";
-            //echo $ar_string;
+            // Build the nested array $ar[rootId]...[nodeId] = $row['value'] by walking a
+            // reference down the key chain. This replaces an eval() of a constructed
+            // assignment string, which allowed node names/ids from the database to be
+            // executed as PHP code.
+            $ar = [];
+            $ref = &$ar;
+            foreach ($keys as $key) {
+                $ref[$key] = [];
+                $ref = &$ref[$key];
+            }
+            $ref = $row['value'];
+            unset($ref);
 
-            //now eval the string to create the tree array
-            //there must be a more efficient way to do this than eval?
-            // TODO: refactor this eval out... there's tons of ways to construct trees w/o needing to do eval code.
-            // not sure how many nodes they needed to account for, but our category heirarchy has to be less than a few
-            // thousand records. An n-ary tree w/ pointers would accomplish this very quickly w/o the potential of sneaking a eval
-            // code execution into our category database names.
-            // There could be tens of thousands of documents,  However, leaf nodes which are documents will not have any
-            // sub-chilsren and so we don't have to deal with this whole left/right nonsense and only need a parent node
-            // which we sort by document name order.
-            eval($ar_string);
-
-            //merge the evaled array with all of the already exsiting tree elements,
+            //merge the evaled array with all of the already existing tree elements,
             //merge recursive is used so that no keys are replaced in other words a key
             //with a specific value will not be replace but instead that value will be turned into an array
             //consisting of the previous value and the new value
@@ -169,7 +167,7 @@ class Tree
     *   @param int $parent id of the node you would like to rebuild all nodes below
     *   @param int $left optional proper left value of the node you are rebuilding below, then used recursively
     */
-    function rebuild_tree($parent, $left = null)
+    public function rebuild_tree($parent, $left = null)
     {
 
         //if no left is supplied assume the existing left is proper
@@ -223,7 +221,7 @@ class Tree
     *   @param string $codes optional Medical codes to use (LOINC, SNOMED, etc) for this node.
     *   @return int id of newly added node
     */
-    function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
+    public function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
     {
 
         $sql = "SELECT * from " . $this->_table . " where parent = ? and name=?";
@@ -264,7 +262,7 @@ class Tree
     *   @param string $codes optional Medical codes to use (LOINC, SNOMED, etc) for this node.
     *   @return int same as input id
     */
-    function edit_node($id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
+    public function edit_node($id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
     {
         $sql = "SELECT c2.id FROM " . $this->_table . " AS c1, " . $this->_table . " AS c2 WHERE " .
         "c1.id = ? AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = ?";
@@ -284,7 +282,7 @@ class Tree
     *   of the deleted nodes parent
     *   @param int $id id of the node you want to delete
     */
-    function delete_node($id)
+    public function delete_node($id): bool
     {
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";
@@ -313,7 +311,7 @@ class Tree
         //echo $sql . "<br />";
         $this->_db->Execute($sql, [$left, $right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
-        //only update the childrens parent setting if the node has children
+        //only update the children's parent setting if the node has children
         if ($right > ($left + 1)) {
             $sql = "UPDATE " . $this->_table . " SET parent=? WHERE parent=?";
             //echo $sql . "<br />";
@@ -328,16 +326,16 @@ class Tree
         return true;
     }
 
-    function get_node_info($id)
+    public function get_node_info($id)
     {
         if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id];
         } else {
-            return array();
+            return [];
         }
     }
 
-    function get_node_name($id)
+    public function get_node_name($id)
     {
         if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id]['name'];
@@ -347,15 +345,13 @@ class Tree
     }
 }
 
-function array_merge_2(&$array, &$array_i)
+function array_merge_2(&$array, &$array_i): void
 {
        // For each element of the array (key => value):
     foreach ($array_i as $k => $v) {
         // If the value itself is an array, the process repeats recursively:
         if (is_array($v)) {
-            if (!isset($array[$k])) {
-                $array[$k] = array();
-            }
+            $array[$k] ??= [];
 
             array_merge_2($array[$k], $v);
 
@@ -366,7 +362,7 @@ function array_merge_2(&$array, &$array_i)
             } else {
                 if (isset($array) && !is_array($array)) {
                     $temp = $array;
-                    $array = array();
+                    $array = [];
                     $array[0] = $temp;
                 }
 
@@ -380,7 +376,7 @@ function array_merge_2(&$array, &$array_i)
 function array_merge_n()
 {
     // Initialization of the resulting array:
-    $array = array();
+    $array = [];
 
     // Arrays to be merged (function's arguments):
     $arrays = func_get_args();

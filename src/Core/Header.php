@@ -8,19 +8,21 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\LogoService;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class Header.
  *
  * Helper class to generate some `<script>` and `<link>` elements based on a
  * configuration file. This file would be a good place to include other helpers
- * for creating a `<head>` element, but for now it sufficently handles the
+ * for creating a `<head>` element, but for now it sufficiently handles the
  * `setupHeader()`
  *
  * @package OpenEMR
@@ -73,9 +75,9 @@ class Header
      * The above example will render `<script>` tags and `<link>` tag which
      * bring in the requested assets from config.yaml
      *
-     * @param array|string $assets Asset(s) to include
-     * @param boolean $echoOutput - if true then echo
-     *                              if false then return string
+     * @param string[]|string $assets Asset(s) to include
+     * @param bool            $echoOutput If true then echo
+     *                                    If false then return string
      * @throws ParseException If unable to parse the config file
      * @return string
      */
@@ -91,19 +93,19 @@ class Header
         $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n";
         // Favicon
         $output .= "<link rel=\"shortcut icon\" href=\"$favicon\" />\n";
-        $output .= self::setupAssets($assets, true, false);
+        $output .= self::setupAssets(is_array($assets) ? $assets : [$assets], true);
 
         // we need to grab the script
         $scriptName = $_SERVER['SCRIPT_NAME'];
 
         // we fire off events to grab any additional module scripts or css files that desire to adjust the currently executed script
-        $scriptFilterEvent = new ScriptFilterEvent(basename($scriptName));
+        $scriptFilterEvent = new ScriptFilterEvent(basename((string) $scriptName));
         $scriptFilterEvent->setContextArgument(ScriptFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $apptScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent($scriptName);
         $styleFilterEvent->setContextArgument(StyleFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $apptStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
         // note these scripts have been filtered to be in the same origin as the current site in pnadmin.php & pnuserapi.php {
 
         if (!empty($apptScripts->getScripts())) {
@@ -126,9 +128,8 @@ class Header
 
         if ($echoOutput) {
             echo $output;
-        } else {
-            return $output;
         }
+        return $output;
     }
 
     public static function getFavIcon()
@@ -140,31 +141,16 @@ class Header
 
     /**
      * Can call this function directly rather than using above setupHeader function
-     *  if do not want to include the autoloaded assets.
+     * if do not want to include the autoloaded assets.
      *
-     * @param array $assets Asset(s) to include
-     * @param boolean $headerMode - if true, then include autoloaded assets
-     *                              if false, then do not include autoloaded assets
-     * @param boolean $echoOutput - if true then echo
-     *                              if false then return string
+     * @param string[] $assets     Assets to include
+     * @param bool     $headerMode If true, then include autoloaded assets
+     *                             If false, then do not include autoloaded assets
      */
-    public static function setupAssets($assets = [], $headerMode = false, $echoOutput = true)
+    public static function setupAssets(array $assets = [], bool $headerMode = false): string
     {
-        if ($headerMode) {
-            self::$isHeader = true;
-        } else {
-            self::$isHeader = false;
-        }
-
-        try {
-            if ($echoOutput) {
-                echo self::includeAsset($assets);
-            } else {
-                return self::includeAsset($assets);
-            }
-        } catch (\InvalidArgumentException $e) {
-            error_log(errorLogEscape($e->getMessage()));
-        }
+        self::$isHeader = $headerMode;
+        return self::includeAsset($assets);
     }
 
     /**
@@ -176,27 +162,28 @@ class Header
      *
      * This is a private function, use Header::setupHeader() instead
      *
-     * @param array|string $assets Asset(s) to include
+     * @param string[] $assets Assets to include
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    private static function includeAsset($assets = [])
+    private static function includeAsset(array $assets = []): string
     {
-
-        if (is_string($assets)) {
-            $assets = [$assets];
-        }
+        // Filter out any empty strings in case assets array contains them
+        $assets = array_filter($assets, is_string(...));
+        $assets = array_map(trim(...), $assets);
+        $assets = array_filter($assets, fn ($asset): bool => $asset !== '');
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
-        $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
+        $projectDir = OEGlobalsBag::getInstance()->getKernel()->getProjectDir();
+        $map = self::readConfigFile($projectDir . "/config/config.yaml");
         self::$scripts = [];
         self::$links = [];
 
         self::parseConfigFile($map, $assets);
 
         /* adding custom assets in addition */
-        if (is_file("{$GLOBALS['fileroot']}/custom/assets/custom.yaml")) {
-            $customMap = self::readConfigFile("{$GLOBALS['fileroot']}/custom/assets/custom.yaml");
+        if (is_file($projectDir . "/custom/assets/custom.yaml")) {
+            $customMap = self::readConfigFile($projectDir . "/custom/assets/custom.yaml");
             self::parseConfigFile($customMap, $assets);
         }
 
@@ -212,23 +199,25 @@ class Header
      * @param array $selectedAssets
      * @return void
      */
-    private static function parseConfigFile($map, $selectedAssets = array())
+    private static function parseConfigFile($map, $selectedAssets = [])
     {
         $foundAssets = [];
         $excludedCount = 0;
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $language_direction = $session->get('language_direction');
+
         foreach ($map as $k => $opts) {
-            $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
-            $allowNoLoad = (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
-            $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
-            $loadInFile = (isset($opts['loadInFile'])) ? $opts['loadInFile'] : false;
-            $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
+            $autoload = $opts['autoload'] ?? false;
+            $alreadyBuilt = $opts['alreadyBuilt'] ?? false;
+            $loadInFile = $opts['loadInFile'] ?? false;
+            $rtl = $opts['rtl'] ?? false;
 
             if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
-                if ($allowNoLoad === true) {
-                    if (in_array("no_" . $k, $selectedAssets)) {
-                        $excludedCount++;
-                        continue;
-                    }
+                // Skip loading if exclusion token (no_<asset>) is present in selectedAssets
+                if (in_array("no_" . $k, $selectedAssets)) {
+                    $excludedCount++;
+                    continue;
                 }
                 $foundAssets[] = $k;
 
@@ -242,7 +231,7 @@ class Header
                     // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
                     //  since bootstrap theme is already including in main themes and portal theme via SASS.
                     $t = '';
-                } else if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
+                } elseif ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !OEGlobalsBag::getInstance()->getBoolean('enable_compact_mode'))) {
                   // Do not display compact theme if it is turned off
                 } else {
                     foreach ($tmp['links'] as $l) {
@@ -250,13 +239,13 @@ class Header
                     }
                 }
 
-                if ($rtl && !empty($_SESSION['language_direction']) && $_SESSION['language_direction'] == 'rtl') {
+                if ($rtl && !empty($language_direction) && $language_direction == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         self::$scripts[] = $s;
                     }
 
-                    if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !$GLOBALS['enable_compact_mode'])) {
+                    if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !OEGlobalsBag::getInstance()->getBoolean('enable_compact_mode'))) {
                     } else {
                         foreach ($tmpRtl['links'] as $l) {
                             self::$links[] = $l;
@@ -268,22 +257,23 @@ class Header
 
         if (($thisCnt = count(array_diff($selectedAssets, $foundAssets))) > 0) {
             if ($thisCnt !== $excludedCount) {
-                (new SystemLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
-            }}
+                ServiceContainer::getLogger()->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
+            }
+        }
     }
 
     /**
      * Build an html element from config options.
      *
      * @var array $opts Options
-     * @var boolean $alreadyBuilt - This means the path with cache busting segment has already been built
+     * @var bool $alreadyBuilt - This means the path with cache busting segment has already been built
      * @return array Array with `scripts` and `links` keys which contain arrays of elements
      */
-    private static function buildAsset($opts = array(), $alreadyBuilt = false)
+    private static function buildAsset($opts = [], $alreadyBuilt = false)
     {
-        $script = (isset($opts['script'])) ? $opts['script'] : false;
-        $link = (isset($opts['link'])) ? $opts['link'] : false;
-        $path = (isset($opts['basePath'])) ? $opts['basePath'] : '';
+        $script = $opts['script'] ?? false;
+        $link = $opts['link'] ?? false;
+        $path = $opts['basePath'] ?? '';
 
         $basePath = self::parsePlaceholders($path);
 
@@ -303,15 +293,11 @@ class Header
             foreach ($script as $k) {
                 if (is_string($k)) {
                     $k = ['src' => $k, 'type' => 'text/javascript'];
-                } else if (empty($k['src'])) {
+                } elseif (empty($k['src'])) {
                     throw new \InvalidArgumentException("Script must be of type string or object with src property");
                 }
                 $k['src'] = self::parsePlaceholders($k['src']);
-                if ($alreadyBuilt) {
-                    $path = $k['src'];
-                } else {
-                    $path = self::createFullPath($basePath, $k['src']);
-                }
+                $path = $alreadyBuilt ? $k['src'] : self::createFullPath($basePath, $k['src']);
                 unset($k['src']);
                 $scripts[] = self::createElement($path, 'script', $alreadyBuilt, $k);
             }
@@ -328,11 +314,7 @@ class Header
 
             foreach ($link as $l) {
                 $l = self::parsePlaceholders($l);
-                if ($alreadyBuilt) {
-                    $path = $l;
-                } else {
-                    $path = self::createFullPath($basePath, $l);
-                }
+                $path = $alreadyBuilt ? $l : self::createFullPath($basePath, $l);
                 $links[] = self::createElement($path, 'link', $alreadyBuilt);
             }
         }
@@ -345,7 +327,7 @@ class Header
      *
      * Perform a regex match all in the given subject for anything wrapped in
      * percent signs `%some-key%` and if that string exists in the $GLOBALS
-     * array, will replace the occurence with the value of that key.
+     * array, will replace the occurrence with the value of that key.
      *
      * @param string $subject String containing placeholders (%key-name%)
      * @return string The new string with properly replaced keys
@@ -357,8 +339,8 @@ class Header
         preg_match_all($re, $subject, $matches, PREG_SET_ORDER, 0);
 
         foreach ($matches as $match) {
-            if (array_key_exists($match[1], $GLOBALS)) {
-                $subject = str_replace($match[0], $GLOBALS["{$match[1]}"], $subject);
+            if (OEGlobalsBag::getInstance()->has($match[1])) {
+                $subject = str_replace($match[0], OEGlobalsBag::getInstance()->get("{$match[1]}"), $subject);
             }
         }
 
@@ -372,10 +354,10 @@ class Header
      * @param string $type Must be `script` or `link`
      * @return string mixed HTML element
      */
-    private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = array())
+    private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = [])
     {
         $attrs = '';
-        // make sure we clear out any attributes we don't want overriden
+        // make sure we clear out any attributes we don't want overridden
         if (isset($nodeAttributes['src'])) {
             unset($nodeAttributes['src']);
         }
@@ -393,12 +375,12 @@ class Header
 
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
-            $v = $GLOBALS['v_js_includes'];
+            $v = OEGlobalsBag::getInstance()->get('v_js_includes');
             // need to handle header elements that may already have a ? in the parameter.
             if (strrpos($path, "?") !== false) {
-                $path = $path . "&v={$v}";
+                $path .= "&v={$v}";
             } else {
-                $path = $path . "?v={$v}";
+                $path .= "?v={$v}";
             }
         }
         return str_replace("%path%", $path, $template);
@@ -430,6 +412,7 @@ class Header
         } catch (ParseException $e) {
             error_log(errorLogEscape($e->getMessage()));
             // @TODO need to handle this better. RD 2017-05-24
+            return [];
         }
     }
 
@@ -441,6 +424,10 @@ class Header
     private static function getCurrentFile()
     {
         //remove web root and query string
-        return str_replace($GLOBALS['webroot'] . '/', '', strtok($_SERVER["REQUEST_URI"], '?'));
+        $uriPath = strtok($_SERVER["REQUEST_URI"], '?') ?: '';
+        $webRoot = OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
+        return $webRoot !== ''
+            ? str_replace($webRoot . '/', '', $uriPath)
+            : ltrim($uriPath, '/');
     }
 }

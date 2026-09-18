@@ -219,7 +219,7 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -249,15 +249,13 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CareTeamParticipant xmlns="http://hl7.org/fhir"></CareTeamParticipant>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CareTeamParticipant xmlns="http://hl7.org/fhir"></CareTeamParticipant>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->role)) {
             foreach ($this->role as $role) {

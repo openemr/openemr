@@ -8,7 +8,7 @@
  * Types of fields constructed are defined in the FhirSearchParameterType class.
  * @see OpenEMR\FHIR\FhirSearchParameterType
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,18 +16,11 @@
 
 namespace OpenEMR\Services\Search;
 
-use Laminas\Mvc\Exception\BadMethodCallException;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 
 class FHIRSearchFieldFactory
 {
-    /**
-     * @var FhirSearchParameterDefinition[];
-     */
-    private $resourceSearchParameters;
-
     /**
      * @var FhirUrlResolver
      */
@@ -35,13 +28,12 @@ class FHIRSearchFieldFactory
 
     /**
      * FHIRSearchFieldFactory constructor.
-     * @param FhirSearchParameterDefinition[] $searchFieldDefinitions
+     * @param FhirSearchParameterDefinition[] $resourceSearchParameters
      * @throws \InvalidArgumentException if $searchFieldDefinitions are not an instance of FhirSearchParameterDefinition
      */
-    public function __construct(array $searchFieldDefinitions)
+    public function __construct(private array $resourceSearchParameters)
     {
-        $this->resourceSearchParameters = $searchFieldDefinitions;
-        foreach ($searchFieldDefinitions as $key => $definition) {
+        foreach ($this->resourceSearchParameters as $key => $definition) {
             if (!$definition instanceof FhirSearchParameterDefinition) {
                 throw new \InvalidArgumentException("Search parameter contains invalid class definition " . $key);
             }
@@ -126,7 +118,7 @@ class FHIRSearchFieldFactory
      */
     private function extractSearchFieldName($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         return $fieldName;
     }
@@ -145,29 +137,29 @@ class FHIRSearchFieldFactory
         $modifier = is_array($modifiers) ? array_pop($modifiers) : null;
 
         // need to handle the fact that we can have multiple OR values that are separated in CSV format.
-        if (is_string($fhirSearchValues) && strpos($fhirSearchValues, ',') !== false) {
+        if (is_string($fhirSearchValues) && str_contains($fhirSearchValues, ',')) {
             $fhirSearchValues = explode(',', $fhirSearchValues);
         }
 
         $isUUID = false;
         if ($field instanceof ServiceField) {
             $fieldName = $field->getField();
-            $isUUID = $field->getType() == ServiceField::TYPE_UUID ? true : false;
+            $isUUID = $field->getType() == ServiceField::TYPE_UUID;
         } else {
             $fieldName = $field;
         }
 
         if ($type == SearchFieldType::TOKEN) {
             return $this->createTokenSearchField($fieldName, $fhirSearchValues, $modifier, $isUUID);
-        } else if ($type == SearchFieldType::URI) {
+        } elseif ($type == SearchFieldType::URI) {
             throw new \BadMethodCallException("URI Search Parameter not implemented yet");
-        } else if ($type == SearchFieldType::DATE) {
+        } elseif ($type == SearchFieldType::DATE) {
             return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATE);
-        } else if ($type == SearchFieldType::DATETIME) {
+        } elseif ($type == SearchFieldType::DATETIME) {
             return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATETIME);
-        } else if ($type == SearchFieldType::NUMBER) {
+        } elseif ($type == SearchFieldType::NUMBER) {
             throw new \BadMethodCallException("Number search parameter not implemented yet");
-        } else if ($type == SearchFieldType::REFERENCE) {
+        } elseif ($type == SearchFieldType::REFERENCE) {
             return $this->createReferenceFieldType($fieldName, $fhirSearchValues, $modifier, $isUUID);
         } else {
             // default is a string token
@@ -192,7 +184,7 @@ class FHIRSearchFieldFactory
 
         $normalizedValues = [];
         foreach ($values as $searchValue) {
-            if (strpos($searchValue, '://') !== false) {
+            if (str_contains((string) $searchValue, '://')) {
                 $url = $this->resolveReferenceRelativeUrl($searchValue);
                 $normalizedValues[] = $url;
             } else {
@@ -205,7 +197,7 @@ class FHIRSearchFieldFactory
     /**
      * Returns the relative url
      * @param $urlToResolve
-     * @throws BadMethodCallException if the FhirUrlResolver is not setup for this class
+     * @throws \BadMethodCallException if the FhirUrlResolver is not setup for this class
      * @throws \InvalidArgumentException if the URL does not match the server base URL
      * @return string
      */
@@ -236,7 +228,7 @@ class FHIRSearchFieldFactory
         // the logical AND of everything.
         $composite = new CompositeSearchField($definition->getName(), $fhirSearchValues, $isAnd);
         $modifiers = $this->extractFieldModifiers($fhirSearchField);
-        foreach ($definition->getMappedFields() as $key => $field) {
+        foreach ($definition->getMappedFields() as $field) {
             // for token types we want to make if we have a system we are only going to the key
 
             // for now let's treat everything as a string...
@@ -255,7 +247,7 @@ class FHIRSearchFieldFactory
      */
     private function extractFieldModifiers($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         array_shift($fieldNameWithModifiers); // grab our modifiers
         return $fieldNameWithModifiers;
@@ -279,7 +271,7 @@ class FHIRSearchFieldFactory
                 // for now let's treat everything as a string...
                 // we won't give any modifier here for now
                 // not sure how we handle modifiers here...
-                $childField = $this->buildSearchField($childDefinition, $fieldName, $fhirSearchValues);
+                $childField = $this->buildSearchField($childDefinition, $fieldName);
                 $composite->addChild($childField);
             }
         }

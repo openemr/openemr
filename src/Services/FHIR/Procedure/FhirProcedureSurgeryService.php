@@ -3,7 +3,7 @@
 /**
  * FhirProcedureSurgeryService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,8 +12,8 @@
 namespace OpenEMR\Services\FHIR\Procedure;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -21,19 +21,25 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirProcedureService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\SurgeryService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirProcedureSurgeryService extends FhirServiceBase
+class FhirProcedureSurgeryService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure';
 
     /**
      * @var SurgeryService
@@ -68,9 +74,8 @@ class FhirProcedureSurgeryService extends FhirServiceBase
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
@@ -82,10 +87,10 @@ class FhirProcedureSurgeryService extends FhirServiceBase
      * Parses an OpenEMR procedure record, returning the equivalent FHIR Procedure Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRProcedure
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $procedureResource = new FHIRProcedure();
 
@@ -95,6 +100,9 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_modified']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
+            $meta->addProfile($this->createProfile($profile));
         }
         $procedureResource->setMeta($meta);
 
@@ -123,7 +131,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
 
         if (!empty($dataRecord['diagnosis'])) {
             $codesService = new CodeTypesService();
-            $codes = explode(";", $dataRecord['diagnosis']);
+            $codes = explode(";", (string) $dataRecord['diagnosis']);
             $diagnosisCode = new FHIRCodeableConcept();
             foreach ($codes as $code) {
                 $description = $codesService->lookup_code_description($code);
@@ -174,5 +182,12 @@ class FhirProcedureSurgeryService extends FhirServiceBase
         } else {
             return $fhirProvenance;
         }
+    }
+
+    private function createProfile(string $profileUri): FHIRCanonical
+    {
+        $profile = new FHIRCanonical();
+        $profile->setValue($profileUri);
+        return $profile;
     }
 }

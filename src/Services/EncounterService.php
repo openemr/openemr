@@ -4,13 +4,15 @@
  * EncounterService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,7 +21,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\{
     DateSearchField,
@@ -33,9 +34,7 @@ use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
-
-require_once dirname(__FILE__) . "/../../library/forms.inc.php";
-require_once dirname(__FILE__) . "/../../library/encounter.inc.php";
+use OpenEMR\BC\ServiceContainer;
 
 class EncounterService extends BaseService
 {
@@ -147,10 +146,10 @@ class EncounterService extends BaseService
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
-    public function search($search = array(), $isAndCondition = true, $puuidBindValue = '', $options = array())
+    public function search($search = [], $isAndCondition = true, $puuidBindValue = '', $options = [])
     {
         $limit = $options['limit'] ?? null;
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $processingResult = new ProcessingResult();
 
         // Validating and Converting _id to UUID byte
@@ -337,10 +336,10 @@ class EncounterService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
 
@@ -367,7 +366,7 @@ class EncounterService extends BaseService
             return $processingResult;
         }
 
-        $encounter = generate_id();
+        $encounter = QueryUtils::generateId();
         $data['encounter'] = $encounter;
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
         if (empty($data['date'])) {
@@ -406,10 +405,10 @@ class EncounterService extends BaseService
                 $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $data);
                 $processingResult->setData([$record]);
             } else {
-                $processingResult->addProcessingResult("Failed to retrieve record after insert");
+                $processingResult->addInternalError("Failed to retrieve record after insert");
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Insert");
+            $processingResult->addInternalError("error processing SQL Insert");
         }
 
         return $processingResult;
@@ -444,7 +443,7 @@ class EncounterService extends BaseService
         $facilityService = new FacilityService();
         $facilityresult = $facilityService->getById($data["facility_id"]);
         $facility = $facilityresult['name'];
-        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($encounter));
+        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", [$encounter]);
         if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
             return "You are not authorized to see this encounter.";
         }
@@ -477,7 +476,7 @@ class EncounterService extends BaseService
                 $processingResult->setData([$record]);
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
@@ -496,13 +495,13 @@ class EncounterService extends BaseService
 
         $soapResults = sqlInsert(
             $soapSql,
-            array(
+            [
                 $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"]
-            )
+            ]
         );
 
         if (!$soapResults) {
@@ -520,56 +519,79 @@ class EncounterService extends BaseService
 
         $formResults = sqlInsert(
             $formSql,
-            array(
+            [
                 $eid,
                 $soapResults,
                 $pid
-            )
+            ]
         );
 
-        return array($soapResults, $formResults);
+        return [$soapResults, $formResults];
     }
 
-    public function updateSoapNote($pid, $eid, $sid, $data)
+    public function updateSoapNote($pid, $eid, $sid, $data): int
     {
-        $sql = " UPDATE form_soap SET";
-        $sql .= "     date=NOW(),";
-        $sql .= "     activity=1,";
-        $sql .= "     pid=?,";
-        $sql .= "     subjective=?,";
-        $sql .= "     objective=?,";
-        $sql .= "     assessment=?,";
-        $sql .= "     plan=?";
-        $sql .= "     where id=?";
+        // Scope by pid+eid so a leaked sid can't rewrite another record.
+        // Returns affected-row count so the REST caller can distinguish 200 from 404.
+        $existingSoapNote = $this->getSoapNote($pid, $eid, $sid);
+        if (!is_array($existingSoapNote) || ($existingSoapNote === [])) {
+            return 0;
+        }
 
-        return sqlStatement(
+        // form_soap has no encounter column; join forms.form_id and filter
+        // through forms.encounter (matches getSoapNote).
+        $sql = " UPDATE form_soap AS fs";
+        $sql .= " JOIN forms AS fo ON fo.form_id = fs.id AND fo.formdir = 'soap'";
+        $sql .= " SET fs.date=NOW(),";
+        $sql .= "     fs.activity=1,";
+        $sql .= "     fs.subjective=?,";
+        $sql .= "     fs.objective=?,";
+        $sql .= "     fs.assessment=?,";
+        $sql .= "     fs.plan=?";
+        $sql .= " WHERE fs.id=? AND fo.encounter=? AND fs.pid=?";
+
+        QueryUtils::sqlStatementThrowException(
             $sql,
-            array(
-                $pid,
+            [
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"],
-                $sid
-            )
+                $sid,
+                $eid,
+                $pid,
+            ]
         );
+        // Pre-check confirmed the row exists; treat as success even if MySQL
+        // reports 0 changed rows (client resubmitted identical values).
+        return 1;
     }
 
     public function updateVital($pid, $eid, $vid, $data)
     {
+        // Verify the vital belongs to this patient/encounter before updating
+        // to prevent IDOR attacks where an attacker supplies another patient's vid.
+        $vitalsService = new VitalsService();
+        $existingVital = $vitalsService->getVitalsForForm($vid);
+        if (empty($existingVital) || $existingVital['pid'] != $pid || $existingVital['eid'] != $eid) {
+            return null;
+        }
+
         $data['date'] = date("Y-m-d H:i:s");
         $data['activity'] = 1;
         $data['id'] = $vid;
         $data['pid'] = $pid;
         $data['eid'] = $eid;
 
-        $vitalsService = new VitalsService();
         $updatedRecords = $vitalsService->save($data);
         return $updatedRecords;
     }
 
     public function insertVital($pid, $eid, $data)
     {
+        // Strip any user-supplied id to prevent IDOR — insert must always
+        // create a new record, never update an existing one.
+        unset($data['id']);
         $data['eid'] = $eid;
         $data['authorized'] = '1';
         $data['pid'] = $pid;
@@ -608,9 +630,9 @@ class EncounterService extends BaseService
         $sql .= "  WHERE fo.encounter = ?";
         $sql .= "    AND fs.pid = ?";
 
-        $statementResults = sqlStatement($sql, array($eid, $pid));
+        $statementResults = sqlStatement($sql, [$eid, $pid]);
 
-        $results = array();
+        $results = [];
         while ($row = sqlFetchArray($statementResults)) {
             array_push($results, $row);
         }
@@ -627,7 +649,7 @@ class EncounterService extends BaseService
         $sql .= "    AND fs.id = ?";
         $sql .= "    AND fs.pid = ?";
 
-        return sqlQuery($sql, array($eid, $sid, $pid));
+        return sqlQuery($sql, [$eid, $sid, $pid]);
     }
 
     public function validateSoapNote($soapNote)
@@ -689,7 +711,7 @@ class EncounterService extends BaseService
         ];
         foreach ($encounters as $index => $encounter) {
             $encounterList['ids'][$index] = $encounter['eid'];
-            $encounterList['dates'][$index] = date("Y-m-d", strtotime($encounter['date']));
+            $encounterList['dates'][$index] = date("Y-m-d", strtotime((string) $encounter['date']));
             $encounterList['categories'][$index] = $encounter['pc_catname'];
         }
         return $encounterList;
@@ -697,18 +719,19 @@ class EncounterService extends BaseService
 
     /**
      * Returns the sensitivity level for the encounter matching the patient and encounter identifier.
-     *
-     * @param  $pid          The legacy identifier of particular patient
-     * @param  $encounter_id The identifier of a particular encounter
-     * @return string         sensitivity_level of first row of encounter data
+     * Returns null when no matching encounter row exists.
      */
-    public function getSensitivity($pid, $encounter_id)
+    public function getSensitivity(mixed $pid, mixed $encounter_id): ?string
     {
-        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
-        if ($encounterResult->hasData()) {
-            return $encounterResult->getData()[0]['sensitivity'];
+        $encounterResult = $this->search(
+            ['pid' => $pid, 'eid' => $encounter_id],
+            options: ['limit' => 1],
+        );
+        if (!$encounterResult->hasData()) {
+            return null;
         }
-        return [];
+        $sensitivity = $encounterResult->getData()[0]['sensitivity'] ?? null;
+        return is_string($sensitivity) ? $sensitivity : null;
     }
 
     /**

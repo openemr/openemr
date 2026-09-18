@@ -213,7 +213,7 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -240,15 +240,13 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidLinkage xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidLinkage>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceNucleicAcidLinkage xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidLinkage>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->connectivity)) {
             $this->connectivity->xmlSerialize(true, $sxe->addChild('connectivity'));

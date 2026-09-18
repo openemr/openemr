@@ -329,7 +329,7 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -368,15 +368,13 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptVariable xmlns="http://hl7.org/fhir"></TestScriptVariable>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TestScriptVariable xmlns="http://hl7.org/fhir"></TestScriptVariable>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

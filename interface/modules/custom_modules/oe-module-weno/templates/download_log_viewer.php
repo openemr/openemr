@@ -1,16 +1,30 @@
 <?php
 
+/**
+ * Weno prescription + pharmacy download log viewer.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // renders in MM iFrame
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Download Log Viewer", xl("Weno Download Log Viewer"));
 }
 
 $logService = new WenoLogService();
@@ -38,7 +52,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             });
         });
     </script>
@@ -57,7 +71,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $('#btn-pharm-full').attr("disabled", true);
             $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php?daily=" + encodeURIComponent(daily),
+                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php?daily=" + encodeURIComponent(daily) + "&csrf_token_form=" + encodeURIComponent(<?php echo js_escape(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>),
                 type: "GET",
                 success: function (data) {
                     if (data.includes('Error') || data.includes('failed')) {
@@ -92,7 +106,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $('#btn-pharm-full').attr("disabled", true);
             $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
+                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
                 type: "GET",
                 data: {key: 'downloadLog'},
                 success: function (data) {
@@ -125,7 +139,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             let yn = confirm(<?php echo xlj("Are you sure you want to download logs?"); ?>);
             if (yn) {
                 top.restoreSession();
-                let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php?key=" + encodeURIComponent('downloadStatusLog')
+                let url = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php?key=" + encodeURIComponent('downloadStatusLog')
                 window.location.href = url;
             }
             return false;
@@ -143,11 +157,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         if ($backGroundTask ?? false) {
             echo '<h6 class="mb-2">';
             while ($task = sqlFetchArray($backGroundTask)) {
-                if ($task['name'] === 'WenoExchangePharmacies') {
-                    $title = xlt("Pharmacy Directory");
-                } else {
-                    $title = xlt("Sync Report");
-                }
+                $title = $task['name'] === 'WenoExchangePharmacies' ? xlt("Pharmacy Directory") : xlt("Sync Report");
                 $nextRun = $task['next_run'];
                 echo '<span class="mr-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
             }
@@ -235,8 +245,8 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             </div>
         </form>
         <?php
-        $fmtStartDate = date('Y-m-d', strtotime($startDate));
-        $fmtEndDate = date('Y-m-d', strtotime($endDate));
+        $fmtStartDate = date('Y-m-d', strtotime((string) $startDate));
+        $fmtEndDate = date('Y-m-d', strtotime((string) $endDate));
 
         if (isset($_GET['search'])) {
             if ($fmtStartDate > $fmtEndDate) {

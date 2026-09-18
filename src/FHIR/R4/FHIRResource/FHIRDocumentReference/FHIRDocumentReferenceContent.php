@@ -65,7 +65,7 @@ namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement;
 
 /**
- * A reference to a document of any kind for any purpose. Provides metadata about the document so that the document can be discovered and managed. The scope of a document is any seralized object with a mime-type, so includes formal patient centric documents (CDA), cliical notes, scanned paper, and non-patient specific documents like policy text.
+ * A reference to a document of any kind for any purpose. Provides metadata about the document so that the document can be discovered and managed. The scope of a document is any serialized object with a mime-type, so includes formal patient centric documents (CDA), clinical notes, scanned paper, and non-patient specific documents like policy text.
  */
 class FHIRDocumentReferenceContent extends FHIRBackboneElement implements \JsonSerializable
 {
@@ -155,7 +155,7 @@ class FHIRDocumentReferenceContent extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -176,15 +176,13 @@ class FHIRDocumentReferenceContent extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DocumentReferenceContent xmlns="http://hl7.org/fhir"></DocumentReferenceContent>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DocumentReferenceContent xmlns="http://hl7.org/fhir"></DocumentReferenceContent>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->attachment)) {
             $this->attachment->xmlSerialize(true, $sxe->addChild('attachment'));

@@ -4,7 +4,7 @@
  * ListService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
@@ -15,14 +15,11 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\SearchModifier;
-use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 // TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService
@@ -52,9 +49,9 @@ class ListService
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? ORDER BY date DESC";
 
-        $statementResults = sqlStatement($sql, array($pid, $list_type));
+        $statementResults = sqlStatement($sql, [$pid, $list_type]);
 
-        $results = array();
+        $results = [];
         while ($row = sqlFetchArray($statementResults)) {
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             array_push($results, $row);
@@ -121,7 +118,7 @@ class ListService
         return QueryUtils::fetchTableColumn($sql, 'list_id', []);
     }
 
-    public function getOptionsByListName($list_name, $search = array())
+    public function getOptionsByListName($list_name, $search = [])
     {
         $sql = "SELECT * FROM list_options WHERE list_id = ? ";
         $binding = [$list_name];
@@ -140,7 +137,7 @@ class ListService
 
         $statementResults = sqlStatementThrowException($sql, $binding);
 
-        $results = array();
+        $results = [];
         while ($row = sqlFetchArray($statementResults)) {
             array_push($results, $row);
         }
@@ -183,7 +180,7 @@ class ListService
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? AND id=? ORDER BY date DESC";
 
-        return sqlQuery($sql, array($pid, $list_type, $list_id));
+        return sqlQuery($sql, [$pid, $list_type, $list_id]);
     }
 
     public function insert($data)
@@ -200,42 +197,60 @@ class ListService
 
         return sqlInsert(
             $sql,
-            array(
+            [
                 $data['pid'],
                 $data['type'],
                 $data["title"],
                 $data["begdate"],
                 $data["enddate"],
                 $data["diagnosis"]
-            )
+            ]
         );
     }
 
-    public function update($data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function update(string $pid, string $list_id, string $list_type, array $data): int
     {
+        // Scope by pid+type so a leaked list_id can't rewrite a record on
+        // another patient's chart or under a different list type. Pre-check
+        // via SELECT drives the 200/404 outcome — affected rows would falsely
+        // 404 when the client resubmits identical values.
+        $existing = QueryUtils::querySingleRow(
+            "SELECT id FROM lists WHERE id=? AND pid=? AND type=?",
+            [$list_id, $pid, $list_type]
+        );
+        if (!is_array($existing) || $existing === []) {
+            return 0;
+        }
+
         $sql  = " UPDATE lists SET";
         $sql .= "     title=?,";
         $sql .= "     begdate=?,";
         $sql .= "     enddate=?,";
         $sql .= "     diagnosis=?";
-        $sql .= " WHERE id=?";
+        $sql .= " WHERE id=? AND pid=? AND type=?";
 
-        return sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             $sql,
-            array(
+            [
                 $data["title"],
                 $data["begdate"],
                 $data["enddate"],
                 $data["diagnosis"],
-                $data["id"]
-            )
+                $list_id,
+                $pid,
+                $list_type,
+            ]
         );
+        return 1;
     }
 
     public function delete($pid, $list_id, $list_type)
     {
         $sql  = "DELETE FROM lists WHERE pid=? AND id=? AND type=?";
 
-        return sqlStatement($sql, array($pid, $list_id, $list_type));
+        return sqlStatement($sql, [$pid, $list_id, $list_type]);
     }
 }

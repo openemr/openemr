@@ -36,9 +36,9 @@ class Encounter extends ClinicalType
     {
         $oClass = new ReflectionClass('Encounter');
         $constants = $oClass->getConstants();
-        $encounters = array();
+        $encounters = [];
         foreach ($constants as $constant) {
-            if (strpos($constant, 'enc') === 0) {
+            if (str_starts_with((string) $constant, 'enc')) {
                 $encounters[] = $constant;
             }
         }
@@ -61,7 +61,7 @@ class Encounter extends ClinicalType
     public function fetchDates(RsPatient $patient, $beginDate = null, $endDate = null)
     {
         $encounters = getEncounters($patient->id, $beginDate, $endDate, $this->getOptionId());
-        $dates = array();
+        $dates = [];
         foreach ($encounters as $encounter) {
             $dateRow = getEncounterDateByEncounter($encounter['encounter']);
             $dates [] = $dateRow['date'];
@@ -70,7 +70,7 @@ class Encounter extends ClinicalType
         return $dates;
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null): bool
     {
         $encounters = getEncounters($patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId());
         ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count($encounters);

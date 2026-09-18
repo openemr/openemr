@@ -4,7 +4,7 @@
  * Handles API requests for patient portal.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,9 +14,9 @@
 // this should trim the following path /interface/modules/custom_modules/oe-module-comlink-telehealth/public/
 // this should get us to the main openemr directory and include the webroot path if we have it
 // we have to do this as we don't have access to the globals.php file yet.
-$originalPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$basePath = dirname(dirname(dirname(dirname(dirname(dirname($originalPath))))));
-$query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+$originalPath = parse_url((string) $_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$basePath = dirname($originalPath, 6);
+$query = parse_url((string) $_SERVER['REQUEST_URI'], PHP_URL_QUERY);
 $redirect = $originalPath . "?";
 if (!empty($query)) {
     $redirect .= $query;
@@ -29,8 +29,11 @@ $skipLandingPageError = true;
 require_once "../../../../../portal/verify_session.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-$kernel = $GLOBALS['kernel'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(true);
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
@@ -38,6 +41,6 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 }
 $action = $_GET['action'] ?? '';
 $queryVars = $_GET ?? [];
-$queryVars['pid'] = $_SESSION['pid']; // we overwrite any pid value to make sure we only grab this patient.
+$queryVars['pid'] = $session->get('pid'); // we overwrite any pid value to make sure we only grab this patient.
 $roomController->dispatch($action, $queryVars);
 exit;

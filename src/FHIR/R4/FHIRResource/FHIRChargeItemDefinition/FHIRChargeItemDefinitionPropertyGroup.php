@@ -167,7 +167,7 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -194,15 +194,13 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ChargeItemDefinitionPropertyGroup xmlns="http://hl7.org/fhir"></ChargeItemDefinitionPropertyGroup>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ChargeItemDefinitionPropertyGroup xmlns="http://hl7.org/fhir"></ChargeItemDefinitionPropertyGroup>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->applicability)) {
             foreach ($this->applicability as $applicability) {

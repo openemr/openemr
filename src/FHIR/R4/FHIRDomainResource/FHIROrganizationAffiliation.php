@@ -65,7 +65,7 @@ namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 
 /**
- * Defines an affiliation/assotiation/relationship between 2 distinct oganizations, that is not a part-of relationship/sub-division relationship.
+ * Defines an affiliation/association/relationship between 2 distinct organizations, that is not a part-of relationship/sub-division relationship.
  * If the element is present, it must have either a @value, an @id, or extensions
  */
 class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSerializable
@@ -494,7 +494,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -570,15 +570,13 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<OrganizationAffiliation xmlns="http://hl7.org/fhir"></OrganizationAffiliation>');
-        }
+        $sxe ??= new \SimpleXMLElement('<OrganizationAffiliation xmlns="http://hl7.org/fhir"></OrganizationAffiliation>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

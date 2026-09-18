@@ -161,7 +161,7 @@ A coverage may only be responsible for specific types of charges, and the sequen
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -182,15 +182,13 @@ A coverage may only be responsible for specific types of charges, and the sequen
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AccountCoverage xmlns="http://hl7.org/fhir"></AccountCoverage>');
-        }
+        $sxe ??= new \SimpleXMLElement('<AccountCoverage xmlns="http://hl7.org/fhir"></AccountCoverage>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->coverage)) {
             $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));

@@ -2,9 +2,8 @@
 
 /** @package    Patient Portal::Controller */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/PortalController.php");
-require_once(dirname(__FILE__) . "/../../../lib/appsql.class.php");
+use OpenEMR\BC\ServiceContainer;
+
 /**
  * AppBaseController is a base class Controller class from which
  * the front controllers inherit.  it is not necessary to use this
@@ -24,7 +23,7 @@ class AppBasePortalController extends PortalController
 
     /**
      * Init is called by the base controller before the action method
-     * is called.  This provided an oportunity to hook into the system
+     * is called.  This provided an opportunity to hook into the system
      * for all application actions.  This is a good place for authentication
      * code.
      */
@@ -33,7 +32,6 @@ class AppBasePortalController extends PortalController
 
     /*  if ( !in_array($this->GetRouter()->GetUri(),array('login','loginform','logout')) )
         {
-            require_once("App/SecureApp.php");
             $this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
         }*/
     }
@@ -64,7 +62,7 @@ class AppBasePortalController extends PortalController
      */
     protected function SimpleObjectParams()
     {
-        return array('camelCase' => true);
+        return ['camelCase' => true];
     }
 
     /**
@@ -81,34 +79,66 @@ class AppBasePortalController extends PortalController
     }
 
     /**
-     * Helper utility that calls RenderErrorJSON
-     * @param Exception
+     * Apply request parameters as equality filters on a query Criteria.
+     *
+     * Request input may only ever drive equality (`_Equals`) filters. The
+     * comparator applied to a column is a code-level decision and must never be
+     * selectable from the request: assigning arbitrary criteria properties from
+     * request keys (e.g. `*_BitwiseAnd`, `*_In`, `*_LiteralFunction`, or the
+     * framework `Filters` property) is a mass-assignment weakness (CWE-915) and,
+     * for the bitwise comparators, reaches an unquoted SQL context (CWE-89).
+     *
+     * Both the bare-column convenience form (`?Id=5` -> `Id_Equals`) and the
+     * explicit form (`?Id_Equals=5`) are preserved.
+     *
+     * @param Criteria $criteria the query criteria to populate
      */
-    protected function RenderExceptionJSON(Exception $exception)
+    protected function ApplyRequestEqualsFilters(Criteria $criteria): void
     {
-        $this->RenderErrorJSON($exception->getMessage(), null, $exception);
+        $request = \OpenEMR\Common\Http\CurrentRequest::get();
+        $keys = array_unique(array_merge($request->query->keys(), $request->request->keys()));
+
+        foreach ($keys as $prop) {
+            $prop_normal = ucfirst((string) $prop);
+
+            if (str_ends_with($prop_normal, '_Equals') && property_exists($criteria, $prop_normal)) {
+                $criteria->$prop_normal = RequestUtil::Get($prop);
+            } elseif (property_exists($criteria, $prop_normal . '_Equals')) {
+                // convenience so that the _Equals suffix is not needed
+                $criteria->{$prop_normal . '_Equals'} = RequestUtil::Get($prop);
+            }
+        }
+    }
+
+    /**
+     * Helper utility that calls RenderErrorJSON
+     * @param \Throwable $exception
+     */
+    protected function RenderExceptionJSON(\Throwable $exception)
+    {
+        ServiceContainer::getLogger()->error(
+            'Portal request failed',
+            ['exception' => $exception],
+        );
+        $this->RenderErrorJSON(xl('An unexpected error occurred'));
     }
 
     /**
      * Output a Json error message to the browser
      * @param string $message
-     * @param array key/value pairs where the key is the fieldname and the value is the error
+     * @param array $errors key/value pairs where the key is the fieldname and the value is the error
      */
-    protected function RenderErrorJSON($message, $errors = null, $exception = null)
+    protected function RenderErrorJSON($message, $errors = null)
     {
         $err = new stdClass();
         $err->success = false;
         $err->message = $message;
-        $err->errors = array();
+        $err->errors = [];
 
         if ($errors != null) {
             foreach ($errors as $key => $val) {
-                $err->errors[lcfirst($key)] = $val;
+                $err->errors[lcfirst((string) $key)] = $val;
             }
-        }
-
-        if ($exception) {
-            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1));
         }
 
         @header('HTTP/1.1 401 Unauthorized');

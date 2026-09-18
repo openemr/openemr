@@ -46,15 +46,15 @@ $pYear = date("Y");
 
 $tdClasses = "tdDatePicker tdMonthName-small";
 for ($idx = 0; $idx < 13; $idx++) {
-    $pDay = $cDay;
+    $pDay = $cDay ?? (int) date('d');
 
     if ($pMonth > 12) {
-        $pMonth = $pMonth - 12;
-        $pYear = $pYear + 1;
+        $pMonth -= 12;
+        $pYear += 1;
     }
 
     while (! checkdate($pMonth, $pDay, $pYear)) {
-        $pDay = $pDay - 1;
+        $pDay -= 1;
     }
 
     $pDate = sprintf("%d%02d%02d", $pYear, $pMonth, $pDay);
@@ -64,7 +64,7 @@ for ($idx = 0; $idx < 13; $idx++) {
     $tdMonth->setAttribute("class", $tdClasses);
     $trMonth->appendChild($tdMonth);
     $tbodyMonths->appendChild($trMonth);
-    $pMonth = $pMonth + 1;
+    $pMonth += 1;
 }
 
 echo $DOM->saveXML($divMonths);

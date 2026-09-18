@@ -74,7 +74,7 @@ for my $var (@constants) {
 for (my $i =0; $i < $constantRow; $i++) {
  push (@newSpreadsheet, shift(@spreadsheet));
 }
-    
+
 # place common constants into the spreadsheet array
 my $idCounter = 1; # to assign constant id numbers
 my $hitFlag; # flag to ensure ad new constants to spreadsheet
@@ -83,18 +83,18 @@ my @finalSpreadConstants; # to keep track of removed constants later
 my $first = 1; # to keep track of removed constants later
 foreach my $var2 (@constants) {
 
- $hitFlag = 0; # reset the hit flag   
-    
+ $hitFlag = 0; # reset the hit flag
+
  foreach my $var (@spreadsheet) {
 
   my @tempArr = split($de,$var);
   my $tempCons = @tempArr[$constantColumn];
-  
+
   # collect the original listing of constants during first loop
   if ($first) {
    push(@origSpreadConstants,$tempCons)
   }
-     
+
   if ($tempCons eq $var2) {
    # add to array to keep track of removed constants
    push(@finalSpreadConstants,$tempCons);
@@ -103,18 +103,18 @@ foreach my $var2 (@constants) {
    @tempArr[$constantIdColumn] = $idCounter;
    my $newLine = join($de,@tempArr);
    $idCounter +=1;
-     
+
    # place into array
    push (@newSpreadsheet,$newLine);
-      
+
    # set the hit flag
    $hitFlag = 1;
   }
-     
+
  }
- 
+
  $first = 0;
- 
+
  if (!($hitFlag)) {
   # constant is new, so add to spreadsheet
   push (@newSpreadsheet,$idCounter.$de.$var2);
@@ -127,7 +127,7 @@ foreach my $var2 (@constants) {
 # send the removed constants to a log file
 foreach my $var (@origSpreadConstants) {
  if (!(withinArray($var,@finalSpreadConstants))) {
-  print LOGFILE "REMOVED: ".$var."\n";    
+  print LOGFILE "REMOVED: ".$var."\n";
  }
 }
 
@@ -168,4 +168,3 @@ sub withinArray {
  }
  return $isMatch;
 }
-

@@ -14,36 +14,35 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  *
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Provider extends ORDataObject
 {
-        var $id;
-        var $lname;
-        var $fname;
-        var $federal_drug_id;
-        var $insurance_numbers;
-        var $specialty;
-        var $npi;
-        var $state_license_number;
+        public $lname;
+        public $fname;
+        public $federal_drug_id;
+        public $insurance_numbers;
+        public $specialty;
+        public $npi;
+        public $state_license_number;
 
         /**
          * Constructor sets all Prescription attributes to their default value
          */
-    function __construct($id = "", $prefix = "")
+    public function __construct(public $id = "")
     {
-        $this->id = $id;
         $this->federal_drug_id = "";
         $this->_table = "users";
         $this-> npi = "";
-        $this->insurance_numbers = array();
+        $this->insurance_numbers = [];
         $this->state_license_number = "";
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
 
-    function populate()
+    public function populate()
     {
         $res = sqlQuery("SELECT fname,lname,federaldrugid, specialty, npi, state_license_number FROM users where id ='" . add_escape_custom($this->id) . "'");
 
@@ -60,82 +59,82 @@ class Provider extends ORDataObject
         $this->insurance_numbers = $ins->insurance_numbers_factory($this->id);
     }
 
-    function utility_provider_array()
+    public function utility_provider_array()
     {
-        $provider_array = array();
-        $res = sqlQ("Select id,fname,lname  from users where authorized = 1");
-        while ($row = sqlFetchArray($res)) {
+        $provider_array = [];
+        $records = QueryUtils::fetchRecords("Select id,fname,lname  from users where authorized = 1");
+        foreach ($records as $row) {
                     $provider_array[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
         return $provider_array;
     }
 
-    function providers_factory($sort = "ORDER BY lname,fname")
+    public function providers_factory($sort = "ORDER BY lname,fname")
     {
-        $psa = array();
+        $psa = [];
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;
-        $results = sqlQ($sql);
+        $records = QueryUtils::fetchRecords($sql);
 
-        while ($row = sqlFetchArray($results)) {
+        foreach ($records as $row) {
                     $psa[] = new Provider($row['id']);
         }
 
         return $psa;
     }
 
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
-    function get_name_display()
+    public function get_name_display()
     {
         return $this->fname . " " . $this->lname;
     }
 
-    function get_specialty()
+    public function get_specialty()
     {
         return $this->specialty;
     }
 
-    function get_provider_number_default()
+    public function get_provider_number_default()
     {
         if (!empty($this->insurance_numbers)) {
             return $this->insurance_numbers[0]->get_provider_number();
         }
     }
 
-    function get_rendering_provider_number_default()
+    public function get_rendering_provider_number_default()
     {
         if (!empty($this->insurance_numbers)) {
             return $this->insurance_numbers[0]->get_rendering_provider_number();
         }
     }
 
-    function get_insurance_numbers()
+    public function get_insurance_numbers()
     {
         return $this->insurance_numbers;
     }
 
-    function get_insurance_numbers_default()
+    public function get_insurance_numbers_default()
     {
         return ($this->insurance_numbers[0] ?? null);
     }
 
-    function get_group_number_default()
+    public function get_group_number_default()
     {
         if (!empty($this->insurance_numbers)) {
             return $this->insurance_numbers[0]->get_group_number();
         }
     }
 
-    function get_npi()
+    public function get_npi()
     {
         return $this->npi;
     }
 
-    function get_state_license_number()
+    public function get_state_license_number()
     {
         return $this->state_license_number;
     }

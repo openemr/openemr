@@ -257,7 +257,7 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -290,15 +290,13 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DosageDoseAndRate xmlns="http://hl7.org/fhir"></DosageDoseAndRate>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DosageDoseAndRate xmlns="http://hl7.org/fhir"></DosageDoseAndRate>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

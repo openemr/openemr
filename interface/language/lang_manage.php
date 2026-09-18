@@ -4,7 +4,7 @@
  * lang_manage.php script
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,9 +12,10 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
-if ($langModuleFlag !== true) {
+if (!isset($langModuleFlag) || $langModuleFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
@@ -27,10 +28,9 @@ if (!$thisauth) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // set up flag if only checking for changes (ie not performing synchronization)
     $checkOnly = 0;
@@ -39,15 +39,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     }
 
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
-    if (!$disable_utf8_flag) {
-        if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-            $case_sensitive_collation = "COLLATE utf8mb4_bin";
-        } else {
-            $case_sensitive_collation = "COLLATE utf8_bin";
-        }
-    } else {
-        $case_sensitive_collation = "COLLATE latin1_bin";
-    }
+    $case_sensitive_collation = "COLLATE utf8mb4_bin";
 
     $difference = 0; //flag
 
@@ -55,16 +47,16 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
   // collect and display(synchronize) new custom languages
   //
     $sql = "SELECT lang_description FROM lang_languages";
-    $res = SqlStatement($sql);
-    $row_main = array();
-    while ($row = SqlFetchArray($res)) {
+    $res = sqlStatement($sql);
+    $row_main = [];
+    while ($row = sqlFetchArray($res)) {
         $row_main[] = $row['lang_description'];
     }
 
     $sql = "SELECT lang_description FROM lang_custom";
-    $res = SqlStatement($sql);
-    $row_custom = array();
-    while ($row = SqlFetchArray($res)) {
+    $res = sqlStatement($sql);
+    $row_custom = [];
+    while ($row = sqlFetchArray($res)) {
         $row_custom[] = $row['lang_description'];
     }
 
@@ -78,10 +70,10 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
         if (!$checkOnly) {
             // add the new language (first collect the language code)
             $sql = "SELECT lang_code FROM lang_custom WHERE constant_name='' AND lang_description " . $case_sensitive_collation . " =? LIMIT 1";
-            $res = SqlStatement($sql, array($var));
-            $row = SqlFetchArray($res);
+            $res = sqlStatement($sql, [$var]);
+            $row = sqlFetchArray($res);
             $sql = "INSERT INTO lang_languages SET lang_code=?, lang_description=?";
-            SqlStatement($sql, array($row['lang_code'], $var));
+            sqlStatement($sql, [$row['lang_code'], $var]);
             echo xlt('Synchronized new custom language:') . " " . text($var) . "<br><br>";
         }
 
@@ -92,16 +84,16 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
   // collect and display(synchronize) new custom constants
   //
     $sql = "SELECT constant_name FROM lang_constants";
-    $res = SqlStatement($sql);
-    $row_main = array();
-    while ($row = SqlFetchArray($res)) {
+    $res = sqlStatement($sql);
+    $row_main = [];
+    while ($row = sqlFetchArray($res)) {
         $row_main[] = $row['constant_name'];
     }
 
     $sql = "SELECT constant_name FROM lang_custom";
-    $res = SqlStatement($sql);
-    $row_custom = array();
-    while ($row = SqlFetchArray($res)) {
+    $res = sqlStatement($sql);
+    $row_custom = [];
+    while ($row = sqlFetchArray($res)) {
         $row_custom[] = $row['constant_name'];
     }
 
@@ -115,7 +107,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
         if (!$checkOnly) {
             // add the new constant
             $sql = "INSERT INTO lang_constants SET constant_name=?";
-            SqlStatement($sql, array($var));
+            sqlStatement($sql, [$var]);
             echo xlt('Synchronized new custom constant:') . " " . text($var) . "<br><br>";
         }
 
@@ -126,31 +118,31 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
   // collect and display(synchronize) custom definitions
   //
     $sql = "SELECT lang_description, lang_code, constant_name, definition FROM lang_custom WHERE lang_description != '' AND constant_name != ''";
-    $res = SqlStatement($sql);
-    while ($row = SqlFetchArray($res)) {
+    $res = sqlStatement($sql);
+    while ($row = sqlFetchArray($res)) {
         // collect language id
         $sql = "SELECT lang_id FROM lang_languages WHERE lang_description " . $case_sensitive_collation . " =? LIMIT 1";
-        $res2 = SqlStatement($sql, array($row['lang_description']));
-        $row2 = SqlFetchArray($res2);
+        $res2 = sqlStatement($sql, [$row['lang_description']]);
+        $row2 = sqlFetchArray($res2);
         $language_id = $row2['lang_id'];
 
         // collect constant id
         $sql = "SELECT cons_id FROM lang_constants WHERE constant_name " . $case_sensitive_collation . " =? LIMIT 1";
-        $res2 = SqlStatement($sql, array($row['constant_name']));
-        $row2 = SqlFetchArray($res2);
+        $res2 = sqlStatement($sql, [$row['constant_name']]);
+        $row2 = sqlFetchArray($res2);
         $constant_id = $row2['cons_id'];
 
         // collect definition id (if it exists)
         $sql = "SELECT def_id FROM lang_definitions WHERE cons_id=? AND lang_id=? LIMIT 1";
-        $res2 = SqlStatement($sql, array($constant_id, $language_id));
-        $row2 = SqlFetchArray($res2);
+        $res2 = sqlStatement($sql, [$constant_id, $language_id]);
+        $row2 = sqlFetchArray($res2);
         $def_id = $row2['def_id'];
 
         if ($def_id) {
             //definition exist, so check to see if different
             $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition " . $case_sensitive_collation . " =?";
-            $res_test = SqlStatement($sql, array($def_id, $row['definition']));
-            if (SqlFetchArray($res_test)) {
+            $res_test = sqlStatement($sql, [$def_id, $row['definition']]);
+            if (sqlFetchArray($res_test)) {
             //definition not different
                 continue;
             } else {
@@ -162,7 +154,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
                 if (!$checkOnly) {
                     //add new definition
                     $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
-                    SqlStatement($sql, array($row['definition'], $def_id));
+                    sqlStatement($sql, [$row['definition'], $def_id]);
                     echo xlt('Synchronized new definition (Language, Constant, Definition):') .
                     " " . text($row['lang_description']) .
                     " " . text($row['constant_name']) .
@@ -179,7 +171,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
             if (!$checkOnly) {
                 //add new definition
                 $sql = "INSERT INTO lang_definitions (cons_id,lang_id,definition) VALUES (?,?,?)";
-                SqlStatement($sql, array($constant_id, $language_id, $row['definition']));
+                sqlStatement($sql, [$constant_id, $language_id, $row['definition']]);
                 echo xlt('Synchronized new definition (Language, Constant, Definition):') .
                 " " . text($row['lang_description']) .
                 " " . text($row['constant_name']) .
@@ -196,8 +188,8 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
 }
 ?>
 
-<form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div class="container">
         <div class="row">
             <div class="col-2">

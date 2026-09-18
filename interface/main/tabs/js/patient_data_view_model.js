@@ -2,7 +2,7 @@
  * patient_data_view_model.js
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
@@ -19,7 +19,7 @@ function encounter_data(id,date,category)
     return this;
 }
 
-function patient_data_view_model(pname,pid,pubpid,str_dob)
+function patient_data_view_model(pname,pid,pubpid,str_dob,hasPicture)
 {
     var self=this;
     self.pname=ko.observable(pname);
@@ -27,6 +27,9 @@ function patient_data_view_model(pname,pid,pubpid,str_dob)
     self.pubpid=ko.observable(pubpid);
     self.str_dob=ko.observable(str_dob);
     self.patient_picture=ko.computed(function(){
+      if (hasPicture === false) {
+          return patient_picture_default_url;
+      }
       return webroot_url + '/controller.php' +
              '?document&retrieve' +
              '&patient_id=' + encodeURIComponent(pid) +

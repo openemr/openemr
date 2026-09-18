@@ -3,7 +3,7 @@
 /**
  * TokenSearchValue represents a searchable token value containing the code and system
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,7 +13,7 @@ namespace OpenEMR\Services\Search;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-class TokenSearchValue
+class TokenSearchValue implements \Stringable
 {
     /**
      * @var string|int|float|boolean
@@ -21,32 +21,28 @@ class TokenSearchValue
     private $code;
 
     /**
-     * @var string
+     * @param mixed $code
+     * @param string $system
+     * @param bool $isUuid
      */
-    private $system;
-
-    /**
-     * @var
-     */
-    private $isUuid;
-
-    public function __construct($code, $system = null, $isUuid = false)
-    {
-        $this->isUuid = $isUuid;
+    public function __construct(
+        $code,
+        private $system = null,
+        private $isUuid = false
+    ) {
         $this->setCode($code);
-        $this->system = $system;
     }
 
     /**
      * Given a FHIR code system string, return the FHIR class value.
      * @param $codeSystemValue
-     * @param @isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
+     * @param mixed $isUuid @isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
      * @return TokenSearchValue
      */
     public static function buildFromFHIRString($codeSystemValue, $isUuid = false)
     {
         $code = $codeSystemValue;
-        $valueParts = explode("|", $codeSystemValue);
+        $valueParts = explode("|", (string) $codeSystemValue);
         if (count($valueParts) == 1) {
             $system = null;
         } else {
@@ -107,8 +103,8 @@ class TokenSearchValue
         }
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return ($this->getCode() ? $this->getHumanReadableCode() : "") . "|" . ($this->getSystem() ? $this->getSystem() : "");
+        return ($this->getCode() ? $this->getHumanReadableCode() : "") . "|" . ($this->getSystem() ?: "");
     }
 }

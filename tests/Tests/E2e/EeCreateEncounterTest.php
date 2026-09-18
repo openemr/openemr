@@ -18,7 +18,6 @@ use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Encounter\EncounterAddTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class EeCreateEncounterTest extends PantherTestCase
 {
@@ -26,6 +25,5 @@ class EeCreateEncounterTest extends PantherTestCase
     use LoginTrait;
     use EncounterAddTrait;
 
-    private $client;
     private $crawler;
 }

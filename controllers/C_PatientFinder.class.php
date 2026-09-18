@@ -1,23 +1,22 @@
 <?php
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class C_PatientFinder extends Controller
 {
-    var $template_mod;
-
-    function __construct($template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         ///////////////////////////////////
         //// What should this be?????
         //////////////////////////////////
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&patient_finder&");
+        $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&patient_finder&");
         /////////////////////////////////
-        $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action($form_id = '', $form_name = '', $pid = '')
+    public function default_action($form_id = '', $form_name = '', $pid = ''): string
     {
         return $this->find_action($form_id, $form_name, $pid);
     }
@@ -26,7 +25,7 @@ class C_PatientFinder extends Controller
     * Function that will display a patient finder widget, allowing
     *   the user to input search parameters to find a patient id.
     */
-    function find_action($form_id, $form_name, $pid = null)
+    public function find_action($form_id, $form_name, $pid = null): string
     {
         $isPid = false;
 
@@ -38,14 +37,14 @@ class C_PatientFinder extends Controller
 
         $this->assign('hidden_ispid', $isPid);
 
-        return $this->fetch($GLOBALS['template_dir'] . "patient_finder/" . $this->template_mod . "_find.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "patient_finder/" . $this->template_mod . "_find.html");
     }
 
     /**
     * Function that will take a search string, parse it out and return all patients from the db matching.
     * @param string $search_string - String from html form giving us our search parameters
     */
-    function find_action_process()
+    public function find_action_process()
     {
 
         if ($_POST['process'] != "true") {
@@ -61,10 +60,10 @@ class C_PatientFinder extends Controller
         //get the db connection and pass it to the helper functions
         $sql = "SELECT CONCAT(lname, ' ', fname, ' ', mname) as name, DOB, pubpid, pid FROM patient_data";
         //parse search_string to determine what type of search we have
-        $pos = strpos($search_string, ',');
+        $pos = strpos((string) $search_string, ',');
 
         // get result set into array and pass to array
-        $result_array = array();
+        $result_array = [];
 
         if ($pos === false) {
             //no comma just last name
@@ -90,7 +89,7 @@ class C_PatientFinder extends Controller
     *   @-param string $sql base sql query
     *   @-param string $search_string parsed for last name
     */
-    function search_by_lName($sql, $search_string)
+    public function search_by_lName($sql, $search_string)
     {
         $lName = add_escape_custom($search_string);
         $sql .= " WHERE lname LIKE '$lName%' ORDER BY lname, fname";
@@ -110,7 +109,7 @@ class C_PatientFinder extends Controller
     *   @param string $sql base sql query
     *   @param string $search_string parsed for first name
     */
-    function search_by_fName($sql, $search_string)
+    public function search_by_fName($sql, $search_string)
     {
         $name_array = explode(",", $search_string);
         $fName = add_escape_custom(trim($name_array[1]));
@@ -131,7 +130,7 @@ class C_PatientFinder extends Controller
     *   @param string $sql base sql query
     *   @param string $search_string parsed for first, last and middle name
     */
-    function search_by_FullName($sql, $search_string)
+    public function search_by_FullName($sql, $search_string)
     {
         $name_array = explode(",", $search_string);
         $lName = add_escape_custom($name_array[0]);

@@ -6,14 +6,14 @@
  *
  * Example code in script:
  *    $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) (optional php command)
- *    require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); (php command)
+ *    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); (php command)
  *
  * Note there is a optional mechanism to override translations via the
  *  $translationsDatatablesOverride array.
  *
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

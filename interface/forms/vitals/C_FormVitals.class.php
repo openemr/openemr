@@ -4,37 +4,37 @@
  * vitals C_FormVitals.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
-
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Forms\FormVitals;
+use OpenEMR\Common\Forms\BmiCategory;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Forms\FormVitalDetails;
+use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\VitalsService;
-use OpenEMR\Services\ListService;
+use OpenEMR\Common\Forms\VitalsFieldRanges;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\VitalsService;
 
 class C_FormVitals
 {
-    /**
-     * @var FormVitals
-     */
-    public $vitals;
+    public FormVitals $vitals;
 
-    var $template_dir;
-    var $form_id;
-    var $units_of_measurement;
-    var $template_mod;
-    var $context;
+    public $template_dir;
+    public $form_id;
+    public $units_of_measurement;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -44,13 +44,11 @@ class C_FormVitals
      */
     private $interpretationsList = [];
 
-    public function __construct($template_mod = "general", $context = '')
+    public function __construct(public $template_mod = "general", public $context = '')
     {
-        $this->units_of_measurement = $GLOBALS['units_of_measurement'];
+        $this->units_of_measurement = OEGlobalsBag::getInstance()->get('units_of_measurement');
         $this->interpretationsList = $this->get_interpretation_list_options();
-        $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
-        $this->context = $context;
     }
 
     public function setFormId($form_id)
@@ -58,7 +56,7 @@ class C_FormVitals
         $this->form_id = $form_id;
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         $vitalsService = new VitalsService();
         $vitalsService->setShouldConvertVitalMeasurementsFlag(false);
@@ -78,13 +76,14 @@ class C_FormVitals
         }
 
         // get the patient's current age
-        $patient_data = getPatientData($GLOBALS['pid']);
+        $patient_data = getPatientData(OEGlobalsBag::getInstance()->get('pid'));
         $patient_dob = $patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
 
         $i = 1;
+        $results = [];
         // eventually we want this just to use the service search date but we will move this here.
-        $records = $vitalsService->getVitalsHistoryForPatient($GLOBALS['pid'], $form_id);
+        $records = $vitalsService->getVitalsHistoryForPatient(OEGlobalsBag::getInstance()->get('pid'), $form_id);
 
         foreach ($records as $result) {
             $historicalVitals = new FormVitals();
@@ -100,7 +99,7 @@ class C_FormVitals
         if (
             $form_id === 0
             && $this->context == 'dashboard'
-            && is_countable($results)
+            && $results !== []
         ) {
             $vitals_history_count = count($results);
             $vitals = $results[$vitals_history_count];
@@ -112,7 +111,7 @@ class C_FormVitals
         $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
         $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
-        $show_pediatric_fields = ($patient_age <= 20 || (preg_match('/month/', $patient_age)));
+        $show_pediatric_fields = ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)));
         $vitalFields = [
             [
                 'type' => 'textbox_conversion'
@@ -128,6 +127,7 @@ class C_FormVitals
                 ,'precision' => 2
                 ,'vitalsValueUSAHelpTitle' => xl("Decimal pounds or pounds and ounces separated by #(e.g. 5#4)")
                 ,'codes' => 'LOINC:29463-7'
+                ,'validation' => VitalsFieldRanges::getRangeForField('weight')
             ]
             ,[
                 'type' => 'textbox_conversion'
@@ -142,6 +142,7 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 ,'codes' => 'LOINC:8302-2'
+                ,'validation' => VitalsFieldRanges::getRangeForField('height')
             ]
             ,[
                 'type' => 'textbox'
@@ -152,6 +153,7 @@ class C_FormVitals
                 ,'unit' => 'mmHg'
                 ,'unitLabel' => xl('mmHg')
                 ,'codes' => 'LOINC:8480-6'
+                ,'validation' => VitalsFieldRanges::getRangeForField('bps')
             ]
             ,[
                 'type' => 'textbox'
@@ -162,6 +164,7 @@ class C_FormVitals
                 ,'unit' => 'mmHg'
                 ,'unitLabel' => xl('mmHg')
                 ,'codes' => 'LOINC:8462-4'
+                ,'validation' => VitalsFieldRanges::getRangeForField('bpd')
             ]
             ,[
                 'type' => 'textbox'
@@ -173,6 +176,7 @@ class C_FormVitals
                 ,'unit' => 'per min'
                 ,'unitLabel' => xl('per min')
                 ,'codes' => 'LOINC:8867-4'
+                ,'validation' => VitalsFieldRanges::getRangeForField('pulse')
             ]
             ,[
                 'type' => 'textbox'
@@ -184,6 +188,7 @@ class C_FormVitals
                 ,'unit' => 'per min'
                 ,'unitLabel' => xl('per min')
                 ,'codes' => 'LOINC:9279-1'
+                ,'validation' => VitalsFieldRanges::getRangeForField('respiration')
             ]
             ,[
                 'type' => 'textbox_conversion'
@@ -198,6 +203,7 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('C')
                 ,'precision' => 2
                 ,'codes' => 'LOINC:8310-5'
+                ,'validation' => VitalsFieldRanges::getRangeForField('temperature')
             ]
             ,[
                 'type' => 'template'
@@ -213,6 +219,7 @@ class C_FormVitals
                 ,'unit' => '%'
                 ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:59408-5'
+                ,'validation' => VitalsFieldRanges::getRangeForField('oxygen_saturation')
             ]
             ,[
                 'type' => 'textbox'
@@ -224,6 +231,7 @@ class C_FormVitals
                 ,'unit' => 'l/min'
                 ,'unitLabel' => xl('l/min')
                 ,'codes' => 'LOINC:3151-8'
+                ,'validation' => VitalsFieldRanges::getRangeForField('oxygen_flow_rate')
             ]
             ,[
                 'type' => 'textbox'
@@ -235,6 +243,7 @@ class C_FormVitals
                 ,'unit' => '%'
                 ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:3150-0'
+                ,'validation' => VitalsFieldRanges::getRangeForField('inhaled_oxygen_concentration')
             ]
             ,[
                 'type' => 'textbox_conversion'
@@ -249,8 +258,9 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
-                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'hide' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
                 ,'codes' => "LOINC:9843-4"
+                ,'validation' => VitalsFieldRanges::getRangeForField('head_circ')
             ]
             ,[
                 'type' => 'textbox_conversion'
@@ -265,8 +275,9 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
-                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'hide' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
                 ,'codes' => "LOINC:9843-4"
+                ,'validation' => VitalsFieldRanges::getRangeForField('waist_circ')
             ]
             ,[
                 'type' => 'template'
@@ -285,6 +296,7 @@ class C_FormVitals
                 ,'unit' => '%'
                 ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:77606-2'
+                ,'validation' => VitalsFieldRanges::getRangeForField('ped_weight_height')
                 ,'hide' => !$show_pediatric_fields
             ]
             ,[
@@ -296,6 +308,7 @@ class C_FormVitals
                 ,'unit' => '%'
                 ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:59576-9'
+                ,'validation' => VitalsFieldRanges::getRangeForField('ped_bmi')
                 ,'hide' => !$show_pediatric_fields
             ]
             ,[
@@ -307,6 +320,7 @@ class C_FormVitals
                 ,'unit' => '%'
                 ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:8289-1'
+                ,'validation' => VitalsFieldRanges::getRangeForField('ped_head_circ')
                 ,'hide' => !$show_pediatric_fields
             ]
             ,[
@@ -320,48 +334,58 @@ class C_FormVitals
                 'type' => 'template'
                 ,'templateName' => 'vitals_growthchart_actions.html.twig'
                 ,'hide' => !$show_pediatric_fields
+                // Action buttons render once in the editable section and emit
+                // fixed ids (pdfchart/htmlchart). Rendering them again in the
+                // history table would duplicate those ids and break the jQuery
+                // click handlers bound to the first pair.
+                ,'renderInHistory' => false
             ]
         ];
 
-        $resultsCount = count($results ?? []);
+        $resultsCount = count($results);
         $hasMoreVitals = false;
         $vitalsHistoryLookback = [];
-        $maxHistoryCols = $GLOBALS['gbl_vitals_max_history_cols'] ?? 2;
+        $maxHistoryCols = OEGlobalsBag::getInstance()->getInt('gbl_vitals_max_history_cols');
         if ($maxHistoryCols > 0 && $resultsCount > $maxHistoryCols) {
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;
         } else {
-            $vitalsHistoryLookback = $results ?? null;
+            $vitalsHistoryLookback = $results;
         }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $validationErrors = $session->get('vitals_validation_errors', []);
+        SessionUtil::unsetSession(['vitals_validation_errors']);
 
         $data = [
             'vitals' => $vitals
+            ,'validationErrors' => $validationErrors
             ,'vitalFields' => $vitalFields
-            ,'FORM_ACTION' => $GLOBALS['web_root']
-            ,'DONT_SAVE_LINK' => $GLOBALS['form_exit_url']
-            ,'STYLE' => $GLOBALS['style']
+            ,'FORM_ACTION' => OEGlobalsBag::getInstance()->getWebRoot()
+            ,'DONT_SAVE_LINK' => FormActionBarSettings::EXIT_URL
+            ,'STYLE' => OEGlobalsBag::getInstance()->get('style')
             ,'units_of_measurement' => $this->units_of_measurement
             ,'MEASUREMENT_METRIC_ONLY' => FormVitals::MEASUREMENT_METRIC_ONLY
             ,'MEASUREMENT_USA_ONLY' => FormVitals::MEASUREMENT_USA_ONLY
             ,'MEASUREMENT_PERSIST_IN_METRIC' => FormVitals::MEASUREMENT_PERSIST_IN_METRIC
             ,'MEASUREMENT_PERSIST_IN_USA' => FormVitals::MEASUREMENT_PERSIST_IN_USA
-            ,'hide_circumferences' => $GLOBALS['gbl_vitals_options'] > 0
-            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken()
-            ,'results' => $results ?? null
+            ,'hide_circumferences' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
+            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(session: $session)
+            ,'results' => $results
             ,'vitalsHistoryLookback' => $vitalsHistoryLookback
             ,'hasMoreVitals' => $hasMoreVitals
-            ,'results_count' => count(($results ?? []))
+            ,'results_count' => count($results)
             ,'reasonCodeStatii' => $reasonCodeStatii
             ,'interpretation_options' => $this->interpretationsList
             ,'VIEW' => true
             ,'patient_age' => $patient_age
             ,'patient_dob' => $patient_dob
-            ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', $patient_age)))
+            ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)))
             ,'has_id' => $form_id
         ];
-        $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer($this->template_dir, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
-        echo $twig->render("vitals.html.twig", $data);
+        return $twig->render("vitals.html.twig", $data);
     }
 
     private function get_interpretation_list_options()
@@ -402,21 +426,12 @@ class C_FormVitals
             $_POST["BMI"] = ($weight / $height / $height) * 703;
         }
 
-        // TODO: this should go into the vitals form...
-        if ($_POST["BMI"] > 42) {
-            $_POST["BMI_status"] = 'Obesity III';
-        } elseif ($_POST["BMI"] > 34) {
-            $_POST["BMI_status"] = 'Obesity II';
-        } elseif ($_POST["BMI"] > 30) {
-            $_POST["BMI_status"] = 'Obesity I';
-        } elseif ($_POST["BMI"] > 27) {
-            $_POST["BMI_status"] = 'Overweight';
-        } elseif ($_POST["BMI"] > 25) {
-            $_POST["BMI_status"] = 'Normal BL';
-        } elseif ($_POST["BMI"] > 18.5) {
-            $_POST["BMI_status"] = 'Normal';
-        } elseif ($_POST["BMI"] > 10) {
-            $_POST["BMI_status"] = 'Underweight';
+        $bmi = $_POST["BMI"] ?? null;
+        if (is_numeric($bmi)) {
+            $bmiCategory = BmiCategory::fromBmi((float)$bmi);
+            if ($bmiCategory !== null) {
+                $_POST["BMI_status"] = $bmiCategory->value;
+            }
         }
 
         $temperature = $_POST["temperature"];
@@ -426,7 +441,18 @@ class C_FormVitals
 
         // grab our vitals data and then populate what is in the post
         $vitalsService = new VitalsService();
-        $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+        $vitalsArray = [];
+        if (!empty($_POST['id'])) {
+            $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+            // If the vital doesn't belong to this patient/encounter, treat
+            // as a new form and ignore the supplied id.
+            if (
+                !empty($vitalsArray)
+                && ($vitalsArray['pid'] != $GLOBALS['pid'] || $vitalsArray['eid'] != $GLOBALS['encounter'])
+            ) {
+                $vitalsArray = [];
+            }
+        }
         // vitals form returns string representation of uuid, need to convert it back to binary
         if (isset($vitalsArray['uuid'])) {
             $vitalsArray['uuid'] = UuidRegistry::uuidToBytes($vitalsArray['uuid']);
@@ -435,6 +461,12 @@ class C_FormVitals
         $this->vitals = new FormVitals();
         $this->vitals->populate_array($vitalsArray);
         $this->populate_object($this->vitals);
+
+        $validationResult = $this->vitals->validate();
+        if ($validationResult['errors'] !== []) {
+            SessionUtil::setSession('vitals_validation_errors', $validationResult['errors']);
+            return;
+        }
 
         $vitalsService->saveVitalsForm($this->vitals);
         return;
@@ -448,9 +480,9 @@ class C_FormVitals
 
         // so we can get rid of smarty we are going to bring this from the controller class in here
         foreach ($_POST as $varname => $var) {
-            $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
+            $varname = preg_replace("/[^A-Za-z0-9_]/", "", (string) $varname);
             $func = "set_" . $varname;
-            if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
+            if ((!(str_starts_with("_", (string) $varname))) && is_callable([$obj,$func])) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
                 $obj->$func($var, $_POST);
@@ -459,17 +491,18 @@ class C_FormVitals
 
         $this->populate_session_user_information($obj);
 
-        if ($GLOBALS['encounter'] < 1) {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') < 1) {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // have to set these global settings in order for us to save.
-        $obj->set_encounter($GLOBALS['encounter']);
-        $obj->set_pid($GLOBALS['pid']);
-        $obj->set_authorized($_SESSION['userauthorized']);
+        $obj->set_encounter(OEGlobalsBag::getInstance()->get('encounter'));
+        $obj->set_pid(OEGlobalsBag::getInstance()->get('pid'));
+        $obj->set_authorized($session->get('userauthorized'));
 
         // handle all of the vital details that we need here.
-        $detailsToUpdate = array();
+        $detailsToUpdate = [];
         if (isset($_POST['interpretation'])) {
             $interpretationList = $this->get_interpretation_list_as_hash();
             // grab our default list options
@@ -496,7 +529,7 @@ class C_FormVitals
                     $details->set_interpretation_codes($value); // for now the option_id is the code
                     $details->set_interpretation_title($interpretation['title']);
                 } else {
-                    (new SystemLogger())->error(
+                    ServiceContainer::getLogger()->error(
                         "Passed in interpretation does not exist in list options, clearing interpretation id",
                         ['form_id' => $this->vitals->get_id(), 'column' => $column, 'interpretation' => $value]
                     );
@@ -534,7 +567,8 @@ class C_FormVitals
 
     private function populate_session_user_information(FormVitals $vitals)
     {
-        $vitals->set_groupname($_SESSION['authProvider']);
-        $vitals->set_user($_SESSION['authUser']);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $vitals->set_groupname($session->get('authProvider'));
+        $vitals->set_user($session->get('authUser'));
     }
 }

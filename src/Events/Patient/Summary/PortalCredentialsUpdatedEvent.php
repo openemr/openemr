@@ -8,7 +8,7 @@
  * have changed.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) Discover and Change, Inc <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,15 +16,12 @@
 
 namespace OpenEMR\Events\Patient\Summary;
 
-class PortalCredentialsUpdatedEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class PortalCredentialsUpdatedEvent extends Event
 {
     const EVENT_UPDATE_PRE = 'patient.portal-credentials.update.pre';
     const EVENT_UPDATE_POST  = 'patient.portal-credentials.update.post';
-
-    /**
-     * @var int
-     */
-    private $pid;
 
     // TODO: do we want to expose the patient password credentials to module listeners?
 
@@ -38,9 +35,8 @@ class PortalCredentialsUpdatedEvent
      */
     private $loginUsername;
 
-    public function __construct(int $pid)
+    public function __construct(private int $pid)
     {
-        $this->pid = $pid;
     }
 
     /**

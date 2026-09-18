@@ -3,20 +3,9 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("verysimple/HTTP/RequestUtil.php");
-require_once("verysimple/HTTP/Context.php");
-require_once("Phreezer.php");
-require_once("Criteria.php");
-require_once("IRouter.php");
-require_once("GenericRouter.php");
-require_once("verysimple/Authentication/IAuthenticatable.php");
-
-/**
  * Controller is a base controller object used for an MVC pattern
  * This controller uses Phreeze ORM and RenderEngine Template Engine
- * This controller could be extended to use a differente ORM and
+ * This controller could be extended to use a different ORM and
  * Rendering engine as long as they implement compatible functions.
  *
  * @package verysimple::Phreeze
@@ -34,7 +23,7 @@ abstract class PortalController
      *
      * @var string ModelName is used by the base Controller class for certain functions in which
      *      require knowledge of what Model is being used. For example, when validating user input.
-     *      This may be defined in Init() if any of thes base Controller features will be used.
+     *      This may be defined in Init() if any of these base Controller features will be used.
      */
     protected $ModelName;
     protected $Context;
@@ -46,6 +35,7 @@ abstract class PortalController
     protected $Smarty;
     private $_router;
     private $_cu;
+    /** @var string */
     public $GUID;
     public $DebugOutput = "";
     public $UnitTestMode = false;
@@ -60,7 +50,7 @@ abstract class PortalController
     /**
      * search string to look for to determine if this is an API request or not
      */
-    static $ApiIdentifier = "api/";
+    public static string $ApiIdentifier = "api/";
 
     /**
      * the default mode used when calling 'Redirect'
@@ -76,12 +66,10 @@ abstract class PortalController
      *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
-     * @param
-     *          Context (optional) a context object for persisting the state of the current page
-     * @param
-     *          Router (optional) a custom writer for URL formatting
+     * @param Context $context (optional) a context object for persisting the state of the current page
+     * @param IRouter|null $router (optional) a custom writer for URL formatting
      */
-    final function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
+    final public function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
     {
         $this->Phreezer = & $phreezer;
         $this->RenderEngine = & $renderEngine;
@@ -92,7 +80,7 @@ abstract class PortalController
         $ra = RequestUtil::GetRemoteHost();
         $this->GUID = $this->Phreezer->DataAdapter->GetDBName() . "_" . str_replace(".", "_", $ra);
 
-        $this->_router = $router ? $router : new GenericRouter();
+        $this->_router = $router ?: new GenericRouter();
 
         if ($context) {
             $this->Context = & $context;
@@ -157,7 +145,7 @@ abstract class PortalController
 
     /**
      * Init is called by the base constructor immediately after construction.
-     * This method must be implemented and provided an oportunity to
+     * This method must be implemented and provided an opportunity to
      * set any class-wide variables such as ModelName, implement
      * authentication for this Controller or any other class-wide initialization
      */
@@ -168,18 +156,13 @@ abstract class PortalController
      * If authentication fails, this function
      * terminates with a 401 header. If success, sets CurrentUser and returns null.
      *
-     * @param
-     *          IAuthenticatable any IAuthenticatable object
-     * @param
-     *          string http realm (basically the login message shown to the user)
-     * @param
-     *          string username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
-     * @param
-     *          string password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
+     * @param IAuthenticatable $authenticatable any IAuthenticatable object
+     * @param string $realm http realm (basically the login message shown to the user)
+     * @param string $qs_username_field username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
+     * @param string $qs_password_field password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
      */
     protected function Require401Authentication(IAuthenticatable $authenticatable, $realm = "Login Required", $qs_username_field = "", $qs_password_field = "")
     {
-        require_once("verysimple/Authentication/Auth401.php");
 
         $user = $this->Get401Authentication($authenticatable, $qs_username_field, $qs_password_field);
 
@@ -218,7 +201,7 @@ abstract class PortalController
         $token = $this->Context->Get('X-CSRFToken');
 
         if (! $token) {
-            $token = md5(rand(1111111111, 9999999999) . microtime());
+            $token = md5(random_int(1111111111, 9999999999) . microtime());
             $this->Context->Set('X-CSRFToken', $token);
         }
 
@@ -231,8 +214,7 @@ abstract class PortalController
      * If no exception is thrown then the token
      * is verified.
      *
-     * @param
-     *          string the name of the header variable that contains the token
+     * @param string $headerName the name of the header variable that contains the token
      * @throws Exception if token is not provided or does not match
      */
     protected function VerifyCSRFToken($headerName = 'X-CSRFToken')
@@ -242,7 +224,7 @@ abstract class PortalController
 
         // make this case-insensitive (IE changes all headers to lower-case)
         $headers = array_change_key_case($headers, CASE_LOWER);
-        $headerName = strtolower($headerName);
+        $headerName = strtolower((string) $headerName);
 
         if (array_key_exists($headerName, $headers)) {
             if ($this->GetCSRFToken() != $headers [$headerName]) {
@@ -265,7 +247,6 @@ abstract class PortalController
     protected function StartObserving($observer = null, $with_styles = true)
     {
         if ($observer == null) {
-            require_once "ObserveToBrowser.php";
             $observer = new ObserveToBrowser();
         }
 
@@ -287,7 +268,7 @@ abstract class PortalController
     protected function Get401AuthUsername($qs_username_field = "")
     {
         $qsv = $qs_username_field ? RequestUtil::Get($qs_username_field) : '';
-        return $qsv ? $qsv : Auth401::GetUsername();
+        return $qsv ?: Auth401::GetUsername();
     }
 
     /**
@@ -301,7 +282,7 @@ abstract class PortalController
     protected function Get401AuthPassword($qs_password_field = "")
     {
         $qsv = $qs_password_field ? RequestUtil::Get($qs_password_field) : '';
-        return $qsv ? $qsv : Auth401::GetPassword();
+        return $qsv ?: Auth401::GetPassword();
     }
 
     /**
@@ -311,12 +292,9 @@ abstract class PortalController
      * - The user was not logged in and valid login credentials were provided = SetCurrentUser is called and IAuthenticatable is returned
      * - The user was not logged in and invalid (or no) credentials were provided = NULL is returned
      *
-     * @param
-     *          IAuthenticatable any IAuthenticatable object
-     * @param
-     *          string username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
-     * @param
-     *          string password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
+     * @param IAuthenticatable $authenticatable any IAuthenticatable object
+     * @param string $qs_username_field username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
+     * @param string $qs_password_field password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
      * @return IAuthenticatable or NULL
      */
     protected function Get401Authentication(IAuthenticatable $authenticatable, $qs_username_field = "", $qs_password_field = "")
@@ -349,7 +327,7 @@ abstract class PortalController
      *
      * This method is used by ValidateInput for automation AJAX server-side validation.
      *
-     * @param variant $pk
+     * @param mixed $pk
      *          the primary key (optional)
      * @return Phreezable a phreezable object
      */
@@ -359,12 +337,10 @@ abstract class PortalController
     }
 
     /**
-     * Use as an alterative to print in order to capture debug output
+     * Use as an alternative to print in order to capture debug output
      *
-     * @param
-     *          string text to print
-     * @param
-     *          mime content type (example text/plain)
+     * @param string $text text to print
+     * @param string|null $contentType content type (example text/plain)
      */
     protected function PrintOut($text, $contentType = null)
     {
@@ -387,7 +363,6 @@ abstract class PortalController
      */
     public function GetDevice()
     {
-        require_once("verysimple/HTTP/BrowserDevice.php");
         return BrowserDevice::GetInstance();
     }
 
@@ -399,7 +374,7 @@ abstract class PortalController
     public function ListAll()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::ListAll");
+            throw new Exception("ModelName must be defined in " . static::class . "::ListAll");
         }
 
         // capture output instead of rendering if specified
@@ -426,7 +401,7 @@ abstract class PortalController
     protected function _ListAll(Criteria $criteria, $current_page, $limit)
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::_ListAll.");
+            throw new Exception("ModelName must be defined in " . static::class . "::_ListAll.");
         }
 
         $page = $this->Phreezer->Query($this->ModelName, $criteria)->GetDataPage($current_page, $limit);
@@ -444,15 +419,13 @@ abstract class PortalController
      *          (In the format Array("GetObjName1"=>"PropName","GetObjName2"=>"PropName1,PropName2")
      * @param Array $supressProps
      *          (In the format Array("PropName1","PropName2")
-     * @param
-     *          bool noMap set to true to render this DataPage regardless of whether there is a FieldMap
+     * @param bool $noMap noMap set to true to render this DataPage regardless of whether there is a FieldMap
      */
     protected function RenderXML($page, $additionalProps = null, $supressProps = null, $noMap = false)
     {
-        require_once("verysimple/String/VerySimpleStringUtil.php");
 
         if (! is_array($supressProps)) {
-            $supressProps = array ();
+            $supressProps =  [];
         }
 
             // never include these props
@@ -465,37 +438,37 @@ abstract class PortalController
         $xml .= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
 
         $xml .= "<DataPage>\r\n";
-        $xml .= "<ObjectName>" . htmlspecialchars($page->ObjectName) . "</ObjectName>\r\n";
-        $xml .= "<ObjectKey>" . htmlspecialchars($page->ObjectKey) . "</ObjectKey>\r\n";
-        $xml .= "<TotalRecords>" . htmlspecialchars($page->TotalResults) . "</TotalRecords>\r\n";
-        $xml .= "<TotalPages>" . htmlspecialchars($page->TotalPages) . "</TotalPages>\r\n";
-        $xml .= "<CurrentPage>" . htmlspecialchars($page->CurrentPage) . "</CurrentPage>\r\n";
-        $xml .= "<PageSize>" . htmlspecialchars($page->PageSize) . "</PageSize>\r\n";
+        $xml .= "<ObjectName>" . htmlspecialchars((string) $page->ObjectName) . "</ObjectName>\r\n";
+        $xml .= "<ObjectKey>" . htmlspecialchars((string) $page->ObjectKey) . "</ObjectKey>\r\n";
+        $xml .= "<TotalRecords>" . htmlspecialchars((string) $page->TotalResults) . "</TotalRecords>\r\n";
+        $xml .= "<TotalPages>" . htmlspecialchars((string) $page->TotalPages) . "</TotalPages>\r\n";
+        $xml .= "<CurrentPage>" . htmlspecialchars((string) $page->CurrentPage) . "</CurrentPage>\r\n";
+        $xml .= "<PageSize>" . htmlspecialchars((string) $page->PageSize) . "</PageSize>\r\n";
 
         $xml .= "<Records>\r\n";
 
         // get the fieldmap for this object type unless not specified
         if ($noMap) {
-            $fms = array ();
+            $fms =  [];
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
-            } catch (exception $ex) {
-                throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to supress this error: " . $ex->getMessage());
+            } catch (\Throwable $ex) {
+                throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to suppress this error: " . $ex->getMessage());
             }
         }
 
         foreach ($page->Rows as $obj) {
-            $xml .= "<" . htmlspecialchars($page->ObjectName) . ">\r\n";
+            $xml .= "<" . htmlspecialchars((string) $page->ObjectName) . ">\r\n";
             foreach (get_object_vars($obj) as $var => $val) {
                 if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
-                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
+                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN; // @phpstan-ignore offsetAccess.nonOffsetAccessible
 
                     if ($fm == FM_TYPE_DATETIME) {
-                        $val = strtotime($val) ? date("m/d/Y h:i A", strtotime($val)) : $val;
+                        $val = strtotime((string) $val) ? date("m/d/Y h:i A", strtotime((string) $val)) : $val;
                     } elseif ($fm == FM_TYPE_DATE) {
-                        $val = strtotime($val) ? date("m/d/Y", strtotime($val)) : $val;
+                        $val = strtotime((string) $val) ? date("m/d/Y", strtotime((string) $val)) : $val;
                     }
 
                     // if the developer has added a property that is not a simple type
@@ -504,23 +477,23 @@ abstract class PortalController
                         $val = serialize($val);
                     }
 
-                    $val = VerySimpleStringUtil::EncodeSpecialCharacters($val, true, true);
+                    $val = VerySimpleStringUtil::EncodeSpecialCharacters((string) $val, true, true);
 
-                    $xml .= "<" . htmlspecialchars($var) . ">" . $val . "</" . htmlspecialchars($var) . ">\r\n";
+                    $xml .= "<" . htmlspecialchars((string) $var) . ">" . $val . "</" . htmlspecialchars((string) $var) . ">\r\n";
                 }
             }
 
             // Add any properties that we want from child objects
             if ($additionalProps) {
                 foreach ($additionalProps as $meth => $propPair) {
-                    $props = explode(",", $propPair);
+                    $props = explode(",", (string) $propPair);
                     foreach ($props as $prop) {
-                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
+                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars((string) $obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
                     }
                 }
             }
 
-            $xml .= "</" . htmlspecialchars($page->ObjectName) . ">\r\n";
+            $xml .= "</" . htmlspecialchars((string) $page->ObjectName) . ">\r\n";
         }
 
         $xml .= "</Records>\r\n";
@@ -534,51 +507,6 @@ abstract class PortalController
             header('Content-type: text/xml');
             print $xml;
         }
-    }
-
-    /**
-     * Render an array of IRSSFeedItem objects as an RSS feed
-     *
-     * @param array $feedItems
-     *          array of IRSSFeedItem objects
-     * @param string $feedTitle
-     * @param string $feedDescription
-     */
-    protected function RenderRSS(array $feedItems, $feedTitle = "RSS Feed", $feedDescription = "RSS Feed")
-    {
-        require_once('verysimple/RSS/Writer.php');
-        require_once('verysimple/RSS/IRSSFeedItem.php');
-
-        $baseUrl = RequestUtil::GetBaseURL();
-        $rssWriter = new RSS_Writer($feedTitle, $baseUrl, $feedDescription);
-        $rssWriter->setLanguage('us-en');
-        $rssWriter->addCategory("Items");
-
-        if (count($feedItems)) {
-            $count = 0;
-            foreach ($feedItems as $item) {
-                $count++;
-
-                if ($item instanceof IRSSFeedItem) {
-                    $rssWriter->addItem(
-                        $item->GetRSSTitle(), // title
-                        $item->GetRSSLink($baseUrl), // link
-                        $item->GetRSSDescription(), // description
-                        $item->GetRSSAuthor(), // author
-                        date(DATE_RSS, $item->GetRSSPublishDate()), // date
-                        null, // source
-                        $item->GetRSSGUID()
-                    ) // guid
-                    ;
-                } else {
-                    $rssWriter->addItem("Item $count doesn't implment IRSSFeedItem", "about:blank", '', 'Error', date(DATE_RSS));
-                }
-            }
-        } else {
-            $rssWriter->addItem("No Items", "about:blank", '', 'No Author', date(DATE_RSS));
-        }
-
-        $rssWriter->writeOut();
     }
 
     /**
@@ -607,9 +535,8 @@ abstract class PortalController
      * if Request::Get("SaveInline") is set then validate will call Save instead of
      * rendering JSON. In which case, your Save method should render the ValidationResponse
      */
-    function ValidateInput()
+    public function ValidateInput()
     {
-        require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
 
         $save = RequestUtil::Get("SaveInline");
@@ -618,16 +545,16 @@ abstract class PortalController
 
         if (! is_object($obj)) {
             $vr->Success = false;
-            $vr->Errors = array (
+            $vr->Errors =  [
                     "Unknown" => "LoadFromForm does not appear to be implemented.  Unable to validate"
-            );
+            ];
             $vr->Message = "LoadFromForm does not appear to be implemented.  Unable to validate";
         } elseif ($obj->Validate()) {
             $vr->Success = true;
         } else {
             $vr->Success = false;
             $vr->Errors = $obj->GetValidationErrors();
-            $vr->Message = "Validation Errors Occured";
+            $vr->Message = "Validation Errors Occurred";
         }
 
         // if the user requested to save inline, their Save method will take over from here
@@ -641,16 +568,15 @@ abstract class PortalController
     /**
      * Stub method
      */
-    function Save()
+    public function Save()
     {
         if (! RequestUtil::Get("SaveInline")) {
             throw new Exception("Save is not implemented by this controller");
         }
 
-        require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
         $vr->Success = false;
-        $vr->Errors = array ();
+        $vr->Errors =  [];
         $vr->Message = "SaveInline is not implemented by this controller";
         $this->RenderJSON($vr);
     }
@@ -663,11 +589,11 @@ abstract class PortalController
     protected function GetColumns()
     {
         if (! $this->ModelName) {
-            throw new Exception("ModelName must be defined in " . get_class($this) . "::GetColumns");
+            throw new Exception("ModelName must be defined in " . static::class . "::GetColumns");
         }
 
         $counter = 0;
-        $props = array ();
+        $props =  [];
         foreach (get_class_vars($this->ModelName) as $var => $val) {
             $props [$counter++] = $var;
         }
@@ -696,7 +622,6 @@ abstract class PortalController
      */
     public function ClearCurrentUser()
     {
-        require_once("verysimple/Authentication/Authenticator.php");
 
         $this->_cu = null;
         Authenticator::ClearAuthentication($this->GUID);
@@ -705,8 +630,7 @@ abstract class PortalController
     /**
      * Sets the given user as the authenticatable user for this session.
      *
-     * @param
-     *          IAuthenticatable The user object that has authenticated
+     * @param IAuthenticatable $user The user object that has authenticated
      */
     protected function SetCurrentUser(IAuthenticatable $user)
     {
@@ -720,18 +644,17 @@ abstract class PortalController
     /**
      * Returns the currently authenticated user, or null if a user has not been authenticated.
      *
-     * @return IAuthenticatable || null
+     * @return IAuthenticatable|null
      */
     protected function GetCurrentUser()
     {
         if (! $this->_cu) {
-            require_once("verysimple/Authentication/Authenticator.php");
 
             $this->Phreezer->Observe("Loading CurrentUser from Session");
             $this->_cu = Authenticator::GetCurrentUser($this->GUID);
 
             if ($this->_cu) {
-                if (get_class($this->_cu) == "__PHP_Incomplete_Class") {
+                if ($this->_cu::class == "__PHP_Incomplete_Class") {
                     // this happens if the class used for authentication was not included before the session was started
                     $tmp = print_r($this->_cu, 1);
                     $parts1 = explode("__PHP_Incomplete_Class_Name] => ", $tmp);
@@ -764,7 +687,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (strpos($url, self::$ApiIdentifier) !== false);
+        return (str_contains($url, self::$ApiIdentifier));
     }
 
     /**
@@ -793,10 +716,10 @@ abstract class PortalController
             $message = ! $cu || $cu->IsAnonymous() ? $not_authenticated_feedback : $permission_denied_feedback;
 
             if ($on_fail_action && $this->IsApiRequest() == false) {
-                $this->Redirect($on_fail_action, array (
+                $this->Redirect($on_fail_action, [
                         'feedback' => $message,
                         'warning' => $message
-                ));
+                ]);
             } else {
                 $ex = new AuthenticationException($message, 500);
                 $this->Crash("Permission Denied", 500, $ex);
@@ -808,7 +731,7 @@ abstract class PortalController
      * Assigns a variable to the view
      *
      * @param string $varname
-     * @param variant $varval
+     * @param mixed $varval
      */
     protected function Assign($varname, $varval)
     {
@@ -825,7 +748,7 @@ abstract class PortalController
      */
     protected function Render($view = "", $format = null)
     {
-        $isSmarty = (strpos(get_class($this->RenderEngine), "Smarty") > - 1);
+        $isSmarty = (strpos($this->RenderEngine::class, "Smarty") > - 1);
 
         if ($isSmarty && $format == null) {
             $format = self::$SmartyViewPrefix;
@@ -855,32 +778,27 @@ abstract class PortalController
     /**
      * Renders the given value as JSON
      *
-     * @param
-     *          variant the variable, array, object, etc to be rendered as JSON
-     * @param
-     *          string if a callback is provided, this will be rendered as JSONP
-     * @param
-     *          bool if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
-     * @param
-     *          array (only relvant if useSimpleObject is true) options array passed through to Phreezable->ToString()
-     * @param
-     *          bool set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
+     * @param mixed $var the variable, array, object, etc to be rendered as JSON
+     * @param string $callback if a callback is provided, this will be rendered as JSONP
+     * @param bool $useSimpleObject if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
+     * @param array $options (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
+     * @param bool $forceUTF8 set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
      */
     protected function RenderJSON($var, $callback = "", $useSimpleObject = false, $options = null, $forceUTF8 = 0)
     {
         $obj = null;
 
-        if (is_a($var, 'DataSet') || is_a($var, 'DataPage')) {
+        if ($var instanceof DataSet || $var instanceof DataPage) {
             // if a dataset or datapage can be converted directly into an array without enumerating twice
             $obj = $var->ToObjectArray($useSimpleObject, $options);
         } elseif ($useSimpleObject) {
             // we need to figure out what type
-            if (is_array($var) || is_a($var, 'SplFixedArray')) {
-                $obj = array ();
+            if (is_array($var) || $var instanceof \SplFixedArray) {
+                $obj =  [];
                 foreach ($var as $item) {
                     $obj [] = $item->ToObject($options);
                 }
-            } elseif (is_a($var, 'Phreezable') || is_a($var, 'Reporter')) {
+            } elseif ($var instanceof Phreezable || $var instanceof Reporter) {
                 $obj = $var->ToObject($options);
             } else {
                 throw new Exception('RenderJSON could not determine the type of object to render');
@@ -895,8 +813,8 @@ abstract class PortalController
 
         try {
             $output = json_encode($obj);
-        } catch (Exception $ex) {
-            if (strpos($ex->getMessage(), 'Invalid UTF-8') !== false) {
+        } catch (\Throwable $ex) {
+            if (str_contains($ex->getMessage(), 'Invalid UTF-8')) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
                     $this->UTF8Encode($obj);
@@ -935,7 +853,7 @@ abstract class PortalController
      */
     protected function Crash($errmsg = "Unknown Error", $code = 0, $exception = null)
     {
-        $ex = $exception ? $exception : new Exception($errmsg, $code);
+        $ex = $exception ?: new Exception($errmsg, $code);
         throw $ex;
     }
 
@@ -947,7 +865,7 @@ abstract class PortalController
      * @param string $action
      *          in the format Controller.Method
      * @param mixed $feedback
-     *          string which will be assigne to the template as "feedback" or an array of values to assign
+     *          string which will be assigned to the template as "feedback" or an array of values to assign
      * @param array $params
      * @param string $mode
      *          (client | header) default = Controller::$DefaultRedirectMode
@@ -958,14 +876,14 @@ abstract class PortalController
             $mode = self::$DefaultRedirectMode;
         }
 
-        $params = is_array($params) ? $params : array ();
+        $params = is_array($params) ? $params :  [];
 
         if ($feedback != null) {
             $this->Context->Set("feedback", $feedback);
         }
 
         // support for deprecated Controller/Method format
-        list ( $controller, $method ) = explode(".", str_replace("/", ".", $action));
+        [$controller, $method] = explode(".", str_replace("/", ".", $action));
 
         $url = $this->GetRouter()->GetUrl($controller, $method, $params);
 
@@ -1000,13 +918,13 @@ abstract class PortalController
      *
      * NOTE: this does not have a return value. value is passed by reference and updated
      *
-     * @param variant $input
+     * @param mixed $input
      */
     private function UTF8Encode(&$input)
     {
         if (is_string($input)) {
             // pop recursion here
-            $input = utf8_encode($input);
+            $input = mb_convert_encoding($input, 'UTF-8', 'ISO-8859-1');
         } elseif (is_array($input)) {
             foreach ($input as &$value) {
                 $this->UTF8Encode($value);
@@ -1026,11 +944,11 @@ abstract class PortalController
      *
      * @access public
      * @param string $name
-     * @param variant $vars
+     * @param mixed $vars
      * @throws Exception
      */
-    function __call($name, $vars = null)
+    public function __call($name, $vars = null)
     {
-        throw new Exception(get_class($this) . "::" . $name . " is not implemented");
+        throw new Exception(static::class . "::" . $name . " is not implemented");
     }
 }

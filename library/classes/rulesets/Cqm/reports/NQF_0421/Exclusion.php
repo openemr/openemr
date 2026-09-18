@@ -14,12 +14,12 @@ class NQF_0421_Exclusion implements CqmFilterIF
         return "Exclusion";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // Check for terminal illness within 6 months of encounter
         $dates = Helper::fetchEncounterDates(Encounter::ENC_OUTPATIENT, $patient, $beginDate, $endDate);
         foreach ($dates as $date) {
-            $dateMinusSixMonths = strtotime('-6 month', strtotime($date));
+            $dateMinusSixMonths = strtotime('-6 month', strtotime((string) $date));
             $dateMinusSixMonths = date('Y-m-d 00:00:00', $dateMinusSixMonths);
             if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TERMINAL_ILLNESS, $patient, $dateMinusSixMonths, $date)) {
                 return true;

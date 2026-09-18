@@ -53,7 +53,7 @@ var healthStatusObservation = {
                 code: "81323004",
                 codeSystem: "2.16.840.1.113883.6.96",
                 codeSystemName: "SNOMED CT",
-                displayName: leafLevel.inputProperty("patient_status")
+                displayName: leafLevel.nonEmptyInputProperty("patient_status")
             },
             required: true,
             toDo: "The attribute should not be constant"
@@ -134,7 +134,7 @@ var problemObservation = {
             content: [
                 [healthStatusObservation, required]
             ],
-            existsWhen: condition.keyExists("patient_status")
+            existsWhen: condition.propertyValueNotEmpty("patient_status")
         }, {
             key: "entryRelationship",
             attributes: {

@@ -1,5 +1,5 @@
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (C) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -326,38 +326,59 @@ if (typeof top.set_opener !== "function") {
 // universal alert popup message
 if (typeof alertMsg !== "function") {
     /* eslint-disable-next-line no-inner-declarations */
-    function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '') {
-        // this xl() is just so cool.
-        let gotIt = xl("Got It");
-        let title = xl("Alert");
-        let dismiss = xl("Dismiss");
+    function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '', hideDismiss = false) {
+        const gotIt   = xl("Dismiss Forever");
+        const title   = xl("Alert");
+        const dismiss = xl("Dismiss");
+
         $('#alert_box').remove();
-        let oHidden = '';
-        oHidden = !persist ? "hidden" : '';
-        let oSize = (size == 'lg') ? 'left:10%;width:80%;' : 'left:25%;width:50%;';
-        let style = "position:fixed;top:25%;" + oSize + " bottom:0;z-index:9999;";
-        $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-        let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
-            '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
-            gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
-            '<h4 class="alert-heading text-center">' + title + '!</h4><hr>' + '<p class="bg-light text-dark">' + message + '</p>' +
-            '<button type="button" id="alertDismissButton" class="pull-right btn btn-link" data-dismiss="alert">' + dismiss + '</button><br /></div>';
+
+        // hidden attribute to hide the "Dismiss Forever" button
+        const hiddenAttr = (hideDismiss || !persist) ? ' hidden' : '';
+
+        const oSize = (size === 'lg') ? 'left:10%;width:80%;' : 'left:30%;width:40%;';
+        const style = `position:fixed;top:25%;${oSize}bottom:0;z-index:9999;`;
+
+        $('body').prepend(`<div class="container text-center" id="alert_box" style="${jsAttr(style)}"></div>`);
+
+        const mHtml = `
+        <div id="alertmsg" class="alert alert-${jsAttr(type)} alert-dismissible" role="alert">
+            <h5 class="alert-heading text-center">${jsText(title)}!</h5>
+            <hr>
+            <p class="text-dark">${jsText(message)}</p>
+
+            <button type="button" class="btn btn-link" id="dontShowAgain" data-dismiss="alert"${hiddenAttr}>
+                ${jsText(gotIt)}
+            </button>
+
+            <button type="button" id="alertDismissButton" class="btn btn-link float-right"
+                data-dismiss="alert" aria-label="${jsAttr(dismiss)}">
+                ${jsText(dismiss)}
+            </button>
+        </div>`;
+
         $('#alert_box').append(mHtml);
+
         $('#alertmsg').on('closed.bs.alert', function () {
             clearTimeout(AlertMsg);
             $('#alert_box').remove();
             return false;
         });
-        $('#dontShowAgain').on('click', function (e) {
+
+        $('#dontShowAgain').on('click', function () {
             clearTimeout(AlertMsg);
             $('#alert_box').remove();
-            persistUserOption(persist, 1);
+            if (persist) {
+                persistUserOption(persist, 1);
+            }
         });
-        $('#alertDismissButton').on('click', function (e) {
+
+        $('#alertDismissButton').on('click', function () {
             clearTimeout(AlertMsg);
             $('#alert_box').remove();
         });
-        let AlertMsg = setTimeout(function () {
+
+        const AlertMsg = setTimeout(function () {
             $('#alertmsg').fadeOut(800, function () {
                 $('#alert_box').remove();
             });
@@ -518,8 +539,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
         onClosed: false,
         allowExternal: false, // allow a dialog window to a URL that is external to the current url
-        callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
-        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and close which coincide with dialog events.
+        callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
     };
 
     if (!opts) {
@@ -527,6 +547,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
     opts = jQuery.extend({}, opts_defaults, opts);
     opts.type = opts.type ? opts.type.toLowerCase() : '';
+    // this may be useful. values are init, shown, show, confirm, alert and close which coincide with dialog events.
+    // Deliberately not in opts_defaults: jQuery.extend would then always supply a value here,
+    // and ?? only falls back on null/undefined, so the 'init' default would never be applied.
     opts.resolvePromiseOn = opts.resolvePromiseOn ?? 'init';
     var mHeight, mWidth, mSize, msSize, dlgContainer, fullURL, where; // a growing list...
 

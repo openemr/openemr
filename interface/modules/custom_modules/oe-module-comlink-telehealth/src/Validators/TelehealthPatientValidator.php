@@ -4,7 +4,7 @@
  * Handles validation of patients when inserted as part of a telehealth invitation.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -24,7 +24,7 @@ class TelehealthPatientValidator extends PatientValidator
         parent::__construct();
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
         array_push($this->supportedContexts, self::TELEHEALTH_INSERT_CONTEXT);
@@ -34,10 +34,10 @@ class TelehealthPatientValidator extends PatientValidator
         // instead of optional because we cannot send a telehealth invitation without a valid email address.
         $this->validator->context(
             self::TELEHEALTH_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
+                    function ($rules): void {
                         foreach ($rules as $key => $chain) {
                             // email is required for the telehealth insert
                             if ($key == "email") {

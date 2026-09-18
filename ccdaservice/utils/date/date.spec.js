@@ -8,9 +8,6 @@ describe('fdate', () => {
     });
 
     test.each([
-        ['', today.toISOString()],
-        ['0', today.toISOString()],
-        ['0000-00-00', today.toISOString()],
         ['20230514', '2023-05-14'],
         ['20230514XXXX00', '2023-05-14'],
         ['12-21-2023', '2023-12-21'],
@@ -27,7 +24,7 @@ describe('fdate', () => {
 
     describe('lim8', () => {
         it('should format date returning the first 8 characters', () => {
-            expect(fDate('14-05-23 09:57', true)).toEqual('14-05-23');
+            expect(fDate('2025-12-31', true)).toEqual('20251231');
         });
     });
 

@@ -1,5 +1,5 @@
 #IfMissingColumn pnotes deleted
-ALTER TABLE `pnotes` 
+ALTER TABLE `pnotes`
     ADD `deleted` TINYINT DEFAULT '0' COMMENT 'flag indicates note is deleted';
 #EndIf
 
@@ -129,14 +129,14 @@ INSERT INTO list_options VALUES ('drug_interval','17','p.r.n.'   ,17,0,0);
 INSERT INTO list_options VALUES ('drug_interval','18','stat'     ,18,0,0);
 #EndIf
 
-UPDATE list_options 
-    SET option_id = '6' WHERE option_id = ' 6' and list_id = 'drug_route';    
+UPDATE list_options
+    SET option_id = '6' WHERE option_id = ' 6' and list_id = 'drug_route';
 UPDATE list_options
     SET title = 'mcg' WHERE option_id = '7' and list_id = 'drug_units';
 UPDATE list_options
     SET title = 'grams' WHERE option_id = '8' and list_id = 'drug_units';
 
-UPDATE `layout_options` 
+UPDATE `layout_options`
     SET data_type = 26 WHERE form_id = 'DEM' and field_id = 'state';
 UPDATE `layout_options`
     SET data_type = 26 WHERE form_id = 'DEM' and field_id = 'country_code';
@@ -145,11 +145,11 @@ UPDATE `layout_options`
 UPDATE `layout_options`
     SET data_type = 26, list_id = 'country', fld_length = 0, max_length = 0, edit_options = '' WHERE form_id = 'DEM' and field_id = 'em_country';
 
-ALTER TABLE `prices` 
+ALTER TABLE `prices`
     CHANGE `pr_selector` `pr_selector` VARCHAR( 255 ) NOT NULL default '' COMMENT 'template selector for drugs, empty for codes';
 
 #IfMissingColumn form_encounter provider_id
-ALTER TABLE `form_encounter` 
+ALTER TABLE `form_encounter`
   ADD `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit';
 UPDATE form_encounter AS fe, forms AS f, billing AS b, users AS u
   SET fe.provider_id = u.id WHERE
@@ -184,12 +184,12 @@ UPDATE form_encounter AS fe, forms AS f, billing AS b
 #EndIf
 
 #IfMissingColumn codes active
-ALTER TABLE `codes` 
+ALTER TABLE `codes`
   ADD `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active';
 #EndIf
 
 #IfMissingColumn drugs active
-ALTER TABLE `drugs` 
+ALTER TABLE `drugs`
   ADD `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active';
 #EndIf
 
@@ -348,7 +348,7 @@ ALTER TABLE gacl_aro_map MODIFY section_value varchar(150) NOT NULL default '0';
 ALTER TABLE gacl_aro_map MODIFY value varchar(150) NOT NULL;
 #EndIf
 
-#IfTable gacl_aro_sections 
+#IfTable gacl_aro_sections
 ALTER TABLE gacl_aro_sections MODIFY value varchar(150) NOT NULL;
 #EndIf
 

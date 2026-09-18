@@ -4,21 +4,25 @@
  * InsuranceViewCard - presentation view of a patient's insurance information in a card widget.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Patient\Cards;
 
+use InsuranceCompany;
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use InsuranceCompany;
 use OpenEMR\Services\InsuranceService;
+use Symfony\Component\HttpFoundation\Request;
 
 class InsuranceViewCard extends CardModel
 {
@@ -28,13 +32,10 @@ class InsuranceViewCard extends CardModel
 
     private const CARD_ID = 'insurance';
 
-    private $pid;
-
     private $policy_types;
 
-    public function __construct($pid, array $opts = [])
+    public function __construct(private $pid, private readonly Request $request, array $opts = [])
     {
-        $this->pid = $pid;
         $this->policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
@@ -59,8 +60,8 @@ class InsuranceViewCard extends CardModel
                 'btnLabel' => "Edit",
                 'btnLink' => "insurance_edit.php",
                 'linkMethod' => 'html',
-                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
-                'enable_eligibility_requests' => $GLOBALS['enable_eligibility_requests'],
+                'initiallyCollapsed' => $initiallyCollapsed,
+                'enable_eligibility_requests' => OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests'),
                 'auth' => $authCheck
             ]
         ];
@@ -83,11 +84,7 @@ class InsuranceViewCard extends CardModel
     private function getInsuranceTypeArray()
     {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
-        if ($GLOBALS['insurance_only_one']) {
-            $insurance_array = array('primary');
-        } else {
-            $insurance_array = array('primary', 'secondary', 'tertiary');
-        }
+        $insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
         return $insurance_array;
     }
     private function getInsuranceData()
@@ -126,7 +123,7 @@ class InsuranceViewCard extends CardModel
             $icobj = new InsuranceCompany($row['provider']);
             $adobj = $icobj->get_address();
             $row['insco'] = [
-                'name' => trim($icobj->get_name()),
+                'name' => trim((string) $icobj->get_name()),
                 'display_name' => $icobj->get_display_name(),
                 'address' => [
                     'line1' => $adobj->get_line1(),
@@ -138,11 +135,11 @@ class InsuranceViewCard extends CardModel
                 ],
             ];
             $row['policy_type'] = (!empty($row['policy_type'])) ? $policy_types[$row['policy_type']] : false;
-            $row['dispFromDate'] = $row['date'] ? true : false;
+            $row['dispFromDate'] = (bool) $row['date'];
             $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
             $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
         } else {
-            $row['dispFromDate'] = $row['date'] ? true : false;
+            $row['dispFromDate'] = (bool) $row['date'];
             $row['insco'] = [
                 'name' => xl('Self-Pay'),
                 'display_name' => xl('Self-Pay'),
@@ -166,9 +163,8 @@ class InsuranceViewCard extends CardModel
     {
         $output = '';
         $pid = $this->pid;
-        if ($GLOBALS["enable_eligibility_requests"]) {
-            if (($_POST['status_update'] ?? '') === 'true') {
-                unset($_POST['status_update']);
+        if (OEGlobalsBag::getInstance()->getBoolean("enable_eligibility_requests")) {
+            if ($this->request->request->getString('status_update') === 'true') {
                 $showEligibility = true;
                 $ok = EDI270::requestEligibleTransaction($pid);
                 if ($ok === true) {

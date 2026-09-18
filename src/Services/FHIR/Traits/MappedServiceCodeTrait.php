@@ -3,7 +3,7 @@
 /**
  * MappedServiceCodeTrait.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,6 +19,22 @@ use OpenEMR\Services\Search\TokenSearchValue;
 trait MappedServiceCodeTrait
 {
     use MappedServiceTrait;
+    use MappedServiceCategoryTrait;
+
+    public function getServiceListForCategory(TokenSearchField $field)
+    {
+        $serviceList = [];
+        foreach ($this->getMappedServices() as $service) {
+            $categoryCodes = $field->getValues();
+            foreach ($categoryCodes as $categoryCode) {
+                if ($service->supportsCategory($categoryCode->getCode())) {
+                    $serviceList[] = $service;
+                    break;
+                }
+            }
+        }
+        return $serviceList;
+    }
 
     public function getServiceListForCode(TokenSearchField $field)
     {
@@ -36,7 +52,7 @@ trait MappedServiceCodeTrait
     public function getServiceForCode(TokenSearchField $field, $defaultCode)
     {
         // shouldn't ever hit the default but we have it there just in case.
-        $values = $field->getValues() ?? [new TokenSearchValue($defaultCode)];
+        $values = $field->getValues() ?: [new TokenSearchValue($defaultCode)];
         $searchCode = $values[0]->getCode();
 
         // we only grab the first one as we assume each service only supports a single LOINC observation code
@@ -63,7 +79,7 @@ trait MappedServiceCodeTrait
     public function getServiceForCategory(TokenSearchField $category, $defaultCategory): FhirServiceBase
     {
         // let the field parse our category
-        $values = $category->getValues() ?? [new TokenSearchValue($defaultCategory)];
+        $values = $category->getValues() ?: [new TokenSearchValue($defaultCategory)];
         foreach ($values as $value) {
             // we only search the first one
             $parsedCategory = $value->getCode();

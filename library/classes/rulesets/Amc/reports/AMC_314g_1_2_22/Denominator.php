@@ -21,7 +21,7 @@
  * @package OpenEMR
  * @author  Ensoftek
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 class AMC_314g_1_2_22_Denominator implements AmcFilterIF
 {
@@ -30,11 +30,11 @@ class AMC_314g_1_2_22_Denominator implements AmcFilterIF
         return "AMC_314g_1_2_22 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Seen by the EP
         //  (basically needs an Office Visit within the report dates)
-        $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        $options = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate, $endDate, $options)) {
             return true;
         } else {

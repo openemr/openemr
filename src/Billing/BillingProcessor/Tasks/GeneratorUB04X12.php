@@ -4,7 +4,7 @@
  * This class represents the task that compiles claims into a UB04 X12 batch file
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -32,8 +32,8 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
     use WritesToBillingLog;
 
     // These two are specific to UB04
-    protected $template = array();
-    protected $ub04id = array();
+    protected $template = [];
+    protected $ub04id = [];
 
     protected $batch;
 
@@ -43,7 +43,7 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
         $log = '';
         $segs = explode(
             "~\n",
-            X125010837I::generateX12837I(
+            (string) X125010837I::generateX12837I(
                 $claim->getPid(),
                 $claim->getEncounter(),
                 $claim->getPartner(),
@@ -151,7 +151,7 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory
-        $this->logger->setLogCompleteCallback(function () {
+        $this->logger->setLogCompleteCallback(function (): void {
             // This uses our parent's method to print the JS that automatically initiates
             // the download of this file, after the screen bill_log messages have printed
             $this->printDownloadClaimFileJS($this->batch->getBatFilename());

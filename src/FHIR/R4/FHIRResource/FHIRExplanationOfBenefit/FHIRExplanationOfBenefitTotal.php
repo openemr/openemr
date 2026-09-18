@@ -155,7 +155,7 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -176,15 +176,13 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitTotal xmlns="http://hl7.org/fhir"></ExplanationOfBenefitTotal>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExplanationOfBenefitTotal xmlns="http://hl7.org/fhir"></ExplanationOfBenefitTotal>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->category)) {
             $this->category->xmlSerialize(true, $sxe->addChild('category'));

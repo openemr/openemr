@@ -76,7 +76,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     public $name = null;
 
     /**
-     * Categorization of study arm, e.g. experimental, active comparator, placebo comparater.
+     * Categorization of study arm, e.g. experimental, active comparator, placebo comparator.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $type = null;
@@ -113,7 +113,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     }
 
     /**
-     * Categorization of study arm, e.g. experimental, active comparator, placebo comparater.
+     * Categorization of study arm, e.g. experimental, active comparator, placebo comparator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getType()
@@ -122,7 +122,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     }
 
     /**
-     * Categorization of study arm, e.g. experimental, active comparator, placebo comparater.
+     * Categorization of study arm, e.g. experimental, active comparator, placebo comparator.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
@@ -184,7 +184,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -208,15 +208,13 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchStudyArm xmlns="http://hl7.org/fhir"></ResearchStudyArm>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResearchStudyArm xmlns="http://hl7.org/fhir"></ResearchStudyArm>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

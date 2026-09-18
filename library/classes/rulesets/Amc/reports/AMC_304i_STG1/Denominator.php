@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_304i_STG1_Denominator implements AmcFilterIF
@@ -29,7 +29,7 @@ class AMC_304i_STG1_Denominator implements AmcFilterIF
         return "AMC_304i_STG1 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //  (basically needs a referral within the report dates,
         //   which are already filtered for, so all the objects are a positive)

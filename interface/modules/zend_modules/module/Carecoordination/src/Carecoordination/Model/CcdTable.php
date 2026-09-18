@@ -12,17 +12,9 @@
 
 namespace Carecoordination\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use Laminas\XmlRpc\Generator;
-use DOMDocument;
-use DOMXpath;
-use Document;
-use CouchDB;
-use Documents\Model\DocumentsTable;
+use OpenEMR\Common\Database\QueryUtils;
 
-class CcdTable extends AbstractTableGateway
+class CcdTable
 {
     protected $ccd_data_array;
 
@@ -47,7 +39,7 @@ class CcdTable extends AbstractTableGateway
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['city']         = $xml['recordTarget']['patientRole']['addr']['city'];
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['state']        = $xml['recordTarget']['patientRole']['addr']['state'];
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['postal_code']  = $xml['recordTarget']['patientRole']['addr']['postalCode'];
-        $this->ccd_data_array['field_name_value_array']['patient_data'][1]['phone_home']   = preg_replace('/[^0-9]+/i', '', $xml['recordTarget']['patientRole']['telecom']['value']);
+        $this->ccd_data_array['field_name_value_array']['patient_data'][1]['phone_home']   = preg_replace('/[^0-9]+/i', '', (string) $xml['recordTarget']['patientRole']['telecom']['value']);
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['extension']    = $xml['recordTarget']['patientRole']['id']['extension'];
 
 
@@ -58,15 +50,14 @@ class CcdTable extends AbstractTableGateway
 
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status)
     {
-        $appTable   = new ApplicationTable();
-        $query = "UPDATE documents 
+        $query = "UPDATE documents
               SET audit_master_id = ?,
                   imported = ?,
-                  audit_master_approval_status=? 
+                  audit_master_approval_status=?
               WHERE id = ?";
-        $appTable->zQuery($query, array($audit_master_id,
+        QueryUtils::sqlStatementThrowException($query, [$audit_master_id,
                                     1,
                                     $audit_master_approval_status,
-                                    $document_id));
+                                    $document_id]);
     }
 }

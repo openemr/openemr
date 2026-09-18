@@ -4,7 +4,7 @@
  * This class represents the task that compiles claims into a UB04 form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -30,8 +30,8 @@ class GeneratorUB04NoForm extends AbstractGenerator implements GeneratorInterfac
     use WritesToBillingLog;
 
     // These two are specific to UB04
-    protected $template = array();
-    protected $ub04id = array();
+    protected $template = [];
+    protected $ub04id = [];
     protected $batch;
 
     public function setup(array $context)
@@ -56,7 +56,7 @@ class GeneratorUB04NoForm extends AbstractGenerator implements GeneratorInterfac
         }
     }
 
-    public function completeToFile(array $context)
+    public function completeToFile(array $context): never
     {
         ub04Dispose('download', $this->template, $this->batch->getBatFilename(), 'noform');
         exit();

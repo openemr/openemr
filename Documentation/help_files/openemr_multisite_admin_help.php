@@ -4,7 +4,7 @@
  * Multi Site Administration Help.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -38,7 +38,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <p><?php echo ("This is the central location to manage multisite intallations");?>.</p>
+                    <p><?php echo ("This is the central location to manage multisite installations");?>.</p>
 
                     <p><?php echo ("It serves three functions");?>:</p>
                         <ul>

@@ -4,7 +4,7 @@
  * labs_ajax.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,11 +13,21 @@
 require_once(__DIR__ . "/../../../interface/globals.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Storage\CacheDirectory;
+use Symfony\Component\HttpFoundation\Response;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Labs Ajax", xl("Labs"));
 }
 
 function orderDate($order)
@@ -29,8 +39,8 @@ function orderDate($order)
 $action = $_GET['action'];
 
 if ($action === 'code_detail') {
-    $code = strtoupper($_GET['code']);
-    $dos = array();
+    $code = strtoupper((string) $_GET['code']);
+    $dos = [];
 
     $query = "SELECT detail.name, ord.procedure_code AS code, detail.name AS title, detail.description, detail.notes FROM procedure_type det ";
     $query .= "LEFT JOIN procedure_type ord ON ord.procedure_type_id = detail.parent ";
@@ -63,21 +73,22 @@ if ($action === 'code_detail') {
 }
 
 if ($action === 'print_labels') {
+    $query = CurrentRequest::get()->query;
     $client = $_GET['acctid'];
-    $pid = $_GET['pid'];
+    $pid = $query->getInt('pid');
+    if ($pid <= 0) {
+        (new RequestTerminator())->error(Response::HTTP_BAD_REQUEST, 'Missing PID.');
+    }
     $order = $_GET['order'];
-    $specimen = array();
-    $specimens = explode(";", $_GET['specimen']);
-    $patient = strtoupper($_GET['patient']);
+    $specimen = [];
+    $specimens = explode(";", (string) $_GET['specimen']);
+    $patient = strtoupper((string) $_GET['patient']);
     $order_date = orderDate($order);
     $dob = $_GET['dob'];
-    $count = 1;
-    if ($_GET['count']) {
-        $count = (int)$_GET['count'];
-    }
+    $count = $query->getInt('count') ?: 1;
 
-    $pdf = new mPDF(array(
-        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+    $pdf = new mPDF([
+        'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),
         'mode' => 'utf-8',
         'format' => [45, 19],
         'default_font_size' => '9',
@@ -88,7 +99,7 @@ if ($action === 'print_labels') {
         'margin_bottom' => '0',
         'margin_header' => '0',
         'margin_footer' => '0'
-    ));
+    ]);
     $pdf->text_input_as_HTML = true;
 
     while ($count > 0) {
@@ -96,11 +107,7 @@ if ($action === 'print_labels') {
             if (empty($t)) {
                 continue;
             }
-            if ($t === 'none') {
-                $ord = $order;
-            } else {
-                $ord = $order . '-' . $t;
-            }
+            $ord = $t === 'none' ? $order : $order . '-' . $t;
 
             $pdf->AddPage();
             $barcode = '<div style="text-align: center;vertical-align: bottom;">';
@@ -121,7 +128,7 @@ if ($action === 'print_labels') {
     // send to display where user decides to print etc...
     try {
         $pdf->Output($label_file, 'I');
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         echo $e->getMessage();
     }
 }

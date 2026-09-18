@@ -288,7 +288,7 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -324,15 +324,13 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceSpecificationProperty xmlns="http://hl7.org/fhir"></SubstanceSpecificationProperty>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceSpecificationProperty xmlns="http://hl7.org/fhir"></SubstanceSpecificationProperty>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->category)) {
             $this->category->xmlSerialize(true, $sxe->addChild('category'));

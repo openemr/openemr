@@ -10,13 +10,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-// comment this out when using this script (and then uncomment it again when done using script)
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_CHART_REVIEW_PIDS')) {
+    die('Set OPENEMR_ENABLE_CHART_REVIEW_PIDS=1 environment variable to enable this script');
+}
 
 if (php_sapi_name() !== 'cli') {
     echo "Only php cli can execute command\n";
     echo "example use: php default 2022-01-01 2022-12-31 primary MCDVT\n";
     die;
+}
+
+if (!isset($argv[3])) {
+    throw new RuntimeException("This script requires at least three arguments.");
 }
 
 $_GET['site'] = $argv[1];
@@ -57,14 +63,14 @@ $encs_result = array_intersect(array_column($policies_by_payer_id, 'pid'), array
 
 // sort and remove duplicate pids from encounters
 asort($encs_result);
-$result = array();
+$result = [];
 foreach ($encs_result as $key => $value) {
     if (!in_array($value, $result)) {
         $result[$key] = $value;
     }
 }
-$output = $output ?? '';
-foreach ($result as $key => $value) {
+$output ??= '';
+foreach ($result as $value) {
     $output .= ($value ?? '') . ", ";
 }
 echo "pid list \n";

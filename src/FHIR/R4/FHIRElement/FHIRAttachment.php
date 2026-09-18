@@ -330,7 +330,7 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -369,15 +369,13 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Attachment xmlns="http://hl7.org/fhir"></Attachment>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Attachment xmlns="http://hl7.org/fhir"></Attachment>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->contentType)) {
             $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));

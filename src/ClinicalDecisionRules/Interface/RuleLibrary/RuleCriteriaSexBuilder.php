@@ -10,8 +10,8 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSex;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSexBuilder
@@ -21,11 +21,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSex;
 class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
-    function resolveRuleCriteriaType($method, $methodDetail, $value)
+    public function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "sex")) {
+        if (strpos((string) $method, "sex")) {
             return RuleCriteriaType::from(RuleCriteriaType::sex);
         }
 
@@ -36,7 +36,7 @@ class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
      * @param RuleCriteriaType $ruleCriteriaType
      * @return RuleCriteria
      */
-    function build($ruleCriteriaType, $value, $methodDetail)
+    public function build($ruleCriteriaType, $value, $methodDetail)
     {
         return new RuleCriteriaSex($value);
     }
@@ -45,7 +45,7 @@ class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
      *
      * @param RuleCriteriaType $criteriaType
      */
-    function newInstance($criteriaType)
+    public function newInstance($criteriaType)
     {
         return new RuleCriteriaSex('Male');
     }

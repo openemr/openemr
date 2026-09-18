@@ -2,7 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-require_once("IRenderEngine.php");
 
 /**
  * PHPRenderEngine is an implementation of IRenderEngine
@@ -30,7 +29,7 @@ class PHPRenderEngine implements IRenderEngine
     /**
      * stores the assigned vars
      */
-    public $model = array ();
+    public $model =  [];
 
     /**
      *
@@ -38,11 +37,11 @@ class PHPRenderEngine implements IRenderEngine
      * @param string $compilePath
      *          (not used for this render engine)
      */
-    function __construct($templatePath = '', $compilePath = '')
+    public function __construct($templatePath = '', $compilePath = '')
     {
         $this->templatePath = $templatePath;
 
-        if (substr($this->templatePath, - 1) != '/' && substr($this->templatePath, - 1) != '\\') {
+        if (!str_ends_with($this->templatePath, '/') && !str_ends_with($this->templatePath, '\\')) {
             $this->templatePath .= "/";
         }
     }
@@ -67,7 +66,7 @@ class PHPRenderEngine implements IRenderEngine
         } elseif ($template == "_error.tpl") {
             die("<h4>" . $this->model ['message'] . "</h4>" . $this->model ['stacktrace']);
         } else {
-            if ($this->verifyExtension && substr($template, - 4) != '.php') {
+            if ($this->verifyExtension && !str_ends_with($template, '.php')) {
                 $template .= ".php";
             }
 
@@ -111,7 +110,7 @@ class PHPRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clear()
      */
-    function clear($key)
+    public function clear($key)
     {
         if (array_key_exists($key, $this->model)) {
             unset($this->model [$key]);
@@ -122,16 +121,16 @@ class PHPRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clearAll()
      */
-    function clearAll()
+    public function clearAll()
     {
-        $this->model == array ();
+        $this->model ==  [];
     }
 
     /**
      *
      * @see IRenderEngine::getAll()
      */
-    function getAll()
+    public function getAll()
     {
         return $this->model;
     }

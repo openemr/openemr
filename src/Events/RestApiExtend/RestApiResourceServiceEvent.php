@@ -2,7 +2,9 @@
 
 namespace OpenEMR\Events\RestApiExtend;
 
-class RestApiResourceServiceEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class RestApiResourceServiceEvent extends Event
 {
     /**
      * Used whenever the service for a rest api resource needs to be returned for metadata or other kind of resource purposes
@@ -10,19 +12,13 @@ class RestApiResourceServiceEvent
     const EVENT_HANDLE = 'restapi.service.get';
 
     /**
-     * @var string The API resource that we need to locate a service for
+     * @param string $resource The API resource that we need to locate a service for
+     * @param string $serviceClass The original system resource for service
      */
-    private $resource;
-
-    /**
-     * @var string The original system resource for service
-     */
-    private $serviceClass;
-
-    public function __construct($resource, $serviceClass)
-    {
-        $this->resource = $resource;
-        $this->serviceClass = $serviceClass;
+    public function __construct(
+        private $resource,
+        private $serviceClass
+    ) {
     }
 
     /**

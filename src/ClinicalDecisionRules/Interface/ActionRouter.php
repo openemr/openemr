@@ -5,7 +5,7 @@
  * a controller and action (typically from OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter), it goes through
  * these steps to find out which function in that controller should be invoked:
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
  * @author    Copyright (C) 2024 Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
@@ -15,27 +15,24 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ActionRouter
 {
-    /**
-     * @var BaseController
-     */
-    protected $controller;
     protected $path;
     protected $webRoot;
     protected $appRoot;
-    protected $action;
     protected $templateRoot;
 
-    public function __construct($controller, $action)
+    /**
+     * @param \BaseController $controller
+     */
+    public function __construct(protected $controller, protected $action)
     {
-        $this->controller = $controller;
-        $this->action = $action;
         $this->appRoot = Common::base_dir();
-        $this->webRoot = $GLOBALS['webroot'];
+        $this->webRoot = OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
         $this->templateRoot = Common::template_dir();
     }
 
@@ -108,7 +105,7 @@ class ActionRouter
 
     protected function resolveViewLocation($viewName)
     {
-        $controllerName = strtolower($this->controller->getControllerName());
+        $controllerName = strtolower((string) $this->controller->getControllerName());
         $viewLocation = $this->templateRoot . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $viewName;
         if (!is_file($viewLocation)) {
             $viewLocation = $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . $viewName;

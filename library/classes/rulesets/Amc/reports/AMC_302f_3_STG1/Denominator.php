@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_302f_3_STG1_Denominator implements AmcFilterIF
@@ -29,10 +29,10 @@ class AMC_302f_3_STG1_Denominator implements AmcFilterIF
         return "AMC_302f_3_STG1 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //Number of unique patients 3 years of age or older seen by the EP during the EHR reporting period (Effective through 2013 only)
-        $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        $options = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (
             (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
              ($patient->calculateAgeOnDate($endDate) >= 3)

@@ -14,7 +14,7 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFathv_javascript()
+function LBFathv_javascript(): void
 {
     global $formid;
 
@@ -117,7 +117,7 @@ function athv_temperature_c_changed() {
 }
 ";
 
-    echo "// Temperature in farenheit has changed.
+    echo "// Temperature in Fahrenheit has changed.
 function athv_temperature_f_changed() {
  var f = document.forms[0];
  var tf = f.form_temperature_f.value;
@@ -135,7 +135,7 @@ function athv_temperature_f_changed() {
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFathv_javascript_onload()
+function LBFathv_javascript_onload(): void
 {
 
     echo "
@@ -151,7 +151,7 @@ if (f.form_height_in && f.form_height_cm) {
  f.form_height_cm.onchange = function () { athv_height_cm_changed(); };
 }
 if (f.form_temperature_f && f.form_temperature_c) {
- // Set onchange handlers to convert centigrade to farenheit and vice versa.
+ // Set onchange handlers to convert centigrade to Fahrenheit and vice versa.
  f.form_temperature_f.onchange = function () { athv_temperature_f_changed(); };
  f.form_temperature_c.onchange = function () { athv_temperature_c_changed(); };
 }

@@ -1,0 +1,170 @@
+# Propose bumps for the Docker pins nothing else watches.
+#
+# Two classes of pin in docker/ have no automated bumper today:
+#
+#   1. `ARG ALPINE_VERSION=` in docker/binary and docker/release. Dependabot's
+#      docker ecosystem parses literal `FROM alpine:3.24` lines and these
+#      Dockerfiles all write `FROM alpine:${ALPINE_VERSION}`, so the devops
+#      dependabot entries that covered them generated zero PRs (see
+#      docs/docker-migration-from-devops.md). docker/binary sat on 3.22
+#      while docker/release moved to 3.24.
+#   2. `ARG OPENEMR_VERSION=` / `ARG BINARY_RELEASE_DATE=` in docker/binary,
+#      which point at an openemr-static-binary-forge release. No dependency
+#      manager models this at all: the forge publishes one GitHub release
+#      per (platform, arch), so a bump is only safe once BOTH linux arches
+#      carry every asset the Dockerfile downloads and the matching
+#      openemr/openemr tag still has a tests/ tree.
+#
+# The manifests in .github/updatecli/ describe both. Everything that has to
+# reason about half-published forge state lives in
+# tools/release/bin/resolve-binary-forge.php, under test in
+# tests/Tests/Isolated/Release/BinaryForgeResolverTest.php, so the failure
+# modes are falsifiable without waiting for a scheduled run.
+#
+# Propose-only by design: this workflow never merges. It opens (or updates)
+# one long-lived PR per manifest for a human to review, which is the whole
+# reason a bot can be trusted with a base-image pin at all.
+#
+# On pull_request it stops after `updatecli pipeline diff`. That resolves
+# every source and prints the changes it would make without writing any —
+# enough to catch a typo'd matcher or a manifest that no longer resolves,
+# before it lands and starts failing silently on a schedule.
+
+name: Bump Docker image pins
+
+on:
+  schedule:
+  # Weekly. Forge releases land a handful of times a year, so a daily
+  # tick would just re-resolve the same pin; workflow_dispatch covers
+  # "a release just dropped and I want the PR now".
+  - cron: '17 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Resolve and print the diff without opening a PR
+        type: boolean
+        default: false
+  pull_request:
+    branches: [master]
+    paths:
+    - .github/updatecli/**
+    - .github/workflows/updatecli-docker-pins.yml
+    - docker/binary/Dockerfile
+    - docker/binary/README.md
+    - docker/release/Dockerfile
+    - tools/release/bin/resolve-binary-forge.php
+    - tools/release/src/BinaryForge*.php
+
+permissions: {}
+
+concurrency:
+  group: updatecli-docker-pins-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pins:
+    name: ${{ matrix.manifest }} (PHP ${{ matrix.php-version }})
+    if: github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      # One manifest failing to resolve says nothing about the other, and
+      # a half-run schedule would silently skip a pending bump.
+      fail-fast: false
+      matrix:
+        # Bump tooling runs only on CI runners, never on a customer
+        # deployment, so it tracks the latest stable PHP rather than the
+        # openemr application floor (same rationale as
+        # notify-release-targets-changed.yml).
+        php-version:
+        - '8.5'
+        manifest:
+        - alpine-base
+        - binary-image
+        include:
+        - manifest: alpine-base
+          title: 'chore(docker): bump Alpine base for the binary and release images'
+        - manifest: binary-image
+          title: 'chore(docker): bump binary image to the latest OpenEMR forge release'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    # The binary-image manifest shells out to a script in tools/release/,
+    # whose classes are autoload-dev. This is also why the manifests carry
+    # no `scms:` block: updatecli's github scm would resolve sources inside
+    # its own bare clone, which has no vendor/.
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    # Pinned to an exact tag because updatecli/updatecli-action publishes no
+    # floating major alias — `@v3` does not resolve, only `@v3.6.0` and its
+    # siblings. Dependabot's github-actions ecosystem keeps this current.
+    - name: Install updatecli
+      uses: updatecli/updatecli-action@v3.6.0
+
+    - name: Resolve pins
+      env:
+        # The resolver reads public releases from the forge and the tests/
+        # tree from openemr/openemr; read scope is all it needs.
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MANIFEST: ${{ matrix.manifest }}
+      run: updatecli pipeline diff --config ".github/updatecli/${MANIFEST}.yaml"
+
+    - name: Mint App token
+      id: app-token
+      if: github.event_name != 'pull_request' && github.event.inputs.dry-run != 'true'
+      uses: ./.github/actions/generate-app-token
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        # An App token rather than GITHUB_TOKEN so the resulting PR
+        # triggers CI — a bump PR whose checks never run is worse than no
+        # bump PR, because it looks reviewed.
+        permission-contents: write
+        permission-pull-requests: write
+
+    - name: Apply pins
+      if: github.event_name != 'pull_request' && github.event.inputs.dry-run != 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MANIFEST: ${{ matrix.manifest }}
+      run: updatecli pipeline apply --config ".github/updatecli/${MANIFEST}.yaml"
+
+    # Post-condition on the file updatecli just wrote. The manifest's two
+    # forge sources resolve independently, so a release finishing
+    # publication between them could in principle pair one candidate's
+    # version with another's date — a combination no resolver run ever
+    # validated. This re-reads the applied pin and refuses to open a PR
+    # unless that exact pin is fully published, which also catches a bad
+    # matcher or a hand edit rather than only the race.
+    - name: Verify the applied forge pin
+      if: matrix.manifest == 'binary-image' && github.event_name != 'pull_request' && github.event.inputs.dry-run != 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: php tools/release/bin/resolve-binary-forge.php --verify
+
+    # No-op when `apply` changed nothing, so an up-to-date pin costs a
+    # green run and no PR. When a PR is already open on this branch it is
+    # updated in place rather than duplicated.
+    - name: Open or update the bump PR
+      if: github.event_name != 'pull_request' && github.event.inputs.dry-run != 'true'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        branch: updatecli/${{ matrix.manifest }}
+        base: master
+        title: ${{ matrix.title }}
+        body-path: .github/updatecli/${{ matrix.manifest }}.pr.md
+        commit-message: ${{ matrix.title }}
+        labels: |
+          dependencies
+          docker
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        delete-branch: false

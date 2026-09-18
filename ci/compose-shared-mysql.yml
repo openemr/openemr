@@ -1,0 +1,20 @@
+services:
+  mysql:
+    command:
+    - mysqld
+    - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - mysql -uroot -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr:
+    depends_on:
+      mysql:
+        condition: service_healthy

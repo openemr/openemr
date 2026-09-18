@@ -5,10 +5,12 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    Bartosz Spyrko-Smietanko
+ * @author    Bartosz Spyrko-Smietanko
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +18,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\User;
 
+use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
@@ -24,19 +29,17 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\User\UserTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsUserAddTrait;
-use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 trait UserAddTrait
 {
     use BaseTrait;
     use LoginTrait;
 
-    private int $userAddAttemptCounter = 1;
-    private bool $passUserAddIfNotExist = false;
-
-    /**
-     * @depends testLoginAuthorized
-     */
+    #[Depends('testLoginAuthorized')]
+    #[Test]
     public function testUserAdd(): void
     {
         $this->base();
@@ -52,6 +55,11 @@ trait UserAddTrait
         $this->client->quit();
     }
 
+    /**
+     * @codeCoverageIgnore Structurally not exercised in CI coverage: testUserAdd
+     * skips early when the user already exists, so the body rarely runs on the
+     * one matrix slice that uploads coverage.
+     */
     private function userAddIfNotExist(string $username): void
     {
         // if user already exists, then skip this
@@ -69,9 +77,14 @@ trait UserAddTrait
         // add the user
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)->click();
+        // Use elementToBeClickable + direct WebDriver click instead of
+        // Panther's refreshCrawler/filterXPath/click pattern
+        $addUserBtn = $this->client->wait(30)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $addUserBtn->click();
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
@@ -82,66 +95,414 @@ trait UserAddTrait
                 WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
             )
         );
-        $this->crawler = $this->client->refreshCrawler();
-        $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
-        $newUser['rumple'] = $username;
-        $newUser['stiltskin'] = UserTestData::PASSWORD;
-        $newUser['fname'] = UserTestData::FIRSTNAME;
-        $newUser['lname'] = UserTestData::LASTNAME;
-        $newUser['adminPass'] = LoginTestData::password;
-        $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
-        // assert the new user is in the database
-        $this->assertUserInDatabase($username);
-        // since this function is run recursively in above line, ensure only do the below block once
-        if (!$this->passUserAddIfNotExist) {
-            // assert the new user can be seen in the gui
+
+        // Wait for the form's submitform() JS function to be defined
+        $this->client->wait(10)->until(fn($driver) => $driver->executeScript('return typeof submitform === "function";'));
+
+        $this->populateUserFormReliably($username);
+
+        // Use direct WebDriver click instead of Panther's crawler click,
+        // which can fail with stale DOM references
+        $createBtn = $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+        $createBtn->click();
+
+        // Switch to default content to properly detect modal state changes
+        $this->client->switchTo()->defaultContent();
+
+        // Wait for the modal iframe to disappear (dialog closes on successful user creation).
+        // The dialog calls dlgclose('reload', false) on success, which closes the modal
+        // and triggers a reload of the admin iframe.
+        //
+        // Scale the timeout with the page load timeout — coverage mode makes
+        // the AJAX round-trip (bcrypt + DB writes + instrumented PHP) much slower.
+        //
+        // The AJAX-handler-to-dlgclose chain has a documented single-shot flake
+        // mode (mirrors the acceptance-side race handled in #13391): the server
+        // succeeds and the row lands in the DB, but the JS handler race loses
+        // dlgclose() so the modal stays visible. Instead of retrying the whole
+        // test (the prior approach — a 3-retry recursive loop), let the
+        // isUserExist() DB check act as the oracle. Row present after timeout
+        // means typical flake mode — force-clean modal + reload admin iframe
+        // and continue. Row missing means real regression — hard-fail.
+        $modalTimeout = max(10, (int) ((int) (getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60) / 2));
+        if ($this->waitForModalClose($modalTimeout)) {
+            // Positive-path breadcrumb. Paired with the recovery-path
+            // breadcrumb in the else branch below — together they let
+            // us confirm the recovery mechanism is running end-to-end
+            // by grepping CI logs. Without the happy-path breadcrumb,
+            // "0 recovery-path breadcrumbs across N runs" is ambiguous:
+            // could mean "Bb never flaked" OR "the recovery logic was
+            // wired wrong and always short-circuits." Emitting on the
+            // clean path proves the wait actually completed via the
+            // expected non-catch code path.
+            fwrite(STDERR, "[e2e/Bb] Modal-close wait passed cleanly.\n");
+        } else {
+            // STDERR breadcrumb so CI logs show when the recovery path
+            // fired — lets us track the flake rate over time without
+            // needing a green-vs-red signal.
+            fwrite(
+                STDERR,
+                "[e2e/Bb] Modal-close wait timed out after Save (waited {$modalTimeout}s); "
+                . "entering recovery path (the AJAX-handler-to-dlgclose chain has a documented flake mode).\n"
+            );
+
+            // Diagnostics capture — source-side has DB access +
+            // selenium-videos artifact upload that's genuinely useful
+            // when the recovery path fires, so we keep the full capture
+            // rather than the acceptance-side's slimmer approach.
+            $diagnostics = $this->gatherModalDiagnostics($username);
+            fwrite(STDERR, "[e2e/Bb] Modal diagnostics: {$diagnostics}\n");
+
+            if (!$this->isUserExist($username)) {
+                // Row-oracle: user was NOT created. This is a real
+                // regression, not the JS-handler-race flake mode.
+                // Capture forensics then hard-fail — do NOT retry the
+                // whole test (prior 3-retry recursive loop masked real
+                // failures behind repeated attempts).
+                $this->captureForceRefreshDiagnostics($username, 'user-not-in-db');
+                throw new TimeoutException(
+                    "Modal failed to close after user creation AND user is not in database "
+                    . "(real regression, not the documented dlgclose race). Diagnostics: {$diagnostics}"
+                );
+            }
+
+            // Row-oracle: user IS in DB — typical flake mode (server
+            // succeeded, dlgclose lost the race). Force-clean the
+            // broken modal state by logging in again and navigating
+            // back to Admin > Users.
+            fwrite(STDERR, "[e2e/Bb] User exists in database despite modal not closing; force-cleaning modal DOM.\n");
+            // Capture browser console log while we still have the broken session.
+            // The console may show the AJAX response handler error that
+            // prevented dlgclose() from firing.
+            $this->captureForceRefreshDiagnostics($username, 'pre-refresh');
+            // Force close by logging in again. That is the only route back into
+            // interface/main/tabs/main.php: main_screen.php mints a fresh
+            // token_main on its login path and redirects there, and tabs/main.php
+            // discards the token after its first render (the prevent_browser_refresh
+            // default), so reloading the current URL lands on the login screen. A
+            // direct GET of main_screen.php is no better: its non-login path runs
+            // the CSRF check against POST input and lands on an error page with no
+            // menu. Either dead end strands every later step.
+            // login() requires waitForAppReady() to succeed (retrying once with a
+            // fresh session) and throws with page-state diagnostics when it does not.
+            // Wrap each step so the exception identifies which recovery step failed.
             $this->client->switchTo()->defaultContent();
+            try {
+                $this->login(LoginTestData::username, LoginTestData::password);
+                // @codeCoverageIgnoreStart
+                // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
+            } catch (WebDriverException | AssertionFailedError $e) {
+                $this->dumpForceRefreshFailure($username, 'logging in again to reload the app', $e);
+            }
+            // @codeCoverageIgnoreEnd
+            // Navigate back to Admin > Users since the login lands on the default view.
+            // WebDriverWait::until() rethrows the last NoSuchElementException after
+            // the timeout instead of a TimeoutException, and assertActiveTab()
+            // rethrows the stale-element or unexpected-response exception its retry
+            // loop gave up on, so catch the WebDriverException family as a whole,
+            // plus the AssertionFailedError assertActiveTab() throws on a wrong title.
+            try {
+                $this->goToMainMenuLink('Admin||Users');
+                $this->assertActiveTab("User / Groups");
+                // @codeCoverageIgnoreStart
+                // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
+            } catch (WebDriverException | AssertionFailedError $e) {
+                $this->dumpForceRefreshFailure($username, 'navigating back to Admin > Users', $e);
+            }
+            // @codeCoverageIgnoreEnd
+        }
+
+        // Assert the new user is in the database
+        $this->assertUserInDatabase($username);
+
+        // Wrap each post-recovery wait so the exception identifies which step failed.
+        // Without this wrapping, PHPUnit reports a single "Errors: 1" line and we can't
+        // tell whether the admin iframe never reappeared, the Add User button never
+        // came back, or the users table never listed the new row. See issue #11642.
+        // Catch NoSuchElementException as well as TimeoutException: WebDriverWait::until()
+        // rethrows the last NoSuchElementException after the timeout, so a missing
+        // element never surfaces as a TimeoutException.
+        try {
+            // Wait for the admin iframe to be ready (it reloads after dialog closes)
             $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
             $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-            // below line will throw a timeout exception and fail if the new user is not listed
-            $this->client->waitFor("//table//a[text()='$username']");
-            $this->passUserAddIfNotExist = true;
+            // @codeCoverageIgnoreStart
+            // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
+        } catch (TimeoutException | NoSuchElementException $e) {
+            $this->dumpForceRefreshFailure($username, 'waiting for admin iframe after modal close', $e);
         }
+        // @codeCoverageIgnoreEnd
+
+        try {
+            // Wait for the Add User button to be visible again (indicates the iframe has fully reloaded)
+            $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
+            // @codeCoverageIgnoreStart
+            // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
+        } catch (TimeoutException | NoSuchElementException $e) {
+            $this->dumpForceRefreshFailure($username, 'waiting for Add User button after iframe reload', $e);
+        }
+        // @codeCoverageIgnoreEnd
+
+        try {
+            // Now wait for the new user to appear in the table.
+            // This will throw a timeout exception and fail if the new user is not listed.
+            $this->client->waitFor("//table//a[text()='$username']");
+            // @codeCoverageIgnoreStart
+            // Diagnostic catch — only fires on the unhappy force-refresh recovery path.
+        } catch (TimeoutException | NoSuchElementException $e) {
+            $this->dumpForceRefreshFailure($username, 'waiting for users-table row', $e);
+        }
+        // @codeCoverageIgnoreEnd
     }
 
     private function assertUserInDatabase(string $username): void
     {
-        // assert the new user is in the database (if this fails, then will try userAddIfNotExist() up to
-        // 3 times total before failing)
+        // Poll the database for the new user (up to 10s, checking every 500ms)
+        $this->client->wait(10, 500)->until(fn() => $this->isUserExist($username));
+    }
+
+    private function populateUserFormReliably(string $username): void
+    {
+        // Wait for password field and Create User button to be ready
+        $this->client->waitFor('//input[@name="stiltskin"]');
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)
+            )
+        );
+
+        // Populate form fields using JavaScript value assignment (see
+        // clearAndType). Panther's Form API and WebDriver sendKeys() both
+        // have reliability issues under CI resource pressure.
+        $this->clearAndType('fname', UserTestData::FIRSTNAME);
+        $this->clearAndType('lname', UserTestData::LASTNAME);
+        $this->clearAndType('adminPass', LoginTestData::password);
+        $this->clearAndType('stiltskin', UserTestData::PASSWORD);
+        // Set username last to ensure earlier field handlers cannot overwrite it
+        $this->clearAndType('rumple', $username);
+
+        // Verify all form fields accepted their values. If a field was
+        // silently cleared by JavaScript, the form submission will fail
+        // server-side and the modal won't close, causing a timeout.
+        $this->client->wait(10)->until(function ($driver) use ($username) {
+            $rumple = $driver->findElement(WebDriverBy::name('rumple'));
+            $stiltskin = $driver->findElement(WebDriverBy::name('stiltskin'));
+            $fname = $driver->findElement(WebDriverBy::name('fname'));
+            $lname = $driver->findElement(WebDriverBy::name('lname'));
+            return $rumple->getAttribute('value') === $username
+                && $stiltskin->getAttribute('value') === UserTestData::PASSWORD
+                && $fname->getAttribute('value') === UserTestData::FIRSTNAME
+                && $lname->getAttribute('value') === UserTestData::LASTNAME;
+        });
+
+        $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
+    }
+
+    /**
+     * Set a form field's value using JavaScript instead of WebDriver
+     * sendKeys(). Under CI resource pressure, sendKeys() dispatches key
+     * events one-by-one and Chrome can drop keystrokes. JavaScript
+     * value assignment is atomic and reliable. Input and change events
+     * are dispatched so any listeners (e.g. password strength meter)
+     * still fire.
+     */
+    private function clearAndType(string $fieldName, string $value): void
+    {
+        $this->client->executeScript(
+            'var f = document.getElementsByName(arguments[0])[0];'
+            . 'f.value = "";'
+            . 'f.value = arguments[1];'
+            . 'f.dispatchEvent(new Event("input", {bubbles: true}));'
+            . 'f.dispatchEvent(new Event("change", {bubbles: true}));',
+            [$fieldName, $value]
+        );
+    }
+
+    /**
+     * Wait for the modal iframe to close.
+     *
+     * @param int $timeout Seconds to wait
+     * @return bool True if modal closed, false if timeout
+     */
+    private function waitForModalClose(int $timeout): bool
+    {
         try {
-            $this->innerAssertUserInDatabase($username);
-        } catch (ExpectationFailedException $e) {
-            if ($this->userAddAttemptCounter > 2) {
-                // re-throw since have failed 3 tries
-                throw $e;
-            } else {
-                // try again since not yet 3 tries
-                $this->userAddAttemptCounter++;
-                echo "\n" . "TRY " . ($this->userAddAttemptCounter) . " of 3 to add new user to database" . "\n";
-                $this->logOut();
-                $this->userAddIfNotExist($username);
-            }
+            $this->client->wait($timeout)->until(
+                WebDriverExpectedCondition::invisibilityOfElementLocated(
+                    WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
+                )
+            );
+            return true;
+        } catch (TimeoutException) {
+            return false;
         }
     }
 
-    private function innerAssertUserInDatabase(string $username): void
+    /**
+     * Gather diagnostic information when the modal fails to close.
+     *
+     * Captures:
+     * - Whether the user exists in the database
+     * - Modal iframe content (error messages, form state)
+     * - Alerts the browser-prompt muzzle swallowed inside the modal window
+     *
+     * @param string $username The username being created
+     * @return string JSON-encoded diagnostics
+     *
+     * @codeCoverageIgnore Diagnostic helper: only fires on the unhappy force-refresh path.
+     */
+    private function gatherModalDiagnostics(string $username): string
     {
-        // assert the new user is in the database (check 3 times with 5 second delay prior each check to
-        // ensure allow enough time)
-        $userExistDatabase = false;
-        $counter = 0;
-        while (!$userExistDatabase && $counter < 3) {
-            if ($counter > 0) {
-                echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new user is in database" . "\n";
+        try {
+            $userExists = $this->isUserExist($username);
+
+            // Check if modal iframe is still present
+            $modalVisible = false;
+            $iframeContent = '';
+            $muzzledPrompts = [];
+            try {
+                $iframe = $this->client->findElement(
+                    WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
+                );
+                $modalVisible = $iframe->isDisplayed();
+
+                // Switch to iframe to capture its content
+                if ($modalVisible) {
+                    $this->client->switchTo()->frame($iframe);
+                    $iframeContent = (string) $this->client->executeScript(
+                        'return document.body ? document.body.innerText.substring(0, 500) : "no body"'
+                    );
+                    // Read back the alerts the CDP muzzle (BaseTrait::muzzleBrowserPrompts)
+                    // swallowed inside the modal window. The save handler alerts on any
+                    // non-empty response body and only calls dlgclose() on an empty one,
+                    // so this shows which branch ran.
+                    $rawPrompts = $this->client->executeScript('return window.__e2eMuzzledPrompts || [];');
+                    if (is_array($rawPrompts)) {
+                        $muzzledPrompts = $rawPrompts;
+                    }
+                    $this->client->switchTo()->defaultContent();
+                }
+            } catch (\Throwable) {
+                // Modal not found or not accessible
             }
-            sleep(5);
-            if ($this->isUserExist($username)) {
-                $userExistDatabase = true;
-            }
-            $counter++;
+
+            return json_encode([
+                'userExistsInDb' => $userExists,
+                'modalVisible' => $modalVisible,
+                'iframeContentPreview' => $iframeContent,
+                'muzzledPrompts' => $muzzledPrompts,
+            ], JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            return json_encode(['error' => 'Failed to gather diagnostics: ' . $e->getMessage()]);
         }
-        $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
+    }
+
+    /**
+     * Capture browser console log, screenshot, and page source to the
+     * selenium-videos artifact directory so they're uploaded by CI on
+     * test failure. See issue #11642.
+     *
+     * @param string $username The username being created
+     * @param string $step Identifies which recovery step is being captured
+     * @return array{dir: string, prefix: string, console: ?string, screenshot: ?string, html: ?string}
+     *
+     * @codeCoverageIgnore Diagnostic helper — only fires on the unhappy force-refresh path.
+     */
+    private function captureForceRefreshDiagnostics(string $username, string $step): array
+    {
+        $dir = $this->resolveDiagnosticsDir();
+        $timestamp = (new \DateTimeImmutable())->format('Ymd-His');
+        $safeStep = preg_replace('/[^A-Za-z0-9_-]+/', '-', $step) ?? 'step';
+        $prefix = sprintf('%s/user-add-force-refresh-%s-%s-%s', $dir, $safeStep, $username, $timestamp);
+
+        $consolePath = $prefix . '.console.json';
+        $screenshotPath = $prefix . '.png';
+        $htmlPath = $prefix . '.html';
+
+        $writtenConsole = null;
+        $writtenScreenshot = null;
+        $writtenHtml = null;
+
+        try {
+            $entries = $this->client->manage()->getLog('browser');
+            $encoded = json_encode($entries, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+            if (file_put_contents($consolePath, $encoded) !== false) {
+                $writtenConsole = $consolePath;
+            }
+        } catch (WebDriverException | \JsonException $e) {
+            fwrite(STDERR, "[E2E] Failed to capture browser log: {$e->getMessage()}\n");
+        }
+
+        try {
+            $this->client->takeScreenshot($screenshotPath);
+            $writtenScreenshot = $screenshotPath;
+        } catch (WebDriverException $e) {
+            fwrite(STDERR, "[E2E] Failed to capture screenshot: {$e->getMessage()}\n");
+        }
+
+        try {
+            $source = $this->client->getPageSource();
+            if (file_put_contents($htmlPath, $source) !== false) {
+                $writtenHtml = $htmlPath;
+            }
+        } catch (WebDriverException $e) {
+            fwrite(STDERR, "[E2E] Failed to capture page source: {$e->getMessage()}\n");
+        }
+
+        fwrite(
+            STDERR,
+            "[E2E] Force-refresh diagnostics ({$step}): "
+            . "console=" . ($writtenConsole ?? 'none')
+            . " screenshot=" . ($writtenScreenshot ?? 'none')
+            . " html=" . ($writtenHtml ?? 'none') . "\n"
+        );
+
+        return [
+            'dir' => $dir,
+            'prefix' => $prefix,
+            'console' => $writtenConsole,
+            'screenshot' => $writtenScreenshot,
+            'html' => $writtenHtml,
+        ];
+    }
+
+    /**
+     * Dump diagnostics and rethrow with a step-identifying message so the
+     * CI failure log pinpoints which waitFor() actually timed out.
+     *
+     * @codeCoverageIgnore Diagnostic helper — only fires on the unhappy force-refresh path.
+     */
+    private function dumpForceRefreshFailure(string $username, string $step, \Throwable $e): never
+    {
+        $artifacts = $this->captureForceRefreshDiagnostics($username, $step);
+        // WebDriverException's constructor only accepts (message, results), so
+        // embed the original message directly rather than chaining with $previous.
+        throw new TimeoutException(
+            'force-refresh: ' . $step . ' (artifacts: ' . $artifacts['prefix'] . '.*): ' . $e->getMessage()
+        );
+    }
+
+    /**
+     * Resolve a writable directory for diagnostic artifacts. Prefer the
+     * selenium-videos directory at the repo root (uploaded by CI), then
+     * fall back to the system temp dir.
+     *
+     * @codeCoverageIgnore Diagnostic helper — only fires on the unhappy force-refresh path.
+     */
+    private function resolveDiagnosticsDir(): string
+    {
+        $repoRoot = dirname(__DIR__, 4);
+        $candidate = $repoRoot . '/selenium-videos';
+        if (is_dir($candidate) && is_writable($candidate)) {
+            return $candidate;
+        }
+        if (!is_dir($candidate) && @mkdir($candidate, 0o777, true) && is_writable($candidate)) {
+            return $candidate;
+        }
+        return sys_get_temp_dir();
     }
 }

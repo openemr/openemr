@@ -7,7 +7,7 @@ function populateProvider(provider, documentData) {
         documentData?.encounter_provider?.facility_oid ||
         '2.16.840.1.113883.19.5.99999.1';
     // The provider role is a maybe and will only be provided for physicians as a
-    // primary care role. All other team members will id via taxonomy only and if not physicians.
+    // primary care role. All other team members will id via their role only and if not physicians.
     return {
         function_code: provider.physician_type ? 'PP' : '',
         date_time: {

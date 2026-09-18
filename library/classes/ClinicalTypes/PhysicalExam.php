@@ -26,7 +26,7 @@ class PhysicalExam extends ClinicalType
         return "medical_problem"; // TODO this may not be the correct type for BMI icd9 codes
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();
@@ -48,7 +48,7 @@ class PhysicalExam extends ClinicalType
                 "AND form_vitals.pid = ? " .
                 "AND DATE( form_vitals.date ) >= ? " .
                 "AND DATE( form_vitals.date ) <= ? ";
-            $res = sqlStatement($query, array( $patient->id, $beginDate, $endDate ));
+            $res = sqlStatement($query, [ $patient->id, $beginDate, $endDate ]);
             $number = sqlNumRows($res);
             if ($number >= 1) {
                 return true;

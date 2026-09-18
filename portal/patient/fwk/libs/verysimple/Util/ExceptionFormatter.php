@@ -16,7 +16,7 @@ class ExceptionFormatter
     /**
      * This is a utility function for tracing errors.
      * It will return a string that
-     * displys the current execution stack
+     * displays the current execution stack
      *
      * @param string $msg
      *          a debugging message to include
@@ -27,7 +27,7 @@ class ExceptionFormatter
      * @param bool $show_lines
      *          true to include line numbers
      */
-    static function GetTraceAsString($msg = "DEBUG", $depth = 0, $join = " :: ", $show_lines = true)
+    public static function GetTraceAsString($msg = "DEBUG", $depth = 0, $join = " :: ", $show_lines = true)
     {
         $error = new Exception($msg);
         return self::FormatTrace($error->getTrace(), $depth, $join, $show_lines);
@@ -40,8 +40,7 @@ class ExceptionFormatter
      * or using the php debug_backtrace() function
      *
      * @access public
-     * @param
-     *          array debug_backtrace. For example: debug_backtrace() -or- $exception->getTrace()
+     * @param array $tb debug_backtrace. For example: debug_backtrace() -or- $exception->getTrace()
      * @param int $depth
      *          how far to go back in the stack (default = unlimited)
      * @param string $join
@@ -49,7 +48,7 @@ class ExceptionFormatter
      * @param bool $show_lines
      *          true to include line numbers
      */
-    static function FormatTrace($tb, $depth = 0, $join = " :: ", $show_lines = true)
+    public static function FormatTrace($tb, $depth = 0, $join = " :: ", $show_lines = true)
     {
         $msg = "";
         $delim = "";
@@ -65,10 +64,10 @@ class ExceptionFormatter
         for ($x = $levels; $x > 0; $x--) {
             $stack = $tb [$x - 1];
             $s_file = isset($stack ['file']) ? basename($stack ['file']) : "[?]";
-            $s_line = isset($stack ['line']) ? $stack ['line'] : "[?]";
-            $s_function = isset($stack ['function']) ? $stack ['function'] : "";
-            $s_class = isset($stack ['class']) ? $stack ['class'] : "";
-            $s_type = isset($stack ['type']) ? $stack ['type'] : "";
+            $s_line = $stack ['line'] ?? "[?]";
+            $s_function = $stack ['function'] ?? "";
+            $s_class = $stack ['class'] ?? "";
+            $s_type = $stack ['type'] ?? "";
 
             if ($depth >= $x) {
                 $msg .= $delim . "$calling_function" . ($show_lines ? " ($s_file Line $s_line)" : "");

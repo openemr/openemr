@@ -93,7 +93,7 @@ var CCDA = {
 		},
 		{"name": "Social History",
 			"templateIds": ["2.16.840.1.113883.10.20.22.2.17"]
-		}		
+		}
     ]
     */
 };

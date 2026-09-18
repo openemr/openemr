@@ -124,7 +124,7 @@ class FHIRQuestionnaireResponseStatus extends FHIRElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -138,15 +138,13 @@ class FHIRQuestionnaireResponseStatus extends FHIRElement implements \JsonSerial
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<QuestionnaireResponseStatus xmlns="http://hl7.org/fhir"></QuestionnaireResponseStatus>');
-        }
+        $sxe ??= new \SimpleXMLElement('<QuestionnaireResponseStatus xmlns="http://hl7.org/fhir"></QuestionnaireResponseStatus>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

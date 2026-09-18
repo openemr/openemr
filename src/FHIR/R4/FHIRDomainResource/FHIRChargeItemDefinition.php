@@ -825,7 +825,7 @@ class FHIRChargeItemDefinition extends FHIRDomainResource implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -940,15 +940,13 @@ class FHIRChargeItemDefinition extends FHIRDomainResource implements \JsonSerial
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ChargeItemDefinition xmlns="http://hl7.org/fhir"></ChargeItemDefinition>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ChargeItemDefinition xmlns="http://hl7.org/fhir"></ChargeItemDefinition>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

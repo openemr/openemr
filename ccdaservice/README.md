@@ -15,23 +15,23 @@ Whenever there are new versions or updates, be sure to navigate into the ccdaser
 - `npm i --omit=dev`
 - `npm ci --omit=dev`
 
-To ensure the lastest libraries are installed, node version changes or the package lock file is for a different build version then it is necessary to run `node install` to update dependencies to locked versions. Next, ensure the installation is renewed by running `node ci` (clean install) will ensure package dependencies are in sync and the node_modules directory is deleted and rebuilt.
+To ensure the latest libraries are installed, node version changes or the package lock file is for a different build version then it is necessary to run `node install` to update dependencies to locked versions. Next, ensure the installation is renewed by running `node ci` (clean install) will ensure package dependencies are in sync and the node_modules directory is deleted and rebuilt.
 
 
 ## Ubuntu Setup
-* Latest version tested is node v20.10.0
+* Latest version tested is node v24.1.0
 
 If node is not already installed then do the following(Research the required installation for your environment):
 - `cd ~`
 - `apt-get remove --purge nodejs npm` // Ensures clean install and will allow chance to clean up.
-- `curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -`
+- `curl -sL https://deb.nodesource.com/setup_24.x | sudo -E bash -`
 - `sudo apt-get install -y nodejs`
 
 Navigate to: openemr/ccdaservice and run the following to install requires dependencies.
 - `sudo npm install --omit=dev`
 ## Windows Setup
 * Download and install nodejs for your Windows version.
-  - Latest version tested is node v20.10.0
+  - Latest version tested is node v24.1.0
 * Ensure system variable NODE_PATH is set i.e. `%USERPROFILE%\AppData\Roaming\npm\node_modules`.
 
 Navigate to: openemr/ccdaservice and run the following from an elevated PowerShell or CMD.exe (run as Administrator):
@@ -42,7 +42,7 @@ Navigate to: openemr/ccdaservice and run the following from an elevated PowerShe
 * This service will automatically start on demand when required by OpenEMR.
 ### Developing
 * Note that these scripts run in strict mode so javascript will hold you very much accountable with how objects and variables are handled.
-* For now, node modules are run local to service directory so all support dependecies are installed there.
+* For now, node modules are run local to service directory so all support dependencies are installed there.
 ### Tools
 * The nodejs ccda service now starts on demand.
 #### License

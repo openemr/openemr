@@ -65,7 +65,7 @@ namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 
 /**
- * A reference to a document of any kind for any purpose. Provides metadata about the document so that the document can be discovered and managed. The scope of a document is any seralized object with a mime-type, so includes formal patient centric documents (CDA), cliical notes, scanned paper, and non-patient specific documents like policy text.
+ * A reference to a document of any kind for any purpose. Provides metadata about the document so that the document can be discovered and managed. The scope of a document is any serialized object with a mime-type, so includes formal patient centric documents (CDA), clinical notes, scanned paper, and non-patient specific documents like policy text.
  * If the element is present, it must have either a @value, an @id, or extensions
  */
 class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializable
@@ -598,7 +598,7 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -680,15 +680,13 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DocumentReference xmlns="http://hl7.org/fhir"></DocumentReference>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DocumentReference xmlns="http://hl7.org/fhir"></DocumentReference>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->masterIdentifier)) {
             $this->masterIdentifier->xmlSerialize(true, $sxe->addChild('masterIdentifier'));

@@ -22,7 +22,7 @@
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once("../../interface/globals.php");
@@ -35,10 +35,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-$db = isset($_GET['db']) ? $_GET['db'] : '0';
+$db = $_GET['db'] ?? '0';
 
 // Ordering by the imported_date with tiebreaker being the revision_date
-$rez = sqlStatement("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", array($db));
+$rez = sqlStatement("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", [$db]);
 for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
     $sqlReturn[$iter] = $row;
 }

@@ -184,7 +184,7 @@ class FHIRSubstanceInstance extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -208,15 +208,13 @@ class FHIRSubstanceInstance extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceInstance xmlns="http://hl7.org/fhir"></SubstanceInstance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceInstance xmlns="http://hl7.org/fhir"></SubstanceInstance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {
             $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));

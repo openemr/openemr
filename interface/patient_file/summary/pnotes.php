@@ -4,16 +4,17 @@
  * Display patient notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -26,14 +27,15 @@ $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
 $patient_id = $pid;
 if ($docid) {
-    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
+    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docid]);
     $patient_id = intval($row['foreign_id']);
 } elseif ($orderid) {
-    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
+    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", [$orderid]);
     $patient_id = intval($row['patient_id']);
 }
 
  $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
+$tmore = '';
 ?>
 <html>
 <head>
@@ -59,7 +61,7 @@ if (!$thisauth) {
 
 <div id='pnotes'>
 
-<?php if (AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) : ?>
+<?php if (AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) : ?>
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 
 <span class="title"><?php echo xlt('Notes'); ?>
@@ -147,10 +149,10 @@ if ($result != null) {
         }
 
         $body = $iter['body'];
-        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
             $body = nl2br(text($body));
         } else {
-            $body = text(date('Y-m-d H:i', strtotime($iter['date']))) .
+            $body = text(date('Y-m-d H:i', strtotime((string) $iter['date']))) .
             ' (' . text($iter['user']) . ') ' . nl2br(text($body));
         }
 
@@ -158,7 +160,7 @@ if ($result != null) {
 
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo "  <td valign='top' class='bold'>";
-        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+        echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
         echo "</td>\n";
 
         echo "  <td valign='top'>$body</td>\n";

@@ -7,6 +7,7 @@ use Laminas\Code\Generator\DocBlock\Tag\PropertyTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
+use OpenEMR\Common\Utils\XmlUtils;
 
 class Generator
 {
@@ -49,9 +50,13 @@ class Generator
         $datatypes = [];
         $extends = [];
         $hqmfOid_to_datatype_map = [];
-        $oids_file = __DIR__ . '/oids_qdm_5.5.json';
-        $modelinfo_file = __DIR__ . '/qdm-modelinfo-5.5.xml';
-        $modelinfo = simplexml_load_string(file_get_contents($modelinfo_file));
+        $oids_file = __DIR__ . '/oids_qdm_5.6.json';
+        $modelinfo_file = __DIR__ . '/qdm-modelinfo-5.6.xml';
+        $modelinfoContents = file_get_contents($modelinfo_file);
+        if ($modelinfoContents === false) {
+            throw new \RuntimeException(sprintf('Failed to read model info file: %s', $modelinfo_file));
+        }
+        $modelinfo = XmlUtils::loadString($modelinfoContents);
         $oids = json_decode(file_get_contents($oids_file), true);
 
         // Grab QDM version as defined in the modelinfo file
@@ -79,9 +84,9 @@ class Generator
                 $attribute_name = (string)$attribute->attributes()->name;
 
                 // Grab the type of this QDM datatype attribute
-                $attribute_type = (string)$attribute->attributes()->type ? (string)$attribute->attributes()->type : 'System.Any';
+                $attribute_type = (string)$attribute->attributes()->type ?: 'System.Any';
 
-                if (empty($attribute_name) || empty($attribute_type)) {
+                if (empty($attribute_name)) {
                     continue;
                 }
 
@@ -242,7 +247,7 @@ class Generator
             }
 
             if ($datatype == 'QDMBaseType') {
-                $class->setExtendedClass('\\OpenEMR\\Cqm\\Qdm\\BaseTypes\\DataElement');
+                $class->setExtendedClass(\OpenEMR\Cqm\Qdm\BaseTypes\DataElement::class);
             }
 
             $file = FileGenerator::fromArray([
@@ -264,6 +269,6 @@ class Generator
 
     public function underscore($input)
     {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
+        return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $input));
     }
 }

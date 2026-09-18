@@ -282,4 +282,3 @@ function maskblur(elem, mask) {
   elem.value = v;
  }
 }
-

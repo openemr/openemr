@@ -1,20 +1,35 @@
 # Use admin/pass as user/password credentials to login to openemr (from OE_USER and OE_PASS below)
 # MYSQL_HOST and MYSQL_ROOT_PASS are required for openemr
-# MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
+# MYSQL_USER, MYSQL_PASS, OE_USER, OE_PASS are optional for openemr and
 #   if not provided, then default to openemr, openemr, admin, and pass respectively.
-version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:11.4
-    command: ['mariadbd','--character-set-server=utf8mb4']
+    image: mariadb:12.3.3@sha256:805c8e104bd563d5bfa24fadd3f31cd419ea859cb5277f32b5dbf2db714f9ed1
+    command: ['mariadbd', '--character-set-server=utf8mb4']
     volumes:
     - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
+      # Auto-run mariadb-upgrade when the container starts against a
+      # data directory left by an older MariaDB version. No-op when
+      # the datadir's version marker matches the running server.
+      MARIADB_AUTO_UPGRADE: '1'
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:7.0.3
+    image: openemr/openemr:latest@sha256:a8e4386f6d9a44f17add20c20e6dbc53c7092e855500ae62eac3cd5e47c45daa
     ports:
     - 80:80
     - 443:443
@@ -29,7 +44,23 @@ services:
       OE_USER: admin
       OE_PASS: pass
     depends_on:
-    - mysql
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/meta/health/readyz
+      start_period: 3m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
 volumes:
   logvolume01: {}
   sitevolume: {}

@@ -3,11 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("ICache.php");
-
-/**
  * CacheRam is an implementation of a Cache that persists to ram for the current page load only
  *
  * @package verysimple::Phreeze
@@ -18,10 +13,10 @@ require_once("ICache.php");
  */
 class CacheRam implements ICache
 {
-    private $ram = array ();
+    private $ram =  [];
     public function Get($key, $flags = null)
     {
-        return isset($this->ram [$key]) ? $this->ram [$key] : null;
+        return $this->ram [$key] ?? null;
     }
     public function GetKeys()
     {
@@ -30,6 +25,7 @@ class CacheRam implements ICache
     public function Set($key, $val, $flags = null, $timeout = 0)
     {
         $this->ram [$key] = $val;
+        return $val;
     }
     public function Delete($key)
     {

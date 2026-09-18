@@ -10,18 +10,18 @@ namespace OpenEMR\Common\Compatibility;
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @copyright Copyright (c) 2017 Matthew Vita
  */
 class Checker
 {
-    private static $minimumPhpVersion = "8.1.0";
+    private static string $minimumPhpVersion = "8.3.0";
 
     /**
      * Checks to see if minimum PHP version is met.
      *
-     * @return bool | warning string
+     * @return true|string True when supported, otherwise the warning message.
      */
     public static function checkPhpVersion()
     {

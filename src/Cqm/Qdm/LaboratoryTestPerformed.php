@@ -7,7 +7,7 @@ namespace OpenEMR\Cqm\Qdm;
  *
  * This is a class generated with Laminas\Code\Generator.
  *
- * @QDM Version 5.5
+ * @QDM Version 5.6
  * @author Ken Chapple <ken@mi-squared.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
@@ -60,6 +60,11 @@ class LaboratoryTestPerformed extends QDMBaseType
     public $referenceRange = null;
 
     /**
+     * @property BaseTypes\Code $interpretation
+     */
+    public $interpretation = null;
+
+    /**
      * @property BaseTypes\Code $negationRationale
      */
     public $negationRationale = null;
@@ -68,13 +73,20 @@ class LaboratoryTestPerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**
      * @property BaseTypes\Any $performer
      */
     public $performer = null;
+
+    /**
+     * @property array $relatedTo
+     */
+    public $relatedTo = [
+
+    ];
 
     /**
      * @property string $qdmTitle
@@ -103,4 +115,3 @@ class LaboratoryTestPerformed extends QDMBaseType
 
     public $_type = 'QDM::LaboratoryTestPerformed';
 }
-

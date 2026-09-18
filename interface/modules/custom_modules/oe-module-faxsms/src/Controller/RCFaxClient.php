@@ -4,7 +4,7 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -12,16 +12,25 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
+use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
+use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
-use RingCentral\SDK\SDK;
 
-class RCFaxClient extends AppDispatch
+class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface, FaxDocumentDisposalInterface
 {
-    public $baseDir;
+    use AuthenticateTrait;
+    use FaxDocumentDisposalTrait;
+
+    public string $baseDir = '';
     public $uriDir;
     public $serverUrl;
     public $redirectUrl;
@@ -32,135 +41,27 @@ class RCFaxClient extends AppDispatch
     public $apiService;
     protected $platform;
     protected $rcsdk;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
+    private readonly FaxUploadStaging $uploadStaging;
+
+    private const AUTH_RATE_LIMIT = 5; // Max attempts per minute
 
     public function __construct()
     {
-        $this->crypto = new CryptoGen();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
-        $this->cacheDir = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/_cache';
+        $this->crypto = ServiceContainer::getCrypto();
+        $this->uploadStaging = FaxUploadStaging::create();
+        $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+        $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
+        $this->cacheDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/_cache';
         $this->credentials = $this->getCredentials();
-        $this->portalUrl = $this->credentials['production'] ?? null ? "https://service.ringcentral.com/" : "https://service.devtest.ringcentral.com/";
-        $this->serverUrl = $this->credentials['production'] ?? null ? "https://platform.ringcentral.com" : "https://platform.devtest.ringcentral.com";
+        // RingCentral retired the developer sandbox (platform.devtest.ringcentral.com)
+        // at the end of 2024; only production remains. Hardcode it so the dead
+        // sandbox host can never be selected again.
+        $this->portalUrl = "https://service.ringcentral.com/";
+        $this->serverUrl = "https://platform.ringcentral.com";
         $this->redirectUrl = $this->credentials['redirect_url'] ?? null;
         $this->initializeSDK();
         parent::__construct();
-    }
-
-    /**
-     * @return int|string
-     */
-    public function authenticateRingCentral(): int|string
-    {
-        try {
-            $authBack = $this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json';
-            $cachedAuth = $this->getCachedAuth($authBack);
-            if (!empty($cachedAuth['refresh_token'])) {
-                $this->platform->auth()->setData($cachedAuth);
-            }
-
-            if ($this->platform->loggedIn()) {
-                return $this->refreshToken();
-            } else {
-                return $this->loginWithJWT();
-            }
-        } catch (Exception $e) {
-            return text($e->getMessage());
-        }
-    }
-
-    /**
-     * @param string $authBack
-     * @return array
-     */
-    private function getCachedAuth(string $authBack): array
-    {
-        if (file_exists($authBack)) {
-            $cachedAuth = file_get_contents($authBack);
-            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth), true);
-            unlink($authBack);
-// Remove cached file after reading
-            return $cachedAuth;
-        }
-        return [];
-    }
-
-    /**
-     * @return int|string
-     */
-    private function refreshToken(): int|string
-    {
-        try {
-            $this->platform->refresh();
-        } catch (Exception $e) {
-            return $this->loginWithJWT();
-        }
-        $this->setSession('sessionAccessToken', $this->platform->auth()->data());
-        $this->cacheAuthData($this->platform);
-        return 1;
-    }
-
-    /**
-     * @return int|string
-     */
-    private function loginWithJWT(): int|string
-    {
-        $jwt = trim($this->credentials['jwt'] ?? '');
-        try {
-            $this->platform->login(['jwt' => $jwt]);
-            if ($this->platform->loggedIn()) {
-                $this->setSession('sessionAccessToken', $this->platform->auth()->data());
-                $this->cacheAuthData($this->platform);
-                return 1;
-            }
-        } catch (ApiException $e) {
-            return "API Error: " . text($e->getMessage()) . " - " . text($e->getCode());
-        } catch (Exception $e) {
-            return "Error: " . text($e->getMessage());
-        }
-        return "Login with JWT failed.";
-    }
-
-    /**
-     * @param $platform
-     * @return void
-     */
-    private function cacheAuthData($platform): void
-    {
-        $data = $platform->auth()->data();
-        $encryptedData = $this->crypto->encryptStandard(json_encode($data));
-        file_put_contents($this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json', $encryptedData);
-    }
-
-    /**
-     * @return void
-     * @throws Exception
-     */
-    private function initializeSDK(): void
-    {
-        if (isset($this->credentials['appKey'], $this->credentials['appSecret'])) {
-            $this->rcsdk = new SDK($this->credentials['appKey'], $this->credentials['appSecret'], $this->serverUrl, 'OpenEMR', '1.0.0');
-            $this->platform = $this->rcsdk->platform();
-        } else {
-            throw new Exception("App Key and App Secret are required to initialize SDK.");
-        }
-    }
-
-    /**
-     * @param string[] $acl
-     * @return int
-     */
-    public function authenticate($acl = ['admin', 'doc']): bool|int|string
-    {
-        if (empty($this->credentials['appKey'])) {
-            $this->credentials = $this->getCredentials();
-            if (empty($this->credentials['appKey'])) {
-                return 'Missing or Invalid RingCentral Credentials. Please contact your administrator.';
-                // No credentials set
-            }
-        }
-        return $this->authenticateRingCentral();
     }
 
     /**
@@ -170,26 +71,10 @@ class RCFaxClient extends AppDispatch
      */
     public function faxProcessUploads(): string
     {
-        if (empty($_FILES['fax']) || $_FILES['fax']['error'] !== UPLOAD_ERR_OK) {
-            error_log('Error: No file uploaded or upload error.');
-            return '';
-        }
-
-        $name = basename($_FILES['fax']['name']);
-        $tmpName = $_FILES['fax']['tmp_name'];
-        $targetDir = $this->baseDir . '/send';
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
-            error_log('Error: Failed to create directory.');
-            return '';
-        }
-
-        $filepath = $targetDir . "/" . $name;
-        if (!move_uploaded_file($tmpName, $filepath)) {
-            error_log('Error: Failed to move uploaded file.');
-            return '';
-        }
-
-        return $filepath;
+        $upload = $_FILES['fax'] ?? null;
+        return is_array($upload)
+            ? $this->uploadStaging->processUpload($this->baseDir, $upload)
+            : '';
     }
 
     /**
@@ -208,10 +93,10 @@ class RCFaxClient extends AppDispatch
         }
         $toPhone = $toPhone ?: $this->getRequest('phone');
         $from = $from ?: $this->getRequest('from');
+        $from = $from ?: (is_array($this->credentials) ? ($this->credentials['smsNumber'] ?? '') : '');
         $message = $message ?: $this->getRequest('comments');
 
-        $smsNumber = $this->formatPhone($this->credentials['smsNumber']);
-        $from = $this->formatPhone($from);
+        $smsNumber = $this->formatPhone($from);
         $toPhone = $this->formatPhone($toPhone);
         if ($smsNumber) {
             try {
@@ -220,8 +105,7 @@ class RCFaxClient extends AppDispatch
                     'to' => [['phoneNumber' => $toPhone]],
                     'text' => $message,
                 ]);
-                sleep(1.25);
-                // RC may only allow 1/second.
+                sleep(1); // Sleep to avoid rate limit 10 per minute
                 return true;
             } catch (ApiException $e) {
                 return text("API Error: " . $e->getMessage() . " - " . $e->getCode());
@@ -229,6 +113,32 @@ class RCFaxClient extends AppDispatch
         }
 
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function fetchTextMessage(): string
+    {
+        $id = $_REQUEST['id'] ?? null;
+        $uri = $_REQUEST['uri'] ?? null;
+
+        if (empty($id) || empty($uri)) {
+            return "Missing id or uri parameters.";
+        }
+
+        $authResult = $this->authenticateRingCentral();
+        if ($authResult !== 1) {
+            return $authResult;
+        }
+
+        try {
+            $response = $this->platform->get($uri);
+            return js_escape((string)$response->text());
+        } catch (\Throwable $e) {
+            $responseMsg = "<tr><td>" . text($e->getMessage()) . "</td></tr>";
+            return json_encode(['error' => $responseMsg]);
+        }
     }
 
     /**
@@ -244,6 +154,7 @@ class RCFaxClient extends AppDispatch
 
     /**
      * API Endpoint for sending
+     *
      * @return string
      */
     public function forwardFax(): string
@@ -257,9 +168,9 @@ class RCFaxClient extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? null);
         $user = $this::getLoggedInUser();
-        $facility = substr($user['facility'], 0, 20);
+        $facility = substr((string)$user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
         $tag = xlt("Forwarded");
         $statusMsg = xlt("Forwarding Requests") . "<br />";
@@ -276,38 +187,48 @@ class RCFaxClient extends AppDispatch
             // Fetch the fax content
             $contentUri = $messageDetails->attachments[0]->uri;
             $apiResponse = $this->platform->get($contentUri);
-            $contentType = $apiResponse->response()->getHeader('Content-Type')[0];
+            $contentType = (string)($apiResponse->response()->getHeader('Content-Type')[0] ?? '');
             $rawData = (string)$apiResponse->raw();
 
-            $ext = $this->getExtensionFromContentType($contentType);
-            $type = $this->getTypeFromContentType($contentType);
-            $filePath = $this->baseDir . "/send/" . ($jobId . $ext);
-
-            if (!file_exists($this->baseDir . '/send')) {
-                mkdir($this->baseDir . '/send', 0777, true);
+            $stagedPath = $this->uploadStaging->stageInternalPayload(
+                $this->baseDir,
+                $rawData,
+                (string)$jobId,
+                $contentType
+            );
+            if ($stagedPath === '') {
+                return js_escape('Error: ' . xlt('Failed to stage fax payload for forwarding'));
             }
-            file_put_contents($filePath, $rawData);
 
-            if ($hasEmail && $smtpEnabled) {
-                $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filePath, $user) . "<br />";
-            }
-            if ($faxNumber) {
-                try {
-                    $this->sendFax(
-                        $faxNumber,
-                        $filePath,
-                        $user['username'],
-                        $jobId,
-                        $contentType
-                    );
-                    $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-                } catch (Exception $e) {
-                    return js_escape('Error: ' . text($e->getMessage()));
+            $plainPath = null;
+            try {
+                $plainPath = $this->uploadStaging->decryptStagedToTemp($stagedPath);
+                if ($plainPath === null) {
+                    return js_escape('Error: ' . xlt('Failed to prepare fax payload for forwarding'));
                 }
+
+                if ($hasEmail && $smtpEnabled && is_string($email)) {
+                    $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $plainPath, $user) . "<br />";
+                }
+                if ($faxNumber) {
+                    try {
+                        $this->sendFax(
+                            $faxNumber,
+                            $plainPath,
+                            $user['username'],
+                            $jobId,
+                            $contentType
+                        );
+                        $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
+                    } catch (\Throwable $e) {
+                        return js_escape('Error: ' . text($e->getMessage()));
+                    }
+                }
+            } finally {
+                $this->uploadStaging->removeStagedArtifacts($stagedPath, $plainPath);
             }
-            unlink($filePath);
             return js_escape($statusMsg);
-        } catch (ApiException | Exception $e) {
+        } catch (ApiException|\Throwable $e) {
             return js_escape('Error: ' . text($e->getMessage()));
         }
     }
@@ -335,66 +256,128 @@ class RCFaxClient extends AppDispatch
         $isDocuments = (int)$this->getRequest('isDocuments', 0); //from patient documents
         $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone', $phone));
-        $comments = trim($this->getRequest('comments', $comments));
+        $comments = trim((string)$this->getRequest('comments', $comments));
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? null);
         $user = $this::getLoggedInUser();
         $name = $this->getRequest('name', $name) . ' ' . $this->getRequest('surname', '');
-        $fileName = $fileName ?? pathinfo($file, PATHINFO_BASENAME);
-        // validate/format file path
+        $fileName ??= pathinfo((string)$file, PATHINFO_BASENAME);
+
+        $allowedTempDir = realpath($this->baseDir . '/send/');
+        // Validate file path to prevent path traversal
         if (is_file($file)) {
-            if (str_starts_with($file, 'file://')) {
-                $file = substr($file, 7);
+            if (str_starts_with((string)$file, 'file://')) {
+                $file = substr((string)$file, 7);
             }
             $realPath = realpath($file);
             if ($realPath !== false) {
+                $allowedRoot = $allowedTempDir !== false
+                    ? rtrim($allowedTempDir, DIRECTORY_SEPARATOR)
+                    : false;
+                // Require an exact match or a true child path; a bare prefix
+                // check would let a sibling like ".../send_evil" slip through.
+                $withinAllowed = $allowedRoot !== false
+                    && ($realPath === $allowedRoot
+                        || str_starts_with($realPath, $allowedRoot . DIRECTORY_SEPARATOR));
+                if (!$withinAllowed) {
+                    error_log("Path traversal blocked: " . $realPath);
+                    return xlt('Error: Invalid file location');
+                }
                 $file = str_replace("\\", "/", $realPath);
             } else {
-                return xlt('Error: No content');
+                return xlt('Error: No Fax content');
             }
         }
-        // Check if the content is from patient report
-        if ($isContent) {
-            $content = $file;
-            $file = 'report-' . attr($GLOBALS['pid']) . '.pdf';
-        } else {
-            // Is it from patient documents
-            if ($isDocuments) {
-                $content = (new Document($docId))->get_data();
-            } else {
-                // Get the content of the file or the file path
-                $content = (is_file($file) && empty($content)) ? file_get_contents($file) : $file;
-            }
-            if (empty($content)) {
-                return xlt('Error: No content to send.');
-            }
-        }
-
-        // Decrypt content if needed
-        if ($this->crypto->cryptCheckStandard($content)) {
-            $content = $this->crypto->decryptStandard($content, null, 'database');
-        }
-
-        // Email the document if email is provided and SMTP is enabled.
-        // TODO: need check to ensure not from forward fax
-        $error = false;
-        if ($hasEmail && $smtpEnabled) {
-            try {
-                self::emailDocument($email, $comments, $file, $user);
-                $error = false;
-            } catch (\PHPMailer\PHPMailer\Exception $e) {
-                $error = true;
-            }
-        }
-        // Request to send the fax
+        // Decrypt a staged upload to a per-request plaintext tempnam and
+        // continue with that as $file. Pattern guard scopes the cleanup
+        // below to files this controller staged via FaxUploadStaging,
+        // leaving caller-managed temp files alone (e.g. forwardFax).
+        $stagedPath = null;
+        $plainStagePath = null;
+        $emailPath = null;
         try {
-            $this->sendFaxRequest($phone, $content, $fileName, $comments, $name);
-            // debug error log
-            error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
-            return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
-        } catch (Exception $e) {
-            return 'Error: ' . text(js_escape($e->getMessage()));
+            if (
+                empty($isContent)
+                && !$isDocuments
+                && is_string($file)
+                && is_file($file)
+                && $this->uploadStaging->isStagedUploadPath($file)
+            ) {
+                $plainStagePath = $this->uploadStaging->decryptStagedToTemp($file);
+                if ($plainStagePath === null) {
+                    return xlt('Error: No content to send.');
+                }
+                $stagedPath = $file;
+                $file = $plainStagePath;
+                // Name the attachment from the staged file (which carries the
+                // real .pdf/.tiff extension), not the decrypt tempnam, whose
+                // Windows ".tmp" suffix makes RingCentral reject the attachment.
+                $fileName = pathinfo($stagedPath, PATHINFO_BASENAME);
+            }
+
+            // Build $content (plaintext bytes for the vendor).
+            if ($isContent) {
+                $content = $file;
+                $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
+            } else {
+                if ($isDocuments) {
+                    // Enforce patients/docs ACL and patient ownership before
+                    // reading a request-supplied document id (see A3).
+                    $content = $this->readAuthorizedFaxDocument(is_scalar($docId) ? (int) $docId : 0);
+                } elseif (is_file($file)) {
+                    $content = file_get_contents($file);
+                    if ($content === false) {
+                        return xlt('Error: No content to send.');
+                    }
+                } else {
+                    $content = $file;
+                }
+                if (empty($content)) {
+                    return xlt('Error: No content to send.');
+                }
+            }
+
+            // Defensive decrypt: a no-op on plaintext via cryptCheckStandard,
+            // covers any caller that supplied already-ciphertext content.
+            $content = $this->crypto->decryptFromFilesystem($content);
+
+            // Email: hand the payload to FaxMailer. When we have a real
+            // plaintext path (the staged-upload branch), it's emailed as
+            // is; for the isContent / isDocuments branches we pass the
+            // decrypted bytes and FaxMailer writes a per-request scratch
+            // file, returning that path for finally cleanup.
+            $error = false;
+            if ($hasEmail && $smtpEnabled) {
+                try {
+                    $payloadIsContent = !(is_string($file) && is_file($file));
+                    $emailPath = FaxMailer::mailUploadedDocument(
+                        $email,
+                        $comments,
+                        $payloadIsContent ? $content : $file,
+                        $user,
+                        $payloadIsContent,
+                    );
+                } catch (\PHPMailer\PHPMailer\Exception) {
+                    $error = true;
+                }
+            }
+
+            // Request to send the fax
+            try {
+                $this->sendFaxRequest($phone, $content, $fileName, $comments, $name);
+                // debug error log
+                error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
+                return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
+            } catch (\Throwable $e) {
+                return 'Error: ' . text(js_escape($e->getMessage()));
+            }
+        } finally {
+            $this->uploadStaging->removeStagedArtifacts(
+                $stagedPath,
+                $plainStagePath,
+                $emailPath
+            );
         }
     }
 
@@ -421,6 +404,21 @@ class RCFaxClient extends AppDispatch
             if (empty($type)) {
                 $type = mime_content_type($content);
             }
+            // RingCentral 400s when an attachment's filename extension does not
+            // match its Content-Type. Tempnam-derived names (e.g. a Windows
+            // "....tmp") and content-mode names can drift, so force the
+            // extension to match the resolved type before sending.
+            $extByType = [
+                'application/pdf' => 'pdf',
+                'image/tiff' => 'tiff', 'image/tif' => 'tiff',
+                'image/jpeg' => 'jpg', 'image/jpg' => 'jpg',
+                'image/png' => 'png', 'text/plain' => 'txt',
+            ];
+            $wantExt = $extByType[strtolower((string)$type)] ?? null;
+            if ($wantExt !== null && strtolower(pathinfo((string)$fileName, PATHINFO_EXTENSION)) !== $wantExt) {
+                $stem = pathinfo((string)$fileName, PATHINFO_FILENAME);
+                $fileName = ($stem !== '' ? $stem : 'fax') . '.' . $wantExt;
+            }
             //error_log($phone . ' ' . $fileName . ' ' . $type . ' ' . $name);
             $request = $this->rcsdk->createMultipartBuilder()
                 ->setBody([
@@ -444,14 +442,14 @@ class RCFaxClient extends AppDispatch
     {
         $error = $e->apiResponse ? $e->apiResponse->text() : $e->getMessage();
 
-        if (stripos($error, 'invalid_grant') !== false) {
+        if (stripos((string)$error, 'invalid_grant') !== false) {
             try {
                 $this->platform->login(['jwt' => $this->credentials['jwt']]);
                 if ($this->platform->loggedIn()) {
                     $this->cacheAuthData($this->platform);
                     return 'Fax Successfully Sent';
                 }
-            } catch (Exception $ex) {
+            } catch (\Throwable $ex) {
                 return "Re-authentication Error: " . text($ex->getMessage());
             }
         }
@@ -493,47 +491,18 @@ class RCFaxClient extends AppDispatch
      */
     public function getExtensionFromContentType(string $contentType): string
     {
-        switch ($contentType) {
-            case 'application/pdf':
-                return 'pdf';
-            case 'text/plain':
-                return 'txt';
-            case 'image/tiff':
-                return 'tiff';
-            case 'image/jpeg':
-                return 'jpeg';
-            case 'image/jpg':
-                return 'jpg';
-            case 'image/gif':
-                return 'gif';
-            case 'image/png':
-                return 'png';
-            case 'application/xml':
-                return 'xml';
-            case 'audio/wav':
-            case 'audio/x-wav':
-                return 'wav';
-            default:
-                return 'application/pdf';
-        }
-    }
-
-    /**
-     * @param string $contentType
-     * @return string
-     */
-    private function getTypeFromContentType(string $contentType): string
-    {
-        switch ($contentType) {
-            case 'application/pdf':
-            case 'image/tiff':
-                return 'Fax';
-            case 'audio/wav':
-            case 'audio/x-wav':
-                return 'Audio';
-            default:
-                return 'Text';
-        }
+        return match ($contentType) {
+            'application/pdf' => 'pdf',
+            'text/plain' => 'txt',
+            'image/tiff' => 'tiff',
+            'image/jpeg' => 'jpeg',
+            'image/jpg' => 'jpg',
+            'image/gif' => 'gif',
+            'image/png' => 'png',
+            'application/xml' => 'xml',
+            'audio/wav', 'audio/x-wav' => 'wav',
+            default => 'application/pdf',
+        };
     }
 
     /**
@@ -547,7 +516,7 @@ class RCFaxClient extends AppDispatch
             ob_clean();
             header("Cache-Control: public");
             header("Content-Description: File Transfer");
-            header("Content-Disposition: attachment; filename=" . basename($where));
+            header("Content-Disposition: attachment; filename=" . basename((string)$where));
             header("Content-Type: application/download");
             header("Content-Transfer-Encoding: binary");
             header('Content-Length: ' . filesize($where));
@@ -629,7 +598,7 @@ class RCFaxClient extends AppDispatch
             ];
         } catch (ApiException $e) {
             return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
@@ -641,15 +610,11 @@ class RCFaxClient extends AppDispatch
      */
     private function formatFaxDataUrl(string $data, string $contentType): string
     {
-        switch ($contentType) {
-            case 'application/pdf':
-                return 'data:application/pdf;base64,' . base64_encode($data);
-            case 'image/tiff':
-            case 'image/tif':
-                return 'data:image/tiff;base64,' . base64_encode($data);
-            default:
-                return 'data:text/plain;base64,' . base64_encode($data);
-        }
+        return match ($contentType) {
+            'application/pdf' => 'data:application/pdf;base64,' . base64_encode($data),
+            'image/tiff', 'image/tif' => 'data:image/tiff;base64,' . base64_encode($data),
+            default => 'data:text/plain;base64,' . base64_encode($data),
+        };
     }
 
     /**
@@ -664,7 +629,10 @@ class RCFaxClient extends AppDispatch
         $fileName = "Fax_{$jobId}." . $fileExtension;
         $filePath = $this->baseDir . DIRECTORY_SEPARATOR . $fileName;
 
-        file_put_contents($filePath, $data);
+        // Write encrypted-at-rest. The session-stored path is read back in
+        // disposeDocument's download branch (sendFile), which decrypts via
+        // FaxUploadStaging::decryptFileBytes.
+        file_put_contents($filePath, $this->crypto->encryptForFilesystem($data));
 
         return $filePath;
     }
@@ -675,15 +643,11 @@ class RCFaxClient extends AppDispatch
      */
     private function getFileExtension(string $contentType): string
     {
-        switch ($contentType) {
-            case 'application/pdf':
-                return 'pdf';
-            case 'image/tiff':
-            case 'image/tif':
-                return 'tiff';
-            default:
-                return 'txt';
-        }
+        return match ($contentType) {
+            'application/pdf' => 'pdf',
+            'image/tiff', 'image/tif' => 'tiff',
+            default => 'txt',
+        };
     }
 
     /**
@@ -697,62 +661,6 @@ class RCFaxClient extends AppDispatch
         $formatted_document = $control->convertImageToPdf($encodedFax, '');
 
         return $formatted_document ? base64_encode($formatted_document) : false;
-    }
-
-    /**
-     * @return string
-     */
-    public function disposeDocument(): string
-    {
-        $response = ['success' => false, 'message' => '', 'url' => ''];
-        $where = $this->getRequest('file_path') ?? $this->getSession('where');
-
-        if (empty($where)) {
-            die(xlt('Problem with download. Use browser back button'));
-        }
-
-        $content = $this->getRequest('content', '');
-        $action = $this->getRequest('action');
-
-        if ($action == 'download') {
-            $this->sendFile($where);
-            sleep(2);
-            unlink($where);
-            exit;
-        }
-
-        if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode($content);
-            if (file_put_contents($where, $decodedContent) !== false) {
-                $response['success'] = true;
-                $response['url'] = $where;
-            } else {
-                $response['message'] = 'Failed to write file';
-            }
-        } elseif ($action == 'setup') {
-            $response['success'] = true;
-            $response['url'] = $where;
-        }
-
-        return json_encode($response);
-    }
-
-    /**
-     * @param string $filePath
-     * @return void
-     */
-    private function sendFile(string $filePath): void
-    {
-        ob_end_clean();
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=" . basename($filePath));
-        header("Content-Type: application/pdf");
-        header("Content-Transfer-Encoding: binary");
-        header('Content-Length: ' . filesize($filePath));
-
-        readfile($filePath);
-        exit;
     }
 
     /**
@@ -771,31 +679,67 @@ class RCFaxClient extends AppDispatch
             $contentType = $response->response()->getHeader('Content-Type')[0];
             $fileExtension = $this->getFileExtension($contentType);
             $fileName = "fax_{$messageId}." . $fileExtension;
+            $content = (string)$response->raw();
 
-            // Save the file locally
-            $filePath = $this->cacheDir . DIRECTORY_SEPARATOR . $fileName;
-            file_put_contents($filePath, $response->raw());
-
-            // Prepare the file for download
+            // Stream straight from memory. The earlier write-to-cacheDir-
+            // then-readfile-then-unlink dance left plaintext PHI on disk
+            // for the request duration with no functional benefit over
+            // serving the bytes directly.
+            ob_end_clean();
             header('Content-Description: File Transfer');
             header('Content-Type: ' . $contentType);
-            header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+            header('Content-Disposition: attachment; filename="' . $fileName . '"');
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
-            header('Content-Length: ' . filesize($filePath));
-            readfile($filePath);
-
-            // Optionally, you can delete the file after download
-            unlink($filePath);
-
-            exit; // Stop further script execution
+            header('Content-Length: ' . strlen($content));
+            echo $content;
+            exit;
         } catch (ApiException $e) {
             return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
+    }
+
+    /**
+     * @param string $phone
+     * @return string|bool
+     */
+    public function findPatientByPhone(string $phone): bool|string
+    {
+        if (empty($phone)) {
+            return '';
+        }
+
+        // Region-aware: a "+CC" number self-describes; a bare national number
+        // is read against the site default region (US fallback). Match on the
+        // national digits against a separator-stripped column so stored values
+        // like "(239) 555-0123" still compare cleanly.
+        $parsed = PhoneNumber::tryParse($phone, $this->defaultPhoneRegion());
+        $national = $parsed?->isPossible() ? $parsed->getNationalDigits() : null;
+        $digits = (string) preg_replace('/\D/', '', $national ?? $phone);
+        if ($digits === '') {
+            return '';
+        }
+
+        $sql = "
+        SELECT CONCAT(fname, ' ', lname) AS fullname
+        FROM patient_data
+        WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_cell, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
+        LIMIT 1
+    ";
+
+        $result = sqlQuery($sql, ["%" . $digits]);
+        $rtn = $result['fullname'] ?? '';
+        if (!empty($rtn)) {
+            $rtn .= ' ';
+        } else {
+            $rtn = '';
+        }
+
+        return $rtn;
     }
 
     /**
@@ -813,7 +757,7 @@ class RCFaxClient extends AppDispatch
     /**
      * @return string
      */
-   /* public function getNotificationLog(): string
+    public function getNotificationLog(): string
     {
         $type = $this->getRequest('type');
         $fromDate = $this->getRequest('datefrom');
@@ -828,12 +772,12 @@ class RCFaxClient extends AppDispatch
                 $msg = text($nrow["message"]);
                 $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return 'Error: ' . text($e->getMessage()) . PHP_EOL;
         }
 
         return $responseMsg;
-    }*/
+    }
 
     /**
      * @return string
@@ -867,7 +811,7 @@ class RCFaxClient extends AppDispatch
                     'page' => $pageCount
                 ]);
                 foreach ($apiResponse->json()->records as $value) {
-                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", $value->startTime)) . "</td><td>" . text($value->type) . "</td><td>" . text($value->from->name) . "</td><td>" . text($value->to->name) . "</td><td>" . text($value->action) . "</td><td>" . text($value->result) . "</td><td>" . text($value->message->id) . "</td></tr>";
+                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", self::asText($value->startTime ?? null))) . "</td><td>" . text(self::asText($value->type ?? null)) . "</td><td>" . text(self::asText($value->from->name ?? null)) . "</td><td>" . text(self::asText($value->to->phoneNumber ?? null)) . "</td><td>" . text(self::asText($value->action ?? null)) . "</td><td>" . text(self::asText($value->result ?? null)) . "</td><td>" . text(self::asText($value->message->id ?? null)) . "</td></tr>";
                 }
 
                 $end = microtime(true);
@@ -890,71 +834,208 @@ class RCFaxClient extends AppDispatch
     }
 
     /**
-     * @return false|string
+     * Fetch all pending SMS or Fax message‑store records in the date range
+     * and return the HTML rows (or error) as JSON.
+     *
+     * @return false|string  JSON‑encoded string of table rows or error
      */
     public function getPending(): false|string
     {
+        // 1) Authenticate
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
             return json_encode(['error' => js_escape($authErrorMsg)]);
         }
 
+        // 2) Build date range
+        $dateFrom = $this->getRequest('datefrom') . 'T00:00:01.000Z';
+        $dateTo = $this->getRequest('dateto') . 'T23:59:59.000Z';
+        $serviceType = strtolower((string)$this->getRequest('type', ''));
+
+        // Decide messageType param
+        if ($serviceType === 'sms') {
+            $messageType = 'SMS';
+        } elseif ($serviceType === 'fax') {
+            $messageType = 'Fax';
+        } else {
+            return json_encode(['error' => xlt('Invalid service type. Please use "sms" or "fax".')]);
+        }
+
+        try {
+            // 3) Paginate through all pages
+            $allRecords = [];
+            $page = 1;
+            do {
+                $resp = $this->platform->get(
+                    '/restapi/v1.0/account/~/extension/~/message-store',
+                    [
+                        'messageType' => $messageType,
+                        'dateFrom' => $dateFrom,
+                        'dateTo' => $dateTo,
+                        'perPage' => 100,
+                        'page' => $page
+                    ]
+                );
+                $data = $resp->json();
+                if (!empty($data->records)) {
+                    $allRecords = array_merge($allRecords, $data->records);
+                }
+                $hasNext = !empty($data->navigation->nextPage);
+                if ($hasNext) {
+                    usleep(200000); // 0.2s throttle to respect rate limits
+                    $page++;
+                }
+            } while ($hasNext);
+
+            // 4) Process into table rows
+            $responseMsg = $this->processMessageStoreList($allRecords, $serviceType);
+        } catch (ApiException $e) {
+            $msg = "<tr><td>"
+                . text($e->getMessage())
+                . " : "
+                . xlt('Report to Administration.')
+                . "</td></tr>";
+            return json_encode(['error' => $msg]);
+        } catch (\Throwable $e) {
+            return json_encode(['error' => text($e->getMessage())]);
+        }
+
+        // 5) Return JSON‑encoded rows (or fallback “nothing to report”)
+        $rows = $responseMsg ?: [
+            xlt("Nothing to report"),
+            xlt("Nothing to report"),
+            xlt("Nothing to report")
+        ];
+        return json_encode($rows);
+    }
+
+    /**
+     * @return false|string
+     */
+    /*public function getPending(): false|string
+    {
+        // Authenticate and refresh token if needed
+        $authErrorMsg = $this->authenticate();
+        if ($authErrorMsg !== 1) {
+            return json_encode(['error' => js_escape($authErrorMsg)]);
+        }
+
+        // Get the date range and service type from the request
         $dateFrom = $this->getRequest('datefrom');
         $dateTo = $this->getRequest('dateto');
         $serviceType = $this->getRequest('type', '');
 
         try {
-            $messageStoreDir = $this->baseDir;
-
-            if (!file_exists($messageStoreDir) && !mkdir($messageStoreDir, 0777, true) && !is_dir($messageStoreDir)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $messageStoreDir));
-            }
-
             $dateFrom .= 'T00:00:01.000Z';
             $dateTo .= 'T23:59:59.000Z';
-
-            $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
-                'dateFrom' => $dateFrom,
-                'dateTo' => $dateTo,
-            ])->json()->records;
+            $serviceType = strtolower($serviceType);
+            // Fetch the message store list based on the service type
+            if ($serviceType == 'sms') {
+                $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
+                    'dateFrom' => $dateFrom,
+                    'dateTo' => $dateTo,
+                    'messageType' => 'SMS',
+                ])->json()->records;
+            } elseif ($serviceType == 'fax') {
+                $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
+                    'dateFrom' => $dateFrom,
+                    'dateTo' => $dateTo,
+                    'messageType' => 'Fax',
+                ])->json()->records;
+            } else {
+                throw new Exception(
+                    xlt('Invalid service type. Please use "sms" or "fax".')
+                );
+            }
 
             $responseMsg = $this->processMessageStoreList($messageStoreList, $serviceType);
         } catch (ApiException $e) {
-            $responseMsg = "<tr><td>" . text($e->getMessage()) . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
+            $responseMsg = "<tr><td>" . text($e->getMessage()) . " : " . xlt('Report to Administration.') . "</td></tr>";
             return json_encode(['error' => $responseMsg]);
         }
 
         return json_encode($responseMsg ?: [xlt("Nothing to report"), xlt("Nothing to report"), xlt("Nothing to report")]);
-    }
+    }*/
 
-    private function processMessageStoreList($messageStoreList, $serviceType): array
+    private function processMessageStoreList($messageStoreList, $serviceType): false|array|string
     {
-        $responseMsg = [];
+        $responseMsg = ['', '', ''];
+        $count = count($messageStoreList ?? []);
+        $timePerMessageStore = 1; // seconds
+        $start = microtime();
+        $useLink = false;
+        $cnt = 0;
         foreach ($messageStoreList as $messageStore) {
             if (property_exists($messageStore, 'attachments')) {
                 foreach ($messageStore->attachments as $attachment) {
                     $id = attr($attachment->id);
                     $uri = $attachment->uri;
-                    $to = $messageStore->to[0]->name . " " . $messageStore->to[0]->phoneNumber;
-                    $from = $messageStore->from->name . " " . $messageStore->from->phoneNumber;
-                    $status = $messageStore->messageStatus . $messageStore->from->faxErrorCode;
-                    $faxFormattedDate = date('M j, Y g:i:sa T', strtotime($messageStore->creationTime));
-                    $updateDate = date('M j Y g:i:sa T', strtotime($messageStore->lastModifiedTime));
+                    // Inbound messages carry no ->to, faxErrorCode only
+                    // appears on failures, and a fax "from"/"to" entry may
+                    // omit name; coalesce every read so polling a mixed
+                    // inbox does not spray undefined-property/null-offset
+                    // warnings into the error log.
+                    $toEntry = $messageStore->to[0] ?? null;
+                    $to = trim(($toEntry->name ?? '') . " " . ($toEntry->phoneNumber ?? ''));
+                    $from = trim(($messageStore->from->name ?? '') . " " . ($messageStore->from->phoneNumber ?? ''));
+                    $status = ($messageStore->messageStatus ?? '') . ($messageStore->from->faxErrorCode ?? '');
+                    $faxFormattedDate = date('M j, Y g:i:sa T', strtotime((string)$messageStore->creationTime));
+                    $updateDate = date('M j Y g:i:sa T', strtotime((string)$messageStore->lastModifiedTime));
 
                     $links = $this->generateActionLinks($id, $uri);
                     $checkbox = "<input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'>";
-                    $type = strtolower($messageStore->type);
-                    $direction = strtolower($messageStore->direction);
-                    $readStatus = $messageStore->readStatus;
-                    if ($type === "sms") {
-                        $messageText = $this->getMessageContent($uri);
-                        $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->type) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td><span class='$id'>" . text(substr($messageText, 0, 30)) . "</span><div class='d-none $id'>" . text($messageText) . "</div></td><td class='btn-group'>" . attr($links['sms']) . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
-                    } elseif ($direction === "inbound" && $type === $serviceType) {
-                        $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
-                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject) . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
-                    } elseif ($direction === "outbound" && $type === $serviceType) {
-                        $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
-                        $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) .
+                    $type = strtolower((string)$messageStore->type);
+                    $direction = strtolower((string)$messageStore->direction);
+                    $messageText = '';
+                    $pname = '';
+                    if ($type === "sms" && $type === $serviceType) {
+                        if ($direction === "inbound") {
+                            $links = $this->generateSmsActionLinks($id, $uri, $messageStore->from->phoneNumber ?? '');
+                            $pname = $this->findPatientByPhone($messageStore->from->phoneNumber ?? '');
+                            try {
+                                if (!$useLink) {
+                                    $response = $this->platform->get($uri);
+                                    $messageText = (string)$response->text();
+                                    $messageText = str_replace("\n", "<br />", $messageText);
+                                    sleep(0.8); // Sleep to avoid rate limit
+                                } else {
+                                    $messageText = xlt("Text retrieval error. Click show message");
+                                }
+                            } catch (ApiException $e) {
+                                $messageText = "Error: " . text($e->getMessage());
+                                if ($e->getCode() == 429) {
+                                    $messageText = xlt("Rate limit exceeded. Please try again after 30 seconds.");
+                                    $messageText .= "<br>" . xlt("If this error persists, narrow the date range.");
+                                    $useLink = true; // Use link to show message
+                                } elseif ($e->getCode() == 403) {
+                                    $messageText = xlt("Access denied. Please check your permissions.");
+                                    $useLink = true; // Use link to show message
+                                } elseif ($e->getCode() == 404) {
+                                    $messageText = xlt("Message not found. It may have been deleted or does not exist.");
+                                }
+                                if ($e->getCode() == 401) {
+                                    $useLink = true;
+                                }
+                            }
+                            $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($pname . $from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . ($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
+                        } elseif ($direction === "outbound") {
+                            $links = $this->generateSmsActionLinks($id, $uri, $messageStore->to[0]->phoneNumber ?? '');
+                            $pname = $this->findPatientByPhone($messageStore->to->phoneNumber ?? '');
+                            $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($from) . "</td><td>" . text($pname . $to) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
+                        }
+                        $toName = $to;
+                        $fromName = $pname . $from;
+                        if ($direction === "outbound") {
+                            $toName = $pname . $to;
+                            $fromName = $from;
+                        }
+                        $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($fromName) . "</td><td>" . text($toName) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
+                    } elseif ($direction === "inbound" && $type === $serviceType && $serviceType === "fax") {
+                        $status = ($messageStore->to[0]->faxErrorCode ?? '') ?: ($messageStore->messageStatus ?? '');
+                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount ?? '') . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject ?? '') . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
+                    } elseif ($direction === "outbound" && $type === $serviceType && $serviceType === "fax") {
+                        $status = ($messageStore->to[0]->faxErrorCode ?? '') ?: ($messageStore->messageStatus ?? '');
+                        $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount ?? '') .
                             "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $links['outbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
                     }
                 }
@@ -966,152 +1047,27 @@ class RCFaxClient extends AppDispatch
 
     private function generateActionLinks($id, $uri): array
     {
-        $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode([])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
-        $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(0) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
-        $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
-        $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
-        $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
-        $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
-
-        $vtoggle = "<a href='javascript:' onclick=messageShow(" . attr_js($id) . ")><span class='mx-1 fa fa-eye-slash fa-1x'></span></a>";
-        $vreply = "<a href='javascript:' onclick=messageReply(" . attr_js($id) . ")><span class='mx-1 fa fa-reply'></span></a>";
-
+        $patientLink = "<a role='button' href='#' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode([])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
+        $messageLink = "<a role='button' href='#' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(0) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
+        $downloadLink = "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
+        $viewLink = "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
+        $deleteLink = "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
+        $forwardLink = "<a role='button' href='#' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
         return [
-            'sms' => $vtoggle . $vreply,
             'inbound' => $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink,
             'outbound' => $viewLink . $downloadLink . $deleteLink
         ];
     }
 
-    /**
-     * @param array $responseMsg
-     * @param       $messageStore
-     * @param       $attachment
-     * @return void
-     */
-    private function formatMessageStore(array &$responseMsg, $messageStore, $attachment): void
+    private function generateSmsActionLinks($id, $uri, $phone): array
     {
-        $id = $attachment->id;
-        $uri = $attachment->uri;
-        $to = $messageStore->to[0]->name . " " . $messageStore->to[0]->phoneNumber;
-        $from = $messageStore->from->name . " " . $messageStore->from->phoneNumber;
-        $errors = $messageStore->to[0]->faxErrorCode ? "why: " . $messageStore->to[0]->faxErrorCode : $messageStore->from->faxErrorCode;
-        $status = $messageStore->messageStatus . " " . $errors;
-        $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode($parse ?? [])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
-        $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(($pid_assumed ?? 0)) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
-        $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
-        $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
-        $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
-        $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
+        $vtoggle = "<a role='button' href='#' onclick=messageShow(" . attr_js($id) . "," . attr_js($uri) . ")><span class='mx-1 fas fa-comment fa-1x'></span></a>";
+        $vreply = "<a role='button' href='#' onclick=messageReply(" . attr_js($phone) . ")><span class='mx-1 fa fa-reply'></span></a>";
 
-        $faxFormattedDate = date('M j, Y g:i:sa T', strtotime($messageStore->lastModifiedTime));
-        $docLen = text(round(1024 / 1024, 2)) . "KB"; // todo add length
-        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($from) . "</td><td>" . text('todo: add caller id') . "</td><td>" . text($to) . "</td><td>" . text($messageStore->PagesReceived) . "</td><td>" . text($docLen) . "</td><td class='text-left'>" . /*$detailLink .*/
-            "</td><td class='text-center'>" . text($pid_assumed ?? '') . "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink . "</td></tr>";
-        //$responseMsg[0] .= $form;
-        $aUrl = "<a href='#' onclick=getDocument(event," . attr_js($uri) . "," . attr_js($id) . ",'true')>" . text($id) . " <span class='fa fa-download'></span></a></br>";
-        $vUrl = "<a href='#' onclick=getDocument(event," . attr_js($uri) . "," . attr_js($id) . ",'false')> <span class='fa fa-file-pdf-o'></span></a></br>";
-        if ($status != 'failed' && $this->formatPhone($this->credentials['smsNumber']) != $messageStore->from) {
-            $vreply = "<a href='javaScript:' onclick=messageReply(" . attr_js($messageStore->from) . ")><span class='mx-1 fa fa-reply'></span></a>";
-        } else {
-            $vreply = "<a href='#' title='SMS failure'> <span class='fa fa-file-pdf text-danger'></span></a></br>";
-        }
-        $row = "<tr>
-                <td>" . text(str_replace(["T", "Z"], " ", $messageStore->lastModifiedTime)) . "</td>
-                <td>" . text($messageStore->type) . "</td>
-                <td>" . text($from) . "</td>
-                <td>" . text($to) . "</td>
-                <td>" . text($status) . "</td>
-                <td>" . ($aUrl) . "</td>
-                <td>" . ($vUrl) . "</td>";
-        if (strtolower($messageStore->type) === "sms") {
-            $row .= "<td>" . ($vreply) . "</td>";
-        }
-
-        $row .= "</tr>";
-        if (strtolower($messageStore->type) === "sms") {
-            $responseMsg[2] .= $row;
-            // sms
-        } elseif (strtolower($messageStore->direction) === "inbound") {
-            $responseMsg[0] .= $row;
-// in fax
-        } else {
-            $responseMsg[1] .= $row;
-// out fax
-        }
-    }
-
-    /**
-     * @param $number
-     * @return string
-     */
-    public function formatPhone($number): string
-    {
-        // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
-            $n = '+' . $n;
-        } else {
-            $n = '+1' . $n;
-        }
-        return $n;
-    }
-
-    /**
-     * @return string|void
-     */
-    public function getMessage()
-    {
-        $authErrorMsg = $this->authenticate();
-        if ($authErrorMsg !== 1) {
-            return text(js_escape($authErrorMsg));
-            // goes to alert
-        }
-
-        try {
-            $messageStoreDir = $this->baseDir;
-            if (!file_exists($messageStoreDir)) {
-                mkdir($messageStoreDir, 0777, true);
-            }
-
-            $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
-                'messageType' => "",
-                'dateFrom' => '2018-05-01'
-            ])->json()->records;
-            $timePerMessageStore = 6;
-            $responseMsgs = "";
-            foreach ($messageStoreList as $messageStore) {
-                if (property_exists($messageStore, 'attachments')) {
-                    foreach ($messageStore->attachments as $attachment) {
-                        $id = $attachment->id;
-                        $uri = $attachment->uri;
-                        try {
-                            $apiResponse = $this->platform->get($uri);
-                        } catch (ApiException $e) {
-                            $responseMsgs .= "<tr><td>Errors: " . text($e->getMessage()) . $e->apiResponse()->request()->getUri()->__toString() . "</td></tr>";
-                            continue;
-                        }
-
-                        $ext = $this->getExtensionFromContentType($apiResponse->response()->getHeader('Content-Type')[0]);
-                        $type = $this->getTypeFromContentType($apiResponse->response()->getHeader('Content-Type')[0]);
-                        $start = microtime(true);
-                        file_put_contents("{$messageStoreDir}/{$type}_{$id}.{$ext}", $apiResponse->raw());
-                        $responseMsgs .= "<tr><td>" . $messageStore->creationTime . "</td><td>" . $messageStore->type . "</td><td>" . $messageStore->from->name . "</td><td>" . $messageStore->to->name . "</td><td>" . $messageStore->availability . "</td><td>" . $messageStore->messageStatus . "</td><td>" . $messageStore->message->id . "</td></tr>";
-                        $end = microtime(true);
-                        $time = ($end - $start);
-                        if ($time < $timePerMessageStore) {
-                            sleep($timePerMessageStore - $time);
-                        }
-                    }
-                } else {
-                    echo xlt("Does not have messages") . PHP_EOL;
-                }
-            }
-        } catch (ApiException $e) {
-            echo "<tr><td>Error: " . text($e->getMessage() . $e->apiResponse()->request()->getUri()->__toString()) . "</td></tr>";
-        }
-
-        exit;
+        return [
+            'sms' => $vtoggle . $vreply,
+            'smsoutbound' => $vreply
+        ];
     }
 
     /**
@@ -1124,14 +1080,6 @@ class RCFaxClient extends AppDispatch
             $this->setSession('pid', $pid);
         }
 
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function sendEmail(): mixed
-    {
         return null;
     }
 
@@ -1156,9 +1104,9 @@ class RCFaxClient extends AppDispatch
                 'availability' => 'Alive'
             ]);
             $json = $response->json();
-            return (string) text(count($json->records));
-        } catch (Exception $e) {
-            error_log('Error fetching incoming faxes: ' . text($e->getMessage()));
+            return text(count($json->records));
+        } catch (\Throwable $e) {
+            error_log('Error fetching incoming faxes in Reminder tasking: ' . text($e->getMessage()));
             return false;
         }
     }
@@ -1192,7 +1140,7 @@ class RCFaxClient extends AppDispatch
 
             // Determine file extension and file name
             $ext = $this->getExtensionFromContentType($contentType);
-            $fileName = $fileName ?? xlt("fax") . '_' . text($jobId) . $ext;
+            $fileName ??= xlt("fax") . '_' . text($jobId) . $ext;
             $content = $rawData;
 
             // Create a new document and save it
@@ -1202,33 +1150,18 @@ class RCFaxClient extends AppDispatch
             return $result ? xlt("Error: Failed to save document. Category Fax") : xlt("Chart Success");
         } catch (ApiException $e) {
             return json_encode(['error' => "Error: Retrieving Fax: " . text($e->getMessage())]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return json_encode(['error' => "Error: " . text($e->getMessage())]);
         }
     }
 
     /**
-     * @param       $email
-     * @param       $body
-     * @param       $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
+     * Coerce a mixed value (e.g. an untyped SDK-response field) to a display
+     * string, treating non-scalars as empty. Keeps explicit (string) casts off
+     * mixed values, which strict PHPStan flags as cast.string.
      */
-    public static function emailDocument($email, $body, $file, array $user = []): string
+    private static function asText(mixed $value): string
     {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
+        return is_scalar($value) ? (string) $value : '';
     }
 }

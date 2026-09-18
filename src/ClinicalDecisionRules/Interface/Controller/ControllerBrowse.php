@@ -9,8 +9,8 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
-use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 require_once(Common::src_dir() . "/clinical_rules.php");
@@ -22,12 +22,12 @@ class ControllerBrowse extends BaseController
         parent::__construct();
     }
 
-    function _action_list()
+    public function _action_list()
     {
         $this->set_view("list.php");
     }
 
-    function _action_plans_config()
+    public function _action_plans_config()
     {
         $this->set_view("plans_config.php");
     }
@@ -35,20 +35,20 @@ class ControllerBrowse extends BaseController
     /**
      * @deprecated does not appear to be used
      */
-    function _action_getrows()
+    public function _action_getrows()
     {
-        $rows = array();
+        $rows = [];
 
         $rules = resolve_rules_sql('', '0', true);
         foreach ($rules as $rowRule) {
             $title = RuleTemplateExtension::getLabel($rowRule['id'], 'clinical_rules');
             $type = xl("Reminder");
 
-            $row = array(
+            $row = [
                 "title" => $title,
                 "type" => $type,
                 "id" => $rowRule['id']
-            );
+            ];
             $rows[] = $row;
         }
 

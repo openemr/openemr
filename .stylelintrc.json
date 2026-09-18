@@ -1,5 +1,8 @@
 {
-    "plugins": ["stylelint-order", "stylelint-scss"],
+    "plugins": [
+        "stylelint-order",
+        "stylelint-scss"
+    ],
     "extends": [
         "stylelint-config-standard",
         "stylelint-config-sass-guidelines"
@@ -9,7 +12,11 @@
         "selector-no-qualifying-type": [
             true,
             {
-                "ignore": ["attribute", "class", "id"]
+                "ignore": [
+                    "attribute",
+                    "class",
+                    "id"
+                ]
             }
         ],
         "selector-class-pattern": null,
@@ -20,6 +27,7 @@
         "at-rule-empty-line-before": null,
         "scss/at-mixin-pattern": null,
         "max-nesting-depth": null,
-        "scss/at-extend-no-missing-placeholder": null
+        "scss/at-extend-no-missing-placeholder": null,
+        "keyframes-name-pattern": null
     }
 }

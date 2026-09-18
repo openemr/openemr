@@ -4,7 +4,7 @@
  * UB04 Claims Form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
@@ -14,28 +14,53 @@
 
 require_once("./ub04_dispose.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
 global $isAuthorized;
-if ($isAuthorized !== true) {
+$isAuthorized = $isAuthorized === true ? 1 : 0;
+$pid ??= '0';
+$encounter ??= '0';
+$ub04id ??= '';
+if ($isAuthorized === 1) {
+    $imgurl = "../../../../public/images";
+} else {
+    if (!AclMain::aclCheckCore('acct', 'bill')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: UB04 Claims Form", xl("UB04 Claims Form"));
+    }
     ub04_dispose();
-    $isAuthorized = 0;
-    $pid = $_REQUEST['pid'] ?: '0';
-    $encounter = $_REQUEST['enc'] ?: '0';
+
+    // Deep-linked patient-context page: mirror the demographics.php set_pid
+    // pattern so a fresh browser tab establishes patient context via session
+    // before any query below references $pid. ub04_dispose() above handles
+    // any POST branch (with handler) and exits, so this fallthrough is the
+    // render path -- pid/enc arrive via URL query.
+    $query = CurrentRequest::get()->query;
+    $requestPid = $query->getInt('pid');
+    $sessionPid = PatientSessionUtil::getPid();
+    if ($requestPid > 0 && $sessionPid <= 0) {
+        setpid($requestPid);
+    }
+    $pid = PatientSessionUtil::getPid();
+    $encounter = $query->getInt('enc');
     $action = $_REQUEST['action'] ?? false ?: false;
     $payerid = $_REQUEST['id'] ?? '0' ?: '0';
-    $imgurl = $GLOBALS['images_static_relative'];
+    $imgurl = \OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getImagesRelative();
     if ($action == 'payer_defaults') {
         $ub04id = get_payer_defaults($payerid);
-    } elseif ($pid && $encounter) {
+    } elseif ($pid > 0 && $encounter > 0) {
         $ub04id = json_encode(get_ub04_array($pid, $encounter));
     } else {
         exit(xlt("Sorry! Not Authorized."));
     }
-} else {
-    $imgurl = "../../../../public/images";
 }
-
-use OpenEMR\Core\Header;
 
 ?>
 <!DOCTYPE html >
@@ -43,7 +68,7 @@ use OpenEMR\Core\Header;
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <meta charset="utf-8" />
-<?php if ($isAuthorized !== true) {
+<?php if ($isAuthorized !== 1) {
     Header::setupHeader(['no_main-theme', 'opener', 'common', 'datetime-picker', 'jquery-ui']);
     ?>
 
@@ -53,7 +78,7 @@ $(function() {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php echo(",validateOnBlur: false, formatDate: 'mdy', format: 'mdy'") ?>
     });
 
@@ -203,8 +228,9 @@ var isTemplate;
 var ub04id = new Array();
 payerid = <?php echo js_escape($payerid ?? ''); ?>;
 pid = <?php echo js_escape($pid);?>;
-encounter = <?php echo js_escape($encounter ?? null);?>;
-isTemplate = <?php echo js_escape(($isAuthorized === true ? $isAuthorized : false)); ?>;
+encounter = <?php echo js_escape($encounter);?>;
+var ub04CsrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession()));?>;
+isTemplate = <?php echo $isAuthorized; ?>;
 ub04id = <?php echo $ub04id;?>
 
 function adjustForm()
@@ -237,7 +263,7 @@ function adjustForm()
         var ii = i+1;
         if(typeof(ub04id[ii]) != 'undefined' && ub04id[ii] !== ""){
             var val = ub04id[ii];
-            if( val.length > max && max > 0 ){
+            if(val != null && val.length > max && max > 0 ){
                 val = ub04id[ii].substring(0,max);
             }
             document.getElementById("ub04id"+ ii.toString()).value = val;
@@ -246,7 +272,7 @@ function adjustForm()
  });
  return false;
 }
-<?php if ($isAuthorized !== true) {?>
+<?php if ($isAuthorized !== 1) {?>
 var formChanged = false;
 
 function rewrite(ub04id){
@@ -256,7 +282,7 @@ function rewrite(ub04id){
         var ii = i+1;
         if(typeof(ub04id[ii]) != 'undefined'){
             var val = ub04id[ii];
-            if( val.length > max && max > 0 ){
+            if(val != null && val.length > max && max > 0 ){
                 val = ub04id[ii].substring(0,max);
             }
             document.getElementById("ub04id"+ ii.toString()).value = val;
@@ -273,15 +299,19 @@ function cleanUp()
 }
 
 function selectUser(formid,event) {
-    var title = 'Providers';
-    var params = {
+    const title = 'Providers';
+    const urlParams = new URLSearchParams({
+        action: 'user_select',
+        formid: formid
+    });
+    const params = {
         buttons: [
             {text: 'Cancel', close: true, style: 'secondary btn-sm'}
         ],
         type: 'GET',
         title: title,
         size: 'modal-mlg',
-        url: './ub04_helpers.php?action=user_select&formid=' + encodeURIComponent(formid)
+        url: './ub04_helpers.php?' + urlParams
     };
     return dialog.ajax(params).then(function () {
     });
@@ -325,8 +355,29 @@ function disposeSave(action)
         }
     });
     ub04idSave = JSON.stringify(ub04id);
-    var qstr = param({ handler: 'edit_save',pid:pid,encounter:encounter,action:action,ub04id:ub04idSave });
-    location.href='ub04_submit.php?'+qstr;
+    // ub04_submit.php now dispatches only on POST + form-token; build a
+    // hidden form and submit it so the browser navigates to the endpoint
+    // with the state-changing payload in the request body.
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'ub04_submit.php';
+    var fields = {
+        handler: 'edit_save',
+        pid: pid,
+        encounter: encounter,
+        action: action,
+        ub04id: ub04idSave,
+        csrf_token_form: ub04CsrfToken
+    };
+    Object.keys(fields).forEach(function(name) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = fields[name];
+        form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
 }
 
 function postClaim(action)
@@ -362,10 +413,10 @@ function postClaim(action)
         }
     };
     if(action === 'payer_save'){
-        var qs = param({handler:action,payerid:payerid,ub04id: ub04idSave})
+        var qs = param({handler:action,payerid:payerid,ub04id: ub04idSave,csrf_token_form:ub04CsrfToken})
     }
     else if(action === 'batch_save'){
-        var qs = param({handler:action,pid:pid,encounter:encounter,ub04id:ub04idSave,loc:cj})
+        var qs = param({handler:action,pid:pid,encounter:encounter,ub04id:ub04idSave,loc:cj,csrf_token_form:ub04CsrfToken})
     }
     xhr.send(qs);
 }
@@ -400,9 +451,9 @@ function resetClaim(){
         return false;
     }
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: 'ub04_submit.php',
-        data: {handler:'reset_claim',pid:pid,encounter:encounter},
+        data: {handler:'reset_claim',pid:pid,encounter:encounter,csrf_token_form:ub04CsrfToken},
         dataType: 'json',
         success: function( rtn ) {
           ub04id = rtn;
@@ -942,7 +993,7 @@ textarea{
 </head>
 <body onload="adjustForm();">
 <div class="container" id="formContainer">
-<?php if ($isAuthorized !== true) {?>
+<?php if ($isAuthorized !== 1) {?>
 <h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-sm btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
     <?php if ($pid && $encounter) {?>

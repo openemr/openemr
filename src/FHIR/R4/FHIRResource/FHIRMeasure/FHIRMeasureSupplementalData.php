@@ -219,7 +219,7 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -249,15 +249,13 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MeasureSupplementalData xmlns="http://hl7.org/fhir"></MeasureSupplementalData>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MeasureSupplementalData xmlns="http://hl7.org/fhir"></MeasureSupplementalData>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

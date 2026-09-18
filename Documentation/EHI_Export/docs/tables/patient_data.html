@@ -124,7 +124,7 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="id">id</span></td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="id">id</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title=''></td>
@@ -132,6 +132,11 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="person_patient_link.patient_id references patient_data.id"><a href='person_patient_link.html'>person_patient_link</a><span class='relatedKey'>.patient_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -139,6 +144,23 @@
                                         </table>
                                     </td>
                                     <td><p>Surrogate id of the record used as the primary incrementing key</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="title">title</span></td>
@@ -192,7 +214,7 @@
                                     <td><p>Financial information of the patient</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="fname">fname</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="fname">fname</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title=''></td>
@@ -209,7 +231,7 @@
                                     <td><p>First name of the patient</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="lname">lname</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="lname">lname</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title=''></td>
@@ -243,7 +265,7 @@
                                     <td><p>Middle name of the patient</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="DOB">DOB</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="DOB">DOB</span></td>
                                     <td>DATE</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -649,6 +671,23 @@
                                     <td><p>Email address of the patient</p></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="email_direct">email_direct</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>&#39;&#39;</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Trusted Direct email address of the patient</p></td>
+                                </tr>
+                                <tr>
                                     <td><span id="ethnoracial">ethnoracial</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
@@ -698,6 +737,23 @@
                                         </table>
                                     </td>
                                     <td><p>Ethnicity of the patient</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="religion">religion</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>40</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>&#39;&#39;</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Religion of the patient</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="interpretter">interpretter</span></td>
@@ -766,6 +822,23 @@
                                         </table>
                                     </td>
                                     <td><p>Monthly income information of the patient</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="billing_note">billing_note</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Billing notes for the patient</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="homeless">homeless</span></td>
@@ -848,6 +921,16 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="care_team.pid references patient_data.pid"><a href='care_team.html'>care_team</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="care_team_member.care_team_id references patient_data.pid"><a href='care_team_member.html'>care_team_member</a><span class='relatedKey'>.care_team_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="claims.patient_id references patient_data.pid"><a href='claims.html'>claims</a><span class='relatedKey'>.patient_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -858,12 +941,32 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="document_templates.pid references patient_data.pid"><a href='document_templates.html'>document_templates</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="documents.foreign_id references patient_data.pid"><a href='documents.html'>documents</a><span class='relatedKey'>.foreign_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
                                                 <td title="drug_sales.pid references patient_data.pid"><a href='drug_sales.html'>drug_sales</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ehi_export_job_patients.pid references patient_data.pid via FK_ehi_export_job_patients_patient_id"><a href='ehi_export_job_patients.html'>ehi_export_job_patients</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">FK_ehi_export_job_patients_patient_id</td>
+                                                <td class="constraint detail"><span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ehi_export_job_task_patients.pid references patient_data.pid via FK_ehi_export_job_task_patients_patient_id"><a href='ehi_export_job_task_patients.html'>ehi_export_job_task_patients</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">FK_ehi_export_job_task_patients_patient_id</td>
+                                                <td class="constraint detail"><span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="employer_data.pid references patient_data.pid"><a href='employer_data.html'>employer_data</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -879,6 +982,26 @@
                                             </tr>
                                             <tr>
                                                 <td title="external_procedures.ep_pid references patient_data.pid"><a href='external_procedures.html'>external_procedures</a><span class='relatedKey'>.ep_pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_CAMOS.pid references patient_data.pid"><a href='form_CAMOS.html'>form_CAMOS</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_CAMOS_category.pid references patient_data.pid"><a href='form_CAMOS_category.html'>form_CAMOS_category</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_CAMOS_item.pid references patient_data.pid"><a href='form_CAMOS_item.html'>form_CAMOS_item</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_CAMOS_subcategory.pid references patient_data.pid"><a href='form_CAMOS_subcategory.html'>form_CAMOS_subcategory</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -993,12 +1116,27 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="form_history_sdoh.pid references patient_data.pid"><a href='form_history_sdoh.html'>form_history_sdoh</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="form_misc_billing_options.pid references patient_data.pid"><a href='form_misc_billing_options.html'>form_misc_billing_options</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="form_observation.parent_observation_id references patient_data.pid"><a href='form_observation.html'>form_observation</a><span class='relatedKey'>.parent_observation_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="form_observation.pid references patient_data.pid"><a href='form_observation.html'>form_observation</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_observation.user references patient_data.pid"><a href='form_observation.html'>form_observation</a><span class='relatedKey'>.user</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1028,7 +1166,17 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="form_track_anything.pid references patient_data.pid"><a href='form_track_anything.html'>form_track_anything</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="form_vitals.pid references patient_data.pid"><a href='form_vitals.html'>form_vitals</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_vitals_calculation.pid references patient_data.pid"><a href='form_vitals_calculation.html'>form_vitals_calculation</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1058,6 +1206,11 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="issue_encounter.pid references patient_data.pid"><a href='issue_encounter.html'>issue_encounter</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="lists.pid references patient_data.pid"><a href='lists.html'>lists</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -1083,11 +1236,6 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="document_templates.pid references patient_data.pid"><a href='document_templates.html'>document_templates</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
                                                 <td title="form_aftercare_plan.pid references patient_data.pid"><a href='form_aftercare_plan.html'>form_aftercare_plan</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -1099,26 +1247,6 @@
                                             </tr>
                                             <tr>
                                                 <td title="form_bronchitis.pid references patient_data.pid"><a href='form_bronchitis.html'>form_bronchitis</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_CAMOS.pid references patient_data.pid"><a href='form_CAMOS.html'>form_CAMOS</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_CAMOS_category.pid references patient_data.pid"><a href='form_CAMOS_category.html'>form_CAMOS_category</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_CAMOS_item.pid references patient_data.pid"><a href='form_CAMOS_item.html'>form_CAMOS_item</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_CAMOS_subcategory.pid references patient_data.pid"><a href='form_CAMOS_subcategory.html'>form_CAMOS_subcategory</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1153,11 +1281,6 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="form_track_anything.pid references patient_data.pid"><a href='form_track_anything.html'>form_track_anything</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
                                                 <td title="form_transfer_summary.pid references patient_data.pid"><a href='form_transfer_summary.html'>form_transfer_summary</a><span class='relatedKey'>.pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -1168,17 +1291,17 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="issue_encounter.pid references patient_data.pid"><a href='issue_encounter.html'>issue_encounter</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
                                                 <td title="openemr_postcalendar_events.pc_pid references patient_data.pid"><a href='openemr_postcalendar_events.html'>openemr_postcalendar_events</a><span class='relatedKey'>.pc_pid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
                                                 <td title="patient_access_onsite.pid references patient_data.pid"><a href='patient_access_onsite.html'>patient_access_onsite</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient_care_experience_preferences.patient_id references patient_data.pid"><a href='patient_care_experience_preferences.html'>patient_care_experience_preferences</a><span class='relatedKey'>.patient_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1194,6 +1317,11 @@
                                             </tr>
                                             <tr>
                                                 <td title="patient_tracker.pid references patient_data.pid"><a href='patient_tracker.html'>patient_tracker</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient_treatment_intervention_preferences.patient_id references patient_data.pid"><a href='patient_treatment_intervention__11811af1.html'>patient_treatment_intervention_preferences</a><span class='relatedKey'>.patient_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -1806,8 +1934,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="ad_reviewed">ad_reviewed</span></td>
-                                    <td>DATE</td>
-                                    <td>10</td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -1857,8 +1985,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardiansname">guardiansname</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -1992,23 +2120,6 @@
                                     <td><p>SOAP Import Status (1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import)</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="email_direct">email_direct</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>&#39;&#39;</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Trusted Direct email address of the patient</p></td>
-                                </tr>
-                                <tr>
                                     <td><span id="cmsportal_login">cmsportal_login</span></td>
                                     <td>VARCHAR</td>
                                     <td>60</td>
@@ -2026,12 +2137,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="religion">religion</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>40</td>
+                                    <td><span id="care_team_provider">care_team_provider</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td title=''></td>
-                                    <td>&#39;&#39;</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -2040,12 +2151,29 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Religion of the patient</p></td>
+                                    <td><p>List of care team providers where each id is the provider id contained in the users.id. Entries are separated by a the pipe | symbol.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="industry">industry</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td><span id="care_team_facility">care_team_facility</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>List of care team facilities where each id is the facility/organization id contained in the facilities.id. Entries are separated by a the pipe | symbol</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="care_team_status">care_team_status</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2077,9 +2205,9 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="care_team_provider">care_team_provider</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td><span id="industry">industry</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2091,29 +2219,12 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>List of care team providers where each id is the provider id contained in the users.id. Entries are separated by a the pipe | symbol.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="billing_note">billing_note</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Billing notes for the patient</p></td>
+                                    <td></td>
                                 </tr>
                                 <tr>
                                     <td><span id="imm_reg_status">imm_reg_status</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2129,8 +2240,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="imm_reg_stat_effdate">imm_reg_stat_effdate</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2146,8 +2257,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="publicity_code">publicity_code</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2163,8 +2274,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="publ_code_eff_date">publ_code_eff_date</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2180,8 +2291,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="protect_indicator">protect_indicator</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2197,8 +2308,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="prot_indi_effdate">prot_indi_effdate</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2214,8 +2325,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardianrelationship">guardianrelationship</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2231,8 +2342,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardiansex">guardiansex</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2248,8 +2359,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardianaddress">guardianaddress</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2265,8 +2376,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardiancity">guardiancity</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2282,8 +2393,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardianstate">guardianstate</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2299,8 +2410,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardianpostalcode">guardianpostalcode</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2316,8 +2427,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardiancountry">guardiancountry</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2333,8 +2444,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardianphone">guardianphone</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2350,8 +2461,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardianworkphone">guardianworkphone</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2367,8 +2478,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="guardianemail">guardianemail</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2383,43 +2494,9 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>UUID of the record</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="care_team_facility">care_team_facility</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>List of care team facilities where each id is the facility/organization id contained in the facilities.id. Entries are separated by a the pipe | symbol</p></td>
-                                </tr>
-                                <tr>
                                     <td><span id="sexual_orientation">sexual_orientation</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2435,8 +2512,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="gender_identity">gender_identity</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2452,8 +2529,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="birth_fname">birth_fname</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2469,8 +2546,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="birth_lname">birth_lname</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2486,8 +2563,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="birth_mname">birth_mname</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2519,26 +2596,9 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="care_team_status">care_team_status</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td><span id="name_history">name_history</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>TINYTEXT</td>
+                                    <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2554,8 +2614,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="suffix">suffix</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>TINYTEXT</td>
+                                    <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2571,8 +2631,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="street_line_2">street_line_2</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>TINYTEXT</td>
+                                    <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2588,8 +2648,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="patient_groups">patient_groups</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2605,8 +2665,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="prevent_portal_apps">prevent_portal_apps</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2622,8 +2682,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="provider_since_date">provider_since_date</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>TINYTEXT</td>
+                                    <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2683,8 +2743,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="preferred_name">preferred_name</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>TINYTEXT</td>
+                                    <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2700,8 +2760,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="nationality_country">nationality_country</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>TINYTEXT</td>
+                                    <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -2731,6 +2791,94 @@
                                         </table>
                                     </td>
                                     <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="tribal_affiliations">tribal_affiliations</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.tribal_affiliations references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;tribal_affiliations&rsquo;</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="sex_identified">sex_identified</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.sex_identified references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;administrative_sex&rsquo;</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="interpreter_needed">interpreter_needed</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.interpreter_needed references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;yes_no_unknown&rsquo; and represents whether an interpreter is needed for this patient</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="advance_directive_user_authenticator">advance_directive_user_authenticator</span></td>
+                                    <td>BIGINT</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient_data.advance_directive_user_authenticator references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>fk to users.id of the user who authenticates that the advance care directive is valid.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -2767,6 +2915,18 @@
                                     <td>Performance</td>
                                     <td><span title='Ascending'>Asc</span></td>
                                     <td>id</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_patient_dob</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>DOB</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_patient_name</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>lname + fname</td>
                                 </tr>
                                 <tr>
                                     <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> pid</td>

@@ -65,7 +65,7 @@ namespace OpenEMR\FHIR\R4;
 /**
  * This is the base resource type for everything.
  */
-class FHIRResource implements \JsonSerializable
+class FHIRResource implements \JsonSerializable, \Stringable
 {
     /**
      * The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.
@@ -210,7 +210,7 @@ class FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getId();
     }
@@ -237,15 +237,13 @@ class FHIRResource implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Resource xmlns="http://hl7.org/fhir"></Resource>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Resource xmlns="http://hl7.org/fhir"></Resource>');
         if (isset($this->id)) {
             $this->id->xmlSerialize(true, $sxe->addChild('id'));
         }

@@ -4,6 +4,8 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class RuleTemplateExtension
 {
     public static function render_select($args)
@@ -19,7 +21,7 @@ class RuleTemplateExtension
                 <option id="<?php echo attr($option['id']); ?>"
                         value="<?php echo attr($option['id']); ?>"
                     <?php echo $args['value'] == $option['id'] ? "SELECTED" : "" ?>>
-                    <?php echo xlt($option['label']); ?>
+                    <?php echo text(is_string($option['label'] ?? null) ? $option['label'] : ''); ?>
                 </option>
             <?php } ?>
 
@@ -68,7 +70,7 @@ class RuleTemplateExtension
             <span class="end_col">
             <input data-grp-tgt="flt_target_interval" class="form-control field short" type="text" name="fld_target_interval" value="<?php echo xlt($criteria->interval); ?>" />
 
-            <?php echo self::timeunit_select(array( "context" => "rule_target_intervals", "target" => "fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType )); ?>
+            <?php echo self::timeunit_select([ "context" => "rule_target_intervals", "target" => "fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType ]); ?>
         </span>
         </p>
     <?php } ?>
@@ -76,7 +78,7 @@ class RuleTemplateExtension
 
     public static function timeunit_select($args)
     {
-        require_once($GLOBALS["srcdir"] . "/options.inc.php");
+        require_once(OEGlobalsBag::getInstance()->getKernel()->getSrcDir() . "/options.inc.php");
 
         return generate_select_list(
             $args['name'],
@@ -87,18 +89,18 @@ class RuleTemplateExtension
             '',
             '',
             $args['id'] ?? '',
-            array( "data-grp-tgt" => $args['target'] )
+            [ "data-grp-tgt" => $args['target'] ]
         );
     }
 
     public static function getLabel($value, $list_id)
     {
-        require_once($GLOBALS["srcdir"] . "/options.inc.php");
+        require_once(OEGlobalsBag::getInstance()->getKernel()->getSrcDir() . "/options.inc.php");
 
         // get from list_options
-        $result = generate_display_field(array('data_type' => '1','list_id' => $list_id), $value);
+        $result = generate_display_field(['data_type' => '1','list_id' => $list_id], $value);
         // trap for fa-exclamation-circle used to indicate empty input from layouts options.
-        if ($result != '' && stripos($result, 'fa-exclamation-circle') === false) {
+        if ($result != '' && stripos((string) $result, 'fa-exclamation-circle') === false) {
             return $result;
         }
 
@@ -112,7 +114,7 @@ class RuleTemplateExtension
         // get from layout_options
         $sql = sqlStatement(
             "SELECT title from layout_options WHERE form_id = ? and field_id = ?",
-            array($form_id, $value)
+            [$form_id, $value]
         );
         if (sqlNumRows($sql) > 0) {
             $result = sqlFetchArray($sql);

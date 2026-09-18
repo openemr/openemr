@@ -25,23 +25,19 @@
  */
 class thumbnail
 {
-    var $allowableTypes = array (
+    public $allowableTypes =  [
             IMAGETYPE_GIF,
             IMAGETYPE_JPEG,
             IMAGETYPE_PNG
-    );
+    ];
     public function imageCreateFromFile($filename, $imageType)
     {
-        switch ($imageType) {
-            case IMAGETYPE_GIF:
-                return imagecreatefromgif($filename);
-            case IMAGETYPE_JPEG:
-                return imagecreatefromjpeg($filename);
-            case IMAGETYPE_PNG:
-                return imagecreatefrompng($filename);
-            default:
-                return false;
-        }
+        return match ($imageType) {
+            IMAGETYPE_GIF => imagecreatefromgif($filename),
+            IMAGETYPE_JPEG => imagecreatefromjpeg($filename),
+            IMAGETYPE_PNG => imagecreatefrompng($filename),
+            default => false,
+        };
     }
 
     /**
@@ -50,19 +46,18 @@ class thumbnail
      *
      * @param string $sourceFilename
      *          Filename for the image to have thumbnail made from
-     * @param integer $maxWidth
-     *          The maxium width for the resulting thumbnail
-     * @param integer $maxHeight
-     *          The maxium height for the resulting thumbnail
+     * @param int $maxWidth
+     *          The maximum width for the resulting thumbnail
+     * @param int $maxHeight
+     *          The maximum height for the resulting thumbnail
      * @param string $targetFormatOrFilename
      *          Either a filename extension (gif|jpg|png) or the
-     * @param
-     *          bool set to true to set the image to the exact size given (stretching if necessary)
+     * @param bool $useExactSize set to true to set the image to the exact size given (stretching if necessary)
      *          filename the resulting file should be written to. This is optional and if not specified
      *          will send a jpg to the browser.
-     * @return boolean true if the image could be created, false if not
+     * @return bool true if the image could be created, false if not
      */
-    public function generate($sourceFilename, $maxWidth, $maxHeight, $targetFormatOrFilename = 'jpg', $useExactSize = false)
+    public function generate($sourceFilename, $maxWidth, $maxHeight, $targetFormatOrFilename = 'jpg', $useExactSize = false): bool
     {
         $size = getimagesize($sourceFilename); // 0 = width, 1 = height, 2 = type
 
@@ -81,17 +76,11 @@ class thumbnail
             $extension = strtolower($pathinfo ['extension']);
         }
 
-        switch ($extension) {
-            case 'gif':
-                $function = 'imagegif';
-                break;
-            case 'png':
-                $function = 'imagepng';
-                break;
-            default:
-                $function = 'imagejpeg';
-                break;
-        }
+        $function = match ($extension) {
+            'gif' => 'imagegif',
+            'png' => 'imagepng',
+            default => 'imagejpeg',
+        };
 
         // load the image and return false if didn't work
         $source = $this->imageCreateFromFile($sourceFilename, $size [2]);

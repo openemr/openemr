@@ -3,7 +3,7 @@
 /**
  * FhirAppointmentService handles the mapping of data from the OpenEMR appointment service into FHIR resources.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\Utilities;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAppointmentStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -26,6 +28,7 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -82,7 +85,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $appt = new FHIRAppointment();
 
@@ -156,7 +159,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $code->setCode($category[ 0 ][ 'pc_constant_id' ]);
             $code->setDisplay($category[ 0 ][ 'pc_catname' ]);
             // var_dump( $_SERVER );
-            $system = str_replace('/Appointment', '/ValueSet/appointment-type', $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? ''));
+            $system = str_replace('/Appointment', '/ValueSet/appointment-type', OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? ''));
             $code->setSystem($system);
             $appointmentType->addCoding($code);
             $appt->setAppointmentType($appointmentType);
@@ -233,7 +236,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
-        } elseif ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
+        } elseif (!Utilities::isDateEmpty($dataRecord['pc_endDate']) && !empty($dataRecord['pc_startTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
@@ -260,13 +263,12 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+    * @return ProcessingResult OpenEMR records
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->appointmentService->search($openEMRSearchParameters, true, $puuidBind);
+        return $this->appointmentService->search($openEMRSearchParameters, true);
     }
 
     /**

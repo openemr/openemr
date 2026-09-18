@@ -132,23 +132,16 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="clinical_notes_documents.clinical_note_id references form_clinical_notes.id"><a href='clinical_notes_documents.html'>clinical_notes_documents</a><span class='relatedKey'>.clinical_note_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="clinical_notes_procedure_results.clinical_note_id references form_clinical_notes.id"><a href='clinical_notes_procedure_results.html'>clinical_notes_procedure_results</a><span class='relatedKey'>.clinical_note_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -164,6 +157,23 @@
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -389,23 +399,6 @@
                                     <td><p>Comes from the list_options.list_id=&lsquo;Clinical_Note_Type&rsquo; and represents the standardized note type for this note</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="note_related_to">note_related_to</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Reference to lists id for note relationships(json)</p></td>
-                                </tr>
-                                <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="clinical_notes_category">clinical_notes_category</span></td>
                                     <td>VARCHAR</td>
                                     <td>100</td>
@@ -426,6 +419,23 @@
                                         </table>
                                     </td>
                                     <td><p>Comes from the list_options.list_id=&lsquo;Clinical_Note_Category&rsquo; and represents the main category for this kind of clinical note</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="note_related_to">note_related_to</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
                                 </tr>
                                 <tr>
                                     <td><span id="last_updated">last_updated</span></td>

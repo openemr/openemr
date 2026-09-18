@@ -1,4 +1,4 @@
-const TODAY = '2021-04-06T18:55:55.301Z';
+const TODAY = '';
 
 const cityA = {
     city: 'Blue Bell',

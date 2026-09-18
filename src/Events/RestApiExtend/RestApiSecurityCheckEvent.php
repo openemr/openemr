@@ -7,7 +7,7 @@
  * or enhancing it with additional checks.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,11 +22,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 class RestApiSecurityCheckEvent extends Event
 {
     const EVENT_HANDLE = 'api.route.security.check';
-
-    /**
-     * @var HttpRestRequest
-     */
-    private $restRequest;
 
     private $scopeType;
 
@@ -51,14 +46,13 @@ class RestApiSecurityCheckEvent extends Event
     private string $permission;
 
     /**
-     * @param HttpRestRequest|null $request
+     * @param HttpRestRequest|null $restRequest
      */
-    public function __construct(?HttpRestRequest $request = null)
+    public function __construct(private ?HttpRestRequest $restRequest = null)
     {
         $this->permission = "";
         $this->scopeType = "";
         $this->resource = "";
-        $this->restRequest = $request;
         $this->securityCheckFailedResponse = null;
         $this->skipSecurityCheck = false;
     }
@@ -91,7 +85,7 @@ class RestApiSecurityCheckEvent extends Event
         $this->resource = $resource;
     }
 
-    public function getResource()
+    public function getResource(): string
     {
         return $this->resource;
     }

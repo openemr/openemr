@@ -1,0 +1,3 @@
+id,date,reason,facility,facility_id,pid,encounter,onset_date,sensitivity,provider_id,billing_facility,class_code,encounter_type_code,encounter_type_description,date_end
+7001,2026-01-15 09:30:00,Hypertension follow-up,Demo Community Clinic,1,1001,5001,2026-01-10,normal,10,1,AMB,AMB,Ambulatory,2026-01-15 10:05:00
+7002,2026-02-03 14:00:00,Fatigue and fever,Demo Community Clinic,1,1002,5002,2026-02-01,normal,11,1,AMB,AMB,Ambulatory,2026-02-03 14:45:00

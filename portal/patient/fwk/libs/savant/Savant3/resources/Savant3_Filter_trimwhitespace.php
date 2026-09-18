@@ -59,18 +59,18 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
         $buffer = preg_replace("!<script[^>]+>.*?</script>!is", '@@@SAVANT:TRIM:SCRIPT@@@', $buffer);
 
         // Pull out the pre blocks
-        preg_match_all("!<pre[^>]*>.*?</pre>!is", $buffer, $match);
+        preg_match_all("!<pre[^>]*>.*?</pre>!is", (string) $buffer, $match);
         $pre_blocks = $match [0];
-        $buffer = preg_replace("!<pre[^>]*>.*?</pre>!is", '@@@SAVANT:TRIM:PRE@@@', $buffer);
+        $buffer = preg_replace("!<pre[^>]*>.*?</pre>!is", '@@@SAVANT:TRIM:PRE@@@', (string) $buffer);
 
         // Pull out the textarea blocks
-        preg_match_all("!<textarea[^>]+>.*?</textarea>!is", $buffer, $match);
+        preg_match_all("!<textarea[^>]+>.*?</textarea>!is", (string) $buffer, $match);
         $textarea_blocks = $match [0];
-        $buffer = preg_replace("!<textarea[^>]+>.*?</textarea>!is", '@@@SAVANT:TRIM:TEXTAREA@@@', $buffer);
+        $buffer = preg_replace("!<textarea[^>]+>.*?</textarea>!is", '@@@SAVANT:TRIM:TEXTAREA@@@', (string) $buffer);
 
         // remove all leading spaces, tabs and carriage returns NOT
-        // preceeded by a php close tag.
-        $buffer = trim(preg_replace('/((?<!\?>)\n)[\s]+/m', '\1', $buffer));
+        // preceded by a php close tag.
+        $buffer = trim((string) preg_replace('/((?<!\?>)\n)[\s]+/m', '\1', (string) $buffer));
 
         // replace script blocks
         Savant3_Filter_trimwhitespace::replace("@@@SAVANT:TRIM:SCRIPT@@@", $script_blocks, $buffer);
@@ -96,13 +96,12 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
      * @param string $replace
      *          Replace with this text.
      *
-     * @param
-     *          string &$buffer The source text.
+     * @param string &$buffer The source text, rewritten in place.
      *
-     * @return string The text after search-and-replace.
+     * @return void All callers consume the result through the &$buffer reference.
      *
      */
-    protected static function replace($search, $replace, &$buffer)
+    protected static function replace($search, $replace, &$buffer): void
     {
         $len = strlen($search);
         $pos = 0;
@@ -110,7 +109,7 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
 
         for ($i = 0; $i < $count; $i++) {
             // does the search-string exist in the buffer?
-            $pos = strpos($buffer, $search, $pos);
+            $pos = strpos((string) $buffer, $search, $pos);
             if ($pos !== false) {
                 // replace the search-string
                 $buffer = substr_replace($buffer, $replace [$i], $pos, $len);

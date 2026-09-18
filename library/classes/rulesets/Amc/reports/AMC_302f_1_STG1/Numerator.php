@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_302f_1_STG1_Numerator implements AmcFilterIF
@@ -29,7 +29,7 @@ class AMC_302f_1_STG1_Numerator implements AmcFilterIF
         return "AMC_302f_1_STG1 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
        //The number of patients in the denominator who have entries of height/length, weight and blood pressure recorded as structured data (effective 2013 only).
         if (

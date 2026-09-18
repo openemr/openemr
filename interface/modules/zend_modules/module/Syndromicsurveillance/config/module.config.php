@@ -3,65 +3,50 @@
 namespace Syndromicsurveillance;
 
 use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\InvokableFactory;
-use Laminas\Router\Http\Segment;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
 use Syndromicsurveillance\Controller\SyndromicsurveillanceController;
-use Syndromicsurveillance\Model\Syndromicsurveillance;
 use Syndromicsurveillance\Model\SyndromicsurveillanceTable;
 
-return array(
-    'controllers' => array(
+return [
+    'controllers' => [
         'factories' => [
-            SyndromicsurveillanceController::class => function (ContainerInterface $container, $requestedName) {
-                return new SyndromicsurveillanceController($container->get(SyndromicsurveillanceTable::class));
-            },
-            PdfTemplatesController::class => InvokableFactory::class,
+            SyndromicsurveillanceController::class => fn(ContainerInterface $container, $requestedName): \Syndromicsurveillance\Controller\SyndromicsurveillanceController => new SyndromicsurveillanceController($container->get(SyndromicsurveillanceTable::class))
         ]
-    ),
+    ],
 
-    'router' => array(
-        'routes' => array(
-            'syndromicsurveillance' => array(
+    'router' => [
+        'routes' => [
+            'syndromicsurveillance' => [
                 'type'    => 'segment',
-                'options' => array(
+                'options' => [
                     'route'    => '/syndromicsurveillance[/:action][/:id]',
-                    'constraints' => array(
+                    'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
+                    ],
+                    'defaults' => [
                         'controller' => SyndromicsurveillanceController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
-        ),
-    ),
+                    ],
+                ],
+            ],
+        ],
+    ],
 
-    'view_manager' => array(
-        'template_path_stack' => array(
+    'view_manager' => [
+        'template_path_stack' => [
             'syndromicsurveillance' => __DIR__ . '/../view/',
-        ),
-        'template_map' => array(
+        ],
+        'template_map' => [
             'syndromicsurveillance/layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
-        ),
-        'strategies' => array(
+        ],
+        'strategies' => [
             'ViewJsonStrategy',
             'ViewFeedStrategy',
-        ),
-    ),
+        ],
+    ],
     'service_manager' => [
-        'factories' => array(
-            SyndromicsurveillanceTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $resultSetPrototype = new ResultSet();
-                $resultSetPrototype->setArrayObjectPrototype(new Syndromicsurveillance());
-                $tableGateway = new TableGateway('module_menu', $dbAdapter, null, $resultSetPrototype);
-                $table = new SyndromicsurveillanceTable($tableGateway);
-                return $table;
-            }
-        ),
+        'factories' => [
+            SyndromicsurveillanceTable::class => fn(ContainerInterface $container, $requestedName): SyndromicsurveillanceTable => new SyndromicsurveillanceTable()
+        ],
     ]
-);
+];

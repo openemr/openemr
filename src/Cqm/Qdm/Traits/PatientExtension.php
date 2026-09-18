@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -46,8 +47,8 @@ trait PatientExtension
     }
 
     /**
-     * @param null $category
-     * @param null $status
+     * @param ?string $category
+     * @param ?string $status
      * @return mixed
      *
      * Return the first actual code for this data element code. This is used for building a hash count of codes

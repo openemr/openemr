@@ -4,7 +4,7 @@
  * The MenuItemInterface, ensuring provided menu items can successfully be rendered
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2023 Providence Healthtech
@@ -54,7 +54,7 @@ interface MenuItemInterface
     /**
      * Return the requirement integer
      *
-     * @return integer
+     * @return int
      */
     public function getRequirements(): int;
 

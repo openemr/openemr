@@ -3,7 +3,7 @@
 /**
  * FHIR Person Service.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -16,17 +16,28 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * FhirPersonService is backed by the `users` table (staff records only —
+ * patients live in `patient_data` and never appear here). No US Core profile
+ * covers Person, and patient callers reach ONC-shaped provider directory
+ * information via {@see FhirPractitionerService} and
+ * {@see FhirPractitionerRoleService} instead. This service therefore does
+ * NOT declare a marker interface: a patient-scoped call reaching
+ * {@see FhirServiceBase} without one of the two compartment markers is
+ * handled by the base fail-closed path (denied result, no rows). The route
+ * layer also branches on `isPatientRequest()` and returns 403 with a
+ * clearer error shape rather than a silent empty bundle.
+ */
 class FhirPersonService extends FhirServiceBase implements IFhirExportableResourceService
 {
     use BulkExportSupportAllOperationsTrait;
@@ -82,10 +93,10 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * Parses an OpenEMR user record, returning the equivalent FHIR Person Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitioner
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $person = new FHIRPerson();
 
@@ -98,7 +109,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         }
         $person->setMeta($meta);
 
-        $person->setActive($dataRecord['active'] == "1" ? true : false);
+        $person->setActive($dataRecord['active'] == "1");
 
         $narrativeText = '';
         if (isset($dataRecord['fname'])) {
@@ -107,10 +118,10 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         if (isset($dataRecord['lname'])) {
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
-        $text = array(
+        $text = [
             'status' => 'generated',
             'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-        );
+        ];
         $person->setText($text);
 
         $id = new FHIRId();
@@ -121,35 +132,35 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         $person->addAddress(UtilsService::createAddressFromRecord($dataRecord));
 
         if (!empty($dataRecord['phone'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phone'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonew1'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonew1'],
                 'use' => 'work'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonecell'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonecell'],
                 'use' => 'mobile'
-            ));
+            ]);
         }
 
         if (isset($dataRecord['email'])) {
-            $person->addTelecom(array(
+            $person->addTelecom([
                 'system' => 'email',
                 'value' => $dataRecord['email'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if ($encode) {
@@ -165,9 +176,9 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource($fhirResource = [])
     {
-        $data = array();
+        $data = [];
 
         if (isset($fhirResource['id'])) {
             $data['uuid'] = $fhirResource['id'];
@@ -241,12 +252,12 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     }
 
     /**
-     * Inserts an OpenEMR record into the sytem.
+     * Inserts an OpenEMR record into the system.
      *
      * @param array $openEmrRecord OpenEMR practitioner record
      * @return ProcessingResult
      */
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): never
     {
         // implement this if we want to allow inserts on this resource
         throw new \BadMethodCallException("insert is not supported in this resource");
@@ -260,7 +271,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): never
     {
         // implement this if we want to allow updates on this resource
         throw new \BadMethodCallException("update is not supported in this resource");
@@ -269,15 +280,14 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->userService->search($openEMRSearchParameters);
     }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false): never
     {
         // TODO: If Required in Future
         throw new \BadMethodCallException("provenance record is not supported in this resource");

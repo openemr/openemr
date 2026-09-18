@@ -21,8 +21,9 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrResults;
+use OpenEMR\Core\OEGlobalsBag;
 
-require_once($GLOBALS['fileroot'] . "/library/clinical_rules.php");
+require_once(OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/library/clinical_rules.php");
 
 /**
  * class OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager
@@ -33,14 +34,14 @@ class CdrAlertManager
     /**
      * Constructor
      */
-    function CdrActivationManager($id = "", $prefix = "")
+    public function CdrActivationManager($id = "", $prefix = "")
     {
     }
 
 
-    function populate()
+    public function populate()
     {
-        $cdra = array();
+        $cdra = [];
 
         $rules = resolve_rules_sql('', 0, true);
 
@@ -52,7 +53,7 @@ class CdrAlertManager
         return $cdra;
     }
 
-    function update($rule_ids, $active_alert_flags, $passive_alert_flags, $patient_reminder_flags, $access_controls)
+    public function update($rule_ids, $active_alert_flags, $passive_alert_flags, $patient_reminder_flags, $access_controls)
     {
 
         for ($index = 0; $index < count($rule_ids); $index++) {

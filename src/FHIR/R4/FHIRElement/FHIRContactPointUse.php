@@ -124,7 +124,7 @@ class FHIRContactPointUse extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -138,15 +138,13 @@ class FHIRContactPointUse extends FHIRElement implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContactPointUse xmlns="http://hl7.org/fhir"></ContactPointUse>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContactPointUse xmlns="http://hl7.org/fhir"></ContactPointUse>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

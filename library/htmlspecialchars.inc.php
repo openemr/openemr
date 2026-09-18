@@ -10,47 +10,131 @@
  * @copyright Copyright (c) 2011 Boyd Stephen Smith Jr.
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * Design note for the escape helpers below (attr, text, js_escape, attr_js,
+ * attr_url, js_url, xmlEscape, errorLogEscape, csvEscape, ...):
+ *
+ *   The `@param string` annotations are deliberately NARROW. They exist so
+ *   PHPStan tells you when an escape is being applied to something that
+ *   does NOT need escaping. An int, float, bool, or already-sanitized
+ *   primitive carries no characters that any of these functions would
+ *   modify, so wrapping it is dead work that hides intent at the call
+ *   site.
+ *
+ *   When PHPStan reports "expects string, int given" (or similar) at a
+ *   call site, treat it as a signal — not noise to silence. The right
+ *   responses, in order of preference:
+ *
+ *     1. Drop the escape entirely. If the value is already a safe
+ *        primitive (e.g., `echo (int) $pid`), emit it directly.
+ *     2. If the value is a true union (e.g., `int|string` from a row
+ *        cell), narrow it explicitly at the call site:
+ *        `attr((string) $cell)`. The cast is harmless and makes the
+ *        intent clear.
+ *
+ *   Do NOT widen these `@param` types to `mixed`/`scalar` to make the
+ *   warnings disappear. That throws away the signal everywhere else and
+ *   re-hides the dead-escape sites this file is trying to surface.
  */
 
 /**
  * Escape a javascript literal.
+ *
+ * @param string $text
+ * @return string
  */
+#[NoDiscard]
 function js_escape($text)
 {
     return json_encode($text);
 }
 
 /**
- * Escape a javascript literal with a protected string
- */
-function js_escape_protected($text, string $protected = '\r\n')
-{
-    if (empty($text)) {
-        return '""';
-    }
-    $bookmark = '___PROTECTED_STRING___';
-    return str_replace($bookmark, $protected, json_encode(str_replace($protected, $bookmark, $text)));
-}
-
-/**
  * Escape a javascript literal within html onclick attribute.
+ *
+ * @param string $text
  */
-function attr_js($text)
+#[NoDiscard]
+function attr_js($text): string
 {
     return attr(json_encode($text));
 }
 
 /**
  * Escape html and url encode a url item.
+ *
+ * @param string $text
  */
-function attr_url($text)
+#[NoDiscard]
+function attr_url($text): string
 {
     return attr(urlencode($text ?? ''));
 }
 
 /**
- * Escape js and url encode a url item.
+ * Validate URL scheme against an allowlist and escape for use in href/action attributes.
+ *
+ * Prevents javascript:, data:, vbscript:, blob:, and other dangerous URL schemes
+ * from being rendered in HTML link attributes. Allows http, https, mailto, tel,
+ * ftp, ftps, and relative URLs. Returns '#' for any disallowed scheme.
+ *
+ * Use this filter instead of |attr when the full URL comes from a variable,
+ * e.g. href="{{ userUrl|safe_href }}". For URL query-string parameters,
+ * continue using |attr_url.
+ *
+ * @param string|null $url The URL to validate and escape
+ * @return string The escaped URL, or '#' if the scheme is disallowed
  */
+#[NoDiscard]
+function safe_href(?string $url): string
+{
+    $url = trim($url ?? '');
+
+    // Empty string or fragment-only references are safe
+    if ($url === '' || $url[0] === '#') {
+        return attr($url);
+    }
+
+    // Relative URLs (path-only or query-only) are safe
+    if ($url[0] === '/' || $url[0] === '?') {
+        return attr($url);
+    }
+
+    // Determine the URL scheme
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+
+    // No explicit scheme means a relative URL — safe
+    if ($scheme === null) {
+        return attr($url);
+    }
+
+    // Block malformed URLs that parse_url can't handle
+    if ($scheme === false) {
+        return '#';
+    }
+
+    // Allowlist of safe URL schemes
+    $allowedSchemes = ['http', 'https', 'mailto', 'tel', 'ftp', 'ftps'];
+
+    if (in_array(strtolower($scheme), $allowedSchemes, true)) {
+        return attr($url);
+    }
+
+    // Disallowed scheme — log and return safe fallback
+    \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+        "safe_href(): blocked disallowed URL scheme",
+        ['scheme' => $scheme]
+    );
+    return '#';
+}
+
+/**
+ * Escape js and url encode a url item.
+ *
+ * @param string $text
+ * @return string
+ */
+#[NoDiscard]
 function js_url($text)
 {
     return js_escape(urlencode($text ?? ''));
@@ -58,8 +142,11 @@ function js_url($text)
 
 /**
  * Escape variables that are outputted into the php error log.
+ *
+ * @param string $text
  */
-function errorLogEscape($text)
+#[NoDiscard]
+function errorLogEscape($text): string
 {
     return attr($text);
 }
@@ -74,17 +161,20 @@ function errorLogEscape($text)
  *  4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
  * If needed in future, will add a second parameter called 'options' which will be an array of option tokens that will allow
  * less stringent (or more stringent) mechanisms to escape for csv.
+ * @param string $text
  */
-function csvEscape($text)
+#[NoDiscard]
+function csvEscape($text): string
 {
     // 1. Remove all the following characters:  = + " |
     $text = preg_replace('/[=+"|]/', '', $text ?? '');
 
     // 2. Only remove leading - characters (since need in dates)
     // 3. Only remove leading @ characters (since need in email addresses)
-    $text = preg_replace('/^[\-@]+/', '', $text);
+    // 4. Also remove leading tab and carriage return characters (formula injection vectors)
+    $text = preg_replace('/^[\-@\t\r]+/', '', (string) $text);
 
-    // 4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
+    // 5. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
     return '"' . $text . '"';
 }
 
@@ -97,15 +187,18 @@ function csvEscape($text)
  *
  * Escapes & < > ' "
  * TODO: not sure if need to escape ' and ", which are escaping for now (via the ENT_QUOTES flag)
+ * @param string $text
  */
-function xmlEscape($text)
+#[NoDiscard]
+function xmlEscape($text): string
 {
-    return htmlspecialchars(($text ?? ''), ENT_XML1 | ENT_QUOTES);
+    return htmlspecialchars($text ?? '', ENT_XML1 | ENT_QUOTES);
 }
 
 /**
  * Special function to remove the 'javascript' strings (case insensitive) for when including a variable within a html link
  */
+#[NoDiscard]
 function javascriptStringRemove(?string $text): string
 {
     $returnText = str_ireplace('javascript', '', $text ?? '');
@@ -120,13 +213,14 @@ function javascriptStringRemove(?string $text): string
 /**
  * Special function to check if 'javascript' string (case insensitive) is in a variable within a html link
  */
+#[NoDiscard]
 function javascriptStringCheck(?string $text): bool
 {
-    if (stripos($text ?? '', 'javascript') === false) {
-        return false;
-    } else {
-        return true;
-    }
+    // Must be case-insensitive: browsers execute mixed-case javascript: URIs,
+    // and javascriptStringRemove() strips 'javascript' case-insensitively, so a
+    // case-sensitive check here would abort the recursion early and leave an
+    // executable payload (e.g. 'javasJAVASCRIPTcript' -> 'javascript').
+    return stripos($text ?? '', 'javascript') !== false;
 }
 
 /**
@@ -147,9 +241,10 @@ function javascriptStringCheck(?string $text): bool
  *                     or ">".
  * @return string The string, with "&", "<", and ">" escaped.
  */
-function text($text)
+#[NoDiscard]
+function text($text): string
 {
-    return htmlspecialchars(($text ?? ''), ENT_NOQUOTES);
+    return htmlspecialchars($text ?? '', ENT_NOQUOTES);
 }
 
 /**
@@ -172,6 +267,7 @@ function text($text)
  * @param int $depth The current recursive depth of the escaping function.  Defaults to 0 for initial call
  * @return array The array that has each key and property escaped.
  */
+#[NoDiscard]
 function textArray(array $arr, $depth = 0)
 {
     if ($depth > 50) {
@@ -180,11 +276,7 @@ function textArray(array $arr, $depth = 0)
 
     $newArray = [];
     foreach ($arr as $key => $value) {
-        if (is_array($value)) {
-            $newArray[text($key)] = textArray($value, $depth + 1);
-        } else {
-            $newArray[text($key)] = text($value);
-        }
+        $newArray[text($key)] = is_array($value) ? textArray($value, $depth + 1) : text($value);
     }
     return $newArray;
 }
@@ -203,47 +295,43 @@ function textArray(array $arr, $depth = 0)
  * NOTE: This can be used as a "generic" HTML escape since it does maximal
  * quoting.  However, some HTML and XML contexts (CDATA) don't provide
  * escape mechanisms.  Also, further pre- or post-escaping might need to
- * be done when embdedded other languages (like JavaScript) inside HTML /
+ * be done when embedded other languages (like JavaScript) inside HTML /
  * XML documents.
  *
- * @param string $text The string to escape, possibly including (&), (<),
- *                     (>), ('), and (").
- * @return string The string, with (&), (<), (>), ("), and (') escaped.
+ * @param string $text The string to escape
  */
-function attr($text)
+#[NoDiscard]
+function attr($text): string
 {
-    return htmlspecialchars(($text ?? ''), ENT_QUOTES);
+    return htmlspecialchars($text ?? '', ENT_QUOTES);
 }
 
 /**
- * Don't call this function.  You don't see this function.  This function
- * doesn't exist.
+ * Private helper used by xlt()/xla()/xlj()/xlx() to look up a translation.
+ *
+ * library/translation.inc.php (which declares xl()) and this file are both
+ * in composer's autoload.files list, so xl() is always defined by the time
+ * any caller can reach this helper. The null check exists so the xl*
+ * wrappers can accept nullable input without sprinkling coalesces.
  *
  * TODO: Hide this function so it can be called from this file but not from
- * PHP that includes / requires this file.  Either that, or write reasonable
+ * PHP that includes / requires this file. Either that, or write reasonable
  * documentation and clean up the name.
  */
-function hsc_private_xl_or_warn($key)
+#[NoDiscard]
+function hsc_private_xl_or_warn(?string $key): string
 {
-    if (function_exists('xl')) {
-        return xl($key);
-    } else {
-        trigger_error(
-            'Translation via xl() was requested, but the xl()'
-            . ' function is not defined, yet.',
-            E_USER_WARNING
-        );
-        return $key;
-    }
+    // @phpstan-ignore argument.type (intentional pass-through wrapper for translation)
+    return $key === null ? '' : xl($key);
 }
 
 /**
  * Translate via xl() and then escape via text().
  *
- * @param string $key The string to escape, possibly including "&", "<",
- *                    or ">".
- * @return string The string, with "&", "<", and ">" escaped.
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string, with "&", "<", and ">" escaped.
  */
+#[NoDiscard]
 function xlt($key)
 {
     return text(hsc_private_xl_or_warn($key));
@@ -252,28 +340,47 @@ function xlt($key)
 /**
  * Translate via xl() and then escape via attr().
  *
- * @param string $key The string to escape, possibly including (&), (<),
- *                    (>), ('), and (").
- * @return string The string, with (&), (<), (>), ("), and (') escaped.
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string, with (&), (<), (>), ("), and (') escaped.
  */
+#[NoDiscard]
 function xla($key)
 {
     return attr(hsc_private_xl_or_warn($key));
 }
 
-/*
- * Translate via xl() and then escape via js_escape for use with javascript literals
+/**
+ * Translate via xl() and then escape via js_escape() for use with JavaScript literals.
+ *
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string escaped for JavaScript.
  */
+#[NoDiscard]
 function xlj($key)
 {
     return js_escape(hsc_private_xl_or_warn($key));
 }
 
-/*
- * @Deprecated
- *Translate via xl() and then escape via addslashes for use with javascript literals
+/**
+ * Translate via xl() and then escape via xmlEscape() for use in XML contexts.
+ *
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string, escaped for XML contexts.
  */
-function xls($key)
+#[NoDiscard]
+function xlx($key)
 {
-    return addslashes(hsc_private_xl_or_warn($key));
+    return xmlEscape(hsc_private_xl_or_warn($key));
+}
+
+/**
+ * Translate via xl() and then escape via csvEscape() for use in XML contexts.
+ *
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string, escaped for CSV contexts.
+ */
+#[NoDiscard]
+function xlc($key)
+{
+    return csvEscape(hsc_private_xl_or_warn($key));
 }

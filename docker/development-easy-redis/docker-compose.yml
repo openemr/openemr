@@ -1,0 +1,324 @@
+services:
+  redis-master:
+    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    container_name: redis-master
+    command:
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replica-announce-ip
+    - redis-master
+    ports:
+    - "${WT_REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "strongpassword", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  redis-replica-1:
+    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    container_name: redis-replica-1
+    command:
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-1
+  redis-replica-2:
+    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    container_name: redis-replica-2
+    command:
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-2
+  sentinel-1:
+    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    container_name: sentinel-1
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    depends_on:
+      redis-master:
+        condition: service_healthy
+  sentinel-2:
+    image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
+    container_name: sentinel-2
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    depends_on:
+      redis-master:
+        condition: service_healthy
+  mysql:
+    restart: always
+    image: mariadb:12.3.3@sha256:805c8e104bd563d5bfa24fadd3f31cd419ea859cb5277f32b5dbf2db714f9ed1
+    command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
+    ports:
+    - "${WT_MYSQL_PORT:-8320}:3306"
+    volumes:
+    - ../library/sql-ssl-certs-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
+    - ../library/sql-ssl-certs-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ../library/sql-ssl-certs-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
+    - databasevolume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr:
+    restart: always
+    image: openemr/openemr:flex@sha256:c9d9b0100f51bdb37dd5abe5e960860f35267595865b5a23f3f8ee1547a743f1
+    ports:
+    - "${WT_HTTP_PORT:-8300}:80"
+    - "${WT_HTTPS_PORT:-9300}:443"
+    volumes:
+    - ${OPENEMR_DIR:-../..}:/openemr:ro
+    - ${OPENEMR_DIR:-../..}:/var/www/localhost/htdocs/openemr:rw
+    - assetvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
+    - themevolume:/var/www/localhost/htdocs/openemr/public/themes:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
+    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
+    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+    - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
+    - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
+    - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
+    - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
+    - logvolume:/var/log
+    - couchdbvolume:/couchdb/data
+    - ./php.ini:/usr/local/etc/php/php.ini:ro
+    environment:
+      # HOST_UID/HOST_GID let the entrypoint adopt the host user's uid for
+      # apache (see docker/flex/openemr.sh — adoption is a no-op when these
+      # default to 1000). Without override, behavior matches the original
+      # Dockerfile-baked uid=1000. Override (e.g. `HOST_UID=$(id -u)
+      # docker compose up`) so apache writes bind-mount files as your host
+      # user — eliminates the uid-mismatch class of bugs for any host whose
+      # uid != 1000 (CI runners, multi-user dev boxes, distros that start
+      # uids at 1001+, macOS via Docker Desktop). Always exported by
+      # openemr-cmd, optional everywhere else.
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      OE_USER: admin
+      OE_PASS: pass
+      EASY_DEV_MODE: "yes"
+      EASY_DEV_MODE_NEW: "yes"
+      DEVELOPER_TOOLS: "yes"
+      XDEBUG_ON: 1
+      XDEBUG_PROFILER_ON: 1
+      # setting xdebug client host for cases where xdebug.discover_client_host fails
+      XDEBUG_CLIENT_HOST: host.docker.internal
+      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
+      GITHUB_COMPOSER_TOKEN_ENCODED: Z2hwX0NpbnJ4aXlNd0NzcGZXWG1UWFUwcXhGa040elFKSDJoZGJXVw==
+      GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: '103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121'
+      SELENIUM_USE_GRID: "true"
+      SELENIUM_HOST: selenium
+      SELENIUM_FORCE_HEADLESS: "false"
+      SELENIUM_BASE_URL: "http://openemr"
+      OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:${WT_HTTPS_PORT:-9300}'
+      OPENEMR_SETTING_oauth_password_grant: 3
+      OPENEMR_SETTING_rest_system_scopes_api: 1
+      OPENEMR_SETTING_rest_api: 1
+      OPENEMR_SETTING_rest_fhir_api: 1
+      OPENEMR_SETTING_rest_portal_api: 1
+      OPENEMR_SETTING_portal_onsite_two_enable: 1
+      OPENEMR_SETTING_ccda_alt_service_enable: 3
+      OPENEMR_SETTING_couchdb_host: couchdb
+      OPENEMR_SETTING_couchdb_port: 6984
+      OPENEMR_SETTING_couchdb_user: admin
+      OPENEMR_SETTING_couchdb_pass: password
+      OPENEMR_SETTING_couchdb_dbase: example
+      OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
+      OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
+      OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
+      OPENEMR_SETTING_EMAIL_METHOD: SMTP
+      OPENEMR_SETTING_SMTP_HOST: mailpit
+      OPENEMR_SETTING_SMTP_PORT: 1025
+      OPENEMR_SETTING_SMTP_USER: openemr
+      OPENEMR_SETTING_SMTP_PASS: openemr
+      OPENEMR_SETTING_SMTP_SECURE: ''
+      OPENEMR_SETTING_SMTP_Auth: 'TRUE'
+      OPENEMR_SETTING_practice_return_email_path: 'noreply@openemr.local'
+      OPENEMR_SETTING_Patient_Reminder_Sender_Name: 'OpenEMR Reminders'
+      SESSION_STORAGE_MODE: 'predis-sentinel'
+      REDIS_SENTINELS: sentinel-1|||sentinel-2
+      REDIS_MASTER: redis-master
+      # REDIS_SENTINELS_PASSWORD is omitted: sentinels have no requirepass.
+      # sentinel auth-pass in the sentinel config handles master authentication.
+      REDIS_MASTER_PASSWORD: strongpassword
+    depends_on:
+      redis-master:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/meta/health/readyz
+      start_period: 3m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  selenium:
+    restart: always
+    image: selenium/standalone-chromium:152.0.7977.82@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
+    ports:
+    - "${WT_SELENIUM_PORT:-4444}:4444"
+    - "${WT_VNC_PORT:-7900}:7900"
+    environment:
+      SE_VNC_PASSWORD: openemr123
+      SE_SCREEN_WIDTH: 1920
+      SE_SCREEN_HEIGHT: 1080
+      SE_SCREEN_DEPTH: 24
+      SE_START_XVFB: true
+    volumes:
+    - /dev/shm:/dev/shm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      start_period: 30s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  phpmyadmin:
+    restart: always
+    image: phpmyadmin:5.2.3@sha256:5f4b9a1f5aa30020003969e62387ee15e011e626514b4e1751e8976d49854617
+    ports:
+    - "${WT_PMA_PORT:-8310}:80"
+    environment:
+      PMA_HOSTS: mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
+  couchdb:
+    restart: always
+    image: couchdb:3.5.2@sha256:9ea24cbd76522fe845d1c32c7fd1dcfc8a3ba73dcc4817d62f8a7f7f1dfaffe3
+    ports:
+    - "${WT_COUCHDB_PORT:-5984}:5984"
+    - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
+    volumes:
+    - ../library/couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.ini:rw
+    - ../library/couchdb-config-ssl-cert-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
+    - ../library/couchdb-config-ssl-cert-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ../library/couchdb-config-ssl-cert-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
+    - couchdbvolume:/opt/couchdb/data
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+  openldap:
+    restart: always
+    image: openemr/dev-ldap:easy@sha256:b1dbb4b1f1074b6a298dabd256b80d766bccbfca99aa89d023cf894d6f4c57aa
+    environment:
+      LDAP_TLS_VERIFY_CLIENT: try
+      LDAP_TLS_CA_CRT_FILENAME: ca.pem
+      LDAP_TLS_CRT_FILENAME: server-cert.pem
+      LDAP_TLS_KEY_FILENAME: server-key.pem
+  mailpit:
+    restart: unless-stopped
+    image: axllent/mailpit:v1.31.1@sha256:98b916bd3c8d61f7633a52d3ea2f58d00620cb01ca57ab59edde68c347a95365
+    ports:
+    - "${WT_MAILPIT_UI_PORT:-8025}:8025"
+    - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+    - mailpitvolume:/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025/api/v1/messages"]
+      start_period: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  databasevolume: {}
+  assetvolume: {}
+  themevolume: {}
+  sitesvolume: {}
+  nodemodules: {}
+  vendordir: {}
+  phpstanvolume: {}
+  webpackcachevolume: {}
+  ccdanodemodules: {}
+  ccdanodemodules2: {}
+  logvolume: {}
+  couchdbvolume: {}
+  mailpitvolume: {}

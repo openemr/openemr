@@ -4,7 +4,7 @@
  * Trending script for graphing objects.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,12 +13,26 @@
  */
 
 require_once("../../globals.php");
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+// This script renders per-patient graphable form data (e.g. vitals) and must
+// require the same medical-data ACL that the sibling report/patient_report.php
+// gate already applies.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Trend Form", xl("Trend Form"));
+}
 
 $formname = $_GET["formname"];
-$is_lbf = substr($formname, 0, 3) === 'LBF';
+$is_lbf = str_starts_with((string) $formname, 'LBF');
 
 if ($is_lbf) {
   // Determine the default field ID and its title for graphing.
@@ -27,19 +41,19 @@ if ($is_lbf) {
         "SELECT field_id, title FROM layout_options WHERE " .
         "form_id = ? AND uor > 0 AND edit_options LIKE '%G%' " .
         "ORDER BY group_id DESC, seq DESC, title DESC LIMIT 1",
-        array($formname)
+        [$formname]
     );
 }
 
 //Bring in the style sheet
 ?>
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; ?>
 
 <?php
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in the script called at
 //  the bottom of this script.
-Header::setupAssets(['dygraphs', 'jquery']);
+echo Header::setupAssets(['dygraphs', 'jquery']);
 ?>
 
 <?php
@@ -87,7 +101,7 @@ function show_graph(table_graph, name_graph, title_graph)
             table: table_graph,
             name: name_graph,
             title: title_graph,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         }),
         dataType: "json",
         success: function(returnData){
@@ -112,7 +126,7 @@ function show_graph(table_graph, name_graph, title_graph)
         error: function() {
             // hide the chart div
           $('#chart').hide();
-          <?php if ($GLOBALS['graph_data_warning']) { ?>
+          <?php if (OEGlobalsBag::getInstance()->getBoolean('graph_data_warning')) { ?>
           if(!title_graph){
               alert(<?php echo xlj('This item does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");
           }
@@ -135,7 +149,7 @@ $(function () {
   // For LBF the <td> has an id of label_id_$fieldid
   $(".graph").on("click", function(e){ show_graph(<?php echo js_escape($formname); ?>, this.id.substring(9), $(this).text()) });
 <?php } else { ?>
-  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, '$(this).text()') });
+  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, $(this).text()) });
 <?php } ?>
 
   // Show hovering effects for the .graph links
@@ -162,11 +176,11 @@ $(function () {
 <?php
 if ($is_lbf) {
   // Use the List Based Forms engine for all LBFxxxxx forms.
-    include_once("$incdir/forms/LBF/new.php");
+    include_once($webserver_root . "/interface/forms/LBF/new.php");
 } else {
   // ensure the path variable has no illegal characters
     check_file_dir_name($formname);
 
-    include_once("$incdir/forms/$formname/new.php");
+    include_once($webserver_root . "/interface/forms/$formname/new.php");
 }
 ?>

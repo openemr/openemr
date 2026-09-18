@@ -4,7 +4,7 @@
  * weno_fragment.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
@@ -14,6 +14,8 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -23,35 +25,67 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
     return;
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $validate = new TransmitProperties(true);
 $validate_errors = "";
 $cite = '';
 
-if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
-    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings Weno tab to configure Weno Prescriber Id.");
+if (stripos((string)$validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
+    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings or Weno Administrator to configure Weno Prescriber Id.");
     return "Fail";
 }
 
 $logService = new WenoLogService();
-$pharmacyLog = $logService->getLastPharmacyDownloadStatus('Success');
+$pharmacyHealth = $logService->getPharmacyDirectoryHealth();
+$pharmacyCount = $pharmacyHealth['count'];
 
-$status = xlt("Last pharmacy update") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0);
-$cite = <<<CITE
-<cite class="h6 text-danger p-1 mt-1">
-    <span>$status</span>
+// Silence is the healthy state. A banner on every successful nightly run trains
+// people to stop reading it, so this only speaks up when prescribing is either
+// blocked or working from data that may be behind.
+$cite = '';
+if (!$pharmacyHealth['isHealthy']) {
+    $lastUpdateRaw = $pharmacyHealth['lastSuccess'] !== ''
+        ? oeFormatShortDate($pharmacyHealth['lastSuccess'])
+        : xl('never');
+    $lastUpdate = is_scalar($lastUpdateRaw) ? (string) $lastUpdateRaw : '';
+
+    if ($pharmacyCount === 0) {
+        $tone = 'text-danger';
+        $message = xl('No pharmacies available. Run a pharmacy directory download before prescribing.');
+    } elseif ($pharmacyHealth['lastRunFailed']) {
+        $tone = 'text-warning';
+        $message = xl('Last pharmacy download did not complete. Using the directory from')
+            . ' ' . $lastUpdate;
+    } else {
+        $tone = 'text-warning';
+        $message = xl('Pharmacy directory may be out of date. Last full update') . ' ' . $lastUpdate;
+    }
+
+    $safeMessage = text($message);
+    $countNote = $pharmacyCount > 0
+        ? ' <span class="text-muted">(' . text((string) $pharmacyCount) . ' ' . xlt('pharmacies') . ')</span>'
+        : '';
+    $cite = <<<CITE
+<cite class="h6 {$tone} p-1 mt-1">
+    <span>{$safeMessage}</span>{$countNote}
 </cite>
 CITE;
-if (str_starts_with($pharmacyLog['status'], 'Success')) {
-    $cite = '';
 }
 
 $hasErrors = !empty($validate->errors['errors']);
 $validate_errors = $validate->errors['string'];
 
-$pid = ($pid ?? '') ?: $_SESSION['pid'] ?? '';
+$pid = ($pid ?? '') ?: $session->get('pid') ?? '';
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? false;
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? false;
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid'));
+$prim_pharmacy = is_array($prim_pharmacy) ? $prim_pharmacy : [];
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid'));
+$alt_pharmacy = is_array($alt_pharmacy) ? $alt_pharmacy : [];
+
+// NCPDP keys are numeric strings: a loose == would compare them numerically and
+// make '0012345' match '12345'. Compare as strings.
+$altNcpdpRaw = $alt_pharmacy['ncpdp_safe'] ?? '';
+$altNcpdp = is_scalar($altNcpdpRaw) ? (string) $altNcpdpRaw : '';
 
 $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' .
     ($prim_pharmacy['address_line_1'] ?? '') . ' ' . ($prim_pharmacy['city'] ?? '') .
@@ -59,13 +93,13 @@ $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy
 
 $alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy['business_name'] . ' - ' .
 ($alt_pharmacy['address_line_1'] ?? '') . ' ' . ($alt_pharmacy['city'] ?? '') .
-', ' . $alt_pharmacy['state'] ?? '') : '';
+', ' . ($alt_pharmacy['state'] ?? '')) : '';
 
 // get only pharmacies that are assigned to patients
 $res = sqlStatement(
     "SELECT DISTINCT wp.ncpdp_safe, wp.business_name, wp.address_line_1, wp.city, wp.state FROM weno_assigned_pharmacy wap INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe OR wap.alternate_ncpdp = wp.ncpdp_safe;"
 );
-$pharmacies = array();
+$pharmacies = [];
 foreach ($res as $row) {
     $pharmacies[] = $row;
 }
@@ -81,11 +115,11 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     // parse user weno id and location. If location is present, it is separated by a colon
     // $provider_id is the user id that was passed in the prescription when prescribed.
     // If all else fails then use logged in user id;
-    $match = explode(":", $external_id);
+    $match = explode(":", (string)$external_id);
     if (is_countable($match) && count($match) > 1) {
         $external_id = $match[0];
     }
-    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", array($external_id, $provider_id));
+    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", [$external_id, $provider_id]);
     if ($provider) {
         return $provider['fname'] . " " . $provider['lname'];
     } else {
@@ -93,7 +127,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     }
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", array($_SESSION['authUserID'] ?? 0));
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$session->get('authUserID') ?? 0]);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -101,18 +135,19 @@ while ($row = sqlFetchArray($list)) {
 }
 
 // get weno drugs for patient
-$resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", array($pid));
+$resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", [$pid]);
 
 ?>
-<script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+<script
+    src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <style>
-  .dialog-alert {
-    font-size: 14px;
-  }
+    .dialog-alert {
+        font-size: 14px;
+    }
 
-  div.row div section div.section-header-dynamic {
-    margin-left: 0.5rem;
-  }
+    div.row div section div.section-header-dynamic {
+        margin-left: 0.5rem;
+    }
 </style>
 <script>
     function setPrescribeLocation() {
@@ -124,15 +159,16 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
             return;
         }
         // Redirect to the new location
-        window.location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php?location=" + encodeURIComponent(newLocation);
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php?location=" + encodeURIComponent(newLocation);
     }
 </script>
 
-<input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
+<input type="hidden" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
 
 <div>
     <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">
-        <a role="button" id="prescribeLink" class="text-primary" onclick="top.restoreSession(); setPrescribeLocation();">
+        <a role="button" id="prescribeLink" class="text-primary"
+           onclick="top.restoreSession(); setPrescribeLocation();">
             <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
         </a>
         <a role="button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
@@ -143,7 +179,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
         </a>
     </span>
 </div>
-<br />
+<br/>
 <?php
 if ($reSync === true) {
     // Trigger the sync_report function to sync the patient's prescriptions
@@ -154,18 +190,22 @@ if ($reSync === true) {
     echo '<div class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
 }
 ?>
-<div id="sync-alert" class=""><?php echo $cite; ?></div>
+<?php // One #sync-alert only - the id was duplicated, so JS targeting it hit the
+      // first element and the second silently did nothing. ?>
+<div id="sync-alert" class="<?php echo $cite === '' ? 'd-none' : ''; ?>"><?php echo $cite; ?></div>
 <?php if (!$hasErrors) { ?>
-    <div id="sync-alert" class="d-none"></div>
     <br>
 <?php }
 if ($hasErrors) { ?>
     <div class="container-fluid m-0 p-0">
         <div id="error-alert" class="col alert alert-danger mt-2 px-0 py-1" role="alert">
-            <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
-            <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
+            <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span
+                class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
+            <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i
+                    class="fa fa-question-circle close"></i></a>
             <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
-                <div id="dialog-content" class="dialog-content text-danger" style="background-color: #fff"><?php echo $validate_errors; ?></div>
+                <div id="dialog-content" class="dialog-content text-danger"
+                     style="background-color: #fff"><?php echo $validate_errors; ?></div>
             </div>
         </div>
     </div>
@@ -178,12 +218,16 @@ if ($hasErrors) { ?>
     ?>
     <div id="trigger-debug" class="form-group mb-0">
         <div class="input-group small">
-            <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+            <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary"
+                   title="<?php echo $titleMessage ?>" data-toggle="popover"
+                   data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Primary"); ?>:</b>
             </label>
-            <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>" />
+            <input type="hidden" id="prim_ncpdp" name="prim_ncpdp"
+                   value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>"/>
             <cite>
-                <span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span>
+                <span role="button" id="primary-pharmacy"
+                      title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span>
             </cite>
             <select id="select-primary" class="d-none">
                 <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
@@ -194,17 +238,22 @@ if ($hasErrors) { ?>
                     $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
                     $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe']) ? 'selected' : '';
                     ?>
-                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
+                    <option
+                        value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
                 <?php } ?>
             </select>
         </div>
         <div class="input-group small">
-            <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+            <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate"
+                   title="<?php echo $titleMessage ?>" data-toggle="popover"
+                   data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Alternate"); ?>:</b>
             </label>
-            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe'] ?? ''); ?>" />
+            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp"
+                   value="<?php echo attr($alt_pharmacy['ncpdp_safe'] ?? ''); ?>"/>
             <cite>
-                <span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span>
+                <span role="button" id="alternate-pharmacy"
+                      title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span>
             </cite>
             <select id="select-alternate" class="d-none">
                 <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
@@ -213,14 +262,19 @@ if ($hasErrors) { ?>
                         continue;
                     }
                     $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                    $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                    $rowNcpdpRaw = $pharmacy['ncpdp_safe'] ?? '';
+                    $rowNcpdp = is_scalar($rowNcpdpRaw) ? (string) $rowNcpdpRaw : '';
+                    $isSelected = ($altNcpdp !== '' && $rowNcpdp === $altNcpdp) ? 'selected' : '';
                     ?>
-                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
+                    <option
+                        value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
                 <?php } ?>
             </select>
         </div>
         <div class="form-group">
-            <label role="button" id="label-location" class="text-primary mb-1 mr-1" for="facilitySelect" title="<?php echo $titleLocation ?>" data-toggle="popover" data-content="<?php echo $popoverLocation ?>">
+            <label role="button" id="label-location" class="text-primary mb-1 mr-1" for="facilitySelect"
+                   title="<?php echo $titleLocation ?>" data-toggle="popover"
+                   data-content="<?php echo $popoverLocation ?>">
                 <b><?php echo xlt("Use Location"); ?>:</b>
             </label>
             <select id="facilitySelect" name="facilitySelect" class="form-control-sm mt-2 border-0 bg-light text-dark">
@@ -239,11 +293,17 @@ if ($hasErrors) { ?>
     </div>
 <?php } ?>
 <script>
-    $(document).ready(function () {
-        $('[data-toggle="popover"]').popover({
-            trigger: 'hover',
-            placement: 'top'
-        });
+    if ($.fn.popover) {
+        alert('here ...................................')
+    }
+    $(function () {
+        if ($.fn.popover) {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                placement: 'top',
+                container: 'body'
+            });
+        }
     });
 
     function refreshDemographics() {
@@ -317,14 +377,28 @@ if ($hasErrors) { ?>
             const select = document.getElementById(selectId);
             const input = document.getElementById(inputId);
 
-            label.addEventListener("click", function () {
+            if (!span || !select) {
+                console.warn("Unable to initialize field listeners:", {
+                    labelId,
+                    spanId,
+                    selectId,
+                    inputId,
+                    missingSpan: !span,
+                    missingSelect: !select
+                });
+                return;
+            }
+
+            label?.addEventListener("click", function () {
                 handleLabelClick(span, select);
             });
             span.addEventListener("click", function () {
                 handleLabelClick(span, select);
             });
             select.addEventListener("change", function () {
-                handleSelectChange(span, select, input);
+                if (input) {
+                    handleSelectChange(span, select, input);
+                }
             });
             select.addEventListener("blur", function () {
                 handleSelectBlur(span, select);

@@ -12,11 +12,9 @@
 
 namespace Application;
 
-use Application\Model\ApplicationTable;
-use Application\Model\SendtoTable;
+use Application\Listener\ModuleMenuSubscriber;
 use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
-use Application\Listener\ModuleMenuSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module
@@ -53,12 +51,12 @@ class Module
     // we need to figure out why that is so we can remove this unnecessary piece.
     public function getAutoloaderConfig()
     {
-        return array(
-        'Laminas\Loader\StandardAutoloader' => array(
-            'namespaces' => array(
+        return [
+        \Laminas\Loader\StandardAutoloader::class => [
+            'namespaces' => [
                 __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-            ),
-        ),
-        );
+            ],
+        ],
+        ];
     }
 }

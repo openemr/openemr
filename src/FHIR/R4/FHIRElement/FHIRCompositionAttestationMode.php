@@ -124,7 +124,7 @@ class FHIRCompositionAttestationMode extends FHIRElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -138,15 +138,13 @@ class FHIRCompositionAttestationMode extends FHIRElement implements \JsonSeriali
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CompositionAttestationMode xmlns="http://hl7.org/fhir"></CompositionAttestationMode>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CompositionAttestationMode xmlns="http://hl7.org/fhir"></CompositionAttestationMode>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

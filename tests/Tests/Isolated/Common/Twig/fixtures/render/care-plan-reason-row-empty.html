@@ -1,0 +1,47 @@
+<div class="form-row reasonCodeContainer reason_code d-none" id="reason_code_1">
+    <div class="card mt-2 mb-4">
+        <div class="card-header">
+            Care Plan Reason Information
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <p class="col">
+                    When recording a reason for the value (or absence of a value) of an observation both the reason code and status of the reason are required
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                                        <label for="reason_code_input_1">Reason Code</label>
+                    <input class="code-selector-popup form-control reason_code_input"
+                           id="reason_code_input_1"
+                           name="reasonCode[]" type="text" value=""
+                           placeholder="Select a reason code"
+                    />
+                    <p class="code-selector-text-display d-none"></p>
+                    <input type="hidden" name="reasonCodeText[]" class="code-selector-text" value="" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="reason_status_1">Reason Status</label>
+                    <select name="reasonCodeStatus[]" id="reason_status_1" class="form-control reason_status">
+                                                    <option value=""
+                                selected>
+                                Select a status code
+                            </option>
+                                                    <option value="negated"
+                                >
+                                Negated
+                            </option>
+                                            </select>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="reason_start_date_1">Reason Recording Date</label>
+                    <input type="text" name="reasonDateLow[]" id="reason_start_date_1" class="form-control reason_start_date datepicker" value="" title="yyyy-mm-dd HH:MM Reason Recording Date" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="reason_end_date_1">Reason End Date (Leave empty if there is no end date)</label>
+                    <input type="text" name="reasonDateHigh[]" id="reason_end_date_1" class="form-control reason_end_date datepicker" value="" title="yyyy-mm-dd HH:MM Reason End Date" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

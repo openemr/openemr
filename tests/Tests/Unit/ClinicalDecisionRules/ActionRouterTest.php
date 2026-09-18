@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ActionRouterTest extends TestCase
 {
-    public function testRouteWithBrowseListAction()
+    public function testRouteWithBrowseListAction(): void
     {
         // Mock the controller that OpenEMR\ClinicalDecisionRules\Interface\ActionRouter expects
         $mockController = new class extends BaseController {
@@ -39,7 +39,7 @@ class ActionRouterTest extends TestCase
         $this->assertStringContainsString('', $response->getContent());
     }
 
-    public function testForwardBehavior()
+    public function testForwardBehavior(): void
     {
         $mockController = new class extends BaseController {
             public function __construct()
@@ -69,7 +69,7 @@ class ActionRouterTest extends TestCase
         $this->assertStringContainsString('', $response->getContent());
     }
 
-    public function testRedirectBehavior()
+    public function testRedirectBehavior(): void
     {
 
         $mockController = new class extends BaseController {

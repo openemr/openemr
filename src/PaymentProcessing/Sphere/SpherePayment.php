@@ -4,7 +4,7 @@
  * SpherePayment class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,23 +12,16 @@
 
 namespace OpenEMR\PaymentProcessing\Sphere;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 
 class SpherePayment
 {
-    /**
-     * @var string
-     */
-    private $front;
-
-    /**
-     * @var int
-     */
-    private $patientIdCc;
-
     /**
      * @var string
      */
@@ -47,61 +40,60 @@ class SpherePayment
     /**
      * Constructor
      */
-    public function __construct(string $front, int $patientIdCc)
+    public function __construct(private readonly string $front, private readonly int $patientIdCc)
     {
-        // Set if front is 'clinic' (via clinic desk or via clinic phone) or 'patient' (via patient portal)
-        $this->front = $front;
-
-        // Set the patient pid
-        $this->patientIdCc = $patientIdCc;
-
         // Set if in testing mode (or false for production mode)
-        $testing = empty($GLOBALS['gateway_mode_production']);
+        $testing = !OEGlobalsBag::getInstance()->getBoolean('gateway_mode_production');
 
         // Collect the correct trxcustid and trxcustid_licensekey and url
-        $cryptoGen = new CryptoGen();
-        if ($this->front == 'patient') {
-            $frontSpecific = 'patient';
-            $trxcustid = $cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);
-            $trxcustidLicensekey = $cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid_licensekey']);
-            if ($testing) {
-                $url = Sphere::PATIENTFRONT_TESTING_URL;
-            } else {
-                $url = Sphere::PATIENTFRONT_PRODUCTION_URL;
+        $cryptoGen = ServiceContainer::getCrypto();
+        try {
+            if ($this->front == 'patient') {
+                $frontSpecific = 'patient';
+                $trxcustid = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid'));
+                $trxcustidLicensekey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid_licensekey'));
+                if ($testing) {
+                    $url = Sphere::PATIENTFRONT_TESTING_URL;
+                } else {
+                    $url = Sphere::PATIENTFRONT_PRODUCTION_URL;
+                }
+            } else { //$this->front == 'clinic'
+                $frontSpecific = 'clinic-phone';
+                $frontSpecificRetail = 'clinic-retail';
+                $trxcustid = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid'));
+                $trxcustidLicensekey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid_licensekey'));
+                $trxcustidRetail = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid'));
+                $trxcustidRetailLicensekey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid_licensekey'));
+                if ($testing) {
+                    $url = Sphere::CLINICFRONT_TESTING_URL;
+                } else {
+                    $url = Sphere::CLINICFRONT_PRODUCTION_URL;
+                }
             }
-        } else { //$this->front == 'clinic'
-            $frontSpecific = 'clinic-phone';
-            $frontSpecificRetail = 'clinic-retail';
-            $trxcustid = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_trxcustid']);
-            $trxcustidLicensekey = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_trxcustid_licensekey']);
-            $trxcustidRetail = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_retail_trxcustid']);
-            $trxcustidRetailLicensekey = $cryptoGen->decryptStandard($GLOBALS['sphere_clinicfront_retail_trxcustid_licensekey']);
-            if ($testing) {
-                $url = Sphere::CLINICFRONT_TESTING_URL;
-            } else {
-                $url = Sphere::CLINICFRONT_PRODUCTION_URL;
-            }
+        } catch (CryptoGenException) {
+            throw new \RuntimeException('Failed to decrypt Sphere credentials');
         }
 
         // Calculate the OpenEMR server
-        $this->serverSite = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'];
+        $this->serverSite = OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Calculate the $mainUrl
-        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken('sphere'));
+        $this->mainUrl = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustid) . '&trxcustid_licensekey=' . urlencode($trxcustidLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecific) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken($session, 'sphere'));
         if ($this->front == 'clinic') {
-            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken('sphere'));
+            $this->mainUrlRetail = $url . '?aggregators=' . urlencode(Sphere::AGGREGATOR_ID) . '&trxcustid=' . urlencode($trxcustidRetail) . '&trxcustid_licensekey=' . urlencode($trxcustidRetailLicensekey) . '&trxcustomfield[1]=' . urlencode($frontSpecificRetail) . '&trxcustomfield[2]=' . urlencode($this->patientIdCc) . '&trxcustomfield[3]=' . urlencode(CsrfUtils::collectCsrfToken($session, 'sphere'));
         }
 
         if ($this->front == 'patient') {
             // Add specific parameters for patient front to the $mainUrl
-            $this->mainUrl = $this->mainUrl . '&hide_ticket=y&cvc_help=y&avs=y&postal=y&fulladdress=y&show_email=y';
+            $this->mainUrl .= '&hide_ticket=y&cvc_help=y&avs=y&postal=y&fulladdress=y&show_email=y';
         } else { //$this->front == 'clinic'
             // Add specific parameters for clinic front (both phone and retail) to the $mainUrl
             $operatorEntry = (new UserService())->getCurrentlyLoggedInUser();
             $operatorName = $operatorEntry['fname'] . " " . $operatorEntry['lname'];
             $mainUrlEnd = '&hide_ticket=y&hide_trxoperator=y&trxoperator=' . urlencode($operatorName);
-            $this->mainUrl = $this->mainUrl . $mainUrlEnd;
-            $this->mainUrlRetail = $this->mainUrlRetail . $mainUrlEnd;
+            $this->mainUrl .= $mainUrlEnd;
+            $this->mainUrlRetail .= $mainUrlEnd;
         }
     }
 
@@ -127,23 +119,19 @@ class SpherePayment
     private function renderSphereJsPatientFront(): string
     {
         return "
-            function sphereSuccess(encData) {
+            function sphereSuccess() {
                 let oForm = document.forms['payment-form'];
                 oForm.elements['mode'].value = 'Sphere';
 
                 let inv_values = JSON.stringify(getFormObj('invoiceForm'));
                 document.getElementById('invValues').value = inv_values;
 
-                let hiddenInput = document.createElement('input');
-                hiddenInput.setAttribute('type', 'hidden');
-                hiddenInput.setAttribute('name', 'enc_data');
-                hiddenInput.setAttribute('value', encData);
-                oForm.appendChild(hiddenInput);
-
-                // Submit payment to server
+                // Submit payment to server (payment data is in server session, keyed by ticket)
+                let formData = new FormData(oForm);
+                formData.append('sphere_ticket', window.spherePaymentTicket || '');
                 fetch('./lib/paylib.php', {
                     method: 'POST',
-                    body: new FormData(oForm)
+                    body: formData
                 }).then(function(response) {
                     if (!response.ok) {
                         throw Error(response.statusText);
@@ -186,6 +174,7 @@ class SpherePayment
      */
     private function renderSphereJsCore(): string
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return "
             function sphereNotSuccess(message) {
                 alert(message);
@@ -215,9 +204,11 @@ class SpherePayment
                     error.log('Dynamic javascript ticket creation failed, so using backup ticket.');
                     ticket = backupTicket;
                 }
+                // Store ticket for sphereSuccess() to retrieve
+                window.spherePaymentTicket = ticket;
 
                 let responseUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php';
-                let cancelUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php?cancel=cancel&ticket=' + encodeURIComponent(ticket) + '&front=' + encodeURIComponent(front) + '&patient_id_cc=' + " . js_escape($this->patientIdCc) . " + '&csrf_token=' + " . js_escape(CsrfUtils::collectCsrfToken('sphere')) .  ";
+                let cancelUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php?cancel=cancel&ticket=' + encodeURIComponent(ticket) + '&front=' + encodeURIComponent(front) + '&patient_id_cc=' + " . js_escape($this->patientIdCc) . " + '&csrf_token=' + " . js_escape(CsrfUtils::collectCsrfToken($session, 'sphere')) .  ";
                 let mainUrlEnd = '&amount=' + encodeURIComponent(total) + '&ticketno=' + encodeURIComponent(ticket) + '&response_url=' + encodeURIComponent(responseUrl) + '&is_redirect=y&show_cancelurl=' + encodeURIComponent(cancelUrl);
                 let mainUrl = '';
                 if ((front == 'patient') || (front == 'clinic-phone')) {

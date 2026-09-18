@@ -13,4 +13,3 @@ Use the following in the crontab:
 0 0 * * 0 php [webserver_root]/interface/main/backuplog.php webserver_root backup_log_dir
 
 **** Eg. 0 0 * * 0 php /home/openemr/interface/main/backuplog.php /home/openemr /opt
-

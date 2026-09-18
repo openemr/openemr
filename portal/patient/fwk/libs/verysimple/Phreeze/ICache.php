@@ -14,7 +14,7 @@
 interface ICache
 {
     /**
-     * Retreives a value from the cache
+     * Retrieves a value from the cache
      *
      * @access public
      * @param string $key
@@ -26,11 +26,11 @@ interface ICache
      *
      * @access public
      * @param string $key
-     * @param variant $val
+     * @param mixed $val
      * @param int $flags
-     * @param int $timout
+     * @param int $timeout
      *          in seconds
-     * @return variant
+     * @return mixed
      */
     public function Set($key, $val, $flags = null, $timeout = 0);
 

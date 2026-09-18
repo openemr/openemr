@@ -2,11 +2,8 @@
 
 /** @package    verysimple::Authentication */
 
-/**
- * import supporting libraries
- */
-require_once("IAuthenticatable.php");
-require_once("AuthenticationException.php");
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Authenticator is a collection of static methods for storing a current user
@@ -39,15 +36,16 @@ class Authenticator
      * Returns the currently authenticated user or null
      *
      * @access public
-     * @return IAuthenticatable || null
+     * @return IAuthenticatable|null
      */
-    public static function GetCurrentUser($guid = "CURRENT_USER")
+    public static function GetCurrentUser(string $guid = "CURRENT_USER")
     {
         if (self::$user == null) {
             self::Init();
-
-            if (isset($_SESSION [$guid])) {
-                self::$user = unserialize($_SESSION [$guid]);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sessionGuid = $session->get($guid);
+            if (!empty($sessionGuid)) {
+                self::$user = unserialize($sessionGuid, ['allowed_classes' => true]);
             }
         }
 
@@ -59,15 +57,15 @@ class Authenticator
      * UnsetAllSessionVars will be called before setting the current user
      *
      * @param IAuthenticatable $user
-     * @param mixed $guid
+     * @param string $guid
      *          a unique id for this session
      *
      */
-    public static function SetCurrentUser(IAuthenticatable $user, $guid = "CURRENT_USER")
+    public static function SetCurrentUser(IAuthenticatable $user, string $guid = "CURRENT_USER")
     {
         self::UnsetAllSessionVars(); // this calls Init so we don't have to here
         self::$user = $user;
-        $_SESSION [$guid] = serialize($user);
+        SessionUtil::setSession($guid, serialize($user));
     }
 
     /**
@@ -76,13 +74,11 @@ class Authenticator
     public static function UnsetAllSessionVars()
     {
         self::Init();
-        foreach (array_keys($_SESSION) as $key) {
-            unset($_SESSION [$key]);
-        }
+        SessionUtil::clearSession();
     }
 
     /**
-     * Forcibly clear all _SESSION variables and destroys the session
+     * Forcibly clear all session variables and destroys the session
      *
      * @param string $guid
      *          The GUID of this user
@@ -91,7 +87,7 @@ class Authenticator
     {
         self::Init();
         self::$user = null;
-        unset($_SESSION [$guid]);
+        SessionUtil::unsetSession($guid);
 
         self::UnsetAllSessionVars();
 

@@ -1,5 +1,5 @@
 /* Multiselect
-----------------------------------*/
+---------------------------------- */
 
 /* TODO: To be removed */
 
@@ -51,7 +51,6 @@
   overflow: auto;
   overflow-x: hidden;
   padding: 0;
-  position: relative;
   position: relative;
   width: 100%;
 }

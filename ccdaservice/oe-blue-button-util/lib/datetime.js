@@ -48,7 +48,7 @@ var modelToDateTime = exports.modelToDateTime = (function () {
     };
 
     return function (dt) {
-        var f = precisionBasedFormatter[dt.precision];
+        let f = precisionBasedFormatter[dt.precision];
         if (f) {
             return f(dt.date);
         } else {
@@ -58,7 +58,7 @@ var modelToDateTime = exports.modelToDateTime = (function () {
 })();
 
 exports.modelToDate = function (dt) {
-    var validPrecisions = {
+    let validPrecisions = {
         'day': true,
         'month': true,
         'year': true

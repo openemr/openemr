@@ -618,7 +618,7 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -703,15 +703,13 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GuidanceResponse xmlns="http://hl7.org/fhir"></GuidanceResponse>');
-        }
+        $sxe ??= new \SimpleXMLElement('<GuidanceResponse xmlns="http://hl7.org/fhir"></GuidanceResponse>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->requestIdentifier)) {
             $this->requestIdentifier->xmlSerialize(true, $sxe->addChild('requestIdentifier'));

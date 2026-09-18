@@ -17,7 +17,7 @@
 class DataPage implements Iterator
 {
     /**
-     * The Rows property is an array of objects retreived from the data store
+     * The Rows property is an array of objects retrieved from the data store
      */
     public $Rows = null;
 
@@ -85,18 +85,16 @@ class DataPage implements Iterator
      * Phreezable object (the default is a stdClass with all public properties)
      *
      * @access public
-     * @param
-     *          bool asSimpleObject if true then populate the array with ToObject on each item in the array
-     * @param
-     *          array options (only relevant if asSimpleObject is true) passed through to ToObject
+     * @param bool $asSimpleObject asSimpleObject if true then populate the array with ToObject on each item in the array
+     * @param array $options options (only relevant if asSimpleObject is true) passed through to ToObject
      * @return array
      */
-    function ToObjectArray($asSimpleObject = false, $options = null)
+    public function ToObjectArray($asSimpleObject = false, $options = null)
     {
         $arr = null;
 
         if ($asSimpleObject) {
-            $arr = array ();
+            $arr =  [];
             foreach ($this->Rows as $row) {
                 $arr [] = $row->ToObject($options);
             }

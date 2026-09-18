@@ -137,7 +137,7 @@
  *
  * @param string $filename Sql upgrade/patch filename
  */
-function upgradeFromSqlFile($filename, $path = '')
+function upgradeFromSqlFile($filename, $path = ''): void
 {
     $sqlUpgradeService = new \OpenEMR\Services\Utils\SQLUpgradeService();
     $sqlUpgradeService->upgradeFromSqlFile($filename, $path);

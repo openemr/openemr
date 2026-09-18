@@ -18,16 +18,15 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class InsuranceNumbers extends ORDataObject
 {
-        var $id;
-        var $provider_id;
-        var $insurance_company_name;
-        var $insurance_company_id;
-        var $provider_number;
-        var $rendering_provider_number;
-        var $group_number;
-        var $provider_number_type;
-        var $provider_number_type_array = array
-        (
+        public $provider_id;
+        public $insurance_company_name;
+        public $insurance_company_id;
+        public $provider_number;
+        public $rendering_provider_number;
+        public $group_number;
+        public $provider_number_type;
+        public $provider_number_type_array =
+        [
             ""   => "Unspecified",
             "0B" => "State License Number",
             "1A" => "Blue Cross Provider Number",
@@ -48,10 +47,10 @@ class InsuranceNumbers extends ORDataObject
             "U3" => "Unique Supplier Identification Number (USIN)",
             "X5" => "State Industrial Accident Provider Number",
             "ZZ" => "Mutually Defined/Taxonomy"
-        );
-        var $rendering_provider_number_type;
-        var $rendering_provider_number_type_array = array
-        (
+        ];
+        public $rendering_provider_number_type;
+        public $rendering_provider_number_type_array =
+        [
             ""   => "Unspecified",
             "0B" => "State License Number",
             "1A" => "Blue Cross Provider Number",
@@ -67,22 +66,21 @@ class InsuranceNumbers extends ORDataObject
             "X4" => "Clinical Laboratory Improvement Amendment Number",
             "X5" => "State Industrial Accident Provider Number",
             "ZZ" => "Mutually Defined/Taxonomy"
-        );
+        ];
 
         /**
          * Constructor sets all Insurance attributes to their default value
          */
 
-        function __construct($id = "", $prefix = "")
+        public function __construct(public $id = "")
         {
-            $this->id = $id;
             $this->_table = "insurance_numbers";
-            if ($id != "") {
+            if ($this->id != "") {
                 $this->populate();
             }
         }
 
-        function populate()
+        public function populate()
         {
             parent::populate();
             $ic = new InsuranceCompany($this->insurance_company_id);
@@ -90,12 +88,12 @@ class InsuranceNumbers extends ORDataObject
             $ic = null;
         }
 
-        function insurance_numbers_factory($provider_id)
+        public function insurance_numbers_factory($provider_id)
         {
-            $ins = array();
+            $ins = [];
             $sql = "SELECT id FROM "  . escape_table_name($this->_table) .
                 " WHERE provider_id = ? ORDER BY insurance_company_id";
-            $results = sqlStatementNoLog($sql, array($provider_id));
+            $results = sqlStatementNoLog($sql, [$provider_id]);
 
             while ($row = sqlFetchArray($results)) {
                     $ins[] = new InsuranceNumbers($row['id']);
@@ -104,39 +102,39 @@ class InsuranceNumbers extends ORDataObject
             return $ins;
         }
 
-        function get_id()
+        public function get_id()
         {
             return $this->id;
         }
 
-        function set_id($id)
+        public function set_id($id)
         {
             if (is_numeric($id)) {
                 $this->id = $id;
             }
         }
 
-        function get_provider_id()
+        public function get_provider_id()
         {
             return $this->provider_id;
         }
 
-        function set_provider_id($num)
+        public function set_provider_id($num)
         {
             $this->provider_id = $num;
         }
 
-        function get_insurance_company_id()
+        public function get_insurance_company_id()
         {
             return $this->insurance_company_id;
         }
 
-        function set_insurance_company_id($num)
+        public function set_insurance_company_id($num)
         {
             $this->insurance_company_id = $num;
         }
 
-        function get_insurance_company_name()
+        public function get_insurance_company_name()
         {
             if (empty($this->insurance_company_name)) {
                 return "Default";
@@ -145,52 +143,52 @@ class InsuranceNumbers extends ORDataObject
             return $this->insurance_company_name;
         }
 
-        function get_provider_number()
+        public function get_provider_number()
         {
             return $this->provider_number;
         }
 
-        function set_provider_number($num)
+        public function set_provider_number($num)
         {
             $this->provider_number = $num;
         }
 
-        function get_rendering_provider_number()
+        public function get_rendering_provider_number()
         {
             return $this->rendering_provider_number;
         }
 
-        function set_rendering_provider_number($num)
+        public function set_rendering_provider_number($num)
         {
             $this->rendering_provider_number = $num;
         }
 
-        function get_group_number()
+        public function get_group_number()
         {
             return $this->group_number;
         }
 
-        function set_group_number($num)
+        public function set_group_number($num)
         {
             $this->group_number = $num;
         }
 
-        function get_provider_number_type()
+        public function get_provider_number_type()
         {
             return $this->provider_number_type;
         }
 
-        function set_provider_number_type($string)
+        public function set_provider_number_type($string)
         {
             $this->provider_number_type = $string;
         }
 
-        function get_rendering_provider_number_type()
+        public function get_rendering_provider_number_type()
         {
             return $this->rendering_provider_number_type;
         }
 
-        function set_rendering_provider_number_type($string)
+        public function set_rendering_provider_number_type($string)
         {
             $this->rendering_provider_number_type = $string;
         }

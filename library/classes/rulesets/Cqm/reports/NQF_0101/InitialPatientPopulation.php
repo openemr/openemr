@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0101_InitialPatientPopulation implements CqmFilterIF
@@ -29,9 +29,9 @@ class NQF_0101_InitialPatientPopulation implements CqmFilterIF
         return "Initial Patient Population";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
-        $oneEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        $oneEncounter = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (
             ($patient->calculateAgeOnDate($beginDate) >= 65) &&
              ( Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate, $endDate, $oneEncounter) )

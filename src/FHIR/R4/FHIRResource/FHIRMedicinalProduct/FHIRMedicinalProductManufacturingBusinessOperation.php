@@ -88,7 +88,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     public $effectiveDate = null;
 
     /**
-     * To indicate if this proces is commercially confidential.
+     * To indicate if this process is commercially confidential.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $confidentialityIndicator = null;
@@ -171,7 +171,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     }
 
     /**
-     * To indicate if this proces is commercially confidential.
+     * To indicate if this process is commercially confidential.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getConfidentialityIndicator()
@@ -180,7 +180,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     }
 
     /**
-     * To indicate if this proces is commercially confidential.
+     * To indicate if this process is commercially confidential.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $confidentialityIndicator
      * @return $this
      */
@@ -277,7 +277,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -313,15 +313,13 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductManufacturingBusinessOperation xmlns="http://hl7.org/fhir"></MedicinalProductManufacturingBusinessOperation>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductManufacturingBusinessOperation xmlns="http://hl7.org/fhir"></MedicinalProductManufacturingBusinessOperation>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->operationType)) {
             $this->operationType->xmlSerialize(true, $sxe->addChild('operationType'));

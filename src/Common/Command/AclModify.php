@@ -25,7 +25,7 @@ class AclModify extends Command
         $this
             ->setName('openemr:acl-modify')
             ->setDescription('Modify ACL group of module (enable, disable)')
-            ->addUsage('--site=default --modname=Multipledb --aclgroup=admin --aclaction=enable')
+            ->addUsage('--site=default --modname=Carecoordination --aclgroup=admin --aclaction=enable')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('modname', null, InputOption::VALUE_REQUIRED, 'Name of module'),

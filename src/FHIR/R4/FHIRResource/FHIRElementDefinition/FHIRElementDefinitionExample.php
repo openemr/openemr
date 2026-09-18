@@ -71,7 +71,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement;
 class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonSerializable
 {
     /**
-     * Describes the purpose of this example amoung the set of examples.
+     * Describes the purpose of this example among the set of examples.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
     public $label = null;
@@ -327,7 +327,7 @@ class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonS
     private $_fhirElementName = 'ElementDefinition.Example';
 
     /**
-     * Describes the purpose of this example amoung the set of examples.
+     * Describes the purpose of this example among the set of examples.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
     public function getLabel()
@@ -336,7 +336,7 @@ class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * Describes the purpose of this example amoung the set of examples.
+     * Describes the purpose of this example among the set of examples.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $label
      * @return $this
      */
@@ -1401,7 +1401,7 @@ class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -1566,15 +1566,13 @@ class FHIRElementDefinitionExample extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionExample xmlns="http://hl7.org/fhir"></ElementDefinitionExample>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ElementDefinitionExample xmlns="http://hl7.org/fhir"></ElementDefinitionExample>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->label)) {
             $this->label->xmlSerialize(true, $sxe->addChild('label'));

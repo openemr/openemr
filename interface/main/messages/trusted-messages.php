@@ -4,7 +4,7 @@
  * trusted-messages.php displays the GUI and handles the interactions with the backend ajax processor for sending
  * messages and file attachments to Trusted email addresses using the Direct protocol.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,11 +12,14 @@
 
 require_once("../../globals.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $message = '';
 if (isset($_REQUEST['message_code'])) {
     $message_code = $_REQUEST['message_code'] ?? null;
@@ -30,47 +33,44 @@ if (isset($_REQUEST['message_code'])) {
 // check if we have a selected patient already
 $pid = "";
 $patientName = "";
-if (!empty($_SESSION['pid'])) {
+$sessionPid = $session->get('pid');
+if (!empty($sessionPid)) {
     $patientService = new PatientService();
-    $patientArray = $patientService->findByPid($_SESSION['pid']);
+    $patientArray = $patientService->findByPid($sessionPid);
     if (!empty($patientArray)) {
-        $pid = $_SESSION['pid'];
+        $pid = $sessionPid;
         // if things are empty this ends up being blank.
         $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
     }
 }
 
-if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
-    $verifyMessageReceivedChecked = "checked";
-} else {
-    $verifyMessageReceivedChecked = '';
-}
+$verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? "checked" : '';
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/css/reminder_style.css?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>">
 
     <?php
 
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xlt('Messages, Reminders, Recalls'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array(""),//all file names need suffix _xpd
+        'expandable_files' => [""],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
 //        'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
     echo "<title>" .  xlt('Messages, Reminders, Recalls') . "</title>";
     ?>
-    <script src="js/trusted-messages.js" type="text/javascript"></script>
+    <script src="js/trusted-messages.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/javascript"></script>
 </head>
 <body class='body_top'>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
@@ -211,7 +211,7 @@ if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
                             <div class="col-12 oe-custom-line">
                                 <div class="row">
                                     <div class="col-12">
-                                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                         <input id='message-submit' type="submit" class="btn-transmit btn btn-primary" name="submit" value="<?php echo xla("Send"); ?>" />
                                         <i id='message-spinner' class="fa fa-spinner d-none"></i>
                                     </div>

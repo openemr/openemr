@@ -137,7 +137,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     public $physicalType = null;
 
     /**
-     * The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same co-ordinate system used in KML).
+     * The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same coordinate system used in KML).
      * @var \OpenEMR\FHIR\R4\FHIRResource\FHIRLocation\FHIRLocationPosition
      */
     public $position = null;
@@ -398,7 +398,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same co-ordinate system used in KML).
+     * The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same coordinate system used in KML).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRLocation\FHIRLocationPosition
      */
     public function getPosition()
@@ -407,7 +407,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same co-ordinate system used in KML).
+     * The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same coordinate system used in KML).
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRLocation\FHIRLocationPosition $position
      * @return $this
      */
@@ -627,7 +627,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -712,15 +712,13 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Location xmlns="http://hl7.org/fhir"></Location>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Location xmlns="http://hl7.org/fhir"></Location>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

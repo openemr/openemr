@@ -1,0 +1,141 @@
+{# week_print outlook calendar — Smarty→Twig conversion.
+
+   Layout: per-provider with pagebreak between, 4-row × 2-column day grid
+   where each row pairs day N with day N+4. The consumer pre-builds the
+   day pairs because the iteration logic is more involved than a flat
+   loop (legacy "limit through this loop by the limit of four TRs"
+   followed by index math `$dateplusfour = strtotime($eventdate) +
+   4*24*60*60`).
+
+   Input contract:
+
+   - providers : list of {id, fname, lname, dayPairs}
+       dayPairs is a list of up to 4 {left, right} pairs.
+       left/right are {monthName, day, weekdayLabel, dateMD, events} —
+       events is a pre-decorated list with the same shape day_print
+       uses, MINUS the geometry fields (week_print uses flow layout, no
+       positioning). Each event needs: eid, evtClass, catcolor,
+       eventDate (YYYYMMDD), bodyContent (HTML).
+       right may be null (the last pair's right column is empty when
+       there are only 7 days).
+   - dateRange : {firstMonth, firstDay, lastMonth, lastDay} — the
+       top-of-page date-range header
+   - dowList : list<int>
+   - A_SHORT_DAY_NAMES : list of 7 localized strings
+   - currentMonthMini, nextMonthMini : from CalendarViewModel::buildMiniCalendar()
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        a { text-decoration: none; }
+        td { font-family: Arial, Helvetica, sans-serif; }
+        div.tiny { width: 1px; height: 1px; font-size: 1px; }
+        #bigCalHeader { height: 20%; font-family: Arial, Helvetica, sans-serif; }
+        #bigCalText { float: left; }
+        #provname { font-size: 2em; }
+        #daterange { font-size: 1.8em; font-weight: bold; }
+        #bigCal { height: 80%; }
+        #weekcal { width: 100%; border-collapse: collapse; }
+        #weekcal td { vertical-align: top; border: 1px solid #999; padding: 4px; }
+        #dowheader { background-color: lightblue; padding: 2px 4px; font-weight: bold; }
+        .pagebreak { page-break-after: always; }
+        .event_in       { background-color: white;     font-size: 0.8em; }
+        .event_out      { background-color: lightgray; font-size: 0.8em; }
+        .event_appointment { background-color: white; border: 1px solid blue; font-size: 0.8em; }
+        .event_noshow      { background-color: pink;  border: 1px solid blue; font-size: 0.8em; }
+        .event_reserved    { background-color: pink;  border: 1px solid blue; font-size: 0.8em; }
+        #datePicker { float: right; display: inline; padding: 5px; text-align: center; background-color: lightblue; }
+        #datePicker td { font-family: Arial, Helvetica, sans-serif; font-size: 0.7em; }
+        #datePicker table { border-collapse: collapse; }
+        #datePicker .tdDOW-small, #datePicker .tdMonthDay-small, #datePicker .tdOtherMonthDay-small, #datePicker .tdWeekend-small {
+            font-family: Arial, Helvetica, sans-serif; font-size: 10px; vertical-align: top; padding: 2px 3px 2px 3px;
+        }
+        #datePicker .tdDOW-small { background-color: lightblue; text-align: center; border: none; }
+        #datePicker .tdMonthDay-small { background-color: #ffffff; border: none; }
+        #datePicker .tdOtherMonthDay-small { background-color: #ffffff; color: #999; border: none; }
+        #datePicker .tdWeekend-small { background-color: #ddd; color: #999; border: none; }
+        #datePicker .tdMonthName-small { font-size: 12px; text-align: center; }
+        #datePicker .currentDate { border: 1px solid blue; background-color: blue; color: lightblue; }
+    </style>
+    {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_dialog']) }}
+</head>
+<body>
+
+<div id="bigCal">
+{% for provider in providers %}
+    {% if not loop.first %}
+        <div class="pagebreak"></div>
+    {% endif %}
+
+    <div id="bigCalHeader">
+        <div id="bigCalText">
+            <span id="provname">{{ provider.fname|text }} {{ provider.lname|text }}</span>
+            <br />
+            <span id="daterange">
+                {{ dateRange.firstMonth|xlt }} {{ dateRange.firstDay|text }}
+                - <br />
+                {{ dateRange.lastMonth|xlt }} {{ dateRange.lastDay|text }}
+            </span>
+        </div>
+        <div id="datePicker">
+            {% include 'calendar/default/views/_mini_calendar.html.twig' with {
+                mini: nextMonthMini,
+                dowList: dowList,
+                dayNames: A_SHORT_DAY_NAMES,
+                hideOutOfMonth: true
+            } only %}
+        </div>
+        <div id="datePicker">
+            {% include 'calendar/default/views/_mini_calendar.html.twig' with {
+                mini: currentMonthMini,
+                dowList: dowList,
+                dayNames: A_SHORT_DAY_NAMES,
+                hideOutOfMonth: true
+            } only %}
+        </div>
+    </div>
+
+    <table id="weekcal">
+        {% for pair in provider.dayPairs %}
+            <tr>
+                <td>
+                    <div id="dowheader">{{ pair.left.weekdayLabel|xlt }} {{ pair.left.dateMD|text }}</div>
+                    {% for event in pair.left.events %}
+                        <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                             style="background-color:{{ event.catcolor|attr }}"
+                             id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
+                            {{ event.bodyContent|raw }}
+                        </div>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if pair.right %}
+                        <div id="dowheader">{{ pair.right.weekdayLabel|xlt }} {{ pair.right.dateMD|text }}</div>
+                        {% for event in pair.right.events %}
+                            <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                 style="background-color:{{ event.catcolor|attr }}"
+                                 id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
+                                {{ event.bodyContent|raw }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endfor %}
+</div>
+
+{# Trigger the browser print dialog on page load — see day_print for
+   the full note. Mirrors the legacy week_print $(function(){ ... })
+   block. #}
+<script>
+    $(function () {
+        var win = top.printLogPrint ? top : opener.top;
+        win.printLogPrint(window);
+    });
+</script>
+
+</body>
+</html>

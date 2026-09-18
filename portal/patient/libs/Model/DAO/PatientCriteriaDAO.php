@@ -10,9 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/** import supporting libraries */
-require_once("verysimple/Phreeze/Criteria.php");
-
 /**
  * PatientCriteria allows custom querying for the Patient object.
  *
@@ -554,21 +551,21 @@ class PatientCriteriaDAO extends Criteria
     public $Religion_IsEmpty;
     public $Religion_BitwiseOr;
     public $Religion_BitwiseAnd;
-    public $Interpretter_Equals;
-    public $Interpretter_NotEquals;
-    public $Interpretter_IsLike;
-    public $Interpretter_IsNotLike;
-    public $Interpretter_BeginsWith;
-    public $Interpretter_EndsWith;
-    public $Interpretter_GreaterThan;
-    public $Interpretter_GreaterThanOrEqual;
-    public $Interpretter_LessThan;
-    public $Interpretter_LessThanOrEqual;
-    public $Interpretter_In;
-    public $Interpretter_IsNotEmpty;
-    public $Interpretter_IsEmpty;
-    public $Interpretter_BitwiseOr;
-    public $Interpretter_BitwiseAnd;
+    public $Interpreter_Equals;
+    public $Interpreter_NotEquals;
+    public $Interpreter_IsLike;
+    public $Interpreter_IsNotLike;
+    public $Interpreter_BeginsWith;
+    public $Interpreter_EndsWith;
+    public $Interpreter_GreaterThan;
+    public $Interpreter_GreaterThanOrEqual;
+    public $Interpreter_LessThan;
+    public $Interpreter_LessThanOrEqual;
+    public $Interpreter_In;
+    public $Interpreter_IsNotEmpty;
+    public $Interpreter_IsEmpty;
+    public $Interpreter_BitwiseOr;
+    public $Interpreter_BitwiseAnd;
     public $Migrantseasonal_Equals;
     public $Migrantseasonal_NotEquals;
     public $Migrantseasonal_IsLike;

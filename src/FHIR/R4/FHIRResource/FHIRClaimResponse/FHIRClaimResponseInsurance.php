@@ -242,7 +242,7 @@ class FHIRClaimResponseInsurance extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -272,15 +272,13 @@ class FHIRClaimResponseInsurance extends FHIRBackboneElement implements \JsonSer
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimResponseInsurance xmlns="http://hl7.org/fhir"></ClaimResponseInsurance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ClaimResponseInsurance xmlns="http://hl7.org/fhir"></ClaimResponseInsurance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->sequence)) {
             $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));

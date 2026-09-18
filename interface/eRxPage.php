@@ -1,10 +1,10 @@
 <?php
 
 /**
- * interface/eRxPage.php Functions for redirecting to NewCrop pages.
+ * interface/eRxPage.php Functions for redirecting to Ensora eRx pages.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,6 +16,7 @@ class eRxPage
     const DEBUG_XML    = 1;
     const DEBUG_RESULT = 2;
 
+    /** @var ?eRxXMLBuilder */
     private $xmlBuilder;
     private $authUserId;
     private $destination;
@@ -32,8 +33,8 @@ class eRxPage
 
     /**
      * Set XMLBuilder to handle eRx XML
-     * @param  object  $xmlBuilder The eRx XMLBuilder object to use for processing
-     * @return eRxPage             This object is returned for method chaining
+     * @param  eRxXMLBuilder $xmlBuilder The eRx XMLBuilder object to use for processing
+     * @return eRxPage                   This object is returned for method chaining
      */
     public function setXMLBuilder($xmlBuilder)
     {
@@ -44,7 +45,7 @@ class eRxPage
 
     /**
      * Get XMLBuilder for handling eRx XML
-     * @return object The eRx XMLBuilder object to use for processing
+     * @return eRxXMLBuilder The eRx XMLBuilder object to use for processing
      */
     public function getXMLBuilder()
     {
@@ -53,7 +54,7 @@ class eRxPage
 
     /**
      * Set the Id of the authenticated user
-     * @param  integer $userId The Id for the authenticated user
+     * @param int $userId The Id for the authenticated user
      * @return eRxPage         This object is returned for method chaining
      */
     public function setAuthUserId($userId)
@@ -65,7 +66,7 @@ class eRxPage
 
     /**
      * Get the Id of the authenticated user
-     * @return integer The Id of the authenticated user
+     * @return int The Id of the authenticated user
      */
     public function getAuthUserId()
     {
@@ -95,7 +96,7 @@ class eRxPage
 
     /**
      * Set the Patient Id for the page request
-     * @param  integer $patientId The Patient Id for the page request
+     * @param int $patientId The Patient Id for the page request
      * @return eRxPage            This object is returned for method chaining
      */
     public function setPatientId($patientId)
@@ -132,7 +133,7 @@ class eRxPage
      */
     public function getPrescriptionIds()
     {
-        $this->prescriptionIds;
+        return $this->prescriptionIds;
     }
 
     /**
@@ -162,14 +163,14 @@ class eRxPage
      */
     public function checkForMissingExtensions()
     {
-        $extensions = array(
+        $extensions = [
             'XML',
             'SOAP',
             'cURL',
             'OpenSSL',
-        );
+        ];
 
-        $messages = array();
+        $messages = [];
 
         foreach ($extensions as $extension) {
             if (!extension_loaded(strtolower($extension))) {
@@ -200,16 +201,16 @@ class eRxPage
         $XMLBuilder->appendChildren($NCScript, $XMLBuilder->getStaffElements($authUserId, $destination));
         $XMLBuilder->appendChildren($NCScript, $XMLBuilder->getPatientElements($patientId, $this->getPrescriptionCount(), $this->getPrescriptionIds()));
 
-        return array(
+        return [
             'demographics' => $XMLBuilder->getDemographicsCheckMessages(),
             'empty' => $XMLBuilder->getFieldEmptyMessages(),
             'warning' => $XMLBuilder->getWarningMessages(),
-        );
+        ];
     }
 
     /**
-     * Return a string version of the constructed XML cleaned-up for NewCrop
-     * @return string NewCrop ready string of the constructed XML.
+     * Return a string version of the constructed XML cleaned-up for Ensora
+     * @return string Ensora ready string of the constructed XML.
      *
      * XML has had double-quotes converted to single-quotes and \r and \t has been removed.
      */
@@ -218,13 +219,13 @@ class eRxPage
         return preg_replace(
             '/\t/',
             '',
-            preg_replace(
+            (string) preg_replace(
                 '/&#xD;/',
                 '',
-                preg_replace(
+                (string) preg_replace(
                     '/"/',
                     '\'',
-                    $this->getXMLBuilder()->getDocument()->saveXML()
+                    (string) $this->getXMLBuilder()->getDocument()->saveXML()
                 )
             )
         );
@@ -253,16 +254,16 @@ class eRxPage
 
         $result = $XMLBuilder->checkError($xml);
 
-        preg_match('/<textarea.*>(.*)Original XML:/is', $result, $errorMessage);
+        preg_match('/<textarea.*>(.*)Original XML:/is', (string) $result, $errorMessage);
 
         if (count($errorMessage) > 0) {
             $errorMessages = explode('Error', $errorMessage[1]);
             array_shift($errorMessages);
         } else {
-            $errorMessages = array();
+            $errorMessages = [];
         }
 
-        if (strpos($result, 'RxEntry.aspx')) {
+        if (strpos((string) $result, 'RxEntry.aspx')) {
             $this->errorLog($xml);
             $this->errorLog($result);
 

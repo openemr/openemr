@@ -219,7 +219,7 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
     public $topic = [];
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public $author = [];
@@ -774,7 +774,7 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public function getAuthor()
@@ -783,7 +783,7 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $author
      * @return $this
      */
@@ -1156,7 +1156,7 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -1313,15 +1313,13 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchElementDefinition xmlns="http://hl7.org/fhir"></ResearchElementDefinition>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResearchElementDefinition xmlns="http://hl7.org/fhir"></ResearchElementDefinition>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

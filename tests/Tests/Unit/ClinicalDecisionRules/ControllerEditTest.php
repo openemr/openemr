@@ -2,48 +2,45 @@
 
 namespace OpenEMR\Tests\Unit\ClinicalDecisionRules;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
+use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CodeManager;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Rule;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleManager;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 
 class ControllerEditTest extends TestCase
 {
     private $controller;
-    private $ruleManagerMock;
-    private $codeManagerMock;
+    private \PHPUnit\Framework\MockObject\MockObject $ruleManagerMock;
+    private \PHPUnit\Framework\MockObject\MockObject $codeManagerMock;
 
     protected function setUp(): void
     {
+        // ControllerEdit reaches into `$_GET`/`$_POST` via `Common::get()`/
+        // `Common::post()`, which now caches the Symfony Request built from
+        // those globals. Each test in this class mutates the superglobals
+        // before invoking the controller, so drop the snapshot up front
+        // to make sure those mutations are seen.
+        Common::resetRequestCache();
+
         $this->ruleManagerMock = $this->createMock(RuleManager::class);
         $this->codeManagerMock = $this->createMock(CodeManager::class);
 
         // Injecting mocks into the ControllerEdit class
         $this->controller = new class ($this->ruleManagerMock, $this->codeManagerMock) extends ControllerEdit {
-            public function __construct($ruleManager, $codeManager)
+            public function __construct(RuleManager $ruleManager, CodeManager $codeManager)
             {
                 $this->ruleManager = $ruleManager;
                 $this->codeManager = $codeManager;
                 parent::__construct();
             }
-
-            // Overriding global functions for testing
-            protected function _get($var, $default = '')
-            {
-                return $_GET[$var] ?? $default;
-            }
-
-            protected function _post($var, $default = '')
-            {
-                return $_POST[$var] ?? $default;
-            }
         };
     }
 
-    public function testActionSummary()
+    public function testActionSummary(): void
     {
         $_GET['id'] = 'test_rule_id';
 
@@ -56,7 +53,7 @@ class ControllerEditTest extends TestCase
         $this->assertEquals("summary.php", $this->controller->viewBean->_view);
     }
 
-    public function testActionSubmitSummaryWithNewRule()
+    public function testActionSubmitSummaryWithNewRule(): void
     {
         $values = [
             'title' => 'Test Title'
@@ -106,7 +103,7 @@ class ControllerEditTest extends TestCase
             . '/', $this->controller->viewBean->_redirect);
     }
 
-    public function testActionIntervals()
+    public function testActionIntervals(): void
     {
         $_GET['id'] = 'test_rule_id';
 
@@ -119,7 +116,7 @@ class ControllerEditTest extends TestCase
         $this->assertEquals("intervals.php", $this->controller->viewBean->_view);
     }
 
-    public function testActionSubmitIntervals()
+    public function testActionSubmitIntervals(): void
     {
         $_POST['id'] = 'test_rule_id';
 
@@ -131,7 +128,7 @@ class ControllerEditTest extends TestCase
         $this->markTestIncomplete("Test needs to check if the intervals are updated");
     }
 
-    public function testActionFilter()
+    public function testActionFilter(): void
     {
         $_GET['id'] = 'test_rule_id';
         $_GET['guid'] = 'test_guid';

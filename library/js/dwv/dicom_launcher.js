@@ -3,7 +3,7 @@
  * OpenEMR v5.0.2
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com> (complete rework 7/1/2020)
  * @copyright Copyright (c) 2016 Victor Kofia <victor.kofia@gmail.com>
@@ -221,7 +221,7 @@ function startApp() {
             if (nReceivedError > 1) {
                 message = nReceivedError + " load errors have ";
             }
-            message += "occured. See log for details.";
+            message += "occurred. See log for details.";
             alert(message);
         }
         // console warn for aborts

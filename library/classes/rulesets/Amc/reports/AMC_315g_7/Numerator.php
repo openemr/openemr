@@ -17,7 +17,7 @@
 
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright 2022 Discover and Change, Inc.
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -51,7 +51,7 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
      * @param $endDate
      * @return bool
      */
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
 
         // essentially we need to check for each referral whether a CCD record was sent electronically.
@@ -110,6 +110,7 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
             // required elements.
             return true;
         }
+        return false;
     }
 
     /**
@@ -134,7 +135,7 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
             $details = $this->parseDetailsToString($data['details'] ?? []);
             if ($key == self::ACTION_LABEL_CCDA) {
                 $result->addNumeratorActionData($key, $data['value'] ?? false, $details, $ccdaLabel);
-            } else if ($key == self::ACTION_LABEL_CONFIRMED) {
+            } elseif ($key == self::ACTION_LABEL_CONFIRMED) {
                 $result->addNumeratorActionData($key, $data['value'] ?? false, $details, $confirmedLabel);
             }
         }
@@ -149,11 +150,11 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_CCDA_CREATED) {
             $newDetails = xl('Summary of Care Record Created and Transmitted On') . ' ' . $details['date'];
-        } else if ($type == self::ACTION_DETAILS_KEY_RECEIPT_CONFIRMED) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_RECEIPT_CONFIRMED) {
             $newDetails = xl('Receipt Confirmed On') . ' ' . $details['date'];
-        } else if ($type == self::ACTION_DETAILS_KEY_CCDA_NOT_SENT) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_CCDA_NOT_SENT) {
             $newDetails = xl("Summary of Care Document not created electronically for referral");
-        } else if ($type == self::ACTION_DETAILS_KEY_CCDA_INVALID) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_CCDA_INVALID) {
             $newDetails = xl("Summary of Care Document created for referral had missing required data or missing notation of no current problem, medication, and/or medication allergy");
         }
         return $newDetails;

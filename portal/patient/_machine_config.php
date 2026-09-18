@@ -18,49 +18,65 @@
 
 /* */
 
-// Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
-    $pid = $_SESSION['pid'];
+// Will start the (patient) portal OpenEMR session/cookie.
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$globalsBag = OEGlobalsBag::getInstance();
+
+if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $session->get('register') === true)) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     GlobalConfig::$PORTAL = 1;
-    if (!isset($_SESSION['portal_init'])) {
-        $_SESSION['portal_init'] = true;
+    if (!$session->has('portal_init')) {
+        SessionUtil::setSession('portal_init', true);
     }
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
+        $landingpage = "index.php";
+        header('Location: ' . $landingpage);
+        exit;
+    }
+    // Core-user fallback: this branch runs for staff hitting /portal/patient/*
+    // without a portal-patient session (e.g. `Provider.Home` dashboard).
+    // Historically the branch ran with NO acl gate, so any authenticated
+    // staff account could reach portal-scoped controllers (OnsiteDocument
+    // CRUD, etc.) — which use `bootstrap_pid`-only patient binding and
+    // therefore leak data across patients when `bootstrap_pid` is empty.
+    // Require the same `patientportal/portal` ACL that `ProviderHome.tpl.php`
+    // enforces at the template layer, so the gate lives at the bootstrap
+    // choke point and covers every downstream controller uniformly.
+    if (!AclMain::aclCheckCore('patientportal', 'portal')) {
+        // Do not leak whether the section exists; behave the same as an
+        // unauthenticated visitor and bounce to the login landing.
+        SessionWrapperFactory::getInstance()->destroyCoreSession();
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit;
     }
 }
 
-require_once 'verysimple/Phreeze/ConnectionSetting.php';
-require_once("verysimple/HTTP/RequestUtil.php");
-
 /**
  * database connection settings
  */
 GlobalConfig::$CONNECTION_SETTING = new ConnectionSetting();
-GlobalConfig::$CONNECTION_SETTING->ConnectionString = $GLOBALS['host'] . ":" . $GLOBALS['port'];
-GlobalConfig::$CONNECTION_SETTING->DBName = $GLOBALS['dbase'];
-GlobalConfig::$CONNECTION_SETTING->Username = $GLOBALS['login'];
-GlobalConfig::$CONNECTION_SETTING->Password = $GLOBALS['pass'];
+GlobalConfig::$CONNECTION_SETTING->ConnectionString = $globalsBag->get('host') . ":" . $globalsBag->get('port');
+GlobalConfig::$CONNECTION_SETTING->DBName = $globalsBag->get('dbase');
+GlobalConfig::$CONNECTION_SETTING->Username = $globalsBag->get('login');
+GlobalConfig::$CONNECTION_SETTING->Password = $globalsBag->get('pass');
 GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
-if (!$disable_utf8_flag) {
-    if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
-    } else {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8";
-    }
-}
+GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
 
 GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
 // Turn off STRICT SQL
@@ -71,11 +87,11 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * the root url of the application with trailing slash, for example http://localhost/patient/
  * default is relative base address
  */
-GlobalConfig::$WEB_ROOT = $GLOBALS['qualified_site_addr'];
-if ($GLOBALS['portal_onsite_two_basepath']) {
+GlobalConfig::$WEB_ROOT = $globalsBag->get('qualified_site_addr');
+if ($globalsBag->getBoolean('portal_onsite_two_basepath')) {
     GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
-    GlobalConfig::$ROOT_URL = $GLOBALS['web_root'] . '/portal/patient/';
+    GlobalConfig::$ROOT_URL = $globalsBag->get('web_root') . '/portal/patient/';
 }
 
 

@@ -272,7 +272,7 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -305,15 +305,13 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Identifier xmlns="http://hl7.org/fhir"></Identifier>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Identifier xmlns="http://hl7.org/fhir"></Identifier>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->use)) {
             $this->use->xmlSerialize(true, $sxe->addChild('use'));

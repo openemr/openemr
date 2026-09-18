@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -40,8 +40,8 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
             'prevalencePeriod' => new Interval([
                 'low' => $record['begdate'],
                 'high' => $record['enddate'],
-                'lowClosed' => $record['begdate'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
+                'lowClosed' => (bool) $record['begdate'],
+                'highClosed' => (bool) $this->validDateOrNull($record['enddate'])
             ])
         ]);
 

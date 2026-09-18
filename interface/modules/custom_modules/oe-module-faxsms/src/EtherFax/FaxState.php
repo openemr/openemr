@@ -4,7 +4,7 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
@@ -40,7 +40,7 @@ class FaxState
     public static function getFaxState($result): int|string|null
     {
         if (self::$_constants == null) {
-            $c = new ReflectionClass('OpenEMR\Modules\FaxSMS\EtherFax\FaxState');
+            $c = new ReflectionClass(\OpenEMR\Modules\FaxSMS\EtherFax\FaxState::class);
             self::$_constants = $c->getConstants();
         }
 

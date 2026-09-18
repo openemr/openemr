@@ -1,0 +1,227 @@
+<?php
+
+/*
+ * QuestionnaireFormFHIRResourceService.php
+ * @package openemr
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Services\FHIR\Questionnaire;
+
+use BadMethodCallException;
+use JsonException;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireItem;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\IResourceReadableService;
+use OpenEMR\Services\FHIR\IResourceSearchableService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Validators\ProcessingResult;
+
+class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, INonPatientCompartmentResourceService
+{
+    /**
+     * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait
+     */
+    use FhirServiceBaseEmptyTrait;
+
+    private ?QuestionnaireService $service;
+
+    public function __construct($fhirApiURL = null)
+    {
+        parent::__construct($fhirApiURL);
+        $this->service = new QuestionnaireService();
+    }
+
+    public function getQuestionnaireService(): QuestionnaireService
+    {
+        $this->service ??= new QuestionnaireService();
+        return $this->service;
+    }
+
+    public function setQuestionnaireService(QuestionnaireService $service): void
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * @param $code
+     * @return bool
+     */
+    public function supportsCode($code): bool
+    {
+        return true;
+    }
+
+    /**
+     * Repair a raw questionnaire item so the strict generated model constructor
+     * accepts it: decode double-encoded array fields where possible, drop them
+     * with a warning where not. Dropping a field (e.g. enableWhen) degrades to a
+     * less conditional form rather than failing the whole API response.
+     * Shared logic lives in QuestionnaireItemNormalizer; the import path uses
+     * the same class in strict mode so new data can't need this tolerance.
+     *
+     * @param array<mixed> $item
+     * @return array<mixed>
+     */
+    private static function normalizeQuestionnaireItem(array $item): array
+    {
+        [$item, , $unrepairable] = QuestionnaireItemNormalizer::normalizeItem($item);
+        foreach ($unrepairable as $field) {
+            ServiceContainer::getLogger()->warning(
+                "Dropping malformed questionnaire item field",
+                ['field' => $field, 'linkId' => $item['linkId'] ?? '', 'type' => gettype($item[$field])]
+            );
+            unset($item[$field]);
+        }
+        return $item;
+    }
+
+    /**
+     * @param array<mixed> $dataItem
+     * @return list<FHIRQuestionnaireItem>
+     */
+    private function parseQuestionnaireItems(array $dataItem): array
+    {
+        $objItems = [];
+        if (!empty($dataItem['item'])) {
+            foreach ($dataItem['item'] as $item) {
+                if (!is_array($item)) {
+                    ServiceContainer::getLogger()->warning("Dropping malformed questionnaire item", ['type' => gettype($item)]);
+                    continue;
+                }
+                $item = self::normalizeQuestionnaireItem($item);
+                if (!empty($item['item'])) {
+                    $item['item'] = $this->parseQuestionnaireItems($item);
+                }
+                $item = new FHIRQuestionnaireItem($item);
+                $objItems[] = $item;
+            }
+        }
+        return $objItems;
+    }
+
+    /**
+     * @param array $dataRecord
+     * @param bool $encode
+     * @return FHIRQuestionnaire
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRQuestionnaire
+    {
+        try {
+            $innerData = json_decode((string) $dataRecord['questionnaire'], true, 512, JSON_THROW_ON_ERROR);
+            if (!is_array($innerData)) {
+                throw new \InvalidArgumentException("Stored questionnaire json is not an object");
+            }
+            // we have to handle the item properties as Questionnaire only adds data arrays instead of
+            // actual object values
+            if (isset($innerData['item']) && is_array($innerData['item']) && $innerData['item'] !== []) {
+                $innerData['item'] = $this->parseQuestionnaireItems($innerData);
+            }
+            $fhirResource = new FHIRQuestionnaire($innerData);
+        } catch (JsonException | \InvalidArgumentException $exception) {
+            // log the error and move on with a bare resource; a single malformed
+            // stored questionnaire must not fail the whole collection response.
+            // InvalidArgumentException comes from the strict generated model
+            // constructors when stored data has an unexpected shape.
+            ServiceContainer::getLogger()->error(
+                "Unable to parse questionnaire json",
+                ['exception' => $exception, 'uuid' => $dataRecord['uuid'] ?? '']
+            );
+            $fhirResource = new FHIRQuestionnaire();
+        }
+
+        $meta = new FHIRMeta();
+        $meta->setVersionId($dataRecord['version'] ?? '1');
+        $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
+        $fhirResource->setMeta($meta);
+
+        if (!empty($dataRecord['source_url'])) {
+            $fhirResource->setUrl($dataRecord['source_url']);
+        }
+
+        $id = new FHIRId();
+        $id->setValue($dataRecord['uuid']);
+        $fhirResource->setId($id);
+
+        return $fhirResource;
+    }
+
+    /**
+     * @return array
+     */
+    protected function loadSearchParameters(): array
+    {
+        return  [
+            '_id' => new FhirSearchParameterDefinition(
+                '_id',
+                SearchFieldType::TOKEN,
+                [new ServiceField('uuid', ServiceField::TYPE_UUID)]
+            ),
+            'title' => new FhirSearchParameterDefinition(
+                'title',
+                SearchFieldType::STRING,
+                [new ServiceField('name', ServiceField::TYPE_STRING)]
+            ),
+            'questionnaire-code' => new FhirSearchParameterDefinition(
+                'questionnaire-code',
+                SearchFieldType::TOKEN,
+                [new ServiceField('code', ServiceField::TYPE_STRING)]
+            )
+        ];
+    }
+
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    {
+        return $this->service->search($openEMRSearchParameters);
+    }
+
+    /**
+     * @param FHIRDomainResource $dataRecord
+     * @param bool $encode
+     * @return FHIRProvenance|string
+     */
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
+    {
+        if (!($dataRecord instanceof FHIRQuestionnaire)) {
+            throw new BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
+        }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
+    }
+}

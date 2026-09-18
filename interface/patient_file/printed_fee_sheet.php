@@ -5,7 +5,7 @@
  * uses a session array of PIDS by Medical Information Integration, LLC - mi-squared.com
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
@@ -18,21 +18,26 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/appointments.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/user.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/appointments.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
+
 $facilityService = new FacilityService();
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
 
 function genColumn($ix)
 {
     global $html;
     global $SBCODES;
     for ($imax = count($SBCODES); $ix < $imax; ++$ix) {
-        $a = explode('|', $SBCODES[$ix], 2);
+        $a = explode('|', (string) $SBCODES[$ix], 2);
         $cmd = trim($a[0]);
         if ($cmd == '*C') { // column break
             return++$ix;
@@ -96,21 +101,17 @@ $header_height = 44; // height of page headers in points
 // This tells us if patient/encounter data is to be filled in.
 // 1 = single PID from popup, 2=array of PIDs for session
 
-if (empty($_GET['fill'])) {
-    $form_fill = 0;
-} else {
-    $form_fill = $_GET['fill'];
-}
+$form_fill = empty($_GET['fill']) ? 0 : $_GET['fill'];
 
 // Show based on session array or single pid?
-$pid_list = array();
-$apptdate_list = array();
+$pid_list = [];
+$apptdate_list = [];
 
 
-if (!empty($_SESSION['pidList']) and $form_fill == 2) {
-    $pid_list = $_SESSION['pidList'];
+if (!empty($session->get('pidList')) and $form_fill == 2) {
+    $pid_list = $session->get('pidList');
     // If PID list is in Session, then Appt. Date list is expected to be a parallel array
-    $apptdate_list = $_SESSION['apptdateList'];
+    $apptdate_list = $session->get('apptdateList');
 } elseif ($form_fill == 1) {
     array_push($pid_list, $pid); //get from active PID
 } else {
@@ -120,8 +121,9 @@ if (!empty($_SESSION['pidList']) and $form_fill == 2) {
 // This file is optional. You can create it to customize how the printed
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
 //
-if (file_exists("../../custom/fee_sheet_codes.php")) {
-    include_once("../../custom/fee_sheet_codes.php");
+$customFeeSheetCodes = OEGlobalsBag::getInstance()->getProjectDir() . '/custom/fee_sheet_codes.php';
+if (file_exists($customFeeSheetCodes)) {
+    include_once($customFeeSheetCodes);
 }
 
 // TBD: Move these to globals.php, or make them user-specific.
@@ -140,8 +142,9 @@ $padding = 0;
 // *C - Ends the current column and starts a new one.
 // If $SBCODES is not provided, then manufacture it from the Fee Sheet.
 //
+$pages = 1;
 if (empty($SBCODES)) {
-    $SBCODES = array();
+    $SBCODES = [];
     $last_category = '';
 
     // Create entries based on the fee_sheet_options table.
@@ -153,10 +156,10 @@ if (empty($SBCODES)) {
         $fs_codes = $row['fs_codes'];
         if ($fs_category !== $last_category) {
             $last_category = $fs_category;
-            $SBCODES[] = '*G|' . substr($fs_category, 1);
+            $SBCODES[] = '*G|' . substr((string) $fs_category, 1);
         }
 
-        $SBCODES[] = " |" . substr($fs_option, 1);
+        $SBCODES[] = " |" . substr((string) $fs_option, 1);
     }
 
     // Create entries based on categories defined within the codes.
@@ -166,14 +169,14 @@ if (empty($SBCODES)) {
         $SBCODES[] = '*G|' . xl_list_label($prow['title']);
         $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
                 "WHERE superbill = ? AND active = 1 " .
-                "ORDER BY code_text", array($prow['option_id']));
+                "ORDER BY code_text", [$prow['option_id']]);
         while ($row = sqlFetchArray($res)) {
             $SBCODES[] = $row['code'] . '|' . $row['code_text'];
         }
     }
 
     // Create one more group, for Products.
-    if ($GLOBALS['sell_non_drug_products']) {
+    if (OEGlobalsBag::getInstance()->get('sell_non_drug_products')) {
         $SBCODES[] = '*G|' . xl('Products');
         $tres = sqlStatement("SELECT " .
                 "dt.drug_id, dt.selector, d.name, d.ndc_number " .
@@ -345,7 +348,7 @@ $frow = $facilityService->getPrimaryBusinessEntity();
 
 // If primary is not set try to old method of guessing...for backward compatibility
 if (empty($frow)) {
-    $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
+    $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
 }
 
 // Still missing...
@@ -354,12 +357,8 @@ if (empty($frow)) {
 }
 
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
-if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "$web_root/$ma_logo_path";
-} else {
-    $logo = "";
-}
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
+$logo = is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
 
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
@@ -375,6 +374,7 @@ foreach ($pid_list as $pid) {
         $html .= "<div>\n";
     }
 
+    $patdata = [];
     if ($form_fill) {
         // Get the patient's name and chart number.
         $patdata = getPatientData($pid);
@@ -450,7 +450,7 @@ foreach ($pid_list as $pid) {
                         "LEFT JOIN users AS u ON u.username = f.user " .
                         "WHERE f.pid = ? AND f.encounter = ? AND f.formdir = 'newpatient' AND f.deleted = 0 " .
                         "ORDER BY f.id LIMIT 1";
-                $encdata = sqlQuery($query, array($pid, $encounter));
+                $encdata = sqlQuery($query, [$pid, $encounter]);
                 if (!empty($encdata['username'])) {
                     $html .= $encdata['fname'] . ' ' . $encdata['mname'] . ' ' . $encdata['lname'];
                 }
@@ -474,18 +474,18 @@ foreach ($pid_list as $pid) {
 <tr>
 <td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
 
-            if (empty($GLOBALS['ippf_specific'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
-                    foreach (array('primary', 'secondary', 'tertiary') as $instype) {
+                    foreach (['primary', 'secondary', 'tertiary'] as $instype) {
                         $query = "SELECT * FROM insurance_data WHERE " .
                                 "pid = ? AND type = ? " .
                                 "ORDER BY date DESC LIMIT 1";
-                        $row = sqlQuery($query, array($pid, $instype));
+                        $row = sqlQuery($query, [$pid, $instype]);
                         if (!empty($row['provider'])) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();
-                            $insco_name = trim($icobj->get_name());
+                            $insco_name = trim((string) $icobj->get_name());
                             if ($instype != 'primary') {
                                 $html .= ",";
                             }
@@ -503,7 +503,7 @@ foreach ($pid_list as $pid) {
                 $html .= xlt('Visit date');
                 $html .= ":<br />\n";
                 if (!empty($encdata)) {
-                    $html .= text(substr($encdata['date'], 0, 10));
+                    $html .= text(substr((string) $encdata['date'], 0, 10));
                 } else {
                     $html .= text(oeFormatShortDate(date('Y-m-d'))) . "\n";
                 }

@@ -53,6 +53,45 @@ function arrayCopy(input)
 	return output;
 }
 
+function treeMenuInvokeEventHandler(handler, eventName)
+{
+	if (typeof handler === 'function') {
+		handler();
+		return;
+	}
+
+	if (typeof handler !== 'string') {
+		return;
+	}
+
+	var handlerName = handler.replace(/^\s+|\s+$/g, '');
+
+	if (handlerName.slice(-2) === '()') {
+		handlerName = handlerName.slice(0, -2);
+	}
+
+	if (!/^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)*$/.test(handlerName)) {
+		console.warn('TreeMenu: unsupported ' + eventName + ' handler format:', handler);
+		return;
+	}
+
+	var context = window;
+	var parts = handlerName.split('.');
+
+	for (var i = 0; i < parts.length; i++) {
+		if (context == null) {
+			break;
+		}
+		context = context[parts[i]];
+	}
+
+	if (typeof context === 'function') {
+		context();
+	} else {
+		console.warn('TreeMenu: handler not found for ' + eventName + ':', handlerName);
+	}
+}
+
 /**
 * TreeMenu class
 */
@@ -114,7 +153,7 @@ function arrayCopy(input)
 * Main function that draws the menu and assigns it
 * to the layer (or document.write()s it)
 */
-	TreeMenu.prototype.drawMenu = function ()// OPTIONAL ARGS: nodes = [], level = [], prepend = '', expanded = false, visbility = 'inline', parentLayerID = null
+	TreeMenu.prototype.drawMenu = function ()// OPTIONAL ARGS: nodes = [], level = [], prepend = '', expanded = false, visibility = 'inline', parentLayerID = null
 	{
 		/**
 	    * Necessary variables
@@ -307,13 +346,13 @@ function arrayCopy(input)
 				nodeObject = this.nodeRefs[layerID];
 	
 				if (nodeObject.ontoggle != null) {
-					eval(nodeObject.ontoggle);
+					treeMenuInvokeEventHandler(nodeObject.ontoggle, 'ontoggle');
 				}
-				
+
 				if (newDisplay == 'none' && nodeObject.oncollapse != null) {
-					eval(nodeObject.oncollapse);
+					treeMenuInvokeEventHandler(nodeObject.oncollapse, 'oncollapse');
 				} else if (newDisplay == 'inline' && nodeObject.onexpand != null){
-					eval(nodeObject.onexpand);
+					treeMenuInvokeEventHandler(nodeObject.onexpand, 'onexpand');
 				}
 			}
 
@@ -570,7 +609,7 @@ function arrayCopy(input)
 /**
 * Also much adored, the PHP implode() function
 */
-	TreeMenu.prototype.implode = function (seperator, input)
+	TreeMenu.prototype.implode = function (separator, input)
 	{
 		var output = '';
 	
@@ -578,7 +617,7 @@ function arrayCopy(input)
 			if (i == 0) {
 				output += input[i];
 			} else {
-				output += seperator + input[i];
+				output += separator + input[i];
 			}
 		}
 		
@@ -711,7 +750,7 @@ function arrayCopy(input)
 // versions.
 
 /**
-* Severly curtailed all this as only certain elements
+* Severely curtailed all this as only certain elements
 * are required by TreeMenu, specifically:
 *  o is_ie4up
 *  o is_nav6up

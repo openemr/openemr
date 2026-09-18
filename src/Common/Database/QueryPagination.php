@@ -3,7 +3,7 @@
 /**
  * QueryPagination is used for tracking and handling the pagination of a search query.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,7 +16,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
 
 class QueryPagination implements \JsonSerializable
 {
-    // TODO: @adunsulag do we want to maintain backwards compatability and let ALL data be retrieved with 0? or should we impose a limit which will break backwards compatability?
+    // TODO: @adunsulag do we want to maintain backwards compatibility and let ALL data be retrieved with 0? or should we impose a limit which will break backwards compatibility?
     const DEFAULT_LIMIT = 0;
 
     const MAX_LIMIT = 200;

@@ -3,7 +3,7 @@
  # Authorization Server Member
  #
  # @package   OpenEMR
- # @link      http://www.open-emr.org
+ # @link      https://www.open-emr.org
  # @author    Jerry Padgett <sjpadgett@gmail.com>
  # @author    Stephen Nielson <snielson@discoverandchange.com>
  # @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -25,7 +25,7 @@
                 <p>{{ invalid|text }}</p>
             </div>
         {% endif %}
-            <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw('oauth2')|attr }}" />
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
             {% if not mfaRequired %}
 
             {% if enforce_signin_email %}

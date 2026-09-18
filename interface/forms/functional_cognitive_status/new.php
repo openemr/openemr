@@ -4,7 +4,7 @@
 * Functional cognitive status form.
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    Jacob T Paul <jacob@zhservices.com>
 * @author    Vinish K <vinish@zhservices.com>
 * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -14,20 +14,26 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+
+require_once("$srcdir/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
-$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) ($_GET['id'] ?? 0);
 if ($formid) {
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
+    $res = sqlStatement($sql, [$formid,$session->get('pid'), $session->get('encounter')]);
 
     $all = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -36,7 +42,7 @@ if ($formid) {
     $check_res = $all;
 }
 
-$check_res = $formid ? $check_res : array();
+$check_res = $formid ? $check_res : [];
 ?>
 <html>
 <head>
@@ -93,7 +99,7 @@ $check_res = $formid ? $check_res : array();
             id = id.split('tb_row_');
             var checkId = '_' + id[1];
             document.getElementById('clickId').value = checkId;
-            dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT', '_blank', 700, 400);
+            dlgopen('<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT', '_blank', 700, 400);
         }
 
         function set_related(codetype, code, selector, codedesc) {
@@ -121,7 +127,7 @@ $check_res = $formid ? $check_res : array();
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = false; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -134,7 +140,7 @@ $check_res = $formid ? $check_res : array();
             <div class="col-12">
                 <h2><?php echo xlt('Functional and Cognitive Status Form'); ?></h2>
                 <form method='post' name='my_form' action='<?php echo $rootdir; ?>/forms/functional_cognitive_status/save.php?id=<?php echo attr($formid); ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Enter Details'); ?></legend>
                         <div class="container">
@@ -145,9 +151,9 @@ $check_res = $formid ? $check_res : array();
                                     <div class="form-row">
                                         <div class="forms col-md-2">
                                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                            <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                             <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
-                                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"]); ?>">
+                                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>">
                                         </div>
                                         <div class="forms col-md-2">
                                             <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
@@ -177,9 +183,9 @@ $check_res = $formid ? $check_res : array();
                                 <div class="form-row">
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                            <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                             <span id="displaytext_1"  class="displaytext help-block"></span>
-                                            <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"] ?? ''); ?>">
+                                            <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
                                         </div>
                                         <div class="forms col-md-2">
                                             <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
@@ -225,4 +231,3 @@ $check_res = $formid ? $check_res : array();
     </div>
 </body>
 </html>
-

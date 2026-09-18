@@ -4,17 +4,20 @@
  * Clickatell SMS Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-class ClickatellSMSClient extends AppDispatch
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
+
+class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
 {
     public function __construct()
     {
-        if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+        if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         parent::__construct();
@@ -37,7 +40,7 @@ class ClickatellSMSClient extends AppDispatch
         $message = $message ?: $this->getRequest('comments');
 
         /* Reformat $toPhone number */
-        $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
+        $cleanup_chr =  ["+", " ", "(", ")", "\r", "\n", "\r\n"];
         $toPhone = str_replace($cleanup_chr, "", $toPhone);
         if (!str_starts_with($toPhone, "1")) {
             $toPhone = "1" . $toPhone;
@@ -48,7 +51,7 @@ class ClickatellSMSClient extends AppDispatch
             $this->credentials['appKey'],
             $toPhone,
             $this->credentials['phone'],
-            rawurlencode($message)
+            rawurlencode((string) $message)
         );
         $context = stream_context_create([
             'http' => [
@@ -68,25 +71,9 @@ class ClickatellSMSClient extends AppDispatch
     }
 
     /**
-     * @return mixed|string
-     */
-    public function sendFax(): string|bool
-    {
-        return text("Not supported");
-    }
-
-    /**
-     * @return string
-     */
-    public function sendEmail(): string
-    {
-        return text("Not supported");
-    }
-
-    /**
      * @return string|bool
      */
-    function fetchReminderCount(): string|bool
+    public function fetchReminderCount(): string|bool
     {
         return 0;
     }
@@ -112,9 +99,9 @@ class ClickatellSMSClient extends AppDispatch
      * @param $acl
      * @return int
      */
-    function authenticate($acl = ['patients', 'appt']): int
+    public function authenticate($acl = ['patients', 'appt']): int
     {
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 }

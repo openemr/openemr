@@ -18,10 +18,10 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <p class="form-row">
     <span class="left_col colhead req" data-fld="fld_lifestyle"><?php echo text($criteria->getTitle()); ?></span>
     <span class="end_col">
-    <?php echo RuleTemplateExtension::render_select(array( "target"   =>  "fld_lifestyle",
+    <?php echo RuleTemplateExtension::render_select([ "target"   =>  "fld_lifestyle",
                                      "name"     =>  "fld_lifestyle",
                                      "value"    =>  $criteria->type,
-                                     "options"  =>  $criteria->getOptions() )); ?>
+                                     "options"  =>  $criteria->getOptions() ]); ?>
     </span>
 </p>
 
@@ -47,4 +47,4 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields([ "criteria" => $criteria]); ?>

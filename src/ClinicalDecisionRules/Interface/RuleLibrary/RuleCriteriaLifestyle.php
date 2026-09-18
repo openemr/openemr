@@ -18,16 +18,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaLifestyle extends RuleCriteria
 {
-    var $type;
-    var $matchValue;
-
-    function __construct($type, $matchValue)
+    public function __construct(public $type, public $matchValue)
     {
-        $this->type = $type;
-        $this->matchValue = $matchValue;
     }
 
-    function getRequirements()
+    public function getRequirements()
     {
         $requirements = xl("Value") . ": ";
         if (is_null($this->matchValue)) {
@@ -39,18 +34,18 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return $requirements;
     }
 
-    function getTitle()
+    public function getTitle()
     {
         $label = xl_layout_label($this->getLayoutLabel($this->type, "HIS"));
         return xl("Lifestyle") . " - " . $label;
     }
 
-    function getView()
+    public function getView()
     {
         return "lifestyle.php";
     }
 
-    function getOptions()
+    public function getOptions()
     {
         $stmt = sqlStatement(
             "SELECT lo.field_id, lo.title FROM layout_options AS lo, layout_group_properties AS lp "
@@ -58,29 +53,29 @@ class RuleCriteriaLifestyle extends RuleCriteria
             . "AND lp.grp_title LIKE '%Lifestyle%'"
         );
 
-        $options = array();
+        $options = [];
 
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $id = $row['field_id'];
             $label = xl_layout_label($row['title']);
-            $option = array("id" => $id, "label" => $label);
+            $option = ["id" => $id, "label" => $label];
             array_push($options, $option);
         }
 
         return $options;
     }
 
-    function getDbView()
+    public function getDbView()
     {
         $dbView = parent::getDbView();
 
         $dbView->method = "database";
         $dbView->methodDetail = "";
-        $dbView->value = "LIFESTYLE::" . $this->type . "::" . (is_null($this->matchValue) ? "" : $this->matchValue);
+        $dbView->value = "LIFESTYLE::" . $this->type . "::" . ($this->matchValue ?? "");
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         parent::updateFromRequest();
 
@@ -90,10 +85,6 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
         $this->type = $lifestyle;
 
-        if ($matchType == "any") {
-            $this->matchValue = null;
-        } else {
-            $this->matchValue = $value;
-        }
+        $this->matchValue = $matchType == "any" ? null : $value;
     }
 }

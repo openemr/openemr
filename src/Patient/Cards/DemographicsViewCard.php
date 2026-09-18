@@ -4,7 +4,7 @@
  * DemographicsViewCard - presentation view of a patient's demographics information in a card widget.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,40 +12,36 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use OpenEMR\Common\Acl\AclMain;
 
 class DemographicsViewCard extends CardModel
 {
     private const TEMPLATE_FILE = 'patient/card/tab_base.html.twig';
 
-    private const CARD_ID = 'demographic';
+    private const CARD_ID = 'demographics';
 
-    private $patientData;
-    private $employerData;
-
-    public function __construct($patientData, $employerData, array $opts = [])
+    public function __construct(private readonly mixed $patientData, private readonly mixed $employerData, array $opts = [])
     {
-        $this->patientData = $patientData;
-        $this->employerData = $employerData;
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }
 
-    private function setupOpts(array $opts)
+    private function setupOpts(array $opts): array
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $opts['acl'] = ['patients', 'demo'];
         $opts['title'] = xl('Demographics');
         $opts['btnLink'] = 'demographics_full.php';
         $opts['linkMethod'] = 'html';
         $opts['edit'] = true;
         $opts['add'] = false;
-        $opts['requireRestore'] = (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false;
-        $opts['initiallyCollapsed'] = getUserSetting("demographics_ps_expand") == 0 ? true : false;
+        $opts['requireRestore'] = !$session->has('patient_portal_onsite_two');
+        $opts['initiallyCollapsed'] = getUserSetting("demographics_ps_expand") == 0;
         $opts['identifier'] = self::CARD_ID;
         $opts['templateFile'] = self::TEMPLATE_FILE;
-        $opts['initiallyCollapsed'] = (getUserSetting(self::CARD_ID . '_expand') == 0);
         $opts['templateVariables'] = [];
         return $opts;
     }
@@ -58,13 +54,14 @@ class DemographicsViewCard extends CardModel
         return array_merge($templateVars, $dataVars);
     }
 
-    private function setupDemographicsData()
+    private function setupDemographicsData(): array
     {
         $dispatchResult = $this->getEventDispatcher()->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $auth = ACLMain::aclCheckCore('patients', 'demo', '', 'write');
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $viewArgs = [
-            'requireRestore' => (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false,
-            'initiallyCollapsed' => (getUserSetting("demographics_ps_expand") == 0) ? true : false,
+            'requireRestore' => !$session->has('patient_portal_onsite_two'),
+            'initiallyCollapsed' => getUserSetting("demographics_ps_expand") == 0,
             'tabID' => "DEM",
             'title' => xl("Demographics"),
             'id' => self::CARD_ID . '_ps_expand',

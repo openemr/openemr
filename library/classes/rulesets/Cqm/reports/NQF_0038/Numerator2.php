@@ -14,7 +14,7 @@ class NQF_0038_Numerator2 implements CqmFilterIF
         return "Numerator 2";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         if (Immunizations::checkIpv($patient, $beginDate, $endDate)) {
             return true;

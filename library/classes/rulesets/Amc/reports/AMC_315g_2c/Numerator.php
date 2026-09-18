@@ -19,7 +19,7 @@
  * of a patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright 2022 Discover and Change, Inc.
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -27,6 +27,7 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
 {
@@ -48,12 +49,12 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         return "AMC_315g_2c Numerator";
     }
 
-    public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate)
+    public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate): bool
     {
         if (!empty($date_created)) {
-            $creationDate = strtotime($date_created);
-            $beginDate = strtotime($beginDate);
-            $endDate = strtotime($endDate);
+            $creationDate = strtotime((string) $date_created);
+            $beginDate = strtotime((string) $beginDate);
+            $endDate = strtotime((string) $endDate);
             // creation date for the credentials was within the valid date boundary that we wanted
             if ($creationDate >= $beginDate && $creationDate <= $endDate) {
                 $this->lastTestActionData->addNumeratorActionData(
@@ -87,8 +88,8 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
      */
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
-        $fhir_api = $GLOBALS['rest_fhir_api'] ?? '0';
-        $patient_api = $GLOBALS['rest_portal_api'] ?? '0';
+        $fhir_api = OEGlobalsBag::getInstance()->get('rest_fhir_api') ?? '0';
+        $patient_api = OEGlobalsBag::getInstance()->get('rest_portal_api') ?? '0';
 
         // if either the fhir api or the patient api is disabled, then we must fail the measure as no patient
         // fhir api access is available.
@@ -156,12 +157,12 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_API_DISABLED) {
             $newDetails = xl("Patient API access is disabled");
-        } else if ($type == self::ACTION_DETAILS_KEY_ACCESS_GRANTED) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_ACCESS_GRANTED) {
             $newDetails = xl("Patient has automatic access to patient data since API credentials were generated on") . " "
                 . $details['date'];
-        } else if ($type == self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT) {
             $newDetails = xl("Patient opted out of 3rd party api access");
-        } else if ($type == self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS) {
             $newDetails = xl("API Credentials were not generated");
         }
         return $newDetails;

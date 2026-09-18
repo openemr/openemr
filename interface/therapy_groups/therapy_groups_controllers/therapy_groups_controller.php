@@ -22,14 +22,14 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
-require_once dirname(__FILE__) . '/base_controller.php';
-require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
-require_once("{$GLOBALS['srcdir']}/pid.inc.php");
+require_once __DIR__ . '/base_controller.php';
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class TherapyGroupsController extends BaseController
 {
@@ -40,42 +40,42 @@ class TherapyGroupsController extends BaseController
     //list of group statuses
     public static function prepareStatusesList()
     {
-        $statuses = array(
+        $statuses = [
             '10' => xl('Active'),
             '20' => xl('Finished'),
             '30' => xl('Canceled')
-        );
+        ];
         return $statuses;
     }
 
     //list of participant statuses
     public static function prepareParticipantStatusesList()
     {
-        $participant_statuses = array(
+        $participant_statuses = [
                 '10' => xl('Active'),
                 '20' => xl('Not active')
-        );
+        ];
         return $participant_statuses;
     }
 
     //list of group types
     public static function prepareGroupTypesList()
     {
-        $group_types = array(
+        $group_types = [
             '1' => xl('Closed'),
             '2' => xl('Open'),
             '3' => xl('Training')
-        );
+        ];
         return $group_types;
     }
 
     //list of participation types
     public static function prepareGroupParticipationList()
     {
-        $group_participation = array(
+        $group_participation = [
             '1' => xl('Mandatory'),
             '2' => xl('Optional')
-        );
+        ];
         return $group_participation;
     }
 
@@ -86,12 +86,12 @@ class TherapyGroupsController extends BaseController
     /**
      * add / edit therapy group
      * making validation and saving in the match tables.
-     * @param null $groupId - must pass when edit group
+     * @param ?int $groupId - must pass when edit group
      */
     public function index($groupId = null)
     {
 
-        $data = array();
+        $data = [];
         if ($groupId) {
             self::setSession($groupId);
         }
@@ -119,7 +119,7 @@ class TherapyGroupsController extends BaseController
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
         if (isset($_POST['save'])) {
-            $isEdit = empty($_POST['group_id']) ? false : true;
+            $isEdit = !empty($_POST['group_id']);
 
             // for new group - checking if already exist same name
             if ($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)) {
@@ -133,17 +133,17 @@ class TherapyGroupsController extends BaseController
                 }
             }
 
-            $filters = array(
-                'group_name' => FILTER_DEFAULT,
+            $filters = [
+                'group_name' => FILTER_UNSAFE_RAW,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
                 'group_type' => FILTER_VALIDATE_INT,
                 'group_participation' => FILTER_VALIDATE_INT,
                 'group_status' => FILTER_VALIDATE_INT,
-                'group_notes' => FILTER_DEFAULT,
-                'group_guest_counselors' => FILTER_DEFAULT,
-                'counselors' => array('filter'    => FILTER_VALIDATE_INT,
-                                      'flags'     => FILTER_FORCE_ARRAY)
-            );
+                'group_notes' => FILTER_UNSAFE_RAW,
+                'group_guest_counselors' => FILTER_UNSAFE_RAW,
+                'counselors' => ['filter'    => FILTER_VALIDATE_INT,
+                                      'flags'     => FILTER_FORCE_ARRAY]
+            ];
             if ($isEdit) {
                 $filters['group_end_date'] = FILTER_SANITIZE_SPECIAL_CHARS;
                 $filters['group_id'] = FILTER_VALIDATE_INT;
@@ -181,14 +181,14 @@ class TherapyGroupsController extends BaseController
         } else {
             if (is_null($groupId)) {
                 //for new form
-                $data['groupData'] = array('group_name' => null,
+                $data['groupData'] = ['group_name' => null,
                     'group_start_date' => date('Y-m-d'),
                     'group_type' => null,
                     'group_participation' => null,
                     'group_notes' => null,
                     'group_guest_counselors' => null,
                     'group_status' => null
-                );
+                ];
                 $this->loadView('addGroup', $data);
             } else {
                 //for exist group screen
@@ -267,7 +267,7 @@ class TherapyGroupsController extends BaseController
     private function prepareGroups($therapy_groups, $counselors)
     {
 
-        $new_array = array();
+        $new_array = [];
         $users_model = $this->loadModel('Users');
 
         //Insert groups into a new array and shorten notes for preview in list
@@ -275,7 +275,7 @@ class TherapyGroupsController extends BaseController
             $gid = $therapy_group['group_id'];
             $new_array[$gid] = $therapy_group;
             $new_array[$gid]['group_notes'] = $this->shortenNotes($therapy_group['group_notes']);
-            $new_array[$gid]['counselors'] = array();
+            $new_array[$gid]['counselors'] = [];
         }
 
         //Insert the counselors into their groups in new array.
@@ -294,9 +294,9 @@ class TherapyGroupsController extends BaseController
     private function shortenNotes($notes)
     {
 
-        $length = strlen($notes);
+        $length = strlen((string) $notes);
         if ($length > $this->notes_preview_proper_length) {
-            $notes = mb_substr($notes, 0, 50) . '...';
+            $notes = mb_substr((string) $notes, 0, 50) . '...';
         }
 
         return $notes;
@@ -310,7 +310,7 @@ class TherapyGroupsController extends BaseController
     private function prepareCounselorsList($counselors)
     {
 
-        $new_array = array();
+        $new_array = [];
         $users_model = $this->loadModel('Users');
 
         foreach ($counselors as $counselor) {
@@ -330,7 +330,7 @@ class TherapyGroupsController extends BaseController
     private function deleteGroup($group_id)
     {
 
-        $response = array();
+        $response = [];
 
         //If group has encounters cannot delete the group.
         $group_has_encounters = $this->checkIfHasApptOrEncounter($group_id);
@@ -352,7 +352,7 @@ class TherapyGroupsController extends BaseController
      * @param $group_id
      * @return bool
      */
-    private function checkIfHasApptOrEncounter($group_id)
+    private function checkIfHasApptOrEncounter($group_id): bool
     {
         $therapy_groups_events_model = $this->loadModel('Therapy_Groups_Events');
         $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');
@@ -375,7 +375,7 @@ class TherapyGroupsController extends BaseController
     private function saveNewGroup($groupData)
     {
 
-        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
+        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : [];
         unset($groupData['groupId'], $groupData['save'], $groupData['counselors']);
 
         $groupId = $this->therapyGroupModel->saveNewGroup($groupData);
@@ -395,7 +395,7 @@ class TherapyGroupsController extends BaseController
     private function updateGroup($groupData)
     {
 
-        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
+        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : [];
         unset($groupData['save'], $groupData['counselors']);
 
         $this->therapyGroupModel->updateGroup($groupData);
@@ -404,13 +404,16 @@ class TherapyGroupsController extends BaseController
         foreach ($counselors as $counselorId) {
             $this->counselorsModel->save($groupData['group_id'], $counselorId);
         }
+
+        return $groupData['group_id'];
     }
 
-    static function setSession($groupId)
+    public static function setSession($groupId)
     {
 
         setpid(0);
-        if ($_SESSION['therapy_group'] != $groupId) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('therapy_group') != $groupId) {
             SessionUtil::setSession('therapy_group', $groupId);
         }
     }

@@ -220,7 +220,7 @@ The type is the Canonical URL of Resource Definition that is the type this refer
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -247,15 +247,13 @@ The type is the Canonical URL of Resource Definition that is the type this refer
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Reference xmlns="http://hl7.org/fhir"></Reference>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Reference xmlns="http://hl7.org/fhir"></Reference>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->reference)) {
             $this->reference->xmlSerialize(true, $sxe->addChild('reference'));

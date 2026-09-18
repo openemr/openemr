@@ -4,7 +4,7 @@
  * edih_io.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Kevin McCormick Longview, Texas
@@ -19,7 +19,7 @@
  */
 function edih_php_inivals()
 {
-    $ival = array();
+    $ival = [];
     $td = basename(sys_get_temp_dir());
     $ival['maxfsize'] = ini_get('upload_max_filesize');
     $ival['maxfuploads'] = ini_get('max_file_uploads');
@@ -40,7 +40,7 @@ function edih_disp_log()
 {
     $lfn = '';
     if (isset($_GET['log_select'])) {
-        $lfn = filter_input(INPUT_GET, 'log_select', FILTER_DEFAULT);
+        $lfn = filter_input(INPUT_GET, 'log_select', FILTER_UNSAFE_RAW);
     }
 
     $str_html = csv_log_html($lfn);
@@ -53,12 +53,12 @@ function edih_disp_logfiles()
     $lst = true;
     if (isset($_GET['loglist'])) {
         // loglist: 'yes'
-        $lval = filter_input(INPUT_GET, 'loglist', FILTER_DEFAULT);
-        $lst = ($lval == 'yes') ? true : false;
+        $lval = filter_input(INPUT_GET, 'loglist', FILTER_UNSAFE_RAW);
+        $lst = $lval == 'yes';
     } elseif (isset($_GET['archivelog'])) {
         // archivelog: 'yes'
-        $lval = filter_input(INPUT_GET, 'archivelog', FILTER_DEFAULT);
-        $lst = ($lval == 'yes') ? false : true;
+        $lval = filter_input(INPUT_GET, 'archivelog', FILTER_UNSAFE_RAW);
+        $lst = $lval != 'yes';
     } else {
         csv_edihist_log('edih_disp_logfiles: input parameter error');
         return "input parameter error<br />";
@@ -77,16 +77,17 @@ function edih_disp_logfiles()
 function edih_user_notes()
 {
     //
+    $str_html = '';
     if (isset($_GET['getnotes'])) {
-        $getnt = filter_input(INPUT_GET, 'getnotes', FILTER_DEFAULT);
+        $getnt = filter_input(INPUT_GET, 'getnotes', FILTER_UNSAFE_RAW);
         if ($getnt == 'yes') {
             $str_html = csv_notes_file();
         }
     } elseif (isset($_POST['notes_hidden']) && isset($_POST['txtnotes'])) {
-        $putnt = filter_input(INPUT_POST, 'putnotes', FILTER_DEFAULT);
+        $putnt = filter_input(INPUT_POST, 'putnotes', FILTER_UNSAFE_RAW);
         if ($putnt == 'yes') {
-            $notetext = trim($_POST['txtnotes']);
-            $filtered = filter_var($notetext, FILTER_DEFAULT);
+            $notetext = trim((string) $_POST['txtnotes']);
+            $filtered = filter_var($notetext, FILTER_UNSAFE_RAW);
             //echo $filtered .PHP_EOL;
             $str_html = csv_notes_file($filtered, false);
         }
@@ -109,7 +110,8 @@ function edih_user_notes()
 function edih_disp_archive_restore()
 {
     //name="archrestore_sel" { archrestore: 'yes', archfile: archf };
-    $fn = (isset($_POST['archrestore_sel'])) ? filter_input(INPUT_POST, 'archrestore_sel', FILTER_DEFAULT) : '';
+    $fn = (isset($_POST['archrestore_sel'])) ? filter_input(INPUT_POST, 'archrestore_sel', FILTER_UNSAFE_RAW) : '';
+    $fn = is_string($fn) ? basename($fn) : '';
     if (strlen($fn)) {
         $str_html = edih_archive_restore($fn);
     } else {
@@ -130,16 +132,12 @@ function edih_disp_archive_report()
 {
     //
     $str_html = '';
-    $la = filter_input(INPUT_GET, 'archivereport', FILTER_DEFAULT);
-    $pd = (isset($_GET['period'])) ? filter_input(INPUT_GET, 'period', FILTER_DEFAULT) : '';
+    $la = filter_input(INPUT_GET, 'archivereport', FILTER_UNSAFE_RAW);
+    $pd = (isset($_GET['period'])) ? filter_input(INPUT_GET, 'period', FILTER_UNSAFE_RAW) : '';
     //
     csv_edihist_log("GET archivereport:  archivereport $la period $pd");
     //
-    if ($la == 'yes') {
-        $str_html = edih_archive_report($pd);
-    } else {
-        $str_html = "File Information report input parameter error<br />";
-    }
+    $str_html = $la == 'yes' ? edih_archive_report($pd) : "File Information report input parameter error<br />";
 
     //
     return $str_html;
@@ -156,13 +154,9 @@ function edih_disp_archive_report()
 function edih_disp_archive()
 {
     //
-    $pd = (isset($_POST['archive_sel'])) ? filter_input(INPUT_POST, 'archive_sel', FILTER_DEFAULT) : '';
+    $pd = (isset($_POST['archive_sel'])) ? filter_input(INPUT_POST, 'archive_sel', FILTER_UNSAFE_RAW) : '';
     //
-    if ($pd) {
-        $str_html = edih_archive_main($pd);
-    } else {
-        $str_html = "<p>Invalid aging period for archive function</p>" . PHP_EOL;
-    }
+    $str_html = $pd ? edih_archive_main($pd) : "<p>Invalid aging period for archive function</p>" . PHP_EOL;
 
     return $str_html;
 }
@@ -203,14 +197,14 @@ function edih_disp_file_process()
     $htm = $er = false;
     if (isset($_GET['process_html'])) {
         // show tables for process results
-        $htmval = filter_input(INPUT_GET, 'process_html', FILTER_DEFAULT);
-        $htm = ($htmval == 'htm') ? true : false;
+        $htmval = filter_input(INPUT_GET, 'process_html', FILTER_UNSAFE_RAW);
+        $htm = $htmval == 'htm';
     }
 
     if (isset($_GET['process_err'])) {
         // show only claims with errors (denied, rejected, etc)
-        $errval = filter_input(INPUT_GET, 'process_err', FILTER_DEFAULT);
-        $er = ($errval == 'err') ? true : false;
+        $errval = filter_input(INPUT_GET, 'process_err', FILTER_UNSAFE_RAW);
+        $er = $errval == 'err';
     }
 
     $str_html = "";
@@ -226,7 +220,7 @@ function edih_disp_file_process()
             $dh = opendir($fdir);
             if ($dh) {
                 while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..' && $file != "process_bills.log") {
+                    if (!in_array($file, ['.', '..', "process_bills.log"])) {
                         $checkdir = true;
                         break;
                     }
@@ -308,9 +302,9 @@ function edih_disp_file_upload()
 function edih_disp_denied_claims()
 {
     //
-    $fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_DEFAULT) : '';
-    $ft = isset($_GET['ftype']) ? filter_input(INPUT_GET, 'ftype', FILTER_DEFAULT) : '';
-    $trace = isset($_GET['trace']) ? filter_input(INPUT_GET, 'trace', FILTER_DEFAULT) : '';
+    $fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_UNSAFE_RAW) : '';
+    $ft = isset($_GET['ftype']) ? filter_input(INPUT_GET, 'ftype', FILTER_UNSAFE_RAW) : '';
+    $trace = isset($_GET['trace']) ? filter_input(INPUT_GET, 'trace', FILTER_UNSAFE_RAW) : '';
     //
     $str_html = edih_list_denied_claims($ft, $fn, $trace);
     //
@@ -352,9 +346,7 @@ function edih_disp_x12trans()
     //                  $fn & $ft $ pid                                     $trace & $rsptype
     //
     $str_htm = '';
-    if (isset($_GET['gtbl'])) {
-        $qs = filter_input(INPUT_GET, 'gtbl', FILTER_DEFAULT);
-    }
+    $qs = isset($_GET['gtbl']) ? filter_input(INPUT_GET, 'gtbl', FILTER_UNSAFE_RAW) : '';
 
     if (!$qs) {
         $str_htm .= '<p>edih_disp_x12 error: missing parameter</p>';
@@ -363,18 +355,18 @@ function edih_disp_x12trans()
     }
 
     //
-    $fmt = isset($_GET['fmt']) ? filter_input(INPUT_GET, 'fmt', FILTER_DEFAULT) : '';
+    $fmt = isset($_GET['fmt']) ? filter_input(INPUT_GET, 'fmt', FILTER_UNSAFE_RAW) : '';
     //
-    $fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_DEFAULT) : '';
-    $ft = isset($_GET['ftype']) ? filter_input(INPUT_GET, 'ftype', FILTER_DEFAULT) : '';
-    $icn = isset($_GET['icn']) ? filter_input(INPUT_GET, 'icn', FILTER_DEFAULT) : '';
-    $rsptype = isset($_GET['rsptype']) ? filter_input(INPUT_GET, 'rsptype', FILTER_DEFAULT) : '';
+    $fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_UNSAFE_RAW) : '';
+    $ft = isset($_GET['ftype']) ? filter_input(INPUT_GET, 'ftype', FILTER_UNSAFE_RAW) : '';
+    $icn = isset($_GET['icn']) ? filter_input(INPUT_GET, 'icn', FILTER_UNSAFE_RAW) : '';
+    $rsptype = isset($_GET['rsptype']) ? filter_input(INPUT_GET, 'rsptype', FILTER_UNSAFE_RAW) : '';
     //
-    $clm01 = isset($_GET['pid']) ? filter_input(INPUT_GET, 'pid', FILTER_DEFAULT) : '';
-    $trace = isset($_GET['trace']) ? filter_input(INPUT_GET, 'trace', FILTER_DEFAULT) : '';
-    $bht03 = isset($_GET['bht03']) ? filter_input(INPUT_GET, 'bht03', FILTER_DEFAULT) : '';
-    $err = isset($_GET['err']) ? filter_input(INPUT_GET, 'err', FILTER_DEFAULT) : '';
-    $summary = isset($_GET['summary']) ? filter_input(INPUT_GET, 'summary', FILTER_DEFAULT) : false;
+    $clm01 = isset($_GET['pid']) ? filter_input(INPUT_GET, 'pid', FILTER_UNSAFE_RAW) : '';
+    $trace = isset($_GET['trace']) ? filter_input(INPUT_GET, 'trace', FILTER_UNSAFE_RAW) : '';
+    $bht03 = isset($_GET['bht03']) ? filter_input(INPUT_GET, 'bht03', FILTER_UNSAFE_RAW) : '';
+    $err = isset($_GET['err']) ? filter_input(INPUT_GET, 'err', FILTER_UNSAFE_RAW) : '';
+    $summary = isset($_GET['summary']) ? filter_input(INPUT_GET, 'summary', FILTER_UNSAFE_RAW) : false;
     //
     // debug
     //$str_htm .= "<p>edih_disp_x12trans values: <br />".PHP_EOL;
@@ -419,7 +411,7 @@ function edih_disp_x12trans()
                 // this claim payment
                 $str_htm .= edih_835_html($fn, '', $clm01, $summary);
             }
-        } elseif (strpos('|f270|f271|f276|f277|f278', $ft)) {
+        } elseif (strpos('|f270|f271|f276|f277|f278', (string) $ft)) {
             if ($fmt == 'seg') {
                 if ($trace && $rsptype) {
                     // 270|276|278|837 claim or request segments
@@ -506,7 +498,7 @@ function edih_disp_x12trans()
 
 /**
  * display file uploaded from x12 File tab
- * wrap individual transactions in accordian jquery ui widget
+ * wrap individual transactions in accordion jquery ui widget
  *
  * @uses csv_check_x12_obj()
  * @uses edih_271_transaction_html()
@@ -515,7 +507,6 @@ function edih_disp_x12trans()
  * @uses edih_835_html_page()
  * @uses edih_display_text()
  *
- * @param string  path to x12 file
  * @return string
  */
 function edih_disp_x12file()
@@ -525,7 +516,7 @@ function edih_disp_x12file()
     $fn = $ft = $icn = $trace = $rsptype = $format = '';
     //
     if (isset($_POST['x12_html'])) {
-        $htmval = filter_input(INPUT_POST, 'x12_html', FILTER_DEFAULT);
+        $htmval = filter_input(INPUT_POST, 'x12_html', FILTER_UNSAFE_RAW);
         $format = ($htmval == 'html') ? 'htm' : 'seg';
         $upldir = csv_edih_tmpdir();
     } else {
@@ -571,12 +562,12 @@ function edih_disp_x12file()
     } elseif (isset($_GET['gtbl']) && $_GET['gtbl'] == 'file') {
         // this is a GET request from csv files table
         // assemble variables
-        $fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_DEFAULT) : '';
-        $ft = isset($_GET['ftype']) ? filter_input(INPUT_GET, 'ftype', FILTER_DEFAULT) : '';
-        $icn = isset($_GET['icn']) ? filter_input(INPUT_GET, 'icn', FILTER_DEFAULT) : '';
-        $trace = isset($_GET['trace']) ? filter_input(INPUT_GET, 'trace', FILTER_DEFAULT) : '';
-        $rsptype = isset($_GET['rsptype']) ? filter_input(INPUT_GET, 'rsptype', FILTER_DEFAULT) : '';
-        $format = isset($_GET['fmt']) ? filter_input(INPUT_GET, 'fmt', FILTER_DEFAULT) : '';
+        $fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_UNSAFE_RAW) : '';
+        $ft = isset($_GET['ftype']) ? filter_input(INPUT_GET, 'ftype', FILTER_UNSAFE_RAW) : '';
+        $icn = isset($_GET['icn']) ? filter_input(INPUT_GET, 'icn', FILTER_UNSAFE_RAW) : '';
+        $trace = isset($_GET['trace']) ? filter_input(INPUT_GET, 'trace', FILTER_UNSAFE_RAW) : '';
+        $rsptype = isset($_GET['rsptype']) ? filter_input(INPUT_GET, 'rsptype', FILTER_UNSAFE_RAW) : '';
+        $format = isset($_GET['fmt']) ? filter_input(INPUT_GET, 'fmt', FILTER_UNSAFE_RAW) : '';
         //
     } else {
         $str_htm .= "<p>Error: No request received by server</p>" . PHP_EOL;
@@ -670,16 +661,16 @@ function edih_disp_csvtable()
 {
     //
     $str_html = '';
-    $prd = (isset($_GET['csv_period'])) ? filter_input(INPUT_GET, 'csv_period', FILTER_DEFAULT) : '';
+    $prd = (isset($_GET['csv_period'])) ? filter_input(INPUT_GET, 'csv_period', FILTER_UNSAFE_RAW) : '';
     $dts = (isset($_GET['csv_date_start'])) ? filter_input(INPUT_GET, 'csv_date_start', FILTER_SANITIZE_NUMBER_INT) : '';
     $dte = (isset($_GET['csv_date_end'])) ? filter_input(INPUT_GET, 'csv_date_end', FILTER_SANITIZE_NUMBER_INT) : '';
-    $csvfile = (isset($_GET['csvtables'])) ? filter_input(INPUT_GET, 'csvtables', FILTER_DEFAULT) : '';
+    $csvfile = (isset($_GET['csvtables'])) ? filter_input(INPUT_GET, 'csvtables', FILTER_UNSAFE_RAW) : '';
     //
     // debug
     csv_edihist_log("edih_disp_csvtable: $csvfile period $prd datestart $dts dateend $dte");
     //
     if ($dts && strpos($dts, '-') != 4) {
-        if (strlen($_GET['csv_date_start']) == 10 && strpos($_GET['csv_date_start'], '/') == 4) {
+        if (strlen((string) $_GET['csv_date_start']) == 10 && strpos((string) $_GET['csv_date_start'], '/') == 4) {
             $dts = str_replace('/', '-', $dts);
         } else {
             $str_html = "<p>Date " . text($dts) . " must be in YYYY-MM-DD format, no / or . please</p>" . PHP_EOL;
@@ -689,7 +680,7 @@ function edih_disp_csvtable()
     }
 
     if ($dte && strpos($dte, '-') != 4) {
-        if (strlen($_GET['csv_date_end']) == 10 && strpos($_GET['csv_date_end'], '/') == 4) {
+        if (strlen((string) $_GET['csv_date_end']) == 10 && strpos((string) $_GET['csv_date_end'], '/') == 4) {
             $dte = str_replace('/', '-', $dte);
         } else {
             $dte = '';
@@ -719,12 +710,8 @@ function edih_disp_clmhist()
 {
     //
     if (isset($_GET['hist_enctr'])) {
-        $enctr = filter_input(INPUT_GET, 'hist_enctr', FILTER_DEFAULT);
-        if ($enctr) {
-            $str_html = edih_claim_history($enctr);
-        } else {
-            $str_html = "Invalid or unknown encounter number" . PHP_EOL;
-        }
+        $enctr = filter_input(INPUT_GET, 'hist_enctr', FILTER_UNSAFE_RAW);
+        $str_html = $enctr ? edih_claim_history($enctr) : "Invalid or unknown encounter number" . PHP_EOL;
     } else {
         $str_html = "Invalid or unknown encounter number" . PHP_EOL;
     }
@@ -744,11 +731,11 @@ function edih_disp_era_processed()
 {
     //
     $str_html = '';
-    $ckno = filter_input(INPUT_GET, 'tracecheck', FILTER_DEFAULT);
+    $ckno = filter_input(INPUT_GET, 'tracecheck', FILTER_UNSAFE_RAW);
     if ($ckno) {
         $srchval = 'ePay - ' . $ckno;
         // reference like '%".$srchval."%'"
-        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", array($srchval));
+        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", [$srchval]);
         if (!empty($row)) {
             $str_html .= "trace {$row['reference']} total \${$row['pay_total']}";
             if ($row['global_amount'] === '0' || $row['global_amount'] === '0.00') {

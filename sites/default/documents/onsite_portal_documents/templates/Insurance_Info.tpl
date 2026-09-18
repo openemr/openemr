@@ -7,7 +7,7 @@ Address {TextInput}
 State {TextInput} Zip {TextInput}
 <hr>
 Are you personally responsible for the payment of your fees? {ynRadioGroup}
-If not, who is? 
+If not, who is?
 Name:{TextInput}    Relationship:{TextInput}    DOB:{TextInput}
 <hr>
 Who to notify in emergency (nearest relative or friend)?

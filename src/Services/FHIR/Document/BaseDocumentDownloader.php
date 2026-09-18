@@ -4,7 +4,7 @@
  * BaseDocumentDownloader implements the IDocumentDownloader interface to download a Document object into an HTTP Response
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Services\FHIR\Document;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
-use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -25,10 +25,7 @@ class BaseDocumentDownloader implements IDocumentDownloader
      */
     const EXPIRES_HEADER_DATE_TIME_FORMAT = 'D, d M Y H:i:s \G\M\T';
 
-    /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * BaseDocumentDownloader constructor.
@@ -36,7 +33,7 @@ class BaseDocumentDownloader implements IDocumentDownloader
      */
     public function __construct(?LoggerInterface $logger = null)
     {
-        $this->logger = $logger ?? new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**

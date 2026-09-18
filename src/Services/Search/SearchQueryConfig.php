@@ -4,7 +4,7 @@
  * SearchQueryConfig represents a configuration for a search query.  It handles both the pagination and the search field order
  * for a given search query request.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -69,9 +69,9 @@ class SearchQueryConfig
         $config->pagination = new QueryPagination(intval($limit), intval($queryParams['_offset'] ?? 0));
 
         if (!empty($queryParams['_sort'])) {
-            $fields = explode(",", $queryParams['_sort']);
+            $fields = explode(",", (string) $queryParams['_sort']);
             foreach ($fields as $field) {
-                if (strpos($field, '-') === 0) {
+                if (str_starts_with($field, '-')) {
                     $field = substr($field, 1);
                     $config->addSearchFieldOrder(new SearchFieldOrder($field, false));
                 } else {

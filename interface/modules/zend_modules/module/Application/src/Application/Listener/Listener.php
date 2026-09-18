@@ -28,7 +28,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
   /**
    * @var \Laminas\Stdlib\CallbackHandler[]
    */
-    protected $listeners = array();
+    protected $listeners = [];
     protected $applicationTable;
   /**
    * {@inheritDoc}
@@ -38,7 +38,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
         // TODO: This aclcheckEvent doesn't appear to be in the system or used... especially since the callable onAclcheckEvent doesn't exist
         // in this class.  We should look at removing this.
         $sharedEvents      = $events->getSharedManager();
-        $this->listeners[] = $events->attach('aclcheckEvent', array($this, 'onAclcheckEvent'));
+        $this->listeners[] = $events->attach('aclcheckEvent', [$this, 'onAclcheckEvent']);
     }
 
 
@@ -49,16 +49,6 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
                 unset($this->listeners[$index]);
             }
         }
-    }
-
-  /**
-   * Language converter
-   * @param string $str
-   * @return string
-   */
-    public static function z_xl($str)
-    {
-        return xl($str);
     }
 
   /**
@@ -79,15 +69,5 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
     public static function z_xla($str)
     {
         return xla($str);
-    }
-
-    /**
-   * Language converter
-   * @param string $str
-   * @return string
-   */
-    public static function z_xls($str)
-    {
-        return xls($str);
     }
 }
