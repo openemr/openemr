@@ -59,28 +59,16 @@ class AdminController
 
         $message = '';
         $error = '';
-        $formId = $this->stringParam($request, 'form_id');
+        $postedFormId = $this->stringParam($request, 'form_id');
         $activeIds = [];
         foreach ($layouts as $layout) {
             $activeIds[] = $layout['form_id'];
         }
-        if ($formId !== '' && !in_array($formId, $activeIds, true)) {
+        $formId = self::mutationFormId($postedFormId, $activeIds);
+        if ($postedFormId !== '' && $formId === '') {
             $error = xl('Invalid form.');
-            $formId = '';
-        }
-        if ($formId === '') {
-            foreach ($repo->formIdsWithRules() as $withRulesId) {
-                if (in_array($withRulesId, $activeIds, true)) {
-                    $formId = $withRulesId;
-                    break;
-                }
-            }
-            if ($formId === '' && $layouts !== []) {
-                $formId = $layouts[0]['form_id'];
-            }
         }
         $edit = null;
-        $fields = $formId !== '' ? $catalog->fieldMeta($formId) : [];
 
         if ($request->isMethod('POST')) {
             try {
@@ -118,9 +106,7 @@ class AdminController
                     }
                 } elseif ($action === 'save') {
                     $data = [
-                        'form_id' => $this->stringParam($request, 'form_id') !== ''
-                            ? $this->stringParam($request, 'form_id')
-                            : $formId,
+                        'form_id' => $formId,
                         'source_field_id' => $this->stringParam($request, 'source_field_id'),
                         'source_field_id_2' => $this->stringParam($request, 'source_field_id_2'),
                         'op' => $this->stringParam($request, 'op') !== ''
@@ -161,6 +147,22 @@ class AdminController
                 }
             }
         }
+
+        // Empty or retired posted form_id is display-only. Do not pick another
+        // layout until POST mutations have run, or paragraph/save writes the
+        // first active LBF.
+        if ($formId === '') {
+            foreach ($repo->formIdsWithRules() as $withRulesId) {
+                if (in_array($withRulesId, $activeIds, true)) {
+                    $formId = $withRulesId;
+                    break;
+                }
+            }
+            if ($formId === '' && $layouts !== []) {
+                $formId = $layouts[0]['form_id'];
+            }
+        }
+        $fields = $formId !== '' ? $catalog->fieldMeta($formId) : [];
 
         if ($request->query->has('edit')) {
             $edit = $repo->getRule(Values::asInt($this->stringParam($request, 'edit')));
@@ -209,6 +211,19 @@ class AdminController
             'assetBase' => $this->bootstrap->getPublicUrl() . 'assets/',
             'assetVersion' => OEGlobalsBag::getInstance()->getString('v_js_includes'),
         ]);
+    }
+
+    /**
+     * Posted form_id if it is an active LBF, otherwise empty.
+     *
+     * @param list<string> $activeIds
+     */
+    public static function mutationFormId(string $postedFormId, array $activeIds): string
+    {
+        if ($postedFormId !== '' && in_array($postedFormId, $activeIds, true)) {
+            return $postedFormId;
+        }
+        return '';
     }
 
     /**
