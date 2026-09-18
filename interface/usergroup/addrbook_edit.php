@@ -598,18 +598,11 @@ if ($userid) {
 
 $posted = CurrentRequest::get()->request;
 if ($posted->has('form_save') && !$save_ok) {
-    foreach (
-        [
-            'abook_type', 'title', 'fname', 'lname', 'mname', 'suffix',
-            'specialty', 'organization', 'npi', 'street', 'streetb',
-            'city', 'state', 'zip', 'phone', 'phonew1', 'phonecell', 'fax',
-        ] as $col
-    ) {
-        $postkey = 'form_' . $col;
-        if ($posted->has($postkey)) {
-            $row[$col] = $posted->get($postkey);
-        }
-    }
+    $row = AddressBookReferrerFields::applyPostedEditorFields(
+        $row,
+        static fn (string $key): bool => $posted->has($key),
+        static fn (string $key): mixed => $posted->get($key)
+    );
 }
 
 if ($type) { // note this only happens when its new
