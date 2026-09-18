@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\ActiveMedicationListService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = ActiveMedicationListService::requestedPatientId(
+$pid = ActiveMedicationListService::printPatientId(
     CurrentRequest::get()->query->get('pid'),
     $session->get('pid', 0)
 );
