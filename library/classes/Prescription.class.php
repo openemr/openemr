@@ -93,6 +93,7 @@ use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationIntentEnum;
 use OpenEMR\Services\ListService;
@@ -295,6 +296,23 @@ class Prescription extends ORDataObject
     }
 
     /**
+     * Apply the medication list mirror for this prescription.
+     *
+     * `persist()` runs the mirror only when the `medication` flag CHANGES.
+     * That is correct for the edit form: loading a row and saving it unchanged
+     * must not rewrite the medication list. A caller that creates a
+     * prescription outside this class has no previous value to change from, so
+     * it needs a way to run the mirror once, explicitly.
+     *
+     * Safe to call more than once. The mirror looks for an existing list entry
+     * by prescription id, then by drug title, before it inserts anything.
+     */
+    public function syncMedicationList(): void
+    {
+        $this->handle_medication_list_updates();
+    }
+
+    /**
      * Handle medication list updates moved from set_medication function
      */
     private function handle_medication_list_updates(): void
@@ -361,10 +379,20 @@ class Prescription extends ORDataObject
 
             if (!isset($inactiveDataRow['id'])) {
                 //add the record to the medication list
+                // The row needs a uuid at insert time. Without one, anything
+                // that reads the medication list through the service layer
+                // (GET /api/patient/{pid}/medication, FHIR) fails on the null
+                // until the missing-uuid backfill happens to run.
                 $medListId = QueryUtils::sqlInsert(
-                    "insert into lists(date,begdate,type,activity,pid,user,groupname,title) "
-                    . " values (now(),cast(now() as date),'medication',1,?,?,?,?)",
-                    [$this->patient->id, $session->get('authUser'), $session->get('authProvider'), $this->drug]
+                    "insert into lists(uuid,date,begdate,type,activity,pid,user,groupname,title) "
+                    . " values (?,now(),cast(now() as date),'medication',1,?,?,?,?)",
+                    [
+                        UuidRegistry::getRegistryForTable('lists')->createUuid(),
+                        $this->patient->id,
+                        $session->get('authUser'),
+                        $session->get('authProvider'),
+                        $this->drug,
+                    ]
                 );
                 $this->gen_lists_medication($medListId);
             } else {
