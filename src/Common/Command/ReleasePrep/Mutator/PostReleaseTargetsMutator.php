@@ -317,12 +317,8 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
             }
         }
 
-        $relAlreadyLatest = $relRow !== null
-            && in_array('latest', $this->parseTags($relRow['dockerTags']), true);
-
-        // Step 1: drop `latest` from any other row that holds it (only on
-        // the first pass — when the rel row already has `latest`, the
-        // shuffle has been done).
+        // Step 1: drop `latest` from any row that holds it, EXCEPT the
+        // just-shipped row ($relRow).
         //
         // Skip only the JUST-SHIPPED row ($relRow), not every row with
         // branch === $relBranch. The multi-row pattern (openemr/openemr
@@ -333,18 +329,24 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
         // the prior-patch row too, leaving both rows claiming `latest`
         // -- see G41 for the trigger event (release-finalize PR
         // openemr/openemr#14069 for 8.4.1 on rel-840, 2026-09-18).
-        if (!$relAlreadyLatest) {
-            foreach ($rows as $row) {
-                if ($row === $relRow || $row['dockerTagsLine'] === null) {
-                    continue;
-                }
-                $tags = $this->parseTags($row['dockerTags']);
-                if (!in_array('latest', $tags, true)) {
-                    continue;
-                }
-                $tags = array_values(array_filter($tags, static fn (string $t): bool => $t !== 'latest'));
-                $lines[$row['dockerTagsLine']] = $this->renderDockerTagsLine($lines[$row['dockerTagsLine']], $tags);
+        //
+        // Idempotency: the inner `if (!in_array('latest', $tags))`
+        // check makes any second pass a no-op on rows already stripped,
+        // so no top-level short-circuit needed. Historical code had
+        // an `if (!$relAlreadyLatest)` short-circuit that also short-
+        // circuited legitimate strips of duplicate `latest` claims
+        // when the rel row itself already had `latest` -- dropped
+        // as of the G41 fix.
+        foreach ($rows as $row) {
+            if ($row === $relRow || $row['dockerTagsLine'] === null) {
+                continue;
             }
+            $tags = $this->parseTags($row['dockerTags']);
+            if (!in_array('latest', $tags, true)) {
+                continue;
+            }
+            $tags = array_values(array_filter($tags, static fn (string $t): bool => $t !== 'latest'));
+            $lines[$row['dockerTagsLine']] = $this->renderDockerTagsLine($lines[$row['dockerTagsLine']], $tags);
         }
 
         // Step 2: on the rel-branch row, swap `next` for `latest`.
