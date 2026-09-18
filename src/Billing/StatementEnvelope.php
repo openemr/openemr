@@ -112,7 +112,7 @@ final readonly class StatementEnvelope
         if ($mailStreet !== '' && $mailCity !== '' && $mailState !== '' && $mailZip !== '') {
             $street = $mailStreet;
             if ($mailStreet2 !== '') {
-                $street = $street === '' ? $mailStreet2 : ($street . "\n" . $mailStreet2);
+                $street .= "\n" . $mailStreet2;
             }
             return [$street, $mailCity . ', ' . $mailState . ', ' . $mailZip];
         }
@@ -183,11 +183,11 @@ final readonly class StatementEnvelope
             $g['to']['w'] - 2.0 * $inset,
             $g['to']['h'] - 2.0 * $inset
         );
-        $out = self::padTextToLine('', (int) round($g['return']['top'] * $lpi));
+        $out = self::padTextToLine('', (int) ceil(($g['return']['top'] + $inset) * $lpi));
         foreach ($returnFitted as $ln) {
             $out .= $returnPad . $ln . "\n";
         }
-        $out = self::padTextToLine($out, (int) round($g['to']['top'] * $lpi));
+        $out = self::padTextToLine($out, (int) ceil(($g['to']['top'] + $inset) * $lpi));
         foreach ($toFitted as $ln) {
             if ($ln !== '') {
                 $out .= $toPad . $ln . "\n";
