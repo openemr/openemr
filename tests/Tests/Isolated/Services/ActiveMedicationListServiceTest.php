@@ -66,9 +66,6 @@ final class ActiveMedicationListServiceTest extends TestCase
     }
 
     /**
-     * Blank titles and zero dates do not become rows.
-     */
-    /**
      * Empty titles and 0000-00-00 dates are not printable rows.
      */
     public function testMergeSkipsEmptyTitlesAndZeroDates(): void
