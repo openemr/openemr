@@ -136,6 +136,93 @@ XML;
     }
 
     /**
+     * qrda3-minimal.xml is 2.5 KB and reaches exactly one of the 35 QRDA III assertions
+     * that reference a <sch:let> variable, so on its own it cannot tell "the expander
+     * works" from "the expander is never asked". This fixture drives the variable-bearing
+     * rules deliberately and asserts on the assertion ids that come back.
+     *
+     * The NPI cases are the sharp ones: four cda:id[@root='2.16.840.1.113883.4.6'] nodes
+     * go through the $s -> $n -> $sum chain, and the one with a correct check digit must
+     * come back clean. A chain that merely ran without computing correctly would fail
+     * every NPI, including that one.
+     */
+    public function testSchLetVariablesEvaluateAgainstQrdaCategoryThree(): void
+    {
+        $fixtureDir = __DIR__ . '/fixtures';
+        $schemaDir = __DIR__ . '/../../../../../src/Services/Cda/Schematron/schemas';
+        $xml = self::readFile("$fixtureDir/qrda3-cms-variables.xml");
+        $sch = self::readFile("$schemaDir/qrda3/2022_CMS_QRDA_Category_III.sch");
+        /** @var array<string, list<string>> $vocab */
+        $vocab = require "$schemaDir/qrda3/vocab.php";
+
+        $out = (new SchematronValidator(new ArrayVocabularyLookup($vocab)))->validate($xml, $sch)->toArray();
+
+        self::assertSame([], $out['ignored'], 'no assertion in this document may be unevaluable');
+
+        $byAssertion = [];
+        foreach ($out['errors'] as $error) {
+            $id = self::stringField($error, 'assertionId');
+            $byAssertion[$id][] = self::npiExtension(is_string($error['xml'] ?? null) ? $error['xml'] : '');
+        }
+
+        // One assertion over the whole NPI picture: a-CMS_0115 is $n, a-CMS_0116 is
+        // number($s) = $s, and a-CMS_0117 is the full $sum check-digit computation.
+        $npiFindings = [
+            'a-CMS_0115-error' => self::findingsFor($byAssertion, 'a-CMS_0115-error'),
+            'a-CMS_0116-error' => self::findingsFor($byAssertion, 'a-CMS_0116-error'),
+            'a-CMS_0117-error' => self::findingsFor($byAssertion, 'a-CMS_0117-error'),
+        ];
+        self::assertSame(
+            [
+                'a-CMS_0115-error' => ['123456789'],
+                'a-CMS_0116-error' => ['12345678AB'],
+                'a-CMS_0117-error' => ['123456789', '12345678AB', '1234567890'],
+            ],
+            $npiFindings,
+            'each malformed NPI must fail exactly the checks it violates'
+        );
+        self::assertNotContains(
+            '1234567893',
+            array_merge(...array_values($npiFindings)),
+            'a valid NPI must pass all three checks - this is what proves $sum computes'
+        );
+
+        // $timeZoneExists, declared at pattern scope
+        self::assertArrayHasKey('a-CMS_0122-error', $byAssertion, 'the offset-less serviceEvent time must be caught');
+        // $intendedRecipient-Doc, $NPI-Count and $TIN-Count, declared at rule scope
+        self::assertArrayHasKey(
+            'a-4506-18177_C01-MIPSGROUP-assignedEntity-error',
+            $byAssertion,
+            'MIPS_GROUP with both a TIN and an NPI must be caught'
+        );
+
+        // Change-detection snapshot for everything above and the rest of the findings.
+        self::assertSame(self::readJson("$fixtureDir/qrda3-cms-variables.php-golden.json"), $out);
+    }
+
+    /**
+     * Read one assertion's findings out of the map. Taking the id as a plain string
+     * parameter keeps the lookup honest: indexing the map with a literal inline lets
+     * PHPStan narrow the offset through assertSame and then flag the ?? as dead.
+     *
+     * @param array<string, list<string>> $byAssertion
+     * @return list<string>
+     */
+    private static function findingsFor(array $byAssertion, string $assertionId): array
+    {
+        return $byAssertion[$assertionId] ?? [];
+    }
+
+    /**
+     * Pull the extension attribute out of a finding's XML snippet so a failure message
+     * names the offending NPI rather than a positional path.
+     */
+    private static function npiExtension(string $xmlSnippet): string
+    {
+        return preg_match('/extension="([^"]*)"/', $xmlSnippet, $m) === 1 ? $m[1] : '';
+    }
+
+    /**
      * @return array<string, array{string, string, string, string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.

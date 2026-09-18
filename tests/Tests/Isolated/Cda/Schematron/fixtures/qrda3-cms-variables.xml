@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  QRDA Category III fixture built to exercise the <sch:let> rules of
+  2022_CMS_QRDA_Category_III.sch, which qrda3-minimal.xml does not reach.
+
+  The document declares intendedRecipient MIPS_GROUP and carries a document-level
+  effectiveTime with a UTC offset, which turns on $intendedRecipient-Doc and
+  $timeZoneExists respectively. Four cda:id[@root='2.16.840.1.113883.4.6'] nodes
+  drive the $s / $n / $sum NPI checksum chain through one passing and three
+  distinct failing shapes. See QRDA3_VARIABLE_FIXTURE_EXPECTATIONS in
+  SchematronValidatorTest for what each one is supposed to prove.
+
+  Not a conformant Cat III report - it is deliberately wrong in specific,
+  documented places, and carries only the structure those rules need.
+-->
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.27.1.1" extension="2020-12-01"/>
+  <templateId root="2.16.840.1.113883.10.20.27.1.2" extension="2021-07-01"/>
+  <id root="a1b2c3d4-0000-4000-8000-000000000001"/>
+  <code code="55184-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"
+        displayName="Quality Reporting Document Architecture Calculated Summary Report"/>
+  <title>QRDA Category III Report - sch:let coverage fixture</title>
+
+  <!-- Length 19 with an offset, so $timeZoneExists evaluates true. -->
+  <effectiveTime value="20260101120000-0500"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="en"/>
+
+  <recordTarget>
+    <patientRole>
+      <id nullFlavor="NA"/>
+    </patientRole>
+  </recordTarget>
+
+  <author>
+    <!-- Valid NPI: ten digits, numeric, correct check digit. Must trigger none of
+         a-CMS_0115 / a-CMS_0116 / a-CMS_0117. This is the discriminating case - it
+         proves the $sum chain computes, not merely that it runs. -->
+    <time value="20260101120000-0500"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.4.6" extension="1234567893"/>
+      <representedOrganization>
+        <id root="2.16.840.1.113883.4.2" extension="123456789"/>
+        <name>Coverage Fixture Group</name>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <id root="2.16.840.1.113883.4.2" extension="123456789"/>
+        <name>Coverage Fixture Group</name>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+
+  <legalAuthenticator>
+    <time value="20260101120000-0500"/>
+    <signatureCode code="S"/>
+    <assignedEntity>
+      <!-- Nine digits: fails a-CMS_0115 ($n = 10). -->
+      <id root="2.16.840.1.113883.4.6" extension="123456789"/>
+    </assignedEntity>
+  </legalAuthenticator>
+
+  <participant typeCode="DEV">
+    <associatedEntity classCode="RGPR">
+      <!-- Ten characters but not numeric: fails a-CMS_0116 (number($s) = $s). -->
+      <id root="2.16.840.1.113883.4.6" extension="12345678AB"/>
+      <id root="2.16.840.1.113883.3.2074.1" extension="CMS-FIXTURE-DEV"/>
+    </associatedEntity>
+  </participant>
+
+  <informationRecipient>
+    <intendedRecipient>
+      <!-- Sets $intendedRecipient-Doc for every rule that branches on it. -->
+      <id root="2.16.840.1.113883.3.249.7" extension="MIPS_GROUP"/>
+    </intendedRecipient>
+  </informationRecipient>
+
+  <documentationOf typeCode="DOC">
+    <serviceEvent classCode="PCPR">
+      <effectiveTime>
+        <!-- Length 14, no offset, while the document carries one: fails a-CMS_0122. -->
+        <low value="20260101000000"/>
+        <high value="20261231235959-0500"/>
+      </effectiveTime>
+      <performer typeCode="PRF">
+        <assignedEntity>
+          <!-- Ten digits, numeric, wrong check digit (correct is 3): isolates
+               a-CMS_0117, the full $sum computation. -->
+          <id root="2.16.840.1.113883.4.6" extension="1234567890"/>
+          <representedOrganization>
+            <!-- TIN present and NPI-Count non-zero under MIPS_GROUP: fails
+                 a-4506-18177_C01-MIPSGROUP-assignedEntity-error, proving both
+                 $TIN-Count and $NPI-Count evaluate. -->
+            <id root="2.16.840.1.113883.4.2" extension="123456789"/>
+            <name>Coverage Fixture Group</name>
+          </representedOrganization>
+        </assignedEntity>
+      </performer>
+    </serviceEvent>
+  </documentationOf>
+
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.27.2.3" extension="2017-06-01"/>
+          <code code="55187-9" codeSystem="2.16.840.1.113883.6.1" displayName="Measure Section"/>
+          <title>Measure Section</title>
+          <text/>
+          <entry>
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.27.3.1" extension="2016-09-01"/>
+              <id root="a1b2c3d4-0000-4000-8000-000000000002"/>
+              <statusCode code="completed"/>
+              <reference typeCode="REFR">
+                <externalDocument classCode="DOC" moodCode="EVN">
+                  <id root="2.16.840.1.113883.4.738" extension="CMS000v0"/>
+                </externalDocument>
+              </reference>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>
