@@ -16,12 +16,16 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ActiveMedicationListService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = (int) $session->get('pid', 0);
+$pid = ActiveMedicationListService::requestedPatientId(
+    CurrentRequest::get()->query->get('pid'),
+    $session->get('pid', 0)
+);
 
 if ($pid < 1) {
     AccessDeniedHelper::deny('No patient selected');
@@ -32,14 +36,29 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 $prow = getPatientData($pid, "squad, title, fname, mname, lname");
-if (!empty($prow['squad']) && !AclMain::aclCheckCore('squads', $prow['squad'])) {
-    AccessDeniedHelper::deny('Not authorized for squad: ' . $prow['squad']);
+$squad = is_string($prow['squad'] ?? null) ? $prow['squad'] : '';
+if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
 }
 
-$ptname = trim(($prow['title'] ?? '') . ' ' . ($prow['fname'] ?? '') . ' ' . ($prow['mname'] ?? '') . ' ' . ($prow['lname'] ?? ''));
+$nameParts = [];
+foreach (['title', 'fname', 'mname', 'lname'] as $nameCol) {
+    $part = $prow[$nameCol] ?? '';
+    if (is_string($part) && trim($part) !== '') {
+        $nameParts[] = trim($part);
+    }
+}
+$ptname = implode(' ', $nameParts);
 $svc = new ActiveMedicationListService();
 $active = $svc->getActiveList($pid);
 $inactive = $svc->getInactiveList($pid, $active);
+$formatMedDate = static function (?string $d): string {
+    if ($d === null) {
+        return '';
+    }
+    $formatted = oeFormatShortDate($d);
+    return is_string($formatted) ? $formatted : '';
+};
 ?>
 <html>
 <head>
@@ -66,8 +85,8 @@ $inactive = $svc->getInactiveList($pid, $active);
     <tr>
         <td><?php echo text($row['title']); ?></td>
         <td><?php echo text($row['dose']); ?></td>
-        <td><?php echo text($row['start'] !== null ? oeFormatShortDate($row['start']) : ''); ?></td>
-        <td><?php echo text($row['end'] !== null ? oeFormatShortDate($row['end']) : ''); ?></td>
+        <td><?php echo text($formatMedDate($row['start'])); ?></td>
+        <td><?php echo text($formatMedDate($row['end'])); ?></td>
         <td><?php echo text($row['comments']); ?></td>
     </tr>
     <?php } ?>
@@ -90,8 +109,8 @@ $inactive = $svc->getInactiveList($pid, $active);
     <tr>
         <td><?php echo text($row['title']); ?></td>
         <td><?php echo text($row['dose']); ?></td>
-        <td><?php echo text($row['start'] !== null ? oeFormatShortDate($row['start']) : ''); ?></td>
-        <td><?php echo text($row['end'] !== null ? oeFormatShortDate($row['end']) : ''); ?></td>
+        <td><?php echo text($formatMedDate($row['start'])); ?></td>
+        <td><?php echo text($formatMedDate($row['end'])); ?></td>
         <td><?php echo text($row['comments']); ?></td>
     </tr>
     <?php } ?>

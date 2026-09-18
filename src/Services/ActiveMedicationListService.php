@@ -177,27 +177,68 @@ class ActiveMedicationListService
         return self::excludeListedNames($merged, $active ?? $this->getActiveList($pid));
     }
 
+    /**
+     * Trim a cell. Non-strings become an empty string.
+     */
     private static function cell(mixed $value): string
     {
         return is_string($value) ? trim($value) : '';
     }
 
+    /**
+     * SQL fragment that hides NewCrop-uploaded rows when that setting is on.
+     */
     public static function erxExcludeSql(string $columnPrefix, bool $hide): string
     {
         return $hide ? ('AND ' . $columnPrefix . "erx_uploaded != '1' ") : '';
     }
 
+    /**
+     * True when Globals hide uploaded eRx medications.
+     */
     private function hideUploadedErx(): bool
     {
         $g = OEGlobalsBag::getInstance();
         return $g->getBoolean('erx_enable') && $g->getBoolean('erx_medication_display');
     }
 
+    /**
+     * Case-fold a drug name for de-dupe.
+     */
     private static function nameKey(string $title): string
     {
         return mb_strtoupper($title, 'UTF-8');
     }
 
+    /**
+     * Prefer a query pid over the session pid. Either must be a positive integer.
+     */
+    public static function requestedPatientId(mixed $queryPid, mixed $sessionPid): int
+    {
+        foreach ([$queryPid, $sessionPid] as $candidate) {
+            if (is_numeric($candidate)) {
+                $id = (int) $candidate;
+                if ($id > 0) {
+                    return $id;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Print URL for the medication list of one patient.
+     */
+    public static function printHref(string $webRoot, int $pid): string
+    {
+        $base = rtrim($webRoot, '/') . '/interface/patient_file/summary/active_medications_print.php';
+        return $pid > 0 ? ($base . '?pid=' . $pid) : $base;
+    }
+
+    /**
+     * Keep a real calendar date, otherwise null.
+     */
     private static function optionalDate(mixed $value): ?string
     {
         if ($value === null) {
