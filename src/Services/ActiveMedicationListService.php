@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 class ActiveMedicationListService
@@ -212,15 +213,16 @@ class ActiveMedicationListService
 
     /**
      * Prefer a query pid over the session pid. Either must be a positive integer.
+     *
+     * Rejects decimals and scientific notation so '7.5' and '1e3' do not
+     * steal the session pid.
      */
     public static function requestedPatientId(mixed $queryPid, mixed $sessionPid): int
     {
         foreach ([$queryPid, $sessionPid] as $candidate) {
-            if (is_numeric($candidate)) {
-                $id = (int) $candidate;
-                if ($id > 0) {
-                    return $id;
-                }
+            $id = ValidationUtils::validateInt($candidate, min: 1);
+            if ($id !== false) {
+                return $id;
             }
         }
 
