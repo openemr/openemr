@@ -323,9 +323,19 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
         // Step 1: drop `latest` from any other row that holds it (only on
         // the first pass — when the rel row already has `latest`, the
         // shuffle has been done).
+        //
+        // Skip only the JUST-SHIPPED row ($relRow), not every row with
+        // branch === $relBranch. The multi-row pattern (openemr/openemr
+        // #12656) can leave a prior-patch row on the same rel branch
+        // carrying `latest` (e.g. rel-840 with `8.4.0,latest` still
+        // present when 8.4.1 ships). Original skip condition used
+        // `$row['branch'] === $relBranch` which incorrectly protected
+        // the prior-patch row too, leaving both rows claiming `latest`
+        // -- see G41 for the trigger event (release-finalize PR
+        // openemr/openemr#14069 for 8.4.1 on rel-840, 2026-09-18).
         if (!$relAlreadyLatest) {
             foreach ($rows as $row) {
-                if ($row['branch'] === $relBranch || $row['dockerTagsLine'] === null) {
+                if ($row === $relRow || $row['dockerTagsLine'] === null) {
                     continue;
                 }
                 $tags = $this->parseTags($row['dockerTags']);
