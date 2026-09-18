@@ -1238,7 +1238,7 @@ function osp_create_HTML_statement($stmt)
 
     // while ($count++ < 29) $out .= "\n";
     $out .= sprintf("%-10s %s\n", null, $label_retpay);
-    $out .= '</pre></div>';
+    $out .= '</div>';
     $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
       <table style="width:8in;margin-left:20px;"><tr><td style="width:4.5in;"><br />
  ';
@@ -1263,8 +1263,7 @@ function osp_create_HTML_statement($stmt)
         }
     }
 
-    $out .= ' </pre>
-  <div style="width:8in;border-top:1pt solid black;"><br />';
+    $out .= '<div style="width:8in;border-top:1pt solid black;"><br />';
     $out .= " <table width=\"100%\" style='width:6.0in;margin-left:40px;'><tr>";
     $out .= '<td style="width:3.0in;vertical-align:top;text-align:left;"><b>'
         . text($label_addressee) . '</b><br />'
