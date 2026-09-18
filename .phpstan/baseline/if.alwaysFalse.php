@@ -153,11 +153,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../ippf_upgrade.php',
 ];
