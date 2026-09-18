@@ -17,6 +17,7 @@ namespace OpenEMR\Modules\LbfStatements\Controller;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\LbfStatements\BandLockException;
 use OpenEMR\Modules\LbfStatements\BandOverlapException;
 use OpenEMR\Modules\LbfStatements\Bootstrap;
@@ -199,6 +200,7 @@ class AdminController
             'generateUrl' => $this->bootstrap->getPublicUrl() . 'index.php',
             'adminUrl' => $this->bootstrap->getPublicUrl() . 'admin.php',
             'assetBase' => $this->bootstrap->getPublicUrl() . 'assets/',
+            'assetVersion' => OEGlobalsBag::getInstance()->getString('v_js_includes'),
         ]);
     }
 
