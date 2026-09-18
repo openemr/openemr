@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Billing;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 class StatementEnvelopeGlobalConfig
 {
@@ -27,9 +28,12 @@ class StatementEnvelopeGlobalConfig
     public static function renderCustomFields($fldid, $fldarray): string
     {
         $twig = ServiceContainer::getTwig();
+        $g = OEGlobalsBag::getInstance();
         return $twig->render('billing/statement_envelope_custom.html.twig', [
             'fldid' => $fldid,
             'fldarray' => $fldarray,
+            'webroot' => $g->getWebRoot(),
+            'assetVersion' => $g->getString('v_js_includes'),
         ]);
     }
 }
