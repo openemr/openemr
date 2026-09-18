@@ -14387,16 +14387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of function getPatientData expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of function report_basename expects int, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function substr expects string, string\\|false given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
@@ -14713,7 +14703,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$i of function filterActiveIssues expects array, mixed given\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
@@ -14778,7 +14768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$search of method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:search\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>, array\\<string, mixed\\> given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
