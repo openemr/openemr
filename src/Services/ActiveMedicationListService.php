@@ -253,7 +253,13 @@ class ActiveMedicationListService
         if ($s === '' || str_starts_with($s, '0000-00-00')) {
             return null;
         }
-        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $s, $m) !== 1) {
+        if (
+            preg_match(
+                '/^(\d{4})-(\d{2})-(\d{2})(?: (?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d)?$/D',
+                $s,
+                $m
+            ) !== 1
+        ) {
             return null;
         }
         if (!checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {
