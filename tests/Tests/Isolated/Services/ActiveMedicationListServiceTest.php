@@ -161,7 +161,10 @@ final class ActiveMedicationListServiceTest extends TestCase
     public function testRequestedPatientIdPrefersTheQueryPid(): void
     {
         $this->assertSame(7, ActiveMedicationListService::requestedPatientId('7', '99'));
+        $this->assertSame(7, ActiveMedicationListService::requestedPatientId(7, 99));
         $this->assertSame(99, ActiveMedicationListService::requestedPatientId(null, '99'));
+        $this->assertSame(99, ActiveMedicationListService::requestedPatientId('7.5', '99'));
+        $this->assertSame(99, ActiveMedicationListService::requestedPatientId('1e3', 99));
         $this->assertSame(0, ActiveMedicationListService::requestedPatientId('0', 'nope'));
         $this->assertSame(
             '/interface/patient_file/summary/active_medications_print.php?pid=7',
