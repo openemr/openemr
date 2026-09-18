@@ -15,6 +15,7 @@
  */
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
