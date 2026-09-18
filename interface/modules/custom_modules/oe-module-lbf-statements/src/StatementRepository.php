@@ -97,7 +97,8 @@ class StatementRepository
      */
     public function saveRule(array $data, ?int $id = null): int
     {
-        Identifiers::assertFieldId(Values::asString($data['form_id'] ?? ''));
+        $formId = Values::asString($data['form_id'] ?? '');
+        (new LayoutCatalog($this->sql))->assertActiveLbfForm($formId);
         Identifiers::assertFieldId(Values::asString($data['source_field_id'] ?? ''));
         $source2 = Values::asString($data['source_field_id_2'] ?? '');
         if ($source2 !== '') {
