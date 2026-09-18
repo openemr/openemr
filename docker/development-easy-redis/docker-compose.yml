@@ -105,7 +105,7 @@ services:
         condition: service_healthy
   mysql:
     restart: always
-    image: mariadb:12.3.3@sha256:ab1c3dd381940233af12512b97d47b508fd3a0f17fbe3ba388739b7bc17cbc0b
+    image: mariadb:12.3.3@sha256:adbf5727f3d6ffa0ea11109f948247d88d110edd3f43f8d4c134c0a09060c5f3
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -130,7 +130,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:4baa486ff4841da18bb0f6ffc90522edd7ab8b6e1fbd7380921bc2c8141b3dbe
+    image: openemr/openemr:flex@sha256:d99c8cbe1ea11a026222182d00b184ebf3340764c046d044090269e381e1e068
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"

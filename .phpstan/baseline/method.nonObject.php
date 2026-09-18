@@ -2897,11 +2897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getTimestamp\\(\\) on DateTime\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get_city\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
@@ -3660,11 +3655,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method GetWhere\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTraceAsString\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method GetDataPage\\(\\) on mixed\\.$#',
