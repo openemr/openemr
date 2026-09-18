@@ -148,6 +148,26 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertNull($rows[0]['end']);
     }
 
+    /**
+     * A valid date prefix with trailing junk is not a date.
+     */
+    public function testMergeRejectsTrailingJunkOnDates(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [
+                [
+                    'title' => 'Metformin',
+                    'begdate' => '2026-02-28-invalid',
+                    'enddate' => '2026-02-28 08:15:00',
+                ],
+            ],
+            []
+        );
+        $this->assertCount(1, $rows);
+        $this->assertNull($rows[0]['start']);
+        $this->assertSame('2026-02-28 08:15:00', $rows[0]['end']);
+    }
+
     public function testErxExcludeSqlAppliesToListsAndPrescriptions(): void
     {
         $this->assertSame('', ActiveMedicationListService::erxExcludeSql('l.', false));
