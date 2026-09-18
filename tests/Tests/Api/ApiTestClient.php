@@ -237,6 +237,11 @@ class ApiTestClient
             "username" => $credentials["username"],
             "password" => $credentials["password"]
         ];
+        // Confidential clients registered with client_secret_post must present
+        // the secret in the token request body per RFC 6749 §4.3.
+        if ($this->client_secret !== null && $this->client_secret !== '') {
+            $authBody["client_secret"] = $this->client_secret;
+        }
         $this->headers = [
             "Accept" => "application/json",
             "Content-Type" => "application/x-www-form-urlencoded"
