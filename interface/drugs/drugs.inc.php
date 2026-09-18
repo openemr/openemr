@@ -16,7 +16,6 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DrugSalesService;
-use PHPMailer\PHPMailer\PHPMailer;
 
 // Decision was made in June 2013 that a sale line item in the Fee Sheet may
 // come only from the specified warehouse. Set this to false if the decision
@@ -32,12 +31,9 @@ function send_drug_email($subject, $body): void
         return;
     }
 
-    $mail = new PHPMailer();
+    $mail = new MyMailer();
     $mail->From = $recipient;
     $mail->FromName = 'In-House Pharmacy';
-    $mail->isMail();
-    $mail->Host = "localhost";
-    $mail->Mailer = "mail";
     $mail->Body = $body;
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);

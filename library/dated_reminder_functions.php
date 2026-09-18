@@ -15,6 +15,7 @@
  */
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -383,8 +384,26 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
         is_numeric($patID)
     ) {
 // ------- check for valid recipient
-        $cRow = sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?', [$sendDMTo ?? '']));
-        if ($cRow == 0) {
+        // Normalize $sendTo to a list of scalar recipient IDs; callers pass
+        // arrays from the multi-select sendTo[] form field, and
+        // dated_reminders_add.php wraps single IDs as [$st] before dispatch.
+        $rawRecipients = is_array($sendTo) ? $sendTo : [$sendTo];
+        $recipientIds = array_values(array_filter($rawRecipients, is_numeric(...)));
+        // Reject the whole batch on any non-numeric entry — otherwise a mixed
+        // request like [validId, 'bad-id'] would insert only the valid recipient
+        // and return true, giving the caller silent partial fulfillment.
+        if ($recipientIds === [] || count($recipientIds) !== count($rawRecipients)) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($recipientIds), '?'));
+        $cRow = QueryUtils::querySingleRow(
+            "SELECT COUNT(id) AS cnt FROM `users` WHERE `id` IN ($placeholders)",
+            $recipientIds
+        );
+        $matchedCount = is_array($cRow) && is_numeric($cRow['cnt'] ?? null) ? (int) $cRow['cnt'] : 0;
+        // Any missing recipient rejects the whole batch — same fail-closed
+        // intent as the original single-id check, now actually enforced.
+        if ($matchedCount !== count($recipientIds)) {
             return false;
         }
 
@@ -397,7 +416,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
             [$fromID, $message, $dueDate, $patID, $priority]
         );
 
-        foreach ($sendTo as $st) {
+        foreach ($recipientIds as $st) {
             sqlStatement(
                 "INSERT INTO `dated_reminders_link`
                             (`dr_id` ,`to_id`)
