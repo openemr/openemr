@@ -3,8 +3,8 @@
 /**
  * Referring-provider field checks for the address book.
  *
- * Person entries used on claims need a 10-digit NPI and a mailing address.
- * Labs, vendors, and local login users skip those rules.
+ * Person entries used on claims need a valid 10-digit NPI and a mailing
+ * address. Labs, vendors, and local login users skip those rules.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -16,6 +16,8 @@
 declare(strict_types=1);
 
 namespace OpenEMR\Services;
+
+use OpenEMR\Common\Utils\ValidationUtils;
 
 final class AddressBookReferrerFields
 {
@@ -29,9 +31,9 @@ final class AddressBookReferrerFields
         return self::asString($username) === '' && self::asString($abookOptionValue) !== '3';
     }
 
-    public static function npiIsTenDigits(mixed $npi): bool
+    public static function npiIsValid(mixed $npi): bool
     {
-        return (bool) preg_match('/^\d{10}$/', self::asString($npi));
+        return ValidationUtils::isValidNPI(self::asString($npi));
     }
 
     public static function mailingAddressComplete(
@@ -53,7 +55,7 @@ final class AddressBookReferrerFields
         mixed $state,
         mixed $zip
     ): bool {
-        return self::npiIsTenDigits($npi) && self::mailingAddressComplete($street, $city, $state, $zip);
+        return self::npiIsValid($npi) && self::mailingAddressComplete($street, $city, $state, $zip);
     }
 
     public static function npiMissingOnList(mixed $npi): bool
