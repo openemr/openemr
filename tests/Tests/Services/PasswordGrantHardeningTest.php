@@ -52,8 +52,15 @@ class PasswordGrantHardeningTest extends TestCase
 
     /** @var list<string> */
     private array $trackedClientIds = [];
-    /** @var list<int> */
-    private array $trackedMfaUserIds = [];
+    /**
+     * Snapshots of `login_mfa_registrations` rows the tests replaced, keyed
+     * by user_id. tearDown deletes our test rows for each user and re-inserts
+     * whatever was there originally so tests do not clobber real MFA setup
+     * on shared users (e.g. admin).
+     *
+     * @var array<int, list<array<string, mixed>>>
+     */
+    private array $originalMfaRowsByUser = [];
     private mixed $originalPasswordGrantSetting = null;
     private bool $originalPasswordGrantSettingWasSet = false;
     /** @var list<string> */
@@ -101,11 +108,26 @@ class PasswordGrantHardeningTest extends TestCase
                 [$clientId]
             );
         }
-        foreach ($this->trackedMfaUserIds as $userId) {
+        foreach ($this->originalMfaRowsByUser as $userId => $originalRows) {
             QueryUtils::sqlStatementThrowException(
                 "DELETE FROM login_mfa_registrations WHERE user_id = ?",
                 [$userId]
             );
+            foreach ($originalRows as $row) {
+                QueryUtils::sqlStatementThrowException(
+                    "INSERT INTO login_mfa_registrations "
+                        . "(user_id, name, method, var1, var2, last_challenge) "
+                        . "VALUES (?, ?, ?, ?, ?, ?)",
+                    [
+                        $row['user_id'],
+                        $row['name'],
+                        $row['method'],
+                        $row['var1'],
+                        $row['var2'],
+                        $row['last_challenge'],
+                    ]
+                );
+            }
         }
         foreach ($this->countersToReset as $username) {
             AuthUtils::resetLoginFailedCounter($username);
@@ -257,7 +279,7 @@ class PasswordGrantHardeningTest extends TestCase
         // user + IP lockout counters — otherwise an attacker with the
         // right password can grind the 6-digit code indefinitely.
         $userId = $this->requireExistingAdminUserId();
-        $this->enrollTotpForUser($userId);
+        $secret = $this->enrollTotpForUser($userId);
         $this->countersToReset[] = 'admin';
         $this->ipRowsToReset[] = $this->clientIp;
 
@@ -265,7 +287,13 @@ class PasswordGrantHardeningTest extends TestCase
         $userBefore = $this->readUserCounter('admin');
         $ipBefore = $this->readIpCounter($this->clientIp);
 
-        $_POST['mfa_token'] = '000000'; // guaranteed wrong 6-digit code
+        // Derive a code that is guaranteed to differ from the currently-valid
+        // TOTP so this negative-path test cannot flake on the roughly 1-in-1M
+        // clock alignment where a hardcoded '000000' happens to be valid.
+        $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+        $currentCode = (int) $tfa->getCode($secret);
+        $wrongCode = str_pad((string) (($currentCode + 1) % 1000000), 6, '0', STR_PAD_LEFT);
+        $_POST['mfa_token'] = $wrongCode;
         $_POST['mfa_type'] = 'TOTP';
         $password = $this->adminPassword();
 
@@ -468,6 +496,7 @@ class PasswordGrantHardeningTest extends TestCase
         // keeping TOTP off the enrolled list. var1 must at least JSON-decode
         // to an object with a keyHandle — MfaUtils reads that field when
         // hydrating registrations.
+        $this->snapshotMfaRowsForUser($userId);
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM login_mfa_registrations WHERE user_id = ?",
             [$userId]
@@ -477,7 +506,6 @@ class PasswordGrantHardeningTest extends TestCase
                 . "VALUES (?, 'test-u2f', 'U2F', ?, '', NULL)",
             [$userId, '{"keyHandle":"test-key-handle"}']
         );
-        $this->trackedMfaUserIds[] = $userId;
     }
 
     private function enrollTotpForUser(int $userId): string
@@ -487,8 +515,9 @@ class PasswordGrantHardeningTest extends TestCase
         // so the stored secret must be encrypted the same way.
         $secret = 'JBSWY3DPEHPK3PXP';
         $encryptedSecret = ServiceContainer::getCrypto()->encryptForDatabase($secret);
+        $this->snapshotMfaRowsForUser($userId);
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = 'TOTP'",
+            "DELETE FROM login_mfa_registrations WHERE user_id = ?",
             [$userId]
         );
         QueryUtils::sqlStatementThrowException(
@@ -496,8 +525,26 @@ class PasswordGrantHardeningTest extends TestCase
                 . "VALUES (?, 'test', 'TOTP', ?, '', NULL)",
             [$userId, $encryptedSecret]
         );
-        $this->trackedMfaUserIds[] = $userId;
         return $secret;
+    }
+
+    /**
+     * Snapshot the login_mfa_registrations rows for a user so tearDown can
+     * restore them after we replaced them. Idempotent: repeated calls in the
+     * same test do not overwrite the original snapshot.
+     */
+    private function snapshotMfaRowsForUser(int $userId): void
+    {
+        if (array_key_exists($userId, $this->originalMfaRowsByUser)) {
+            return;
+        }
+        /** @var list<array<string, mixed>> $rows */
+        $rows = QueryUtils::fetchRecords(
+            "SELECT user_id, name, method, var1, var2, last_challenge "
+                . "FROM login_mfa_registrations WHERE user_id = ?",
+            [$userId]
+        );
+        $this->originalMfaRowsByUser[$userId] = $rows;
     }
 
     /**
