@@ -231,10 +231,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $activeMeds = $medListService->getActiveList($medPid);
             $viewArgs['list'] = $activeMeds;
             $viewArgs['inactiveCount'] = count($medListService->getInactiveList($medPid, $activeMeds));
-            $viewArgs['printHref'] = ActiveMedicationListService::printHref(
-                OEGlobalsBag::getInstance()->getWebRoot(),
-                $medPid
-            );
+            $viewArgs['printPid'] = $medPid;
             echo $t->render('patient/card/medication.html.twig', $viewArgs);
         } else {
             echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
