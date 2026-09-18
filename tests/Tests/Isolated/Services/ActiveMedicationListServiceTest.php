@@ -154,4 +154,18 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame("AND l.erx_uploaded != '1' ", ActiveMedicationListService::erxExcludeSql('l.', true));
         $this->assertSame("AND erx_uploaded != '1' ", ActiveMedicationListService::erxExcludeSql('', true));
     }
+
+    /**
+     * Print uses the card patient, not whatever the session later became.
+     */
+    public function testRequestedPatientIdPrefersTheQueryPid(): void
+    {
+        $this->assertSame(7, ActiveMedicationListService::requestedPatientId('7', '99'));
+        $this->assertSame(99, ActiveMedicationListService::requestedPatientId(null, '99'));
+        $this->assertSame(0, ActiveMedicationListService::requestedPatientId('0', 'nope'));
+        $this->assertSame(
+            '/interface/patient_file/summary/active_medications_print.php?pid=7',
+            ActiveMedicationListService::printHref('', 7)
+        );
+    }
 }
