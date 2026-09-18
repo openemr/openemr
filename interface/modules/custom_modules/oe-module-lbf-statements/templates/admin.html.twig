@@ -85,6 +85,14 @@
                                 {{ rule.min_value|text }}–{{ rule.max_value|text }}
                             {% elseif rule.op == 'parse_severity' %}
                                 {{ rule.match_token|text }}
+                            {% elseif rule.op == 'ratio_lt' or rule.op == 'ratio_gt' %}
+                                {{ rule.op == 'ratio_lt' ? "Ratio less than"|xlt : "Ratio greater than"|xlt }}
+                                {% if fields[rule.source_field_id_2] is defined %}
+                                    {{ fields[rule.source_field_id_2].title|text }}
+                                {% else %}
+                                    <code>{{ rule.source_field_id_2|text }}</code>
+                                {% endif %}
+                                {{ rule.op == 'ratio_lt' ? rule.max_value|text : rule.min_value|text }}
                             {% else %}
                                 {{ rule.op|text }}
                             {% endif %}
