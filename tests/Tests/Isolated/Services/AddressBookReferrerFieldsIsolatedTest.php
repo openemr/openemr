@@ -144,8 +144,41 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         $this->assertSame('58104', $row['zip2']);
         $this->assertSame('1234567893', $row['npi']);
         $this->assertSame('Clinic', $row['organization']);
+        $this->assertSame('0', $row['cpoe']);
         $this->assertContains('email_direct', AddressBookReferrerFields::editorRowColumns());
         $this->assertContains('taxonomy', AddressBookReferrerFields::editorRowColumns());
         $this->assertContains('country_code2', AddressBookReferrerFields::editorRowColumns());
+    }
+
+    /**
+     * An unchecked CPOE checkbox is not posted, so restore it as off.
+     */
+    public function testApplyPostedEditorFieldsTreatsAbsentCpoeAsUnchecked(): void
+    {
+        $posted = [
+            'form_email' => 'doc@example.com',
+        ];
+        $row = AddressBookReferrerFields::applyPostedEditorFields(
+            ['cpoe' => '1', 'email' => 'old@example.com', 'notes' => 'keep'],
+            static fn (string $key): bool => array_key_exists($key, $posted),
+            static fn (string $key): mixed => $posted[$key]
+        );
+        $this->assertSame('0', $row['cpoe']);
+        $this->assertSame('doc@example.com', $row['email']);
+        $this->assertSame('keep', $row['notes']);
+    }
+
+    /**
+     * A posted CPOE checkbox keeps the submitted on value.
+     */
+    public function testApplyPostedEditorFieldsKeepsPostedCpoe(): void
+    {
+        $posted = ['form_cpoe' => '1'];
+        $row = AddressBookReferrerFields::applyPostedEditorFields(
+            ['cpoe' => '0'],
+            static fn (string $key): bool => array_key_exists($key, $posted),
+            static fn (string $key): mixed => $posted[$key]
+        );
+        $this->assertSame('1', $row['cpoe']);
     }
 }
