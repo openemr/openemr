@@ -21,7 +21,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\LbfStatements\BandLockException;
 use OpenEMR\Modules\LbfStatements\BandOverlapException;
 use OpenEMR\Modules\LbfStatements\Bootstrap;
-use OpenEMR\Modules\LbfStatements\Identifiers;
 use OpenEMR\Modules\LbfStatements\InvertedBoundsException;
 use OpenEMR\Modules\LbfStatements\LayoutCatalog;
 use OpenEMR\Modules\LbfStatements\RuleNotFoundException;
