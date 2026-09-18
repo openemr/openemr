@@ -104,16 +104,26 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                 }
                 $user->setIdentifier(UuidRegistry::uuidToString($uuid));
 
-                // TOTP is the only second factor supportable via password
-                // grant (U2F needs an interactive browser exchange). If the
-                // user has TOTP enrolled and MFA is required, the mfa_token
-                // parameter must be present and valid — omitting it must not
-                // skip the check.
+                // Password grant can only satisfy TOTP as a second factor;
+                // other factors (e.g. U2F) require an interactive browser
+                // exchange. When any MFA is enrolled we must engage; falling
+                // through would issue a token on the password alone.
                 $mfa = new MfaUtils($id);
                 $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
-                $totpEnrolled = $mfa->isMfaRequired() && in_array(MfaUtils::TOTP, $mfa->getType(), true);
 
-                if ($totpEnrolled) {
+                if ($mfa->isMfaRequired()) {
+                    if (!in_array(MfaUtils::TOTP, $mfa->getType(), true)) {
+                        // MFA required but TOTP is not one of the enrolled
+                        // factors — password grant cannot complete for this
+                        // user. Deny rather than silently skip the second
+                        // factor.
+                        throw new OAuthServerException(
+                            'MFA required but not supported for this user via password grant.',
+                            14,
+                            'mfa_not_supported',
+                            403
+                        );
+                    }
                     if (empty($mfaToken)) {
                         throw new OAuthServerException(
                             'MFA token required.',
@@ -123,6 +133,12 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                         );
                     }
                     if (!$mfa->check($mfaToken, MfaUtils::TOTP)) {
+                        // Count the failed TOTP attempt against the standard
+                        // user + IP lockout counters. Without this, an
+                        // attacker who knows the password can grind the
+                        // 6-digit code with no rate limit (confirmPassword
+                        // resets the counters on the password-success path).
+                        (new AuthUtils())->recordFailedAuthChallenge(is_string($username) ? $username : null);
                         throw new OAuthServerException(
                             $mfa->errorMessage(),
                             12,
@@ -133,7 +149,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                     return true;
                 }
 
-                // No TOTP enrolled. Reject an unexpected mfa_token — it
+                // No MFA enrolled. Reject an unexpected mfa_token — it
                 // signals a client error (user is not configured for MFA)
                 // rather than silently accepting the token.
                 if (!is_null($mfaToken)) {

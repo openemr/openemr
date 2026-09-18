@@ -55,16 +55,22 @@ class PasswordGrantHardeningTest extends TestCase
     /** @var list<int> */
     private array $trackedMfaUserIds = [];
     private mixed $originalPasswordGrantSetting = null;
+    private bool $originalPasswordGrantSettingWasSet = false;
     /** @var list<string> */
     private array $countersToReset = [];
     /** @var list<string> */
     private array $ipRowsToReset = [];
     private string $clientIp = '127.0.0.1';
+    private bool $originalHttpHostWasSet = false;
+    private ?string $originalHttpHost = null;
+    private bool $originalRemoteAddrWasSet = false;
+    private ?string $originalRemoteAddr = null;
 
     protected function setUp(): void
     {
         parent::setUp();
         $globals = OEGlobalsBag::getInstance();
+        $this->originalPasswordGrantSettingWasSet = $globals->has('oauth_password_grant');
         $this->originalPasswordGrantSetting = $globals->get('oauth_password_grant');
         // Enable both staff (1) and patient (2) password grant paths for the
         // whole test class so no test has to toggle it mid-flight.
@@ -72,9 +78,15 @@ class PasswordGrantHardeningTest extends TestCase
 
         // Give CLI a deterministic client host/IP; MfaUtils reads HTTP_HOST
         // and collectIpAddresses() reads REMOTE_ADDR, both empty in CLI.
+        // Track whether the key existed so tearDown can unset — leaving a
+        // stale value behind poisons unrelated tests in the same process.
+        $this->originalHttpHostWasSet = array_key_exists('HTTP_HOST', $_SERVER);
+        $this->originalHttpHost = is_string($_SERVER['HTTP_HOST'] ?? null) ? $_SERVER['HTTP_HOST'] : null;
         if (!isset($_SERVER['HTTP_HOST']) || !is_string($_SERVER['HTTP_HOST']) || $_SERVER['HTTP_HOST'] === '') {
             $_SERVER['HTTP_HOST'] = 'localhost';
         }
+        $this->originalRemoteAddrWasSet = array_key_exists('REMOTE_ADDR', $_SERVER);
+        $this->originalRemoteAddr = is_string($_SERVER['REMOTE_ADDR'] ?? null) ? $_SERVER['REMOTE_ADDR'] : null;
         if (!isset($_SERVER['REMOTE_ADDR']) || !is_string($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] === '') {
             $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         }
@@ -107,8 +119,27 @@ class PasswordGrantHardeningTest extends TestCase
 
         $this->portalFixtures?->removePortalPatientFixtures();
 
-        if ($this->originalPasswordGrantSetting !== null) {
-            OEGlobalsBag::getInstance()->set('oauth_password_grant', $this->originalPasswordGrantSetting);
+        // Restore mutated globals: tests here set $_POST and $_SERVER keys
+        // for MfaUtils / IP resolution. phpunit does not run in isolation,
+        // so leaving them set leaks into unrelated tests in the same process.
+        unset($_POST['mfa_token'], $_POST['mfa_type']);
+        if ($this->originalHttpHostWasSet) {
+            $_SERVER['HTTP_HOST'] = $this->originalHttpHost;
+        } else {
+            unset($_SERVER['HTTP_HOST']);
+        }
+        if ($this->originalRemoteAddrWasSet) {
+            $_SERVER['REMOTE_ADDR'] = $this->originalRemoteAddr;
+        } else {
+            unset($_SERVER['REMOTE_ADDR']);
+        }
+
+        $globals = OEGlobalsBag::getInstance();
+        if ($this->originalPasswordGrantSettingWasSet) {
+            $globals->set('oauth_password_grant', $this->originalPasswordGrantSetting);
+        } else {
+            $globals->remove('oauth_password_grant');
+            unset($GLOBALS['oauth_password_grant']);
         }
 
         parent::tearDown();
@@ -200,6 +231,64 @@ class PasswordGrantHardeningTest extends TestCase
         $this->assertTrue($result, 'Valid TOTP token must be accepted on password grant');
     }
 
+    public function testPasswordGrantRejectsMfaEnrolledUserWhenTotpNotEnrolled(): void
+    {
+        // A user enrolled only in non-TOTP factors (e.g. U2F) still has
+        // isMfaRequired()==true but no TOTP row. Password grant cannot
+        // satisfy those factors and must deny rather than fall through.
+        $userId = $this->requireExistingAdminUserId();
+        $this->enrollNonTotpForUser($userId);
+        unset($_POST['mfa_token'], $_POST['mfa_type']);
+        $password = $this->adminPassword();
+
+        $repo = $this->buildUserRepository();
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+            $this->fail('Expected OAuthServerException when MFA-enrolled user has no TOTP factor');
+        } catch (OAuthServerException $e) {
+            $this->assertSame(14, $e->getCode(), 'MFA-not-supported must surface as error code 14');
+            $this->assertSame('mfa_not_supported', $e->getErrorType());
+        }
+    }
+
+    public function testPasswordGrantTotpFailureIncrementsLockoutCounters(): void
+    {
+        // A wrong TOTP code on password grant must engage the standard
+        // user + IP lockout counters — otherwise an attacker with the
+        // right password can grind the 6-digit code indefinitely.
+        $userId = $this->requireExistingAdminUserId();
+        $this->enrollTotpForUser($userId);
+        $this->countersToReset[] = 'admin';
+        $this->ipRowsToReset[] = $this->clientIp;
+
+        AuthUtils::resetLoginFailedCounter('admin');
+        $userBefore = $this->readUserCounter('admin');
+        $ipBefore = $this->readIpCounter($this->clientIp);
+
+        $_POST['mfa_token'] = '000000'; // guaranteed wrong 6-digit code
+        $_POST['mfa_type'] = 'TOTP';
+        $password = $this->adminPassword();
+
+        $repo = $this->buildUserRepository();
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+            $this->fail('Expected OAuthServerException on wrong TOTP');
+        } catch (OAuthServerException $e) {
+            $this->assertSame('mfa_token_invalid', $e->getErrorType());
+        }
+
+        $this->assertSame(
+            $userBefore + 1,
+            $this->readUserCounter('admin'),
+            'Wrong TOTP on password grant must bump users_secure.login_fail_counter'
+        );
+        $this->assertGreaterThan(
+            $ipBefore,
+            $this->readIpCounter($this->clientIp),
+            'Wrong TOTP on password grant must bump ip_tracking.ip_login_fail_counter'
+        );
+    }
+
     // ---------- AuthUtils::confirmPatientPassword IP rate limit (4fx8 V9) ----------
 
     public function testPortalPasswordGrantIncrementsIpCounterOnFailure(): void
@@ -227,6 +316,42 @@ class PasswordGrantHardeningTest extends TestCase
             $before,
             $after,
             'Portal password grant must increment the per-IP fail counter on wrong password'
+        );
+    }
+
+    public function testPortalPasswordGrantResetsIpCounterOnSuccess(): void
+    {
+        // Legit patient traffic (typos, several patients behind the same NAT
+        // address) accumulates strikes without a reset on success. Mirror the
+        // staff-side reset so the counter zeroes out after a good login.
+        $fixture = $this->portalFixtures()->installPortalPatient(
+            portalLoginUsername: 'test-portal-user-reset-' . Uuid::uuid4()->toString(),
+            plainPassword: 'CorrectPortalPassword1!'
+        );
+
+        $ipString = $this->clientIp;
+        $this->ipRowsToReset[] = $ipString;
+
+        // Seed a non-zero counter so we can assert the success path zeroed it.
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO ip_tracking (ip_string, ip_login_fail_counter, ip_last_login_fail) "
+                . "VALUES (?, 3, NOW()) ON DUPLICATE KEY UPDATE "
+                . "ip_login_fail_counter = 3, ip_last_login_fail = NOW()",
+            [$ipString]
+        );
+        $this->assertSame(3, $this->readIpCounter($ipString), 'seed must land');
+
+        $auth = new AuthUtils('portal-api');
+        $ok = $auth->confirmPassword(
+            $fixture['portal_login_username'],
+            $fixture['plain_password'],
+            $fixture['email']
+        );
+        $this->assertTrue($ok, 'Correct portal password must authenticate');
+        $this->assertSame(
+            0,
+            $this->readIpCounter($ipString),
+            'Successful portal login must reset ip_login_fail_counter'
         );
     }
 
@@ -335,6 +460,24 @@ class PasswordGrantHardeningTest extends TestCase
     {
         // Default seed password in the docker test environment.
         return (string) (getenv('OE_PASS') ?: 'pass');
+    }
+
+    private function enrollNonTotpForUser(int $userId): void
+    {
+        // A U2F row is enough to make MfaUtils::isMfaRequired() true while
+        // keeping TOTP off the enrolled list. var1 must at least JSON-decode
+        // to an object with a keyHandle — MfaUtils reads that field when
+        // hydrating registrations.
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM login_mfa_registrations WHERE user_id = ?",
+            [$userId]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2, last_challenge) "
+                . "VALUES (?, 'test-u2f', 'U2F', ?, '', NULL)",
+            [$userId, '{"keyHandle":"test-key-handle"}']
+        );
+        $this->trackedMfaUserIds[] = $userId;
     }
 
     private function enrollTotpForUser(int $userId): string

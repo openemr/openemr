@@ -288,6 +288,11 @@ class AuthUtils
 
         // PASSED auth for the portal api
         $this->clearFromMemory($password);
+        // Reset the per-IP counter on success so legitimate patient traffic
+        // (typos, multiple patients behind the same NAT address) does not
+        // accumulate strikes forever. Mirrors the reset that
+        // confirmUserPassword performs on the staff path.
+        $this->resetIpLoginFailedCounter($ip['ip_string']);
         //  Set up class variable that the api will need to collect (log for API is done outside)
         $this->patientId = $patientDataInfo['pid'];
         return true;
@@ -1292,11 +1297,11 @@ class AuthUtils
      */
     public function recordFailedAuthChallenge(?string $username): void
     {
-        if (!empty($username)) {
+        if ($username !== null && $username !== '') {
             $this->incrementLoginFailedCounter($username);
         }
         $ip = collectIpAddresses();
-        if (!empty($ip['ip_string'])) {
+        if ($ip['ip_string'] !== '') {
             $this->setupIpLoginFailedCounter($ip['ip_string']);
             $this->incrementIpLoginFailedCounter($ip['ip_string']);
         }
