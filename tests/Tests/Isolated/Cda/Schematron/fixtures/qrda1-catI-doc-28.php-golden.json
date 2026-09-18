@@ -1,7 +1,7 @@
 {
-    "errorCount": 35,
+    "errorCount": 39,
     "warningCount": 0,
-    "ignoredCount": 4,
+    "ignoredCount": 0,
     "errors": [
         {
             "type": "error",
@@ -408,6 +408,58 @@
         },
         {
             "type": "error",
+            "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "simplifiedTest": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ((string-length(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value)) > 8 and (contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '-') or contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '+')))=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category I file or, if a UTC time offset is needed anywhere, then it must be specified everywhere a time field is provided (CONF: CMS_0121).",
+            "patternId": "p-validate_TZ-errors",
+            "ruleId": "r-validate_TZ-errors",
+            "assertionId": "a-CMS_0121-error",
+            "context": "//cda:time[@value] | //cda:effectiveTime[@value] | //cda:time/cda:low[@value] | //cda:time/cda:high[@value] | //cda:effectiveTime/cda:low[@value] | //cda:effectiveTime/cda:high[@value]",
+            "line": 284,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[3]/section[1]/entry[2]/act[1]/effectiveTime[1]/high[1]",
+            "xml": "<high value=\"-000111300000\"/>"
+        },
+        {
+            "type": "error",
+            "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "simplifiedTest": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ((string-length(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value)) > 8 and (contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '-') or contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '+')))=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category I file or, if a UTC time offset is needed anywhere, then it must be specified everywhere a time field is provided (CONF: CMS_0121).",
+            "patternId": "p-validate_TZ-errors",
+            "ruleId": "r-validate_TZ-errors",
+            "assertionId": "a-CMS_0121-error",
+            "context": "//cda:time[@value] | //cda:effectiveTime[@value] | //cda:time/cda:low[@value] | //cda:time/cda:high[@value] | //cda:effectiveTime/cda:low[@value] | //cda:effectiveTime/cda:high[@value]",
+            "line": 296,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[3]/section[1]/entry[2]/act[1]/entryRelationship[1]/observation[1]/effectiveTime[1]/high[1]",
+            "xml": "<high value=\"-000111300000\"/>"
+        },
+        {
+            "type": "error",
+            "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "simplifiedTest": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ((string-length(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value)) > 8 and (contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '-') or contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '+')))=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category I file or, if a UTC time offset is needed anywhere, then it must be specified everywhere a time field is provided (CONF: CMS_0121).",
+            "patternId": "p-validate_TZ-errors",
+            "ruleId": "r-validate_TZ-errors",
+            "assertionId": "a-CMS_0121-error",
+            "context": "//cda:time[@value] | //cda:effectiveTime[@value] | //cda:time/cda:low[@value] | //cda:time/cda:high[@value] | //cda:effectiveTime/cda:low[@value] | //cda:effectiveTime/cda:high[@value]",
+            "line": 354,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[3]/section[1]/entry[4]/act[1]/effectiveTime[1]/high[1]",
+            "xml": "<high value=\"-000111300000\"/>"
+        },
+        {
+            "type": "error",
+            "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "simplifiedTest": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ((string-length(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value)) > 8 and (contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '-') or contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '+')))=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category I file or, if a UTC time offset is needed anywhere, then it must be specified everywhere a time field is provided (CONF: CMS_0121).",
+            "patternId": "p-validate_TZ-errors",
+            "ruleId": "r-validate_TZ-errors",
+            "assertionId": "a-CMS_0121-error",
+            "context": "//cda:time[@value] | //cda:effectiveTime[@value] | //cda:time/cda:low[@value] | //cda:time/cda:high[@value] | //cda:effectiveTime/cda:low[@value] | //cda:effectiveTime/cda:high[@value]",
+            "line": 366,
+            "path": "/ClinicalDocument[1]/component[1]/structuredBody[1]/component[3]/section[1]/entry[4]/act[1]/entryRelationship[1]/observation[1]/effectiveTime[1]/high[1]",
+            "xml": "<high value=\"-000111300000\"/>"
+        },
+        {
+            "type": "error",
             "test": "count(cda:entry[count(cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.24.3.55']])=1]) > 0",
             "simplifiedTest": null,
             "description": "SHALL contain at least one [1..*] entry (CONF:4444-14430_C01) such that it SHALL contain exactly one [1..1] Patient Characteristic Payer (identifier: urn:oid:2.16.840.1.113883.10.20.24.3.55) (CONF:4444-14431).",
@@ -460,50 +512,5 @@
         }
     ],
     "warnings": [],
-    "ignored": [
-        {
-            "type": "error",
-            "test": "not(@extension) or $n = 10",
-            "simplifiedTest": null,
-            "description": "The NPI should have 10 digits. (CONF: CMS_0115)",
-            "patternId": "p-validate_NPI_format-errors",
-            "ruleId": "r-validate_NPI_format-errors",
-            "assertionId": "a-CMS_0115-error",
-            "context": "//cda:id[@root='2.16.840.1.113883.4.6']",
-            "errorMessage": "xpath evaluation failed"
-        },
-        {
-            "type": "error",
-            "test": "not(@extension) or number($s)=$s",
-            "simplifiedTest": null,
-            "description": "The NPI should be composed of all digits. (CONF: CMS_0116)",
-            "patternId": "p-validate_NPI_format-errors",
-            "ruleId": "r-validate_NPI_format-errors",
-            "assertionId": "a-CMS_0116-error",
-            "context": "//cda:id[@root='2.16.840.1.113883.4.6']",
-            "errorMessage": "xpath evaluation failed"
-        },
-        {
-            "type": "error",
-            "test": "not(@extension) or number(substring($s, $n, 1)) = (10 - ($sum mod 10)) mod 10",
-            "simplifiedTest": null,
-            "description": "The NPI should have a correct checksum, using the Luhn algorithm. (CONF: CMS_0117)",
-            "patternId": "p-validate_NPI_format-errors",
-            "ruleId": "r-validate_NPI_format-errors",
-            "assertionId": "a-CMS_0117-error",
-            "context": "//cda:id[@root='2.16.840.1.113883.4.6']",
-            "errorMessage": "xpath evaluation failed"
-        },
-        {
-            "type": "error",
-            "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
-            "simplifiedTest": null,
-            "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category I file or, if a UTC time offset is needed anywhere, then it must be specified everywhere a time field is provided (CONF: CMS_0121).",
-            "patternId": "p-validate_TZ-errors",
-            "ruleId": "r-validate_TZ-errors",
-            "assertionId": "a-CMS_0121-error",
-            "context": "//cda:time[@value] | //cda:effectiveTime[@value] | //cda:time/cda:low[@value] | //cda:time/cda:high[@value] | //cda:effectiveTime/cda:low[@value] | //cda:effectiveTime/cda:high[@value]",
-            "errorMessage": "xpath evaluation failed"
-        }
-    ]
+    "ignored": []
 }

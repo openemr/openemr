@@ -114,14 +114,25 @@ XML;
         $expectedPhp = self::readJson("$fixtureDir/$fixture.php-golden.json");
         self::assertSame($expectedPhp, $out, "$schemaType: PHP output diverged from php-golden");
 
-        // Regression parity: every error the Node service produced must also appear in PHP output.
+        // Regression parity: every error the Node service produced must also appear in PHP
+        // output, and at least as many times. array_diff() compares distinct values, so
+        // it cannot see Node reporting the same assertion on four nodes where PHP
+        // reports it on one; compare occurrence counts instead.
         $nodeGolden = self::readJson("$fixtureDir/$fixture.node-golden.json");
         /** @var list<array<string, mixed>> $nodeErrors */
         $nodeErrors = $nodeGolden['errors'] ?? [];
         /** @var list<array<string, mixed>> $phpErrors */
         $phpErrors = $out['errors'];
-        $missing = array_diff(self::errorKeys($nodeErrors), self::errorKeys($phpErrors));
-        self::assertSame([], array_values($missing), "$schemaType: PHP validator missed errors that Node caught");
+        $nodeCounts = array_count_values(self::errorKeys($nodeErrors));
+        $phpCounts = array_count_values(self::errorKeys($phpErrors));
+        $shortfall = [];
+        foreach ($nodeCounts as $key => $nodeCount) {
+            $phpCount = $phpCounts[$key] ?? 0;
+            if ($phpCount < $nodeCount) {
+                $shortfall[$key] = "node=$nodeCount php=$phpCount";
+            }
+        }
+        self::assertSame([], $shortfall, "$schemaType: PHP validator missed errors that Node caught");
     }
 
     /**

@@ -18,11 +18,15 @@ final readonly class ParsedRule
 {
     /**
      * @param list<ParsedAssertion|ParsedExtension> $items assertions and extends, in document order
+     * @param array<string, string> $variables `<sch:let>` name => defining XPath expression,
+     *                                         already merged across schema, pattern and rule
+     *                                         scope with the innermost declaration winning
      */
     public function __construct(
         public bool $abstract,
         public ?string $context,
         public array $items,
+        public array $variables = [],
     ) {
     }
 }

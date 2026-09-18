@@ -1,7 +1,7 @@
 {
     "errorCount": 3,
     "warningCount": 0,
-    "ignoredCount": 1,
+    "ignoredCount": 0,
     "errors": [
         {
             "type": "error",
@@ -44,17 +44,5 @@
         }
     ],
     "warnings": [],
-    "ignored": [
-        {
-            "type": "error",
-            "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
-            "simplifiedTest": null,
-            "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category III file or, if a UTC time offset is needed anywhere, then it *must* be specified *everywhere* a time field is provided. (CONF: CMS_0122)",
-            "patternId": "p-validate_TZ-errors",
-            "ruleId": "r-validate_TZ-errors",
-            "assertionId": "a-CMS_0122-error",
-            "context": "//cda:time[@value] | //cda:effectiveTime[@value] | //cda:time/cda:low[@value] | //cda:time/cda:high[@value] | //cda:effectiveTime/cda:low[@value] | //cda:effectiveTime/cda:high[@value]",
-            "errorMessage": "xpath evaluation failed"
-        }
-    ]
+    "ignored": []
 }

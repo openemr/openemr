@@ -5,23 +5,25 @@
  *
  * Replaces the Node.js oe-schematron-service / oe-cda-schematron sidecar for
  * validating CCDA and QRDA documents. Ports the JS engine's assertion semantics
- * to PHP's native DOMXPath and pre-rewrites `document('voc.xml')` predicates
- * inline so no runtime XPath extension is required.
+ * to PHP's native DOMXPath, inlines `<sch:let>` variables, and pre-rewrites
+ * `document('voc.xml')` predicates so no runtime XPath extension is required.
  *
  * Behavior parity notes vs oe-cda-schematron:
  *  - Context XPath: prefixed with `//` when it does not start with `/`.
  *  - Rule extension: `<sch:extends rule="X"/>` evaluates X's assertions using
- *    the current rule's context (recursive).
+ *    the current rule's context (recursive, cycle-guarded).
  *  - Level: inherited from `<sch:phase id="errors|warnings">`; overridden to
  *    'error' when the assertion description contains 'SHALL' and either lacks
  *    'SHOULD' or has SHALL appearing before SHOULD.
- *  - Ignored path: any test that throws during evaluation lands in `ignored`
- *    with an errorMessage, rather than being surfaced as an error or warning.
+ *  - Ignored path: any test that cannot be evaluated lands in `ignored` with a
+ *    generic errorMessage, rather than being surfaced as an error or warning.
  *
- * Divergence: the JS engine cannot evaluate `document('voc.xml')/...` and
- * silently marks those assertions as ignored. This engine evaluates them via
- * the injected VocabularyLookup, which converts historically-ignored
- * assertions into real pass/fail results.
+ * Divergences from the JS engine, both of which turn historically-ignored
+ * assertions into real pass/fail results:
+ *  - `document('voc.xml')/...` predicates are evaluated via the injected
+ *    VocabularyLookup instead of being skipped.
+ *  - `<sch:let>` variables are inlined by XPathVariableExpander instead of
+ *    failing evaluation as undefined XPath variables.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -46,11 +48,14 @@ final readonly class SchematronValidator
     /**
      * Stable message used for assertions we could not evaluate. Matches the JS
      * engine's "Assertion skipped or malformed." tone and deliberately avoids
-     * exposing exception messages, which may leak internal detail.
+     * exposing exception messages, which may leak internal detail. It is the
+     * only message written to the ignored bucket - callers key off the bucket,
+     * not off a reason string.
      */
     private const IGNORED_MESSAGE = 'Assertion skipped or malformed.';
 
     private DocumentPredicateRewriter $rewriter;
+    private XPathVariableExpander $expander;
 
     public function __construct(
         VocabularyLookup $vocabulary,
@@ -58,6 +63,7 @@ final readonly class SchematronValidator
         private int $xmlSnippetMaxLength = 200,
     ) {
         $this->rewriter = new DocumentPredicateRewriter($vocabulary);
+        $this->expander = new XPathVariableExpander();
     }
 
     public function validate(string $targetXml, string $schematronXml): ValidationResult
@@ -90,11 +96,13 @@ final readonly class SchematronValidator
 
         foreach ($schematron->patternRuleMap as $patternId => $ruleIds) {
             foreach ($ruleIds as $ruleId) {
-                $rule = $schematron->ruleMap[$ruleId];
-                if ($rule->abstract) {
+                // A pattern can name a rule the schematron never defines; that is a
+                // defect in the .sch, not a reason to fatal on an IG bump.
+                $rule = $schematron->ruleMap[$ruleId] ?? null;
+                if ($rule === null || $rule->abstract) {
                     continue;
                 }
-                $checked = $this->checkRule($ruleId, null, $doc, $xpath, $schematron->ruleMap, $contextCache);
+                $checked = $this->checkRule($ruleId, null, $doc, $xpath, $schematron->ruleMap, $contextCache, []);
                 foreach ($checked as $item) {
                     $base = [
                         'type' => $item['type'],
@@ -141,6 +149,7 @@ final readonly class SchematronValidator
      * @param array<string, ParsedRule> $ruleMap
      * @param array<string, list<DOMNode>> $contextCache
      * @param-out array<string, list<DOMNode>> $contextCache
+     * @param list<string> $extendsPath rule ids already on the extends chain, to stop a cycle
      * @return list<array<string, mixed>>
      */
     private function checkRule(
@@ -150,9 +159,13 @@ final readonly class SchematronValidator
         DOMXPath $xpath,
         array $ruleMap,
         array &$contextCache,
+        array $extendsPath,
     ): array {
         $results = [];
-        $rule = $ruleMap[$ruleId];
+        $rule = $ruleMap[$ruleId] ?? null;
+        if ($rule === null) {
+            return $results;
+        }
         $context = $contextOverride ?? $rule->context;
 
         $cacheKey = $context ?? '__doc__';
@@ -161,6 +174,7 @@ final readonly class SchematronValidator
                 $ctxQuery = str_starts_with($context, '/') ? $context : '//' . $context;
                 $prevErrorMode = libxml_use_internal_errors(true);
                 try {
+                    libxml_clear_errors();
                     $sel = $xpath->query($ctxQuery);
                     libxml_clear_errors();
                 } finally {
@@ -177,7 +191,10 @@ final readonly class SchematronValidator
             if ($item instanceof ParsedAssertion) {
                 $originalTest = $item->test;
                 try {
-                    $test = $this->rewriter->rewrite($originalTest);
+                    // Variables first: a <sch:let> value may itself contain a
+                    // document('voc.xml') predicate for the rewriter to handle.
+                    $test = $this->expander->expand($originalTest, $rule->variables);
+                    $test = $this->rewriter->rewrite($test);
                 } catch (RuntimeException | DOMException) {
                     $results[] = [
                         'type' => $item->level,
@@ -202,7 +219,14 @@ final readonly class SchematronValidator
                     ];
                 }
             } else {
-                foreach ($this->checkRule($item->rule, $context, $doc, $xpath, $ruleMap, $contextCache) as $r) {
+                // A rule that extends itself, directly or through a chain, would
+                // otherwise recurse until the stack runs out.
+                if (in_array($item->rule, $extendsPath, true) || $item->rule === $ruleId) {
+                    continue;
+                }
+                $nextPath = $extendsPath;
+                $nextPath[] = $ruleId;
+                foreach ($this->checkRule($item->rule, $context, $doc, $xpath, $ruleMap, $contextCache, $nextPath) as $r) {
                     $results[] = $r;
                 }
             }
@@ -221,6 +245,10 @@ final readonly class SchematronValidator
             try {
                 $prevErrorMode = libxml_use_internal_errors(true);
                 try {
+                    // Clear before evaluating, not only after: libxml_use_internal_errors()
+                    // does not empty the buffer, and a stale entry would make a legitimately
+                    // false assertion look like a broken expression and vanish into ignored.
+                    libxml_clear_errors();
                     $result = $xpath->evaluate('boolean(' . $test . ')', $node);
                     $lastError = libxml_get_last_error();
                     libxml_clear_errors();
@@ -228,10 +256,16 @@ final readonly class SchematronValidator
                     libxml_use_internal_errors($prevErrorMode);
                 }
                 if ($result === false && $lastError !== false) {
-                    return ['ignored' => true, 'errorMessage' => 'xpath evaluation failed'];
+                    return ['ignored' => true, 'errorMessage' => self::IGNORED_MESSAGE];
                 }
                 if (!is_bool($result)) {
-                    return ['ignored' => true, 'errorMessage' => 'Test returned non-boolean result'];
+                    return ['ignored' => true, 'errorMessage' => self::IGNORED_MESSAGE];
+                }
+                // Only a failing assertion is reported, so only a failing assertion needs
+                // its line, path and XML snippet built.
+                if ($result) {
+                    $results[] = ['result' => true, 'line' => null, 'path' => '', 'xml' => null];
+                    continue;
                 }
                 $line = null;
                 $xmlSnippet = null;
@@ -249,7 +283,7 @@ final readonly class SchematronValidator
                     }
                 }
                 $results[] = [
-                    'result' => $result,
+                    'result' => false,
                     'line' => $line,
                     'path' => $this->buildXPath($node),
                     'xml' => $xmlSnippet,

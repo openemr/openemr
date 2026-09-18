@@ -7,6 +7,7 @@
  *  - namespace prefix => uri map from `<sch:ns>` declarations
  *  - pattern => rule => assertions/extensions tree
  *  - phase-based error/warning levels
+ *  - `<sch:let>` variable declarations, merged schema -> pattern -> rule
  *
  * Uses `local-name()` XPath queries so the schematron element prefix does not
  * matter.
@@ -26,7 +27,6 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use DOMNodeList;
-use DOMText;
 use DOMXPath;
 use RuntimeException;
 
@@ -49,23 +49,42 @@ final class SchematronParser
 
         $namespaceMap = $this->extractNamespaces($xp);
         $patternLevelMap = $this->extractPatternLevels($xp);
+        $schemaVariables = $this->directVariables($doc->documentElement);
 
         /** @var array<string, list<string>> $patternRuleMap */
         $patternRuleMap = [];
         /** @var array<string, ParsedRule> $ruleMap */
         $ruleMap = [];
+        $anonymousRuleSeq = 0;
         foreach (self::elements($xp->query('//*[local-name()="pattern"]')) as $pattern) {
             $patternId = $pattern->getAttribute('id');
             $defaultLevel = $patternLevelMap[$patternId] ?? 'warning';
+            $patternVariables = $schemaVariables;
+            foreach ($this->directVariables($pattern) as $name => $value) {
+                $patternVariables[$name] = $value;
+            }
             $patternRuleMap[$patternId] = [];
             foreach (self::elements($xp->query('./*[local-name()="rule"]', $pattern)) as $rule) {
+                // A rule without an id cannot be addressed by <sch:extends>, but it still
+                // has to occupy a distinct slot - keying every id-less rule on '' silently
+                // drops all but the last one.
                 $ruleId = $rule->getAttribute('id');
+                if ($ruleId === '') {
+                    $ruleId = sprintf('__anon_rule_%d__', $anonymousRuleSeq++);
+                }
                 $patternRuleMap[$patternId][] = $ruleId;
                 $ctx = $rule->getAttribute('context');
+
+                $ruleVariables = $patternVariables;
+                foreach ($this->directVariables($rule) as $name => $value) {
+                    $ruleVariables[$name] = $value;
+                }
+
                 $ruleMap[$ruleId] = new ParsedRule(
                     abstract: in_array($rule->getAttribute('abstract'), ['true', 'yes'], true),
                     context: $ctx !== '' ? $ctx : null,
-                    items: $this->collectItems($rule, $defaultLevel, $xp),
+                    items: $this->collectItems($rule, $defaultLevel),
+                    variables: $ruleVariables,
                 );
             }
         }
@@ -81,6 +100,29 @@ final class SchematronParser
         $out = [];
         foreach (self::elements($xp->query('//*[local-name()="ns"]')) as $ns) {
             $out[$ns->getAttribute('prefix')] = $ns->getAttribute('uri');
+        }
+        return $out;
+    }
+
+    /**
+     * Collect `<sch:let>` declared as a direct child of the given element. Only direct
+     * children, so a pattern does not absorb the variables of the rules it contains.
+     *
+     * @return array<string, string>
+     */
+    private function directVariables(?DOMElement $parent): array
+    {
+        $out = [];
+        if ($parent === null) {
+            return $out;
+        }
+        foreach ($parent->childNodes as $child) {
+            if ($child instanceof DOMElement && $child->localName === 'let') {
+                $name = $child->getAttribute('name');
+                if ($name !== '') {
+                    $out[$name] = $child->getAttribute('value');
+                }
+            }
         }
         return $out;
     }
@@ -110,22 +152,34 @@ final class SchematronParser
     }
 
     /**
+     * Walk the rule's direct children once so assertions and extensions keep their
+     * document order, which decides the order findings are reported in.
+     *
      * @return list<ParsedAssertion|ParsedExtension>
      */
-    private function collectItems(DOMElement $rule, string $defaultLevel, DOMXPath $xp): array
+    private function collectItems(DOMElement $rule, string $defaultLevel): array
     {
         $out = [];
-        foreach (self::elements($xp->query('./*[local-name()="assert"]', $rule)) as $assert) {
-            $description = $assert->firstChild instanceof DOMText ? $assert->firstChild->data : '';
-            $out[] = new ParsedAssertion(
-                level: $this->classifyLevel($description, $defaultLevel),
-                id: $assert->getAttribute('id') !== '' ? $assert->getAttribute('id') : null,
-                test: $assert->getAttribute('test'),
-                description: $description,
-            );
-        }
-        foreach (self::elements($xp->query('./*[local-name()="extends"]', $rule)) as $ext) {
-            $out[] = new ParsedExtension($ext->getAttribute('rule'));
+        foreach ($rule->childNodes as $child) {
+            if (!($child instanceof DOMElement)) {
+                continue;
+            }
+            if ($child->localName === 'assert') {
+                // textContent, not firstChild: an assert with mixed content (the C-CDA
+                // R1.1-compatibility meta-rule has a child element mid-sentence) would
+                // otherwise lose every word after the first child, and with it the
+                // 'SHALL' that decides whether the finding is an error or a warning.
+                $description = $child->textContent;
+                $id = $child->getAttribute('id');
+                $out[] = new ParsedAssertion(
+                    level: $this->classifyLevel($description, $defaultLevel),
+                    id: $id !== '' ? $id : null,
+                    test: $child->getAttribute('test'),
+                    description: $description,
+                );
+            } elseif ($child->localName === 'extends') {
+                $out[] = new ParsedExtension($child->getAttribute('rule'));
+            }
         }
         return $out;
     }

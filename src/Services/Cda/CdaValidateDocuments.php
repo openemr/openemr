@@ -214,12 +214,32 @@ class CdaValidateDocuments
             'errors' => [],
             'warnings' => [],
             'ignored' => [],
+            'validationFailed' => false,
         ];
         try {
             return array_merge($defaults, $this->schematronValidateDocument($xml, $type));
         } catch (\Throwable $e) {
             $this->getSystemLogger()->error('Schematron validation failed', ['exception' => $e]);
-            return $defaults;
+            // Never return a clean bill of health for a validation that did not run.
+            // An empty error list is indistinguishable from a conformant document, so
+            // report the failure as a finding and flag it for callers that check.
+            return array_merge($defaults, [
+                'errorCount' => 1,
+                'validationFailed' => true,
+                'errors' => [[
+                    'type' => 'error',
+                    'test' => '',
+                    'simplifiedTest' => null,
+                    'description' => xlt('Schematron validation could not be completed. This document was not checked for conformance; see the system log for details.'),
+                    'patternId' => '',
+                    'ruleId' => '',
+                    'assertionId' => null,
+                    'context' => '',
+                    'line' => null,
+                    'path' => '',
+                    'xml' => null,
+                ]],
+            ]);
         }
     }
 

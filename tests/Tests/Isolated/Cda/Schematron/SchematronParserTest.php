@@ -53,6 +53,28 @@ final class SchematronParserTest extends TestCase
             <sch:assert id="a-status" test="cda:statusCode">SHALL have statusCode.</sch:assert>
         </sch:rule>
     </sch:pattern>
+    <sch:pattern id="p-vars">
+        <sch:let name="docRoot" value="/cda:ClinicalDocument"/>
+        <sch:rule id="r-vars" context="cda:id">
+            <sch:let name="ext" value="normalize-space(@extension)"/>
+            <sch:let name="len" value="string-length($ext)"/>
+            <sch:assert id="a-vars" test="$len = 10 and $docRoot">SHALL be ten characters.</sch:assert>
+        </sch:rule>
+    </sch:pattern>
+    <sch:pattern id="p-mixed">
+        <sch:rule id="r-mixed" context="cda:templateId">
+            <sch:assert id="a-mixed" test="@root">A compatible templateId <sch:emph>must</sch:emph> be present and SHALL carry a root.</sch:assert>
+            <sch:assert id="a-should-first" test="@extension">SHOULD carry an extension, though it SHALL never be blank.</sch:assert>
+        </sch:rule>
+    </sch:pattern>
+    <sch:pattern id="p-anonymous">
+        <sch:rule context="cda:first">
+            <sch:assert id="a-anon-one" test="@a">SHALL have a.</sch:assert>
+        </sch:rule>
+        <sch:rule context="cda:second">
+            <sch:assert id="a-anon-two" test="@b">SHALL have b.</sch:assert>
+        </sch:rule>
+    </sch:pattern>
 </sch:schema>
 XML;
 
@@ -116,13 +138,65 @@ XML;
     public function testExtendsRecordedAsExtension(): void
     {
         $out = (new SchematronParser())->parse(self::SCHEMATRON);
-        // Parser lists all assertions first, then extends (matches oe-cda-schematron order).
+        // Items keep document order, so the extends precedes the assertion here.
         $extensions = array_values(array_filter(
             $out->ruleMap['r-concrete']->items,
             fn(object $i): bool => $i instanceof ParsedExtension,
         ));
         self::assertCount(1, $extensions);
         self::assertSame('r-abstract', $extensions[0]->rule);
+    }
+
+    public function testItemsKeepDocumentOrder(): void
+    {
+        $items = (new SchematronParser())->parse(self::SCHEMATRON)->ruleMap['r-concrete']->items;
+        self::assertInstanceOf(ParsedExtension::class, $items[0], 'extends is first in the source');
+        self::assertInstanceOf(ParsedAssertion::class, $items[1]);
+    }
+
+    public function testRuleVariablesMergeOverPatternScope(): void
+    {
+        $rule = (new SchematronParser())->parse(self::SCHEMATRON)->ruleMap['r-vars'];
+        self::assertSame(
+            ['docRoot' => '/cda:ClinicalDocument', 'ext' => 'normalize-space(@extension)', 'len' => 'string-length($ext)'],
+            $rule->variables,
+        );
+    }
+
+    public function testPatternVariablesDoNotLeakIntoOtherPatterns(): void
+    {
+        $rule = (new SchematronParser())->parse(self::SCHEMATRON)->ruleMap['r-strict'];
+        self::assertSame([], $rule->variables);
+    }
+
+    public function testMixedContentAssertionKeepsTextAfterChildElement(): void
+    {
+        $first = (new SchematronParser())->parse(self::SCHEMATRON)->ruleMap['r-mixed']->items[0];
+        self::assertInstanceOf(ParsedAssertion::class, $first);
+        self::assertStringContainsString('SHALL carry a root', $first->description);
+        // p-mixed is in no phase, so the default is warning. The SHALL sits after a
+        // child element; reading only the first text node would demote this to a
+        // warning and, with includeWarnings off, drop the finding entirely.
+        self::assertSame('error', $first->level);
+    }
+
+    public function testShouldBeforeShallUnderWarningDefaultStaysWarning(): void
+    {
+        $second = (new SchematronParser())->parse(self::SCHEMATRON)->ruleMap['r-mixed']->items[1];
+        self::assertInstanceOf(ParsedAssertion::class, $second);
+        self::assertSame('a-should-first', $second->id);
+        // SHOULD precedes SHALL, so the phase default (warning) wins.
+        self::assertSame('warning', $second->level);
+    }
+
+    public function testRulesWithoutIdsGetDistinctKeys(): void
+    {
+        $out = (new SchematronParser())->parse(self::SCHEMATRON);
+        $ruleIds = $out->patternRuleMap['p-anonymous'];
+        self::assertCount(2, $ruleIds);
+        self::assertNotSame($ruleIds[0], $ruleIds[1], 'id-less rules must not share a key');
+        self::assertSame('cda:first', $out->ruleMap[$ruleIds[0]]->context);
+        self::assertSame('cda:second', $out->ruleMap[$ruleIds[1]]->context);
     }
 
     public function testMalformedSchematronThrows(): void

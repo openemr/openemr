@@ -37,10 +37,15 @@ final class VocabularyExtractor
         $missing = [];
 
         $doc = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $ok = $doc->load('data://text/plain;base64,' . base64_encode($vocabXml), LIBXML_PARSEHUGE | LIBXML_NOBLANKS | LIBXML_COMPACT);
-        libxml_clear_errors();
-        libxml_use_internal_errors(false);
+        // Save and restore the caller's error mode rather than forcing it off, so a
+        // caller that had internal errors enabled keeps them.
+        $prevErrorMode = libxml_use_internal_errors(true);
+        try {
+            $ok = $doc->load('data://text/plain;base64,' . base64_encode($vocabXml), LIBXML_PARSEHUGE | LIBXML_NOBLANKS | LIBXML_COMPACT);
+            libxml_clear_errors();
+        } finally {
+            libxml_use_internal_errors($prevErrorMode);
+        }
         if (!$ok) {
             throw new RuntimeException('failed to parse voc.xml');
         }
