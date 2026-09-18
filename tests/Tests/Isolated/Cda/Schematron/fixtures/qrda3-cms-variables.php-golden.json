@@ -6,7 +6,7 @@
         {
             "type": "error",
             "test": "not(@extension) or $n = 10",
-            "simplifiedTest": "not(@extension) or (string-length((normalize-space(@extension)))) = 10",
+            "simplifiedTest": null,
             "description": "The NPI should have 10 digits. (CONF: CMS_0115)",
             "patternId": "p-validate_NPI_format-errors",
             "ruleId": "r-validate_NPI_format-errors",
@@ -19,7 +19,7 @@
         {
             "type": "error",
             "test": "not(@extension) or number($s)=$s",
-            "simplifiedTest": "not(@extension) or number((normalize-space(@extension)))=(normalize-space(@extension))",
+            "simplifiedTest": null,
             "description": "The NPI should be composed of all digits. (CONF: CMS_0116)",
             "patternId": "p-validate_NPI_format-errors",
             "ruleId": "r-validate_NPI_format-errors",
@@ -32,7 +32,7 @@
         {
             "type": "error",
             "test": "not(@extension) or number(substring($s, $n, 1)) = (10 - ($sum mod 10)) mod 10",
-            "simplifiedTest": "not(@extension) or number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))), 1)) = (10 - ((24 + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 1, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 1,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 2, 1)) +(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 3, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 3,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 4, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 5, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 5,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 6, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 7, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 7,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 8, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 9, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 9,1))*2 div 10)) mod 10)) mod 10",
+            "simplifiedTest": null,
             "description": "The NPI should have a correct checksum, using the Luhn algorithm. (CONF: CMS_0117)",
             "patternId": "p-validate_NPI_format-errors",
             "ruleId": "r-validate_NPI_format-errors",
@@ -45,7 +45,7 @@
         {
             "type": "error",
             "test": "not(@extension) or number(substring($s, $n, 1)) = (10 - ($sum mod 10)) mod 10",
-            "simplifiedTest": "not(@extension) or number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))), 1)) = (10 - ((24 + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 1, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 1,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 2, 1)) +(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 3, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 3,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 4, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 5, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 5,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 6, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 7, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 7,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 8, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 9, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 9,1))*2 div 10)) mod 10)) mod 10",
+            "simplifiedTest": null,
             "description": "The NPI should have a correct checksum, using the Luhn algorithm. (CONF: CMS_0117)",
             "patternId": "p-validate_NPI_format-errors",
             "ruleId": "r-validate_NPI_format-errors",
@@ -58,7 +58,7 @@
         {
             "type": "error",
             "test": "not(@extension) or number(substring($s, $n, 1)) = (10 - ($sum mod 10)) mod 10",
-            "simplifiedTest": "not(@extension) or number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))), 1)) = (10 - ((24 + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 1, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 1,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 2, 1)) +(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 3, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 3,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 4, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 5, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 5,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 6, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 7, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 7,1))*2 div 10) + number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 8, 1)) + (number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 9, 1))*2) mod 10 + floor(number(substring((normalize-space(@extension)), (string-length((normalize-space(@extension)))) - 9,1))*2 div 10)) mod 10)) mod 10",
+            "simplifiedTest": null,
             "description": "The NPI should have a correct checksum, using the Luhn algorithm. (CONF: CMS_0117)",
             "patternId": "p-validate_NPI_format-errors",
             "ruleId": "r-validate_NPI_format-errors",
@@ -71,7 +71,7 @@
         {
             "type": "error",
             "test": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ($timeZoneExists=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
-            "simplifiedTest": "string-length(normalize-space(@value)) <= 8 or (parent::node()[parent::node()[parent::node()[cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.17.3.8.1'][@extension='2016-03-01']]]]]) or ((string-length(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value)) > 8 and (contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '-') or contains(normalize-space(/cda:ClinicalDocument/cda:effectiveTime/@value), '+')))=(contains(normalize-space(@value), '-') or contains(normalize-space(@value), '+'))) or @nullFlavor",
+            "simplifiedTest": null,
             "description": "A Coordinated Universal Time (UTC time) offset should not be used anywhere in a QRDA Category III file or, if a UTC time offset is needed anywhere, then it *must* be specified *everywhere* a time field is provided. (CONF: CMS_0122)",
             "patternId": "p-validate_TZ-errors",
             "ruleId": "r-validate_TZ-errors",
@@ -123,7 +123,7 @@
         {
             "type": "error",
             "test": "$intendedRecipient-Doc != 'MIPS_GROUP' or ($intendedRecipient-Doc='MIPS_GROUP' and $TIN-Count=1 and $NPI-Count=0)",
-            "simplifiedTest": "(/cda:ClinicalDocument/cda:informationRecipient/cda:intendedRecipient/cda:id/@extension) != 'MIPS_GROUP' or ((/cda:ClinicalDocument/cda:informationRecipient/cda:intendedRecipient/cda:id/@extension)='MIPS_GROUP' and (count(cda:representedOrganization[cda:id[@root='2.16.840.1.113883.4.2'][@extension]]))=1 and (count(cda:id[@root='2.16.840.1.113883.4.6'][@extension]))=0)",
+            "simplifiedTest": null,
             "description": "For MIPS  group reporting: performer contains one TIN and no NPI is allowed. (CONF:4506-18177_C01).",
             "patternId": "QRDA_Category_III_CMS-pattern-errors",
             "ruleId": "QRDA_Category_III_CMS-documentationOf-serviceEvent-performer-assignedEntity-errors",
@@ -136,7 +136,7 @@
         {
             "type": "error",
             "test": "$intendedRecipient-Doc != 'MIPS_GROUP' or ($intendedRecipient-Doc='MIPS_GROUP' and count(cda:id[@root='2.16.840.1.113883.4.6'][@nullFlavor='NA'][not(@extension)])=1)",
-            "simplifiedTest": "(/cda:ClinicalDocument/cda:informationRecipient/cda:intendedRecipient/cda:id/@extension) != 'MIPS_GROUP' or ((/cda:ClinicalDocument/cda:informationRecipient/cda:intendedRecipient/cda:id/@extension)='MIPS_GROUP' and count(cda:id[@root='2.16.840.1.113883.4.6'][@nullFlavor='NA'][not(@extension)])=1)",
+            "simplifiedTest": null,
             "description": "For MIPS  group reporting, id/@root=' 2.16.840.1.113883.4.6' is coupled with @nullFlavor=\"NA\", and @extension shall be omitted.(CONF:4506-18177_C01).",
             "patternId": "QRDA_Category_III_CMS-pattern-errors",
             "ruleId": "QRDA_Category_III_CMS-documentationOf-serviceEvent-performer-assignedEntity-errors",

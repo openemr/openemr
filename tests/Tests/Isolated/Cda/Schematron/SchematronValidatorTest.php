@@ -19,6 +19,7 @@ use OpenEMR\Services\Cda\Schematron\ArrayVocabularyLookup;
 use OpenEMR\Services\Cda\Schematron\SchematronValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class SchematronValidatorTest extends TestCase
 {
@@ -133,6 +134,76 @@ XML;
             }
         }
         self::assertSame([], $shortfall, "$schemaType: PHP validator missed errors that Node caught");
+    }
+
+    /**
+     * Regression for the shipped C-CDA hasCompatibleR1.1TemplateId rule, reduced to
+     * its essentials. $root is defined as @root on the rule context and then used
+     * inside a predicate. Inlining the expression rather than its value turns the
+     * comparison into `@root=@root`, which is true for every candidate sibling, so a
+     * document whose only extension-less templateId carries a different root would
+     * pass and a real CDA error would be lost.
+     */
+    public function testRuleScopedVariableIsEvaluatedAgainstTheRuleContext(): void
+    {
+        $sch = <<<'XML'
+            <?xml version="1.0"?>
+            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+              <sch:ns prefix="cda" uri="urn:hl7-org:v3"/>
+              <sch:phase id="errors"><sch:active pattern="p-compat"/></sch:phase>
+              <sch:pattern id="p-compat">
+                <sch:rule context="//cda:templateId[@extension]">
+                  <sch:let name="root" value="@root"/>
+                  <sch:assert id="a-compat" test="../cda:templateId[(@root=$root) and not(@extension)]">SHALL carry a matching R1.1 templateId.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+            </sch:schema>
+            XML;
+
+        $mismatched = <<<'XML'
+            <?xml version="1.0"?>
+            <ClinicalDocument xmlns="urn:hl7-org:v3">
+              <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+              <templateId root="9.9.9.9.9.9"/>
+            </ClinicalDocument>
+            XML;
+        $result = (new SchematronValidator(new ArrayVocabularyLookup([])))->validate($mismatched, $sch);
+        self::assertSame([], $result->ignored);
+        self::assertCount(1, $result->errors, 'a sibling with a different root must not satisfy the rule');
+        self::assertSame('a-compat', $result->errors[0]['assertionId']);
+
+        $matching = <<<'XML'
+            <?xml version="1.0"?>
+            <ClinicalDocument xmlns="urn:hl7-org:v3">
+              <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+              <templateId root="2.16.840.1.113883.10.20.22.1.1"/>
+            </ClinicalDocument>
+            XML;
+        $result = (new SchematronValidator(new ArrayVocabularyLookup([])))->validate($matching, $sch);
+        self::assertSame([], $result->errors, 'a sibling with the same root must satisfy the rule');
+    }
+
+    public function testExtendsNamingAnUndefinedRuleThrows(): void
+    {
+        $sch = <<<'XML'
+            <?xml version="1.0"?>
+            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+              <sch:ns prefix="cda" uri="urn:hl7-org:v3"/>
+              <sch:phase id="errors"><sch:active pattern="p-broken"/></sch:phase>
+              <sch:pattern id="p-broken">
+                <sch:rule id="r-concrete" context="//cda:observation">
+                  <sch:extends rule="r-does-not-exist"/>
+                  <sch:assert id="a-status" test="cda:statusCode">SHALL have statusCode.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+            </sch:schema>
+            XML;
+
+        // Skipping the inherited assertions would report a clean document instead.
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Undefined schematron rule: r-does-not-exist');
+        (new SchematronValidator(new ArrayVocabularyLookup([])))
+            ->validate('<?xml version="1.0"?><ClinicalDocument xmlns="urn:hl7-org:v3"><observation/></ClinicalDocument>', $sch);
     }
 
     /**
