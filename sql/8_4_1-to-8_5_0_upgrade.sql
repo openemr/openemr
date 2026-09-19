@@ -234,3 +234,20 @@ UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_typ
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
 UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
 #EndIf
+
+-- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
+-- the globals.inc.php default of on. Upgrades insert the flag off, then turn
+-- it on when Units for Visit Forms is already US-primary or US-only (1 or 3).
+-- Metric sites (2 or 4) and sites with no units row stay off. Nested #If is
+-- not supported; the UPDATE is a no-op without a matching units row.
+#IfNotRow globals gl_name addrbook_require_npi
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('addrbook_require_npi', 0, '0');
+#EndIf
+
+UPDATE `globals` g
+INNER JOIN `globals` u
+    ON u.gl_name = 'units_of_measurement'
+    AND u.gl_index = 0
+    AND u.gl_value IN ('1', '3')
+SET g.gl_value = '1'
+WHERE g.gl_name = 'addrbook_require_npi' AND g.gl_index = 0;

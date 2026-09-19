@@ -100,6 +100,22 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
             'ND',
             '58103'
         ));
+        $this->assertTrue(AddressBookReferrerFields::saveAllowed(
+            'not-an-npi',
+            '1 Main',
+            'Fargo',
+            'ND',
+            '58103',
+            false
+        ));
+        $this->assertFalse(AddressBookReferrerFields::saveAllowed(
+            'not-an-npi',
+            '',
+            'Fargo',
+            'ND',
+            '58103',
+            false
+        ));
     }
 
     /**

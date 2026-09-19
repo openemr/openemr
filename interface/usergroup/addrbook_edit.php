@@ -454,18 +454,20 @@ if (!empty($_POST['form_save'])) {
         $existing_username = AddressBookReferrerFields::asString($existing['username'] ?? '');
     }
     if (AddressBookReferrerFields::isExternalPerson($existing_username, $option_abook_type)) {
+        $requireNpi = AddressBookReferrerFields::npiRequired();
         if (
             !AddressBookReferrerFields::saveAllowed(
                 $posted->get('form_npi'),
                 $posted->get('form_street'),
                 $posted->get('form_city'),
                 $posted->get('form_state'),
-                $posted->get('form_zip')
+                $posted->get('form_zip'),
+                $requireNpi
             )
         ) {
-            $info_msg = xl(
-                'Person entries need a valid 10-digit NPI and a mailing address (street, city, state, postal code). Use Lookup to fill them from NPPES.'
-            );
+            $info_msg = $requireNpi
+                ? xl('Person entries need a valid 10-digit NPI and a mailing address (street, city, state, postal code). Use Lookup to fill them from NPPES.')
+                : xl('Person entries need a mailing address (street, city, state, postal code).');
             $save_ok = false;
         }
     }
