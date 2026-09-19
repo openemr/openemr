@@ -4633,6 +4633,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new AllergyIntolerance resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'AllergyIntolerance resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/AllergyIntolerance/{uuid}':
     get:
       tags:
@@ -4708,6 +4730,36 @@ paths:
       security:
         -
           openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies an AllergyIntolerance resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the AllergyIntolerance resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'AllergyIntolerance resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   /fhir/Appointment:
     get:
       tags:
@@ -4760,6 +4812,28 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Appointment resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Appointment resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -4882,6 +4956,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: "Creates a new CarePlan resource. The CarePlan must reference an existing encounter; one CarePlan corresponds to one care_plan form on that encounter, with each FHIR activity.detail becoming a form_care_plan row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR's form_care_plan schema has no column for it; the read side hardcodes intent='plan', so any other intent value is rejected rather than stored and silently downgraded. `activity.reference` is likewise rejected: form_care_plan rows are built from `activity.detail`."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'CarePlan resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/CarePlan/{uuid}':
     get:
       tags:
@@ -4933,6 +5029,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: "Replaces an existing CarePlan resource. The uuid is the surrogate key encounter-uuid + '-SK-' + form-id. PUT replaces all activity items on the form (DELETE+INSERT transactional)."
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the CarePlan resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'CarePlan resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -4995,6 +5121,28 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new CareTeam (patient-scoped). Practitioner participants are resolved to users; non-Practitioner participants (Organization, RelatedPerson) are currently not persisted on write.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'CareTeam resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5074,6 +5222,36 @@ paths:
       security:
         -
           openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a CareTeam. Practitioner participants are diffed against existing members (saveCareTeam handles updates/inserts/inactivations).'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the CareTeam resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'CareTeam resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   /fhir/Condition:
     get:
       tags:
@@ -5126,6 +5304,28 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Condition resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Condition resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5195,6 +5395,36 @@ paths:
       security:
         -
           openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a Condition resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Condition resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Condition resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   /fhir/Coverage:
     get:
       tags:
@@ -5257,6 +5487,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Coverage resource. Note: FHIR R4 allows the `payor` reference to target Organization, Patient, or RelatedPerson; OpenEMR only resolves Organization (the `insurance_companies` table). Patient/RelatedPerson payor references in the payload are rejected with a 400 since they cannot be persisted to `insurance_data.provider`.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Coverage resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Coverage/{uuid}':
     get:
       tags:
@@ -5301,6 +5553,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a Coverage resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Coverage resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Coverage resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5359,6 +5641,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Device resource (medical device association with a patient).'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Device resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Device/{uuid}':
     get:
       tags:
@@ -5412,6 +5716,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a Device resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Device resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Device resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -5816,6 +6150,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Encounter resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Encounter resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Encounter/{uuid}':
     get:
       tags:
@@ -5890,6 +6246,36 @@ paths:
       security:
         -
           openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies an Encounter resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Encounter resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Encounter resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   /fhir/Goal:
     get:
       tags:
@@ -5945,6 +6331,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: "Creates a new Goal. Stored in form_care_plan with care_plan_type='goal'. Requires both a Patient subject and an encounter context (supplied via the encounter-associatedEncounter FHIR extension)."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Goal resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Goal/{uuid}':
     get:
       tags:
@@ -5996,6 +6404,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: "Modifies a Goal. The uuid is the surrogate key built by CarePlanService::getSurrogateKeyForRecord() -- encounter-uuid + separator + form-id, matching the GET response shape. The separator depends on when the record was created: records predating the V2 cutover use the legacy underscore, newer ones use '-SK-'. Use whichever form the GET returned."
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Goal resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Goal resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6164,6 +6602,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Immunization resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Immunization resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Immunization/{uuid}':
     get:
       tags:
@@ -6212,6 +6672,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies an Immunization resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Immunization resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Immunization resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6475,6 +6965,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Medication (drugs master data) resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Medication resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Medication/{uuid}':
     get:
       tags:
@@ -6520,6 +7032,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a Medication resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Medication resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Medication resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -6727,6 +7269,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new MedicationRequest resource. Note: FHIR R4 allows medication via either `medicationCodeableConcept` (inline coding) or `medicationReference` (link to a Medication resource). OpenEMR only handles the `medicationCodeableConcept` path; a `medicationReference` is rejected rather than dropped. Use medicationCodeableConcept with an RxNorm coding for round-trip compatibility.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'MedicationRequest resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/MedicationRequest/{uuid}':
     get:
       tags:
@@ -6786,6 +7350,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a MedicationRequest resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the MedicationRequest resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'MedicationRequest resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -7932,6 +8526,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Person resource. Person writes back the same users-table row that the Practitioner endpoint writes; an NPI identifier (system http://hl7.org/fhir/sid/us-npi) is required.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Person resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Person/{uuid}':
     get:
       tags:
@@ -8004,6 +8620,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a Person resource. Writes to the same users-table row as the Practitioner endpoint.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Person resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Person resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8371,6 +9017,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new PractitionerRole. Practitioner and Organization references are required.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'PractitionerRole resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/PractitionerRole/{uuid}':
     get:
       tags:
@@ -8422,6 +9090,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a PractitionerRole. Practitioner and Organization references cannot be rebound; only role and specialty are mutable.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the PractitionerRole resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'PractitionerRole resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8680,6 +9378,98 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Questionnaire resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Questionnaire resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
+  '/fhir/Questionnaire/{uuid}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single Questionnaire resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Questionnaire resource.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object':
+                    description: 'FHIR Json object.'
+                    type: object
+                type: object
+                example:
+                  id: 95e8d830-3068-48cf-930a-2fefb18c2bcf
+                  meta:
+                    versionId: '1'
+                    lastUpdated: '2021-09-14T09:13:51'
+                  resourceType: Questionnaire
+                  status: active
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a Questionnaire resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Questionnaire resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Questionnaire resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   /fhir/QuestionnaireResponse:
     get:
       tags:
@@ -8721,6 +9511,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new QuestionnaireResponse resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'QuestionnaireResponse resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/QuestionnaireResponse/{uuid}':
     get:
       tags:
@@ -8759,6 +9571,36 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a QuestionnaireResponse resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the QuestionnaireResponse resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'QuestionnaireResponse resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8814,6 +9656,28 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: "Creates a new RelatedPerson (patient's family/caregiver). The patient reference is required. OpenEMR also requires a relationship.coding entry under HL7 v3 RoleCode (or its FhirCodeSystemConstants::HL7_ROLE_CODE alias) — this is an OpenEMR deviation from R4 (which makes relationship 0..*) because the read JOIN binds into list_options on a non-null relationship."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'RelatedPerson resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8895,6 +9759,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a RelatedPerson resource. Telecoms and addresses are replaced per FHIR PUT semantics.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the RelatedPerson resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'RelatedPerson resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -8981,6 +9875,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row. The FHIR R4 1..1 `intent` field is persisted to procedure_order.order_intent; OpenEMR supports the values order/plan/directive/proposal/option; the other R4 intents (original-order, reflex-order, filler-order, instance-order) are rejected with a 422 because no column preserves their meaning.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'ServiceRequest resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/ServiceRequest/{uuid}':
     get:
       tags:
@@ -9036,6 +9952,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a ServiceRequest. PUT replaces the procedure_order_code rows (FHIR PUT replace semantics). Patient reference cannot be rebound.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the ServiceRequest resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'ServiceRequest resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }
@@ -9433,6 +10379,28 @@ components:
             example:
               validationErrors:
                 _id: 'The search field argument was invalid, improperly formatted, or could not be parsed.  Inner message: UUID columns must be a valid UUID string'
+    forbidden:
+      description: Forbidden
+      content:
+        application/fhir+json:
+          schema:
+            properties:
+              resourceType:
+                description: 'Always OperationOutcome for a refused FHIR request.'
+                type: string
+              issue:
+                description: 'The issues that caused the request to be refused.'
+                type: array
+                items:
+                  type: object
+            type: object
+            example:
+              resourceType: OperationOutcome
+              issue:
+                -
+                  severity: error
+                  code: forbidden
+                  diagnostics: 'FHIR write endpoints do not accept patient-context tokens'
     standard:
       description: 'Standard Response'
       content:

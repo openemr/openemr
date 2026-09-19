@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
+use League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
@@ -33,6 +34,13 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 {
     use SystemLoggerAwareTrait;
+
+    /**
+     * Tolerance applied to the access token's iat/nbf/exp claims, to absorb host clock skew
+     * between the request that issued the token and the request that presents it.
+     * See verifyAccessToken() for why this cannot be left at League's zero default.
+     */
+    private const JWT_CLOCK_SKEW_LEEWAY = 'PT60S';
 
     private AccessTokenRepository $accessTokenRepository;
 
@@ -152,11 +160,21 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             $this->getSystemLogger()->error("OpenEMR Error - userid or tokenid not available, so forced exit", ['attributes' => $attributes]);
             throw new HttpException(400, "OpenEMR Error: userid or tokenid not available, so forced exit. Please ensure that the access token is valid and contains the necessary attributes.");
         }
+        $logger = $this->getSystemLogger();
+
         // now verify the token has not been revoked in the database
         if ($repository->isAccessTokenRevokedInDatabase($tokenId)) {
+            // Logged as well as thrown: every accessDenied() renders to the client as the same
+            // generic "The resource owner or authorization server denied the request.", so the
+            // log is the only place this can be told apart from the causes verifyAccessToken()
+            // reports.
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: token revoked in database",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
             throw OAuthServerException::accessDenied('Access token has been revoked');
         }
-        $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
+        $logger->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 
         // verify that user tokens haven't been revoked
         // this is done by verifying the user is trusted with active auth session.
@@ -327,7 +345,22 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             // if we there's a key problem need to catch the exception
             $server = new ResourceServer(
                 $accessTokenRepository,
-                $publicKey
+                $publicKey,
+                // ResourceServer's own default BearerTokenValidator is built with a null leeway,
+                // which makes lcobucci/jwt's LooseValidAt compare iat/nbf/exp against the clock
+                // with zero tolerance. A token is routinely presented in the same wall-clock
+                // second it was issued in, so any backwards step of the host clock between the
+                // token endpoint's request and the API request -- NTP correction, or a
+                // virtualised clock resyncing after the VM is descheduled -- makes iat land
+                // fractionally ahead of "now" and the token is rejected as
+                // "The token was issued in the future". That surfaces as an intermittent 401
+                // carrying OAuth's generic access-denied message, on whichever endpoint happened
+                // to be called, so it reads as a scope or ACL failure rather than a clock one.
+                // RFC 7519 s4.1.4 provides for exactly this ("some small leeway, usually no more
+                // than a few minutes, to account for clock skew"). The same tolerance also
+                // applies to exp, so a token stays usable for this long past its expiry -- a
+                // deliberate trade against a one-hour lifetime.
+                new BearerTokenValidator($accessTokenRepository, new \DateInterval(self::JWT_CLOCK_SKEW_LEEWAY))
             );
             $psr17Factory = new Psr17Factory();
             $psrHttpFactory = new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory);
@@ -335,7 +368,19 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
             $raw = $server->validateAuthenticatedRequest($psrRequest);
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
+            // getMessage() on an accessDenied() is always the generic "The resource owner or
+            // authorization server denied the request.". The reason lives in the hint, which
+            // League sets to one of "Missing \"Authorization\" header", a JWT parse error,
+            // "Access token could not be verified" (bad signature, or iat/nbf/exp outside the
+            // validator's zero leeway) or "Access token has been revoked". Without the hint the
+            // four are indistinguishable in the log as well as in the response, so record it --
+            // the client still gets only the generic message.
+            $previous = $exception->getPrevious();
+            $this->getSystemLogger()->error("RestConfig->verifyAccessToken() OAuthServerException", [
+                "message" => $exception->getMessage(),
+                "hint" => $exception->getHint(),
+                "cause" => $previous instanceof \Throwable ? $previous->getMessage() : null,
+            ]);
             throw new HttpException(401, $exception->getMessage(), $exception);
         } catch (\Throwable $exception) {
             if ($exception instanceof LogicException) {
