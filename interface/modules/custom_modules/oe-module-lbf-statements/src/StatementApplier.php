@@ -97,7 +97,7 @@ class StatementApplier
      */
     private function normalizeSentence(string $part): string
     {
-        $norm = strtolower(trim($part, " \t\n\r\0\x0B.!?"));
+        $norm = mb_strtolower(trim($part, " \t\n\r\0\x0B.!?"), 'UTF-8');
         return preg_replace('/\s+/u', ' ', $norm) ?? $norm;
     }
 
