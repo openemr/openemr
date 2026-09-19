@@ -183,18 +183,30 @@ class ClientRepository implements ClientRepositoryInterface
             ["client" => $clientIdentifier, "grantType" => $grantType]
         );
         $grantTypeStr = is_string($grantType) ? $grantType : '';
-        if ($grantTypeStr === 'authorization_code' || $grantTypeStr === 'password') {
-            // Both authorization_code and password grants must present a
-            // valid client_secret for confidential clients. Refresh and
-            // client_credentials grants use the separate JWT authentication
-            // seam installed on the token endpoint via
-            // setJWTAuthenticationService(), so client auth for those grants
-            // is validated there rather than here.
+        if ($grantTypeStr === 'authorization_code') {
+            // Preserve pre-existing behaviour: validate a presented secret,
+            // but allow a null/empty client_secret through so upstream JWT
+            // authentication can succeed. CustomAuthCodeGrant validates a
+            // JWT client assertion first and then calls this method with a
+            // null $clientSecret purely to run the grant-authorization
+            // check — enforcing shared-secret presence here would break
+            // every confidential client that uses private_key_jwt.
+            if ($clientSecret === null || $clientSecret === '') {
+                return true;
+            }
+            return $this->validateConfidentialClientSecret($clientIdentifier, $clientSecret, $grantTypeStr);
+        }
+        if ($grantTypeStr === 'password') {
+            // CustomPasswordGrant has no JWT authentication seam, so a
+            // confidential client that reaches this method must have
+            // presented its shared secret. Missing / wrong secret must
+            // reject; public clients are handled inside the helper.
             return $this->validateConfidentialClientSecret($clientIdentifier, $clientSecret, $grantTypeStr);
         }
 
-        // refresh grant (and any other grant with client auth handled
-        // upstream via the JWT authentication seam) — nothing to validate here
+        // refresh grant, client_credentials, and any other grant with
+        // client authentication handled upstream via the JWT authentication
+        // seam — nothing to validate here.
         return true;
     }
 
