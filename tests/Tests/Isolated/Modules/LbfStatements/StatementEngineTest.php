@@ -199,6 +199,8 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
             $this->assertSame('Something in range today. In range.', $partial['sum']);
             $mixed = $this->applier->apply(['sum' => 'A.'], [], 'append', 'sum', 'A. B.');
             $this->assertSame('A. B.', $mixed['sum']);
+            $accent = $this->applier->apply(['sum' => 'ÉLEVÉ.'], [], 'append', 'sum', 'élevé.');
+            $this->assertSame('ÉLEVÉ.', $accent['sum']);
         }
 
         /**
