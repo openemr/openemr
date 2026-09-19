@@ -546,8 +546,20 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             }
         }
 
-        $('#paySubmit').click(function (e) {
+        $('#paySubmit').click(async function (e) {
             e.preventDefault();e.stopPropagation();
+            if (typeof $.fn.validateCreditCard !== 'function') {
+                try {
+                    await $.getScript(<?php echo js_escape(
+                        $globalsBag->getString('assets_static_relative') .
+                        '/jquery-creditcardvalidator/jquery.creditCardValidator.js?v=' .
+                        rawurlencode($globalsBag->getString('v_js_includes'))
+                                      ); ?>);
+                } catch (error) {
+                    alert(<?php echo xlj('Unable to load credit card validation. Please reload and try again.'); ?>);
+                    return;
+                }
+            }
             $("#mode").val("portal-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
@@ -610,14 +622,22 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             $("#mode").val("review-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            let extra = "&inv_values=" + inv_values + "&extra_values=" + extra_values;
+            const params = new URLSearchParams();
+            $("#invoiceForm").serializeArray().forEach(function (field) {
+                if (field.name !== 'csrf_token_form') {
+                    params.append(field.name, field.value);
+                }
+            });
+            params.set('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>);
+            params.set('inv_values', inv_values);
+            params.set('extra_values', extra_values);
 
             let flag = 0
             let liburl = '<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php';
             $.ajax({
                 type: "POST",
                 url: liburl,
-                data: $("#invoiceForm").serialize() + extra,
+                data: params.toString(),
                 beforeSend: function (xhr) {
                     if (validate() != true) {
                         flag = 1;
@@ -1212,6 +1232,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
 
         // In House CC Validation
         function validateCC() {
+            if (typeof $.fn.validateCreditCard !== 'function') {
+                return false;
+            }
             var result = $('#cardNumber').validateCreditCard();
             var r = (result.card_type == null ? '' : result.card_type.name.toUpperCase())
             var v = (result.valid == true ? ' Valid Card Number' : ' Invalid Card Number')

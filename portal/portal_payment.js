@@ -200,6 +200,9 @@ function getFormObj(formId) {
     let formObj = {};
     let inputs = $('#' + formId).serializeArray();
     $.each(inputs, function (i, input) {
+        if (input.name === 'csrf_token_form') {
+            return;
+        }
         formObj[input.name] = input.value;
     });
     return formObj;
@@ -208,6 +211,9 @@ function getFormObj(formId) {
 function formRepopulate(jsondata) {
     let data = $.parseJSON(jsondata);
     $.each(data, function (name, val) {
+        if (name === 'csrf_token_form') {
+            return;
+        }
         let $el = $('[name="' + name + '"]'),
             type = $el.attr('type');
         switch (type) {
