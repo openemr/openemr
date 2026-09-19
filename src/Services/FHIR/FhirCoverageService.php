@@ -807,18 +807,44 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             return;
         }
 
-        $record['subscriber_fname'] ??= $p['fname'] ?? '';
-        $record['subscriber_mname'] ??= $p['mname'] ?? '';
-        $record['subscriber_lname'] ??= $p['lname'] ?? '';
-        $record['subscriber_DOB'] ??= $p['DOB'] ?? '';
-        $record['subscriber_sex'] ??= $p['sex'] ?? '';
-        $record['subscriber_street'] ??= $p['street'] ?? '';
-        $record['subscriber_city'] ??= $p['city'] ?? '';
-        $record['subscriber_state'] ??= $p['state'] ?? '';
-        $record['subscriber_postal_code'] ??= $p['postal_code'] ?? '';
-        $record['subscriber_country'] ??= $p['country_code'] ?? '';
-        $record['subscriber_phone'] ??= $p['phone_home'] ?? '';
-        $record['subscriber_ss'] ??= $p['ss'] ?? '';
+        // Only values the patient actually has are copied across. Defaulting a missing
+        // column to '' made the record carry an empty string, and to the validator an empty
+        // value is not the same as an absent one: Particle's optional() skips a key that is
+        // not there but still runs the rule chain on one that is. An empty subscriber_country
+        // therefore reached ListOptionRule, which failed it -- the `country` list ships with a
+        // single 'USA' option and no blank -- and an empty subscriber_mname failed
+        // lengthBetween(1, 255). Either answered 400 naming a field FHIR Coverage does not
+        // carry, for a patient whose only fault was an unrecorded middle name or country.
+        $subscriberDefaults = [
+            'subscriber_fname' => 'fname',
+            'subscriber_mname' => 'mname',
+            'subscriber_lname' => 'lname',
+            'subscriber_DOB' => 'DOB',
+            'subscriber_sex' => 'sex',
+            'subscriber_street' => 'street',
+            'subscriber_city' => 'city',
+            'subscriber_state' => 'state',
+            'subscriber_postal_code' => 'postal_code',
+            'subscriber_country' => 'country_code',
+            'subscriber_phone' => 'phone_home',
+            'subscriber_ss' => 'ss',
+        ];
+        foreach ($subscriberDefaults as $recordKey => $patientKey) {
+            // isset() rather than array_key_exists() to match the ??= this replaced: a key
+            // already present but null is still filled from the patient record.
+            if (isset($record[$recordKey])) {
+                continue;
+            }
+            $patientValue = $p[$patientKey] ?? null;
+            if (!is_scalar($patientValue)) {
+                continue;
+            }
+            $patientValue = trim((string) $patientValue);
+            if ($patientValue === '') {
+                continue;
+            }
+            $record[$recordKey] = $patientValue;
+        }
     }
 
     /**
