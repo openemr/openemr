@@ -127,6 +127,129 @@ YAML;
         self::assertSame($expected, $this->readTarget());
     }
 
+    public function testPriorPatchRowOnSameBranchLosesLatestOnPatchShip(): void
+    {
+        // Mirrors the real 8.4.1-on-rel-840 finalize state that exposed
+        // G41: prior patch row (8.4.0) on the SAME rel branch was still
+        // carrying `latest`. Pre-fix, Step 1's skip condition was
+        // `$row['branch'] === $relBranch` which incorrectly protected
+        // the prior-patch row too, leaving both rows claiming `latest`
+        // (Docker Hub can only point `latest` at one image; whichever
+        // orchestrator tick runs last wins).
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+
+- branch: rel-840
+  docker_tags: 8.4.1,next
+  openemr_version_ref: rel-840
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        (new PostReleaseTargetsMutator())->apply($context);
+
+        $parsed = Yaml::parse($this->readTarget());
+        self::assertIsArray($parsed);
+        // Collect all latest-claimers across the file.
+        $latestClaimers = [];
+        foreach ($parsed as $row) {
+            self::assertIsArray($row);
+            $tags = $row['docker_tags'] ?? '';
+            self::assertIsString($tags);
+            if (str_contains($tags, 'latest')) {
+                $tagsList = $row['docker_tags'];
+                self::assertIsString($tagsList);
+                $ref = $row['openemr_version_ref'] ?? '';
+                self::assertIsString($ref);
+                $latestClaimers[] = $ref . ' (' . $tagsList . ')';
+            }
+        }
+        self::assertSame(
+            ['v8_4_1 (8.4.1,latest)'],
+            $latestClaimers,
+            'only the just-shipped 8.4.1 row may carry latest after finalize; prior patch row must lose it',
+        );
+    }
+
+    public function testPriorPatchRowSameBranchStripIsIdempotent(): void
+    {
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+
+- branch: rel-840
+  docker_tags: 8.4.1,next
+  openemr_version_ref: rel-840
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        $mutator = new PostReleaseTargetsMutator();
+        $first = $mutator->apply($context);
+        self::assertTrue($first->changed());
+        $second = $mutator->apply($context);
+        self::assertFalse($second->changed(), 'second run must be a no-op even for the same-branch prior-patch strip case');
+    }
+
+    public function testDuplicateLatestClaimsAreStrippedEvenWhenShippedRowAlreadyHasLatest(): void
+    {
+        // Rabbit-caught corner (2026-09-18): if the shipped row already
+        // has `latest` (say the rel row was manually set or a prior run
+        // half-completed) AND a prior-patch row on the same branch also
+        // still has `latest`, the mutator must still strip the prior
+        // row. Pre-fix historical code had an `if (!$relAlreadyLatest)`
+        // short-circuit at the top of Step 1 that skipped the whole
+        // strip loop when the rel row already claimed `latest` -- which
+        // paired with the pre-G41 branch-match skip to hide this
+        // duplicate case. The G41 skip fix + short-circuit-drop together
+        // close it.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+
+- branch: rel-840
+  docker_tags: 8.4.1,latest
+  openemr_version_ref: v8_4_1
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        $result = (new PostReleaseTargetsMutator())->apply($context);
+        self::assertTrue($result->changed(), 'duplicate latest claim on prior row must be cleaned up');
+
+        $parsed = Yaml::parse($this->readTarget());
+        self::assertIsArray($parsed);
+        $latestClaimers = [];
+        foreach ($parsed as $row) {
+            self::assertIsArray($row);
+            $tags = $row['docker_tags'] ?? '';
+            self::assertIsString($tags);
+            if (str_contains($tags, 'latest')) {
+                $ref = $row['openemr_version_ref'] ?? '';
+                self::assertIsString($ref);
+                $latestClaimers[] = $ref;
+            }
+        }
+        self::assertSame(
+            ['v8_4_1'],
+            $latestClaimers,
+            'only the just-shipped row may retain `latest` after duplicate cleanup',
+        );
+    }
+
     public function testCommentsArePreservedOnSlotShuffleRows(): void
     {
         $this->copyFixture('canonical_input.yml');
