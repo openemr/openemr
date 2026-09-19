@@ -761,7 +761,7 @@ function create_statement($stmt)
         $out .= "\n";
         $out .= sprintf("       %-30s %-s\n", $label_addressee, $label_remitto);
         $out .= sprintf("       %-30s %s\n", $stmt['to'][0], $remit_name);
-        $out .= sprintf("       %-30s %s\n", $stmt['to'][1], $remit_addr);
+        $out .= sprintf("       %-30s %s\n", $stmt['to'][1], StatementEnvelope::indentTextRemit($remit_addr));
         $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
         if ($stmt['to'][3] != '') {
             $out .= sprintf("   %-32s\n", $stmt['to'][3]);
