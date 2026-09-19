@@ -254,6 +254,9 @@ final class StatementEnvelopeTest extends TestCase
         ]);
         $this->assertSame("PO Box 9\nSte 2", $street);
         $this->assertSame('Mailtown, ND, 11111', $csz);
+        $indented = StatementEnvelope::indentTextRemit($street);
+        $this->assertSame("PO Box 9\n" . str_repeat(' ', StatementEnvelope::TEXT_REMIT_COL) . 'Ste 2', $indented);
+        $this->assertSame('1 Main', StatementEnvelope::indentTextRemit('1 Main'));
     }
 
     /**
