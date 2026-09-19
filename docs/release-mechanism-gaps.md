@@ -3085,6 +3085,42 @@ Adds a long inline comment on both changes documenting why THIS wait is bigger t
 
 **Followup consideration (deferred):** any co-author using a personal email (not a GitHub noreply) that DOES differ from their primary spelling would still slip through the API canonicalization path. Would require either a project-level `.mailmap` file (git-native canonicalization; would need generator-side application to trailer values since git's `%(trailers:...)` doesn't apply mailmap) or continued hand-curation via `NON_HUMAN_NAMES`. Not currently needed — nothing in the 8.4.1 range triggered this — but worth remembering for future non-noreply co-author-based duplicates.
 
+### G43 — `build-release.yml`'s acceptance-gate was tied to `dry_run` so ship-release dry-run silently skipped the acceptance matrix  *(SHIPPED 2026-09-19)*
+
+**STATUS: SHIPPED 2026-09-19** as a single PR that decouples the acceptance-gate skip from `dry_run` and updates the one existing caller that legitimately wants to skip acceptance to use the new dedicated flag.
+
+**Trigger event:** the 8.4.1 ship-release dry-run (run 35470821033, 2026-09-19) completed in ~4 min — just preflight + package build. The `Acceptance gate` sub-job was SKIPPED. Brady flagged: "accept should not skip" — dry-run is meant as a full rehearsal, so exercising the acceptance matrix IS the point. Skipping it means dry-run only exercises the preflight + build step, not the full ship path that real ship depends on.
+
+**Root cause:** `build-release.yml`'s acceptance-gate job carried `if: '!inputs.dry_run'`. Two callers, two intents conflated:
+
+- **`ship-release.yml`** dry-run-build job — wants acceptance-gate TO run (full rehearsal semantic).
+- **`recovery-path-smoketest.yml`** source-artifact dispatch — wants acceptance-gate SKIPPED (already runs its own variant-A + variant-B acceptance-only matrices downstream; running it here duplicates ~30 min of work).
+
+Both callers passed `dry_run=true` (the appropriate publish suppression). The acceptance-gate skip was a second concern piggybacked on the same flag — historically justified by "the acceptance gate exists to prevent broken tarballs from reaching the GitHub releases page, so it's redundant when publish is skipped" (per the file's own header comment). That reasoning holds for the smoketest (which explicitly delegates acceptance downstream) but not for ship-release's dry-run (whose whole point is a full rehearsal).
+
+**Fix (this PR):** decouple with a new `skip_acceptance_gate` input on `build-release.yml` (default `false`). Change acceptance-gate `if:` from `!inputs.dry_run` → `!inputs.skip_acceptance_gate`. Update `recovery-path-smoketest.yml`'s build-release dispatch to explicitly pass `skip_acceptance_gate=true`. Ship-release's dry-run-build call doesn't pass `skip_acceptance_gate` (so acceptance-gate runs).
+
+**Runtime impact:** ship-release `mode=dry-run` runtime goes from ~4 min → ~30-40 min (full acceptance matrix). That's the intended trade-off — high-confidence rehearsal is the point.
+
+**Safety analysis (critical — no stomp-guard regression):** the smoketest's 5-layer guardrail model is completely orthogonal to the acceptance-gate skip. The change cannot weaken any layer:
+
+- **L1 (input flags):** build-release's `publish` job stays gated on `!inputs.dry_run` (unchanged). Whether acceptance-gate runs or not is invisible to publish's dry-run gate.
+- **L2 (preflight):** `assert-release-shipped.sh` unchanged.
+- **L3 (canary substitution):** docker-only, unchanged.
+- **L4a (runtime verify):** `recovery-smoketest-verify.sh` checks `publish-job-status=skipped` on the acceptance-only run IDs (variant A + variant B). Doesn't inspect build-release's internal jobs — build-release's acceptance-gate status is invisible to the L4a check.
+- **L4b (canary tag absent):** docker-only, unchanged.
+
+Worst-case regression scenarios traced:
+1. Workflow lands without smoketest update: smoketest's build-release would run acceptance-gate (~30 min extra work). No stomp risk — publish still gated by `dry_run=true`. Cost is only runtime.
+2. Smoketest update lands without workflow change: GHA rejects "unknown input `skip_acceptance_gate`". Loud fail, no silent stomp.
+3. Someone removes `skip_acceptance_gate=true` from smoketest: same as (1). Loud runtime cost, no stomp.
+
+Both edits land in the same PR to eliminate window (1)/(2).
+
+**Cross-check on `docker-build-release.yml`:** untouched — its `dry_run` input has a different semantic (smoketest-support: skip acceptance-gate + publish-and-cleanup, preserve candidate tag for downstream consumption). Docker smoketest continues to use `docker-build-release.yml` dry_run as-is. Unrelated to this fix.
+
+**Systemic lesson:** flag-purpose conflation (one boolean serving two independent concerns) is a common workflow-YAML failure mode. When two callers use the same input for different reasons ("suppress publish" vs "skip acceptance work already covered downstream"), split into two independent inputs even if all current callers happen to want both. The alternative — one caller silently getting the wrong behavior — is exactly what happened here for ~6 months of ship-release dry-runs.
+
 ## Followup opportunities (not yet gap-numbered)
 
 Items surfaced during planning discussions or from operator experience that don't yet warrant a full gap entry — typically because they're extrapolations from existing patterns rather than confirmed bugs, or because they're operator-side observations that haven't been formalized. Move to a real G-entry when concrete scope + investigation are lined up. Kept here so option-listing across future planning sessions doesn't depend on session context.

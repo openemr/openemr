@@ -450,8 +450,11 @@ recovery paths:
   specifically for the smoketest) skips both `acceptance-gate` and
   `publish-and-cleanup` in docker-build-release, so the built
   candidate tag stays on Docker Hub for docker-acceptance-only to
-  consume (analogous to how build-release's `dry_run` preserves the
-  release-output workflow-run artifact). `docker_tags` is set to a
+  consume (analogous to how build-release preserves the
+  release-output workflow-run artifact on the tarball side; note
+  that build-release's tarball equivalent is `dry_run=true +
+  skip_acceptance_gate=true` since G43's 2026-09-19 decoupling —
+  dry_run alone stopped skipping acceptance on that side). `docker_tags` is set to a
   globally-unique `smoketest-canary-<runid>-<timestamp>` value so any
   accidental publish (in case dry_run gating regresses) would push
   the canary rather than clobber real tags. Then chains that source
