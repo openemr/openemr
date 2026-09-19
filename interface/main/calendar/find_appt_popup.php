@@ -11,9 +11,11 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -264,6 +266,10 @@ if (in_array($sdateStr, $holidays, true)) {
 // the opener and go away quietly if it is.  If it's not then we have more
 // work to do.
 
+$openerEventFormScript = OEGlobalsBag::getInstance()->getWebRoot()
+    . '/interface/main/calendar/js/submit_opener_event_form.js?v='
+    . OEGlobalsBag::getInstance()->getString('v_js_includes');
+
 if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
     $ckindex = (int) ($cktime * 60 / $slotsecs);
@@ -284,11 +290,10 @@ if (isset($_REQUEST['cktime'])) {
     if ($ckavail) {
             // The chosen appointment time is available.
             echo "<html>"
+        . "<head><script src='" . attr($openerEventFormScript) . "'></script>\n"
         . "<script>\n";
             echo "function mytimeout() {\n";
-            echo " opener.top.restoreSession();\n";
-            echo " opener.document.forms[0].submit();\n";
-            echo " dlgclose();\n";
+            echo " submitOpenerEventForm();\n";
             echo "}\n";
             echo "</script></head><body onload='setTimeout(\"mytimeout()\",2500);'><h4><br />..." .
         xlt('Time slot is available, saving event') . "...</h4></body></html>";
@@ -300,6 +305,7 @@ if (isset($_REQUEST['cktime'])) {
 }
 ?>
 
+    <script src="<?php echo attr($openerEventFormScript); ?>"></script>
     <script>
         function setappt(year,mon,mday,hours,minutes) {
         if (opener.closed || ! opener.setappt) {
@@ -484,9 +490,7 @@ if (!$ckavail) {
     if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
         if ($is_holiday) { ?>
             if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
-                opener.top.restoreSession();
-                opener.document.forms[0].submit();
-                dlgclose();
+                submitOpenerEventForm();
             } <?php
         } else {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
@@ -497,9 +501,7 @@ if (!$ckavail) {
                 if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
                 <?php
             } ?>
-            opener.top.restoreSession();
-            opener.document.forms[0].submit();
-            dlgclose();
+            submitOpenerEventForm();
         }
             <?php
         }
