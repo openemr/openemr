@@ -35,6 +35,11 @@ final readonly class StatementEnvelope
     public const WINDOW_INSET_IN = 10.0 / 127.0;
 
     /**
+     * Remit column in the non-windowed text stub: 7 spaces, 30-char addressee, 1 space.
+     */
+    public const TEXT_REMIT_COL = 38;
+
+    /**
      * Custom carton numbers: window height x width, from left, from bottom,
      * flap up. Envelope height converts bottoms to letter-top.
      *
@@ -120,6 +125,17 @@ final readonly class StatementEnvelope
             $str($row['street'] ?? ''),
             $str($row['city'] ?? '') . ', ' . $str($row['state'] ?? '') . ', ' . $str($row['postal_code'] ?? ''),
         ];
+    }
+
+    /**
+     * Keep extra remit street lines under the remit column in fixed-width text.
+     */
+    public static function indentTextRemit(string $remit, int $column = self::TEXT_REMIT_COL): string
+    {
+        if ($column < 1 || !str_contains($remit, "\n")) {
+            return $remit;
+        }
+        return str_replace("\n", "\n" . str_repeat(' ', $column), $remit);
     }
 
     /**
