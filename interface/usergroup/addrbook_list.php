@@ -121,7 +121,9 @@ $res = sqlStatement($query, $sqlBindArray);
     <div class="nav navbar-fixed-top body_title">
         <div class="col-md-12">
             <h3><?php echo xlt('Address Book'); ?></h3>
-            <p class="text-muted mb-1"><?php echo xlt('Person entries used as referring providers need an NPI and mailing address. Open the row and use Lookup to fill them from NPPES.'); ?></p>
+            <p class="text-muted mb-1"><?php echo AddressBookReferrerFields::npiRequired()
+                ? xlt('Person entries used as referring providers need an NPI and mailing address. Open the row and use Lookup to fill them from NPPES.')
+                : xlt('Person entries used as referring providers need a mailing address.'); ?></p>
 
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
@@ -198,7 +200,8 @@ while ($row = sqlFetchArray($res)) {
     }
 
     $person = AddressBookReferrerFields::isExternalPerson($row['username'] ?? '', $row['ab_option'] ?? '');
-    $npi_missing = $person && AddressBookReferrerFields::npiMissingOnList($row['npi'] ?? '');
+    $npi_missing = $person && AddressBookReferrerFields::npiRequired()
+        && AddressBookReferrerFields::npiMissingOnList($row['npi'] ?? '');
     $addr_missing = $person && !AddressBookReferrerFields::mailingAddressComplete(
         $row['street'] ?? '',
         $row['city'] ?? '',
