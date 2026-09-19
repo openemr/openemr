@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\LbfStatements;
 
+use OpenEMR\BC\ServiceContainer;
+
 class StatementRepository
 {
     /**
@@ -98,12 +100,15 @@ class StatementRepository
     public function saveRule(array $data, ?int $id = null): int
     {
         $formId = Values::asString($data['form_id'] ?? '');
-        (new LayoutCatalog($this->sql))->assertActiveLbfForm($formId);
-        Identifiers::assertFieldId(Values::asString($data['source_field_id'] ?? ''));
+        $catalog = new LayoutCatalog($this->sql);
+        $catalog->assertActiveLbfForm($formId);
+        $source = Values::asString($data['source_field_id'] ?? '');
+        Identifiers::assertFieldId($source);
         $source2 = Values::asString($data['source_field_id_2'] ?? '');
         if ($source2 !== '') {
             Identifiers::assertFieldId($source2);
         }
+        $this->assertSourcesOnLayout($catalog, $formId, $source, $source2);
         $op = Values::asString($data['op'] ?? '');
         if (!in_array($op, ['band', 'ratio_lt', 'ratio_gt', 'parse_severity'], true)) {
             throw new \InvalidArgumentException('Invalid op');
@@ -128,9 +133,7 @@ class StatementRepository
                 return $this->writeRule($data, $id);
             });
         } finally {
-            if ($lockAcquired && $lockName !== null) {
-                $this->sql->releaseLock($lockName);
-            }
+            $this->releaseBandLock($lockName, $lockAcquired);
         }
     }
 
@@ -208,9 +211,7 @@ class StatementRepository
                 $this->writeEnabled($id, true);
             });
         } finally {
-            if ($lockAcquired && $lockName !== null) {
-                $this->sql->releaseLock($lockName);
-            }
+            $this->releaseBandLock($lockName, $lockAcquired);
         }
     }
 
@@ -224,6 +225,40 @@ class StatementRepository
             [$enabled ? 1 : 0, $id]
         );
         $this->assertRuleExists($id);
+    }
+
+    /**
+     * Source fields must exist on the selected layout, not only look like ids.
+     */
+    private function assertSourcesOnLayout(
+        LayoutCatalog $catalog,
+        string $formId,
+        string $source,
+        string $source2
+    ): void {
+        $fields = $catalog->fieldMeta($formId);
+        if (!isset($fields[$source])) {
+            throw new \InvalidArgumentException('Source field is not on this layout.');
+        }
+        if ($source2 !== '' && !isset($fields[$source2])) {
+            throw new \InvalidArgumentException('Second source field is not on this layout.');
+        }
+    }
+
+    /**
+     * Drop the band lock after the transaction. A failed RELEASE_LOCK must not
+     * hide a committed write or the original exception.
+     */
+    private function releaseBandLock(?string $lockName, bool $acquired): void
+    {
+        if (!$acquired || $lockName === null) {
+            return;
+        }
+        try {
+            $this->sql->releaseLock($lockName);
+        } catch (\RuntimeException) {
+            ServiceContainer::getLogger()->error('LBF statements: could not release the band lock.');
+        }
     }
 
     /**
