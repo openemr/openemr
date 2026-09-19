@@ -598,33 +598,40 @@ See [Bulk FHIR Exports](FHIR_API.md#bulk-fhir-exports) for complete workflow.
 - Requires user to share credentials with app
 - No refresh tokens for patient role
 - Disabled by default
-- Does not support MFA
+- MFA: TOTP is supported via `mfa_token` (see below); U2F is not — users
+  enrolled only in U2F cannot obtain a token via password grant
 - No consent screen
 
 #### Enable Password Grant
 
 **Administration → Config → Connectors → Enable OAuth2 Password Grant (Not considered secure)**
 
-#### Token Request (User Role)
+#### Token Request (User Role — Confidential Client)
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   https://localhost:9300/oauth2/default/token \
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
   --data-urlencode 'scope=openid offline_access api:oemr user/Patient.read' \
   --data-urlencode 'user_role=users' \
   --data-urlencode 'username=admin' \
   --data-urlencode 'password=pass'
 ```
 
-#### Token Request (Patient Role)
+Confidential clients using `client_secret_basic` may present the secret via
+the `Authorization: Basic BASE64(client_id:client_secret)` header instead of
+sending `client_secret` in the body. Public clients omit `client_secret`.
+
+#### Token Request (Patient Role — Confidential Client)
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   https://localhost:9300/oauth2/default/token \
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
   --data-urlencode 'scope=openid api:port patient/Patient.read' \
   --data-urlencode 'user_role=patient' \
   --data-urlencode 'username=patient123' \
@@ -632,12 +639,40 @@ curl -X POST -k \
   --data-urlencode 'email=patient@example.com'
 ```
 
+Same rules as the staff request: confidential clients registered with
+`client_secret_basic` may send the secret via HTTP Basic auth instead;
+public clients omit `client_secret`.
+
 **Parameters:**
 - `grant_type`: Must be `password`
+- `client_id`: Registered client identifier
+- `client_secret`: Required for confidential clients (may instead be sent via
+  HTTP Basic auth when the client is registered with `client_secret_basic`)
 - `user_role`: `users` or `patient`
 - `username`: OpenEMR username
 - `password`: User's password
 - `email`: Required for patient role
+- `mfa_token`: Six-digit TOTP code — required when the user (`user_role=users`)
+  has TOTP enrolled. Omitting it returns `401 mfa_token_required`. A wrong
+  code returns `401 mfa_token_invalid` and counts against the standard
+  per-user and per-IP lockout thresholds
+
+#### Rate Limiting
+
+Failed password grant attempts engage the same lockout counters used by web
+login:
+
+- **Staff (`user_role=users`)**: bumps both the per-user
+  (`users_secure.login_fail_counter`) and per-IP
+  (`ip_tracking.ip_login_fail_counter`) counters. Wrong TOTP counts the same
+  as a wrong password.
+- **Patient (`user_role=patient`)**: bumps only the per-IP counter — patient
+  portal accounts have no per-username counter equivalent in
+  `patient_access_onsite`.
+
+Once the applicable threshold is reached, further attempts are rejected
+until the admin unblocks the row (or the automatic reset window elapses, when
+configured).
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >

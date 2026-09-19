@@ -104,32 +104,61 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                 }
                 $user->setIdentifier(UuidRegistry::uuidToString($uuid));
 
-                // If an mfa_token was provided, then will force TOTP MFA (U2F impossible to support via password grant)
-                //  (note that this is only forced if mfa_token is provided)
+                // Password grant can only satisfy TOTP as a second factor;
+                // other factors (e.g. U2F) require an interactive browser
+                // exchange. When any MFA is enrolled we must engage; falling
+                // through would issue a token on the password alone.
                 $mfa = new MfaUtils($id);
                 $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
-                if (!is_null($mfaToken)) {
-                    if (!$mfa->isMfaRequired() || !in_array(MfaUtils::TOTP, $mfa->getType())) {
-                        // A mfa_token was provided, however the user is not configured for totp
+
+                if ($mfa->isMfaRequired()) {
+                    if (!in_array(MfaUtils::TOTP, $mfa->getType(), true)) {
+                        // MFA required but TOTP is not one of the enrolled
+                        // factors — password grant cannot complete for this
+                        // user. Deny rather than silently skip the second
+                        // factor.
                         throw new OAuthServerException(
-                            'MFA not supported.',
-                            11,
+                            'MFA required but not supported for this user via password grant.',
+                            14,
                             'mfa_not_supported',
                             403
                         );
-                    } else {
-                        //Check the validity of the totp token, if applicable
-                        if (!empty($mfaToken) && $mfa->check($mfaToken, MfaUtils::TOTP)) {
-                            return true;
-                        } else {
-                            throw new OAuthServerException(
-                                $mfa->errorMessage(),
-                                12,
-                                'mfa_token_invalid',
-                                401
-                            );
-                        }
                     }
+                    if (empty($mfaToken)) {
+                        throw new OAuthServerException(
+                            'MFA token required.',
+                            13,
+                            'mfa_token_required',
+                            401
+                        );
+                    }
+                    if (!$mfa->check($mfaToken, MfaUtils::TOTP)) {
+                        // Count the failed TOTP attempt against the standard
+                        // user + IP lockout counters. Without this, an
+                        // attacker who knows the password can grind the
+                        // 6-digit code with no rate limit (confirmPassword
+                        // resets the counters on the password-success path).
+                        (new AuthUtils())->recordFailedAuthChallenge(is_string($username) ? $username : null);
+                        throw new OAuthServerException(
+                            $mfa->errorMessage(),
+                            12,
+                            'mfa_token_invalid',
+                            401
+                        );
+                    }
+                    return true;
+                }
+
+                // No MFA enrolled. Reject an unexpected mfa_token — it
+                // signals a client error (user is not configured for MFA)
+                // rather than silently accepting the token.
+                if (!is_null($mfaToken)) {
+                    throw new OAuthServerException(
+                        'MFA not supported.',
+                        11,
+                        'mfa_not_supported',
+                        403
+                    );
                 }
 
                 return true;

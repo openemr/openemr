@@ -57,7 +57,7 @@ read from the \\-\\>logger property$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:
 read from the \\-\\>logger property$#',
-    'count' => 5,
+    'count' => 6,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [

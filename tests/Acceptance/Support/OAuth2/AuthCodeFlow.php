@@ -12,9 +12,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Acceptance\Support\OAuth2;
 
+use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
 use OpenEMR\Tests\Acceptance\Support\LoginFlow;
 use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
+use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\BrowserKit\HttpBrowser;
 
@@ -99,8 +102,61 @@ final class AuthCodeFlow
         // risking drift.
         self::enableClient($baseUrl, $clientId, $clientName);
 
-        // Step 3-6: the actual OAuth authorization-code flow.
-        return self::runAuthCodeFlow($baseUrl, $clientId, $clientSecret, $scope);
+        // Step 3-6: the actual OAuth authorization-code flow. The
+        // token exchange presents the client_secret in the body
+        // (client_secret_post transport).
+        return self::runAuthCodeFlow(
+            $baseUrl,
+            $clientId,
+            $scope,
+            ['client_secret' => $clientSecret],
+        );
+    }
+
+    /**
+     * Sibling of mintAccessToken for the private_key_jwt variant of
+     * client authentication on the token endpoint. Registers the client
+     * with token_endpoint_auth_method=private_key_jwt + a JWKS pointing
+     * at the harness's pre-generated test key pair, then presents a
+     * signed JWT client_assertion at /token instead of a shared secret.
+     *
+     * This is the transport used by SMART-on-FHIR "asymmetric client
+     * authentication" — every confidential client that authenticates via
+     * a JWT (rather than a shared secret) on the authorization_code flow
+     * runs through this path. It exercises
+     * CustomAuthCodeGrant::validateClient's JWT branch end-to-end and
+     * the ClientRepository::validateClient($clientId, null,
+     * 'authorization_code') call it makes after the JWT is accepted.
+     */
+    public static function mintAccessTokenWithJwtAssertion(string $scope): string
+    {
+        Assert::assertStringContainsString(
+            'openid',
+            $scope,
+            'AuthCodeFlow requires openid in the scope — without it the OIDC branch never fires and no id_token is minted',
+        );
+
+        $baseUrl = ArtifactBrowser::baseUrl();
+
+        $clientName = 'AcceptanceAuthCodeJwt-' . bin2hex(random_bytes(4));
+        [$clientId, $privateKey, $publicKey] = self::registerJwtClient($baseUrl, $clientName, $scope);
+        self::enableClient($baseUrl, $clientId, $clientName);
+
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $baseUrl . '/oauth2/default/token',
+            $clientId,
+        );
+        return self::runAuthCodeFlow(
+            $baseUrl,
+            $clientId,
+            $scope,
+            [
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $assertion,
+            ],
+        );
     }
 
     /**
@@ -139,6 +195,58 @@ final class AuthCodeFlow
         Assert::assertIsString($client['client_secret']);
         Assert::assertNotSame('', $client['client_secret'], 'client_secret must not be empty');
         return [$client['client_id'], $client['client_secret']];
+    }
+
+    /**
+     * DCR for the private_key_jwt variant. Registers a confidential
+     * client that authenticates via a signed JWT (instead of a shared
+     * secret) at the /token endpoint, using the harness's pre-generated
+     * RSA test key pair.
+     *
+     * The key pair lives at tests/Tests/data/Unit/Common/Auth/Grant/
+     * and is the same pair BulkAPITestClient uses for client_credentials
+     * JWT assertions — reusing it means no per-test key generation and
+     * keeps the "what's this key?" answer in one place.
+     *
+     * @return array{string, Key, Key} [client_id, private key, public key]
+     */
+    private static function registerJwtClient(string $baseUrl, string $clientName, string $scope): array
+    {
+        $keyLocation = __DIR__ . '/../../../Tests/data/Unit/Common/Auth/Grant/';
+        $jwks = json_decode((string) file_get_contents($keyLocation . 'jwk-public-valid.json'));
+        $privateKey = InMemory::file($keyLocation . 'openemr-rsa384-private.key');
+        $publicKey = InMemory::file($keyLocation . 'openemr-rsa384-public.pem');
+
+        $browser = ArtifactBrowser::create();
+        $browser->followRedirects(false);
+        $regBody = json_encode([
+            'application_type' => 'private',
+            'redirect_uris' => [self::REDIRECT_URI],
+            'client_name' => $clientName,
+            'token_endpoint_auth_method' => 'private_key_jwt',
+            'contacts' => ['acceptance-harness@openemr.example'],
+            'scope' => $scope,
+            'jwks' => $jwks,
+        ], JSON_THROW_ON_ERROR);
+        $browser->request(
+            'POST',
+            $baseUrl . '/oauth2/default/registration',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $regBody,
+        );
+        Assert::assertSame(
+            200,
+            $browser->getResponse()->getStatusCode(),
+            'DCR (private_key_jwt) should return 200 — 400 usually means the JWKS payload was rejected or token_endpoint_auth_method is not accepted',
+        );
+        $client = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        Assert::assertIsArray($client);
+        Assert::assertArrayHasKey('client_id', $client, 'DCR response must include client_id');
+        Assert::assertIsString($client['client_id']);
+
+        return [$client['client_id'], $privateKey, $publicKey];
     }
 
     private static function enableClient(string $baseUrl, string $clientId, string $clientName): void
@@ -202,11 +310,20 @@ final class AuthCodeFlow
         );
     }
 
+    /**
+     * @param array<string, string> $tokenAuthParams Client-authentication
+     *     body parameters merged into the /token POST alongside the
+     *     always-present grant_type/code/redirect_uri/client_id.
+     *     Callers supply either ['client_secret' => ...] for
+     *     client_secret_post transport, or
+     *     ['client_assertion_type' => ..., 'client_assertion' => ...]
+     *     for private_key_jwt.
+     */
     private static function runAuthCodeFlow(
         string $baseUrl,
         string $clientId,
-        string $clientSecret,
         string $scope,
+        array $tokenAuthParams,
     ): string {
         $browser = ArtifactBrowser::create();
 
@@ -313,22 +430,26 @@ final class AuthCodeFlow
         Assert::assertIsString($callbackQuery['code']);
         $code = $callbackQuery['code'];
 
-        // Step 7: token exchange — POST /token with the code.
+        // Step 7: token exchange — POST /token with the code plus
+        // whatever client-authentication params the caller supplied
+        // (client_secret_post or private_key_jwt).
         $browser->request(
             'POST',
             $baseUrl . '/oauth2/default/token',
-            [
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-                'redirect_uri' => self::REDIRECT_URI,
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret,
-            ],
+            array_merge(
+                [
+                    'grant_type' => 'authorization_code',
+                    'code' => $code,
+                    'redirect_uri' => self::REDIRECT_URI,
+                    'client_id' => $clientId,
+                ],
+                $tokenAuthParams,
+            ),
         );
         Assert::assertSame(
             200,
             $browser->getResponse()->getStatusCode(),
-            'Token exchange should return 200 — 401 invalid_client means the client-enable step did not stick (or client_secret is wrong), 400 means the code was invalid/expired/reused',
+            'Token exchange should return 200 — 401 invalid_client means the client-enable step did not stick, the client_secret was wrong, or the JWT client assertion failed validation; 400 means the code was invalid/expired/reused',
         );
         $tokens = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         Assert::assertIsArray($tokens);

@@ -182,43 +182,84 @@ class ClientRepository implements ClientRepositoryInterface
             "ClientRepository->validateClient() checking client validation",
             ["client" => $clientIdentifier, "grantType" => $grantType]
         );
-        if ($grantType == 'authorization_code') {
-            $client = sqlQueryNoLog("SELECT `client_secret`, `is_confidential` FROM `oauth_clients` WHERE `client_id` = ?", [$clientIdentifier]);
-
-            // Check if client is registered
-            if ($client === false) {
-                $this->getSystemLogger()->error(
-                    "ClientRepository->validateClient() no client found for identifier ",
-                    ["client" => $clientIdentifier]
-                );
-                return false;
+        $grantTypeStr = is_string($grantType) ? $grantType : '';
+        if ($grantTypeStr === 'authorization_code') {
+            // Preserve pre-existing behaviour: validate a presented secret,
+            // but allow a null/empty client_secret through so upstream JWT
+            // authentication can succeed. CustomAuthCodeGrant validates a
+            // JWT client assertion first and then calls this method with a
+            // null $clientSecret purely to run the grant-authorization
+            // check — enforcing shared-secret presence here would break
+            // every confidential client that uses private_key_jwt.
+            if ($clientSecret === null || $clientSecret === '') {
+                return true;
             }
+            return $this->validateConfidentialClientSecret($clientIdentifier, $clientSecret, $grantTypeStr);
+        }
+        if ($grantTypeStr === 'password') {
+            // CustomPasswordGrant has no JWT authentication seam, so a
+            // confidential client that reaches this method must have
+            // presented its shared secret. Missing / wrong secret must
+            // reject; public clients are handled inside the helper.
+            return $this->validateConfidentialClientSecret($clientIdentifier, $clientSecret, $grantTypeStr);
+        }
 
-            // Validate client if is_confidential
-            if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                try {
-                    $secret = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
-                } catch (CryptoGenException) {
-                    return false;
-                }
-                if (empty($secret)) {
-                    return false;
-                }
-                $secretMatches = hash_equals($clientSecret, $secret);
-                if (!$secretMatches) {
-                    $this->getSystemLogger()->error(
-                        "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
-                        ["client" => $clientIdentifier, "grantType" => $grantType]
-                    );
-                }
-                return $secretMatches;
-            }
+        // refresh grant, client_credentials, and any other grant with
+        // client authentication handled upstream via the JWT authentication
+        // seam — nothing to validate here.
+        return true;
+    }
 
-            return true;
-        } else {
-            // password and refresh grant
+    /**
+     * @param mixed $clientIdentifier
+     * @param mixed $clientSecret
+     */
+    private function validateConfidentialClientSecret($clientIdentifier, $clientSecret, string $grantType): bool
+    {
+        $client = sqlQueryNoLog("SELECT `client_secret`, `is_confidential` FROM `oauth_clients` WHERE `client_id` = ?", [$clientIdentifier]);
+
+        // Check if client is registered
+        if ($client === false) {
+            $this->getSystemLogger()->error(
+                "ClientRepository->validateClient() no client found for identifier ",
+                ["client" => $clientIdentifier]
+            );
+            return false;
+        }
+
+        // Public clients (non-confidential) do not hold a secret. Only PKCE
+        // (or an equivalent verifier) protects them, which is enforced
+        // elsewhere in the grant flow.
+        if (empty($client['is_confidential'])) {
             return true;
         }
+
+        // Confidential client. A missing client_secret is a failed
+        // validation, not a permit-with-no-check.
+        if (empty($clientSecret)) {
+            $this->getSystemLogger()->error(
+                "ClientRepository->validateClient() Confidential client did not present client secret. Validation failed",
+                ["client" => $clientIdentifier, "grantType" => $grantType]
+            );
+            return false;
+        }
+
+        try {
+            $secret = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+        } catch (CryptoGenException) {
+            return false;
+        }
+        if (empty($secret)) {
+            return false;
+        }
+        $secretMatches = hash_equals(is_string($clientSecret) ? $clientSecret : '', $secret);
+        if (!$secretMatches) {
+            $this->getSystemLogger()->error(
+                "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
+                ["client" => $clientIdentifier, "grantType" => $grantType]
+            );
+        }
+        return $secretMatches;
     }
 
     /**

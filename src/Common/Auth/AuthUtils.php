@@ -152,8 +152,33 @@ class AuthUtils
         // Collect ip address for log
         $ip = collectIpAddresses();
 
+        // Check to ensure ip address has not been blocked. patient_access_onsite
+        // has no per-username counter equivalent to users_secure.login_fail_counter,
+        // so the per-IP counter is the only rate limit on portal password grant.
+        // Without it the password grant flow allows unlimited attempts against
+        // any known portal_login_username.
+        $this->setupIpLoginFailedCounter($ip['ip_string']);
+        $returnArray = $this->checkIpLoginFailedCounter($ip['ip_string']);
+        if (!$returnArray['pass']) {
+            $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            if ($returnArray['force_block']) {
+                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address has been manually blocked");
+            } else {
+                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address exceeded maximum number of failed logins");
+            }
+            $this->clearFromMemory($password);
+            if ($returnArray['email_notification']) {
+                $this->notifyIpBlock($ip['ip_string']);
+            }
+            if (!$returnArray['skip_timing_attack']) {
+                $this->preventTimingAttack();
+            }
+            return false;
+        }
+
         // Check to ensure username and password are not empty
         if (empty($username) || empty($password)) {
+            $this->incrementIpLoginFailedCounter($ip['ip_string']);
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -245,6 +270,9 @@ class AuthUtils
         }
         // Second, authentication
         if (!AuthHash::passwordVerify($password, $patientInfo['portal_pwd'])) {
+            // Failed password: count against the per-IP counter so
+            // repeated guesses trip the block set up at the top.
+            $this->incrementIpLoginFailedCounter($ip['ip_string']);
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient password incorrect", $patientDataInfo['pid']);
             $this->clearFromMemory($password);
             return false;
@@ -260,6 +288,11 @@ class AuthUtils
 
         // PASSED auth for the portal api
         $this->clearFromMemory($password);
+        // Reset the per-IP counter on success so legitimate patient traffic
+        // (typos, multiple patients behind the same NAT address) does not
+        // accumulate strikes forever. Mirrors the reset that
+        // confirmUserPassword performs on the staff path.
+        $this->resetIpLoginFailedCounter($ip['ip_string']);
         //  Set up class variable that the api will need to collect (log for API is done outside)
         $this->patientId = $patientDataInfo['pid'];
         return true;
@@ -1251,6 +1284,27 @@ class AuthUtils
         }
 
         sqlStatement("UPDATE `ip_tracking` SET `ip_login_fail_counter` = 0, `ip_last_login_fail` = null, `ip_auto_block_emailed` = 0 WHERE `ip_string` = ?", [$ipString]);
+    }
+
+    /**
+     * Public entry point for counting a failed post-password login challenge
+     * (TOTP, U2F, or any other second-factor check that runs after the
+     * password step). Bumps both the per-user counter on `users_secure` and
+     * the per-IP counter on `ip_tracking`, so the next confirmPassword()
+     * gate sees the failure and can enforce the standard user/IP lockout.
+     *
+     * @param string|null $username user whose second-factor attempt failed
+     */
+    public function recordFailedAuthChallenge(?string $username): void
+    {
+        if ($username !== null && $username !== '') {
+            $this->incrementLoginFailedCounter($username);
+        }
+        $ip = collectIpAddresses();
+        if ($ip['ip_string'] !== '') {
+            $this->setupIpLoginFailedCounter($ip['ip_string']);
+            $this->incrementIpLoginFailedCounter($ip['ip_string']);
+        }
     }
 
     /**
