@@ -94,6 +94,71 @@ class ApiTestClientTest extends TestCase
     }
 
     /**
+     * An explicit client_secret in the credentials array must be stored on
+     * the instance so it can be sent alongside an explicit client_id.
+     */
+    public function testExplicitClientSecretIsStored(): void
+    {
+        $this->client->setAuthToken(
+            ApiTestClient::OPENEMR_AUTH_ENDPOINT,
+            [
+                "client_id" => ApiTestClient::BOGUS_CLIENTID,
+                "client_secret" => "explicit-test-secret",
+            ]
+        );
+        $this->assertSame(
+            "explicit-test-secret",
+            $this->client->getClientSecret(),
+            "Explicit credentials['client_secret'] must be stored on the instance"
+                . " so a caller-supplied secret is sent with a caller-supplied client_id."
+        );
+
+        $this->client->cleanupClient();
+    }
+
+    /**
+     * Reusing a client instance across two different client_ids must not
+     * send the first client's secret with the second client_id. The stored
+     * secret has to reset the moment the client identity changes; otherwise
+     * validateClient rejects the mismatched (id, secret) pair on the token
+     * endpoint.
+     */
+    public function testStoredClientSecretResetsWhenClientIdChanges(): void
+    {
+        // First call: DCR a real client, populates both id and secret.
+        $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $originalClientId = $this->client->getClientId();
+        $this->assertNotNull($originalClientId);
+        $this->assertNotNull($this->client->getClientSecret());
+        $this->assertNotSame('', $this->client->getClientSecret());
+
+        // Clean up the real DCR'd client BEFORE swapping identity — the
+        // client's public accessors don't let us reset $this->client_id
+        // back to the DCR value later, and cleanupClient() reads
+        // $this->client_id directly.
+        $this->client->cleanupClient();
+
+        // Second call: caller supplies a different client_id and does NOT
+        // supply a client_secret. The previously stored secret must be
+        // discarded so it does not leak into the second client's token
+        // request.
+        $this->client->setAuthToken(
+            ApiTestClient::OPENEMR_AUTH_ENDPOINT,
+            ["client_id" => ApiTestClient::BOGUS_CLIENTID]
+        );
+        $this->assertSame(
+            ApiTestClient::BOGUS_CLIENTID,
+            $this->client->getClientId(),
+            "Second call should adopt the caller-supplied client_id"
+        );
+        $this->assertNull(
+            $this->client->getClientSecret(),
+            "Stored client_secret must reset when the caller changes client_id"
+                . " — otherwise the first client's secret would be sent with the second's id."
+        );
+    }
+
+    /**
      * Tests OpenEMR OAuth when invalid user credentials are provided
      */
     public function testApiAuthInvalidUserCredentials(): void

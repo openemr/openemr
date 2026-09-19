@@ -228,9 +228,15 @@ class ApiTestClient
      * If the request succeeds the token is set in the HTTP Authorization header.
      *
      * Credentials are optionally provided using the $credentials array. Supported
-     * keys include username,password,scopes. If credentials are not provided they will be parsed
-     * from environment variables or fallback to a reasonable default if the environment variable
+     * keys include username, password, scopes, client_id, and client_secret.
+     * If credentials are not provided they will be parsed from environment
+     * variables or fallback to a reasonable default if the environment variable
      * does not exist.
+     *
+     * When client_id is supplied explicitly, callers should also supply the
+     * corresponding client_secret in the credentials array; otherwise the
+     * stored secret from any prior DCR is discarded (so a reused instance
+     * cannot silently send a previous client's secret with a new client_id).
      *
      * @param array<string, string> $credentials The credentials used for authentication requests
      */
@@ -242,7 +248,17 @@ class ApiTestClient
             }
         } else {
             if (($credentials['client_id'] ?? '') !== '') {
+                // Reset the stored secret when the client identity changes so
+                // a reused instance does not accidentally send a previous
+                // client's secret with a new client_id. The caller can supply
+                // the matching secret via credentials['client_secret'].
+                if ($this->client_id !== $credentials['client_id']) {
+                    $this->client_secret = null;
+                }
                 $this->client_id = $credentials['client_id'];
+            }
+            if (array_key_exists('client_secret', $credentials)) {
+                $this->client_secret = $credentials['client_secret'];
             }
             $credentials["username"] = getenv("OE_USER", true) ?: "admin";
             $credentials["password"] = getenv("OE_PASS", true) ?: "pass";
