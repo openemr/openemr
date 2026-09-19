@@ -23,6 +23,7 @@ require_once('../globals.php');
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\OidcRp\OidcRpSettings;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
@@ -125,7 +126,7 @@ function generate_html_middle(): void
     posted_to_hidden('clearPass');
 }
 
-function generate_html_end()
+function generate_html_end(bool $destroySession = true)
 {
     // to be safe, remove clearPass from memory now (if it is not empty yet)
     if (!empty($_POST["clearPass"])) {
@@ -136,11 +137,18 @@ function generate_html_end()
         }
     }
     echo "</div></body></html>\n";
-    SessionWrapperFactory::getInstance()->destroyCoreSession();
+    if ($destroySession) {
+        SessionWrapperFactory::getInstance()->destroyCoreSession();
+    }
     return 0;
 }
 
-if (isset($_POST['new_login_session_management'])) {
+$oidcNewLogin = $session->get(OidcRpSettings::SESSION_NEW_LOGIN) === true;
+$mfaFormAction = $oidcNewLogin
+    ? 'main_screen.php?site=' . attr_url($_GET['site'] ?? '')
+    : 'main_screen.php?auth=login&site=' . attr_url($_GET['site'] ?? '');
+
+if (isset($_POST['new_login_session_management']) || $oidcNewLogin) {
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
 ///////////////////////////////////////////////////////////////////////
@@ -319,7 +327,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id="challenge_form">';
+                echo '      <form method="post" action="' . attr($mfaFormAction) . '" target="_top" name="challenge_form" id="challenge_form">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Provide TOTP code') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -360,7 +368,7 @@ if (isset($_POST['new_login_session_management'])) {
                 }
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
+                echo '          <form method="post" name="u2fform" id="u2fform" action="' . attr($mfaFormAction) . '" target="_top">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Insert U2F Key') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -383,7 +391,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '  </div>';
                 echo '</div>';
             }
-            exit(generate_html_end());
+            exit(generate_html_end(!$oidcNewLogin));
         }
     }
     ///////////////////////////////////////////////////////////////////////
@@ -399,21 +407,26 @@ if (isset($_POST['new_login_session_management'])) {
     // within the OpenEMR instance by calling top.restoreSession() whenever
     // refreshing or starting a new script.
 
-    // This is a new login, so create a new session id and remove the old session
-    $session->migrate(true);
-    // Also need to delete clearPass from memory
-    if (function_exists('sodium_memzero')) {
-        sodium_memzero($_POST["clearPass"]);
+    if ($oidcNewLogin) {
+        $session->remove(OidcRpSettings::SESSION_NEW_LOGIN);
+        CsrfUtils::setupCsrfKey($session);
     } else {
-        $_POST["clearPass"] = '';
+        // This is a new login, so create a new session id and remove the old session
+        $session->migrate(true);
+        // Also need to delete clearPass from memory
+        if (function_exists('sodium_memzero')) {
+            sodium_memzero($_POST["clearPass"]);
+        } else {
+            $_POST["clearPass"] = '';
+        }
+        // Set up the csrf private_key
+        //  Note this key always remains private and never leaves server session. It is used to create
+        //  the csrf tokens.
+        //  Generated only on the new-login path. Rotating it on every main_screen.php load
+        //  invalidates CSRF tokens already embedded in long-lived iframes (e.g. dated_reminders,
+        //  which polls every 60s with the token captured at render time).
+        CsrfUtils::setupCsrfKey($session);
     }
-    // Set up the csrf private_key
-    //  Note this key always remains private and never leaves server session. It is used to create
-    //  the csrf tokens.
-    //  Generated only on the new-login path. Rotating it on every main_screen.php load
-    //  invalidates CSRF tokens already embedded in long-lived iframes (e.g. dated_reminders,
-    //  which polls every 60s with the token captured at render time).
-    CsrfUtils::setupCsrfKey($session);
 } else {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $session->migrate(false);

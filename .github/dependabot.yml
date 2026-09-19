@@ -250,6 +250,7 @@ updates:
   - docker/development-easy/
   - docker/development-easy-light/
   - docker/development-easy-redis/
+  - docker/development-oidc/
   - docker/production/
   schedule:
     interval: daily
@@ -279,6 +280,13 @@ updates:
     phpmyadmin:
       patterns:
       - phpmyadmin
+    keycloak:
+      patterns:
+      - quay.io/keycloak/keycloak
+      - keycloak/keycloak
+    socat:
+      patterns:
+      - alpine/socat
   labels:
   - dependencies
   - docker
