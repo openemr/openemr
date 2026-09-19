@@ -3,8 +3,10 @@
 /**
  * Referring-provider field checks for the address book.
  *
- * Person entries used on claims need a valid 10-digit NPI and a mailing
- * address. Labs, vendors, and local login users skip those rules.
+ * Person entries used on claims need a mailing address, and a valid NPI
+ * when that requirement is enabled. NPI is the US HIPAA identifier from
+ * CMS/NPPES, not a locale setting. Labs, vendors, and local login users
+ * skip those rules.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -18,6 +20,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 final class AddressBookReferrerFields
 {
@@ -79,6 +82,18 @@ final class AddressBookReferrerFields
     }
 
     /**
+     * True when Address Book should require a valid NPI on external persons.
+     *
+     * NPI is US-only (CMS/NPPES). This is not tied to UI language. New
+     * installs default on. Upgrades default off, then turn on when Units
+     * for Visit Forms is already US-primary or US-only.
+     */
+    public static function npiRequired(): bool
+    {
+        return OEGlobalsBag::getInstance()->getBoolean('addrbook_require_npi', true);
+    }
+
+    /**
      * True when an external person save may proceed.
      *
      * @param mixed $npi
@@ -86,15 +101,20 @@ final class AddressBookReferrerFields
      * @param mixed $city
      * @param mixed $state
      * @param mixed $zip
+     * @param bool  $requireNpi When false, only the mailing address is required.
      */
     public static function saveAllowed(
         mixed $npi,
         mixed $street,
         mixed $city,
         mixed $state,
-        mixed $zip
+        mixed $zip,
+        bool $requireNpi = true
     ): bool {
-        return self::npiIsValid($npi) && self::mailingAddressComplete($street, $city, $state, $zip);
+        if ($requireNpi && !self::npiIsValid($npi)) {
+            return false;
+        }
+        return self::mailingAddressComplete($street, $city, $state, $zip);
     }
 
     /**
