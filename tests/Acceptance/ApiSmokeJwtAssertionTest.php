@@ -54,6 +54,51 @@ use PHPUnit\Framework\TestCase;
 #[Group('api-enabled')]
 final class ApiSmokeJwtAssertionTest extends TestCase
 {
+    /**
+     * The /token endpoint must reject a client_assertion with a tampered
+     * signature — otherwise the JWT client-authentication branch is
+     * accepting anything JWT-shaped and confidential-client identity on
+     * this transport is not actually being enforced. Companion test to
+     * the success case below; keeps the positive and negative outcomes
+     * of the same validation seam side-by-side.
+     */
+    public function testTokenEndpointRejectsTamperedJwtAssertion(): void
+    {
+        $browser = AuthCodeFlow::attemptTokenExchangeWithJwtAssertion(
+            'openid api:oemr user/facility.crus',
+            // Flip the last three base64url chars of the signature. That
+            // preserves the JWT's shape (three dot-separated segments)
+            // so the assertion still parses, but the resulting signature
+            // no longer verifies against the client's registered JWKS.
+            static function (string $assertion): array {
+                $signatureTail = substr($assertion, -3);
+                $tampered = substr($assertion, 0, -3)
+                    . strtr($signatureTail, 'ABCabc012_-', 'XYZxyz789-_');
+                return [
+                    'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                    'client_assertion' => $tampered,
+                ];
+            },
+        );
+        $response = $browser->getResponse();
+
+        self::assertSame(
+            401,
+            $response->getStatusCode(),
+            'A JWT client_assertion whose signature does not verify against the'
+                . ' registered JWKS must be rejected with 401. A 200 here means the'
+                . ' JWT validation is not actually gating client authentication —'
+                . ' any assertion-shaped string would then be accepted.',
+        );
+        $body = json_decode($response->getContent(), true);
+        self::assertIsArray($body, 'Token endpoint should return a JSON error body on rejection');
+        self::assertSame(
+            'invalid_client',
+            $body['error'] ?? null,
+            'Rejection error code should be OAuth2 invalid_client, not e.g. invalid_grant',
+        );
+    }
+
     public function testAuthenticatedFacilityEndpointReturnsFacilityListWithJwtAssertion(): void
     {
         // Same scopes as ApiSmokeTest — the variance is purely on the

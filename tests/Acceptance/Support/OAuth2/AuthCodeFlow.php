@@ -130,6 +130,47 @@ final class AuthCodeFlow
      */
     public static function mintAccessTokenWithJwtAssertion(string $scope): string
     {
+        return self::runJwtFlow(
+            $scope,
+            static fn (string $assertion): array => [
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $assertion,
+            ],
+        );
+    }
+
+    /**
+     * Same DCR + admin-approve + /authorize + login + consent + /token
+     * flow as mintAccessTokenWithJwtAssertion, but exposes the raw
+     * `/token` response so rejection tests can assert the endpoint
+     * actually validates the JWT assertion (rather than blindly
+     * accepting any assertion).
+     *
+     * The caller receives a builder that turns the harness-signed valid
+     * assertion into whatever token-body params it wants to submit —
+     * flip signature bytes, replace with a wrong-audience assertion, etc.
+     * Returns the raw \Symfony\Component\HttpFoundation\Response so the
+     * caller can assert on status code and error body directly.
+     *
+     * @param callable(string): array<string, string> $tokenAuthParamsBuilder
+     *     Callback that receives the harness-signed assertion string and
+     *     returns the client-authentication body params to POST at /token.
+     */
+    public static function attemptTokenExchangeWithJwtAssertion(
+        string $scope,
+        callable $tokenAuthParamsBuilder,
+    ): HttpBrowser {
+        return self::runJwtFlowRaw($scope, $tokenAuthParamsBuilder);
+    }
+
+    /**
+     * Internal helper used by both the "mint" and "attempt" JWT entry
+     * points. Runs the whole flow and returns the caller-visible token
+     * value if the flow was expected to succeed (mint), or hands the
+     * caller the raw browser after /token when we're probing rejection.
+     */
+    private static function runJwtFlow(string $scope, callable $tokenAuthParamsBuilder): string
+    {
         Assert::assertStringContainsString(
             'openid',
             $scope,
@@ -148,15 +189,42 @@ final class AuthCodeFlow
             $baseUrl . '/oauth2/default/token',
             $clientId,
         );
-        return self::runAuthCodeFlow(
-            $baseUrl,
-            $clientId,
+        /** @var array<string, string> $params */
+        $params = $tokenAuthParamsBuilder($assertion);
+        return self::runAuthCodeFlow($baseUrl, $clientId, $scope, $params);
+    }
+
+    /**
+     * Raw variant of runJwtFlow — returns the browser holding the raw
+     * /token response instead of the extracted access_token. Used by
+     * rejection tests that want to assert the endpoint denies invalid
+     * assertions with 401 rather than issuing a token.
+     */
+    private static function runJwtFlowRaw(
+        string $scope,
+        callable $tokenAuthParamsBuilder,
+    ): HttpBrowser {
+        Assert::assertStringContainsString(
+            'openid',
             $scope,
-            [
-                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-                'client_assertion' => $assertion,
-            ],
+            'AuthCodeFlow requires openid in the scope — without it the OIDC branch never fires and no id_token is minted',
         );
+
+        $baseUrl = ArtifactBrowser::baseUrl();
+
+        $clientName = 'AcceptanceAuthCodeJwtRaw-' . bin2hex(random_bytes(4));
+        [$clientId, $privateKey, $publicKey] = self::registerJwtClient($baseUrl, $clientName, $scope);
+        self::enableClient($baseUrl, $clientId, $clientName);
+
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $baseUrl . '/oauth2/default/token',
+            $clientId,
+        );
+        /** @var array<string, string> $params */
+        $params = $tokenAuthParamsBuilder($assertion);
+        return self::runAuthCodeFlowRaw($baseUrl, $clientId, $scope, $params);
     }
 
     /**
@@ -325,6 +393,29 @@ final class AuthCodeFlow
         string $scope,
         array $tokenAuthParams,
     ): string {
+        $browser = self::runAuthCodeFlowRaw($baseUrl, $clientId, $scope, $tokenAuthParams);
+        Assert::assertSame(
+            200,
+            $browser->getResponse()->getStatusCode(),
+            'Token exchange should return 200 — 401 invalid_client means the client-enable step did not stick, the client_secret was wrong, or the JWT client assertion failed validation; 400 means the code was invalid/expired/reused',
+        );
+        $tokens = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        Assert::assertIsArray($tokens);
+        Assert::assertArrayHasKey('access_token', $tokens, 'Token response must include access_token');
+        Assert::assertIsString($tokens['access_token']);
+        Assert::assertNotSame('', $tokens['access_token'], 'access_token must not be empty');
+        return $tokens['access_token'];
+    }
+
+    /**
+     * @param array<string, string> $tokenAuthParams
+     */
+    private static function runAuthCodeFlowRaw(
+        string $baseUrl,
+        string $clientId,
+        string $scope,
+        array $tokenAuthParams,
+    ): HttpBrowser {
         $browser = ArtifactBrowser::create();
 
         // Step 3: GET /authorize with `followRedirects(true)` so we
@@ -446,18 +537,12 @@ final class AuthCodeFlow
                 $tokenAuthParams,
             ),
         );
-        Assert::assertSame(
-            200,
-            $browser->getResponse()->getStatusCode(),
-            'Token exchange should return 200 — 401 invalid_client means the client-enable step did not stick, the client_secret was wrong, or the JWT client assertion failed validation; 400 means the code was invalid/expired/reused',
-        );
-        $tokens = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        Assert::assertIsArray($tokens);
-        Assert::assertArrayHasKey('access_token', $tokens, 'Token response must include access_token');
-        Assert::assertIsString($tokens['access_token']);
-        Assert::assertNotSame('', $tokens['access_token'], 'access_token must not be empty');
 
-        return $tokens['access_token'];
+        // Return the raw browser so the caller can inspect the /token
+        // response. runAuthCodeFlow (the "success" wrapper) asserts 200
+        // and extracts the access_token; rejection tests assert 401
+        // directly.
+        return $browser;
     }
 
     private static function extractCsrfToken(HttpBrowser $browser, string $where): string
