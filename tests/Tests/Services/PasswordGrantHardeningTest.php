@@ -214,6 +214,42 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
+    public function testValidateClientAllowsAuthCodeGrantForConfidentialClientWithNullSecret(): void
+    {
+        // Regression guard: CustomAuthCodeGrant validates a JWT client
+        // assertion first and then calls validateClient() with a null
+        // client_secret purely to run the grant-authorization check.
+        // Rejecting that call would break every confidential client that
+        // authenticates with private_key_jwt on the authorization_code flow.
+        $client = $this->insertConfidentialClientFixture(clientSecret: 'correct-secret');
+        $repo = new ClientRepository();
+        $this->assertTrue(
+            $repo->validateClient($client['client_id'], null, 'authorization_code'),
+            'Confidential client on authorization_code with null client_secret '
+                . 'must pass validateClient() so JWT-authenticated flows keep working.'
+        );
+        $this->assertTrue(
+            $repo->validateClient($client['client_id'], '', 'authorization_code'),
+            'An empty-string client_secret on authorization_code must also pass '
+                . '(same semantics as null; League passes an empty string when '
+                . 'the request body has no client_secret parameter).'
+        );
+    }
+
+    public function testValidateClientDeniesAuthCodeGrantWhenConfidentialClientSecretIsWrong(): void
+    {
+        // Complement to the null-secret allow test: when a client actually
+        // presents a secret on authorization_code, a wrong value must still
+        // reject. The null case is opt-in to JWT authentication upstream;
+        // sending a wrong secret is not.
+        $client = $this->insertConfidentialClientFixture(clientSecret: 'correct-secret');
+        $repo = new ClientRepository();
+        $this->assertFalse(
+            $repo->validateClient($client['client_id'], 'wrong-secret', 'authorization_code'),
+            'Confidential client on authorization_code must reject a wrong secret.'
+        );
+    }
+
     // ---------- UserRepository::getAccountByPassword MFA required (6xc2) ----------
 
     public function testPasswordGrantRejectsTotpEnrolledUserWithoutMfaToken(): void
