@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-18
+**Last updated:** 2026-09-19
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -63,13 +63,13 @@ acceptance-testing owns the *verification that they work*.
     end-to-end automated ship via `ship-release.yml`. Surfaced 7
     latent preflight-deadlock gates + a merge-API permission bug;
     see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
-- **Next expected release event:** `8.4.1` targeted for ~2026-09-20
-  (~3 days out from patch-prep cut). Patch-prep PRs merged
-  2026-09-17 (openemr/openemr#14071 rel-side + openemr/openemr#14072
-  master-side), release-prep + release-finalize draft pair open on
-  rel-840. First patch-cadence exercise of the automated ship
-  pipeline; surfaced 3 new gaps in the cut phase alone (see G38 /
-  G39 / G40) — worth watching what surfaces on ship day.
+- **Next expected release event:** `8.4.1` targeted 2026-09-20
+  (imminent). Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071
+  rel-side + openemr/openemr#14072 master-side); release-prep +
+  release-finalize draft pair regenerated 2026-09-19 with the G41
+  fix applied. First patch-cadence exercise of the automated ship
+  pipeline; surfaced 5 new gaps in the cut phase alone (G38 / G39 /
+  G40 / G41 / G42) — worth watching what surfaces on ship day itself.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -3052,6 +3052,38 @@ Adds a long inline comment on both changes documenting why THIS wait is bigger t
 **Same class of oversight as G39:** G39 was the sibling patch-prep mutator missing a strip of `next` from the master row when the multi-row pattern kept `next` there through finalize. G41 is the sibling finalize mutator missing a strip of `latest` from a prior-patch rel-branch row when the multi-row pattern keeps that row alive. Both are "the strip loop only skipped the *actively-being-updated* row's *branch*, not the row itself." The two fixes rhyme.
 
 **Followup consideration (deferred):** worth a repo-wide audit of any release-targets mutator with a `$row['branch'] === $relBranch`-shaped skip condition, in case any others have the same shape latent for a future multi-row scenario. `BranchCutReleaseTargetsMutator::bumpMasterDockerTags` doesn't use this pattern (it targets master-only) so it's fine. Only `PostReleaseTargetsMutator` (fixed here) and `PatchPrepReleaseTargetsMutator` (fixed in G39) have the risk shape and both are now covered.
+
+**Outcome (2026-09-19):** #14111 landed 2026-09-18. A subsequent PR to rel-840 fired release-prep.yml which regenerated #14069 with the strip applied (run 35431909596). Diff verified: master row's `docker_tags: 8.5.0,dev,next` retained (finalize-time re-add per the design note), rel-840's `8.4.1,next` correctly promoted to `8.4.1,latest` + `openemr_version_ref: v8_4_1`, rel-840's `8.4.0,latest` correctly stripped to `8.4.0` (only one row claiming `latest` post-fix). No manual follow-up strip PR needed.
+
+### G42 — Acknowledgements page mishandled co-authors: uncounted trailers, GitHub-noreply duplicates, bot-filter miss  *(SHIPPED 2026-09-19)*
+
+**STATUS: SHIPPED 2026-09-19** across three PRs in openemr/website-openemr: #220 (co-author trailer counting), #221 (GitHub username → real-name canonicalization + `openemr-release-bot` in NON_HUMAN_NAMES). All three surfaced on the 8.4.1 release-docs cycle; the release-docs generator lives in openemr/website-openemr but the doc entry is captured here because it's a release-mechanism concern.
+
+**Trigger event:** Release-docs PR openemr/website-openemr#219 (auto-generated 8.4.1 acknowledgements page). First-generation content showed three related bugs:
+
+```
+- Brady Miller (6 commits)
+- bradymiller (6 commits)          ← duplicate of Brady Miller via noreply-email co-author trailers
+- Jerry Padgett (4 commits)
+- Stephen Waite (2 commits)
+- openemr-release-bot (2 commits)  ← bot slipped filter via bare-name co-author trailer
+- Eric Stern (1 commit)
+- kojiromike (1 commit)             ← GitHub username instead of real name (Michael A. Smith)
+```
+
+**Root causes (three related surfaces):**
+
+1. **Co-authored-by trailers weren't counted at all.** The generator's `git log --format=%aE%x09%aN` fetched only primary author fields. Co-authors on commits (via `Co-authored-by:` trailers, the GitHub-standard multi-author syntax) got zero credit. Fixed openemr/website-openemr#220 by widening the format to include `%(trailers:key=Co-authored-by,valueonly=true,unfold=true,separator=%x1e)` and emitting one record per co-author for full per-commit credit.
+
+2. **Duplicate rows from GitHub noreply co-authors.** Once co-authors were counted, primary commits `Brady Miller <brady.g.miller@gmail.com>` + co-author trailers `bradymiller <278968+bradymiller@users.noreply.github.com>` on the same person appeared as two rows because email-based grouping + case-insensitive name merge both missed the connection. Fixed openemr/website-openemr#221 with a `GitHubUserResolver` that extracts the username from noreply-email format (`<id>+<username>@users.noreply.github.com` or bare `<username>@users.noreply.github.com`) and canonicalizes to the user's GitHub profile display name via `GET /users/{username}`. One API call per unique username (deduplicated); fails gracefully to username fallback on any API error.
+
+3. **`openemr-release-bot` (no `[bot]` suffix) slipped the filter.** Bot primary commits are `openemr-release-bot[bot]` (caught by `str_ends_with '[bot]'`). But conductor-generated commits carry a `Co-authored-by: openemr-release-bot <release-bot@openemr.invalid>` trailer — no `[bot]` suffix, non-GitHub-noreply email so the username-canonicalization path can't help either. Fixed by adding `openemr-release-bot` to `NON_HUMAN_NAMES` (in the same #221 PR).
+
+**Systemic lesson:** the acknowledgements generator receives strings from an external source (git commit metadata, incl. hand-crafted trailer values) that don't necessarily match its internal dedup + filter models. Three variations of the same class of mismatch surfaced together on the first patch-cycle exercise. Future release-doc changes involving new metadata sources should: (a) canonicalize to a stable identity early in the pipeline before dedup, (b) include per-source integration tests exercising realistic trailer / noreply / bot-name shapes, (c) document what the canonicalization is + isn't handling so future contributors don't need to re-derive the failure modes.
+
+**Outcome (2026-09-19):** all three PRs merged. Release-docs regenerated post-fix (run 35432004291) — page now shows clean 5-row list with Brady Miller correctly at 13 commits (primary 6 + co-author 6 merged + 1 from a subsequent backport PR), Michael A. Smith replacing `kojiromike`, and `openemr-release-bot` dropped. Full expected shape rendered.
+
+**Followup consideration (deferred):** any co-author using a personal email (not a GitHub noreply) that DOES differ from their primary spelling would still slip through the API canonicalization path. Would require either a project-level `.mailmap` file (git-native canonicalization; would need generator-side application to trailer values since git's `%(trailers:...)` doesn't apply mailmap) or continued hand-curation via `NON_HUMAN_NAMES`. Not currently needed — nothing in the 8.4.1 range triggered this — but worth remembering for future non-noreply co-author-based duplicates.
 
 ## Followup opportunities (not yet gap-numbered)
 
