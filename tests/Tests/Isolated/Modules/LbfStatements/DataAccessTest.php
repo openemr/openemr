@@ -66,14 +66,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 if (array_key_exists(0, $this->queue)) {
                     $peek = $this->queue[0];
                     if (is_array($peek) && isset($peek[0]) && is_array($peek[0]) && array_key_exists('field_id', $peek[0])) {
-                        $next = array_shift($this->queue);
-                        $out = [];
-                        foreach ($next as $row) {
-                            if (is_array($row)) {
-                                $out[] = $row;
-                            }
-                        }
-                        return $out;
+                        return $this->rowsFromQueueItem(array_shift($this->queue));
                     }
                 }
                 return [
@@ -81,7 +74,14 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                     ['field_id' => 'num', 'data_type' => 2, 'title' => 'Num', 'list_id' => '', 'seq' => 2, 'group_id' => '1'],
                 ];
             }
-            $next = array_shift($this->queue);
+            return $this->rowsFromQueueItem(array_shift($this->queue));
+        }
+
+        /**
+         * @return list<array<mixed>>
+         */
+        private function rowsFromQueueItem(mixed $next): array
+        {
             if (!is_array($next)) {
                 return [];
             }
@@ -771,6 +771,14 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'enabled' => 1,
             ]);
             $this->assertSame(42, $id);
+            $lockName = StatementRepository::bandLockName('LBFecho', 'n', '');
+            $this->assertSame(
+                [
+                    ['op' => 'get', 'name' => $lockName],
+                    ['op' => 'release', 'name' => $lockName],
+                ],
+                $this->sql->locks
+            );
         }
     }
 }
