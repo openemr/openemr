@@ -205,11 +205,10 @@ class ClientRepository implements ClientRepositoryInterface
     private function validateConfidentialClientSecret($clientIdentifier, $clientSecret, string $grantType): bool
     {
         $client = sqlQueryNoLog("SELECT `client_secret`, `is_confidential` FROM `oauth_clients` WHERE `client_id` = ?", [$clientIdentifier]);
-        $this->logger ??= ServiceContainer::getLogger();
 
         // Check if client is registered
         if ($client === false) {
-            $this->logger->error(
+            $this->getSystemLogger()->error(
                 "ClientRepository->validateClient() no client found for identifier ",
                 ["client" => $clientIdentifier]
             );
@@ -226,7 +225,7 @@ class ClientRepository implements ClientRepositoryInterface
         // Confidential client. A missing client_secret is a failed
         // validation, not a permit-with-no-check.
         if (empty($clientSecret)) {
-            $this->logger->error(
+            $this->getSystemLogger()->error(
                 "ClientRepository->validateClient() Confidential client did not present client secret. Validation failed",
                 ["client" => $clientIdentifier, "grantType" => $grantType]
             );
@@ -234,7 +233,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         try {
-            $secret = $this->getCryptoGen()->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+            $secret = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
         } catch (CryptoGenException) {
             return false;
         }
@@ -243,7 +242,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
         $secretMatches = hash_equals(is_string($clientSecret) ? $clientSecret : '', $secret);
         if (!$secretMatches) {
-            $this->logger->error(
+            $this->getSystemLogger()->error(
                 "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
                 ["client" => $clientIdentifier, "grantType" => $grantType]
             );
