@@ -598,25 +598,31 @@ See [Bulk FHIR Exports](FHIR_API.md#bulk-fhir-exports) for complete workflow.
 - Requires user to share credentials with app
 - No refresh tokens for patient role
 - Disabled by default
-- Does not support MFA
+- MFA: TOTP is supported via `mfa_token` (see below); U2F is not — users
+  enrolled only in U2F cannot obtain a token via password grant
 - No consent screen
 
 #### Enable Password Grant
 
 **Administration → Config → Connectors → Enable OAuth2 Password Grant (Not considered secure)**
 
-#### Token Request (User Role)
+#### Token Request (User Role — Confidential Client)
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   https://localhost:9300/oauth2/default/token \
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
   --data-urlencode 'scope=openid offline_access api:oemr user/Patient.read' \
   --data-urlencode 'user_role=users' \
   --data-urlencode 'username=admin' \
   --data-urlencode 'password=pass'
 ```
+
+Confidential clients using `client_secret_basic` may present the secret via
+the `Authorization: Basic BASE64(client_id:client_secret)` header instead of
+sending `client_secret` in the body. Public clients omit `client_secret`.
 
 #### Token Request (Patient Role)
 ```bash
@@ -634,10 +640,26 @@ curl -X POST -k \
 
 **Parameters:**
 - `grant_type`: Must be `password`
+- `client_id`: Registered client identifier
+- `client_secret`: Required for confidential clients (may instead be sent via
+  HTTP Basic auth when the client is registered with `client_secret_basic`)
 - `user_role`: `users` or `patient`
 - `username`: OpenEMR username
 - `password`: User's password
 - `email`: Required for patient role
+- `mfa_token`: Six-digit TOTP code — required when the user (`user_role=users`)
+  has TOTP enrolled. Omitting it returns `401 mfa_token_required`. A wrong
+  code returns `401 mfa_token_invalid` and counts against the standard
+  per-user and per-IP lockout thresholds
+
+#### Rate Limiting
+
+Both the staff (`user_role=users`) and patient (`user_role=patient`) paths
+engage the same per-user (`users_secure.login_fail_counter`) and per-IP
+(`ip_tracking.ip_login_fail_counter`) lockout counters used by web login.
+Wrong password, wrong TOTP, or repeated attempts from an over-threshold IP
+will be rejected until the admin unblocks the row (or the automatic reset
+window elapses, when configured).
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >
