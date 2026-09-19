@@ -922,10 +922,6 @@ class ProcedureService extends BaseService
      *
      * @param array<string, mixed> $orderData Partial header fields to update (may be empty)
      * @param array<int, array<string, mixed>> $codes Full replacement code list (one or more)
-     */
-    /**
-     * @param array<string, mixed> $orderData
-     * @param array<int, array<string, mixed>> $codes
      * @param int|null $expectedPatientId If provided, the existing order's
      *     patient_id must match — defense-in-depth ownership check so a UUID
      *     leak cannot be used to mutate orders that belong to a different

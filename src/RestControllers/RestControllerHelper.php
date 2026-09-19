@@ -240,9 +240,14 @@ class RestControllerHelper
             return new Response((string) json_encode(['error' => $message]), 413, ['Content-Type' => 'application/json']);
         }
 
-        // Read with length limit to prevent memory exhaustion
+        // Read from the request object, not php://input. HttpRestRequest can be constructed with
+        // an in-memory body and withBody() can replace it, so reading the raw stream parsed a
+        // different set of bytes than the request carried -- empty, for any programmatic caller.
+        //
+        // getContent(true) hands back the stream rather than the string: Symfony's
+        // getContent() buffers the whole body first, which would defeat the cap below.
         $readLength = max(0, $maxBytes + 1);
-        $rawBody = file_get_contents("php://input", false, null, 0, $readLength);
+        $rawBody = stream_get_contents($request->getContent(true), $readLength);
 
         if ($rawBody === false || $rawBody === '') {
             $message = 'Request body is empty or could not be read';

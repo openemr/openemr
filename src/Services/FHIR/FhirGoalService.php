@@ -433,6 +433,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $lifecycleStatus = $json['lifecycleStatus'] ?? null;
         if (!is_string($lifecycleStatus) || $lifecycleStatus === '') {
             $data['__validation_error__'] = 'Goal.lifecycleStatus is required (FHIR R4 1..1)';
+            $data['__validation_field__'] = 'lifecycleStatus';
             return $data;
         }
         $planStatus = $lifecycleStatus;
@@ -458,6 +459,15 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $display = $coding['display'] ?? null;
         if (is_string($display) && !isset($item['codetext'])) {
             $item['codetext'] = $display;
+        }
+
+        // Goal.description is 1..1 in FHIR R4, and none of its three sources produced anything.
+        // Without this the row is stored with empty description and codetext -- a goal that
+        // reads back blank -- and the caller still gets a 201.
+        if ($descriptionText === null && $codeValue === null && !is_string($display)) {
+            $data['__validation_error__'] = 'Goal.description is required (FHIR R4 1..1)';
+            $data['__validation_field__'] = 'description';
+            return $data;
         }
 
         // startDate -> date. Goal.startDate is a FHIR `date`, where partial
@@ -496,7 +506,12 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
 
         if (isset($openEmrRecord['__validation_error__'])) {
             $result = new ProcessingResult();
-            $result->setValidationMessages(['lifecycleStatus' => $openEmrRecord['__validation_error__']]);
+            // The marker names its own element; lifecycleStatus stays the default because it
+            // was the only producer before description started using it.
+            $field = $openEmrRecord['__validation_field__'] ?? 'lifecycleStatus';
+            $result->setValidationMessages([
+                is_string($field) ? $field : 'lifecycleStatus' => $openEmrRecord['__validation_error__'],
+            ]);
             return $result;
         }
         $puuid = $openEmrRecord['puuid'] ?? null;
@@ -556,7 +571,10 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     {
         if (isset($updatedOpenEMRRecord['__validation_error__'])) {
             $result = new ProcessingResult();
-            $result->setValidationMessages(['lifecycleStatus' => $updatedOpenEMRRecord['__validation_error__']]);
+            $field = $updatedOpenEMRRecord['__validation_field__'] ?? 'lifecycleStatus';
+            $result->setValidationMessages([
+                is_string($field) ? $field : 'lifecycleStatus' => $updatedOpenEMRRecord['__validation_error__'],
+            ]);
             return $result;
         }
         $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);

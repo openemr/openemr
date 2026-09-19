@@ -482,14 +482,25 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             return $processingResult;
         }
 
-        $storedEncounter = $stored['encounter'] ?? null;
+        // Both sides resolved to the stored integer id before comparing. questionnaire_response
+        // .encounter holds the encounter's id, while parseOpenEMRRecord() hands this method an
+        // `encounter_uuid` string -- comparing those two directly is never equal, so an update
+        // that left Encounter/<uuid> untouched was rejected as a rebind whenever the response
+        // had an encounter at all.
+        $storedEncounter = self::toInt($stored['encounter'] ?? null);
         $encounterUuid = $updatedOpenEMRRecord['encounter_uuid'] ?? null;
-        if ($encounterUuid !== null && $encounterUuid !== $storedEncounter) {
-            // `encounter` is not in the update statement either, so the same reasoning applies.
-            $processingResult->setValidationMessages(
-                ['encounter' => 'QuestionnaireResponse.encounter cannot be changed by an update']
+        if ($encounterUuid !== null) {
+            $incomingEncounter = $this->resolveEncounterId(
+                $encounterUuid,
+                $updatedOpenEMRRecord['puuid'] ?? null
             );
-            return $processingResult;
+            if ($incomingEncounter !== $storedEncounter) {
+                // `encounter` is not in the update statement either, so the same reasoning applies.
+                $processingResult->setValidationMessages(
+                    ['encounter' => 'QuestionnaireResponse.encounter cannot be changed by an update']
+                );
+                return $processingResult;
+            }
         }
 
         // saveQuestionnaireResponse() resolves the row to update from the response id carried by

@@ -235,7 +235,7 @@ class FhirGoalRestController
      */
     #[OA\Put(
         path: '/fhir/Goal/{uuid}',
-        description: 'Modifies a Goal. The uuid is the surrogate key encounter-uuid + \'-SK-\' + form-id, matching the GET response shape.',
+        description: 'Modifies a Goal. The uuid is the surrogate key built by CarePlanService::getSurrogateKeyForRecord() -- encounter-uuid + separator + form-id, matching the GET response shape. The separator depends on when the record was created: records predating the V2 cutover use the legacy underscore, newer ones use \'-SK-\'. Use whichever form the GET returned.',
         tags: ['fhir'],
         parameters: [
             new OA\Parameter(

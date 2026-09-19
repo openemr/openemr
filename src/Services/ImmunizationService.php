@@ -279,16 +279,22 @@ class ImmunizationService extends BaseService
             return $encounterError;
         }
 
-        $uuid = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
-        $data['uuid'] = $uuid;
-
-        [$set, $bind] = $this->splitColumnQuery($this->buildInsertColumns($data));
-        $sql  = " INSERT INTO immunizations SET";
-        $sql .= "     create_date=NOW(),";
-        $sql .= $set;
-
+        // The uuid_registry row and the immunizations row are written together. createUuid()
+        // commits the registry entry on its own, so an insert that failed afterwards left a
+        // registered uuid pointing at no record -- the error path returned cleanly and the
+        // orphan stayed behind on every retry.
         try {
-            $results = QueryUtils::sqlInsert($sql, $bind);
+            [$uuid, $results] = QueryUtils::inTransaction(function () use ($data): array {
+                $uuid = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
+                $data['uuid'] = $uuid;
+
+                [$set, $bind] = $this->splitColumnQuery($this->buildInsertColumns($data));
+                $sql  = " INSERT INTO immunizations SET";
+                $sql .= "     create_date=NOW(),";
+                $sql .= $set;
+
+                return [$uuid, QueryUtils::sqlInsert($sql, $bind)];
+            });
         } catch (SqlQueryException) {
             $processingResult->addInternalError("error processing SQL Insert");
             return $processingResult;

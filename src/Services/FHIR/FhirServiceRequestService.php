@@ -869,16 +869,23 @@ class FhirServiceRequestService extends FhirServiceBase implements
             }
         }
 
-        // intent -> order_intent (FHIR R4 1..1). The list_options 'order_intent' set
-        // holds order/plan/directive/proposal/option; other R4 intents (e.g.
-        // original-order, reflex-order, filler-order, instance-order) fall back to
-        // 'order' since OpenEMR's order workflow has no distinction for those.
+        // intent -> order_intent (FHIR R4 1..1). The list_options 'order_intent' set holds
+        // order/plan/directive/proposal/option. The other R4 intents -- original-order,
+        // reflex-order, filler-order, instance-order -- used to fall back to 'order', which
+        // answered 200 for an order whose clinical meaning the server had quietly changed:
+        // a reflex-order is one the lab raised off another result, not one a clinician placed.
+        // There is no column that preserves the distinction, so the write is refused instead.
         $intent = $json['intent'] ?? null;
         if (is_string($intent) && $intent !== '') {
             $supportedIntents = ['order', 'plan', 'directive', 'proposal', 'option'];
-            $header['order_intent'] = in_array($intent, $supportedIntents, true)
-                ? $intent
-                : 'order';
+            if (!in_array($intent, $supportedIntents, true)) {
+                $data['__validation_error__'] = 'ServiceRequest.intent "' . $intent
+                    . '" cannot be stored; OpenEMR supports '
+                    . implode(', ', $supportedIntents);
+                $data['__validation_field__'] = 'intent';
+            } else {
+                $header['order_intent'] = $intent;
+            }
         }
 
         // priority passthrough (matches OpenEMR vocab for routine/urgent/asap/stat)
@@ -947,6 +954,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
             $data['__validation_error__'] = $codeText !== null
                 ? 'ServiceRequest.code requires a coding with a code; code.text alone cannot be stored'
                 : 'ServiceRequest.code is required and must carry a coding with a code';
+            $data['__validation_field__'] = 'code';
         }
 
         // reasonCode[0].coding -> diagnoses on the first procedure code row (string form)
@@ -976,7 +984,10 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $validationError = $openEmrRecord['__validation_error__'] ?? null;
         if (is_string($validationError)) {
             $result = new ProcessingResult();
-            $result->setValidationMessages(['code' => $validationError]);
+            // The marker names its own element; 'code' stays the default because it was the
+            // first and only producer before intent started using it.
+            $field = $openEmrRecord['__validation_field__'] ?? 'code';
+            $result->setValidationMessages([is_string($field) ? $field : 'code' => $validationError]);
             return $result;
         }
 
@@ -1044,7 +1055,10 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $validationError = $updatedOpenEMRRecord['__validation_error__'] ?? null;
         if (is_string($validationError)) {
             $result = new ProcessingResult();
-            $result->setValidationMessages(['code' => $validationError]);
+            // The marker names its own element; 'code' stays the default because it was the
+            // first and only producer before intent started using it.
+            $field = $updatedOpenEMRRecord['__validation_field__'] ?? 'code';
+            $result->setValidationMessages([is_string($field) ? $field : 'code' => $validationError]);
             return $result;
         }
 

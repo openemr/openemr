@@ -245,13 +245,29 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $data['uuid'] = $resourceId;
         }
 
-        // status (FHIR enum) -> active flag. The read-side recovers FHIR status via a CASE
-        // on (active, end_date) — see PrescriptionService::getBaseSql — so the only column
-        // we write here is `active`. completed/stopped/cancelled -> inactive (0); everything
-        // else maps to active (1).
+        // status (FHIR enum) -> (active, end_date). The read side recovers FHIR status with a
+        // CASE over both columns -- see PrescriptionService::getBaseSql():
+        //     end_date IS NOT NULL AND active = '1' -> completed
+        //     active = '1'                          -> active
+        //     otherwise                             -> stopped
+        // so writing `active` alone cannot express 'completed': active = 0 reads back as
+        // 'stopped', and the caller got a 200 for a status the server did not store.
+        //
+        // 'cancelled' still collapses to 'stopped' on read. OpenEMR's prescriptions table has
+        // no state that distinguishes "never started" from "discontinued", so there is nothing
+        // to write that would round-trip it; the value is accepted as an end-of-life status
+        // rather than rejected, and reads back as the closest state the schema has.
         $status = $json['status'] ?? null;
         if (is_string($status) && $status !== '') {
-            $data['active'] = in_array($status, ['completed', 'stopped', 'cancelled'], true) ? 0 : 1;
+            if ($status === 'completed') {
+                // end_date is written nowhere else on this path, so it is set unconditionally.
+                // Date, not datetime: the column is a date and the read side compares it with
+                // IS NOT NULL only, so any time component would be noise.
+                $data['active'] = 1;
+                $data['end_date'] = date('Y-m-d');
+            } else {
+                $data['active'] = in_array($status, ['stopped', 'cancelled'], true) ? 0 : 1;
+            }
         }
 
         // intent -> request_intent + request_intent_title

@@ -29,6 +29,8 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
@@ -300,10 +302,24 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     {
         // Patient is not mutable on update; drop the resolved pid path so updates only touch fields the FHIR resource carries.
         unset($updatedOpenEMRRecord['puuid']);
-        return $this->deviceService->update(
+        $result = $this->deviceService->update(
             $fhirResourceId,
             FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
         );
+        if ($result->hasErrors() || !$result->hasData()) {
+            return $result;
+        }
+
+        // Read the device back through the search path rather than returning what update() built.
+        // It answers with the raw `lists` columns, and FhirServiceBase::update() feeds that row
+        // straight into parseOpenEMRRecord(), which reads puuid, code and udi_di -- none of which
+        // the raw row carries, because those are derived by
+        // DeviceService::createResultRecordFromDatabaseResult(). A successful PUT therefore came
+        // back as a Device with no patient, no type and no UDI. This is the same lookup the _id
+        // search parameter performs for a GET.
+        return $this->searchForOpenEMRRecords([
+            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($fhirResourceId, null, true)]),
+        ]);
     }
 
     /**

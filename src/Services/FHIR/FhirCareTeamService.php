@@ -344,7 +344,17 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             }
             $memberUuid = UtilsService::parseReferenceString($memberRef, 'Practitioner')['uuid'] ?? null;
             if (!is_string($memberUuid) || $memberUuid === '' || !UuidRegistry::isValidStringUUID($memberUuid)) {
-                continue;
+                // Rejected rather than skipped. Only Practitioner members are writable here, but
+                // parseOpenEMRRecord() emits Organization and RelatedPerson participants too
+                // (populateFacilityTeamMembers / populateRelatedPersonTeamMembers). Dropping them
+                // silently is destructive on PUT: saveCareTeam() reconciles the full member set
+                // and calls markMemberAsInactive() on every stored row missing from the submitted
+                // list, so a client that GETs a team, renames it and PUTs it back would deactivate
+                // every facility and contact member and still receive 200. Same reasoning as the
+                // unresolvable-practitioner rejection in saveCareTeamRecord().
+                throw new \InvalidArgumentException(
+                    'CareTeam.participant.member supports only Practitioner references on write'
+                );
             }
             $roles = $participant['role'] ?? null;
             $firstRole = is_array($roles) ? ($roles[0] ?? null) : null;

@@ -243,7 +243,7 @@ class FhirServiceRequestRestController
     // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/ServiceRequest',
-        description: 'Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row. The FHIR R4 1..1 `intent` field is persisted to procedure_order.order_intent; OpenEMR supports the values order/plan/directive/proposal/option directly, and other R4 intents (original-order, reflex-order, filler-order, instance-order) fall back to \'order\' since OpenEMR\'s order workflow has no distinction for those.',
+        description: 'Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row. The FHIR R4 1..1 `intent` field is persisted to procedure_order.order_intent; OpenEMR supports the values order/plan/directive/proposal/option; the other R4 intents (original-order, reflex-order, filler-order, instance-order) are rejected with a 422 because no column preserves their meaning.',
         tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,
