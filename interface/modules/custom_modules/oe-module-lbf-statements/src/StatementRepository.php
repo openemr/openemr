@@ -256,7 +256,7 @@ class StatementRepository
         }
         try {
             $this->sql->releaseLock($lockName);
-        } catch (\RuntimeException) {
+        } catch (\Throwable) { // @phpstan-ignore openemr.forbiddenCatchType (lock cleanup must not hide a committed save)
             ServiceContainer::getLogger()->error('LBF statements: could not release the band lock.');
         }
     }
