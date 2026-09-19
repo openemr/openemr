@@ -837,23 +837,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'From\\: \\<\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Reply\\-to\\: \\<\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/batchcom/batchEmail.php',
 ];
 $ignoreErrors[] = [
@@ -9768,7 +9758,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between \\(array\\|float\\|int\\) and mixed results in an error\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
@@ -11178,16 +11168,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "/" between int\\|false and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "/" between mixed and \\(float\\|int\\) results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and 60 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];

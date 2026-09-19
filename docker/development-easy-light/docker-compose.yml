@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:12.3.3@sha256:ab1c3dd381940233af12512b97d47b508fd3a0f17fbe3ba388739b7bc17cbc0b
+    image: mariadb:12.3.3@sha256:805c8e104bd563d5bfa24fadd3f31cd419ea859cb5277f32b5dbf2db714f9ed1
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:559b42af407c951efca0a67b77f7647a81b5bfafd5081c7f66b02e3de36feae0
+    image: openemr/openemr:flex@sha256:c9d9b0100f51bdb37dd5abe5e960860f35267595865b5a23f3f8ee1547a743f1
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -76,6 +76,8 @@ services:
       GITHUB_COMPOSER_TOKEN_ENCODED: Z2hwX0NpbnJ4aXlNd0NzcGZXWG1UWFUwcXhGa040elFKSDJoZGJXVw==
       GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: '103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121'
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
+      # for v_js_includes in version.php
+      OPENEMR__ENVIRONMENT: "dev"
       OPENEMR_SETTING_site_addr_oath: 'https://localhost:${WT_HTTPS_PORT:-9300}'
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
@@ -104,7 +106,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:3a8a8d6b5289091f959ba0293f21163b3a2fc5741991a53de70b3497fe8d31db
+    image: phpmyadmin:5.2.3@sha256:5f4b9a1f5aa30020003969e62387ee15e011e626514b4e1751e8976d49854617
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:

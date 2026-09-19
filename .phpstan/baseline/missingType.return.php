@@ -13907,11 +13907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/globals.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function isGpRelation\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/gprelations.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getCounselors\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/group.inc.php',

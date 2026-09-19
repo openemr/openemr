@@ -838,7 +838,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 68,
+    'count' => 66,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -5008,12 +5008,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
-    'count' => 11,
+    'count' => 9,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) instead of sqlQueryNoLog\\(\\)\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
@@ -5023,7 +5023,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 13,
+    'count' => 11,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
@@ -5120,16 +5120,6 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/gprelations.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/gprelations.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
@@ -5663,11 +5653,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) instead of sqlQueryNoLog\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
 ];

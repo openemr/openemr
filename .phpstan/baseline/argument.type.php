@@ -23987,16 +23987,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$timestamp of function getdate expects int\\|null, float\\|int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, float\\|int given\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
@@ -24425,11 +24415,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/persist.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$patient_id of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects int\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$data of method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:reportClickEvent\\(\\) expects array, mixed given\\.$#',
@@ -25457,11 +25442,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$exception of method AppBasePortalController\\:\\:RenderExceptionJSON\\(\\) expects Exception, Throwable given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$property of method Criteria\\:\\:SetOrder\\(\\) expects string, array\\|string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
@@ -25475,11 +25455,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$callback of method PortalController\\:\\:RenderJSON\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$exception of method AppBasePortalController\\:\\:RenderExceptionJSON\\(\\) expects Exception, Throwable given\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$html of method HTMLPurifier\\:\\:purify\\(\\) expects string, mixed given\\.$#',
@@ -25532,11 +25507,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$exception of method AppBasePortalController\\:\\:RenderExceptionJSON\\(\\) expects Exception, Throwable given\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$json of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects stdClass, mixed given\\.$#',
     'count' => 25,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
@@ -25570,11 +25540,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$default of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects string, int given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$exception of method AppBasePortalController\\:\\:RenderExceptionJSON\\(\\) expects Exception, Throwable given\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$json of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects stdClass, mixed given\\.$#',
@@ -25624,11 +25589,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$data of function unserialize expects string, mixed given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$exception of method AppBasePortalController\\:\\:RenderExceptionJSON\\(\\) expects Exception, Throwable given\\.$#',
-    'count' => 5,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
 ];
 $ignoreErrors[] = [

@@ -17,6 +17,14 @@
  *       case where rel-810 had a placeholder row (added at branch-cut)
  *       that becomes redundant once the real dev cycle begins.
  *
+ *   (3) Strip `next` from the master row's `docker_tags` if present.
+ *       PostReleaseTargetsMutator re-adds `next` to the master row at
+ *       finalize (it belongs there when no rel branch is claiming it);
+ *       at patch-prep the incoming patch's new dev row takes over
+ *       `next`, so the master row's copy has to move. Mirrors
+ *       BranchCutReleaseTargetsMutator's equivalent strip during branch
+ *       cuts. Idempotent: no-op if `next` is already absent.
+ *
  * Existing finalized rows for prior patches (e.g., the just-shipped
  * 8.1.1 row carrying `latest`) are NOT touched — that row was added by
  * PostReleaseTargetsMutator at finalize and represents a real publishing
@@ -60,7 +68,7 @@ final readonly class PatchPrepReleaseTargetsMutator implements MutatorInterface
 
     public function name(): string
     {
-        return 'release-targets.yml (patch-prep: insert new dev row + drop unreleased placeholder)';
+        return 'release-targets.yml (patch-prep: insert new dev row + drop unreleased placeholder + strip next from master)';
     }
 
     public function apply(MutatorContext $context): MutatorResult
@@ -80,6 +88,7 @@ final readonly class PatchPrepReleaseTargetsMutator implements MutatorInterface
 
         $newText = $this->dropUnreleasedRowsForBranch($original, $relBranch);
         $newText = $this->insertNewDevRow($newText, $relBranch, $context);
+        $newText = $this->stripNextFromMasterRow($newText);
 
         if ($newText === $original) {
             return MutatorResult::noop();
@@ -278,5 +287,70 @@ final readonly class PatchPrepReleaseTargetsMutator implements MutatorInterface
             '  docker_tags: ' . $versionTag . ',next',
             '  openemr_version_ref: ' . $relBranch,
         ];
+    }
+
+    /**
+     * Remove `next` from the master row's docker_tags. Idempotent: no-op
+     * if already absent, or if there is no master row / no docker_tags
+     * line to touch. Preserves the master row's version tag + `dev` +
+     * any other tags + trailing comment.
+     */
+    private function stripNextFromMasterRow(string $text): string
+    {
+        $rows = $this->indexRows($text);
+        $masterRow = null;
+        foreach ($rows as $row) {
+            if ($row['branch'] === 'master') {
+                $masterRow = $row;
+                break;
+            }
+        }
+        if ($masterRow === null || $masterRow['dockerTagsLine'] === null) {
+            return $text;
+        }
+
+        $current = $this->parseTags($masterRow['dockerTags']);
+        $stripped = array_values(array_filter($current, static fn (string $t): bool => $t !== 'next'));
+        if ($stripped === $current) {
+            return $text;
+        }
+
+        $lines = explode("\n", $text);
+        $lineIndex = $masterRow['dockerTagsLine'];
+        $lines[$lineIndex] = $this->renderDockerTagsLine($lines[$lineIndex], $stripped);
+        return implode("\n", $lines);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parseTags(?string $value): array
+    {
+        if ($value === null || $value === '') {
+            return [];
+        }
+        $parts = preg_split('/\s*,\s*/', trim($value));
+        if ($parts === false) {
+            return [];
+        }
+        return array_values(array_filter($parts, static fn (string $t): bool => $t !== ''));
+    }
+
+    /**
+     * Render an updated `  docker_tags: ...` line, preserving the
+     * `  docker_tags: ` prefix and any trailing comment.
+     *
+     * @param list<string> $tags
+     */
+    private function renderDockerTagsLine(string $originalLine, array $tags): string
+    {
+        $value = implode(',', $tags);
+        $replaced = preg_replace(
+            '/^(  docker_tags:\s*)[^#\n]*?(\s*(?:#.*)?)$/',
+            '${1}' . $value . '${2}',
+            $originalLine,
+            1,
+        );
+        return $replaced ?? $originalLine;
     }
 }

@@ -75,6 +75,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       EMPTY: yes
     healthcheck:
@@ -107,6 +108,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       EMPTY: yes
     healthcheck:
@@ -139,6 +141,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       EMPTY: yes
     healthcheck:
@@ -172,6 +175,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       EMPTY: yes
       MYSQL_HOST: mariadb
       MYSQL_ROOT_PASS: root
@@ -243,6 +247,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       EMPTY: yes
     healthcheck:
@@ -275,6 +280,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
@@ -308,6 +314,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
@@ -341,6 +348,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
@@ -374,6 +382,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
@@ -407,6 +416,7 @@ services:
       TERM: xterm-256color
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
@@ -427,7 +437,7 @@ services:
       timeout: 5s
   mariadb:
     restart: always
-    image: mariadb:12.3.3@sha256:ab1c3dd381940233af12512b97d47b508fd3a0f17fbe3ba388739b7bc17cbc0b
+    image: mariadb:12.3.3@sha256:805c8e104bd563d5bfa24fadd3f31cd419ea859cb5277f32b5dbf2db714f9ed1
     command: [mariadbd, --character-set-server=utf8mb4]
     ports:
     - 8210:3306
@@ -447,7 +457,7 @@ services:
       retries: 3
   mariadb-ssl:
     restart: always
-    image: mariadb:12.3.3@sha256:ab1c3dd381940233af12512b97d47b508fd3a0f17fbe3ba388739b7bc17cbc0b
+    image: mariadb:12.3.3@sha256:805c8e104bd563d5bfa24fadd3f31cd419ea859cb5277f32b5dbf2db714f9ed1
     command: [mariadbd, --character-set-server=utf8mb4, --ssl-ca=/etc/ssl/ca.pem, --ssl_cert=/etc/ssl/server-cert.pem, --ssl_key=/etc/ssl/server-key.pem]
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
@@ -505,7 +515,7 @@ services:
       retries: 3
   mariadb-very-very-old:
     restart: always
-    image: mariadb:10.11.19@sha256:07c0aaff7396b74cb7975cba78257178d188e30f531a5db2b617c48beef13c41
+    image: mariadb:10.11.19@sha256:7f22313fc130a377a44999965bcb0a08dd5b21e8502824c1b864f792f9bc66ab
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -523,7 +533,7 @@ services:
       retries: 3
   mysql:
     restart: always
-    image: mysql:9.7.2@sha256:b2cf29815e62fea06b7de22b8b8e57dfe0eb32706e38ce951930bde6faef4ab6
+    image: mysql:9.7.2@sha256:29abb0a179982e4a8928138bfc7f918af9eda64e7eeb1b1d084c1720a20159e6
     command: [mysqld, --character-set-server=utf8mb4]
     ports:
     - 8220:3306
@@ -540,7 +550,7 @@ services:
       retries: 3
   mysql-old:
     restart: always
-    image: mysql:8.4.11@sha256:3466ba4a4828aa8d46fb7c3bc16b67b781c98413cf4ea0fac6feaa6e881faa26
+    image: mysql:8.4.11@sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -555,7 +565,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:3a8a8d6b5289091f959ba0293f21163b3a2fc5741991a53de70b3497fe8d31db
+    image: phpmyadmin:5.2.3@sha256:5f4b9a1f5aa30020003969e62387ee15e011e626514b4e1751e8976d49854617
     ports:
     - 8200:80
     environment:
@@ -623,84 +633,94 @@ services:
     - dev-php-fpm-8-6-redis
   dev-php-fpm-8-2:
     restart: always
-    image: openemr/dev-php-fpm:8.2@sha256:0c00c5798c9539e23aa003b8bef52f7c2c2df20c67d8963973a786d50fdcc613
+    image: openemr/dev-php-fpm:8.2@sha256:7c32e25da12b65f528ca5afed3cbb3d54e34e5e42f612f18d3a5ce921b8995fa
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-2/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-3:
     restart: always
-    image: openemr/dev-php-fpm:8.3@sha256:d3ef975bfd5f03c5a4589e6448e8420c5321a7ef2d7bfbfff563b24848afffe3
+    image: openemr/dev-php-fpm:8.3@sha256:543f8b1b9db0260c8238f5b9412a139dc29168fb59c8a3fe7dfad6cc99d09b4c
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-3/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-4:
     restart: always
-    image: openemr/dev-php-fpm:8.4@sha256:ac31927a957d4faef04d63632ed4fb9a198737e1821eb4035b0839e9bf4c19ca
+    image: openemr/dev-php-fpm:8.4@sha256:eda344b74d47efe87d224a8c64426a533cd62b3b234b02758d9883cfeeb486f2
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-4/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-5:
     restart: always
-    image: openemr/dev-php-fpm:8.5@sha256:19046834b18aa05b8031f32f84ed10a3cccef5f3c4d82380953c21f406dab8b6
+    image: openemr/dev-php-fpm:8.5@sha256:b879abebd89b1e1c3266278b0a3f80834dc5ce5566f99d7db3c794d030147082
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-5/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-6:
     restart: always
-    image: openemr/dev-php-fpm:8.6@sha256:4bfc085ce5180f3563982b0dd852ef5404ff002005e0358fdb14720223fba396
+    image: openemr/dev-php-fpm:8.6@sha256:c8cfecebda4f229328fd3ae9487183e90a835f3da507ea45c4e29e3c398204a8
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-6/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-2-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.2@sha256:0c00c5798c9539e23aa003b8bef52f7c2c2df20c67d8963973a786d50fdcc613
+    image: openemr/dev-php-fpm:8.2@sha256:7c32e25da12b65f528ca5afed3cbb3d54e34e5e42f612f18d3a5ce921b8995fa
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-2/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-3-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.3@sha256:d3ef975bfd5f03c5a4589e6448e8420c5321a7ef2d7bfbfff563b24848afffe3
+    image: openemr/dev-php-fpm:8.3@sha256:543f8b1b9db0260c8238f5b9412a139dc29168fb59c8a3fe7dfad6cc99d09b4c
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-3/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-4-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.4@sha256:ac31927a957d4faef04d63632ed4fb9a198737e1821eb4035b0839e9bf4c19ca
+    image: openemr/dev-php-fpm:8.4@sha256:eda344b74d47efe87d224a8c64426a533cd62b3b234b02758d9883cfeeb486f2
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-4/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-5-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.5@sha256:19046834b18aa05b8031f32f84ed10a3cccef5f3c4d82380953c21f406dab8b6
+    image: openemr/dev-php-fpm:8.5@sha256:b879abebd89b1e1c3266278b0a3f80834dc5ce5566f99d7db3c794d030147082
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-5/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-6-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.6@sha256:4bfc085ce5180f3563982b0dd852ef5404ff002005e0358fdb14720223fba396
+    image: openemr/dev-php-fpm:8.6@sha256:c8cfecebda4f229328fd3ae9487183e90a835f3da507ea45c4e29e3c398204a8
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-6/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
     environment:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      OPENEMR__ENVIRONMENT: "dev"
   redis:
     restart: always
     image: redis:8.10.1@sha256:298e5b3bc566bade82f46ad5511777a4a07a294097ce16ada2f6a42be5239df5
@@ -719,7 +739,7 @@ services:
     - 9443:9443
   selenium:
     restart: always
-    image: selenium/standalone-chromium:152.0.7977.75@sha256:fcf9eef47b9546a2252937481a8298ce0958d20c9d91e040d480184e80b41c76
+    image: selenium/standalone-chromium:152.0.7977.82@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
     ports:
     - 4444:4444    # Selenium WebDriver interface
     - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)

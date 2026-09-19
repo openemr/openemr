@@ -413,7 +413,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -738,7 +738,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
@@ -2633,7 +2633,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 10,
+    'count' => 9,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
@@ -2715,11 +2715,6 @@ $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/globals.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/gprelations.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
@@ -3050,11 +3045,6 @@ $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 12,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
