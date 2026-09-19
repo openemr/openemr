@@ -51,6 +51,7 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
         public int $insertId = 42;
         public int $transactions = 0;
         public bool $lockSucceeds = true;
+        public bool $unlockThrows = false;
         /** @var list<array{op:string,name:string}> */
         public array $locks = [];
 
@@ -61,6 +62,25 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
         public function fetchRecords(string $sql, array $binds = []): array
         {
             $this->calls[] = ['op' => 'fetch', 'sql' => $sql, 'binds' => $binds];
+            if (str_contains($sql, 'FROM layout_options') && str_contains($sql, 'uor > 0')) {
+                if (array_key_exists(0, $this->queue)) {
+                    $peek = $this->queue[0];
+                    if (is_array($peek) && isset($peek[0]) && is_array($peek[0]) && array_key_exists('field_id', $peek[0])) {
+                        $next = array_shift($this->queue);
+                        $out = [];
+                        foreach ($next as $row) {
+                            if (is_array($row)) {
+                                $out[] = $row;
+                            }
+                        }
+                        return $out;
+                    }
+                }
+                return [
+                    ['field_id' => 'n', 'data_type' => 2, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+                    ['field_id' => 'num', 'data_type' => 2, 'title' => 'Num', 'list_id' => '', 'seq' => 2, 'group_id' => '1'],
+                ];
+            }
             $next = array_shift($this->queue);
             if (!is_array($next)) {
                 return [];
@@ -147,6 +167,9 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
         {
             $this->calls[] = ['op' => 'unlock', 'sql' => 'RELEASE_LOCK', 'binds' => [$name]];
             $this->locks[] = ['op' => 'release', 'name' => $name];
+            if ($this->unlockThrows) {
+                throw new \RuntimeException('RELEASE_LOCK failed');
+            }
         }
     }
 
@@ -681,6 +704,73 @@ namespace OpenEMR\Tests\Isolated\Modules\LbfStatements {
                 'enabled' => 1,
                 'statement_text' => 'X',
             ]);
+        }
+
+        /**
+         * A source field that is not on the selected layout cannot be saved.
+         */
+        public function testSaveRuleRejectsSourceFieldMissingFromLayout(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [
+                ['field_id' => 'n', 'data_type' => 2, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+            ];
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('Source field is not on this layout.');
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'gone',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 1,
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
+        }
+
+        /**
+         * A second source field must also exist on the selected layout.
+         */
+        public function testSaveRuleRejectsSecondSourceFieldMissingFromLayout(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [
+                ['field_id' => 'n', 'data_type' => 2, 'title' => 'N', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+            ];
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('Second source field is not on this layout.');
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'source_field_id_2' => 'gone',
+                'op' => 'ratio_lt',
+                'min_value' => 0.5,
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
+        }
+
+        /**
+         * A failed RELEASE_LOCK after commit does not turn a saved rule into an error.
+         */
+        public function testSaveRuleKeepsResultWhenUnlockFails(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->unlockThrows = true;
+            $this->sql->queue[] = [];
+            $id = $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 1,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'statement_text' => 'In range.',
+                'seq' => 10,
+                'enabled' => 1,
+            ]);
+            $this->assertSame(42, $id);
         }
     }
 }
