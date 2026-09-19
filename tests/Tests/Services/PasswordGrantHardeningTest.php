@@ -63,10 +63,25 @@ class PasswordGrantHardeningTest extends TestCase
     private array $originalMfaRowsByUser = [];
     private mixed $originalPasswordGrantSetting = null;
     private bool $originalPasswordGrantSettingWasSet = false;
-    /** @var list<string> */
-    private array $countersToReset = [];
-    /** @var list<string> */
-    private array $ipRowsToReset = [];
+    /**
+     * Snapshots of users_secure lockout fields (login_fail_counter,
+     * last_login_fail, auto_block_emailed) keyed by username. tearDown
+     * restores the exact pre-mutation values so a shared user (e.g.
+     * admin) doesn't lose its real lockout state to zero after a test.
+     *
+     * @var array<string, array<mixed>>
+     */
+    private array $originalUserLockoutByUsername = [];
+    /**
+     * Snapshots of ip_tracking rows keyed by ip_string. Value is the row
+     * as returned by QueryUtils::querySingleRow (associative array) if
+     * the row existed before the test, or null if it did not. tearDown
+     * restores the exact row (or deletes an inserted row) so shared
+     * IP-tracking state isn't wiped.
+     *
+     * @var array<string, ?array<mixed>>
+     */
+    private array $originalIpTrackingByString = [];
     private string $clientIp = '127.0.0.1';
     private bool $originalHttpHostWasSet = false;
     private ?string $originalHttpHost = null;
@@ -129,13 +144,48 @@ class PasswordGrantHardeningTest extends TestCase
                 );
             }
         }
-        foreach ($this->countersToReset as $username) {
-            AuthUtils::resetLoginFailedCounter($username);
-        }
-        foreach ($this->ipRowsToReset as $ipString) {
+        foreach ($this->originalUserLockoutByUsername as $username => $original) {
+            // Restore the pre-mutation lockout state exactly rather than
+            // resetting to zero — a shared user (admin) may legitimately
+            // have had a non-zero counter or a recent last_login_fail from
+            // real activity before the test ran.
             QueryUtils::sqlStatementThrowException(
-                "DELETE FROM ip_tracking WHERE ip_string = ?",
-                [$ipString]
+                "UPDATE `users_secure` SET `login_fail_counter` = ?, "
+                    . "`last_login_fail` = ?, `auto_block_emailed` = ? "
+                    . "WHERE BINARY `username` = ?",
+                [
+                    $original['login_fail_counter'],
+                    $original['last_login_fail'],
+                    $original['auto_block_emailed'],
+                    $username,
+                ]
+            );
+        }
+        foreach ($this->originalIpTrackingByString as $ipString => $original) {
+            if ($original === null) {
+                // Row did not exist before the test; delete anything we
+                // inserted.
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM `ip_tracking` WHERE `ip_string` = ?",
+                    [$ipString]
+                );
+                continue;
+            }
+            // Row existed — restore its exact prior values instead of
+            // deleting (which would wipe shared IP-tracking state that
+            // other tests or the surrounding env may depend on).
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `ip_tracking` SET `total_ip_login_fail_counter` = ?, "
+                    . "`ip_login_fail_counter` = ?, `ip_last_login_fail` = ?, "
+                    . "`ip_auto_block_emailed` = ? "
+                    . "WHERE `ip_string` = ?",
+                [
+                    $original['total_ip_login_fail_counter'],
+                    $original['ip_login_fail_counter'],
+                    $original['ip_last_login_fail'],
+                    $original['ip_auto_block_emailed'],
+                    $ipString,
+                ]
             );
         }
 
@@ -316,8 +366,8 @@ class PasswordGrantHardeningTest extends TestCase
         // right password can grind the 6-digit code indefinitely.
         $userId = $this->requireExistingAdminUserId();
         $secret = $this->enrollTotpForUser($userId);
-        $this->countersToReset[] = 'admin';
-        $this->ipRowsToReset[] = $this->clientIp;
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
 
         AuthUtils::resetLoginFailedCounter('admin');
         $userBefore = $this->readUserCounter('admin');
@@ -363,7 +413,7 @@ class PasswordGrantHardeningTest extends TestCase
         );
 
         $ipString = $this->clientIp;
-        $this->ipRowsToReset[] = $ipString;
+        $this->snapshotIpTracking($ipString);
 
         $before = $this->readIpCounter($ipString);
         $wrong = 'wrong-password';
@@ -394,7 +444,7 @@ class PasswordGrantHardeningTest extends TestCase
         );
 
         $ipString = $this->clientIp;
-        $this->ipRowsToReset[] = $ipString;
+        $this->snapshotIpTracking($ipString);
 
         // Seed a non-zero counter so we can assert the success path zeroed it.
         QueryUtils::sqlStatementThrowException(
@@ -427,7 +477,7 @@ class PasswordGrantHardeningTest extends TestCase
         );
 
         $ipString = $this->clientIp;
-        $this->ipRowsToReset[] = $ipString;
+        $this->snapshotIpTracking($ipString);
 
         // Seed the counter above the global threshold so the very next call
         // must be rejected by the block gate rather than the wrong-password
@@ -456,9 +506,9 @@ class PasswordGrantHardeningTest extends TestCase
     public function testRecordFailedAuthChallengeIncrementsBothCounters(): void
     {
         $username = 'admin';
-        $this->countersToReset[] = $username;
+        $this->snapshotUserLockout($username);
         $ipString = $this->clientIp;
-        $this->ipRowsToReset[] = $ipString;
+        $this->snapshotIpTracking($ipString);
 
         AuthUtils::resetLoginFailedCounter($username);
         $userBefore = $this->readUserCounter($username);
@@ -481,7 +531,7 @@ class PasswordGrantHardeningTest extends TestCase
     public function testRecordFailedAuthChallengeSkipsUserCounterWhenUsernameNull(): void
     {
         $ipString = $this->clientIp;
-        $this->ipRowsToReset[] = $ipString;
+        $this->snapshotIpTracking($ipString);
         // Baseline the admin counter so we can prove it was not touched.
         AuthUtils::resetLoginFailedCounter('admin');
         $adminBefore = $this->readUserCounter('admin');
@@ -562,6 +612,50 @@ class PasswordGrantHardeningTest extends TestCase
             [$userId, $encryptedSecret]
         );
         return $secret;
+    }
+
+    /**
+     * Snapshot the users_secure lockout fields for a username so tearDown
+     * can restore them after mutation. Idempotent — repeated calls in the
+     * same test do not overwrite the initial snapshot.
+     */
+    private function snapshotUserLockout(string $username): void
+    {
+        if (array_key_exists($username, $this->originalUserLockoutByUsername)) {
+            return;
+        }
+        $row = QueryUtils::querySingleRow(
+            "SELECT `login_fail_counter`, `last_login_fail`, `auto_block_emailed` "
+                . "FROM `users_secure` WHERE BINARY `username` = ?",
+            [$username]
+        );
+        if (!is_array($row)) {
+            // No users_secure row — the user isn't set up for password
+            // login, so there's nothing to restore. Skip snapshotting so
+            // tearDown does not try to UPDATE a non-existent row.
+            return;
+        }
+        $this->originalUserLockoutByUsername[$username] = $row;
+    }
+
+    /**
+     * Snapshot the ip_tracking row for an ip_string so tearDown can restore
+     * it after mutation. Records null if the row did not exist (tearDown
+     * will then delete anything the test inserted). Idempotent — repeated
+     * calls in the same test do not overwrite the initial snapshot.
+     */
+    private function snapshotIpTracking(string $ipString): void
+    {
+        if (array_key_exists($ipString, $this->originalIpTrackingByString)) {
+            return;
+        }
+        $row = QueryUtils::querySingleRow(
+            "SELECT `total_ip_login_fail_counter`, `ip_login_fail_counter`, "
+                . "`ip_last_login_fail`, `ip_auto_block_emailed` "
+                . "FROM `ip_tracking` WHERE `ip_string` = ?",
+            [$ipString]
+        );
+        $this->originalIpTrackingByString[$ipString] = is_array($row) ? $row : null;
     }
 
     /**
