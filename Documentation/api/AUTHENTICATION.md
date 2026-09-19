@@ -624,19 +624,24 @@ Confidential clients using `client_secret_basic` may present the secret via
 the `Authorization: Basic BASE64(client_id:client_secret)` header instead of
 sending `client_secret` in the body. Public clients omit `client_secret`.
 
-#### Token Request (Patient Role)
+#### Token Request (Patient Role — Confidential Client)
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   https://localhost:9300/oauth2/default/token \
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
   --data-urlencode 'scope=openid api:port patient/Patient.read' \
   --data-urlencode 'user_role=patient' \
   --data-urlencode 'username=patient123' \
   --data-urlencode 'password=patientpass' \
   --data-urlencode 'email=patient@example.com'
 ```
+
+Same rules as the staff request: confidential clients registered with
+`client_secret_basic` may send the secret via HTTP Basic auth instead;
+public clients omit `client_secret`.
 
 **Parameters:**
 - `grant_type`: Must be `password`
@@ -654,12 +659,20 @@ curl -X POST -k \
 
 #### Rate Limiting
 
-Both the staff (`user_role=users`) and patient (`user_role=patient`) paths
-engage the same per-user (`users_secure.login_fail_counter`) and per-IP
-(`ip_tracking.ip_login_fail_counter`) lockout counters used by web login.
-Wrong password, wrong TOTP, or repeated attempts from an over-threshold IP
-will be rejected until the admin unblocks the row (or the automatic reset
-window elapses, when configured).
+Failed password grant attempts engage the same lockout counters used by web
+login:
+
+- **Staff (`user_role=users`)**: bumps both the per-user
+  (`users_secure.login_fail_counter`) and per-IP
+  (`ip_tracking.ip_login_fail_counter`) counters. Wrong TOTP counts the same
+  as a wrong password.
+- **Patient (`user_role=patient`)**: bumps only the per-IP counter — patient
+  portal accounts have no per-username counter equivalent in
+  `patient_access_onsite`.
+
+Once the applicable threshold is reached, further attempts are rejected
+until the admin unblocks the row (or the automatic reset window elapses, when
+configured).
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >
