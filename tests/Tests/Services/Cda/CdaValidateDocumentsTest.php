@@ -53,14 +53,29 @@ class CdaValidateDocumentsTest extends TestCase {
         //   count returns, the versioned extension="2015-08-01" templateId has crept
         //   back into the generator; fix the generator, do not raise this count.
         //
-        // ignoredCount = 8: schematron rules the validator cannot resolve
-        //   ("Assertion skipped or malformed") -- voc.xml value-set lookups and the
-        //   R1.1-compatibility meta-rule. warningCount = 0.
+        // ignoredCount = 0: nothing in Consolidation.sch is now unevaluable. The
+        //   prior Node-service snapshot showed 8 ignored because the JS xpath library
+        //   could not evaluate `document('voc.xml')/...` value-set predicates and
+        //   silently punted; the pure-PHP validator rewrites those against a
+        //   precomputed vocab lookup (they all pass on this fixture, so errorCount is
+        //   unchanged at 6). The one entry that survived that change was the
+        //   R1.1-compatibility meta-rule, whose test references the `$root`
+        //   <sch:let> variable; XPathVariableExpander now inlines <sch:let>
+        //   definitions, so it evaluates too.
+        //
+        // warningCount = 201: the warning half of Consolidation.sch, 215 of its 433
+        //   patterns. oe-cda-schematron's validate() treated an absent includeWarnings
+        //   option as true and the legacy PHP passed no options, so these were always
+        //   reported; the PHP port briefly defaulted the flag to false and dropped them.
+        //
+        //   A non-zero ignoredCount now means a real regression: an assertion the
+        //   validator could not evaluate. Find it in the dump below rather than
+        //   raising this number.
         $context = $this->describeValidation($validationResponse);
 
         $this->assertEquals(6, $validationResponse['errorCount'], "Expected 6 validation errors for invalid CCDA document.\n" . $context);
-        $this->assertEquals(0, $validationResponse['warningCount'], "Expected no validation warnings for invalid CCDA document.\n" . $context);
-        $this->assertEquals(8, $validationResponse['ignoredCount'], "Expected 8 ignored validation issues for invalid CCDA document.\n" . $context);
+        $this->assertEquals(201, $validationResponse['warningCount'], "Expected 201 validation warnings for invalid CCDA document.\n" . $context);
+        $this->assertEquals(0, $validationResponse['ignoredCount'], "Expected no ignored validation issues for invalid CCDA document.\n" . $context);
         $this->assertNotEmpty($validationResponse['errors'], "Expected validation errors for invalid CCDA document.");
         $this->assertCount(6, $validationResponse['errors'], "Expected 6 validation errors for invalid CCDA document.\n" . $context);
     }

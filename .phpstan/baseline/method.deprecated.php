@@ -201,7 +201,7 @@ use setLogger\\(\\)$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:
 read from the \\-\\>logger property$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
