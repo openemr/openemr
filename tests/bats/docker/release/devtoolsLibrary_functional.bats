@@ -5,7 +5,41 @@ load '../helpers'
 setup() {
     SCRIPT_DIR="$(get_script_dir release)"
     LIB="${SCRIPT_DIR}/utilities/devtoolsLibrary.source"
+    SCRIPT="${SCRIPT_DIR}/openemr.sh"
     [[ -f "$LIB" ]]
+    [[ -f "$SCRIPT" ]]
+}
+
+@test "release devtoolsLibrary: timing helpers use EPOCHREALTIME microseconds" {
+    run bash -c "source '$LIB'; grep -Fq '\${EPOCHREALTIME/[.,]/}' '$LIB'"
+    [[ $status -eq 0 ]]
+    run bash -c "source '$LIB'; current_time_us"
+    [[ $status -eq 0 ]] || return 1
+    [[ "$output" =~ ^[0-9]+$ ]] || return 1
+    run bash -c "source '$LIB'; elapsed_time_us 1000000 1234567"
+    [[ $status -eq 0 ]] || return 1
+    [[ "$output" == "234567" ]] || return 1
+    run bash -c "source '$LIB'; elapsed_time_us 1234567 1000000"
+    [[ $status -eq 0 ]] || return 1
+    [[ "$output" == "0" ]] || return 1
+    run bash -c "source '$LIB'; format_elapsed_seconds 4999"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "0.00" ]]
+    run bash -c "source '$LIB'; format_elapsed_seconds 5000"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "0.01" ]]
+    run bash -c "source '$LIB'; format_elapsed_seconds 234567"
+    [[ $status -eq 0 ]]
+    [[ "$output" == "0.23" ]]
+}
+
+@test "release openemr.sh: startup timing avoids busybox nanoseconds and python" {
+    run grep -q 'date +%s\.%N' "$SCRIPT"
+    [[ $status -ne 0 ]] || return 1
+    run grep -q 'python3 -c "print(round' "$SCRIPT"
+    [[ $status -ne 0 ]] || return 1
+    run grep -Fq 'PERM_DURATION_US >= 5000' "$SCRIPT"
+    [[ $status -eq 0 ]]
 }
 
 @test "devtoolsLibrary: prepareVariables with custom env sets CONFIGURATION" {
