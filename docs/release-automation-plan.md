@@ -450,8 +450,11 @@ recovery paths:
   specifically for the smoketest) skips both `acceptance-gate` and
   `publish-and-cleanup` in docker-build-release, so the built
   candidate tag stays on Docker Hub for docker-acceptance-only to
-  consume (analogous to how build-release's `dry_run` preserves the
-  release-output workflow-run artifact). `docker_tags` is set to a
+  consume (analogous to how build-release preserves the
+  release-output workflow-run artifact on the tarball side; note
+  that build-release's tarball equivalent is `dry_run=true +
+  skip_acceptance_gate=true` since G43's 2026-09-19 decoupling —
+  dry_run alone stopped skipping acceptance on that side). `docker_tags` is set to a
   globally-unique `smoketest-canary-<runid>-<timestamp>` value so any
   accidental publish (in case dry_run gating regresses) would push
   the canary rather than clobber real tags. Then chains that source
@@ -654,8 +657,8 @@ mutators would produce churn PRs.
 | `SqlUpgradeSkeletonMutator` | branch-cut (master), patch-prep (rel + master) | Scaffold `sql/X_Y_Z-to-X_Y_Z+N_upgrade.sql`. |
 | `MasterSqlPatchBridgeMutator` | patch-prep (master) | Rename bridge file to track new patch. |
 | `BranchCutReleaseTargetsMutator` | branch-cut (master) | Insert row for new rel branch. |
-| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next`) for the patch + drop any prior `unreleased: true` placeholder for the branch. |
-| `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder. |
+| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next` + `openemr_version_ref: <relBranch>` + `gate_with_acceptance: true`) for the patch + drop any prior `unreleased: true` placeholder for the branch + strip `next` from master row (see G39/G44). |
+| `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder + backfill `gate_with_acceptance: true` on promoted row if missing (defense-in-depth for pre-G44 patch-prep-inserted rows; see G44). |
 
 Adding a new lifecycle event (or a new mutation to an existing one) is
 a matter of writing one class implementing `MutatorInterface`, adding

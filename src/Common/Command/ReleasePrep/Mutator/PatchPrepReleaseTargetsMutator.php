@@ -275,7 +275,17 @@ final readonly class PatchPrepReleaseTargetsMutator implements MutatorInterface
     }
 
     /**
-     * Render the new dev row: <X.Y.P>,next + openemr_version_ref=<relBranch>.
+     * Render the new dev row: <X.Y.P>,next + openemr_version_ref=<relBranch>
+     * + gate_with_acceptance: true.
+     *
+     * `gate_with_acceptance: true` matches what BranchCutReleaseTargetsMutator
+     * emits for its equivalent row (see G44, 2026-09-20). Without it, the
+     * `docker-release-orchestrator.yml` fires `docker-build-release.yml` for
+     * the patch row with `gate_with_acceptance=false`, which takes the non-
+     * gated publish path that pushes directly to final tags without running
+     * the acceptance-gate matrix. Every patch-cycle docker publish would
+     * silently skip acceptance -- a stomp-adjacent regression not caught
+     * until openemr/openemr#14069's 8.4.1 finalize diff was reviewed.
      *
      * @return list<string>
      */
@@ -286,6 +296,7 @@ final readonly class PatchPrepReleaseTargetsMutator implements MutatorInterface
             '- branch: ' . $relBranch,
             '  docker_tags: ' . $versionTag . ',next',
             '  openemr_version_ref: ' . $relBranch,
+            '  gate_with_acceptance: true',
         ];
     }
 
