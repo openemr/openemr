@@ -146,5 +146,5 @@ ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `res
 -- to reject the same 6-digit code being submitted twice within its 90-second acceptance
 -- window (see MfaUtils::checkTOTP).
 #IfMissingColumn login_mfa_registrations last_used_token
-ALTER TABLE `login_mfa_registrations` ADD COLUMN `last_used_token` varchar(16) DEFAULT NULL;
+ALTER TABLE `login_mfa_registrations` ADD COLUMN `last_used_token` varchar(16) DEFAULT NULL COMMENT 'Last 6-digit TOTP that verified successfully. Compared with incoming code within the 90s acceptance window to reject replays.';
 #EndIf
