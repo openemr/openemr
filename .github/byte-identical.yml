@@ -230,6 +230,16 @@ files:
 # applies (that branch doesn't carry the reusable).
 - path: .github/scripts/create-release-tag.sh
   exclude-branches: [rel-800]
+# G45 (openemr/openemr#TBD, 2026-09-20): assert-inputs-nonempty.sh is
+# called from reusable-publish-release.yml's Preflight step (added by
+# G37, #14050). Same runtime-resolves-against-branch-checkout reason
+# as create-release-tag.sh above -- must be present on every branch
+# the reusable can fire from. Same rel-800 exclusion. Missing this
+# manifest entry crashed the 8.4.1 publish with exit 127 on
+# `.github/scripts/assert-inputs-nonempty.sh: No such file or
+# directory` after 8/8 acceptance cells green.
+- path: .github/scripts/assert-inputs-nonempty.sh
+  exclude-branches: [rel-800]
 - path: .github/workflows/build-patch.yml
   exclude-branches: [rel-800]
 - path: .github/actions/setup-php-composer/action.yml
