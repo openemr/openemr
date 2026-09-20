@@ -137,6 +137,125 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
     #[Test]
     public function testAuthCodeGrantWithJwtAssertionAuthentication(): void
     {
+        $http = $this->buildClient();
+        [$privateKey, $publicKey, $code] = $this->registerJwtClientAndObtainCode($http);
+
+        // Token exchange with JWT client_assertion instead of client_secret.
+        // The signed assertion carries iss=sub=client_id, aud=/token URL,
+        // and short exp; JwtAuthenticationService validates the signature
+        // against the client's registered JWKS. After that succeeds,
+        // ClientRepository::validateClient($clientId, null,
+        // 'authorization_code') is called — this test locks in that the
+        // null-secret call returns true rather than rejecting the client.
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            (string) $this->clientId,
+        );
+        $tokenResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => self::REDIRECT_URI,
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $assertion,
+            ],
+        ]);
+        $this->assertSame(
+            200,
+            $tokenResp->getStatusCode(),
+            'Token exchange with JWT client_assertion should succeed. '
+            . '401 invalid_client typically means the JWT signature failed validation, '
+            . 'the client was registered without a jwks, or ClientRepository::validateClient '
+            . 'rejected the null client_secret after the JWT authenticated the client. '
+            . '400 usually means the code was invalid/expired.'
+        );
+
+        $tokens = json_decode((string) $tokenResp->getBody(), true);
+        $this->assertIsArray($tokens);
+        $this->assertArrayHasKey('access_token', $tokens, 'Token response should include access_token');
+        $this->assertIsString($tokens['access_token']);
+        $this->assertNotSame('', $tokens['access_token'], 'access_token must not be empty');
+        $this->assertArrayHasKey('id_token', $tokens, 'Token response should include id_token when openid scope is granted');
+        $this->assertIsString($tokens['id_token']);
+        // Prove the id_token was actually issued to this client (not e.g. a
+        // stale token pulled from an earlier session with a different aud).
+        $tokenParts = explode('.', $tokens['id_token']);
+        $this->assertCount(3, $tokenParts, 'id_token should be a JWT with three segments');
+        $payload = json_decode((string) base64_decode(strtr($tokenParts[1], '-_', '+/'), true), true);
+        $this->assertIsArray($payload);
+        $this->assertSame($this->clientId, $payload['aud'] ?? '', 'id_token aud should match client_id');
+        $this->assertSame(self::NONCE, $payload['nonce'] ?? '', 'id_token nonce should match the value sent to /authorize');
+    }
+
+    #[Test]
+    public function testAuthCodeGrantRejectsTamperedJwtAssertion(): void
+    {
+        // Companion to the success test: the /token endpoint must reject
+        // a client_assertion whose signature does not verify against the
+        // registered JWKS. Without this, JwtAuthenticationService could
+        // silently accept any assertion-shaped string and confidential-
+        // client identity via private_key_jwt would not actually be
+        // enforced. Runs on every api-job PR (the sibling acceptance
+        // test only runs on tests/Acceptance/**-touching PRs + nightly).
+        $http = $this->buildClient();
+        [$privateKey, $publicKey, $code] = $this->registerJwtClientAndObtainCode($http);
+
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            (string) $this->clientId,
+        );
+        // Replace the signature segment with a valid-base64url string of
+        // the same length. 'A' decodes to six zero bits, so the segment
+        // is well-formed base64url (server reaches the RSA verify step)
+        // but decodes to all-zero bytes — a well-formed but definitely
+        // wrong signature.
+        $parts = explode('.', $assertion);
+        $parts[2] = str_repeat('A', strlen($parts[2]));
+        $tampered = implode('.', $parts);
+
+        $tokenResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => self::REDIRECT_URI,
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $tampered,
+            ],
+        ]);
+        $this->assertContains(
+            $tokenResp->getStatusCode(),
+            [400, 401],
+            'A JWT client_assertion whose signature does not verify against the '
+                . 'registered JWKS must be rejected with 400 or 401 (League returns '
+                . 'either depending on the specific rejection path — both are OAuth2 '
+                . 'spec-conformant for invalid_client). 200 here means the JWT '
+                . 'validation is not actually gating client authentication.'
+        );
+        $body = json_decode((string) $tokenResp->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame(
+            'invalid_client',
+            $body['error'] ?? null,
+            'Rejection error code should be OAuth2 invalid_client'
+        );
+    }
+
+    /**
+     * Shared DCR + /authorize + login + consent → code path. Returns
+     * [$privateKey, $publicKey, $code] so both tests can then do their
+     * own /token exchange with whatever client_assertion they want.
+     * Sets $this->clientId as a side effect so tearDown cleans up.
+     *
+     * @return array{\Lcobucci\JWT\Signer\Key, \Lcobucci\JWT\Signer\Key, string}
+     */
+    private function registerJwtClientAndObtainCode(Client $http): array
+    {
         // Load the pre-generated RSA test key pair that BulkAPITestClient
         // also uses. Keeps all "test client identity" material in one place
         // so a key rotation is a single-file change.
@@ -144,8 +263,6 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
         $jwks = json_decode((string) file_get_contents($keyLocation . 'jwk-public-valid.json'));
         $privateKey = InMemory::file($keyLocation . 'openemr-rsa384-private.key');
         $publicKey = InMemory::file($keyLocation . 'openemr-rsa384-public.pem');
-
-        $http = $this->buildClient();
 
         // DCR: register a confidential client that authenticates at /token
         // with a signed JWT rather than a shared secret. Scope set is
@@ -158,7 +275,7 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
             'json' => [
                 'application_type' => 'private',
                 'redirect_uris' => [self::REDIRECT_URI],
-                'client_name' => 'AuthorizationGrantJwtAssertionFlowTest',
+                'client_name' => 'AuthorizationGrantJwtAssertionFlowTest-' . bin2hex(random_bytes(3)),
                 'token_endpoint_auth_method' => 'private_key_jwt',
                 'contacts' => ['e2e@test.example'],
                 'scope' => 'openid fhirUser offline_access',
@@ -235,56 +352,8 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
         $this->assertArrayHasKey('code', $callbackQuery, 'Callback URL should contain authorization code');
         $this->assertSame(self::STATE, $callbackQuery['state'] ?? '', 'Callback should preserve state');
         $this->assertIsString($callbackQuery['code']);
-        $code = $callbackQuery['code'];
 
-        // Token exchange with JWT client_assertion instead of client_secret.
-        // The signed assertion carries iss=sub=client_id, aud=/token URL,
-        // and short exp; JwtAuthenticationService validates the signature
-        // against the client's registered JWKS. After that succeeds,
-        // ClientRepository::validateClient($clientId, null,
-        // 'authorization_code') is called — this test locks in that the
-        // null-secret call returns true rather than rejecting the client.
-        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
-            $privateKey,
-            $publicKey,
-            $this->baseUrl . '/oauth2/default/token',
-            $this->clientId,
-        );
-        $tokenResp = $http->post($this->baseUrl . '/oauth2/default/token', [
-            'form_params' => [
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-                'redirect_uri' => self::REDIRECT_URI,
-                'client_id' => $this->clientId,
-                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-                'client_assertion' => $assertion,
-            ],
-        ]);
-        $this->assertSame(
-            200,
-            $tokenResp->getStatusCode(),
-            'Token exchange with JWT client_assertion should succeed. '
-            . '401 invalid_client typically means the JWT signature failed validation, '
-            . 'the client was registered without a jwks, or ClientRepository::validateClient '
-            . 'rejected the null client_secret after the JWT authenticated the client. '
-            . '400 usually means the code was invalid/expired.'
-        );
-
-        $tokens = json_decode((string) $tokenResp->getBody(), true);
-        $this->assertIsArray($tokens);
-        $this->assertArrayHasKey('access_token', $tokens, 'Token response should include access_token');
-        $this->assertIsString($tokens['access_token']);
-        $this->assertNotSame('', $tokens['access_token'], 'access_token must not be empty');
-        $this->assertArrayHasKey('id_token', $tokens, 'Token response should include id_token when openid scope is granted');
-        $this->assertIsString($tokens['id_token']);
-        // Prove the id_token was actually issued to this client (not e.g. a
-        // stale token pulled from an earlier session with a different aud).
-        $tokenParts = explode('.', $tokens['id_token']);
-        $this->assertCount(3, $tokenParts, 'id_token should be a JWT with three segments');
-        $payload = json_decode((string) base64_decode(strtr($tokenParts[1], '-_', '+/'), true), true);
-        $this->assertIsArray($payload);
-        $this->assertSame($this->clientId, $payload['aud'] ?? '', 'id_token aud should match client_id');
-        $this->assertSame(self::NONCE, $payload['nonce'] ?? '', 'id_token nonce should match the value sent to /authorize');
+        return [$privateKey, $publicKey, $callbackQuery['code']];
     }
 
     private function buildClient(): Client

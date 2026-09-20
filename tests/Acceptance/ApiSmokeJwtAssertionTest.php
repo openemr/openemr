@@ -85,13 +85,14 @@ final class ApiSmokeJwtAssertionTest extends TestCase
         );
         $response = $browser->getResponse();
 
-        self::assertSame(
-            401,
+        self::assertContains(
             $response->getStatusCode(),
+            [400, 401],
             'A JWT client_assertion whose signature does not verify against the'
-                . ' registered JWKS must be rejected with 401. A 200 here means the'
-                . ' JWT validation is not actually gating client authentication —'
-                . ' any assertion-shaped string would then be accepted.',
+                . ' registered JWKS must be rejected with 400 or 401 (League returns'
+                . ' either depending on the specific rejection path — both are OAuth2'
+                . ' spec-conformant for invalid_client). A 200 here means the JWT'
+                . ' validation is not actually gating client authentication.',
         );
         $body = json_decode($response->getContent(), true);
         self::assertIsArray($body, 'Token endpoint should return a JSON error body on rejection');
