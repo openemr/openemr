@@ -312,10 +312,9 @@ $obj = is_array($fetched) ? $fetched : [];
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
-<!-- ai gen'ed code ends -->
-                                <input type="text" class="form-control" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
-                                    value="<?php echo attr($obj["medicaid_resubmission_code"] ?? ''); ?>" />
+                                <label for="resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
+                                <input type="text" class="form-control" name="resubmission_code" id="resubmission_code"
+                                    value="<?php echo attr($obj["resubmission_code"] ?? ''); ?>" />
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('Box 22a. Original Ref. No.'); ?>:</label>

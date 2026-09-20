@@ -136,3 +136,8 @@ ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_original_reference` `or
 #IfNotColumnType form_misc_billing_options original_reference_number varchar(50)
 ALTER TABLE `form_misc_billing_options` MODIFY `original_reference_number` VARCHAR(50) DEFAULT NULL;
 #EndIf
+
+-- HCFA box 22 lost its "Medicaid" prefix in the 02/12 revision of the form.
+#IfColumn form_misc_billing_options medicaid_resubmission_code
+ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `resubmission_code` VARCHAR(10) DEFAULT NULL;
+#EndIf

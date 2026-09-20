@@ -1659,9 +1659,25 @@ class Claim
     /**
      * @return string
      */
+    /**
+     * HCFA box 22, the resubmission code of a claim this one replaces.  The
+     * 08/05 revision of the form labelled this box "Medicaid Resubmission";
+     * the 02/12 revision dropped the Medicaid prefix.
+     *
+     * @return string
+     */
+    public function resubmissionCode()
+    {
+        return $this->x12Clean(trim($this->billing_options['resubmission_code'] ?? ''));
+    }
+
+    /**
+     * @deprecated since 8.5.0, use resubmissionCode() instead.
+     * @return string
+     */
     public function medicaidResubmissionCode()
     {
-        return $this->x12Clean(trim($this->billing_options['medicaid_resubmission_code'] ?? ''));
+        return $this->resubmissionCode();
     }
 
     /**
