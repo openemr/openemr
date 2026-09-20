@@ -16,6 +16,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Common\Database\QueryUtils;
 
 class MfaUtils
 {
@@ -174,11 +175,43 @@ class MfaUtils
         }
 
         if (!empty($secret)) {
+            // Reject the same 6-digit code being reused within its
+            // acceptance window (RobThree TwoFactorAuth accepts codes
+            // for slots T-30/T/T+30 = up to 90s validity, so an
+            // observed valid code could be replayed until it ages out
+            // of that window). Once a code has been consumed for this
+            // user, refuse any further authentication attempts with
+            // the exact same token until it can no longer verify.
+            $rows = QueryUtils::fetchRecordsNoLog(
+                "SELECT `last_used_token` FROM `login_mfa_registrations` "
+                    . "WHERE `user_id` = ? AND `method` = 'TOTP' "
+                    . "AND `last_challenge` IS NOT NULL "
+                    . "AND `last_challenge` > (NOW() - INTERVAL 90 SECOND) LIMIT 1",
+                [$this->uid]
+            );
+            $lastUsed = $rows[0]['last_used_token'] ?? null;
+            if (
+                is_string($lastUsed)
+                && $lastUsed !== ''
+                && hash_equals($lastUsed, is_string($token) ? $token : '')
+            ) {
+                $this->errorMsg = 'The MFA code you entered was not valid.';
+                return false;
+            }
             $googleAuth = new \Totp($secret);
             $response = $googleAuth->validateCode($token);
         }
 
         if ($response) {
+            // Record the successful use so a subsequent submission of the
+            // same token within its 90-second acceptance window is rejected
+            // as a replay by the check above.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `login_mfa_registrations` SET `last_used_token` = ?, "
+                    . "`last_challenge` = NOW() WHERE `user_id` = ? AND `method` = 'TOTP'",
+                [is_string($token) ? $token : '', $this->uid],
+                noLog: true
+            );
             return true;
         } else {
             $this->errorMsg = 'The MFA code you entered was not valid.';

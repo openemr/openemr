@@ -141,3 +141,10 @@ ALTER TABLE `form_misc_billing_options` MODIFY `original_reference_number` VARCH
 #IfColumn form_misc_billing_options medicaid_resubmission_code
 ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `resubmission_code` VARCHAR(10) DEFAULT NULL;
 #EndIf
+
+-- Add TOTP replay-protection column: pairs with last_challenge (existing datetime column)
+-- to reject the same 6-digit code being submitted twice within its 90-second acceptance
+-- window (see MfaUtils::checkTOTP).
+#IfMissingColumn login_mfa_registrations last_used_token
+ALTER TABLE `login_mfa_registrations` ADD COLUMN `last_used_token` varchar(16) DEFAULT NULL;
+#EndIf

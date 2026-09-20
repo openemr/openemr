@@ -404,6 +404,46 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
+    public function testPasswordGrantRejectsReplayedTotpCodeWithinAcceptanceWindow(): void
+    {
+        // TOTP replay protection: RobThree TwoFactorAuth accepts codes for
+        // slots T-30/T/T+30 (up to 90s validity). A code that has been
+        // successfully consumed once must not be reusable within that
+        // window — otherwise an attacker who observes one valid code
+        // once (shoulder-surfing, screenshot, MITM) can replay it until
+        // it ages out. Verifies MfaUtils::checkTOTP + login_mfa_registrations
+        // last_used_token / last_challenge enforcement.
+        $userId = $this->requireExistingAdminUserId();
+        $secret = $this->enrollTotpForUser($userId);
+
+        // First submission with a currently-valid code — should succeed.
+        $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+        $currentCode = $tfa->getCode($secret);
+        $_POST['mfa_token'] = $currentCode;
+        $_POST['mfa_type'] = 'TOTP';
+        $password = $this->adminPassword();
+
+        $repo = $this->buildUserRepository();
+        $this->assertTrue(
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password),
+            'First submission of a valid TOTP must succeed'
+        );
+
+        // Second submission of the exact same code within the acceptance
+        // window — must reject even though RobThree would still verify
+        // the code as valid.
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+            $this->fail('Expected OAuthServerException when replaying a just-consumed TOTP');
+        } catch (OAuthServerException $e) {
+            $this->assertSame(
+                'mfa_token_invalid',
+                $e->getErrorType(),
+                'Replayed TOTP must reject with mfa_token_invalid, not silently accept'
+            );
+        }
+    }
+
     public function testPasswordGrantRejectsUnexpectedMfaTokenWhenUserHasNoMfa(): void
     {
         // Complement to the "no MFA + no token" happy path implicit in the

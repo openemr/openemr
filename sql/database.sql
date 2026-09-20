@@ -14080,7 +14080,8 @@ DROP TABLE IF EXISTS `login_mfa_registrations`;
 CREATE TABLE `login_mfa_registrations` (
   `user_id`         bigint(20)     NOT NULL,
   `name`            varchar(30)    NOT NULL,
-  `last_challenge`  datetime       DEFAULT NULL,
+  `last_challenge`  datetime       DEFAULT NULL COMMENT 'Timestamp of the last successful TOTP verification. Paired with last_used_token for replay protection.',
+  `last_used_token` varchar(16)    DEFAULT NULL COMMENT 'Last 6-digit TOTP that verified successfully. Compared with incoming code within the 90s acceptance window to reject replays.',
   `method`          varchar(31)    NOT NULL COMMENT 'Q&A, U2F, TOTP etc.',
   `var1`            varchar(4096)  NOT NULL DEFAULT '' COMMENT 'Question, U2F registration etc.',
   `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
