@@ -145,6 +145,69 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testInsertWithoutCodeIsStillReadable(): void
+    {
+        // PractitionerRole.code is 0..* in R4 and insert() documents role_code as optional, but
+        // search() used to join the resolved role code with an inner join, so a role created
+        // without one was created successfully and then omitted from every read -- the caller
+        // got a 201 carrying a uuid that getOne() could not find. The admin UI produces the same
+        // state outside FHIR: interface/usergroup/facility_user.php writes a row for every FACUSR
+        // field on save, so a provider entered with no role has a role_code row holding '', which
+        // the read subquery's field_value != '' filter drops.
+        $this->fhirPractitionerRoleFixture->setId(new FHIRId());
+        $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
+        unset($payload['code']);
+        $fixture = new FHIRPractitionerRole($payload);
+
+        $insertResult = $this->fhirPractitionerRoleService->insert($fixture);
+        $this->assertTrue(
+            $insertResult->isValid(),
+            'Insert without a code should succeed: ' . json_encode($insertResult->getValidationMessages())
+        );
+        $fhirId = $this->firstDataRow($insertResult)['uuid'];
+        $this->assertIsString($fhirId);
+
+        $readBack = $this->fhirPractitionerRoleService->getOne($fhirId);
+        $this->assertTrue($readBack->isValid(), 'Read-back should succeed');
+        $readRecords = $readBack->getData();
+        $this->assertIsArray($readRecords);
+        $this->assertArrayHasKey(
+            0,
+            $readRecords,
+            'A PractitionerRole created without a code must still be readable by its uuid'
+        );
+        $serialized = json_decode((string) json_encode($readRecords[0]), true);
+        $this->assertIsArray($serialized);
+        $this->assertSame($fhirId, $serialized['id'] ?? null, 'Read-back should return the created role');
+    }
+
+    #[Test]
+    public function testInsertWithUnknownRoleCodeIsRejected(): void
+    {
+        // A code that matches no us-core-provider-role option resolves to nothing on read, so
+        // storing it would answer 201 for a code the caller can never read back. Rejecting it
+        // keeps the write honest rather than silently dropping the value.
+        $this->fhirPractitionerRoleFixture->setId(new FHIRId());
+        $payload = $this->fhirPractitionerRoleFixture->jsonSerialize();
+        $codes = $payload['code'] ?? [];
+        $this->assertIsArray($codes);
+        $this->assertArrayHasKey(0, $codes);
+        $this->assertIsArray($codes[0]);
+        $coding = $codes[0]['coding'] ?? [];
+        $this->assertIsArray($coding);
+        $this->assertArrayHasKey(0, $coding);
+        $this->assertIsArray($coding[0]);
+        $coding[0]['code'] = 'not-a-real-provider-role';
+        $codes[0]['coding'] = $coding;
+        $payload['code'] = $codes;
+        $fixture = new FHIRPractitionerRole($payload);
+
+        $result = $this->fhirPractitionerRoleService->insert($fixture);
+        $this->assertFalse($result->isValid(), 'An unknown role code should be rejected');
+        $this->assertSame([], $result->getData());
+    }
+
+    #[Test]
     public function testUpdate(): void
     {
         $this->fhirPractitionerRoleFixture->setId(new FHIRId());
