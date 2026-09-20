@@ -40,6 +40,7 @@ use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Tests\Fixtures\PortalPatientFixtureManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use ReflectionClass;
@@ -400,6 +401,163 @@ class PasswordGrantHardeningTest extends TestCase
             $ipBefore,
             $this->readIpCounter($this->clientIp),
             'Wrong TOTP on password grant must bump ip_tracking.ip_login_fail_counter'
+        );
+    }
+
+    public function testPasswordGrantRejectsUnexpectedMfaTokenWhenUserHasNoMfa(): void
+    {
+        // Complement to the "no MFA + no token" happy path implicit in the
+        // 175 api-suite tests. When a user with no MFA enrolled posts an
+        // mfa_token anyway, the server treats it as a client error (the
+        // client believes MFA is configured when it isn't) and returns
+        // 403 mfa_not_supported rather than silently accepting the token.
+        $userId = $this->requireExistingAdminUserId();
+        // Snapshot admin MFA rows so this test does not leak state, then
+        // delete any real MFA registrations so isMfaRequired() is false.
+        $this->snapshotMfaRowsForUser($userId);
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM login_mfa_registrations WHERE user_id = ?",
+            [$userId]
+        );
+        $_POST['mfa_token'] = '123456';
+        $_POST['mfa_type'] = 'TOTP';
+        $password = $this->adminPassword();
+
+        $repo = $this->buildUserRepository();
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+            $this->fail('Expected OAuthServerException when non-MFA user posts an mfa_token');
+        } catch (OAuthServerException $e) {
+            $this->assertSame(11, $e->getCode(), 'Unexpected mfa_token must surface as error code 11');
+            $this->assertSame('mfa_not_supported', $e->getErrorType());
+        }
+    }
+
+    // ---------- mfa_token shape variants (defensive) ----------
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidMfaTokenShapeProvider(): array
+    {
+        // MfaUtils::tokenFromRequest returns false when validateToken
+        // rejects the shape; the empty() check downstream catches both
+        // false and empty string, so all malformed shapes surface as
+        // mfa_token_required. A correctly-shaped 6-digit numeric but
+        // wrong value is covered by testPasswordGrantTotpFailureIncrementsLockoutCounters
+        // (that path surfaces as mfa_token_invalid).
+        return [
+            'empty string'      => ['', 'mfa_token_required'],
+            'whitespace only'   => ['      ', 'mfa_token_required'],
+            'five digits'       => ['12345', 'mfa_token_required'],
+            'seven digits'      => ['1234567', 'mfa_token_required'],
+            'non-numeric'       => ['abcdef', 'mfa_token_required'],
+            'sql-injection-ish' => ["' OR '1'='1", 'mfa_token_required'],
+        ];
+    }
+
+    #[DataProvider('invalidMfaTokenShapeProvider')]
+    public function testPasswordGrantRejectsMalformedMfaTokenShapes(string $token, string $expectedErrorType): void
+    {
+        $userId = $this->requireExistingAdminUserId();
+        $this->enrollTotpForUser($userId);
+        $_POST['mfa_token'] = $token;
+        $_POST['mfa_type'] = 'TOTP';
+        $password = $this->adminPassword();
+
+        $repo = $this->buildUserRepository();
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+            $this->fail("Expected OAuthServerException for malformed mfa_token: {$token}");
+        } catch (OAuthServerException $e) {
+            $this->assertSame(
+                $expectedErrorType,
+                $e->getErrorType(),
+                "Malformed mfa_token '{$token}' must reject with {$expectedErrorType}"
+            );
+        }
+    }
+
+    // ---------- oauth_password_grant global gate ----------
+
+    public function testPasswordGrantIsRejectedWhenGlobalIsDisabled(): void
+    {
+        // Global value 0 = password grant disabled entirely for both roles.
+        // A regression that removed the gate check would allow password
+        // grant regardless of admin opt-in — the whole opt-in surface
+        // silently becomes always-on.
+        OEGlobalsBag::getInstance()->set('oauth_password_grant', 0);
+        $password = $this->adminPassword();
+        $repo = $this->buildUserRepository();
+        $this->assertFalse(
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password),
+            'oauth_password_grant=0 must reject the staff (users) role'
+        );
+        $this->assertFalse(
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_PATIENT, 'admin', $password),
+            'oauth_password_grant=0 must reject the patient role'
+        );
+    }
+
+    public function testPasswordGrantWithGlobalStaffOnlyRejectsPatientRole(): void
+    {
+        // Global value 1 = staff (users) role enabled, patient role
+        // disabled. Verifies the gate distinguishes the two roles
+        // rather than being a single on/off toggle.
+        OEGlobalsBag::getInstance()->set('oauth_password_grant', 1);
+        $password = $this->adminPassword();
+        $repo = $this->buildUserRepository();
+        $this->assertFalse(
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_PATIENT, 'admin', $password),
+            'oauth_password_grant=1 (staff only) must reject the patient role'
+        );
+    }
+
+    public function testPasswordGrantWithGlobalPatientOnlyRejectsStaffRole(): void
+    {
+        // Global value 2 = patient role enabled, staff (users) role
+        // disabled.
+        OEGlobalsBag::getInstance()->set('oauth_password_grant', 2);
+        $password = $this->adminPassword();
+        $repo = $this->buildUserRepository();
+        $this->assertFalse(
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password),
+            'oauth_password_grant=2 (patient only) must reject the staff (users) role'
+        );
+    }
+
+    // ---------- user_role parameter validation ----------
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidUserRoleProvider(): array
+    {
+        return [
+            'empty string' => [''],
+            'admin'        => ['admin'],
+            'god'          => ['god'],
+            'unknown'      => ['unknown-role'],
+            'uppercase'    => ['USERS'],   // case-sensitive comparison
+        ];
+    }
+
+    #[DataProvider('invalidUserRoleProvider')]
+    public function testPasswordGrantRejectsUnknownUserRoleValues(string $userRole): void
+    {
+        // getAccountByPassword branches on $userrole via strict ==
+        // comparisons to 'users' / 'patient'. Any other value falls
+        // through to `return false`. Verifies the fall-through denies
+        // rather than crashes or leaks a token.
+        $password = $this->adminPassword();
+        $repo = $this->buildUserRepository();
+        $this->assertFalse(
+            $this->invokeGetAccountByPassword($repo, $userRole, 'admin', $password),
+            "user_role='{$userRole}' is neither 'users' nor 'patient' — must reject"
         );
     }
 
