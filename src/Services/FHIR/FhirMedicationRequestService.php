@@ -496,7 +496,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             if (!is_numeric($pid)) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
-                    'subject' => ['Patient reference could not be resolved' => $puuid],
+                    'subject' => 'Patient reference could not be resolved: ' . $puuid,
                 ]);
                 return $result;
             }

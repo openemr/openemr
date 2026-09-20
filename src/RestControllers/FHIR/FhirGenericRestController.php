@@ -234,8 +234,14 @@ class FhirGenericRestController implements IGlobalsAware {
                 'post'
             );
         } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
-            // Anything else out of the service layer (SqlQueryException, TypeError, a domain
-            // RuntimeException) would otherwise reach the global handler with its raw message.
+            // Service-layer failures that are still Exceptions: a SqlQueryException, a domain
+            // RuntimeException, a LogicException. \Error subclasses (TypeError,
+            // ArgumentCountError) are deliberately NOT caught -- ForbiddenCatchTypeRule
+            // forbids any catch related to \Error, so they propagate to
+            // Core\ErrorHandler, which answers a bare 'An error has occurred.' 500 and
+            // appends the exception only when display_errors is on. A programming error
+            // therefore never leaks its message, but it also does not become an
+            // OperationOutcome; that is the project's deliberate stance, not an oversight.
             return $this->respondWithSafeError(
                 'exception',
                 'The resource could not be created: see server logs for details',
@@ -323,8 +329,14 @@ class FhirGenericRestController implements IGlobalsAware {
                 'put'
             );
         } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
-            // Anything else out of the service layer (SqlQueryException, TypeError, a domain
-            // RuntimeException) would otherwise reach the global handler with its raw message.
+            // Service-layer failures that are still Exceptions: a SqlQueryException, a domain
+            // RuntimeException, a LogicException. \Error subclasses (TypeError,
+            // ArgumentCountError) are deliberately NOT caught -- ForbiddenCatchTypeRule
+            // forbids any catch related to \Error, so they propagate to
+            // Core\ErrorHandler, which answers a bare 'An error has occurred.' 500 and
+            // appends the exception only when display_errors is on. A programming error
+            // therefore never leaks its message, but it also does not become an
+            // OperationOutcome; that is the project's deliberate stance, not an oversight.
             return $this->respondWithSafeError(
                 'exception',
                 'The resource could not be updated: see server logs for details',

@@ -43,6 +43,59 @@ class PractitionerRoleService extends BaseService
     }
 
     /**
+     * Rejects a supplied list code that the reader would not be able to resolve.
+     *
+     * Both codes are optional, but search() resolves each through list_options, so a value
+     * that matches no option is dropped on the way back out -- the caller got a 201 or 200
+     * implying the code was stored and reads back a PractitionerRole without it. Validating
+     * here turns that silent loss into a validation message.
+     *
+     * The lookup deliberately does not filter on `activity`, so that it accepts exactly what
+     * the read join accepts and no more.
+     *
+     * @return string|null the message fragment describing the problem, or null when acceptable
+     */
+    private static function validateListCode(mixed $code, string $listId): ?string
+    {
+        if ($code === null) {
+            return null;
+        }
+        if (!is_string($code) || $code === '') {
+            return 'must be a non-empty string';
+        }
+        $option = QueryUtils::fetchSingleValue(
+            "SELECT option_id FROM list_options WHERE list_id = ? AND option_id = ?",
+            'option_id',
+            [$listId, $code]
+        );
+        if ($option === null) {
+            return 'is not an option of the ' . $listId . ' list';
+        }
+        return null;
+    }
+
+    /**
+     * Applies validateListCode() to both optional codes, returning the first failure.
+     *
+     * @param array<string, mixed> $data
+     */
+    private static function validateSuppliedCodes(array $data, ProcessingResult $result): bool
+    {
+        $checks = [
+            ['role_code', 'us-core-provider-role', 'code', 'PractitionerRole.code'],
+            ['specialty_code', 'us-core-provider-specialty', 'specialty', 'PractitionerRole.specialty'],
+        ];
+        foreach ($checks as [$key, $listId, $field, $label]) {
+            $problem = self::validateListCode($data[$key] ?? null, $listId);
+            if ($problem !== null) {
+                $result->setValidationMessages([$field => $label . ' ' . $problem]);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Inserts a new PractitionerRole. The role is stored in facility_user_ids using the EAV
      * pattern: one marker row with field_id='provider_id' (which carries the FHIR uuid and
      * is what `search()`/`_id` exposes), plus a sibling row with field_id='role_code'
@@ -78,6 +131,10 @@ class PractitionerRoleService extends BaseService
         }
         $providerId = (int) $providerId;
         $facilityId = (int) $facilityId;
+
+        if (!self::validateSuppliedCodes($data, $result)) {
+            return $result;
+        }
 
         try {
             $out = QueryUtils::inTransaction(function () use ($providerId, $facilityId, $data): ?array {
@@ -183,6 +240,10 @@ class PractitionerRoleService extends BaseService
         }
         $uid = is_numeric($marker['uid'] ?? null) ? (int) $marker['uid'] : 0;
         $facilityId = is_numeric($marker['facility_id'] ?? null) ? (int) $marker['facility_id'] : 0;
+
+        if (!self::validateSuppliedCodes($data, $result)) {
+            return $result;
+        }
 
         try {
             QueryUtils::inTransaction(function () use ($uid, $facilityId, $data): void {
@@ -374,7 +435,7 @@ class PractitionerRoleService extends BaseService
                     WHERE
                         users.url IS NOT NULL AND users.url != ''
                 ) providers_url ON providers.user_id = providers_url.url_user_id
-                JOIN (
+                LEFT JOIN (
                     select
                         field_value AS role_code,
                         field_id,

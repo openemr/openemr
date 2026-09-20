@@ -750,7 +750,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             if (!is_numeric($pid)) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
-                    'beneficiary' => ['Patient reference could not be resolved' => $puuid],
+                    'beneficiary' => 'Patient reference could not be resolved: ' . $puuid,
                 ]);
                 return $result;
             }
@@ -769,7 +769,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             if (!is_numeric($providerId)) {
                 $result = new ProcessingResult();
                 $result->setValidationMessages([
-                    'payor' => ['Organization reference could not be resolved to an insurance company' => $insurerUuid],
+                    'payor' => 'Organization reference could not be resolved to an insurance company: '
+                        . $insurerUuid,
                 ]);
                 return $result;
             }

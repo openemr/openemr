@@ -1012,7 +1012,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         );
         if (!is_numeric($pid)) {
             $result = new ProcessingResult();
-            $result->setValidationMessages(['subject' => ['Patient reference could not be resolved' => $puuid]]);
+            $result->setValidationMessages(
+                ['subject' => 'Patient reference could not be resolved: ' . $puuid]
+            );
             return $result;
         }
         return (int) $pid;
@@ -1037,7 +1039,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         );
         if (!is_numeric($encounterId)) {
             $result = new ProcessingResult();
-            $result->setValidationMessages(['encounter' => ['Encounter reference could not be resolved' => $euuid]]);
+            $result->setValidationMessages(
+                ['encounter' => 'Encounter reference could not be resolved: ' . $euuid]
+            );
             return $result;
         }
         return (int) $encounterId;
