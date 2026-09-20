@@ -32,6 +32,7 @@ namespace OpenEMR\Tests\Api;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\Test;
@@ -48,6 +49,7 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
     /** @var list<array<string, mixed>> */
     private array $originalAdminMfaRows = [];
     private int $adminUserId = 0;
+    private ?string $originalAdminPasswordHash = null;
 
     protected function setUp(): void
     {
@@ -84,6 +86,16 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
             $this->markTestSkipped('admin user not present in this test environment');
         }
         $this->adminUserId = (int) $adminId;
+        // Snapshot the current password hash so tearDown can restore
+        // it directly via SQL (avoiding updatePassword's session +
+        // history + revocation side effects on the test tear-down path).
+        $pwRow = QueryUtils::querySingleRow(
+            "SELECT password FROM users_secure WHERE id = ?",
+            [$this->adminUserId]
+        );
+        $this->originalAdminPasswordHash = is_array($pwRow) && is_string($pwRow['password'] ?? null)
+            ? $pwRow['password']
+            : null;
         /** @var list<array<string, mixed>> $rows */
         $rows = QueryUtils::fetchRecords(
             "SELECT user_id, name, method, var1, var2, last_challenge "
@@ -108,6 +120,19 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
     protected function tearDown(): void
     {
         try {
+            // Restore admin's password hash first — do this via direct SQL
+            // rather than updatePassword() so a failed restore doesn't
+            // cascade into a broken admin account for subsequent tests
+            // in this process. Also reset lockout counters that
+            // updatePassword clears.
+            if ($this->originalAdminPasswordHash !== null && $this->adminUserId > 0) {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE users_secure SET password = ?, login_fail_counter = 0, "
+                        . "last_login_fail = NULL, auto_block_emailed = 0 "
+                        . "WHERE id = ?",
+                    [$this->originalAdminPasswordHash, $this->adminUserId]
+                );
+            }
             if ($this->clientId !== null) {
                 QueryUtils::sqlStatementThrowException(
                     'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
@@ -201,6 +226,81 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
             $firstAccess,
             $refreshed['access_token'],
             'Refresh must return a NEW access_token (not the same value re-issued)'
+        );
+    }
+
+    #[Test]
+    public function testRefreshTokenIsRevokedAfterPasswordChange(): void
+    {
+        // Real security property (previously untested): once a user
+        // changes their password, any refresh_token that was issued
+        // with the OLD credentials must stop working. Without this,
+        // an attacker who stole a refresh_token before the change
+        // keeps API access for the natural refresh_token lifetime
+        // (weeks/months) despite the user closing the compromise
+        // window. See AuthUtils::updatePassword — after the
+        // users_secure UPDATE we now UPDATE api_refresh_token /
+        // api_token SET revoked=1 for that user_id.
+        $http = $this->buildClient();
+        [$clientId, $clientSecret] = $this->registerConfidentialClient($http);
+        $this->clientId = $clientId;
+
+        // Mint a token pair with a valid TOTP so we have a real
+        // refresh_token to attempt to reuse after the password change.
+        $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+        $tokens = $this->postToken(
+            $http,
+            [
+                'grant_type' => 'password',
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'scope' => 'openid api:oemr offline_access',
+                'user_role' => 'users',
+                'username' => 'admin',
+                'password' => 'pass',
+                'mfa_token' => $tfa->getCode('JBSWY3DPEHPK3PXP'),
+                'mfa_type' => 'TOTP',
+            ]
+        );
+        $this->assertArrayHasKey('refresh_token', $tokens);
+        $this->assertIsString($tokens['refresh_token']);
+        $refreshToken = $tokens['refresh_token'];
+
+        // Simulate a password change via AuthUtils::updatePassword. We
+        // call it inline (rather than through a UI form) so the test
+        // exercises the code path where token revocation must fire.
+        // Change admin's password to a scratch value, then change it
+        // back — the important thing is that updatePassword() runs.
+        $auth = new AuthUtils();
+        // updatePassword takes both passwords by reference and clears
+        // the buffers via clearFromMemory on return. Use fresh string
+        // variables and don't reuse them. tearDown() restores the
+        // original hash directly via SQL so we don't have to call
+        // updatePassword a second time here to put things back.
+        $currentPwd = 'pass';
+        $scratchPwd = 'ScratchPassword1!';
+        $ok = $auth->updatePassword($this->adminUserId, $this->adminUserId, $currentPwd, $scratchPwd);
+        $errMsg = $auth->getErrorMessage();
+        $this->assertTrue(
+            $ok,
+            'updatePassword should succeed: ' . (is_string($errMsg) ? $errMsg : '(no error msg)')
+        );
+
+        // Attempt to use the pre-change refresh_token — must be rejected.
+        $refreshResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+            ],
+        ]);
+        $this->assertNotSame(
+            200,
+            $refreshResp->getStatusCode(),
+            'Refresh token minted before a password change must be rejected. '
+                . '200 here means the token survived the password change and an '
+                . 'attacker who stole it keeps access until natural expiry.'
         );
     }
 

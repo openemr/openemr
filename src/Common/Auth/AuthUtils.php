@@ -49,6 +49,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 use SodiumException;
@@ -818,6 +819,38 @@ class AuthUtils
             // If the user is changing their own password, we need to update the session
             if ($changingOwnPassword) {
                 $session->set('authPass', $newHash);
+            }
+
+            // Password just changed — any OAuth2 access / refresh tokens
+            // minted with the OLD credentials are now suspect (the
+            // typical reason for a password change is credential
+            // compromise, and a refresh_token an attacker already stole
+            // would otherwise keep working for weeks/months until its
+            // natural expiration). Mark every non-revoked token pair
+            // for this user as revoked so future refresh attempts fail.
+            // Cheap no-op on `create` (a brand-new user has no tokens
+            // yet).
+            //
+            // api_refresh_token.user_id and api_token.user_id store the
+            // user's UUID *string*, not the numeric users.id — so we
+            // have to resolve $targetUser to its UUID first.
+            $userUuidRow = QueryUtils::querySingleRow(
+                "SELECT `uuid` FROM `users` WHERE `id` = ?",
+                [$targetUser]
+            );
+            $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
+            if (is_string($userUuidBytes) && $userUuidBytes !== '') {
+                $userUuidStr = UuidRegistry::uuidToString($userUuidBytes);
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `api_refresh_token` SET `revoked` = 1 "
+                        . "WHERE `user_id` = ? AND `revoked` = 0",
+                    [$userUuidStr]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `api_token` SET `revoked` = 1 "
+                        . "WHERE `user_id` = ? AND `revoked` = 0",
+                    [$userUuidStr]
+                );
             }
         }
 
