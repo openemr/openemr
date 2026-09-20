@@ -3,6 +3,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
@@ -459,7 +460,30 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        return $this->allergyIntoleranceService->update($fhirResourceId, $updatedOpenEMRRecord);
+        // The patient the caller asserts has to be the allergy's actual owner. parseFhirResource()
+        // sets puuid only when AllergyIntolerance.patient resolves, and without it update() has
+        // nothing to compare the stored row against. AllergyIntolerance.patient is 1..1 in R4, so
+        // rejecting the omission is also what the spec asks for, and it matches how
+        // MedicationRequest and ServiceRequest already handle their subject on this path.
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'AllergyIntolerance.patient is required and must reference a known patient',
+            ]);
+            return $result;
+        }
+
+        $pid = BaseService::getIdByUuid(UuidRegistry::uuidToBytes($puuid), 'patient_data', 'pid');
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'Patient reference could not be resolved: ' . $puuid,
+            ]);
+            return $result;
+        }
+
+        return $this->allergyIntoleranceService->update($fhirResourceId, $updatedOpenEMRRecord, (int) $pid);
     }
 
     /**

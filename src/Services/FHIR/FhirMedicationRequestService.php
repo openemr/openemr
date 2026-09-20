@@ -465,7 +465,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (!is_numeric($patientId)) {
             $result = new ProcessingResult();
             $result->setValidationMessages([
-                'subject' => ['MedicationRequest.subject is required and must reference a known patient'],
+                'subject' => 'MedicationRequest.subject is required and must reference a known patient',
             ]);
             return $result;
         }

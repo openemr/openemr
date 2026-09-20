@@ -458,10 +458,22 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
     {
         // The patient the caller asserts has to be the immunization's actual owner. Without this
         // the resolved patient_id would simply be written, moving the record to another chart.
+        // parseFhirResource() sets patient_id only when Immunization.patient resolves, and
+        // ImmunizationService::update() guards its comparison with $expectedPatientId !== null,
+        // so an omitted patient skipped the owner check entirely and the row was updated on the
+        // url uuid alone. Immunization.patient is 1..1 in R4, so rejecting the omission is also
+        // what the spec asks for, and it matches how MedicationRequest and ServiceRequest
+        // already handle their own subject on this path.
         $patientId = $updatedOpenEMRRecord['patient_id'] ?? null;
-        $expectedPatientId = is_numeric($patientId) ? (int) $patientId : null;
+        if (!is_numeric($patientId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'Immunization.patient is required and must reference a known patient',
+            ]);
+            return $result;
+        }
 
-        return $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord, $expectedPatientId);
+        return $this->immunizationService->update($fhirResourceId, $updatedOpenEMRRecord, (int) $patientId);
     }
 
     /**

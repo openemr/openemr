@@ -643,8 +643,10 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             'SNOMED' => FhirCodeSystemConstants::SNOMED_CT,
             'SNOMED-CT' => FhirCodeSystemConstants::SNOMED_CT,
             'SNOMED-PR' => FhirCodeSystemConstants::SNOMED_CT,
-            'ICD10' => FhirCodeSystemConstants::HL7_ICD10,
-            'ICD10-CM' => FhirCodeSystemConstants::HL7_ICD10,
+            // Kept in step with CodeTypesService::getSystemForCodeType(): both spellings are
+            // ICD-10-CM, so emitting HL7_ICD10 here would disagree with every other resource.
+            'ICD10' => FhirCodeSystemConstants::HL7_ICD10_CM,
+            'ICD10-CM' => FhirCodeSystemConstants::HL7_ICD10_CM,
             'CPT4' => FhirCodeSystemConstants::AMA_CPT,
             'LOINC' => FhirCodeSystemConstants::LOINC,
             'RXNORM' => FhirCodeSystemConstants::RXNORM,

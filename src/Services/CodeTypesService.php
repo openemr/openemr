@@ -330,7 +330,13 @@ class CodeTypesService
                 self::CODE_TYPE_NDC => FhirCodeSystemConstants::NDC,
                 self::CODE_TYPE_NCI => FhirCodeSystemConstants::NCI_THESAURUS,
                 self::CODE_TYPE_CPT4, self::CODE_TYPE_CPT => FhirCodeSystemConstants::AMA_CPT,
-                self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10,
+                // ICD-10-CM, not the international ICD-10. getCodeTypeListForSystem() accepts
+                // both system urls into this one stored type, so emitting HL7_ICD10 meant a
+                // diagnosis written as icd-10-cm read back as icd-10. The OID branch of this
+                // same method already answers 2.16.840.1.113883.6.90 for this type, which is
+                // the ICD-10-CM OID (plain ICD-10 is 2.16.840.1.113883.6.3), so the url branch
+                // was the half that disagreed. US Core expects ICD-10-CM for US diagnoses.
+                self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10_CM,
                 // The reverse of getCodeTypeListForSystem()'s HL7_ICD9_CM entry. Without it an
                 // ICD9:<code> read back out carried no system at all.
                 //
