@@ -79,6 +79,32 @@ class Totp
     }
 
     /**
+     * Validates a TOTP and returns the RFC 6238 time slice
+     * (floor(unix_ts / period)) that matched, or 0 on no match.
+     *
+     * Used by MfaUtils::checkTOTP for A-B-A replay protection: the
+     * caller stores the returned slice alongside the registration and
+     * rejects any subsequent code whose slice is not strictly greater.
+     * RobThree's verifyCode accepts codes for slices T-1, T, T+1 (with
+     * default $discrepancy = 1) — storing the matched slice and
+     * requiring monotonic-forward progression is the RFC 6238-recommended
+     * replay defense.
+     *
+     * @param $totp : unencrypted
+     * @return int matched slice number, or 0 if the code did not verify
+     */
+    public function validateCodeAndGetSlice($totp): int
+    {
+        if (empty($totp) || empty($this->_secret)) {
+            return 0;
+        }
+        $tfa = new TwoFactorAuth($this->getQrProvider());
+        $slice = 0;
+        $tfa->verifyCode($this->_secret, $totp, 1, null, $slice);
+        return $slice;
+    }
+
+    /**
      * Gets the encrypted value of the secret
      * @return string
      */

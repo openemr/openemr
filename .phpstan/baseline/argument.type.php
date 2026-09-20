@@ -20253,12 +20253,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$secret of method RobThree\\\\Auth\\\\TwoFactorAuth\\:\\:verifyCode\\(\\) expects string, string\\|true given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Totp.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$code of method RobThree\\\\Auth\\\\TwoFactorAuth\\:\\:verifyCode\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Totp.class.php',
 ];
 $ignoreErrors[] = [

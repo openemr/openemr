@@ -1322,6 +1322,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Totp.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Totp\\:\\:validateCodeAndGetSlice\\(\\) should return int but returns int\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/Totp.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method HTML_TreeMenu\\:\\:addItem\\(\\) should return object but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',

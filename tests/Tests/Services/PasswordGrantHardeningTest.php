@@ -132,8 +132,8 @@ class PasswordGrantHardeningTest extends TestCase
             foreach ($originalRows as $row) {
                 QueryUtils::sqlStatementThrowException(
                     "INSERT INTO login_mfa_registrations "
-                        . "(user_id, name, method, var1, var2, last_challenge) "
-                        . "VALUES (?, ?, ?, ?, ?, ?)",
+                        . "(user_id, name, method, var1, var2, last_challenge, last_used_step) "
+                        . "VALUES (?, ?, ?, ?, ?, ?, ?)",
                     [
                         $row['user_id'],
                         $row['name'],
@@ -141,6 +141,7 @@ class PasswordGrantHardeningTest extends TestCase
                         $row['var1'],
                         $row['var2'],
                         $row['last_challenge'],
+                        $row['last_used_step'] ?? null,
                     ]
                 );
             }
@@ -447,6 +448,52 @@ class PasswordGrantHardeningTest extends TestCase
                 'mfa_token_invalid',
                 $e->getErrorType(),
                 'Replayed TOTP must reject with mfa_token_invalid, not silently accept'
+            );
+        }
+    }
+
+    public function testPasswordGrantRejectsTotpFromOlderSlotThanLastConsumed(): void
+    {
+        // Guards against the A-B-A replay class: RobThree's verifyCode
+        // accepts codes for slices {T-1, T, T+1}, so up to 3 different
+        // valid codes coexist in the ~90-second acceptance window. If
+        // replay protection only tracked the exact last-used token,
+        // A -> B -> A would slip through (last_used=B, incoming=A,
+        // A != B, passes). Slice-monotonic protection blocks the whole
+        // class by requiring incoming.slice > last_used_step.
+        //
+        // Simulated here by seeding last_used_step to a value in the
+        // future (a slice higher than any code the harness could
+        // possibly compute right now), then attempting to consume the
+        // current code — must reject because current.slice < seeded.
+        $userId = $this->requireExistingAdminUserId();
+        $secret = $this->enrollTotpForUser($userId);
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
+
+        // Seed a slice far enough into the future that any current
+        // code's matched slice (T-1/T/T+1) is definitely less than it.
+        $futureStep = (int) floor(time() / 30) + 1000;
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE login_mfa_registrations SET last_used_step = ?, last_challenge = NOW() "
+                . "WHERE user_id = ? AND method = 'TOTP'",
+            [$futureStep, $userId]
+        );
+
+        $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+        $_POST['mfa_token'] = $tfa->getCode($secret);
+        $_POST['mfa_type'] = 'TOTP';
+        $password = $this->adminPassword();
+
+        $repo = $this->buildUserRepository();
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+            $this->fail('Expected OAuthServerException when submitting a code from an older slice than the seeded last_used_step');
+        } catch (OAuthServerException $e) {
+            $this->assertSame(
+                'mfa_token_invalid',
+                $e->getErrorType(),
+                'A code whose slice is not strictly greater than the last consumed slice must reject as invalid — this is the A-B-A defense'
             );
         }
     }
@@ -793,8 +840,8 @@ class PasswordGrantHardeningTest extends TestCase
             [$userId]
         );
         QueryUtils::sqlStatementThrowException(
-            "INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2, last_challenge) "
-                . "VALUES (?, 'test-u2f', 'U2F', ?, '', NULL)",
+            "INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2, last_challenge, last_used_step) "
+                . "VALUES (?, 'test-u2f', 'U2F', ?, '', NULL, NULL)",
             [$userId, '{"keyHandle":"test-key-handle"}']
         );
     }
@@ -812,8 +859,8 @@ class PasswordGrantHardeningTest extends TestCase
             [$userId]
         );
         QueryUtils::sqlStatementThrowException(
-            "INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2, last_challenge) "
-                . "VALUES (?, 'test', 'TOTP', ?, '', NULL)",
+            "INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2, last_challenge, last_used_step) "
+                . "VALUES (?, 'test', 'TOTP', ?, '', NULL, NULL)",
             [$userId, $encryptedSecret]
         );
         return $secret;
@@ -875,7 +922,7 @@ class PasswordGrantHardeningTest extends TestCase
         }
         /** @var list<array<string, mixed>> $rows */
         $rows = QueryUtils::fetchRecords(
-            "SELECT user_id, name, method, var1, var2, last_challenge "
+            "SELECT user_id, name, method, var1, var2, last_challenge, last_used_step "
                 . "FROM login_mfa_registrations WHERE user_id = ?",
             [$userId]
         );

@@ -142,9 +142,11 @@ ALTER TABLE `form_misc_billing_options` MODIFY `original_reference_number` VARCH
 ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `resubmission_code` VARCHAR(10) DEFAULT NULL;
 #EndIf
 
--- Add TOTP replay-protection column: pairs with last_challenge (existing datetime column)
--- to reject the same 6-digit code being submitted twice within its 90-second acceptance
--- window (see MfaUtils::checkTOTP).
-#IfMissingColumn login_mfa_registrations last_used_token
-ALTER TABLE `login_mfa_registrations` ADD COLUMN `last_used_token` varchar(16) DEFAULT NULL COMMENT 'Last 6-digit TOTP that verified successfully. Compared with incoming code within the 90s acceptance window to reject replays.';
+-- Add TOTP replay-protection column: records the RFC 6238 time slice
+-- (floor(unix_ts/period)) of the last successfully consumed code so
+-- MfaUtils::checkTOTP can atomically reject any subsequent code whose
+-- slice is not strictly greater. Guards against A-B-A replay across
+-- two adjacent valid codes within the 90-second acceptance window.
+#IfMissingColumn login_mfa_registrations last_used_step
+ALTER TABLE `login_mfa_registrations` ADD COLUMN `last_used_step` bigint DEFAULT NULL COMMENT 'TOTP time slice (RFC 6238) of the last consumed code. Incoming codes must land on a strictly greater slice; guards against A-B-A replay across two adjacent valid codes within the 90s acceptance window.';
 #EndIf

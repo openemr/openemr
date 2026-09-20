@@ -98,7 +98,7 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
             : null;
         /** @var list<array<string, mixed>> $rows */
         $rows = QueryUtils::fetchRecords(
-            "SELECT user_id, name, method, var1, var2, last_challenge "
+            "SELECT user_id, name, method, var1, var2, last_challenge, last_used_step "
                 . "FROM login_mfa_registrations WHERE user_id = ?",
             [$this->adminUserId]
         );
@@ -111,8 +111,8 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
         $encryptedSecret = ServiceContainer::getCrypto()->encryptForDatabase($secret);
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO login_mfa_registrations "
-                . "(user_id, name, method, var1, var2, last_challenge) "
-                . "VALUES (?, 'test-refresh-flow', 'TOTP', ?, '', NULL)",
+                . "(user_id, name, method, var1, var2, last_challenge, last_used_step) "
+                . "VALUES (?, 'test-refresh-flow', 'TOTP', ?, '', NULL, NULL)",
             [$this->adminUserId, $encryptedSecret]
         );
     }
@@ -151,8 +151,8 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
             foreach ($this->originalAdminMfaRows as $row) {
                 QueryUtils::sqlStatementThrowException(
                     "INSERT INTO login_mfa_registrations "
-                        . "(user_id, name, method, var1, var2, last_challenge) "
-                        . "VALUES (?, ?, ?, ?, ?, ?)",
+                        . "(user_id, name, method, var1, var2, last_challenge, last_used_step) "
+                        . "VALUES (?, ?, ?, ?, ?, ?, ?)",
                     [
                         $row['user_id'],
                         $row['name'],
@@ -160,6 +160,7 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
                         $row['var1'],
                         $row['var2'],
                         $row['last_challenge'],
+                        $row['last_used_step'] ?? null,
                     ]
                 );
             }

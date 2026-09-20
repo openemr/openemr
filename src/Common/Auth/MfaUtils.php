@@ -171,43 +171,57 @@ class MfaUtils
                 }
                 if (!empty($secret)) {
                     error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
-                    // Re-encrypt with the more secure standard key
+                    // Re-encrypt with the more secure standard key. Pin the
+                    // update to the specific registration row that owned the
+                    // legacy-encrypted secret — the schema's composite
+                    // (user_id, name) key allows multiple TOTP rows per
+                    // user, so a bare user_id + method match would overwrite
+                    // sibling rows with the wrong secret.
                     $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
-                    privStatement(
-                        "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
-                        [$secretEncrypt, $this->uid]
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE login_mfa_registrations SET var1 = ? "
+                            . "WHERE user_id = ? AND method = 'TOTP' AND name = ?",
+                        [$secretEncrypt, $this->uid, $this->nameTOTP],
+                        noLog: true
                     );
                 }
             }
         }
 
+        $matchedSlice = 0;
         if (!empty($secret)) {
             $googleAuth = new \Totp($secret);
-            $response = $googleAuth->validateCode($token);
+            $matchedSlice = $googleAuth->validateCodeAndGetSlice($token);
         }
 
-        if ($response) {
-            // Atomic single-use consumption within the 90-second acceptance
-            // window (RobThree TwoFactorAuth accepts codes for slots
-            // T-30/T/T+30 = up to 90s validity). The replay predicate is
-            // in the UPDATE's WHERE clause and we require affectedRows === 1;
-            // two concurrent requests with the same code race for exactly
-            // one winner rather than both passing a separate pre-check.
-            $tokenStr = is_string($token) ? $token : '';
+        if ($matchedSlice > 0) {
+            // Atomic single-use consumption via slice-monotonic replay
+            // check (RFC 6238's recommended defense). RobThree's
+            // verifyCode accepts codes for slices {T-1, T, T+1} with
+            // the default discrepancy, so up to 3 different valid
+            // codes can coexist within a ~90-second window. Storing
+            // only the last token wouldn't catch an A-B-A replay
+            // (consume A, then B, then A again while A is still in
+            // the acceptance window). Storing the matched slice and
+            // requiring the incoming slice be STRICTLY GREATER blocks
+            // that entire class of replay.
+            //
+            // The UPDATE is conditional on the monotonicity predicate
+            // and we require affectedRows === 1, so two concurrent
+            // requests race for exactly one winner rather than both
+            // passing a separate pre-check.
             QueryUtils::sqlStatementThrowException(
                 "UPDATE `login_mfa_registrations` "
-                    . "SET `last_used_token` = ?, `last_challenge` = NOW() "
+                    . "SET `last_used_step` = ?, `last_challenge` = NOW() "
                     . "WHERE `user_id` = ? AND `method` = 'TOTP' AND `name` = ? "
-                    . "AND (`last_used_token` IS NULL "
-                    . "     OR `last_challenge` IS NULL "
-                    . "     OR `last_used_token` != ? "
-                    . "     OR `last_challenge` <= (NOW() - INTERVAL 90 SECOND))",
-                [$tokenStr, $this->uid, $this->nameTOTP, $tokenStr],
+                    . "AND (`last_used_step` IS NULL OR `last_used_step` < ?)",
+                [$matchedSlice, $this->uid, $this->nameTOTP, $matchedSlice],
                 noLog: true
             );
             if (QueryUtils::affectedRows() !== 1) {
-                // Another concurrent request already consumed this exact
-                // code within its acceptance window — treat as replay.
+                // Either a concurrent request already consumed this
+                // slice, or the incoming code came from an earlier
+                // slice than the last consumed one (A-B-A replay).
                 $this->errorMsg = 'The MFA code you entered was not valid.';
                 return false;
             }
