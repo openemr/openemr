@@ -63,13 +63,16 @@ acceptance-testing owns the *verification that they work*.
     end-to-end automated ship via `ship-release.yml`. Surfaced 7
     latent preflight-deadlock gates + a merge-API permission bug;
     see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
-- **Next expected release event:** `8.4.1` targeted 2026-09-20
-  (imminent). Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071
+- **Next expected release event:** `8.4.1` shipping 2026-09-20
+  (in flight). Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071
   rel-side + openemr/openemr#14072 master-side); release-prep +
   release-finalize draft pair regenerated 2026-09-19 with the G41
   fix applied. First patch-cadence exercise of the automated ship
-  pipeline; surfaced 5 new gaps in the cut phase alone (G38 / G39 /
-  G40 / G41 / G42) — worth watching what surfaces on ship day itself.
+  pipeline; cut phase surfaced 5 gaps (G38 / G39 / G40 / G41 / G42);
+  ship day itself surfaced 3 more (G43 dry-run acceptance skip caught
+  the day before, G44 patch-prep row-template `gate_with_acceptance`
+  omission caught during finalize-diff review, G45 preflight script
+  missing from byte-identical manifest — publish job exit 127 mid-ship).
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -3157,6 +3160,22 @@ Legacy rel branches (`rel-800`, `rel-704`) predate the acceptance-package infras
 **Systemic lesson:** the mutator family shares a common bug shape — they were originally written for the branch-cut case (fresh new rel branch → simple state), then extended for the patch-cycle case (multi-row + carried-forward-fields → complex state). Each extension missed a case that the branch-cut version handled implicitly. All three fixes have the same shape: "when the mutator emits/promotes a row, ensure all the fields the branch-cut equivalent emits are present." Future mutator changes for release-targets.yml manipulation should audit against `BranchCutReleaseTargetsMutator`'s row templates as the canonical shape; anything the branch-cut mutator sets should be set (or preserved) by every downstream mutator.
 
 Consider (deferred): a `RelRowTemplate` shared class or trait that all three mutators reference, so template changes propagate consistently. Would eliminate the "missed field" bug class entirely by construction. Not in scope here — the three fixes together close the immediate hole, and the shared class is a bigger refactor worth doing when we're not on a ship deadline.
+
+### G45 — `assert-inputs-nonempty.sh` (G37 preflight) not in byte-identical manifest; 8.4.1 publish crashed exit 127  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20.** First real end-to-end exercise of ship-release full-auto/semi-auto pipeline on a rel branch surfaced the gap. First hit at 8.4.1 ship on 2026-09-20 06:26:38 UTC — the publish job of build-release-on-tag run 35493672033 exited 127 with `.github/scripts/assert-inputs-nonempty.sh: No such file or directory` **after** all 8 acceptance cells passed and the annotated tag `v8_4_1` was already minted by release-prep's finalize job. Zero data loss (tag exists; GH Release object never created; packages sitting as run artifacts).
+
+**Root cause:** G37 (#14050) added `.github/scripts/assert-inputs-nonempty.sh` as a belt-and-suspenders preflight guard on `reusable-publish-release.yml`'s destructive tag-push + release-create steps — protecting against empty `VERSION`/`RELEASE_TAG`/`VERSION_BRANCH`/`ARTIFACT_NAME` inputs slipping past `required: true` (which validates declaration, not non-empty value). The script landed on master. The **manifest entry for byte-identical sync was omitted**. Rel-840 (and rel-820/830) got the reusable workflow via existing manifest entry, but not the script the workflow's preflight step calls. When `reusable-publish-release.yml` ran under `build-release-on-tag.yml` on rel-840, checkout replaced the workspace with rel-840's tree, the script was absent, and the shell run failed with exit 127 before the preflight could execute.
+
+Ironic dimension: the preflight added specifically to catch publish-input bugs was itself the one thing not deployed where it runs.
+
+**Fix (this PR):** one-line addition to `.github/byte-identical.yml`, patterned exactly on the existing `create-release-tag.sh` entry (Phase 10e-5) — same runtime-resolution rationale, same `exclude-branches: [rel-800]` (that branch predates the release-mechanism entirely and doesn't carry `reusable-publish-release.yml`).
+
+**Recovery for 8.4.1 specifically:** merge this PR → sync-byte-identical.yml fires on master push → auto-generates sync PR to rel-840 (and rel-820, rel-830) carrying the missing script → merge that sync PR → re-run the failed Publish job on run 35493672033. GH Actions "re-run failed jobs" reuses the artifact uploaded by build-package (still cached), so no rebuild + no re-acceptance. Just publish (~2min). `create-release-tag.sh` is idempotent on the (tag-exists + release-doesn't) case, which is exactly the post-failure state — it'll create the GH Release object + upload package assets.
+
+**Cross-check — no sibling manifest gaps in the same PR:** grepped `reusable-publish-release.yml` for every `.github/scripts/…` reference; `assert-inputs-nonempty.sh` is the only one missing from the manifest. `create-release-tag.sh` is already there (Phase 10e-5). No other scripts called from that reusable.
+
+**Systemic lesson:** every new script called from a reusable-workflow that a rel branch's `checkout@v* → uses: ./…` pipeline can hit needs a matching manifest entry. The load-time-vs-runtime-resolution distinction (workflow YAML parsed at dispatch time from the target branch's tree, but `run:` shell scripts resolved at execution time from the same tree) means both categories carry the same "must exist on branch" requirement — but the failure modes are different (missing workflow → workflow-not-found at dispatch, refuses to start; missing script → runtime shell failure mid-job). The failure mode difference makes the script case easier to miss during author review. Consider (deferred): a `validate-byte-identical.sh`-style check that greps every `.github/workflows/reusable-*.yml` for `.github/scripts/…` references and asserts each is present in the manifest. Would prevent this exact bug class by construction. Not in scope here — the one-line fix is what the ship needs today; the reviewer-tool is a follow-up when we're not on a live ship.
 
 ## Followup opportunities (not yet gap-numbered)
 
