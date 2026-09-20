@@ -657,8 +657,8 @@ mutators would produce churn PRs.
 | `SqlUpgradeSkeletonMutator` | branch-cut (master), patch-prep (rel + master) | Scaffold `sql/X_Y_Z-to-X_Y_Z+N_upgrade.sql`. |
 | `MasterSqlPatchBridgeMutator` | patch-prep (master) | Rename bridge file to track new patch. |
 | `BranchCutReleaseTargetsMutator` | branch-cut (master) | Insert row for new rel branch. |
-| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next`) for the patch + drop any prior `unreleased: true` placeholder for the branch. |
-| `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder. |
+| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next` + `openemr_version_ref: <relBranch>` + `gate_with_acceptance: true`) for the patch + drop any prior `unreleased: true` placeholder for the branch + strip `next` from master row (see G39/G44). |
+| `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder + backfill `gate_with_acceptance: true` on promoted row if missing (defense-in-depth for pre-G44 patch-prep-inserted rows; see G44). |
 
 Adding a new lifecycle event (or a new mutation to an existing one) is
 a matter of writing one class implementing `MutatorInterface`, adding
