@@ -29,6 +29,7 @@ class MfaUtils
     private $registrations;
     private $var1U2F;
     private $var1TOTP;
+    private ?string $nameTOTP = null;
     private $errorMsg = '';
     private $appId;
 
@@ -54,6 +55,12 @@ class MfaUtils
             } elseif ($row['method'] == 'TOTP') {
                 $this->types[] = 'TOTP';
                 $this->var1TOTP = $row['var1'];
+                // Save the row's name so the atomic-consumption UPDATE
+                // in checkTOTP can target exactly this registration.
+                // The (user_id, name) primary key does not enforce
+                // one TOTP row per user, so we must pin the update
+                // to the row whose secret we're validating.
+                $this->nameTOTP = is_string($row['name']) ? $row['name'] : null;
             }
         }
         $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
@@ -175,43 +182,35 @@ class MfaUtils
         }
 
         if (!empty($secret)) {
-            // Reject the same 6-digit code being reused within its
-            // acceptance window (RobThree TwoFactorAuth accepts codes
-            // for slots T-30/T/T+30 = up to 90s validity, so an
-            // observed valid code could be replayed until it ages out
-            // of that window). Once a code has been consumed for this
-            // user, refuse any further authentication attempts with
-            // the exact same token until it can no longer verify.
-            $rows = QueryUtils::fetchRecordsNoLog(
-                "SELECT `last_used_token` FROM `login_mfa_registrations` "
-                    . "WHERE `user_id` = ? AND `method` = 'TOTP' "
-                    . "AND `last_challenge` IS NOT NULL "
-                    . "AND `last_challenge` > (NOW() - INTERVAL 90 SECOND) LIMIT 1",
-                [$this->uid]
-            );
-            $lastUsed = $rows[0]['last_used_token'] ?? null;
-            if (
-                is_string($lastUsed)
-                && $lastUsed !== ''
-                && hash_equals($lastUsed, is_string($token) ? $token : '')
-            ) {
-                $this->errorMsg = 'The MFA code you entered was not valid.';
-                return false;
-            }
             $googleAuth = new \Totp($secret);
             $response = $googleAuth->validateCode($token);
         }
 
         if ($response) {
-            // Record the successful use so a subsequent submission of the
-            // same token within its 90-second acceptance window is rejected
-            // as a replay by the check above.
+            // Atomic single-use consumption within the 90-second acceptance
+            // window (RobThree TwoFactorAuth accepts codes for slots
+            // T-30/T/T+30 = up to 90s validity). The replay predicate is
+            // in the UPDATE's WHERE clause and we require affectedRows === 1;
+            // two concurrent requests with the same code race for exactly
+            // one winner rather than both passing a separate pre-check.
+            $tokenStr = is_string($token) ? $token : '';
             QueryUtils::sqlStatementThrowException(
-                "UPDATE `login_mfa_registrations` SET `last_used_token` = ?, "
-                    . "`last_challenge` = NOW() WHERE `user_id` = ? AND `method` = 'TOTP'",
-                [is_string($token) ? $token : '', $this->uid],
+                "UPDATE `login_mfa_registrations` "
+                    . "SET `last_used_token` = ?, `last_challenge` = NOW() "
+                    . "WHERE `user_id` = ? AND `method` = 'TOTP' AND `name` = ? "
+                    . "AND (`last_used_token` IS NULL "
+                    . "     OR `last_challenge` IS NULL "
+                    . "     OR `last_used_token` != ? "
+                    . "     OR `last_challenge` <= (NOW() - INTERVAL 90 SECOND))",
+                [$tokenStr, $this->uid, $this->nameTOTP, $tokenStr],
                 noLog: true
             );
+            if (QueryUtils::affectedRows() !== 1) {
+                // Another concurrent request already consumed this exact
+                // code within its acceptance window — treat as replay.
+                $this->errorMsg = 'The MFA code you entered was not valid.';
+                return false;
+            }
             return true;
         } else {
             $this->errorMsg = 'The MFA code you entered was not valid.';

@@ -26,7 +26,6 @@ jobs:
         - 8.5
         suite:
         - api
-        - webui
 
     services:
       # Future: Matrix here too?

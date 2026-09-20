@@ -415,6 +415,13 @@ class PasswordGrantHardeningTest extends TestCase
         // last_used_token / last_challenge enforcement.
         $userId = $this->requireExistingAdminUserId();
         $secret = $this->enrollTotpForUser($userId);
+        // Snapshot both lockout counters before the second (replay)
+        // submission — that attempt runs through the mfa_token_invalid
+        // branch which bumps recordFailedAuthChallenge counters on both
+        // users_secure (per-user) and ip_tracking (per-IP). tearDown
+        // needs the snapshots to restore original state.
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
 
         // First submission with a currently-valid code — should succeed.
         $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
