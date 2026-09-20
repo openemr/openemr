@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-19
+**Last updated:** 2026-09-20
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -3120,6 +3120,43 @@ Both edits land in the same PR to eliminate window (1)/(2).
 **Cross-check on `docker-build-release.yml`:** untouched — its `dry_run` input has a different semantic (smoketest-support: skip acceptance-gate + publish-and-cleanup, preserve candidate tag for downstream consumption). Docker smoketest continues to use `docker-build-release.yml` dry_run as-is. Unrelated to this fix.
 
 **Systemic lesson:** flag-purpose conflation (one boolean serving two independent concerns) is a common workflow-YAML failure mode. When two callers use the same input for different reasons ("suppress publish" vs "skip acceptance work already covered downstream"), split into two independent inputs even if all current callers happen to want both. The alternative — one caller silently getting the wrong behavior — is exactly what happened here for ~6 months of ship-release dry-runs.
+
+### G44 — `PatchPrepReleaseTargetsMutator` row template omitted `gate_with_acceptance: true`; every patch-cycle docker publish would silently skip acceptance  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20** across two mutator changes in the same PR + defense-in-depth backfill at finalize. Fourth stomp-adjacent mutator gap in the 8.4.1 patch-cycle series (G39/G41/G44 = 3-of-3 mutator families had a "missed field" bug the pattern surfaced).
+
+**Trigger event:** review of the regenerated openemr/openemr#14069 finalize diff for 8.4.1 (2026-09-20, hours before ship). The promoted rel-840 row read:
+```yaml
+- branch: rel-840
+  docker_tags: 8.4.1,latest
+  openemr_version_ref: v8_4_1
+```
+No `gate_with_acceptance: true`. The 8.4.0 row above it (`- branch: rel-840 / docker_tags: 8.4.0 / openemr_version_ref: v8_4_0 / gate_with_acceptance: true`) HAS the field because branch-cut inserted it; patch-prep-inserted rows didn't.
+
+**Root cause:** `PatchPrepReleaseTargetsMutator::renderRelRowLines()` emitted a 3-line row template (`- branch: / docker_tags: X.Y.P,next / openemr_version_ref: <relBranch>`). `BranchCutReleaseTargetsMutator`'s equivalent template is 4 lines — it includes `gate_with_acceptance: true`. `PostReleaseTargetsMutator`'s promotion pipeline (`pinRelBranchVersionRef` + `shuffleSlots`) doesn't touch the field either — it flows patch-prep's row shape forward without adding anything.
+
+**Downstream effect:** `docker-release-orchestrator.yml` reads `.github/release-targets.yml`, fans out one `docker-build-release.yml` dispatch per row, and passes `gate_with_acceptance=<row's value>`. A row without the field → `gate_with_acceptance=false` → docker-build-release takes the **non-gated publish path** that pushes directly to final tags **without running the acceptance-gate matrix**. Every patch-cycle docker publish (not just 8.4.1) would silently skip acceptance. Stomp-adjacent — the docker image ships but with zero pre-publish acceptance signal.
+
+**Fix (this PR — two changes, defense in depth):**
+
+1. **`PatchPrepReleaseTargetsMutator::renderRelRowLines`** — add `  gate_with_acceptance: true` to the row template. Matches branch-cut. Future patch-preps insert rows correctly.
+
+2. **`PostReleaseTargetsMutator::ensureGateWithAcceptanceOnShippedRow`** (new step) — after promotion, backfill `gate_with_acceptance: true` on the just-shipped row if missing. Covers rows inserted by pre-G44 patch-prep (the 8.4.1 case specifically) so re-firing release-prep produces a correct finalize PR. Idempotent (no-op when field already present, e.g. branch-cut-inserted rows).
+
+Legacy rel branches (`rel-800`, `rel-704`) predate the acceptance-package infrastructure and would break docker orchestration if `gate_with_acceptance: true` were added (workflow_call would fail to resolve the missing reusable). Excluded via a `LEGACY_REL_BRANCHES_WITHOUT_ACCEPTANCE` constant.
+
+**Recovery for #14069 specifically:** #14069 was already open. Re-fire release-prep.yml on rel-840 (push or workflow_dispatch) after this fix lands. PostRelease's new backfill step will add `gate_with_acceptance: true` to the promoted row. Peter-evans force-pushes `release-finalize/rel-840` → #14069 regenerates with the field. Same recovery pattern as G39/G41.
+
+**Timing:** flagged during the 8.4.1 dry-run review, hours before real ship. This fix is a ship blocker — without it, 8.4.1's docker publish silently skips acceptance.
+
+**Cross-check — this is the third mutator with a "missed field" bug in the 8.4.1 cut cycle:**
+- G39: `PatchPrepReleaseTargetsMutator` didn't strip `next` from master row
+- G41: `PostReleaseTargetsMutator` didn't strip `latest` from prior-patch row on same branch
+- G44 (this): `PatchPrepReleaseTargetsMutator` row template omitted `gate_with_acceptance: true`; `PostReleaseTargetsMutator` didn't add it during promotion
+
+**Systemic lesson:** the mutator family shares a common bug shape — they were originally written for the branch-cut case (fresh new rel branch → simple state), then extended for the patch-cycle case (multi-row + carried-forward-fields → complex state). Each extension missed a case that the branch-cut version handled implicitly. All three fixes have the same shape: "when the mutator emits/promotes a row, ensure all the fields the branch-cut equivalent emits are present." Future mutator changes for release-targets.yml manipulation should audit against `BranchCutReleaseTargetsMutator`'s row templates as the canonical shape; anything the branch-cut mutator sets should be set (or preserved) by every downstream mutator.
+
+Consider (deferred): a `RelRowTemplate` shared class or trait that all three mutators reference, so template changes propagate consistently. Would eliminate the "missed field" bug class entirely by construction. Not in scope here — the three fixes together close the immediate hole, and the shared class is a bigger refactor worth doing when we're not on a ship deadline.
 
 ## Followup opportunities (not yet gap-numbered)
 
