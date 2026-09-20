@@ -121,7 +121,7 @@ jobs:
       id: compute-suites
       # Suites common,controllers,fixtures,validators,unit are covered by integration-tests.yml
       run: |
-        base='["api","services","email"'
+        base='["api","services","email","webui"'
         if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
           base="${base},"'"e2e"'
         fi
