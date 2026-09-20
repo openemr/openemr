@@ -2096,7 +2096,7 @@ CREATE TABLE `form_misc_billing_options` (
   `hospitalization_date_from` date default NULL,
   `hospitalization_date_to` date default NULL,
   `medicaid_resubmission_code` varchar(10) default NULL,
-  `medicaid_original_reference` varchar(15) default NULL,
+  `original_reference_number` varchar(50) default NULL,
   `prior_auth_number` varchar(20) default NULL,
   `comments` varchar(255) default NULL,
   `replacement_claim` tinyint(1) default 0,

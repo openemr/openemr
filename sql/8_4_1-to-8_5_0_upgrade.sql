@@ -127,3 +127,12 @@ UPDATE `list_options` SET `codes` = 'SNOMED-CT:248152002' WHERE `list_id` = 'adm
 #IfNotColumnType ar_activity payer_claim_number varchar(50)
 ALTER TABLE `ar_activity` MODIFY `payer_claim_number` VARCHAR(50) DEFAULT NULL COMMENT 'CLP07 from the payer 835';
 #EndIf
+
+-- HCFA box 22a is not Medicaid-specific; rename for clarity and widen to REF02's maximum.
+#IfColumn form_misc_billing_options medicaid_original_reference
+ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_original_reference` `original_reference_number` VARCHAR(50) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_misc_billing_options original_reference_number varchar(50)
+ALTER TABLE `form_misc_billing_options` MODIFY `original_reference_number` VARCHAR(50) DEFAULT NULL;
+#EndIf

@@ -86,7 +86,7 @@ class Hcfa1500
 
         // Box 22. Medicaid Resubmission Code and Original Ref. No.
         $hcfa_entries[] = new HCFAInfo(38, 50, 10, $claim->medicaidResubmissionCode());
-        $hcfa_entries[] = new HCFAInfo(38, 62, 15, $claim->medicaidOriginalReference());
+        $hcfa_entries[] = new HCFAInfo(38, 62, 15, $claim->originalReferenceNumber());
 
         // Box 23. Prior Authorization Number
         $hcfa_entries[] = new HCFAInfo(40, 50, 28, $claim->priorAuth());

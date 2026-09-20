@@ -1660,9 +1660,24 @@ class Claim
     /**
      * @return string
      */
+    /**
+     * HCFA box 22a, the original reference number of a claim this one replaces.
+     * Not Medicaid-specific despite the old name.
+     *
+     * @return string
+     */
+    public function originalReferenceNumber()
+    {
+        return $this->x12Clean(trim($this->billing_options['original_reference_number'] ?? ''));
+    }
+
+    /**
+     * @deprecated since 8.5.0, use originalReferenceNumber() instead.
+     * @return string
+     */
     public function medicaidOriginalReference()
     {
-        return $this->x12Clean(trim($this->billing_options['medicaid_original_reference'] ?? ''));
+        return $this->originalReferenceNumber();
     }
 
     /**
@@ -1688,8 +1703,8 @@ class Claim
      * Used for Loop 2330B REF*F8 on secondary and tertiary claims.
      *
      * Note this is the PRIOR payer's number, and is distinct from HCFA box 22a
-     * and from icnResubmissionNumber(), both of which carry the DESTINATION
-     * payer's number on a replacement claim.
+     * (originalReferenceNumber) and from icnResubmissionNumber(), both of which
+     * carry the DESTINATION payer's number on a replacement claim.
      *
      * @param int $ins index into $this->payers, where 0 is the destination payer
      * @return string
