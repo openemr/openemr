@@ -20,12 +20,9 @@
 $sessionAllowWrite = true;
 require_once('../globals.php');
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Crypto\CryptoGenException;
-use OpenEMR\Common\Crypto\KeyVersion;
-use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
@@ -185,54 +182,16 @@ if (isset($_POST['new_login_session_management'])) {
             if (isset($_POST['totp']) && trim((string) $_POST['totp']) != "" && $isTOTP) {
                 $errormsg = false;
 
-                $form_response = '';
-
-                $res1 = sqlQuery(
-                    "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
-                    [$session->get('authUserID')]
-                );
-                $registrationSecret = false;
-                if (!empty($res1['var1'])) {
-                    $registrationSecret = $res1['var1'];
-                }
-
-                // Decrypt the secret
-                // First, try standard method that uses standard key
-                $cryptoGen = ServiceContainer::getCrypto();
-                try {
-                    $secret = $cryptoGen->decryptFromDatabase(is_string($registrationSecret) ? $registrationSecret : null);
-                } catch (CryptoGenException) {
-                    $secret = null;
-                }
-                if (empty($secret)) {
-                    // Second, try the password hash, which was setup during install and is temporary
-                    $passwordResults = privQuery(
-                        "SELECT password FROM users_secure WHERE username = ?",
-                        [$_POST["authUser"]]
-                    );
-                    if (!empty($passwordResults["password"])) {
-                        $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
-                        try {
-                            $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
-                        } catch (CryptoGenException) {
-                            $secret = null;
-                        }
-                        if (!empty($secret)) {
-                            error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
-                            // Re-encrypt with the more secure standard key
-                            $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
-                            privStatement(
-                                "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
-                                [$secretEncrypt, $userid]
-                            );
-                        }
-                    }
-                }
-
-                if (!empty($secret)) {
-                    $googleAuth = new Totp($secret);
-                    $form_response = $googleAuth->validateCode($_POST['totp']);
-                }
+                // Delegate TOTP verification to MfaUtils::check so both the
+                // web login (this file) and the OAuth2 password grant
+                // (UserRepository::getAccountByPassword) share one
+                // implementation. That gives web login the same TOTP
+                // replay protection MfaUtils::checkTOTP enforces (rejecting
+                // the same 6-digit code within its 90s acceptance window)
+                // for free — a code observed via shoulder-surfing or a
+                // screenshot can no longer be replayed on the web form.
+                $mfa = new MfaUtils($userid);
+                $form_response = $mfa->check($_POST['totp'], MfaUtils::TOTP);
 
                 if ($form_response) {
                     // Keep track of when challenges were last answered correctly.
