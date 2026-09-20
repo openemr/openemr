@@ -123,6 +123,7 @@ YAML;
 - branch: rel-810
   docker_tags: 8.1.1,latest
   openemr_version_ref: v8_1_1
+  gate_with_acceptance: true
 YAML;
         self::assertSame($expected, $this->readTarget());
     }
@@ -360,7 +361,9 @@ YAML;
         // Legacy rel-NMP shapes (e.g. rel-704) don't fit the modern
         // rel-NN0 regex. isVersionTagFor() must still treat v7_0_X as
         // the "active" tag for rel-704 so re-running on already-mutated
-        // input is a no-op (idempotency requirement).
+        // input is a no-op (idempotency requirement). Also legacy rel
+        // branches predate the acceptance-package infrastructure so
+        // the G44 gate_with_acceptance backfill correctly skips them.
         $input = <<<'YAML'
 - branch: master
   docker_tags: 8.2.0,dev,next
@@ -377,9 +380,74 @@ YAML;
         $first = $mutator->apply($context);
         self::assertFalse(
             $first->changed(),
-            'already-shipped rel-704 should be a no-op (active row recognised via v7_0_X tag)',
+            'already-shipped rel-704 should be a no-op (active row recognised via v7_0_X tag; legacy branch skipped by acceptance-gate backfill)',
         );
         self::assertSame($input, $this->readTarget());
+    }
+
+    public function testBackfillsGateWithAcceptanceOnPromotedRowWhenMissing(): void
+    {
+        // G44 backfill (2026-09-20): pre-G44 PatchPrepReleaseTargetsMutator
+        // template omitted gate_with_acceptance from the inserted dev
+        // row. Any patch release whose dev row was created by pre-G44
+        // patch-prep reaches finalize without the field. This backfill
+        // ensures the shipped row has it -- so docker-release-
+        // orchestrator fires docker-build-release.yml with
+        // gate_with_acceptance=true (gated path with acceptance-gate
+        // matrix), not the non-gated path that skips acceptance.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.5.0,dev
+  openemr_version_ref: master
+  gate_with_acceptance: true
+
+- branch: rel-840
+  docker_tags: 8.4.1,next
+  openemr_version_ref: rel-840
+
+- branch: rel-840
+  docker_tags: 8.4.0,latest
+  openemr_version_ref: v8_4_0
+  gate_with_acceptance: true
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.4.1', 'rel-840');
+        (new PostReleaseTargetsMutator())->apply($context);
+
+        $output = $this->readTarget();
+        // The promoted row (8.4.1,latest / v8_4_1) must now carry gate_with_acceptance.
+        self::assertMatchesRegularExpression(
+            '/- branch: rel-840\s+docker_tags: 8\.4\.1,latest\s+openemr_version_ref: v8_4_1\s+gate_with_acceptance: true/',
+            $output,
+        );
+    }
+
+    public function testBackfillIsIdempotentWhenGateWithAcceptanceAlreadyPresent(): void
+    {
+        // Branch-cut-inserted rows already carry gate_with_acceptance
+        // (BranchCutReleaseTargetsMutator's template includes it).
+        // Backfill must be a no-op in that case.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.2.0,dev
+  openemr_version_ref: master
+  gate_with_acceptance: true
+
+- branch: rel-810
+  docker_tags: 8.1.1,next
+  openemr_version_ref: rel-810
+  gate_with_acceptance: true
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
+        $mutator = new PostReleaseTargetsMutator();
+        $first = $mutator->apply($context);
+        self::assertTrue($first->changed(), 'first run should still promote next -> latest + pin ref');
+
+        // Second run on the mutated state: no-op (backfill idempotent,
+        // shuffle already done).
+        $second = $mutator->apply($context);
+        self::assertFalse($second->changed(), 'second run must be a no-op even with the G44 backfill step in the mix');
     }
 
     public function testSkipsWhenTargetRelBranchHasNoLiveRow(): void

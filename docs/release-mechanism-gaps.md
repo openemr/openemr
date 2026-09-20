@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-09-19
+**Last updated:** 2026-09-20
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -63,13 +63,20 @@ acceptance-testing owns the *verification that they work*.
     end-to-end automated ship via `ship-release.yml`. Surfaced 7
     latent preflight-deadlock gates + a merge-API permission bug;
     see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
-- **Next expected release event:** `8.4.1` targeted 2026-09-20
-  (imminent). Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071
-  rel-side + openemr/openemr#14072 master-side); release-prep +
-  release-finalize draft pair regenerated 2026-09-19 with the G41
-  fix applied. First patch-cadence exercise of the automated ship
-  pipeline; surfaced 5 new gaps in the cut phase alone (G38 / G39 /
-  G40 / G41 / G42) — worth watching what surfaces on ship day itself.
+- **Most recent release:** `8.4.1` shipped 2026-09-20 from `rel-840`
+  — first patch-cadence exercise of the automated ship pipeline.
+  Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071 rel-side
+  + openemr/openemr#14072 master-side); release-prep + release-finalize
+  draft pair regenerated 2026-09-19 with the G41 fix applied. Cut
+  phase surfaced 5 gaps (G38 / G39 / G40 / G41 / G42); ship day
+  itself surfaced 4 more (G43 dry-run acceptance skip caught the day
+  before, G44 patch-prep row-template `gate_with_acceptance` omission
+  caught during finalize-diff review, G45 preflight script missing
+  from byte-identical manifest — publish job exit 127 mid-ship, G46
+  acceptance-docker concurrency-race cancelled docker publish —
+  recovered via docker-acceptance-only.yml). All 4 ship-day gaps
+  had fixes landed same day; 8.4.1 tarball + zip + docker images
+  + release-amendment + docs + announcement all live.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -3084,6 +3091,129 @@ Adds a long inline comment on both changes documenting why THIS wait is bigger t
 **Outcome (2026-09-19):** all three PRs merged. Release-docs regenerated post-fix (run 35432004291) — page now shows clean 5-row list with Brady Miller correctly at 13 commits (primary 6 + co-author 6 merged + 1 from a subsequent backport PR), Michael A. Smith replacing `kojiromike`, and `openemr-release-bot` dropped. Full expected shape rendered.
 
 **Followup consideration (deferred):** any co-author using a personal email (not a GitHub noreply) that DOES differ from their primary spelling would still slip through the API canonicalization path. Would require either a project-level `.mailmap` file (git-native canonicalization; would need generator-side application to trailer values since git's `%(trailers:...)` doesn't apply mailmap) or continued hand-curation via `NON_HUMAN_NAMES`. Not currently needed — nothing in the 8.4.1 range triggered this — but worth remembering for future non-noreply co-author-based duplicates.
+
+### G43 — `build-release.yml`'s acceptance-gate was tied to `dry_run` so ship-release dry-run silently skipped the acceptance matrix  *(SHIPPED 2026-09-19)*
+
+**STATUS: SHIPPED 2026-09-19** as a single PR that decouples the acceptance-gate skip from `dry_run` and updates the one existing caller that legitimately wants to skip acceptance to use the new dedicated flag.
+
+**Trigger event:** the 8.4.1 ship-release dry-run (run 35470821033, 2026-09-19) completed in ~4 min — just preflight + package build. The `Acceptance gate` sub-job was SKIPPED. Brady flagged: "accept should not skip" — dry-run is meant as a full rehearsal, so exercising the acceptance matrix IS the point. Skipping it means dry-run only exercises the preflight + build step, not the full ship path that real ship depends on.
+
+**Root cause:** `build-release.yml`'s acceptance-gate job carried `if: '!inputs.dry_run'`. Two callers, two intents conflated:
+
+- **`ship-release.yml`** dry-run-build job — wants acceptance-gate TO run (full rehearsal semantic).
+- **`recovery-path-smoketest.yml`** source-artifact dispatch — wants acceptance-gate SKIPPED (already runs its own variant-A + variant-B acceptance-only matrices downstream; running it here duplicates ~30 min of work).
+
+Both callers passed `dry_run=true` (the appropriate publish suppression). The acceptance-gate skip was a second concern piggybacked on the same flag — historically justified by "the acceptance gate exists to prevent broken tarballs from reaching the GitHub releases page, so it's redundant when publish is skipped" (per the file's own header comment). That reasoning holds for the smoketest (which explicitly delegates acceptance downstream) but not for ship-release's dry-run (whose whole point is a full rehearsal).
+
+**Fix (this PR):** decouple with a new `skip_acceptance_gate` input on `build-release.yml` (default `false`). Change acceptance-gate `if:` from `!inputs.dry_run` → `!inputs.skip_acceptance_gate`. Update `recovery-path-smoketest.yml`'s build-release dispatch to explicitly pass `skip_acceptance_gate=true`. Ship-release's dry-run-build call doesn't pass `skip_acceptance_gate` (so acceptance-gate runs).
+
+**Runtime impact:** ship-release `mode=dry-run` runtime goes from ~4 min → ~30-40 min (full acceptance matrix). That's the intended trade-off — high-confidence rehearsal is the point.
+
+**Safety analysis (critical — no stomp-guard regression):** the smoketest's 5-layer guardrail model is completely orthogonal to the acceptance-gate skip. The change cannot weaken any layer:
+
+- **L1 (input flags):** build-release's `publish` job stays gated on `!inputs.dry_run` (unchanged). Whether acceptance-gate runs or not is invisible to publish's dry-run gate.
+- **L2 (preflight):** `assert-release-shipped.sh` unchanged.
+- **L3 (canary substitution):** docker-only, unchanged.
+- **L4a (runtime verify):** `recovery-smoketest-verify.sh` checks `publish-job-status=skipped` on the acceptance-only run IDs (variant A + variant B). Doesn't inspect build-release's internal jobs — build-release's acceptance-gate status is invisible to the L4a check.
+- **L4b (canary tag absent):** docker-only, unchanged.
+
+Worst-case regression scenarios traced:
+1. Workflow lands without smoketest update: smoketest's build-release would run acceptance-gate (~30 min extra work). No stomp risk — publish still gated by `dry_run=true`. Cost is only runtime.
+2. Smoketest update lands without workflow change: GHA rejects "unknown input `skip_acceptance_gate`". Loud fail, no silent stomp.
+3. Someone removes `skip_acceptance_gate=true` from smoketest: same as (1). Loud runtime cost, no stomp.
+
+Both edits land in the same PR to eliminate window (1)/(2).
+
+**Cross-check on `docker-build-release.yml`:** untouched — its `dry_run` input has a different semantic (smoketest-support: skip acceptance-gate + publish-and-cleanup, preserve candidate tag for downstream consumption). Docker smoketest continues to use `docker-build-release.yml` dry_run as-is. Unrelated to this fix.
+
+**Systemic lesson:** flag-purpose conflation (one boolean serving two independent concerns) is a common workflow-YAML failure mode. When two callers use the same input for different reasons ("suppress publish" vs "skip acceptance work already covered downstream"), split into two independent inputs even if all current callers happen to want both. The alternative — one caller silently getting the wrong behavior — is exactly what happened here for ~6 months of ship-release dry-runs.
+
+### G44 — `PatchPrepReleaseTargetsMutator` row template omitted `gate_with_acceptance: true`; every patch-cycle docker publish would silently skip acceptance  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20** across two mutator changes in the same PR + defense-in-depth backfill at finalize. Fourth stomp-adjacent mutator gap in the 8.4.1 patch-cycle series (G39/G41/G44 = 3-of-3 mutator families had a "missed field" bug the pattern surfaced).
+
+**Trigger event:** review of the regenerated openemr/openemr#14069 finalize diff for 8.4.1 (2026-09-20, hours before ship). The promoted rel-840 row read:
+```yaml
+- branch: rel-840
+  docker_tags: 8.4.1,latest
+  openemr_version_ref: v8_4_1
+```
+No `gate_with_acceptance: true`. The 8.4.0 row above it (`- branch: rel-840 / docker_tags: 8.4.0 / openemr_version_ref: v8_4_0 / gate_with_acceptance: true`) HAS the field because branch-cut inserted it; patch-prep-inserted rows didn't.
+
+**Root cause:** `PatchPrepReleaseTargetsMutator::renderRelRowLines()` emitted a 3-line row template (`- branch: / docker_tags: X.Y.P,next / openemr_version_ref: <relBranch>`). `BranchCutReleaseTargetsMutator`'s equivalent template is 4 lines — it includes `gate_with_acceptance: true`. `PostReleaseTargetsMutator`'s promotion pipeline (`pinRelBranchVersionRef` + `shuffleSlots`) doesn't touch the field either — it flows patch-prep's row shape forward without adding anything.
+
+**Downstream effect:** `docker-release-orchestrator.yml` reads `.github/release-targets.yml`, fans out one `docker-build-release.yml` dispatch per row, and passes `gate_with_acceptance=<row's value>`. A row without the field → `gate_with_acceptance=false` → docker-build-release takes the **non-gated publish path** that pushes directly to final tags **without running the acceptance-gate matrix**. Every patch-cycle docker publish (not just 8.4.1) would silently skip acceptance. Stomp-adjacent — the docker image ships but with zero pre-publish acceptance signal.
+
+**Fix (this PR — two changes, defense in depth):**
+
+1. **`PatchPrepReleaseTargetsMutator::renderRelRowLines`** — add `  gate_with_acceptance: true` to the row template. Matches branch-cut. Future patch-preps insert rows correctly.
+
+2. **`PostReleaseTargetsMutator::ensureGateWithAcceptanceOnShippedRow`** (new step) — after promotion, backfill `gate_with_acceptance: true` on the just-shipped row if missing. Covers rows inserted by pre-G44 patch-prep (the 8.4.1 case specifically) so re-firing release-prep produces a correct finalize PR. Idempotent (no-op when field already present, e.g. branch-cut-inserted rows).
+
+Legacy rel branches (`rel-800`, `rel-704`) predate the acceptance-package infrastructure and would break docker orchestration if `gate_with_acceptance: true` were added (workflow_call would fail to resolve the missing reusable). Excluded via a `LEGACY_REL_BRANCHES_WITHOUT_ACCEPTANCE` constant.
+
+**Recovery for #14069 specifically:** #14069 was already open. Re-fire release-prep.yml on rel-840 (push or workflow_dispatch) after this fix lands. PostRelease's new backfill step will add `gate_with_acceptance: true` to the promoted row. Peter-evans force-pushes `release-finalize/rel-840` → #14069 regenerates with the field. Same recovery pattern as G39/G41.
+
+**Timing:** flagged during the 8.4.1 dry-run review, hours before real ship. This fix is a ship blocker — without it, 8.4.1's docker publish silently skips acceptance.
+
+**Cross-check — this is the third mutator with a "missed field" bug in the 8.4.1 cut cycle:**
+- G39: `PatchPrepReleaseTargetsMutator` didn't strip `next` from master row
+- G41: `PostReleaseTargetsMutator` didn't strip `latest` from prior-patch row on same branch
+- G44 (this): `PatchPrepReleaseTargetsMutator` row template omitted `gate_with_acceptance: true`; `PostReleaseTargetsMutator` didn't add it during promotion
+
+**Systemic lesson:** the mutator family shares a common bug shape — they were originally written for the branch-cut case (fresh new rel branch → simple state), then extended for the patch-cycle case (multi-row + carried-forward-fields → complex state). Each extension missed a case that the branch-cut version handled implicitly. All three fixes have the same shape: "when the mutator emits/promotes a row, ensure all the fields the branch-cut equivalent emits are present." Future mutator changes for release-targets.yml manipulation should audit against `BranchCutReleaseTargetsMutator`'s row templates as the canonical shape; anything the branch-cut mutator sets should be set (or preserved) by every downstream mutator.
+
+Consider (deferred): a `RelRowTemplate` shared class or trait that all three mutators reference, so template changes propagate consistently. Would eliminate the "missed field" bug class entirely by construction. Not in scope here — the three fixes together close the immediate hole, and the shared class is a bigger refactor worth doing when we're not on a ship deadline.
+
+### G45 — `assert-inputs-nonempty.sh` (G37 preflight) not in byte-identical manifest; 8.4.1 publish crashed exit 127  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20.** First real end-to-end exercise of ship-release full-auto/semi-auto pipeline on a rel branch surfaced the gap. First hit at 8.4.1 ship on 2026-09-20 06:26:38 UTC — the publish job of build-release-on-tag run 35493672033 exited 127 with `.github/scripts/assert-inputs-nonempty.sh: No such file or directory` **after** all 8 acceptance cells passed and the annotated tag `v8_4_1` was already minted by release-prep's finalize job. Zero data loss (tag exists; GH Release object never created; packages sitting as run artifacts).
+
+**Root cause:** G37 (#14050) added `.github/scripts/assert-inputs-nonempty.sh` as a belt-and-suspenders preflight guard on `reusable-publish-release.yml`'s destructive tag-push + release-create steps — protecting against empty `VERSION`/`RELEASE_TAG`/`VERSION_BRANCH`/`ARTIFACT_NAME` inputs slipping past `required: true` (which validates declaration, not non-empty value). The script landed on master. The **manifest entry for byte-identical sync was omitted**. Rel-840 (and rel-820/830) got the reusable workflow via existing manifest entry, but not the script the workflow's preflight step calls. When `reusable-publish-release.yml` ran under `build-release-on-tag.yml` on rel-840, checkout replaced the workspace with rel-840's tree, the script was absent, and the shell run failed with exit 127 before the preflight could execute.
+
+Ironic dimension: the preflight added specifically to catch publish-input bugs was itself the one thing not deployed where it runs.
+
+**Fix (this PR):** one-line addition to `.github/byte-identical.yml`, patterned exactly on the existing `create-release-tag.sh` entry (Phase 10e-5) — same runtime-resolution rationale, same `exclude-branches: [rel-800]` (that branch predates the release-mechanism entirely and doesn't carry `reusable-publish-release.yml`).
+
+**Recovery for 8.4.1 specifically:** merge this PR → sync-byte-identical.yml fires on master push → auto-generates sync PR to rel-840 (and rel-820, rel-830) carrying the missing script → merge that sync PR → re-run the failed Publish job on run 35493672033. GH Actions "re-run failed jobs" reuses the artifact uploaded by build-package (still cached), so no rebuild + no re-acceptance. Just publish (~2min). `create-release-tag.sh` is idempotent on the (tag-exists + release-doesn't) case, which is exactly the post-failure state — it'll create the GH Release object + upload package assets.
+
+**Cross-check — no sibling manifest gaps in the same PR:** grepped `reusable-publish-release.yml` for every `.github/scripts/…` reference; `assert-inputs-nonempty.sh` is the only one missing from the manifest. `create-release-tag.sh` is already there (Phase 10e-5). No other scripts called from that reusable.
+
+**Systemic lesson:** every new script called from a reusable-workflow that a rel branch's `checkout@v* → uses: ./…` pipeline can hit needs a matching manifest entry. The load-time-vs-runtime-resolution distinction (workflow YAML parsed at dispatch time from the target branch's tree, but `run:` shell scripts resolved at execution time from the same tree) means both categories carry the same "must exist on branch" requirement — but the failure modes are different (missing workflow → workflow-not-found at dispatch, refuses to start; missing script → runtime shell failure mid-job). The failure mode difference makes the script case easier to miss during author review. Consider (deferred): a `validate-byte-identical.sh`-style check that greps every `.github/workflows/reusable-*.yml` for `.github/scripts/…` references and asserts each is present in the manifest. Would prevent this exact bug class by construction. Not in scope here — the one-line fix is what the ship needs today; the reviewer-tool is a follow-up when we're not on a live ship.
+
+### G46 — `acceptance-docker.yml` concurrency-group collision cancelled 8.4.1 docker publish mid-ship  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20.** Third ship-day-of-8.4.1 gap surfaced in the finalize-merge → docker cascade. Immediately after the manual Finalize PR merge fired `docker-release-orchestrator.yml`, the 6-row per-branch fanout raced against a single concurrency group inside `acceptance-docker.yml`. The 8.4.1,latest row (the whole reason for the ship) drew the short straw: its acceptance-gate started at 08:22:50 UTC on run 35498659392 and was cancelled 17 seconds later when a competitor row's acceptance-gate entered the same group. `publish-and-cleanup` skipped as a consequence. Docker Hub had the preserved candidate tag; final tags (`8.4.1`, `8.4.1-2026-09-20`, `latest`) never got aliased.
+
+**Root cause:** `.github/workflows/acceptance-docker.yml` concurrency group was:
+
+```yaml
+group: acceptance-docker-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
+cancel-in-progress: ${{ github.event_name != 'schedule' }}
+```
+
+Reusable-workflow calls inherit the caller's `github.ref` and `github.event_name`. When `docker-release-orchestrator.yml` fires on Finalize-merge push, orchestrator's `event_name` = push, `ref` = master. Both propagate through `docker-build-release.yml` and into `acceptance-docker.yml`. Every per-row acceptance-gate collapses into the same `acceptance-docker-refs/heads/master-ondemand` group with `cancel-in-progress: true` — one active at a time, newest wins.
+
+Coin-flip race, not deterministic cascade: whichever rows happened to have acceptance-gate windows that didn't overlap a competitor's arrival survived (8.2.0 + 8.5.0,dev,next succeeded on 2026-09-20); rows whose windows did overlap cancelled (8.4.1,latest + 8.4.0 + 8.3.0 all failed).
+
+**Scope of exposure:**
+
+- **Push-triggered orchestrator (Finalize-merge fanout): AFFECTED.** This is what bit us today. Prior ships (8.3.0 / 8.4.0) had the same structural exposure but drew a luckier race.
+- **Daily scheduled orchestrator (06:15 UTC):** NOT affected. `event_name = schedule` → `cancel-in-progress: false` → parallel row calls queue serially instead of cancelling. All rows complete (~1h × N — the ~07:15 buffer in `reference_rel_branch_build_duration.md` reflects this serialization).
+- **Daily release-mechanism-smoketest:** NOT affected. Uses `dry_run: true` on `docker-build-release.yml` → acceptance-gate `if: gate_with_acceptance && !dry_run` = false → `acceptance-docker.yml` never called → no group participation.
+
+**Fix (this PR):** differentiate the group by `inputs.to_tag` when set — unique per-row candidate suffix on the `workflow_call` path (from `docker-build-release.yml` on original ship, or from `docker-acceptance-only.yml` on recovery). Direct PR/push/schedule triggers leave `inputs.to_tag` empty and fall back to the pre-G46 bucket, preserving existing behavior (PR runs still cancel their own older commits; schedule runs still queue). `cancel-in-progress` line unchanged.
+
+```yaml
+group: acceptance-docker-${{ github.ref }}-${{ inputs.to_tag || (github.event_name == 'schedule' && 'schedule' || 'ondemand') }}
+cancel-in-progress: ${{ github.event_name != 'schedule' }}
+```
+
+**Recovery for 8.4.1 (already applied 2026-09-20 08:34-08:44):** dispatched `docker-acceptance-only.yml` with `source_run_id=35498659392` + `candidate_tag=release-candidate-35498659392-1` + `docker_tags=8.4.1,latest`. Ran full acceptance-docker matrix against the preserved candidate (no rebuild), published on green via `reusable-docker-publish.yml`, cleaned up candidate. Total time ~10 min. Design-intent recovery — Phase 10c's whole rationale is preserving the candidate for exactly this failure class.
+
+**Cross-check on the multi-run cascade:** verified 8.2.0 (35498689225) and 8.5.0,dev,next (35498665668) actually did publish (`Publish + cleanup / Publish: success` + `Cleanup candidate tag: success`) — their acceptance-gate windows didn't overlap a competitor. Confirms the coin-flip framing: this bug won't cancel every row in a fanout, just the losers of the race.
+
+**Systemic lesson:** reusable-workflow concurrency needs to think about the SHAPE of parallel calls, not just the direct-trigger case. `acceptance-docker.yml`'s original concurrency block was designed for direct triggers (PR, push, schedule) where one workflow per ref is the natural granularity. The workflow_call fanout pattern (multiple simultaneous calls per ref, differentiated by input) requires the input to feed the group key too. Broader implication: audit every reusable workflow with concurrency for the same latent-race shape — if the reusable takes a `workflow_call` input that identifies which "thing" is being processed (candidate tag, package version, artifact ID), that input should be part of the group when set. Deferred: enumerate all `.github/workflows/reusable-*.yml` concurrency blocks and check each against its `workflow_call` inputs for the same shape gap. Not in scope here.
 
 ## Followup opportunities (not yet gap-numbered)
 

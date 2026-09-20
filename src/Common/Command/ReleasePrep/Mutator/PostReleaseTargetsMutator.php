@@ -93,6 +93,7 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
         $newText = $this->dropUnreleasedPlaceholderRow($original, $relBranch);
         $newText = $this->pinRelBranchVersionRef($newText, $relBranch, $tagName);
         $newText = $this->shuffleSlots($newText, $relBranch);
+        $newText = $this->ensureGateWithAcceptanceOnShippedRow($newText, $relBranch);
 
         if ($newText === $original) {
             return MutatorResult::noop();
@@ -391,6 +392,103 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
             }
         }
 
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Rel branches predating the acceptance-package infrastructure --
+     * they don't have `acceptance-docker.yml` / `acceptance-package.yml`
+     * on their tree, so `gate_with_acceptance: true` on their release-
+     * targets row would break docker orchestration (workflow_call
+     * would fail to resolve the missing reusable). See G44
+     * (2026-09-20) for the underlying acceptance-gate backfill fix.
+     *
+     * @var list<string>
+     */
+    private const LEGACY_REL_BRANCHES_WITHOUT_ACCEPTANCE = ['rel-704', 'rel-800'];
+
+    /**
+     * Backfill `gate_with_acceptance: true` on the just-shipped rel-
+     * branch row if the field is missing. Idempotent: no-op when the
+     * field is already present, or when the target rel branch predates
+     * the acceptance-package infrastructure.
+     *
+     * Why: `PatchPrepReleaseTargetsMutator::renderRelRowLines` before
+     * G44 (2026-09-20) omitted `gate_with_acceptance` from its inserted
+     * dev row template. Any patch release whose dev row was inserted
+     * by pre-G44 patch-prep therefore reached finalize without the
+     * field. `docker-release-orchestrator.yml` fires
+     * `docker-build-release.yml` with `gate_with_acceptance=false` for
+     * such rows, taking the non-gated publish path that pushes
+     * directly to final tags without running the acceptance-gate
+     * matrix -- silently skipping the docker publish acceptance for
+     * every patch release (a stomp-adjacent regression). Adding the
+     * field at finalize covers both this backfill case AND future
+     * patch-preps (which now emit it themselves), so the shipped
+     * state is guaranteed correct regardless of which mutator
+     * historically inserted the row.
+     */
+    private function ensureGateWithAcceptanceOnShippedRow(string $text, string $relBranch): string
+    {
+        // Legacy rel branches predate the acceptance mechanism -- don't
+        // pin them to a gate they can't satisfy.
+        if (in_array($relBranch, self::LEGACY_REL_BRANCHES_WITHOUT_ACCEPTANCE, true)) {
+            return $text;
+        }
+
+        $rows = $this->indexRows($text);
+        $lines = explode("\n", $text);
+
+        // Find the just-shipped row: matches branch + version-tag ref +
+        // has `latest` in tags (post-shuffle state).
+        $shippedRow = null;
+        $shippedRowOrdinal = null;
+        foreach ($rows as $ordinal => $row) {
+            if ($row['branch'] !== $relBranch) {
+                continue;
+            }
+            $ref = $row['openemrVersionRef'] ?? '';
+            if (!$this->isVersionTagFor($ref, $relBranch)) {
+                continue;
+            }
+            $tags = $this->parseTags($row['dockerTags']);
+            if (!in_array('latest', $tags, true)) {
+                continue;
+            }
+            $shippedRow = $row;
+            $shippedRowOrdinal = $ordinal;
+            break;
+        }
+        if ($shippedRow === null || $shippedRowOrdinal === null) {
+            return $text;
+        }
+        if ($shippedRow['openemrVersionRefLine'] === null) {
+            return $text;
+        }
+
+        // Compute the row's end line (exclusive) so we can scan for an
+        // existing gate_with_acceptance line without straying into the
+        // next row's lines.
+        $endLine = count($lines);
+        foreach ($rows as $ordinal => $row) {
+            if ($ordinal > $shippedRowOrdinal) {
+                $endLine = $row['startLine'];
+                break;
+            }
+        }
+
+        // Idempotency: already present -> no-op.
+        for ($i = $shippedRow['startLine']; $i < $endLine; $i++) {
+            if (preg_match('/^  gate_with_acceptance:/', $lines[$i]) === 1) {
+                return $text;
+            }
+        }
+
+        // Insert after openemr_version_ref line. Row block ordering
+        // matches the branch-cut + patch-prep templates
+        // (docker_tags -> openemr_version_ref -> gate_with_acceptance).
+        $insertAt = $shippedRow['openemrVersionRefLine'] + 1;
+        array_splice($lines, $insertAt, 0, ['  gate_with_acceptance: true']);
         return implode("\n", $lines);
     }
 
