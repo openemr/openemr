@@ -44,7 +44,7 @@ class Claim
     public $insurance_numbers; // row from insurance_numbers table for current payer
     public $supervisor_numbers;// row from insurance_numbers table for current payer
     public $patient_data;      // row from patient_data table
-    /** @var array<string, mixed> row from form_misc_billing_options table */
+    /** @var array<mixed> row from form_misc_billing_options table */
     public array $billing_options = [];
     public $invoice;           // result from get_invoice_summary()
     public $payers = [];       // array of arrays, for all payers
@@ -176,8 +176,8 @@ class Claim
     }
 
     /**
-     * @return array<string, mixed> empty when the encounter has no misc
-     *                              billing options form
+     * @return array<mixed> empty when the encounter has no misc
+     *                      billing options form
      */
     public function getMiscBillingOptions($pid, $encounter_id)
     {
