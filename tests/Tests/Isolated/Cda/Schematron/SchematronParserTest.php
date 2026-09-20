@@ -154,19 +154,24 @@ XML;
         self::assertInstanceOf(ParsedAssertion::class, $items[1]);
     }
 
-    public function testRuleVariablesMergeOverPatternScope(): void
+    public function testRuleAndDocumentScopedVariablesAreKeptApart(): void
     {
+        // ISO/IEC 19757-3 5.4.5: a let that is not a child of a rule is calculated
+        // against the instance document root, so merging the scopes would evaluate
+        // $docRoot against each rule node instead.
         $rule = (new SchematronParser())->parse(self::SCHEMATRON)->ruleMap['r-vars'];
         self::assertSame(
-            ['docRoot' => '/cda:ClinicalDocument', 'ext' => 'normalize-space(@extension)', 'len' => 'string-length($ext)'],
+            ['ext' => 'normalize-space(@extension)', 'len' => 'string-length($ext)'],
             $rule->variables,
         );
+        self::assertSame(['docRoot' => '/cda:ClinicalDocument'], $rule->documentVariables);
     }
 
     public function testPatternVariablesDoNotLeakIntoOtherPatterns(): void
     {
         $rule = (new SchematronParser())->parse(self::SCHEMATRON)->ruleMap['r-strict'];
         self::assertSame([], $rule->variables);
+        self::assertSame([], $rule->documentVariables);
     }
 
     public function testMixedContentAssertionKeepsTextAfterChildElement(): void

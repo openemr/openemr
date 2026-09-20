@@ -18,15 +18,23 @@ final readonly class ParsedRule
 {
     /**
      * @param list<ParsedAssertion|ParsedExtension> $items assertions and extends, in document order
-     * @param array<string, string> $variables `<sch:let>` name => defining XPath expression,
-     *                                         already merged across schema, pattern and rule
-     *                                         scope with the innermost declaration winning
+     * @param array<string, string> $variables rule-scoped `<sch:let>`: name => defining XPath
+     *                                         expression, evaluated against the rule's context
+     *                                         node
+     * @param array<string, string> $documentVariables schema- and pattern-scoped `<sch:let>`,
+     *                                         merged with the innermost declaration winning.
+     *                                         ISO/IEC 19757-3: a let that is not a child of a
+     *                                         rule "is calculated with the context of the
+     *                                         instance document root", so these resolve against
+     *                                         the document, not the rule context. A rule-scoped
+     *                                         name shadows a document-scoped one.
      */
     public function __construct(
         public bool $abstract,
         public ?string $context,
         public array $items,
         public array $variables = [],
+        public array $documentVariables = [],
     ) {
     }
 }

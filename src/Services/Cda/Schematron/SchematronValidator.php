@@ -187,9 +187,17 @@ final readonly class SchematronValidator
                 try {
                     libxml_clear_errors();
                     $sel = $xpath->query($ctxQuery);
+                    $lastError = libxml_get_last_error();
                     libxml_clear_errors();
                 } finally {
                     libxml_use_internal_errors($prevErrorMode);
+                }
+                // A context that does not compile selects nothing, so every assertion in
+                // the rule would be skipped and the document would look conformant. All
+                // 1356 contexts across the three shipped schematrons compile, so this
+                // only fires on a malformed .sch - report it rather than under-validate.
+                if ($sel === false || $lastError !== false) {
+                    throw new RuntimeException("Invalid schematron rule context: $context");
                 }
                 $contextCache[$cacheKey] = self::toNodeList($sel);
             } else {
@@ -206,10 +214,8 @@ final readonly class SchematronValidator
                     // happens once here. Variable expansion does depend on it and runs
                     // per node inside testAssertion().
                     $test = $this->rewriter->rewrite($originalTest);
-                    $variables = array_map(
-                        $this->rewriter->rewrite(...),
-                        $rule->variables,
-                    );
+                    $variables = array_map($this->rewriter->rewrite(...), $rule->variables);
+                    $documentVariables = array_map($this->rewriter->rewrite(...), $rule->documentVariables);
                 } catch (RuntimeException | DOMException) {
                     $results[] = [
                         'type' => $item->level,
@@ -230,7 +236,7 @@ final readonly class SchematronValidator
                         'test' => $originalTest,
                         'simplifiedTest' => $simplified,
                         'description' => $item->description,
-                        'results' => $this->testAssertion($test, $variables, $selected, $xpath),
+                        'results' => $this->testAssertion($test, $variables, $documentVariables, $doc, $selected, $xpath),
                     ];
                 }
             } else {
@@ -250,18 +256,25 @@ final readonly class SchematronValidator
     }
 
     /**
-     * @param array<string, string> $variables
+     * @param array<string, string> $variables rule-scoped `<sch:let>` definitions
+     * @param array<string, string> $documentVariables schema- and pattern-scoped definitions
      * @param list<DOMNode> $selected
      * @return list<array{result: bool, line: ?int, path: string, xml: ?string}>|array{ignored: true, errorMessage: string}
      */
-    private function testAssertion(string $test, array $variables, array $selected, DOMXPath $xpath): array
-    {
+    private function testAssertion(
+        string $test,
+        array $variables,
+        array $documentVariables,
+        DOMDocument $doc,
+        array $selected,
+        DOMXPath $xpath,
+    ): array {
         $results = [];
         foreach ($selected as $node) {
             try {
                 // Per ISO 19757-3 a rule-scoped <sch:let> is calculated against the
                 // rule's context node, so this resolves once per selected node.
-                $nodeTest = $this->expander->expand($test, $variables, $xpath, $node);
+                $nodeTest = $this->expander->expand($test, $variables, $xpath, $node, $documentVariables, $doc);
                 $prevErrorMode = libxml_use_internal_errors(true);
                 try {
                     // Clear before evaluating, not only after: libxml_use_internal_errors()

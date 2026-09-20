@@ -75,16 +75,17 @@ final class SchematronParser
                 $patternRuleMap[$patternId][] = $ruleId;
                 $ctx = $rule->getAttribute('context');
 
-                $ruleVariables = $patternVariables;
-                foreach ($this->directVariables($rule) as $name => $value) {
-                    $ruleVariables[$name] = $value;
-                }
-
+                // Kept apart rather than merged: a rule-scoped let is calculated against
+                // the rule's context node, while a schema- or pattern-scoped one is
+                // calculated against the instance document root (ISO/IEC 19757-3 5.4.5).
+                // Merging them evaluates an outer-scope definition against each rule node,
+                // which changes the answer for any relative expression.
                 $ruleMap[$ruleId] = new ParsedRule(
                     abstract: in_array($rule->getAttribute('abstract'), ['true', 'yes'], true),
                     context: $ctx !== '' ? $ctx : null,
                     items: $this->collectItems($rule, $defaultLevel),
-                    variables: $ruleVariables,
+                    variables: $this->directVariables($rule),
+                    documentVariables: $patternVariables,
                 );
             }
         }

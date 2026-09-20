@@ -4,8 +4,10 @@
  * RegenSchematronVocabCommand isolated test.
  *
  * Covers the failure paths the command exists to guarantee: preflight before any
- * write, atomic temp-then-rename swaps, and restoring the prior .sch when the
- * vocab.php swap fails after the .sch has already been replaced.
+ * write, atomic temp-then-rename swaps, restoring the prior .sch when the vocab.php
+ * swap fails after the .sch has already been replaced, and rolling every target back
+ * when a later one fails - a half-applied run would leave the shipped set validating
+ * documents against two different IG revisions at once.
  *
  * Failures are induced with the filesystem rather than mocks - a destination
  * path occupied by a non-empty directory makes file_put_contents() and rename()
@@ -137,7 +139,8 @@ final class RegenSchematronVocabCommandTest extends TestCase
         $tester = $this->runCommand();
 
         self::assertSame(Command::FAILURE, $tester->getStatusCode());
-        self::assertStringContainsString('prior .sch restored', $tester->getDisplay());
+        self::assertStringContainsString('failed to swap in new vocab.php', $tester->getDisplay());
+        self::assertStringContainsString('the shipped schema set is unchanged', $tester->getDisplay());
         self::assertSame(
             'PRIOR SCH',
             file_get_contents("$this->outputRoot/ccda/Consolidation.sch"),
@@ -159,6 +162,37 @@ final class RegenSchematronVocabCommandTest extends TestCase
             'a .sch with no matching vocab.php was left behind'
         );
         self::assertSame([], $this->globTemps(), 'temp files left behind after failed vocab swap');
+    }
+
+    public function testLaterTargetFailureRollsBackEarlierTargets(): void
+    {
+        foreach (array_keys(self::TARGETS) as $type) {
+            $this->seedPriorPair($type);
+        }
+        // qrda3 sorts last, so ccda and qrda1 would already be swapped in by the time
+        // it fails if the command committed each target as it went.
+        unlink("$this->outputRoot/qrda3/" . self::TARGETS['qrda3']);
+        $this->makeNonEmptyDir("$this->outputRoot/qrda3/" . self::TARGETS['qrda3']);
+
+        $tester = $this->runCommand();
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode());
+        self::assertStringContainsString('qrda3: failed to swap in new .sch', $tester->getDisplay());
+        self::assertStringContainsString('the shipped schema set is unchanged', $tester->getDisplay());
+
+        foreach (['ccda', 'qrda1'] as $type) {
+            self::assertSame(
+                'PRIOR SCH',
+                file_get_contents("$this->outputRoot/$type/" . self::TARGETS[$type]),
+                "$type: .sch was not rolled back after a later target failed"
+            );
+            self::assertSame(
+                'PRIOR VOCAB',
+                file_get_contents("$this->outputRoot/$type/vocab.php"),
+                "$type: vocab.php was not rolled back after a later target failed"
+            );
+        }
+        self::assertSame([], $this->globTemps(), 'temp files left behind after rollback');
     }
 
     private function runCommand(): CommandTester

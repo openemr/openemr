@@ -67,24 +67,48 @@ final class XPathVariableExpander
     private const REFERENCE = '/\$([A-Za-z_][A-Za-z0-9_.\-]*)/';
 
     /**
-     * Resolve every `$name` in $test to a literal, evaluating each definition against
-     * $context.
+     * Resolve every `$name` in $test to a literal.
      *
-     * @param array<string, string> $variables name => defining XPath expression
+     * Rule-scoped definitions are evaluated against $context, the rule's context node.
+     * Schema- and pattern-scoped definitions are evaluated against $documentContext,
+     * because ISO/IEC 19757-3 5.4.5 says a let that is not a child of a rule "is
+     * calculated with the context of the instance document root". A rule-scoped name
+     * shadows a document-scoped one.
+     *
+     * @param array<string, string> $variables rule-scoped name => defining expression
+     * @param array<string, string> $documentVariables schema- and pattern-scoped
      */
-    public function expand(string $test, array $variables, DOMXPath $xpath, DOMNode $context): string
-    {
+    public function expand(
+        string $test,
+        array $variables,
+        DOMXPath $xpath,
+        DOMNode $context,
+        array $documentVariables = [],
+        ?DOMNode $documentContext = null,
+    ): string {
         if (!str_contains($test, '$')) {
             return $test;
         }
 
         /** @var array<string, string> $resolved */
         $resolved = [];
-        return $this->substitute($test, $variables, $xpath, $context, $resolved, []);
+        return $this->substitute(
+            $test,
+            $variables,
+            $documentVariables,
+            $xpath,
+            $context,
+            $documentContext ?? $context,
+            $resolved,
+            [],
+        );
     }
 
     /**
-     * @param array<string, string> $variables
+     * @param array<string, string> $variables rule-scoped definitions
+     * @param array<string, string> $documentVariables schema- and pattern-scoped definitions
+     * @param DOMNode $context node rule-scoped definitions resolve against
+     * @param DOMNode $documentContext node document-scoped definitions resolve against
      * @param array<string, string> $resolved memo of name => literal, per expand() call
      * @param-out array<string, string> $resolved
      * @param list<string> $resolving names currently being resolved, to catch a cycle
@@ -92,8 +116,10 @@ final class XPathVariableExpander
     private function substitute(
         string $expression,
         array $variables,
+        array $documentVariables,
         DOMXPath $xpath,
         DOMNode $context,
+        DOMNode $documentContext,
         array &$resolved,
         array $resolving,
     ): string {
@@ -103,12 +129,29 @@ final class XPathVariableExpander
 
         $out = preg_replace_callback(
             self::REFERENCE,
-            function (array $m) use ($variables, $xpath, $context, &$resolved, $resolving): string {
+            function (array $m) use (
+                $variables,
+                $documentVariables,
+                $xpath,
+                $context,
+                $documentContext,
+                &$resolved,
+                $resolving
+            ): string {
                 $name = $m[1];
                 if (isset($resolved[$name])) {
                     return $resolved[$name];
                 }
-                if (!isset($variables[$name])) {
+                // Rule scope first: an inner declaration shadows an outer one. Whichever
+                // scope supplies the definition also supplies the node it is evaluated
+                // against, and nested references inherit that scope.
+                if (isset($variables[$name])) {
+                    $definitionSource = $variables[$name];
+                    $definitionContext = $context;
+                } elseif (isset($documentVariables[$name])) {
+                    $definitionSource = $documentVariables[$name];
+                    $definitionContext = $documentContext;
+                } else {
                     throw new RuntimeException("Undefined schematron variable: \$$name");
                 }
                 if (in_array($name, $resolving, true)) {
@@ -116,8 +159,20 @@ final class XPathVariableExpander
                 }
                 $nested = $resolving;
                 $nested[] = $name;
-                $definition = $this->substitute($variables[$name], $variables, $xpath, $context, $resolved, $nested);
-                $literal = $this->toLiteral($this->evaluate($definition, $xpath, $context), $name);
+                // Both contexts pass through unchanged: each name inside this definition
+                // picks its own scope again. Only the evaluation below is pinned to the
+                // scope that supplied this definition.
+                $definition = $this->substitute(
+                    $definitionSource,
+                    $variables,
+                    $documentVariables,
+                    $xpath,
+                    $context,
+                    $documentContext,
+                    $resolved,
+                    $nested,
+                );
+                $literal = $this->toLiteral($this->evaluate($definition, $xpath, $definitionContext), $name);
                 $resolved[$name] = $literal;
                 return $literal;
             },

@@ -102,7 +102,20 @@ class RegenSchematronVocabCommand extends Command
         }
 
         $extractor = new VocabularyExtractor();
-        $anyMissingOid = false;
+
+        // Stage every target before swapping any of them into place. Swapping each pair
+        // as it is extracted leaves the shipped set mixed-revision when a later target
+        // fails - ccda regenerated against the new IG while qrda1 and qrda3 still hold
+        // the old one, so documents get validated against two revisions at once.
+        /**
+         * @var list<array{
+         *     type: string, schFile: string, schDest: string, vocabDest: string,
+         *     schTmp: string, vocabTmp: string, oids: int, resolved: int, missing: list<string>
+         * }> $staged
+         */
+        $staged = [];
+        /** @var list<string> $tempPaths */
+        $tempPaths = [];
 
         foreach (self::TARGETS as $type => $schFile) {
             $schPath = "$sourceRoot/schematron/$type/$schFile";
@@ -111,66 +124,106 @@ class RegenSchematronVocabCommand extends Command
             $sch = file_get_contents($schPath);
             $voc = file_get_contents($vocPath);
             if ($sch === false || $voc === false) {
+                self::removeAll($tempPaths);
                 $io->error("$type: failed to read source files");
                 return Command::FAILURE;
             }
             $result = $extractor->extract($sch, $voc);
             $outSchDir = "$outputRoot/$type";
             if (!is_dir($outSchDir) && !mkdir($outSchDir, 0755, true) && !is_dir($outSchDir)) {
+                self::removeAll($tempPaths);
                 $io->error("$type: failed to create output directory $outSchDir");
                 return Command::FAILURE;
             }
 
-            // Write both outputs to temp files first, then swap into place, so a
-            // failed write or second rename cannot leave the shipped .sch and
-            // vocab.php out of sync. Snapshot the existing pair (if any) so a
-            // failure on the second rename can restore the prior schema.
             $schDest = "$outSchDir/$schFile";
             $vocabDest = "$outSchDir/vocab.php";
             $schTmp = $schDest . '.tmp';
             $vocabTmp = $vocabDest . '.tmp';
             $vocabBody = $extractor->renderPhpFile($result['resolved'], $schFile, 'voc.xml');
-            $schBackup = is_file($schDest) ? file_get_contents($schDest) : null;
 
             if (
                 @file_put_contents($schTmp, $sch) !== strlen($sch)
                 || @file_put_contents($vocabTmp, $vocabBody) !== strlen($vocabBody)
             ) {
-                @unlink($schTmp);
-                @unlink($vocabTmp);
+                self::removeAll(array_merge($tempPaths, [$schTmp, $vocabTmp]));
                 $io->error("$type: failed to write temp files");
                 return Command::FAILURE;
             }
-            if (!@rename($schTmp, $schDest)) {
-                @unlink($schTmp);
-                @unlink($vocabTmp);
-                $io->error("$type: failed to swap in new .sch");
-                return Command::FAILURE;
-            }
-            if (!@rename($vocabTmp, $vocabDest)) {
-                // Vocab swap failed after .sch was already updated - restore prior
-                // .sch (or remove it if there wasn't one) so the pair stays coherent.
-                if ($schBackup !== null) {
-                    file_put_contents($schDest, $schBackup);
-                } else {
-                    @unlink($schDest);
-                }
-                @unlink($vocabTmp);
-                $io->error("$type: failed to swap in new vocab.php; prior .sch restored");
-                return Command::FAILURE;
-            }
 
+            $tempPaths[] = $schTmp;
+            $tempPaths[] = $vocabTmp;
+            $staged[] = [
+                'type' => $type,
+                'schFile' => $schFile,
+                'schDest' => $schDest,
+                'vocabDest' => $vocabDest,
+                'schTmp' => $schTmp,
+                'vocabTmp' => $vocabTmp,
+                'oids' => count($result['oids']),
+                'resolved' => count($result['resolved']),
+                'missing' => $result['missing'],
+            ];
+        }
+
+        // Snapshot every shipped pair before touching any of them, so a failure part-way
+        // through the swaps can put the whole set back the way it was.
+        /** @var array<string, string|null> $backups */
+        $backups = [];
+        foreach ($staged as $entry) {
+            foreach ([$entry['schDest'], $entry['vocabDest']] as $dest) {
+                $prior = is_file($dest) ? file_get_contents($dest) : false;
+                $backups[$dest] = $prior === false ? null : $prior;
+            }
+        }
+
+        /** @var list<string> $swapped */
+        $swapped = [];
+        foreach ($staged as $entry) {
+            $swaps = [
+                ['.sch', $entry['schTmp'], $entry['schDest']],
+                ['vocab.php', $entry['vocabTmp'], $entry['vocabDest']],
+            ];
+            foreach ($swaps as [$label, $tmp, $dest]) {
+                if (@rename($tmp, $dest)) {
+                    $swapped[] = $dest;
+                    continue;
+                }
+                $type = $entry['type'];
+                $unrestored = self::restore(array_intersect_key($backups, array_flip($swapped)));
+                self::removeAll($tempPaths);
+                if ($unrestored === []) {
+                    $io->error([
+                        "$type: failed to swap in new $label",
+                        'Rolled back - the shipped schema set is unchanged.',
+                    ]);
+                } else {
+                    $io->error(array_merge(
+                        [
+                            "$type: failed to swap in new $label",
+                            'Rollback incomplete. These files could not be put back and the shipped'
+                            . ' schema set is now inconsistent - restore them from version control:',
+                        ],
+                        $unrestored,
+                    ));
+                }
+                return Command::FAILURE;
+            }
+        }
+
+        $anyMissingOid = false;
+        foreach ($staged as $entry) {
             $io->text(sprintf(
                 '[%s] %d OIDs (%d resolved, %d missing), wrote %s + vocab.php',
-                $type,
-                count($result['oids']),
-                count($result['resolved']),
-                count($result['missing']),
-                $schFile,
+                $entry['type'],
+                $entry['oids'],
+                $entry['resolved'],
+                count($entry['missing']),
+                $entry['schFile'],
             ));
-            if ($result['missing'] !== []) {
+            if ($entry['missing'] !== []) {
                 $anyMissingOid = true;
-                foreach ($result['missing'] as $oid) {
+                foreach ($entry['missing'] as $oid) {
                     $io->text("    missing OID: $oid");
                 }
             }
@@ -181,5 +234,47 @@ class RegenSchematronVocabCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Delete any of the given paths that still exist. Used to clear staged temp files.
+     *
+     * @param list<string> $paths
+     */
+    private static function removeAll(array $paths): void
+    {
+        foreach ($paths as $path) {
+            if (is_file($path)) {
+                @unlink($path);
+            }
+        }
+    }
+
+    /**
+     * Put the given destinations back to their prior contents. A null backup means the
+     * file did not exist beforehand, so it is removed instead.
+     *
+     * Every write is checked: claiming a restore that silently failed is worse than
+     * reporting the original error alone, because it tells the operator the shipped
+     * set is coherent when it is not.
+     *
+     * @param array<string, string|null> $backups destination path => prior contents
+     * @return list<string> destinations that could not be put back
+     */
+    private static function restore(array $backups): array
+    {
+        $failed = [];
+        foreach ($backups as $path => $prior) {
+            if ($prior === null) {
+                if (is_file($path) && !@unlink($path)) {
+                    $failed[] = $path;
+                }
+                continue;
+            }
+            if (@file_put_contents($path, $prior) !== strlen($prior)) {
+                $failed[] = $path;
+            }
+        }
+        return $failed;
     }
 }

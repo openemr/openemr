@@ -7,8 +7,8 @@
   effectiveTime with a UTC offset, which turns on $intendedRecipient-Doc and
   $timeZoneExists respectively. Four cda:id[@root='2.16.840.1.113883.4.6'] nodes
   drive the $s / $n / $sum NPI checksum chain through one passing and three
-  distinct failing shapes. See QRDA3_VARIABLE_FIXTURE_EXPECTATIONS in
-  SchematronValidatorTest for what each one is supposed to prove.
+  distinct failing shapes. See testSchLetVariablesEvaluateAgainstQrdaCategoryThree
+  in SchematronValidatorTest for what each one is supposed to prove.
 
   Not a conformant Cat III report - it is deliberately wrong in specific,
   documented places, and carries only the structure those rules need.

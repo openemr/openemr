@@ -267,6 +267,83 @@ XML;
         }
     }
 
+    /**
+     * A pattern-scoped <sch:let> with a *relative* value is calculated against the
+     * instance document root, not against each rule context node (ISO/IEC 19757-3
+     * 5.4.5). The root node's child step `cda:ClinicalDocument` reaches the document
+     * element; from the rule context node (an entry) the same step selects nothing,
+     * so a merged scope would leave $docCode empty and flip the assertion.
+     */
+    public function testDocumentScopedVariableResolvesAgainstTheDocumentRoot(): void
+    {
+        $sch = <<<'XML'
+            <?xml version="1.0"?>
+            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+              <sch:ns prefix="cda" uri="urn:hl7-org:v3"/>
+              <sch:phase id="errors"><sch:active pattern="p-scope"/></sch:phase>
+              <sch:pattern id="p-scope">
+                <sch:let name="docCode" value="cda:ClinicalDocument/@code"/>
+                <sch:rule context="//cda:entry">
+                  <sch:assert id="a-scope" test="$docCode = 'DOC'">SHALL see the document-level code.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+            </sch:schema>
+            XML;
+        $xml = '<?xml version="1.0"?>'
+            . '<ClinicalDocument xmlns="urn:hl7-org:v3" code="DOC"><entry code="RULE"/></ClinicalDocument>';
+
+        $result = (new SchematronValidator(new ArrayVocabularyLookup([])))->validate($xml, $sch);
+        self::assertSame([], $result->ignored);
+        self::assertSame([], $result->errors, 'the pattern-scoped let must see the document element');
+    }
+
+    public function testRuleScopedVariableShadowsADocumentScopedOne(): void
+    {
+        $sch = <<<'XML'
+            <?xml version="1.0"?>
+            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+              <sch:ns prefix="cda" uri="urn:hl7-org:v3"/>
+              <sch:phase id="errors"><sch:active pattern="p-shadow"/></sch:phase>
+              <sch:pattern id="p-shadow">
+                <sch:let name="code" value="@code"/>
+                <sch:rule context="//cda:entry">
+                  <sch:let name="code" value="@code"/>
+                  <sch:assert id="a-shadow" test="$code = 'RULE'">SHALL see the rule-level code.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+            </sch:schema>
+            XML;
+        $xml = '<?xml version="1.0"?>'
+            . '<ClinicalDocument xmlns="urn:hl7-org:v3" code="DOC"><entry code="RULE"/></ClinicalDocument>';
+
+        $result = (new SchematronValidator(new ArrayVocabularyLookup([])))->validate($xml, $sch);
+        self::assertSame([], $result->ignored);
+        self::assertSame([], $result->errors, 'the inner declaration must win');
+    }
+
+    public function testInvalidRuleContextThrows(): void
+    {
+        $sch = <<<'XML'
+            <?xml version="1.0"?>
+            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+              <sch:ns prefix="cda" uri="urn:hl7-org:v3"/>
+              <sch:phase id="errors"><sch:active pattern="p-bad"/></sch:phase>
+              <sch:pattern id="p-bad">
+                <sch:rule id="r-bad" context="cda:patient[unclosed(">
+                  <sch:assert id="a-bad" test="@code">SHALL have a code.</sch:assert>
+                </sch:rule>
+              </sch:pattern>
+            </sch:schema>
+            XML;
+
+        // A context that does not compile selects nothing, so every assertion in the
+        // rule would be skipped and the document would look conformant.
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid schematron rule context');
+        (new SchematronValidator(new ArrayVocabularyLookup([])))
+            ->validate('<?xml version="1.0"?><ClinicalDocument xmlns="urn:hl7-org:v3"><patient/></ClinicalDocument>', $sch);
+    }
+
     public function testExtendsNamingAnUndefinedRuleThrows(): void
     {
         $sch = <<<'XML'
