@@ -63,16 +63,20 @@ acceptance-testing owns the *verification that they work*.
     end-to-end automated ship via `ship-release.yml`. Surfaced 7
     latent preflight-deadlock gates + a merge-API permission bug;
     see [G33](#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
-- **Next expected release event:** `8.4.1` shipping 2026-09-20
-  (in flight). Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071
-  rel-side + openemr/openemr#14072 master-side); release-prep +
-  release-finalize draft pair regenerated 2026-09-19 with the G41
-  fix applied. First patch-cadence exercise of the automated ship
-  pipeline; cut phase surfaced 5 gaps (G38 / G39 / G40 / G41 / G42);
-  ship day itself surfaced 3 more (G43 dry-run acceptance skip caught
-  the day before, G44 patch-prep row-template `gate_with_acceptance`
-  omission caught during finalize-diff review, G45 preflight script
-  missing from byte-identical manifest — publish job exit 127 mid-ship).
+- **Most recent release:** `8.4.1` shipped 2026-09-20 from `rel-840`
+  — first patch-cadence exercise of the automated ship pipeline.
+  Patch-prep PRs merged 2026-09-17 (openemr/openemr#14071 rel-side
+  + openemr/openemr#14072 master-side); release-prep + release-finalize
+  draft pair regenerated 2026-09-19 with the G41 fix applied. Cut
+  phase surfaced 5 gaps (G38 / G39 / G40 / G41 / G42); ship day
+  itself surfaced 4 more (G43 dry-run acceptance skip caught the day
+  before, G44 patch-prep row-template `gate_with_acceptance` omission
+  caught during finalize-diff review, G45 preflight script missing
+  from byte-identical manifest — publish job exit 127 mid-ship, G46
+  acceptance-docker concurrency-race cancelled docker publish —
+  recovered via docker-acceptance-only.yml). All 4 ship-day gaps
+  had fixes landed same day; 8.4.1 tarball + zip + docker images
+  + release-amendment + docs + announcement all live.
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -3176,6 +3180,40 @@ Ironic dimension: the preflight added specifically to catch publish-input bugs w
 **Cross-check — no sibling manifest gaps in the same PR:** grepped `reusable-publish-release.yml` for every `.github/scripts/…` reference; `assert-inputs-nonempty.sh` is the only one missing from the manifest. `create-release-tag.sh` is already there (Phase 10e-5). No other scripts called from that reusable.
 
 **Systemic lesson:** every new script called from a reusable-workflow that a rel branch's `checkout@v* → uses: ./…` pipeline can hit needs a matching manifest entry. The load-time-vs-runtime-resolution distinction (workflow YAML parsed at dispatch time from the target branch's tree, but `run:` shell scripts resolved at execution time from the same tree) means both categories carry the same "must exist on branch" requirement — but the failure modes are different (missing workflow → workflow-not-found at dispatch, refuses to start; missing script → runtime shell failure mid-job). The failure mode difference makes the script case easier to miss during author review. Consider (deferred): a `validate-byte-identical.sh`-style check that greps every `.github/workflows/reusable-*.yml` for `.github/scripts/…` references and asserts each is present in the manifest. Would prevent this exact bug class by construction. Not in scope here — the one-line fix is what the ship needs today; the reviewer-tool is a follow-up when we're not on a live ship.
+
+### G46 — `acceptance-docker.yml` concurrency-group collision cancelled 8.4.1 docker publish mid-ship  *(SHIPPED 2026-09-20)*
+
+**STATUS: SHIPPED 2026-09-20.** Third ship-day-of-8.4.1 gap surfaced in the finalize-merge → docker cascade. Immediately after the manual Finalize PR merge fired `docker-release-orchestrator.yml`, the 6-row per-branch fanout raced against a single concurrency group inside `acceptance-docker.yml`. The 8.4.1,latest row (the whole reason for the ship) drew the short straw: its acceptance-gate started at 08:22:50 UTC on run 35498659392 and was cancelled 17 seconds later when a competitor row's acceptance-gate entered the same group. `publish-and-cleanup` skipped as a consequence. Docker Hub had the preserved candidate tag; final tags (`8.4.1`, `8.4.1-2026-09-20`, `latest`) never got aliased.
+
+**Root cause:** `.github/workflows/acceptance-docker.yml` concurrency group was:
+
+```yaml
+group: acceptance-docker-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
+cancel-in-progress: ${{ github.event_name != 'schedule' }}
+```
+
+Reusable-workflow calls inherit the caller's `github.ref` and `github.event_name`. When `docker-release-orchestrator.yml` fires on Finalize-merge push, orchestrator's `event_name` = push, `ref` = master. Both propagate through `docker-build-release.yml` and into `acceptance-docker.yml`. Every per-row acceptance-gate collapses into the same `acceptance-docker-refs/heads/master-ondemand` group with `cancel-in-progress: true` — one active at a time, newest wins.
+
+Coin-flip race, not deterministic cascade: whichever rows happened to have acceptance-gate windows that didn't overlap a competitor's arrival survived (8.2.0 + 8.5.0,dev,next succeeded on 2026-09-20); rows whose windows did overlap cancelled (8.4.1,latest + 8.4.0 + 8.3.0 all failed).
+
+**Scope of exposure:**
+
+- **Push-triggered orchestrator (Finalize-merge fanout): AFFECTED.** This is what bit us today. Prior ships (8.3.0 / 8.4.0) had the same structural exposure but drew a luckier race.
+- **Daily scheduled orchestrator (06:15 UTC):** NOT affected. `event_name = schedule` → `cancel-in-progress: false` → parallel row calls queue serially instead of cancelling. All rows complete (~1h × N — the ~07:15 buffer in `reference_rel_branch_build_duration.md` reflects this serialization).
+- **Daily release-mechanism-smoketest:** NOT affected. Uses `dry_run: true` on `docker-build-release.yml` → acceptance-gate `if: gate_with_acceptance && !dry_run` = false → `acceptance-docker.yml` never called → no group participation.
+
+**Fix (this PR):** differentiate the group by `inputs.to_tag` when set — unique per-row candidate suffix on the `workflow_call` path (from `docker-build-release.yml` on original ship, or from `docker-acceptance-only.yml` on recovery). Direct PR/push/schedule triggers leave `inputs.to_tag` empty and fall back to the pre-G46 bucket, preserving existing behavior (PR runs still cancel their own older commits; schedule runs still queue). `cancel-in-progress` line unchanged.
+
+```yaml
+group: acceptance-docker-${{ github.ref }}-${{ inputs.to_tag || (github.event_name == 'schedule' && 'schedule' || 'ondemand') }}
+cancel-in-progress: ${{ github.event_name != 'schedule' }}
+```
+
+**Recovery for 8.4.1 (already applied 2026-09-20 08:34-08:44):** dispatched `docker-acceptance-only.yml` with `source_run_id=35498659392` + `candidate_tag=release-candidate-35498659392-1` + `docker_tags=8.4.1,latest`. Ran full acceptance-docker matrix against the preserved candidate (no rebuild), published on green via `reusable-docker-publish.yml`, cleaned up candidate. Total time ~10 min. Design-intent recovery — Phase 10c's whole rationale is preserving the candidate for exactly this failure class.
+
+**Cross-check on the multi-run cascade:** verified 8.2.0 (35498689225) and 8.5.0,dev,next (35498665668) actually did publish (`Publish + cleanup / Publish: success` + `Cleanup candidate tag: success`) — their acceptance-gate windows didn't overlap a competitor. Confirms the coin-flip framing: this bug won't cancel every row in a fanout, just the losers of the race.
+
+**Systemic lesson:** reusable-workflow concurrency needs to think about the SHAPE of parallel calls, not just the direct-trigger case. `acceptance-docker.yml`'s original concurrency block was designed for direct triggers (PR, push, schedule) where one workflow per ref is the natural granularity. The workflow_call fanout pattern (multiple simultaneous calls per ref, differentiated by input) requires the input to feed the group key too. Broader implication: audit every reusable workflow with concurrency for the same latent-race shape — if the reusable takes a `workflow_call` input that identifies which "thing" is being processed (candidate tag, package version, artifact ID), that input should be part of the group when set. Deferred: enumerate all `.github/workflows/reusable-*.yml` concurrency blocks and check each against its `workflow_call` inputs for the same shape gap. Not in scope here.
 
 ## Followup opportunities (not yet gap-numbered)
 
