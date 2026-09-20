@@ -66,17 +66,20 @@ final class ApiSmokeJwtAssertionTest extends TestCase
     {
         $browser = AuthCodeFlow::attemptTokenExchangeWithJwtAssertion(
             'openid api:oemr user/facility.crus',
-            // Flip the last three base64url chars of the signature. That
-            // preserves the JWT's shape (three dot-separated segments)
-            // so the assertion still parses, but the resulting signature
-            // no longer verifies against the client's registered JWKS.
+            // Replace the signature segment (parts[2] of header.payload.sig)
+            // with a valid-base64url string of the same length. 'A' in
+            // base64url decodes to six zero bits, so an all-'A' segment
+            // decodes to all-zero bytes — a well-formed but definitely
+            // wrong RSA signature. Preserving the length keeps the JWT
+            // parseable so the server reaches the signature-verification
+            // step (rather than short-circuiting on a decode error) and
+            // rejects there, which is the property we want to prove.
             static function (string $assertion): array {
-                $signatureTail = substr($assertion, -3);
-                $tampered = substr($assertion, 0, -3)
-                    . strtr($signatureTail, 'ABCabc012_-', 'XYZxyz789-_');
+                $parts = explode('.', $assertion);
+                $parts[2] = str_repeat('A', strlen($parts[2]));
                 return [
                     'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-                    'client_assertion' => $tampered,
+                    'client_assertion' => implode('.', $parts),
                 ];
             },
         );
