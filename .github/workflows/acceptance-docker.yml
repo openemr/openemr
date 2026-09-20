@@ -143,14 +143,39 @@ permissions:
   contents: read
 
 concurrency:
-  # Split the concurrency group by trigger type: a scheduled run on
-  # master shouldn't share a group with push/PR runs on master, or a
-  # push landing during the scheduled run would cancel it (the
-  # push's cancel-in-progress=true wins over the schedule's
-  # cancel-in-progress=false when they share a group). Separate keys
-  # mean push/PR still cancels its own in-flight runs, but never
-  # kills a schedule run.
-  group: acceptance-docker-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
+  # Two shape dimensions:
+  #
+  # 1. Trigger type: a scheduled run on master shouldn't share a group
+  #    with push/PR runs on master, or a push landing during the
+  #    scheduled run would cancel it (the push's cancel-in-progress=true
+  #    wins over the schedule's cancel-in-progress=false when they
+  #    share a group). Separate keys mean push/PR still cancels its
+  #    own in-flight runs, but never kills a schedule run.
+  #
+  # 2. G46 (openemr/openemr#TBD, 2026-09-20): when called via
+  #    workflow_call from docker-build-release.yml (fanned out by
+  #    docker-release-orchestrator.yml on a Finalize-merge push),
+  #    every per-row call inherits github.ref=master +
+  #    github.event_name=push. Pre-G46 that collapsed 6 parallel
+  #    row calls into one 'acceptance-docker-<ref>-ondemand' group
+  #    with cancel-in-progress=true -- coin-flip race where whichever
+  #    row's acceptance-gate window overlapped a competitor's arrival
+  #    got cancelled after ~17s and its publish-and-cleanup job
+  #    skipped. Bit the 8.4.1 ship (2026-09-20): rel-840's 8.4.1,latest
+  #    row cancelled while other rows sailed through, docker image
+  #    never promoted from candidate to final tags. Recovered via
+  #    docker-acceptance-only.yml -- the recovery workflow exists
+  #    for exactly this class of preserved-candidate failure.
+  #
+  #    Fix: differentiate the group by inputs.to_tag when set (unique
+  #    per-row candidate suffix on the workflow_call path -- either
+  #    from docker-build-release for original ship, or from
+  #    docker-acceptance-only for recovery). Direct PR/push/schedule
+  #    triggers leave inputs empty and fall back to the pre-G46
+  #    bucket, preserving their existing behavior (PR runs still
+  #    cancel their own older commits, schedule runs still queue
+  #    serially).
+  group: acceptance-docker-${{ github.ref }}-${{ inputs.to_tag || (github.event_name == 'schedule' && 'schedule' || 'ondemand') }}
   cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 jobs:
