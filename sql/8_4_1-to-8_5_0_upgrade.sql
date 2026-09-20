@@ -122,3 +122,8 @@ UPDATE `list_options` SET `codes` = 'SNOMED-CT:248153007' WHERE `list_id` = 'adm
 #IfRow3D list_options list_id administrative_sex option_id Female codes SNOMED-CT:248153007
 UPDATE `list_options` SET `codes` = 'SNOMED-CT:248152002' WHERE `list_id` = 'administrative_sex' AND `option_id` = 'Female';
 #EndIf
+
+-- Payer claim control numbers (ICN/DCN) can run to the X12 REF02 maximum of 50.
+#IfNotColumnType ar_activity payer_claim_number varchar(50)
+ALTER TABLE `ar_activity` MODIFY `payer_claim_number` VARCHAR(50) DEFAULT NULL COMMENT 'CLP07 from the payer 835';
+#EndIf

@@ -1290,18 +1290,34 @@ class X125010837P
             $out .= $claim->x12Zip($claim->payerZip($ins));
             $out .= "~\n";
 
-            // Segment REF*F8 (Other Payer Claim Control Number).
-            if ($claim->medicaidOriginalReference()) {
+            // Segment DTP*573 (Claim Check or Remittance Date).
+            $otherPayerAdjudicationDate = $claim->otherPayerAdjudicationDate($ins);
+            if ($otherPayerAdjudicationDate) {
                 ++$edicount;
-                $out .= "REF" . "*" . "F8" . "*" . $claim->medicaidOriginalReference();
-                $out .= "~\n";
+                $out .= "DTP" .
+                    "*" . "573" .
+                    "*" . "D8" .
+                    "*" . $otherPayerAdjudicationDate .
+                    "~\n";
             }
 
-            // Segment DTP*573 (Claim Check or Remittance Date) omitted.
             // Segment REF (Other Payer Secondary Identifier) omitted.
             // Segment REF*G1 (Other Payer Prior Authorization Number) omitted.
             // Segment REF*9F (Other Payer Referral Number) omitted.
             // Segment REF*T4 (Other Payer Claim Adjustment Indicator) omitted.
+
+            // Segment REF*F8 (Other Payer Claim Control Number).  Per the
+            // implementation guide this is the last REF of loop 2330B, so it
+            // must follow DTP*573 and the REFs above.
+            $otherPayerClaimControlNumber = $claim->otherPayerClaimControlNumber($ins);
+            if ($otherPayerClaimControlNumber) {
+                ++$edicount;
+                $out .= "REF" .
+                    "*" . "F8" .
+                    "*" . $otherPayerClaimControlNumber .
+                    "~\n";
+            }
+
             // Segment NM1 (Other Payer Referring Provider) omitted.
             // Segment REF (Other Payer Referring Provider Secondary Identification) omitted.
             // Segment NM1 (Other Payer Rendering Provider) omitted.
