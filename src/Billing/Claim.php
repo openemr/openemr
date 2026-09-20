@@ -44,7 +44,8 @@ class Claim
     public $insurance_numbers; // row from insurance_numbers table for current payer
     public $supervisor_numbers;// row from insurance_numbers table for current payer
     public $patient_data;      // row from patient_data table
-    public $billing_options;   // row from form_misc_billing_options table
+    /** @var array<string, mixed> row from form_misc_billing_options table */
+    public array $billing_options = [];
     public $invoice;           // result from get_invoice_summary()
     public $payers = [];       // array of arrays, for all payers
     public $copay;             // total of copays from the ar_activity table
@@ -174,6 +175,10 @@ class Claim
         return sqlQuery($sql, [$payer_id, $provider_id]);
     }
 
+    /**
+     * @return array<string, mixed> empty when the encounter has no misc
+     *                              billing options form
+     */
     public function getMiscBillingOptions($pid, $encounter_id)
     {
         $sql = "SELECT fpa.* FROM forms JOIN form_misc_billing_options AS fpa " .
@@ -181,7 +186,9 @@ class Claim
             "WHERE forms.pid = ? AND forms.encounter = ? AND " .
             "forms.deleted = 0 AND forms.formdir = 'misc_billing_options' " .
             "ORDER BY forms.date";
-        return sqlQuery($sql, [$pid, $encounter_id]);
+        $row = sqlQuery($sql, [$pid, $encounter_id]);
+
+        return is_array($row) ? $row : [];
     }
 
     public function getReferrerId()

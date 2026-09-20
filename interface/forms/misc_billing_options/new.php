@@ -72,7 +72,8 @@ if (empty($formid)) {
         $formid = (int) $mboquery['id'];
     }
 }
-$obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
+$fetched = $formid ? formFetch("form_misc_billing_options", $formid) : [];
+$obj = is_array($fetched) ? $fetched : [];
 ?>
 <html>
 <head>
