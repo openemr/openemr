@@ -62,7 +62,7 @@ use PHPUnit\Framework\Attributes\Group;
  * against the dev stack unchanged — this class is purely additive
  * against the release artifact.
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 #[Group('post-upgrade')]
 final class KkEncounterFormNavbarUrlAcceptanceTest extends PantherAcceptanceTestCase
 {

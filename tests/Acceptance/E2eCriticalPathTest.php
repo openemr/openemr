@@ -39,7 +39,7 @@ use PHPUnit\Framework\Attributes\Group;
  * path doesn't rebuild the post-login SPA, but a broken menu-render
  * after upgrade still signals a regression worth catching.
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 #[Group('post-upgrade')]
 final class E2eCriticalPathTest extends PantherAcceptanceTestCase
 {

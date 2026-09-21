@@ -58,7 +58,7 @@ use PHPUnit\Framework\TestCase;
  * Bearer-token access is still Phase 4a-3 (blocked on the
  * site_addr_oath install-time story).
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 #[Group('post-upgrade')]
 final class OAuth2SmokeTest extends TestCase
 {

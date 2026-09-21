@@ -55,7 +55,7 @@ use Symfony\Component\Panther\Client;
  *   - Post-migration login-page-redirect regressions (schema left in
  *     an intermediate state that breaks the auth flow)
  */
-#[Group('wizard-upgrade')]
+#[Group('wizard-completed-post-upgrade')]
 final class UpgradeWizardUiTest extends TestCase
 {
     private ?Client $client = null;
