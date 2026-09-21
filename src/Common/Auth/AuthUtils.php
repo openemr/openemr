@@ -790,43 +790,50 @@ class AuthUtils
 
             $updateSQL .= " WHERE `id` = ?";
             array_push($updateParams, $targetUser);
-            privStatement($updateSQL, $updateParams);
 
-            // If the user is changing their own password, we need to update the session
-            if ($changingOwnPassword) {
-                $session->set('authPass', $newHash);
-            }
-
-            // Password just changed — any OAuth2 access / refresh tokens
-            // minted with the OLD credentials are now suspect (the
-            // typical reason for a password change is credential
-            // compromise, and a refresh_token an attacker already stole
-            // would otherwise keep working for weeks/months until its
-            // natural expiration). Mark every non-revoked token pair
-            // for this user as revoked so future refresh attempts fail.
-            // Cheap no-op on `create` (a brand-new user has no tokens
-            // yet).
+            // Password write + OAuth2 token revocations must succeed or
+            // fail together. Without the transaction, a UUID lookup or
+            // revocation UPDATE that throws would leave users_secure
+            // updated (and the session's authPass already flipped) while
+            // still-valid refresh tokens continued to mint API access
+            // with the OLD credentials for weeks — the exact scenario
+            // the revocation exists to prevent. Also defer the session
+            // authPass write until after the transaction commits so a
+            // rollback leaves the session consistent with the persisted
+            // hash. `create` still runs both branches (no tokens yet is
+            // a cheap no-op on the UPDATEs).
             //
             // api_refresh_token.user_id and api_token.user_id store the
             // user's UUID *string*, not the numeric users.id — so we
             // have to resolve $targetUser to its UUID first.
-            $userUuidRow = QueryUtils::querySingleRow(
-                "SELECT `uuid` FROM `users` WHERE `id` = ?",
-                [$targetUser]
-            );
-            $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
-            if (is_string($userUuidBytes) && $userUuidBytes !== '') {
-                $userUuidStr = UuidRegistry::uuidToString($userUuidBytes);
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE `api_refresh_token` SET `revoked` = 1 "
-                        . "WHERE `user_id` = ? AND `revoked` = 0",
-                    [$userUuidStr]
+            QueryUtils::inTransaction(function () use ($updateSQL, $updateParams, $targetUser): void {
+                privStatement($updateSQL, $updateParams);
+                $userUuidRow = QueryUtils::querySingleRow(
+                    "SELECT `uuid` FROM `users` WHERE `id` = ?",
+                    [$targetUser]
                 );
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE `api_token` SET `revoked` = 1 "
-                        . "WHERE `user_id` = ? AND `revoked` = 0",
-                    [$userUuidStr]
-                );
+                $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
+                if (is_string($userUuidBytes) && $userUuidBytes !== '') {
+                    $userUuidStr = UuidRegistry::uuidToString($userUuidBytes);
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE `api_refresh_token` SET `revoked` = 1 "
+                            . "WHERE `user_id` = ? AND `revoked` = 0",
+                        [$userUuidStr]
+                    );
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE `api_token` SET `revoked` = 1 "
+                            . "WHERE `user_id` = ? AND `revoked` = 0",
+                        [$userUuidStr]
+                    );
+                }
+            });
+
+            // If the user is changing their own password, update the
+            // session — only after the transaction committed so a
+            // rollback leaves authPass matching the still-persisted
+            // old hash.
+            if ($changingOwnPassword) {
+                $session->set('authPass', $newHash);
             }
         }
 
