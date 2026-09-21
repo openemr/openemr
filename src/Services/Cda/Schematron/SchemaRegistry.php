@@ -46,7 +46,7 @@ final readonly class SchemaRegistry
     /**
      * Warnings default on, matching the Node engine the PHP validator replaced.
      */
-    public function loadValidator(string $type, bool $includeWarnings = true): SchematronValidator
+    public function loadValidator(string $type, bool $includeWarnings = false): SchematronValidator
     {
         return new SchematronValidator(
             ArrayVocabularyLookup::fromFile($this->vocabPath($type)),

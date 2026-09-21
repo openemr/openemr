@@ -194,12 +194,11 @@ XML;
      * cases lands on the boundary regardless of how long the serialized prefix is.
      */
     /**
-     * oe-cda-schematron's validate() read an absent includeWarnings option as true, and
-     * the legacy PHP posted documents with no options at all, so SHOULD-level findings
-     * were always reported. Defaulting the flag to false silently drops 215 of
-     * Consolidation.sch's 433 patterns while still rendering a warnings column.
+     * Warnings are opt-in. Turning them on or off must never change the error count:
+     * the filter works per finding, so a SHALL assertion in a warnings-phase pattern
+     * still reports as an error with warnings disabled.
      */
-    public function testWarningsAreCollectedByDefault(): void
+    public function testWarningsAreOffByDefaultAndOptIn(): void
     {
         $sch = <<<'XML'
             <?xml version="1.0"?>
@@ -223,12 +222,12 @@ XML;
 
         $default = (new SchematronValidator(new ArrayVocabularyLookup([])))->validate($xml, $sch)->toArray();
         self::assertSame(1, $default['errorCount']);
-        self::assertSame(1, $default['warningCount'], 'warnings must be collected unless explicitly disabled');
-        self::assertSame('a-should', $default['warnings'][0]['assertionId']);
+        self::assertSame(0, $default['warningCount'], 'warnings must be off unless explicitly enabled');
 
-        $off = (new SchematronValidator(new ArrayVocabularyLookup([]), includeWarnings: false))->validate($xml, $sch)->toArray();
-        self::assertSame(1, $off['errorCount'], 'disabling warnings must not change the error count');
-        self::assertSame(0, $off['warningCount']);
+        $on = (new SchematronValidator(new ArrayVocabularyLookup([]), includeWarnings: true))->validate($xml, $sch)->toArray();
+        self::assertSame(1, $on['errorCount'], 'enabling warnings must not change the error count');
+        self::assertSame(1, $on['warningCount']);
+        self::assertSame('a-should', $on['warnings'][0]['assertionId']);
     }
 
     public function testTruncatedSnippetStaysValidUtf8(): void

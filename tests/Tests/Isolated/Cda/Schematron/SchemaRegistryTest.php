@@ -41,6 +41,25 @@ final class SchemaRegistryTest extends TestCase
         self::assertGreaterThanOrEqual(0, $result->toArray()['errorCount']);
     }
 
+    /**
+     * CdaValidateDocuments calls loadValidator() with no flag, so this default is what
+     * users get. Checked against a real document so the opt-in path is proven to reach
+     * the warnings-phase patterns, not merely to exist.
+     */
+    public function testLoadValidatorLeavesWarningsOffUnlessRequested(): void
+    {
+        $registry = new SchemaRegistry();
+        $sch = (string) file_get_contents($registry->schematronPath(SchemaRegistry::TYPE_CCDA));
+        $xml = (string) file_get_contents(__DIR__ . '/fixtures/ccda-example-response1.xml');
+
+        $default = $registry->loadValidator(SchemaRegistry::TYPE_CCDA)->validate($xml, $sch)->toArray();
+        $on = $registry->loadValidator(SchemaRegistry::TYPE_CCDA, includeWarnings: true)->validate($xml, $sch)->toArray();
+
+        self::assertSame(0, $default['warningCount']);
+        self::assertGreaterThan(0, $on['warningCount']);
+        self::assertSame($on['errorCount'], $default['errorCount'], 'the warnings flag must not move the error count');
+    }
+
     public function testUnknownTypeThrows(): void
     {
         $registry = new SchemaRegistry();

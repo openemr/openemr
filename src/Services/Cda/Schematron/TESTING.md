@@ -27,10 +27,10 @@ There is no bare `openemr-cmd phpunit` subcommand.
 | File | Tests | Covers |
 |---|---:|---|
 | `Isolated/Cda/Schematron/SchematronParserTest.php` | 15 | `.sch` → parse tree: namespaces, phase levels, `SHALL`/`SHOULD` classification, rule- vs document-scoped `<sch:let>` separation, mixed-content assertions, id-less rules, document order |
-| `Isolated/Cda/Schematron/SchematronValidatorTest.php` | 15 | evaluation end to end, golden parity, rule-context variables, document-root scoping and shadowing, uncompilable rule context, undefined `extends`, snippet truncation, warnings default |
+| `Isolated/Cda/Schematron/SchematronValidatorTest.php` | 15 | evaluation end to end, golden parity, rule-context variables, document-root scoping and shadowing, uncompilable rule context, undefined `extends`, snippet truncation, warnings off by default and opt-in |
 | `Isolated/Cda/Schematron/XPathVariableExpanderTest.php` | 15 | `<sch:let>` resolution: every value type, chained definitions, hyphenated names, and each throw path |
 | `Isolated/Cda/Schematron/DocumentPredicateRewriterTest.php` | 11 | `document('voc.xml')` predicate rewriting and XPath literal quoting |
-| `Isolated/Cda/Schematron/SchemaRegistryTest.php` | 4 | type → file resolution, validator construction |
+| `Isolated/Cda/Schematron/SchemaRegistryTest.php` | 5 | type → file resolution, validator construction, warnings off unless requested |
 | `Isolated/Cda/Schematron/ArrayVocabularyLookupTest.php` | 4 | OID lookup |
 | `Isolated/Cda/Schematron/VocabularyExtractorTest.php` | 2 | `.sch` + `voc.xml` → `vocab.php` |
 | `Isolated/Common/Command/RegenSchematronVocabCommandTest.php` | 7 | regen preflight, atomic writes, `.sch` restore on failure, cross-target rollback when a later target fails |
@@ -55,16 +55,20 @@ find out why before regenerating it.
 
 | fixture | errors | warnings | ignored | parity pair |
 |---|---:|---:|---:|---|
-| `ccda-example-response1` | 6 | 201 | 0 | yes |
-| `qrda1-catI-doc-28` | 39 | 45 | 0 | yes |
+| `ccda-example-response1` | 6 | 0 | 0 | yes |
+| `qrda1-catI-doc-28` | 39 | 0 | 0 | yes |
 | `qrda3-minimal` | 3 | 0 | 0 | yes |
-| `qrda3-cms-variables` | 14 | 3 | 0 | no |
+| `qrda3-cms-variables` | 14 | 0 | 0 | no |
 
-`node-golden` records `warningCount: 0` for all three pairs because those
-captures ran with warnings explicitly disabled. They describe the capture
-harness, not what the service did in production. The parity check compares
-errors only, so this does not matter — but do not read those files as evidence
-that the Node service suppressed warnings.
+The goldens are captured with the default settings, so warnings are off and the
+`warnings` bucket is empty. With `includeWarnings: true` the same fixtures report
+201, 45, 0 and 3 warnings, and the error counts do not change.
+`SchemaRegistryTest` checks that the opt-in path still reaches the warnings-phase
+patterns on the real C-CDA sample.
+
+`node-golden` also records `warningCount: 0`, because those captures ran with
+warnings explicitly disabled. The Node service itself reported warnings in
+production. The parity check compares errors only.
 
 ### `qrda3-cms-variables` is not a parity fixture
 
@@ -116,9 +120,11 @@ A change that breaks one of these is a regression even if the suite is green:
    cannot evaluate is a bug in the evaluator, not an acceptable outcome.
 2. **Error counts are stable** at 6 / 39 / 3 / 14. Errors moving without a
    deliberate reason means evaluation semantics changed.
-3. **Warnings are collected by default.** `warningCount` of 0 on the C-CDA
-   sample means the `includeWarnings` default got flipped and 215 of
-   Consolidation.sch's 433 patterns went dark.
+3. **Warnings are off by default and the error count never depends on them.**
+   A non-zero `warningCount` in a default-settings golden means the default got
+   flipped. An error count that changes with `includeWarnings` means the filter
+   stopped working per finding and started dropping whole warnings-phase patterns,
+   which loses SHALL assertions.
 4. **A valid NPI passes.** See the table above.
 5. **Snippets are valid UTF-8.** `json_encode` of the finding list must not
    return `false`.

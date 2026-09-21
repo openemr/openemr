@@ -142,10 +142,14 @@ Ported deliberately from `oe-cda-schematron`; do not "fix" these:
 - Level comes from `<sch:phase id="errors|warnings">`, overridden to `error` when
   the assertion text contains `SHALL` and either lacks `SHOULD` or has `SHALL`
   first.
-- **Warnings are collected by default.** `oe-cda-schematron`'s `validate()` read
-  an absent `includeWarnings` option as `true` and the legacy PHP passed no
-  options, so SHOULD-level findings were always reported. Expect a warnings-heavy
-  report: 201 warnings against the 6-error C-CDA sample.
+- **Warnings are off by default.** Only SHALL-level findings are reported unless a
+  caller passes `includeWarnings: true` to `SchemaRegistry::loadValidator()` or the
+  `SchematronValidator` constructor. This is a deliberate change from the Node
+  sidecar, which reported SHOULD-level findings because `oe-cda-schematron`'s
+  `validate()` read an absent option as `true`. On the C-CDA sample, turning them
+  on adds 201 warnings. The flag filters per finding, not per pattern, so a SHALL
+  assertion inside a warnings-phase pattern still reports as an error either way:
+  the error count never depends on it.
 - `simplifiedTest` records the `document('voc.xml')` rewrite only. It is `null`
   for an assertion using `<sch:let>`, because the expansion differs per context
   node.

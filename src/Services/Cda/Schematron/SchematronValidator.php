@@ -58,16 +58,16 @@ final readonly class SchematronValidator
     private XPathVariableExpander $expander;
 
     /**
-     * @param bool $includeWarnings Defaults true to match oe-cda-schematron's validate(),
-     *                              which treated an absent option as warnings-on. The
-     *                              legacy PHP posted the document with no options, so the
-     *                              warning half of Consolidation.sch - 215 of its 433
-     *                              patterns - was reported. Defaulting false here silently
-     *                              dropped every SHOULD-level finding.
+     * @param bool $includeWarnings Off by default: only SHALL-level findings are reported.
+     *                              Pass true to also collect SHOULD-level findings (the
+     *                              warning half of Consolidation.sch, 215 of its 433
+     *                              patterns). The filter is applied per finding, not per
+     *                              pattern, so a SHALL assertion inside a warnings-phase
+     *                              pattern is still reported as an error either way.
      */
     public function __construct(
         VocabularyLookup $vocabulary,
-        private bool $includeWarnings = true,
+        private bool $includeWarnings = false,
         private int $xmlSnippetMaxLength = 200,
     ) {
         $this->rewriter = new DocumentPredicateRewriter($vocabulary);
