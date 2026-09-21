@@ -381,10 +381,14 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 "hint" => $exception->getHint(),
                 "cause" => $previous instanceof \Throwable ? $previous->getMessage() : null,
             ]);
-            // A fixed message, not the dependency's: ExceptionHandlerListener puts
-            // HttpException::getMessage() straight into the 401 body, and League's text is not
-            // ours to expose. The detail is in the log line above, keyed by the same request.
-            throw new HttpException(401, 'Invalid access token.', $exception);
+            // The exception's own message, not a fixed one. League's text on this path is the
+            // generic "The resource owner or authorization server denied the request." -- it
+            // carries no internal detail -- and six API tests across four files use it to tell
+            // an OAuth denial apart from a routing or server error. Substituting a fixed string
+            // breaks that discriminator. Narrowing what the 401 body exposes is worth doing,
+            // but it changes an auth-layer contract and belongs with the test updates in a
+            // change of its own rather than inside the FHIR write path.
+            throw new HttpException(401, $exception->getMessage(), $exception);
         } catch (\Throwable $exception) {
             if ($exception instanceof LogicException) {
                 $this->getSystemLogger()->error(
