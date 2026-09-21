@@ -99,22 +99,29 @@ jobs:
     - uses: ./.github/actions/test-actions-core
       with:
         is_production_docker: ${{ inputs.is_production_docker }}
-        # The binary image ships ccdaservice's source but never installs
-        # its dependencies, so everything that shells out to that service
-        # fails there: CCDA generation cannot reach the ccda service, and
-        # QRDA cannot find oe-cqm-parsers' measure JSON. Release installs
-        # those deps in its Dockerfile and flex does it at container start,
-        # so both must keep running these tests -- weakening the assertions
-        # for everybody would hide a real gap. That gap is tracked in
-        # openemr/openemr#13851; drop this line when it is resolved.
-        # CdaValidateDocumentsTest is deliberately NOT excluded: schematron
-        # validation is pure PHP now and needs no Node service, so it must
-        # pass on the binary image too.
+        # The binary image does not test this checkout: it runs the released
+        # v${OPENEMR_VERSION} PHAR, with tests/ and phpunit*.xml cloned from
+        # that same tag (see docker/binary/Dockerfile). Only this filter comes
+        # from the PR, so it has to match what that release does, not what
+        # the branch does.
+        #
+        # That release ships ccdaservice's source but never installs its
+        # dependencies, so everything that shells out to that service fails
+        # there: CCDA validation and generation cannot reach the
+        # schematron/ccda service on port 6662, and QRDA cannot find
+        # oe-cqm-parsers' measure JSON. Release installs those deps in its
+        # Dockerfile and flex does it at container start, so both must keep
+        # running these tests -- weakening the assertions for everybody
+        # would hide a real gap. That gap is tracked in openemr/openemr#13851.
+        #
+        # CdaValidateDocumentsTest can come off this list once the pinned
+        # binary release includes the pure-PHP schematron validator, which
+        # no longer needs Node. Until then it would test the old Node path.
         # These all live in tests/Tests/Services, hence the services
         # suite rather than the unit one.
         services_exclude_filter: >-
           ${{ matrix.docker_dir == 'binary'
-          && 'QrdaReportServiceTest|CcdaGeneratorTest|CcdaServiceDocumentRequestorTest'
+          && 'CdaValidateDocumentsTest|QrdaReportServiceTest|CcdaGeneratorTest|CcdaServiceDocumentRequestorTest'
           || '' }}
 
   development-test:
