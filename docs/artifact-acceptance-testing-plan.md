@@ -2765,7 +2765,7 @@ As-shipped scope: three existing `ACCEPTANCE_*` env reads consolidated (`ACCEPTA
 
 Migration path: introduce class, migrate `VersionDisplayAcceptanceTest` + `VersionApiAcceptanceTest` as the first consumers (they're already env-aware), then adopt in future tests. Existing tests can migrate opportunistically.
 
-**Item 2: Split scenario-timeline from runtime-state group tags**
+**Item 2: Split scenario-timeline from runtime-state group tags** — **SHIPPED (openemr/openemr#TBD, 2026-09-21)**
 Rename group tags into two dimensions:
 - Scenario timeline: `post-install`, `post-upgrade`, `wizard-completed`
 - Runtime state: `api-enabled`, `demo-data-seeded`
@@ -2773,6 +2773,14 @@ Rename group tags into two dimensions:
 Tests declare BOTH tags. Workflow steps advance state, then invoke tests via `--group=<scenario> --group=<state>` (PHPUnit's `--group` is OR — need a small custom filter for AND semantics, OR name-combined groups like `api-enabled-post-upgrade` if AND filter turns out to be too invasive).
 
 Once this lands, `version-display` and `version-api` collapse into `#[Group('post-install')] #[Group('post-upgrade')]` (plus `#[Group('api-enabled')]` for the api variant) — the isolation workaround becomes unnecessary.
+
+**As-shipped scope**: Path B (name-combined groups: `api-enabled-post-install`, `api-enabled-post-upgrade`, `wizard-completed-post-install`, `wizard-completed-post-upgrade`) chosen as the AND-semantic mechanism -- 6 combined tags for the current 2-dimension scope, no custom PHPUnit extension needed, cleaner test reports at native filter layer. Path A (custom extension) preserved as future upgrade if more dimensions accumulate.
+
+Tag rename mapping applied across 15 test files: `fresh-install` -> `post-install` (13 files), `wizard-install` -> `wizard-completed-post-install`, `wizard-upgrade` -> `wizard-completed-post-upgrade`, `api-enabled` -> `api-enabled-post-install` + `api-enabled-post-upgrade` (2 files each get both). Workaround groups `version-api` + `version-display` retired -- `VersionApiAcceptanceTest` re-tagged into the api-enabled combos, `VersionDisplayAcceptanceTest` into `post-install` + `post-upgrade`. Both tests gained an `AcceptanceContext::hasExpectedVersion()` skip guard so the `acceptance-docker.yml` floating-tag path (which does not set the env yet -- Item 4) skips cleanly instead of hard-failing.
+
+Workflow invocations updated: `acceptance-package.yml` retired the 4 workaround steps (version-display + version-api x pre/post) by folding them into the scenario group runs, added `ACCEPTANCE_EXPECTED_VERSION` env at every step so version-check tests get the right expectation. `acceptance-docker.yml` matrix retagged `test_group` from `fresh-install` -> `post-install` and the api-enable step now invokes `api-enabled-post-install`. Wizard steps now OR-sum with business tests (`--group=wizard-completed-post-install --group=post-install`) so wizard-installed artifacts also exercise every business assertion a script-installed one does. Same for wizard-upgrade.
+
+**Persistence-test structural fix (collateral)**: `DocumentPersistenceAcceptanceTest` + `AppointmentPersistenceAcceptanceTest` split from single dual-tagged idempotent-seed methods into per-scenario method pairs. The old pattern silently masked upgrade data-loss regressions (seed-if-missing would just re-create anything the upgrade dropped, and the viewer assertion would pass with the freshly-created data). New shape: `testSeedsAndVerifies*InPostInstall()` (tagged post-install, seeds + verifies immediately) + `testStill*AfterUpgrade()` (tagged post-upgrade, verifies WITHOUT seed helpers). Missing-fixture is now a structural assertion failure. Two new `UiSeedingTrait` helpers (`assertPersistPatientExists`, `assertPersistDocumentExists`) provide strict-assert companions to the seed helpers.
 
 **Item 3: Shared boot-orchestration composite action**
 Both workflows repeat the boot→group→api-enable→group→teardown shape. Extract to a composite action at `.github/actions/run-acceptance-scenario/` (or a shared shell library at `tests/Acceptance/bin/lib/`). Workflows declare "here's the artifact, here's the expected version, run scenario X." Cuts YAML duplication; makes drift impossible (e.g., item #3 friction, and the `api-enabled` post-upgrade gap in docker workflow).
