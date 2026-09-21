@@ -32,6 +32,10 @@ Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\OidcRp\OidcLoginService;
+use OpenEMR\Common\Auth\OidcRp\OidcRpException;
+use OpenEMR\Common\Auth\OidcRp\OidcSessionCookie;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -228,6 +232,39 @@ if ($_GET['testing_mode'] ?? 0 == 1) {
     $session->set('testing_mode', 1);
 }
 
+$oidcReady = false;
+$oidcButtonLabel = 'Sign in with SSO';
+$oidcHideLocalLogin = false;
+$oidcLoginError = '';
+$request = CurrentRequest::get();
+$siteId = $session->get('site_id');
+$siteId = is_string($siteId) ? $siteId : '';
+try {
+    $oidcService = OidcLoginService::fromContainer($globalsBag, $session);
+    $oidcSettings = $oidcService->settings();
+    $oidcReady = $oidcSettings->isReady();
+    $oidcButtonLabel = $oidcSettings->buttonLabel;
+    $oidcHideLocalLogin = $oidcReady && $oidcSettings->hideLocalLogin && !$request->query->getBoolean('local');
+    if ($session->has('oidc_login_error')) {
+        header('Set-Cookie: ' . OidcSessionCookie::create($session, session_get_cookie_params(), false), false);
+        $oidcError = $session->get('oidc_login_error');
+        $oidcLoginError = is_string($oidcError) ? $oidcError : '';
+        $session->remove('oidc_login_error');
+    }
+    if (
+        $oidcReady &&
+        $oidcSettings->autoRedirect &&
+        !$request->query->getBoolean('local') &&
+        $request->query->getString('error') === '' &&
+        $oidcLoginError === ''
+    ) {
+        header('Location: ' . $globalsBag->getWebRoot() . '/interface/login/oidc_start.php?site=' . urlencode($siteId));
+        exit;
+    }
+} catch (OidcRpException) {
+    $oidcReady = false;
+}
+
 $viewArgs = [
     'title' => $openemr_name,
     'displayLanguage' => $globalsBag->get("language_menu_login") && (count($languageList) != 1),
@@ -241,6 +278,11 @@ $viewArgs = [
     'facilitySelected' => $facilitySelected,
     'displayGoogleSignin' => $globalsBag->getBoolean('google_signin_enabled') && !empty($globalsBag->getString('google_signin_client_id')),
     'googleSigninClientID' => $globalsBag->getString('google_signin_client_id'),
+    'displayOidcSso' => $oidcReady,
+    'oidcSsoButtonLabel' => $oidcButtonLabel,
+    'oidcSsoStartUrl' => $globalsBag->getWebRoot() . '/interface/login/oidc_start.php?site=' . urlencode($siteId),
+    'oidcHideLocalLogin' => $oidcHideLocalLogin,
+    'oidcLoginError' => $oidcLoginError,
     'displaySmallLogo' => $displaySmallLogo,
     'smallLogoOne' => $smallLogoOne,
     'smallLogoTwo' => $smallLogoTwo,

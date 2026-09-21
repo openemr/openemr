@@ -183,6 +183,7 @@ class EventAuditLogger implements AuditLoggerInterface
         "registry" => EventCategory::SecurityAdministration,
         "users" => EventCategory::SecurityAdministration,
         "groups" => EventCategory::SecurityAdministration,
+        "oidc_external_identity" => EventCategory::SecurityAdministration,
         "openemr_postcalendar_events" => EventCategory::Scheduling,
         "openemr_postcalendar_categories" => EventCategory::SecurityAdministration,
         "openemr_postcalendar_limits" => EventCategory::SecurityAdministration,

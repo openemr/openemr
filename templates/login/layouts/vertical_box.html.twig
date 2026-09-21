@@ -40,9 +40,11 @@ This layout is the legacy login page, a centered box with the logos on top
 
                 {% include "login/partials/html/login_failure.html.twig" %}
 
+                {% if not oidcHideLocalLogin|default(false) %}
                 {% include "login/partials/input/username.html.twig" %}
 
                 {% include "login/partials/input/password.html.twig" %}
+                {% endif %}
 
                 {{ divApp }}
 

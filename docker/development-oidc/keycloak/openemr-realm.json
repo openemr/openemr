@@ -1,0 +1,89 @@
+{
+  "id": "openemr",
+  "realm": "openemr",
+  "enabled": true,
+  "displayName": "OpenEMR",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "openemr-sso",
+      "name": "OpenEMR Staff SSO",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "fullScopeAllowed": true,
+      "rootUrl": "https://localhost:9400",
+      "baseUrl": "/interface/login/login.php",
+      "redirectUris": [
+        "https://localhost:9400/interface/login/oidc_callback.php",
+        "http://localhost:8400/interface/login/oidc_callback.php"
+      ],
+      "webOrigins": [
+        "https://localhost:9400",
+        "http://localhost:8400"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://localhost:9400/interface/login/login.php##http://localhost:8400/interface/login/login.php"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@example.com",
+      "emailVerified": true,
+      "firstName": "OpenEMR",
+      "lastName": "Administrator",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "pass",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "clinician",
+      "enabled": true,
+      "email": "clinician@example.com",
+      "emailVerified": true,
+      "firstName": "Casey",
+      "lastName": "Clinician",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "pass",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "physician",
+      "enabled": true,
+      "email": "physician@example.com",
+      "emailVerified": true,
+      "firstName": "Pat",
+      "lastName": "Physician",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "pass",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
