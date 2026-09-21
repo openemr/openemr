@@ -331,6 +331,12 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 // fails validation and the whole write comes back 422. The column is a datetime
                 // and stores the midnight that results, which is what the read side compares.
                 $data['enddate'] = date('Y-m-d');
+            } else {
+                // Cleared when returning to active. The read reports 'active' only while enddate
+                // is unset, so an allergy written resolved and then updated back to active kept
+                // its enddate and still read as inactive -- the status the caller just replaced.
+                // buildUpdateColumns() binds a null on a key containing 'date' as SQL NULL.
+                $data['enddate'] = null;
             }
         }
 

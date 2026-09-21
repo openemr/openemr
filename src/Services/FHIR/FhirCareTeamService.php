@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam\FHIRCareTeamParticipant;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -405,11 +406,28 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         }
         $teamIdRaw = $teamRow['id'] ?? 0;
         $teamPidRaw = $teamRow['pid'] ?? 0;
-        // PUT cannot rebind a CareTeam to a different patient; ignore any puuid drift.
+        $teamPid = is_numeric($teamPidRaw) ? (int) $teamPidRaw : 0;
+
+        // PUT cannot rebind a CareTeam to a different patient, and a body that tries is refused
+        // rather than quietly written against the stored one -- answering 200 for a subject the
+        // server ignored tells the caller their change was accepted. FhirCoverageService and
+        // FhirCarePlanService already reject the same mismatch on their own update paths.
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (is_string($puuid) && $puuid !== '') {
+            $bodyPid = BaseService::getIdByUuid(UuidRegistry::uuidToBytes($puuid), 'patient_data', 'pid');
+            if (!is_numeric($bodyPid) || (int) $bodyPid !== $teamPid) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages(
+                    ['subject' => 'CareTeam.subject does not match the stored care team\'s patient']
+                );
+                return $result;
+            }
+        }
+
         return $this->saveCareTeamRecord(
             $updatedOpenEMRRecord,
             is_numeric($teamIdRaw) ? (int) $teamIdRaw : 0,
-            is_numeric($teamPidRaw) ? (int) $teamPidRaw : 0
+            $teamPid
         );
     }
 

@@ -733,6 +733,12 @@ class PrescriptionService extends BaseService
         // pass straight into the SET clause and move the prescription to another chart.
         unset($data['uuid'], $data['patient_id']);
 
+        // date_added records when the prescription was created, so it is not the caller's to
+        // rewrite. parseFhirResource() maps MedicationRequest.authoredOn onto it for the insert
+        // path, and on a PUT that value would otherwise land in the SET clause and back-date an
+        // existing record. date_modified below is the field that tracks the update.
+        unset($data['date_added']);
+
         $data['date_modified'] = date('Y-m-d H:i:s');
         $query = $this->buildUpdateColumns($data);
 

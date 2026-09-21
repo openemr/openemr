@@ -267,6 +267,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 $data['end_date'] = date('Y-m-d');
             } else {
                 $data['active'] = in_array($status, ['stopped', 'cancelled'], true) ? 0 : 1;
+                // and cleared when leaving it. The read derives 'completed' from
+                // end_date IS NOT NULL AND active = '1', so a request written completed and then
+                // updated back to active kept its end_date and still read as completed -- the
+                // status the caller just replaced. buildUpdateColumns() binds a null on a key
+                // containing 'date' as SQL NULL, so this clears the column rather than skipping it.
+                $data['end_date'] = null;
             }
         }
 
