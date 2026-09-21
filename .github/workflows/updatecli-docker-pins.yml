@@ -106,7 +106,7 @@ jobs:
     # floating major alias — `@v3` does not resolve, only `@v3.6.0` and its
     # siblings. Dependabot's github-actions ecosystem keeps this current.
     - name: Install updatecli
-      uses: updatecli/updatecli-action@v3.6.0
+      uses: updatecli/updatecli-action@v3.7.0
 
     - name: Resolve pins
       env:
