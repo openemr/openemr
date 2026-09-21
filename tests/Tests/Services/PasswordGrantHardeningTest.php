@@ -1082,11 +1082,14 @@ class PasswordGrantHardeningTest extends TestCase
         }
     }
 
-    public function testPortalPasswordGrantResetsIpCounterOnSuccess(): void
+    public function testPortalPasswordGrantResetsPortalAccountCounterOnSuccess(): void
     {
-        // Legit patient traffic (typos, several patients behind the same NAT
-        // address) accumulates strikes without a reset on success. Mirror the
-        // staff-side reset so the counter zeroes out after a good login.
+        // Successful portal login clears the per-account failure
+        // counter for THIS account only. The shared per-IP counter
+        // must NOT clear on success — otherwise an attacker holding
+        // valid credentials for account A could use every successful
+        // login as a cache-clear for their in-progress brute force
+        // against account B.
         $fixture = $this->portalFixtures()->installPortalPatient(
             portalLoginUsername: 'test-portal-user-reset-' . Uuid::uuid4()->toString(),
             plainPassword: 'CorrectPortalPassword1!'
@@ -1095,27 +1098,109 @@ class PasswordGrantHardeningTest extends TestCase
         $ipString = $this->clientIp;
         $this->snapshotIpTracking($ipString);
 
-        // Seed a non-zero counter so we can assert the success path zeroed it.
+        // Seed the per-account counter above zero so we can assert
+        // the success path zeroed it.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `patient_access_onsite` "
+                . "SET `portal_fail_counter` = 3, `portal_last_fail` = NOW() "
+                . "WHERE BINARY `portal_login_username` = ?",
+            [$fixture['portal_login_username']]
+        );
+        // And bump the IP counter — we assert this survives success.
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO ip_tracking (ip_string, ip_login_fail_counter, ip_last_login_fail) "
                 . "VALUES (?, 3, NOW()) ON DUPLICATE KEY UPDATE "
                 . "ip_login_fail_counter = 3, ip_last_login_fail = NOW()",
             [$ipString]
         );
-        $this->assertSame(3, $this->readIpCounter($ipString), 'seed must land');
 
         $auth = new AuthUtils('portal-api');
-        $ok = $auth->confirmPassword(
-            $fixture['portal_login_username'],
-            $fixture['plain_password'],
-            $fixture['email']
-        );
+        $login = $fixture['portal_login_username'];
+        $pw = $fixture['plain_password'];
+        $ok = $auth->confirmPassword($login, $pw, $fixture['email']);
         $this->assertTrue($ok, 'Correct portal password must authenticate');
         $this->assertSame(
             0,
-            $this->readIpCounter($ipString),
-            'Successful portal login must reset ip_login_fail_counter'
+            $this->readPortalAccountCounter($fixture['portal_login_username']),
+            'Successful portal login must reset the per-account counter'
         );
+        $this->assertSame(
+            3,
+            $this->readIpCounter($ipString),
+            'Successful portal login must NOT reset the shared per-IP counter '
+                . '(otherwise a valid login on one account bypasses the brute-force gate on another)'
+        );
+    }
+
+    public function testPortalPasswordGrantBlocksSecondAccountAfterPerAccountThresholdEvenWhenFirstAccountSucceeds(): void
+    {
+        // Regression pin for the finding this whole per-account
+        // counter block exists to close: attacker holds valid creds
+        // for account A, tries to brute-force account B. Before the
+        // fix, they could burn N-1 failures on B, log in cleanly on
+        // A (which reset the shared IP counter), and repeat forever.
+        // With the per-account counter, the block on B accumulates
+        // independent of any success on A.
+        $accountA = $this->portalFixtures()->installPortalPatient(
+            portalLoginUsername: 'account-a-' . Uuid::uuid4()->toString(),
+            plainPassword: 'AccountAPassword1!'
+        );
+        $accountB = $this->portalFixtures()->installPortalPatient(
+            portalLoginUsername: 'account-b-' . Uuid::uuid4()->toString(),
+            plainPassword: 'AccountBPassword1!'
+        );
+        $this->snapshotIpTracking($this->clientIp);
+
+        $globals = OEGlobalsBag::getInstance();
+        $originalMax = $globals->getInt('password_max_failed_logins');
+        try {
+            // Low threshold so the loop is short and deterministic.
+            $globals->set('password_max_failed_logins', 3);
+
+            $auth = new AuthUtils('portal-api');
+            $loginB = $accountB['portal_login_username'];
+            // Burn threshold failures on account B. confirmPassword
+            // clears the password buffer by reference, so re-init the
+            // variable each loop iteration.
+            for ($i = 0; $i < 3; $i++) {
+                $wrong = 'wrong-password';
+                $ok = $auth->confirmPassword($loginB, $wrong, $accountB['email']);
+                $this->assertFalse($ok, "Attempt $i on B must fail");
+            }
+            $this->assertSame(
+                3,
+                $this->readPortalAccountCounter($loginB),
+                'Per-account counter for B must equal threshold after 3 failures'
+            );
+
+            // Successful login on account A — under the OLD design
+            // this cleared the shared IP counter and re-opened the
+            // window for more B attempts. Under the fix it clears
+            // only A's per-account counter.
+            $loginA = $accountA['portal_login_username'];
+            $pwA = $accountA['plain_password'];
+            $this->assertTrue(
+                $auth->confirmPassword($loginA, $pwA, $accountA['email']),
+                'A must authenticate cleanly'
+            );
+
+            // Next attempt on B must still be blocked by the per-
+            // account gate even though attacker just cleared their
+            // own account's counter.
+            $wrongAgain = 'wrong-password';
+            $ok = $auth->confirmPassword($loginB, $wrongAgain, $accountB['email']);
+            $this->assertFalse(
+                $ok,
+                'Per-account block on B must persist across a valid login on A'
+            );
+            $this->assertSame(
+                3,
+                $this->readPortalAccountCounter($loginB),
+                'B counter must not be cleared by A success (still at threshold)'
+            );
+        } finally {
+            $globals->set('password_max_failed_logins', $originalMax);
+        }
     }
 
     public function testPortalPasswordGrantBlocksAfterRepeatedFailures(): void
@@ -1436,6 +1521,16 @@ class PasswordGrantHardeningTest extends TestCase
             [$ipString]
         );
         $value = $row['mfa_login_fail_counter'] ?? 0;
+        return is_numeric($value) ? (int) $value : 0;
+    }
+
+    private function readPortalAccountCounter(string $portalLoginUsername): int
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT portal_fail_counter FROM patient_access_onsite WHERE BINARY portal_login_username = ?",
+            [$portalLoginUsername]
+        );
+        $value = $row['portal_fail_counter'] ?? 0;
         return is_numeric($value) ? (int) $value : 0;
     }
 }

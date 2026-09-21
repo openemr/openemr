@@ -153,11 +153,7 @@ class AuthUtils
         // Collect ip address for log
         $ip = collectIpAddresses();
 
-        // Check to ensure ip address has not been blocked. patient_access_onsite
-        // has no per-username counter equivalent to users_secure.login_fail_counter,
-        // so the per-IP counter is the only rate limit on portal password grant.
-        // Without it the password grant flow allows unlimited attempts against
-        // any known portal_login_username.
+        // Check to ensure ip address has not been blocked.
         $this->setupIpLoginFailedCounter($ip['ip_string']);
         $returnArray = $this->checkIpLoginFailedCounter($ip['ip_string']);
         if (!$returnArray['pass']) {
@@ -186,16 +182,30 @@ class AuthUtils
             return false;
         }
 
-        // Every post-gate rejection below must bump the per-IP counter
-        // exactly once via $rejectPortalAttempt so that username /
-        // email guessing paths (unknown user, disabled account, email
-        // mismatch, invalid hash, ...) engage the same rate limit
-        // that the "wrong password" branch already does. Without this
-        // an attacker can iterate portal_login_username values or
-        // enforce_signin_email addresses indefinitely with zero
-        // lockout progress against the IP.
+        // Per-portal-account block gate. Without a per-account counter
+        // the only rate limit is the shared per-IP counter — which an
+        // attacker holding valid credentials for one portal account
+        // could reset on every successful login, then continue brute-
+        // forcing another account indefinitely. Check the per-account
+        // counter here so a lockout on account B persists across the
+        // attacker's own successful logins on account A.
+        if ($this->isPortalAccountBlocked($username)) {
+            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". portal account exceeded maximum number of failed logins");
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        }
+
+        // Every post-gate rejection below must bump BOTH the per-IP
+        // counter AND the per-account counter (when username maps to
+        // a real portal_login_username; unknown-user attempts only
+        // bump the IP counter since there is no row to UPDATE) so
+        // username / email guessing paths (unknown user, disabled
+        // account, email mismatch, invalid hash, ...) engage the
+        // rate limit that the "wrong password" branch already does.
         $rejectPortalAttempt = function (string $reason, mixed $patientPid = null) use ($ip, $event, $username, $beginLog, &$password): bool {
             $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            $this->incrementPortalAccountFailedCounter($username);
             $normalizedPid = is_numeric($patientPid) ? (int) $patientPid : null;
             EventAuditLogger::getInstance()->newEvent(
                 $event,
@@ -265,11 +275,14 @@ class AuthUtils
 
         // PASSED auth for the portal api
         $this->clearFromMemory($password);
-        // Reset the per-IP counter on success so legitimate patient traffic
-        // (typos, multiple patients behind the same NAT address) does not
-        // accumulate strikes forever. Mirrors the reset that
-        // confirmUserPassword performs on the staff path.
-        $this->resetIpLoginFailedCounter($ip['ip_string']);
+        // Reset ONLY the per-account counter on success. Deliberately
+        // do NOT reset the shared per-IP counter: an attacker with
+        // valid credentials for account A could otherwise clear the
+        // only rate-limit on the IP after every valid login and
+        // brute-force account B indefinitely. The IP counter's own
+        // time-based reset window (ip_time_reset_password_max_failed_logins)
+        // handles legit shared-NAT decay.
+        $this->resetPortalAccountFailedCounter($username);
         //  Set up class variable that the api will need to collect (log for API is done outside)
         $this->patientId = $patientDataInfo['pid'];
         return true;
@@ -1335,6 +1348,85 @@ class AuthUtils
         }
 
         sqlStatement("UPDATE `ip_tracking` SET `ip_login_fail_counter` = 0, `ip_last_login_fail` = null, `ip_auto_block_emailed` = 0 WHERE `ip_string` = ?", [$ipString]);
+    }
+
+    /**
+     * Per-portal-account block gate. Returns true if this
+     * portal_login_username has exceeded password_max_failed_logins
+     * without an elapsed reset window. Independent of the per-IP
+     * counter — a valid login on a different portal account does
+     * NOT clear this counter, so an attacker cannot bypass by
+     * cycling between accounts they own.
+     *
+     * Unknown usernames return false (no row → no block). The
+     * per-IP counter still throttles unknown-user brute force.
+     */
+    private function isPortalAccountBlocked(mixed $username): bool
+    {
+        $max = OEGlobalsBag::getInstance()->getInt('password_max_failed_logins');
+        if ($max === 0 || !is_string($username) || $username === '') {
+            return false;
+        }
+        $row = QueryUtils::querySingleRow(
+            "SELECT `portal_fail_counter`, "
+                . "TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) AS `seconds_last_fail` "
+                . "FROM `patient_access_onsite` WHERE BINARY `portal_login_username` = ?",
+            [$username]
+        );
+        $counter = is_array($row) && is_numeric($row['portal_fail_counter'] ?? null)
+            ? (int) $row['portal_fail_counter']
+            : 0;
+        if ($counter < $max) {
+            return false;
+        }
+        $window = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
+        $seconds = is_numeric($row['seconds_last_fail'] ?? null)
+            ? (int) $row['seconds_last_fail']
+            : 0;
+        if ($window > 0 && $seconds > $window) {
+            $this->resetPortalAccountFailedCounter($username);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Bump the per-account portal failure counter. Silent no-op if
+     * the row does not exist (unknown-user attempts still bump the
+     * per-IP counter via the reject helper).
+     */
+    private function incrementPortalAccountFailedCounter(mixed $username): void
+    {
+        if (!is_string($username) || $username === '') {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `patient_access_onsite` "
+                . "SET `portal_fail_counter` = `portal_fail_counter` + 1, "
+                . "`portal_last_fail` = NOW() "
+                . "WHERE BINARY `portal_login_username` = ?",
+            [$username],
+            noLog: true
+        );
+    }
+
+    /**
+     * Zero the per-account portal failure counter on successful
+     * authentication for that specific account only. Deliberately
+     * does NOT touch the per-IP counter.
+     */
+    private function resetPortalAccountFailedCounter(mixed $username): void
+    {
+        if (!is_string($username) || $username === '') {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `patient_access_onsite` "
+                . "SET `portal_fail_counter` = 0, `portal_last_fail` = NULL "
+                . "WHERE BINARY `portal_login_username` = ?",
+            [$username],
+            noLog: true
+        );
     }
 
     /**

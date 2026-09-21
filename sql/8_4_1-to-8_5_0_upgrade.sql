@@ -167,3 +167,17 @@ ALTER TABLE `ip_tracking` ADD COLUMN `mfa_login_fail_counter` bigint DEFAULT 0 C
 #IfMissingColumn ip_tracking mfa_last_login_fail
 ALTER TABLE `ip_tracking` ADD COLUMN `mfa_last_login_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure from this IP. Used for time-based counter reset.';
 #EndIf
+
+-- Add per-portal-account failure counter. Portal auth has no per-user
+-- counter equivalent to users_secure.login_fail_counter — only the
+-- shared IP counter. An attacker holding valid credentials for one
+-- portal account could otherwise burn (threshold - 1) guesses against
+-- account B, log into A to zero the shared IP counter, and repeat
+-- indefinitely. Per-account counter is cleared only on success for
+-- that specific account, so blocks accumulate per victim account.
+#IfMissingColumn patient_access_onsite portal_fail_counter
+ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_fail_counter` bigint DEFAULT 0 COMMENT 'Per-portal-account failure counter. Independent of ip_login_fail_counter so a valid login on account A cannot clear an in-progress brute force against account B.';
+#EndIf
+#IfMissingColumn patient_access_onsite portal_last_fail
+ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last portal login failure for this account. Used for time-based counter reset.';
+#EndIf
