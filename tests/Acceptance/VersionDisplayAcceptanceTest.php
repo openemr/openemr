@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use Facebook\WebDriver\WebDriverBy;
+use OpenEMR\Tests\Acceptance\Support\AcceptanceContext;
 use OpenEMR\Tests\Acceptance\Support\BrowserSession;
 use OpenEMR\Tests\Acceptance\Support\PantherAcceptanceTestCase;
 use PHPUnit\Framework\Attributes\Group;
@@ -93,16 +94,7 @@ final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
      */
     public function testAboutPageShowsExpectedVersion(): void
     {
-        $expected = getenv('ACCEPTANCE_EXPECTED_VERSION');
-        self::assertNotFalse(
-            $expected,
-            'ACCEPTANCE_EXPECTED_VERSION env is unset — the acceptance-package.yml matrix cell must set this so the test knows which version to assert against. Passing an empty string is not a valid override.',
-        );
-        self::assertMatchesRegularExpression(
-            '/^\d+\.\d+\.\d+$/',
-            $expected,
-            "ACCEPTANCE_EXPECTED_VERSION='{$expected}' does not match required X.Y.Z shape",
-        );
+        $expected = AcceptanceContext::expectedVersion();
 
         $this->client = BrowserSession::create();
         $this->performLoginAsAdmin();
