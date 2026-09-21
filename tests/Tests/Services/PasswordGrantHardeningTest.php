@@ -1132,6 +1132,123 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
+    public function testPortalAccountIncrementResetsStalePartialCounterInsteadOfBuildingOnIt(): void
+    {
+        // Rabbit finding: increment helpers only reset counters that
+        // are AT threshold. A partial counter (e.g. max-1) that sits
+        // idle past the reset window survives the window entirely —
+        // one new failure jumps to max and refreshes the timestamp,
+        // giving an attacker a stale-state DoS primitive against a
+        // legit account. Reset-before-increment: when
+        // seconds_since_last_fail > window > 0, the increment must
+        // set the counter to 1 (fresh failure), not counter+1.
+        $fixture = $this->portalFixtures()->installPortalPatient(
+            portalLoginUsername: 'stale-partial-' . Uuid::uuid4()->toString(),
+            plainPassword: 'AccountStalePartial1!'
+        );
+        $globals = OEGlobalsBag::getInstance();
+        $originalMax = $globals->getInt('password_max_failed_logins');
+        $originalWindow = $globals->getInt('time_reset_password_max_failed_logins');
+        try {
+            $globals->set('password_max_failed_logins', 3);
+            $globals->set('time_reset_password_max_failed_logins', 60);
+
+            // Seed the counter at max-1 with a stale timestamp
+            // (2 minutes ago, past the 60s window).
+            $login = $fixture['portal_login_username'];
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `patient_access_onsite` "
+                    . "SET `portal_fail_counter` = 2, "
+                    . "`portal_last_fail` = DATE_SUB(NOW(), INTERVAL 120 SECOND) "
+                    . "WHERE BINARY `portal_login_username` = ?",
+                [$login]
+            );
+
+            $auth = new AuthUtils('portal-api');
+            $wrong = 'wrong-password';
+            $ok = $auth->confirmPassword($login, $wrong, $fixture['email']);
+            $this->assertFalse($ok);
+            $this->assertSame(
+                1,
+                $this->readPortalAccountCounter($login),
+                'Stale-partial counter must reset to 1 on the fresh failure '
+                    . '(otherwise the next attempt would trip the block from stale state)'
+            );
+        } finally {
+            $globals->set('password_max_failed_logins', $originalMax);
+            $globals->set('time_reset_password_max_failed_logins', $originalWindow);
+        }
+    }
+
+    public function testMfaFailCounterResetsStalePartialInsteadOfBuildingOnIt(): void
+    {
+        // Same finding, applied to incrementMfaFailCounter /
+        // incrementIpMfaLoginFailCounter. Seed both counters at
+        // max-1 with a stale timestamp; assert one wrong-TOTP
+        // attempt resets each to 1 rather than bumping to max.
+        $userId = $this->requireExistingAdminUserId();
+        $secret = $this->enrollTotpForUser($userId);
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
+
+        $globals = OEGlobalsBag::getInstance();
+        $originalUserMax = $globals->getInt('password_max_failed_logins');
+        $originalUserWindow = $globals->getInt('time_reset_password_max_failed_logins');
+        $originalIpMax = $globals->getInt('ip_max_failed_logins');
+        $originalIpWindow = $globals->getInt('ip_time_reset_password_max_failed_logins');
+        try {
+            $globals->set('password_max_failed_logins', 3);
+            $globals->set('time_reset_password_max_failed_logins', 60);
+            $globals->set('ip_max_failed_logins', 3);
+            $globals->set('ip_time_reset_password_max_failed_logins', 60);
+
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users_secure` SET `mfa_fail_counter` = 2, "
+                    . "`mfa_last_fail` = DATE_SUB(NOW(), INTERVAL 120 SECOND) "
+                    . "WHERE BINARY `username` = ?",
+                ['admin']
+            );
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`, `mfa_last_login_fail`) "
+                    . "VALUES (?, 2, DATE_SUB(NOW(), INTERVAL 120 SECOND)) "
+                    . "ON DUPLICATE KEY UPDATE `mfa_login_fail_counter` = 2, "
+                    . "`mfa_last_login_fail` = DATE_SUB(NOW(), INTERVAL 120 SECOND)",
+                [$this->clientIp]
+            );
+
+            $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+            $currentCode = (int) $tfa->getCode($secret);
+            $wrongCode = str_pad((string) (($currentCode + 1) % 1000000), 6, '0', STR_PAD_LEFT);
+            $_POST['mfa_token'] = $wrongCode;
+            $_POST['mfa_type'] = 'TOTP';
+            $password = $this->adminPassword();
+
+            $repo = $this->buildUserRepository();
+            try {
+                $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+                $this->fail('Expected OAuthServerException on wrong TOTP');
+            } catch (OAuthServerException $e) {
+                $this->assertSame('mfa_token_invalid', $e->getErrorType());
+            }
+
+            $this->assertSame(
+                1,
+                $this->readMfaUserCounter('admin'),
+                'Stale-partial user MFA counter must reset to 1'
+            );
+            $this->assertSame(
+                1,
+                $this->readMfaIpCounter($this->clientIp),
+                'Stale-partial IP MFA counter must reset to 1'
+            );
+        } finally {
+            $globals->set('password_max_failed_logins', $originalUserMax);
+            $globals->set('time_reset_password_max_failed_logins', $originalUserWindow);
+            $globals->set('ip_max_failed_logins', $originalIpMax);
+            $globals->set('ip_time_reset_password_max_failed_logins', $originalIpWindow);
+        }
+    }
+
     public function testPortalPasswordGrantBlocksSecondAccountAfterPerAccountThresholdEvenWhenFirstAccountSucceeds(): void
     {
         // Regression pin for the finding this whole per-account

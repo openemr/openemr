@@ -654,25 +654,37 @@ public clients omit `client_secret`.
 - `email`: Required for patient role
 - `mfa_token`: Six-digit TOTP code — required when the user (`user_role=users`)
   has TOTP enrolled. Omitting it returns `401 mfa_token_required`. A wrong
-  code returns `401 mfa_token_invalid` and counts against the standard
-  per-user and per-IP lockout thresholds
+  code returns `401 mfa_token_invalid` and counts against dedicated
+  per-user (`users_secure.mfa_fail_counter`) and per-IP
+  (`ip_tracking.mfa_login_fail_counter`) MFA counters — independent of the
+  password counters so a valid password verify does not clear an in-progress
+  MFA brute force
 
 #### Rate Limiting
 
-Failed password grant attempts engage the same lockout counters used by web
-login:
+Failed password grant attempts engage the standard lockout counters:
 
 - **Staff (`user_role=users`)**: bumps both the per-user
   (`users_secure.login_fail_counter`) and per-IP
-  (`ip_tracking.ip_login_fail_counter`) counters. Wrong TOTP counts the same
-  as a wrong password.
-- **Patient (`user_role=patient`)**: bumps only the per-IP counter — patient
-  portal accounts have no per-username counter equivalent in
-  `patient_access_onsite`.
+  (`ip_tracking.ip_login_fail_counter`) counters. Wrong TOTP additionally
+  bumps the dedicated MFA counters
+  (`users_secure.mfa_fail_counter` + `ip_tracking.mfa_login_fail_counter`)
+  rather than the password counters, so a correct password + wrong TOTP
+  loop still accumulates blocks.
+- **Patient (`user_role=patient`)**: for a matching `portal_login_username`,
+  bumps both the per-portal-account
+  (`patient_access_onsite.portal_fail_counter`) and per-IP
+  (`ip_tracking.ip_login_fail_counter`) counters. Unknown usernames only
+  bump the per-IP counter because no `patient_access_onsite` row exists to
+  update. Successful portal authentication clears only the authenticated
+  account's counter — the per-IP counter is left engaged so a valid login
+  on account A cannot bypass the brute-force gate on account B.
 
-Once the applicable threshold is reached, further attempts are rejected
-until the admin unblocks the row (or the automatic reset window elapses, when
-configured).
+All counters share the same `password_max_failed_logins` /
+`ip_max_failed_logins` thresholds and reset-window globals as the web login
+gate. Once the applicable threshold is reached, further attempts are
+rejected until the admin unblocks the row (or the automatic reset window
+elapses, when configured).
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >

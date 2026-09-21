@@ -1400,6 +1400,34 @@ class AuthUtils
         if (!is_string($username) || $username === '') {
             return;
         }
+        // Reset-before-increment when the last failure is outside the
+        // configured reset window. Without this, a stale partial
+        // counter (e.g. sitting at max-1 from months ago) survives
+        // the window entirely — one new failure would bump it to max
+        // and refresh the timestamp, instantly locking out a legit
+        // user from a single mistake and giving an attacker a
+        // DoS primitive. Matches incrementLoginFailedCounter().
+        $window = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
+        if ($window > 0) {
+            $row = QueryUtils::querySingleRow(
+                "SELECT TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) AS `seconds_last_fail` "
+                    . "FROM `patient_access_onsite` WHERE BINARY `portal_login_username` = ?",
+                [$username]
+            );
+            $seconds = is_numeric($row['seconds_last_fail'] ?? null)
+                ? (int) $row['seconds_last_fail']
+                : 0;
+            if ($seconds > $window) {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `patient_access_onsite` "
+                        . "SET `portal_fail_counter` = 1, `portal_last_fail` = NOW() "
+                        . "WHERE BINARY `portal_login_username` = ?",
+                    [$username],
+                    noLog: true
+                );
+                return;
+            }
+        }
         QueryUtils::sqlStatementThrowException(
             "UPDATE `patient_access_onsite` "
                 . "SET `portal_fail_counter` = `portal_fail_counter` + 1, "
@@ -1586,6 +1614,30 @@ class AuthUtils
 
     private function incrementMfaFailCounter(string $username): void
     {
+        // Reset-before-increment when the last failure is outside
+        // the configured reset window — see the matching comment on
+        // incrementPortalAccountFailedCounter() for rationale.
+        $window = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
+        if ($window > 0) {
+            $row = QueryUtils::querySingleRow(
+                "SELECT TIMESTAMPDIFF(SECOND, `mfa_last_fail`, NOW()) AS `seconds_last_fail` "
+                    . "FROM `users_secure` WHERE BINARY `username` = ?",
+                [$username]
+            );
+            $seconds = is_numeric($row['seconds_last_fail'] ?? null)
+                ? (int) $row['seconds_last_fail']
+                : 0;
+            if ($seconds > $window) {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `users_secure` "
+                        . "SET `mfa_fail_counter` = 1, `mfa_last_fail` = NOW() "
+                        . "WHERE BINARY `username` = ?",
+                    [$username],
+                    noLog: true
+                );
+                return;
+            }
+        }
         QueryUtils::sqlStatementThrowException(
             "UPDATE `users_secure` "
                 . "SET `mfa_fail_counter` = `mfa_fail_counter` + 1, `mfa_last_fail` = NOW() "
@@ -1600,6 +1652,31 @@ class AuthUtils
         // Ensure a row exists — setupIpLoginFailedCounter mirrors this
         // pattern for the password path.
         $this->setupIpLoginFailedCounter($ipString);
+        // Reset-before-increment when the last failure is outside
+        // the configured reset window — see the matching comment on
+        // incrementPortalAccountFailedCounter() for rationale.
+        $window = OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins');
+        if ($window > 0) {
+            $row = QueryUtils::querySingleRow(
+                "SELECT TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) AS `seconds_last_fail` "
+                    . "FROM `ip_tracking` WHERE `ip_string` = ?",
+                [$ipString]
+            );
+            $seconds = is_numeric($row['seconds_last_fail'] ?? null)
+                ? (int) $row['seconds_last_fail']
+                : 0;
+            if ($seconds > $window) {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `ip_tracking` "
+                        . "SET `mfa_login_fail_counter` = 1, "
+                        . "`mfa_last_login_fail` = NOW() "
+                        . "WHERE `ip_string` = ?",
+                    [$ipString],
+                    noLog: true
+                );
+                return;
+            }
+        }
         QueryUtils::sqlStatementThrowException(
             "UPDATE `ip_tracking` "
                 . "SET `mfa_login_fail_counter` = `mfa_login_fail_counter` + 1, "
