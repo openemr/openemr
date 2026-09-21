@@ -43,18 +43,19 @@ use PHPUnit\Framework\Attributes\Group;
  * shifting from DB-read to file-read to match About page) doesn't
  * leave a coverage gap.
  *
- * Tagged with its OWN group `version-display` (not `fresh-install` /
- * `post-upgrade` / etc.) so `.github/workflows/acceptance-package.yml`
- * fires it via explicit `--group=version-display` steps at points
- * where `ACCEPTANCE_EXPECTED_VERSION` is definitively set. Piggy-
- * backing the existing scenario groups would leak this test into
- * `acceptance-docker.yml`, which today does not resolve floating
- * image tags (e.g., `latest`, `next`) into X.Y.Z at runtime — so
- * `ACCEPTANCE_EXPECTED_VERSION` couldn't be set there without
- * additional Docker-Hub tag-resolution plumbing. Docker parity is a
- * bounded follow-up.
+ * Tagged `post-install` + `post-upgrade` -- both scenarios boot an
+ * artifact reporting some version, so both are natural surfaces to
+ * assert against. Item 2 of the post-8.4.0 acceptance-surface
+ * refactor collapsed the historical `version-display` workaround
+ * group into the standard scenario tags, since
+ * `ACCEPTANCE_EXPECTED_VERSION` is now propagated at every workflow
+ * step (not just version-check steps). Docker workflow's floating-tag
+ * resolution remains a follow-up (Item 4); until it lands,
+ * `acceptance-docker.yml` skips this test by not setting the env,
+ * and `AcceptanceContext::hasExpectedVersion()` gates the assertion.
  */
-#[Group('version-display')]
+#[Group('post-install')]
+#[Group('post-upgrade')]
 final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
 {
     private const ABOUT_URL = '/interface/main/about_page.php';
@@ -94,6 +95,14 @@ final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
      */
     public function testAboutPageShowsExpectedVersion(): void
     {
+        // Docker workflow can't resolve floating tags (`latest`,
+        // `next`) into X.Y.Z at runtime yet (Item 4 of the post-8.4.0
+        // refactor), so the env isn't set there. Skip cleanly when
+        // absent -- tarball workflow always sets it, so the signal
+        // stays enforced where the plumbing exists.
+        if (!AcceptanceContext::hasExpectedVersion()) {
+            self::markTestSkipped('ACCEPTANCE_EXPECTED_VERSION not set -- expected in contexts without version resolution (e.g., acceptance-docker.yml floating-tag runs until Item 4 lands).');
+        }
         $expected = AcceptanceContext::expectedVersion();
 
         $this->client = BrowserSession::create();
