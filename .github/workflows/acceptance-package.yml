@@ -714,9 +714,10 @@ jobs:
     # sql_upgrade.php via Panther end-to-end (form load → version
     # select → submit → verify / redirects to login).
     #
-    # Also runs the post-upgrade group after the wizard completes --
-    # a wizard-upgraded artifact must ALSO pass every business
-    # assertion a CLI-upgraded one does. --group flags OR-summed.
+    # Only the wizard-specific group runs -- same fixture-parity
+    # reason as wizard-install above (initial Item 2 iteration
+    # attempted to OR-sum post-upgrade too, CI surfaced business-
+    # test failures under the wizard-path state; reverted).
     - name: Boot tarball artifact (from_version)
       if: matrix.scenario == 'wizard-upgrade'
       # Same override as the upgrade scenario's from-side boot: the DB
