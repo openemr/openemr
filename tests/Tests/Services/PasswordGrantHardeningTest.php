@@ -471,6 +471,89 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
+    public function testMfaBlockClearsAfterConfiguredResetWindowElapses(): void
+    {
+        // Rabbit finding: without a reset window, once mfa_fail_counter
+        // hits password_max_failed_logins the pre-validate block
+        // short-circuits every subsequent attempt — so a legitimate
+        // user can never submit a good code to clear the counter.
+        // Mirror the checkLoginFailedCounter / checkIpLoginFailedCounter
+        // behavior: when
+        // seconds_since_last_fail > time_reset_password_max_failed_logins
+        // > 0 the gate must clear the counters and let the caller through.
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
+
+        $globals = OEGlobalsBag::getInstance();
+        $originalUserMax = $globals->getInt('password_max_failed_logins');
+        $originalUserWindow = $globals->getInt('time_reset_password_max_failed_logins');
+        $originalIpMax = $globals->getInt('ip_max_failed_logins');
+        $originalIpWindow = $globals->getInt('ip_time_reset_password_max_failed_logins');
+
+        try {
+            $globals->set('password_max_failed_logins', 3);
+            $globals->set('time_reset_password_max_failed_logins', 60);
+            $globals->set('ip_max_failed_logins', 3);
+            $globals->set('ip_time_reset_password_max_failed_logins', 60);
+
+            // Seed the counters at threshold with a last-fail 2 minutes
+            // ago (past the 60-second reset window) so the gate should
+            // clear both and pass.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users_secure` SET `mfa_fail_counter` = 5, "
+                    . "`mfa_last_fail` = DATE_SUB(NOW(), INTERVAL 120 SECOND) "
+                    . "WHERE BINARY `username` = ?",
+                ['admin']
+            );
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`, `mfa_last_login_fail`) "
+                    . "VALUES (?, 5, DATE_SUB(NOW(), INTERVAL 120 SECOND)) "
+                    . "ON DUPLICATE KEY UPDATE `mfa_login_fail_counter` = 5, "
+                    . "`mfa_last_login_fail` = DATE_SUB(NOW(), INTERVAL 120 SECOND)",
+                [$this->clientIp]
+            );
+
+            $auth = new AuthUtils();
+            $this->assertFalse(
+                $auth->isMfaChallengeBlocked('admin', $this->clientIp),
+                'Elapsed reset window must clear the block and let this attempt through'
+            );
+            $this->assertSame(
+                0,
+                $this->readMfaUserCounter('admin'),
+                'Elapsed reset window must zero users_secure.mfa_fail_counter'
+            );
+            $this->assertSame(
+                0,
+                $this->readMfaIpCounter($this->clientIp),
+                'Elapsed reset window must zero ip_tracking.mfa_login_fail_counter'
+            );
+
+            // Re-seed at threshold but with a recent last-fail (within
+            // the window) — gate must still block.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users_secure` SET `mfa_fail_counter` = 5, "
+                    . "`mfa_last_fail` = NOW() "
+                    . "WHERE BINARY `username` = ?",
+                ['admin']
+            );
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `ip_tracking` SET `mfa_login_fail_counter` = 5, "
+                    . "`mfa_last_login_fail` = NOW() WHERE `ip_string` = ?",
+                [$this->clientIp]
+            );
+            $this->assertTrue(
+                $auth->isMfaChallengeBlocked('admin', $this->clientIp),
+                'Recent failure inside the reset window must keep the block engaged'
+            );
+        } finally {
+            $globals->set('password_max_failed_logins', $originalUserMax);
+            $globals->set('time_reset_password_max_failed_logins', $originalUserWindow);
+            $globals->set('ip_max_failed_logins', $originalIpMax);
+            $globals->set('ip_time_reset_password_max_failed_logins', $originalIpWindow);
+        }
+    }
+
     public function testPasswordGrantRejectsReplayedTotpCodeWithinAcceptanceWindow(): void
     {
         // TOTP replay protection: RobThree TwoFactorAuth accepts codes for

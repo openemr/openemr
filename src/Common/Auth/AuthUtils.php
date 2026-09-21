@@ -1399,9 +1399,15 @@ class AuthUtils
      * counter — same shape as checkLoginFailedCounter uses for
      * password attempts.
      *
-     * Reuses the existing password_max_failed_logins and
-     * ip_max_failed_logins globals for thresholds; MFA does not
-     * warrant its own separate configuration knob today.
+     * Reuses the existing password_max_failed_logins /
+     * ip_max_failed_logins thresholds AND the matching
+     * time_reset_password_max_failed_logins /
+     * ip_time_reset_password_max_failed_logins reset windows so admin
+     * tuning applies uniformly across password and MFA gates.
+     * Without the reset windows a legit user tripping the MFA
+     * threshold would be soft-locked indefinitely — validation is
+     * skipped by this gate before a good code could clear the
+     * counter.
      *
      * @param string|null $username may be null for the OAuth2 password
      *                              grant path when identity is not yet
@@ -1413,26 +1419,48 @@ class AuthUtils
         $userMax = OEGlobalsBag::getInstance()->getInt('password_max_failed_logins');
         if ($userMax > 0 && $username !== null && $username !== '') {
             $row = QueryUtils::querySingleRow(
-                "SELECT `mfa_fail_counter` FROM `users_secure` WHERE BINARY `username` = ?",
+                "SELECT `mfa_fail_counter`, "
+                    . "TIMESTAMPDIFF(SECOND, `mfa_last_fail`, NOW()) AS `seconds_last_fail` "
+                    . "FROM `users_secure` WHERE BINARY `username` = ?",
                 [$username]
             );
             $counter = is_array($row) && is_numeric($row['mfa_fail_counter'] ?? null)
                 ? (int) $row['mfa_fail_counter']
                 : 0;
             if ($counter >= $userMax) {
+                $userWindow = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
+                $seconds = is_numeric($row['seconds_last_fail'] ?? null)
+                    ? (int) $row['seconds_last_fail']
+                    : 0;
+                if ($userWindow > 0 && $seconds > $userWindow) {
+                    // Reset window has elapsed since the last failure;
+                    // clear both counters and let this attempt through.
+                    self::resetMfaChallengeCounters($username, $ipString);
+                    return false;
+                }
                 return true;
             }
         }
         $ipMax = OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins');
         if ($ipMax > 0 && $ipString !== '') {
             $row = QueryUtils::querySingleRow(
-                "SELECT `mfa_login_fail_counter` FROM `ip_tracking` WHERE `ip_string` = ?",
+                "SELECT `mfa_login_fail_counter`, "
+                    . "TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) AS `seconds_last_fail` "
+                    . "FROM `ip_tracking` WHERE `ip_string` = ?",
                 [$ipString]
             );
             $counter = is_array($row) && is_numeric($row['mfa_login_fail_counter'] ?? null)
                 ? (int) $row['mfa_login_fail_counter']
                 : 0;
             if ($counter >= $ipMax) {
+                $ipWindow = OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins');
+                $seconds = is_numeric($row['seconds_last_fail'] ?? null)
+                    ? (int) $row['seconds_last_fail']
+                    : 0;
+                if ($ipWindow > 0 && $seconds > $ipWindow) {
+                    self::resetMfaChallengeCounters($username, $ipString);
+                    return false;
+                }
                 return true;
             }
         }
