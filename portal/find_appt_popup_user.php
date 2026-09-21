@@ -172,8 +172,8 @@ $slotsperday = (int)(60 * 60 * 24 / $slotsecs);
 
 // If we have a provider, search.
 //
-if ($_REQUEST['providerid']) {
-    $providerid = $_REQUEST['providerid'];
+$providerid = $_REQUEST['providerid'] ?? '';
+if ($providerid) {
 
     // Create and initialize the slot array. Values are bit-mapped:
     //   bit 0 = in-office occurs here
