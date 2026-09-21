@@ -83,18 +83,23 @@ final class AcceptanceContext
     }
 
     /**
-     * Whether an expected-version signal is available in this context.
+     * Whether an expected-version signal was PROVIDED by the caller.
+     * Returns true whenever the env is set to a non-empty value --
+     * intentionally does NOT validate shape. Malformed values return
+     * true here so callers that gate on this predicate then call
+     * `expectedVersion()` and hit its shape check, surfacing the
+     * misconfiguration as a hard failure rather than silently skipping.
+     *
      * Tests that can run in contexts without a knowable version (e.g.,
-     * Item 4's future docker floating-tag runs) should gate on this
-     * before calling `expectedVersion()`.
+     * Item 4's future docker floating-tag runs) use this to skip
+     * cleanly when the caller genuinely didn't provide a version.
+     * "Provided but garbage" is a different failure class -- always
+     * a caller bug worth failing loudly on.
      */
     public static function hasExpectedVersion(): bool
     {
         $raw = getenv('ACCEPTANCE_EXPECTED_VERSION');
-        if ($raw === false || $raw === '') {
-            return false;
-        }
-        return preg_match('/^\d+\.\d+\.\d+$/', $raw) === 1;
+        return $raw !== false && $raw !== '';
     }
 
     /**
