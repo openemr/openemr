@@ -616,27 +616,39 @@ jobs:
     # Boots the artifact WITHOUT running install-helper.php so the
     # artifact serves setup.php on /. InstallWizardUiTest then drives
     # the wizard via Panther end-to-end (state 0 → 3 + verify / now
-    # redirects to login). Covers what Phase 3's CLI install path
-    # bypasses: setup.php's browser-facing state machine, form
-    # rendering, CSRF, cookie-based state.
+    # redirects to login). Covers what the CLI install path bypasses:
+    # setup.php's browser-facing state machine, form rendering, CSRF,
+    # cookie-based state.
     #
-    # Only the wizard-specific group runs -- attempting to OR-sum
-    # post-install here breaks because the wizard install path
-    # doesn't seed the same default fixtures install-helper.php does
-    # (facilities, providers, sample patients, session state), so
-    # the business tests hit missing-state / 500-response failures.
-    # Achieving fixture parity between wizard-install and install-
-    # helper is out of scope for Item 2; captured as follow-up in
-    # the plan doc.
+    # Two-invocation split (Item 2.5 of the post-8.4.0 acceptance-
+    # surface refactor plan). First invocation runs the Panther-driven
+    # wizard test only. Second invocation runs the HTTP-only business
+    # tests against the wizard-installed artifact. Split is required
+    # because when both run in the same PHPUnit process, some Panther/
+    # ChromeDriver side effect leaves persistent server-side state
+    # (transient session file, PHP-FPM lock, or similar) that breaks
+    # subsequent HTTP requests -- 17 business tests fail at
+    # PantherAcceptanceTestCase::performLoginAsAdmin with empty title
+    # / HTTP 500 on login page. Local reproduction 2026-09-21 confirms
+    # wizard install itself produces a functional artifact (login URL
+    # returns 200 with correct title via curl); the problem is
+    # process-local Panther state, cleared by PHPUnit process exit
+    # between the two composer acceptance invocations.
     - name: Boot tarball artifact (to_version, no install-helper)
       if: matrix.scenario == 'wizard-install'
       run: tests/Acceptance/bin/boot-package.sh --skip-install-helper ${{ steps.bootflags.outputs.to_local_flag }} "${TO_VERSION}"
 
-    - name: Run wizard-completed-post-install acceptance suite (wizard-install of to_version)
+    - name: Run wizard-completed-post-install (Panther-driven wizard test)
       if: matrix.scenario == 'wizard-install'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=wizard-completed-post-install
+
+    - name: Run post-install business tests against wizard-installed artifact (fresh PHPUnit process)
+      if: matrix.scenario == 'wizard-install'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
+      run: composer acceptance -- --group=post-install
 
     # ==== upgrade scenario ====
     # from_version is always the shipped GitHub-release tarball (no
@@ -714,10 +726,14 @@ jobs:
     # sql_upgrade.php via Panther end-to-end (form load → version
     # select → submit → verify / redirects to login).
     #
-    # Only the wizard-specific group runs -- same fixture-parity
-    # reason as wizard-install above (initial Item 2 iteration
-    # attempted to OR-sum post-upgrade too, CI surfaced business-
-    # test failures under the wizard-path state; reverted).
+    # Two-invocation split -- same rationale as wizard-install above
+    # (Item 2.5). Panther-driven wizard-upgrade test in first
+    # invocation, HTTP-only business tests in second. Note that
+    # wizard-upgrade's business tests were never observed failing
+    # (no CI evidence — the OR-sum only ever ran wizard-install cells
+    # because upgrade + wizard-upgrade matrix scenarios don't fire in
+    # PR context, only in full ship context). Implementing the split
+    # symmetrically for defense-in-depth.
     - name: Boot tarball artifact (from_version)
       if: matrix.scenario == 'wizard-upgrade'
       # Same override as the upgrade scenario's from-side boot: the DB
@@ -730,13 +746,17 @@ jobs:
       if: matrix.scenario == 'wizard-upgrade'
       run: tests/Acceptance/bin/upgrade-package.sh --skip-sql-upgrade ${{ steps.bootflags.outputs.to_upgrade_local_flag }} "${FROM_VERSION}" "${TO_VERSION}"
 
-    # Only the wizard-specific group runs -- same fixture-parity
-    # reason as wizard-install above.
-    - name: Run wizard-completed-post-upgrade acceptance suite (wizard-upgrade)
+    - name: Run wizard-completed-post-upgrade (Panther-driven wizard test)
       if: matrix.scenario == 'wizard-upgrade'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
       run: composer acceptance -- --group=wizard-completed-post-upgrade
+
+    - name: Run post-upgrade business tests against wizard-upgraded artifact (fresh PHPUnit process)
+      if: matrix.scenario == 'wizard-upgrade'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
+      run: composer acceptance -- --group=post-upgrade
 
     # ==== debug + teardown (all scenarios) ====
     - name: Capture container state (on failure)
