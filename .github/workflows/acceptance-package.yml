@@ -579,48 +579,38 @@ jobs:
       if: matrix.scenario == 'fresh-install'
       run: tests/Acceptance/bin/boot-package.sh ${{ steps.bootflags.outputs.to_local_flag }} "${TO_VERSION}"
 
-    - name: Run acceptance suite (fresh-install of to_version)
-      if: matrix.scenario == 'fresh-install'
-      run: composer acceptance -- --group=fresh-install
-
-    # Version-display check: About page shows EXPECTED_VERSION. Own
-    # group (not piggybacking fresh-install) so this doesn't leak into
-    # acceptance-docker.yml — that workflow uses floating tags
-    # (`latest`, `next`) and doesn't resolve them into X.Y.Z at
-    # runtime, so it can't set ACCEPTANCE_EXPECTED_VERSION. See
-    # openemr/openemr#13634 for the full signal-source rationale.
+    # Runs every test tagged post-install -- includes the version-
+    # display check (previously isolated into its own version-display
+    # group; Item 2 of the post-8.4.0 acceptance-surface refactor
+    # collapses that workaround because ACCEPTANCE_EXPECTED_VERSION
+    # is set at every step now, not only the version-check steps).
     # EXPECTED_VERSION rather than TO_VERSION because the label and
     # the shipped self-reported version diverge on build_locally
     # (label=99.99.99, tree=version.php); see openemr/openemr#13753.
-    - name: Run version-display check (fresh-install, expect ${{ env.EXPECTED_VERSION }})
+    - name: Run post-install acceptance suite (fresh-install of to_version)
       if: matrix.scenario == 'fresh-install'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=version-display
+      run: composer acceptance -- --group=post-install
 
-    # api-enable bootstrap fires AFTER the fresh-install group. Order
-    # matters: OAuth2SmokeTest's fresh-install-tagged assertions verify
+    # api-enable bootstrap fires AFTER the post-install group. Order
+    # matters: OAuth2SmokeTest's post-install-tagged assertions verify
     # the API-disabled 404 gate that ships by default; the bootstrap
-    # then flips those globals so the api-enabled group can assert the
-    # opposite behavior (endpoints return 200 with real content).
+    # then flips those globals so the api-enabled-post-install group
+    # can assert the opposite behavior (endpoints return 200 with real
+    # content). VersionApiAcceptanceTest is in api-enabled-post-install
+    # too now (previously version-api workaround group).
     - name: Bootstrap API via admin panel
       if: matrix.scenario == 'fresh-install'
       env:
         OPENEMR_ENABLE_API_BOOTSTRAP: '1'
       run: php tests/Acceptance/bin/api-enable.php
 
-    - name: Run acceptance suite (api-enabled of to_version)
-      if: matrix.scenario == 'fresh-install'
-      run: composer acceptance -- --group=api-enabled
-
-    # Version-api check: /api/version returns EXPECTED_VERSION. Own
-    # group for the same reason as version-display above (avoid
-    # leaking into acceptance-docker.yml's api-enabled invocation).
-    - name: Run version-api check (fresh-install, expect ${{ env.EXPECTED_VERSION }})
+    - name: Run api-enabled-post-install acceptance suite (fresh-install of to_version)
       if: matrix.scenario == 'fresh-install'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=version-api
+      run: composer acceptance -- --group=api-enabled-post-install
 
     # ==== wizard-install scenario ====
     # Boots the artifact WITHOUT running install-helper.php so the
@@ -629,19 +619,24 @@ jobs:
     # redirects to login). Covers what Phase 3's CLI install path
     # bypasses: setup.php's browser-facing state machine, form
     # rendering, CSRF, cookie-based state.
+    #
+    # Only the wizard-specific group runs -- attempting to OR-sum
+    # post-install here breaks because the wizard install path
+    # doesn't seed the same default fixtures install-helper.php does
+    # (facilities, providers, sample patients, session state), so
+    # the business tests hit missing-state / 500-response failures.
+    # Achieving fixture parity between wizard-install and install-
+    # helper is out of scope for Item 2; captured as follow-up in
+    # the plan doc.
     - name: Boot tarball artifact (to_version, no install-helper)
       if: matrix.scenario == 'wizard-install'
       run: tests/Acceptance/bin/boot-package.sh --skip-install-helper ${{ steps.bootflags.outputs.to_local_flag }} "${TO_VERSION}"
 
-    - name: Run acceptance suite (wizard-install of to_version)
-      if: matrix.scenario == 'wizard-install'
-      run: composer acceptance -- --group=wizard-install
-
-    - name: Run version-display check (wizard-install, expect ${{ env.EXPECTED_VERSION }})
+    - name: Run wizard-completed-post-install acceptance suite (wizard-install of to_version)
       if: matrix.scenario == 'wizard-install'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=version-display
+      run: composer acceptance -- --group=wizard-completed-post-install
 
     # ==== upgrade scenario ====
     # from_version is always the shipped GitHub-release tarball (no
@@ -662,40 +657,34 @@ jobs:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
       run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
 
-    - name: Run acceptance suite (fresh-install of from_version)
-      if: matrix.scenario == 'upgrade'
-      run: composer acceptance -- --group=fresh-install
-
-    # Pre-upgrade the artifact is running FROM_VERSION; the
-    # version-display check at this step asserts against that.
-    - name: Run version-display check (pre-upgrade, expect ${{ env.FROM_VERSION }})
+    # Runs post-install group against from_version. VersionDisplay
+    # asserts against FROM_VERSION here because the artifact IS on
+    # from_version until upgrade fires; the persistence tests seed
+    # their post-install fixtures at this step (matching post-upgrade
+    # methods will assert those fixtures survived the upgrade).
+    - name: Run post-install acceptance suite (fresh-install of from_version)
       if: matrix.scenario == 'upgrade'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
-      run: composer acceptance -- --group=version-display
+      run: composer acceptance -- --group=post-install
 
     - name: Upgrade from_version -> to_version
       if: matrix.scenario == 'upgrade'
       run: tests/Acceptance/bin/upgrade-package.sh ${{ steps.bootflags.outputs.to_upgrade_local_flag }} "${FROM_VERSION}" "${TO_VERSION}"
 
-    - name: Run post-upgrade suite against to_version
-      if: matrix.scenario == 'upgrade'
-      run: composer acceptance -- --group=post-upgrade
-
-    # Post-upgrade the artifact is running EXPECTED_VERSION;
-    # version-display check asserts against that. See the
-    # fresh-install version-display block above for why the label
-    # (TO_VERSION) is not the right signal on build_locally.
-    - name: Run version-display check (post-upgrade, expect ${{ env.EXPECTED_VERSION }})
+    # Post-upgrade group. VersionDisplay is in this group too, asserts
+    # against EXPECTED_VERSION. Persistence tests' post-upgrade methods
+    # verify the fixtures seeded during the fresh-install-of-from step
+    # above survived the migration.
+    - name: Run post-upgrade acceptance suite against to_version
       if: matrix.scenario == 'upgrade'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=version-display
+      run: composer acceptance -- --group=post-upgrade
 
-    # api-enable bootstrap fires AFTER post-upgrade so both the
-    # api-enabled group (ApiSmokeTest + OAuth2ApiEnabledTest) and the
-    # separately-invoked version-api group (VersionApiAcceptanceTest,
-    # its own step below) can assert their contract against the
+    # api-enable bootstrap fires AFTER post-upgrade so the
+    # api-enabled-post-upgrade group (ApiSmokeTest, OAuth2ApiEnabledTest,
+    # VersionApiAcceptanceTest) can assert their contract against the
     # upgraded artifact. Symmetric with the fresh-install scenario's
     # api-enable ordering: pre-bootstrap tests verify API-disabled
     # state (OAuth2SmokeTest's post-upgrade-tagged assertions), post-
@@ -710,15 +699,11 @@ jobs:
         OPENEMR_ENABLE_API_BOOTSTRAP: '1'
       run: php tests/Acceptance/bin/api-enable.php
 
-    - name: Run acceptance suite (api-enabled of to_version, post-upgrade)
-      if: matrix.scenario == 'upgrade'
-      run: composer acceptance -- --group=api-enabled
-
-    - name: Run version-api check (post-upgrade, expect ${{ env.EXPECTED_VERSION }})
+    - name: Run api-enabled-post-upgrade acceptance suite (api-enabled of to_version, post-upgrade)
       if: matrix.scenario == 'upgrade'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=version-api
+      run: composer acceptance -- --group=api-enabled-post-upgrade
 
     # ==== wizard-upgrade scenario ====
     # Boots the from-version normally (install-helper.php runs, DB
@@ -728,6 +713,11 @@ jobs:
     # upgrade script yet" state. UpgradeWizardUiTest then drives
     # sql_upgrade.php via Panther end-to-end (form load → version
     # select → submit → verify / redirects to login).
+    #
+    # Only the wizard-specific group runs -- same fixture-parity
+    # reason as wizard-install above (initial Item 2 iteration
+    # attempted to OR-sum post-upgrade too, CI surfaced business-
+    # test failures under the wizard-path state; reverted).
     - name: Boot tarball artifact (from_version)
       if: matrix.scenario == 'wizard-upgrade'
       # Same override as the upgrade scenario's from-side boot: the DB
@@ -740,15 +730,13 @@ jobs:
       if: matrix.scenario == 'wizard-upgrade'
       run: tests/Acceptance/bin/upgrade-package.sh --skip-sql-upgrade ${{ steps.bootflags.outputs.to_upgrade_local_flag }} "${FROM_VERSION}" "${TO_VERSION}"
 
-    - name: Run acceptance suite (wizard-upgrade)
-      if: matrix.scenario == 'wizard-upgrade'
-      run: composer acceptance -- --group=wizard-upgrade
-
-    - name: Run version-display check (wizard-upgrade, expect ${{ env.EXPECTED_VERSION }})
+    # Only the wizard-specific group runs -- same fixture-parity
+    # reason as wizard-install above.
+    - name: Run wizard-completed-post-upgrade acceptance suite (wizard-upgrade)
       if: matrix.scenario == 'wizard-upgrade'
       env:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=version-display
+      run: composer acceptance -- --group=wizard-completed-post-upgrade
 
     # ==== debug + teardown (all scenarios) ====
     - name: Capture container state (on failure)

@@ -60,7 +60,8 @@ use PHPUnit\Framework\TestCase;
  * follow-up. Runs only after `api-enable.php` has flipped the
  * `rest_api` global (workflow ordering).
  */
-#[Group('version-api')]
+#[Group('api-enabled-post-install')]
+#[Group('api-enabled-post-upgrade')]
 final class VersionApiAcceptanceTest extends TestCase
 {
     /**
@@ -77,6 +78,12 @@ final class VersionApiAcceptanceTest extends TestCase
 
     public function testVersionEndpointReturnsExpectedVersion(): void
     {
+        // Skip cleanly when the env isn't set -- see
+        // VersionDisplayAcceptanceTest for the acceptance-docker.yml
+        // floating-tag rationale. Tarball workflow always sets it.
+        if (!AcceptanceContext::hasExpectedVersion()) {
+            self::markTestSkipped('ACCEPTANCE_EXPECTED_VERSION not set -- expected in contexts without version resolution (e.g., acceptance-docker.yml floating-tag runs until Item 4 lands).');
+        }
         $expected = AcceptanceContext::expectedVersion();
 
         $browser = ArtifactBrowser::create();

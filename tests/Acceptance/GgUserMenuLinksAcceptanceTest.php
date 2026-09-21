@@ -51,7 +51,7 @@ use PHPUnit\Framework\Attributes\Group;
  * stack unchanged — this class is purely additive against the release
  * artifact.
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 #[Group('post-upgrade')]
 final class GgUserMenuLinksAcceptanceTest extends PantherAcceptanceTestCase
 {
