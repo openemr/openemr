@@ -554,6 +554,102 @@ class PasswordGrantHardeningTest extends TestCase
         }
     }
 
+    public function testMfaBlockUserWindowExpiryDoesNotReleaseActiveIpLockout(): void
+    {
+        // Rabbit finding: when the user counter's reset window elapses
+        // isMfaChallengeBlocked previously reset BOTH counters and
+        // returned false — silently releasing a still-active IP
+        // lockout that had an independently-fresh timestamp. Each
+        // window must reset only its own counter and fall through so
+        // an active lockout on the other axis stays engaged.
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
+
+        $globals = OEGlobalsBag::getInstance();
+        $originalUserMax = $globals->getInt('password_max_failed_logins');
+        $originalUserWindow = $globals->getInt('time_reset_password_max_failed_logins');
+        $originalIpMax = $globals->getInt('ip_max_failed_logins');
+        $originalIpWindow = $globals->getInt('ip_time_reset_password_max_failed_logins');
+
+        try {
+            $globals->set('password_max_failed_logins', 3);
+            $globals->set('time_reset_password_max_failed_logins', 60);
+            $globals->set('ip_max_failed_logins', 3);
+            $globals->set('ip_time_reset_password_max_failed_logins', 60);
+
+            // User over threshold with a STALE timestamp (past the
+            // window) — user gate should clear its counter and fall
+            // through. IP over threshold with a FRESH timestamp
+            // (inside window) — IP gate must still block.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users_secure` SET `mfa_fail_counter` = 5, "
+                    . "`mfa_last_fail` = DATE_SUB(NOW(), INTERVAL 120 SECOND) "
+                    . "WHERE BINARY `username` = ?",
+                ['admin']
+            );
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`, `mfa_last_login_fail`) "
+                    . "VALUES (?, 5, NOW()) ON DUPLICATE KEY UPDATE "
+                    . "`mfa_login_fail_counter` = 5, `mfa_last_login_fail` = NOW()",
+                [$this->clientIp]
+            );
+
+            $auth = new AuthUtils();
+            $this->assertTrue(
+                $auth->isMfaChallengeBlocked('admin', $this->clientIp),
+                'IP lockout with fresh failure must stay engaged even when user window expires'
+            );
+            $this->assertSame(
+                0,
+                $this->readMfaUserCounter('admin'),
+                'Stale user counter must be zeroed by its window expiry'
+            );
+            $this->assertSame(
+                5,
+                $this->readMfaIpCounter($this->clientIp),
+                'Active IP counter must NOT be zeroed by the user window expiry'
+            );
+
+            // Now flip the axes: IP over threshold with stale
+            // timestamp; user over threshold with fresh timestamp.
+            // User gate must block; IP counter should get cleared as
+            // we walk past its check but only because we fall through
+            // to the return (in this arrangement we return true from
+            // the user gate before touching the IP gate).
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users_secure` SET `mfa_fail_counter` = 5, "
+                    . "`mfa_last_fail` = NOW() "
+                    . "WHERE BINARY `username` = ?",
+                ['admin']
+            );
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `ip_tracking` SET `mfa_login_fail_counter` = 5, "
+                    . "`mfa_last_login_fail` = DATE_SUB(NOW(), INTERVAL 120 SECOND) "
+                    . "WHERE `ip_string` = ?",
+                [$this->clientIp]
+            );
+            $this->assertTrue(
+                $auth->isMfaChallengeBlocked('admin', $this->clientIp),
+                'User lockout with fresh failure must stay engaged even when IP window expires'
+            );
+            $this->assertSame(
+                5,
+                $this->readMfaUserCounter('admin'),
+                'Active user counter must NOT be zeroed by the IP window expiry'
+            );
+            $this->assertSame(
+                5,
+                $this->readMfaIpCounter($this->clientIp),
+                'IP counter reset is only reachable when the user gate falls through'
+            );
+        } finally {
+            $globals->set('password_max_failed_logins', $originalUserMax);
+            $globals->set('time_reset_password_max_failed_logins', $originalUserWindow);
+            $globals->set('ip_max_failed_logins', $originalIpMax);
+            $globals->set('ip_time_reset_password_max_failed_logins', $originalIpWindow);
+        }
+    }
+
     public function testPasswordGrantRejectsReplayedTotpCodeWithinAcceptanceWindow(): void
     {
         // TOTP replay protection: RobThree TwoFactorAuth accepts codes for

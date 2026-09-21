@@ -1416,12 +1416,16 @@ class AuthUtils
                     ? (int) $row['seconds_last_fail']
                     : 0;
                 if ($userWindow > 0 && $seconds > $userWindow) {
-                    // Reset window has elapsed since the last failure;
-                    // clear both counters and let this attempt through.
-                    self::resetMfaChallengeCounters($username, $ipString);
-                    return false;
+                    // User reset window has elapsed. Clear ONLY the
+                    // user counter and fall through — the IP counter
+                    // may still be independently over its own
+                    // threshold with a fresh timestamp, and blindly
+                    // clearing it here would silently release an
+                    // active IP lockout.
+                    self::resetMfaChallengeCounters($username, '');
+                } else {
+                    return true;
                 }
-                return true;
             }
         }
         $ipMax = OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins');
@@ -1441,10 +1445,13 @@ class AuthUtils
                     ? (int) $row['seconds_last_fail']
                     : 0;
                 if ($ipWindow > 0 && $seconds > $ipWindow) {
-                    self::resetMfaChallengeCounters($username, $ipString);
-                    return false;
+                    // Same isolation as above — only reset the IP
+                    // counter, so an unrelated active user lockout
+                    // isn't cleared as a side effect.
+                    self::resetMfaChallengeCounters(null, $ipString);
+                } else {
+                    return true;
                 }
-                return true;
             }
         }
         return false;
