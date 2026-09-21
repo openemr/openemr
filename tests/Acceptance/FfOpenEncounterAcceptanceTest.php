@@ -45,7 +45,7 @@ use PHPUnit\Framework\Attributes\Group;
  *
  * Dual-tagged fresh-install + post-upgrade from the start.
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 #[Group('post-upgrade')]
 final class FfOpenEncounterAcceptanceTest extends PantherAcceptanceTestCase
 {
