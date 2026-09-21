@@ -186,97 +186,73 @@ class AuthUtils
             return false;
         }
 
+        // Every post-gate rejection below must bump the per-IP counter
+        // exactly once via $rejectPortalAttempt so that username /
+        // email guessing paths (unknown user, disabled account, email
+        // mismatch, invalid hash, ...) engage the same rate limit
+        // that the "wrong password" branch already does. Without this
+        // an attacker can iterate portal_login_username values or
+        // enforce_signin_email addresses indefinitely with zero
+        // lockout progress against the IP.
+        $rejectPortalAttempt = function (string $reason, mixed $patientPid = null) use ($ip, $event, $username, $beginLog, &$password): bool {
+            $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            $normalizedPid = is_numeric($patientPid) ? (int) $patientPid : null;
+            EventAuditLogger::getInstance()->newEvent(
+                $event,
+                $username,
+                '',
+                0,
+                $beginLog . ": " . $ip['ip_string'] . ". " . $reason,
+                $normalizedPid
+            );
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        };
+
         // Perform checks from patient_access_onsite
         $getPatientSQL = "select `id`, `pid`, `portal_username`, `portal_login_username`, `portal_pwd`, `portal_pwd_status`, `portal_onetime`  from `patient_access_onsite` where BINARY `portal_login_username` = ?";
         $patientInfo = privQuery($getPatientSQL, [$username]);
         if (empty($patientInfo) || empty($patientInfo['id']) || empty($patientInfo['pid'])) {
-            // Patient portal information not found
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient portal information not found", $patientInfo['pid']);
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient portal information not found');
         } elseif (empty($patientInfo['portal_username']) || empty($patientInfo['portal_login_username']) || empty($patientInfo['portal_pwd'])) {
-            // Patient missing username, login username, or password
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient missing username, login username, or password", $patientInfo['pid']);
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient missing username, login username, or password', $patientInfo['pid']);
         } elseif (!empty($patientInfo['portal_onetime'])) {
-            // Patient onetime is set, so still in process of verifying account
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient account not yet verified (portal_onetime set)", $patientInfo['pid']);
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient account not yet verified (portal_onetime set)', $patientInfo['pid']);
         } elseif ($patientInfo['portal_pwd_status'] != 1) {
-            // Patient portal_pwd_status is not 1, so still in process of verifying account
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient account not yet verified (portal_pwd_status is not 1)", $patientInfo['pid']);
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient account not yet verified (portal_pwd_status is not 1)', $patientInfo['pid']);
         }
 
         // Perform checks from patient_data
         $getPatientDataSQL = "select `pid`, `email`, `allow_patient_portal` FROM `patient_data` WHERE `pid` = ?";
         $patientDataInfo = privQuery($getPatientDataSQL, [$patientInfo['pid']]);
         if (empty($patientDataInfo) || empty($patientDataInfo['pid'])) {
-            // Patient not found
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient not found");
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient not found');
         } elseif ($patientDataInfo['allow_patient_portal'] != "YES") {
-            // Patient does not permit portal access
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient does not permit portal access", $patientDataInfo['pid']);
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient does not permit portal access', $patientDataInfo['pid']);
         } elseif (OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')) {
-            // Need to enforce email in credentials
             if (empty($email)) {
-                // Patient email was not included in credentials
-                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient email was not included in credentials", $patientDataInfo['pid']);
-                $this->clearFromMemory($password);
-                $this->preventTimingAttack();
-                return false;
+                return $rejectPortalAttempt('patient email was not included in credentials', $patientDataInfo['pid']);
             } elseif (empty($patientDataInfo['email'])) {
-                // Patient email missing from demographics
-                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient does not have an email in demographics", $patientDataInfo['pid']);
-                $this->clearFromMemory($password);
-                $this->preventTimingAttack();
-                return false;
+                return $rejectPortalAttempt('patient does not have an email in demographics', $patientDataInfo['pid']);
             } elseif ($patientDataInfo['email'] != $email) {
-                // Email not correct
-                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient email not correct", $patientDataInfo['pid']);
-                $this->clearFromMemory($password);
-                $this->preventTimingAttack();
-                return false;
+                return $rejectPortalAttempt('patient email not correct', $patientDataInfo['pid']);
             }
         }
 
         // This error should never happen, but still gotta check for it
         if ($patientInfo['pid'] != $patientDataInfo['pid']) {
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient pid comparison with very unusual error");
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient pid comparison with very unusual error');
         }
 
         // Authentication
         // First, ensure the user hash is a valid hash
         if (!AuthHash::hashValid($patientInfo['portal_pwd'])) {
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient stored password hash is invalid", $patientDataInfo['pid']);
-            $this->clearFromMemory($password);
-            $this->preventTimingAttack();
-            return false;
+            return $rejectPortalAttempt('patient stored password hash is invalid', $patientDataInfo['pid']);
         }
         // Second, authentication
         if (!AuthHash::passwordVerify($password, $patientInfo['portal_pwd'])) {
-            // Failed password: count against the per-IP counter so
-            // repeated guesses trip the block set up at the top.
-            $this->incrementIpLoginFailedCounter($ip['ip_string']);
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient password incorrect", $patientDataInfo['pid']);
-            $this->clearFromMemory($password);
-            return false;
+            return $rejectPortalAttempt('patient password incorrect', $patientDataInfo['pid']);
         }
 
         // Check for rehash

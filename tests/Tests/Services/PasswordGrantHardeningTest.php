@@ -834,6 +834,67 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
+    public function testPortalPasswordGrantIncrementsIpCounterOnUsernameGuess(): void
+    {
+        // Rabbit finding: confirmPatientPassword only bumped the IP
+        // counter on empty-cred / wrong-password / block-gate branches.
+        // Unknown username / email-mismatch paths returned false with
+        // zero rate-limit progress — an attacker could iterate portal
+        // usernames or (with enforce_signin_email) emails against a
+        // known password forever without the block gate engaging.
+        // Every post-gate rejection must now increment.
+        $ipString = $this->clientIp;
+        $this->snapshotIpTracking($ipString);
+        $before = $this->readIpCounter($ipString);
+
+        $auth = new AuthUtils('portal-api');
+        $unknownUser = 'nonexistent-portal-user-' . Uuid::uuid4()->toString();
+        $anyPassword = 'any-password';
+        $ok = $auth->confirmPassword($unknownUser, $anyPassword, 'noone@example.invalid');
+        $this->assertFalse($ok, 'Unknown portal user must not authenticate');
+
+        $this->assertGreaterThan(
+            $before,
+            $this->readIpCounter($ipString),
+            'Unknown-user rejection must count against the per-IP fail counter '
+                . '(otherwise username enumeration has no rate limit)'
+        );
+    }
+
+    public function testPortalPasswordGrantIncrementsIpCounterOnEmailMismatch(): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+        $originalEnforceEmail = $globals->getBoolean('enforce_signin_email');
+        try {
+            $globals->set('enforce_signin_email', true);
+            $fixture = $this->portalFixtures()->installPortalPatient(
+                portalLoginUsername: 'test-portal-user-email-' . Uuid::uuid4()->toString(),
+                plainPassword: 'CorrectPortalPassword1!'
+            );
+
+            $ipString = $this->clientIp;
+            $this->snapshotIpTracking($ipString);
+            $before = $this->readIpCounter($ipString);
+
+            $auth = new AuthUtils('portal-api');
+            $rightPassword = $fixture['plain_password'];
+            $ok = $auth->confirmPassword(
+                $fixture['portal_login_username'],
+                $rightPassword,
+                'wrong-email@example.invalid'
+            );
+            $this->assertFalse($ok, 'Email mismatch must not authenticate');
+
+            $this->assertGreaterThan(
+                $before,
+                $this->readIpCounter($ipString),
+                'Email-mismatch rejection must count against the per-IP fail counter'
+            );
+        } finally {
+            $globals->set('enforce_signin_email', $originalEnforceEmail);
+        }
+    }
+
     public function testPortalPasswordGrantResetsIpCounterOnSuccess(): void
     {
         // Legit patient traffic (typos, several patients behind the same NAT

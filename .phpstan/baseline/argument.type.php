@@ -27322,11 +27322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$patient_id of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects int\\|null, mixed given\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$appId of class u2flib_server\\\\U2F constructor expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
