@@ -201,6 +201,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
         $codeConcept = $json['code'] ?? null;
         $codings = FhirPayloadReader::codings($codeConcept);
         $primaryDisplay = null;
+        $sawCode = false;
         foreach ($codings as $coding) {
             $system = $coding['system'] ?? '';
             $code = FhirPayloadReader::getString($coding, 'code');
@@ -208,27 +209,49 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
             if ($primaryDisplay === null && $display !== null) {
                 $primaryDisplay = $display;
             }
+            if ($code !== null) {
+                $sawCode = true;
+            }
             if (
-                $system === 'http://www.nlm.nih.gov/research/umls/rxnorm'
+                $system === FhirCodeSystemConstants::RXNORM
                 && $code !== null
                 && !isset($data['drug_code'])
             ) {
                 $data['drug_code'] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $code);
             }
         }
-        // Fall back: first coding with any code value if no RxNorm found
+        // Fall back to the first coding whose system OpenEMR recognises. An unrecognised or
+        // absent system is skipped rather than stored: getOpenEMRCodeForSystemAndCode() answers
+        // the bare code in that case, and `drugs`.`drug_code` is read back through
+        // CodeTypesService, which derives the system from the TYPE: prefix. A bare value has no
+        // prefix, so the code would return under a system the caller never sent -- the server
+        // asserting a provenance it was not given.
         if (!isset($data['drug_code'])) {
             foreach ($codings as $coding) {
                 $fallbackCode = FhirPayloadReader::getString($coding, 'code');
-                if ($fallbackCode !== null) {
-                    $fallbackSystem = $coding['system'] ?? null;
-                    $data['drug_code'] = $codeTypesService->getOpenEMRCodeForSystemAndCode(
-                        is_string($fallbackSystem) ? $fallbackSystem : null,
-                        $fallbackCode
-                    );
+                if ($fallbackCode === null) {
+                    continue;
+                }
+                $fallbackSystem = $coding['system'] ?? null;
+                $qualified = self::qualifiedCode(
+                    $codeTypesService,
+                    is_string($fallbackSystem) ? $fallbackSystem : null,
+                    $fallbackCode
+                );
+                if ($qualified !== null) {
+                    $data['drug_code'] = $qualified;
                     break;
                 }
             }
+        }
+        // Codings were supplied and none could be qualified. Refused rather than stored
+        // code-less: Medication.code is what identifies the drug, and a 201 for a medication
+        // whose code was dropped tells the caller it was recorded. code.text alone is still
+        // accepted -- that claims no code system, so there is nothing to misattribute.
+        if ($sawCode && !isset($data['drug_code'])) {
+            $data['__validation_error__'] = 'Medication.code.coding carries no system OpenEMR '
+                . 'recognises, so the code cannot be stored without misattributing it';
+            $data['__validation_field__'] = 'code';
         }
         $codeText = FhirPayloadReader::getString($codeConcept, 'text');
         if ($primaryDisplay !== null) {
@@ -262,10 +285,49 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
     }
 
     /**
+     * The stored TYPE:CODE form, or null when the system is absent or unknown to OpenEMR.
+     *
+     * getOpenEMRCodeForSystemAndCode() answers the bare code for an unrecognised system, which
+     * is indistinguishable on read from a code whose type was simply never recorded. Callers use
+     * null to mean "cannot be represented" rather than storing something the reader will
+     * mislabel.
+     */
+    private static function qualifiedCode(CodeTypesService $codeTypesService, ?string $system, string $code): ?string
+    {
+        if ($system === null || $system === '') {
+            return null;
+        }
+        $stored = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $code);
+
+        return str_contains($stored, ':') ? $stored : null;
+    }
+
+    /**
+     * @param array<array-key, mixed> $record
+     */
+    private static function validationErrorFor(array $record): ?ProcessingResult
+    {
+        $message = $record['__validation_error__'] ?? null;
+        if (!is_string($message) || $message === '') {
+            return null;
+        }
+        $field = $record['__validation_field__'] ?? 'code';
+        $result = new ProcessingResult();
+        $result->setValidationMessages([is_string($field) ? $field : 'code' => $message]);
+
+        return $result;
+    }
+
+    /**
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        $validationError = is_array($openEmrRecord) ? self::validationErrorFor($openEmrRecord) : null;
+        if ($validationError !== null) {
+            return $validationError;
+        }
+
         return $this->medicationService->insert(FhirPayloadReader::stringKeyed($openEmrRecord));
     }
 
@@ -275,6 +337,11 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
+        $validationError = self::validationErrorFor($updatedOpenEMRRecord);
+        if ($validationError !== null) {
+            return $validationError;
+        }
+
         return $this->medicationService->update(
             $fhirResourceId,
             FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)

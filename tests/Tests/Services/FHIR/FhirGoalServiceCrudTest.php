@@ -133,6 +133,36 @@ class FhirGoalServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testInsertWithUnknownDescriptionCodeSystemIsRejected(): void
+    {
+        // As in Medication and CarePlan: a description coding whose system OpenEMR cannot map
+        // would read back under a system the caller never sent, so the write is refused.
+        // description.text stays, which alone satisfies Goal.description (1..1) -- the refusal
+        // has to come from the coding, not from a missing description.
+        $payload = $this->fhirGoalFixture->jsonSerialize();
+        $description = $payload['description'] ?? [];
+        $this->assertIsArray($description);
+        $coding = $description['coding'] ?? [];
+        $this->assertIsArray($coding);
+        $this->assertArrayHasKey(0, $coding);
+        $this->assertIsArray($coding[0]);
+        $coding[0]['system'] = 'http://example.org/not-a-code-system-openemr-knows';
+        $description['coding'] = $coding;
+        $payload['description'] = $description;
+        $fixture = new FHIRGoal($payload);
+
+        $result = $this->fhirGoalService->insert($fixture);
+        $this->assertFalse(
+            $result->isValid(),
+            'A description coding with an unmappable system should be refused, not stored bare'
+        );
+        $this->assertSame([], $result->getData());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('description', $messages);
+    }
+
+    #[Test]
     public function testInsertWithUnresolvableSubject(): void
     {
         // getUnregisteredUuid(), not UuidRegistry::createUuid(): createUuid() inserts a

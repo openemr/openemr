@@ -827,10 +827,22 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             if ($coding !== []) {
                 $codeValue = FhirPayloadReader::getString($coding, 'code');
                 if ($codeValue !== null) {
-                    $item['code'] = $this->prefixCodeForStorage(
+                    $storedCode = $this->prefixCodeForStorage(
                         FhirPayloadReader::getString($coding, 'system') ?? '',
                         $codeValue
                     );
+                    if ($storedCode === null) {
+                        // Marker plus continue, matching the activity.reference rejection above:
+                        // the marker is what insertOpenEMRRecord()/updateOpenEMRRecord() turn
+                        // into the validation response, so the whole write is refused either way.
+                        $data['__validation_error__'] = [
+                            'activity' => 'CarePlan.activity.detail.code.coding carries no system '
+                                . 'OpenEMR recognises, so the code cannot be stored without '
+                                . 'misattributing it',
+                        ];
+                        continue;
+                    }
+                    $item['code'] = $storedCode;
                 }
                 $display = $coding['display'] ?? $detailCodeText;
                 if (is_string($display)) {
@@ -1051,13 +1063,22 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * OpenEMR's form_care_plan.code column stores codes prefixed by code-type
-     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService,
-     * so the write side resolves the system URL through the same service to stay
-     * in sync with the supported code systems.
+     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService, so the write
+     * side resolves the system URL through the same service to stay in sync.
+     *
+     * Returns null when the system is absent or unknown to OpenEMR:
+     * getOpenEMRCodeForSystemAndCode() answers the bare code in that case, which the reader
+     * cannot tell from a code whose type was never recorded, so it would come back under a
+     * system the caller never sent. Callers reject rather than store that.
      */
-    private function prefixCodeForStorage(string $system, string $code): string
+    private function prefixCodeForStorage(string $system, string $code): ?string
     {
-        return (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
+        if ($system === '') {
+            return null;
+        }
+        $stored = (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
+
+        return str_contains($stored, ':') ? $stored : null;
     }
 
     /**

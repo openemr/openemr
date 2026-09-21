@@ -79,6 +79,38 @@ class FhirMedicationServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testInsertWithUnknownCodeSystemIsRejected(): void
+    {
+        // A coding whose system OpenEMR cannot map has no TYPE: prefix to store it under, and
+        // the read side derives the FHIR system from that prefix -- so storing the bare code
+        // would hand it back claiming a system the caller never sent. The write is refused
+        // instead. code.text is left in place: text asserts no code system, so accepting it
+        // misattributes nothing, and this proves the refusal comes from the coding.
+        $payload = $this->fhirMedicationFixture->jsonSerialize();
+        unset($payload['id']);
+        $code = $payload['code'] ?? [];
+        $this->assertIsArray($code);
+        $coding = $code['coding'] ?? [];
+        $this->assertIsArray($coding);
+        $this->assertArrayHasKey(0, $coding);
+        $this->assertIsArray($coding[0]);
+        $coding[0]['system'] = 'http://example.org/not-a-code-system-openemr-knows';
+        $code['coding'] = $coding;
+        $payload['code'] = $code;
+        $fixture = new FHIRMedication($payload);
+
+        $processingResult = $this->fhirMedicationService->insert($fixture);
+        $this->assertFalse(
+            $processingResult->isValid(),
+            'A coding with an unmappable system should be refused, not stored as a bare code'
+        );
+        $this->assertSame([], $processingResult->getData());
+        $messages = $processingResult->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('code', $messages);
+    }
+
+    #[Test]
     public function testUpdate(): void
     {
         $this->fhirMedicationFixture->setId(new FHIRId());

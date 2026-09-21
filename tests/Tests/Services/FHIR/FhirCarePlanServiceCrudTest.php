@@ -136,6 +136,43 @@ class FhirCarePlanServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testInsertWithUnknownActivityCodeSystemIsRejected(): void
+    {
+        // As in Medication: an activity detail code whose system OpenEMR cannot map has no
+        // TYPE: prefix to store it under, so it would read back under a system the caller
+        // never sent. The whole write is refused rather than the activity silently dropped --
+        // dropping one would let a create store fewer activities than were sent and still
+        // answer 201.
+        $this->fhirCarePlanFixture->setId(new FHIRId());
+        $payload = $this->fhirCarePlanFixture->jsonSerialize();
+        $activities = $payload['activity'] ?? [];
+        $this->assertIsArray($activities);
+        $this->assertArrayHasKey(0, $activities);
+        $this->assertIsArray($activities[0]);
+        $detail = $activities[0]['detail'] ?? [];
+        $this->assertIsArray($detail);
+        $code = $detail['code'] ?? [];
+        $this->assertIsArray($code);
+        $coding = $code['coding'] ?? [];
+        $this->assertIsArray($coding);
+        $this->assertArrayHasKey(0, $coding);
+        $this->assertIsArray($coding[0]);
+        $coding[0]['system'] = 'http://example.org/not-a-code-system-openemr-knows';
+        $code['coding'] = $coding;
+        $detail['code'] = $code;
+        $activities[0]['detail'] = $detail;
+        $payload['activity'] = $activities;
+        $fixture = new FHIRCarePlan($payload);
+
+        $processingResult = $this->fhirCarePlanService->insert($fixture);
+        $this->assertFalse(
+            $processingResult->isValid(),
+            'An activity code with an unmappable system should be refused, not stored bare'
+        );
+        $this->assertSame([], $processingResult->getData());
+    }
+
+    #[Test]
     public function testInsertWithUnresolvableSubject(): void
     {
         // getUnregisteredUuid(), not UuidRegistry::createUuid(): createUuid() inserts a

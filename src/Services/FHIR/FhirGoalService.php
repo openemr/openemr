@@ -451,10 +451,17 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $coding = FhirPayloadReader::firstCoding($description);
         $codeValue = FhirPayloadReader::getString($coding, 'code');
         if ($codeValue !== null) {
-            $item['code'] = $this->prefixCodeForStorage(
+            $storedCode = $this->prefixCodeForStorage(
                 FhirPayloadReader::getString($coding, 'system') ?? '',
                 $codeValue
             );
+            if ($storedCode === null) {
+                $data['__validation_error__'] = 'Goal.description.coding carries no system OpenEMR '
+                    . 'recognises, so the code cannot be stored without misattributing it';
+                $data['__validation_field__'] = 'description';
+                return $data;
+            }
+            $item['code'] = $storedCode;
         }
         $display = $coding['display'] ?? null;
         if (is_string($display) && !isset($item['codetext'])) {
@@ -662,14 +669,23 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     }
 
     /**
-     * Mirrors the CarePlan write-side helper for code-system prefixing into the
-     * form_care_plan.code "PREFIX:value" convention used by the read side.
-     * Resolves the system URL through CodeTypesService so the supported code
-     * systems stay in sync with the read side.
+     * OpenEMR's form_care_plan.code column stores codes prefixed by code-type
+     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService, so the write
+     * side resolves the system URL through the same service to stay in sync.
+     *
+     * Returns null when the system is absent or unknown to OpenEMR:
+     * getOpenEMRCodeForSystemAndCode() answers the bare code in that case, which the reader
+     * cannot tell from a code whose type was never recorded, so it would come back under a
+     * system the caller never sent. Callers reject rather than store that.
      */
-    private function prefixCodeForStorage(string $system, string $code): string
+    private function prefixCodeForStorage(string $system, string $code): ?string
     {
-        return (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
+        if ($system === '') {
+            return null;
+        }
+        $stored = (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
+
+        return str_contains($stored, ':') ? $stored : null;
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)
