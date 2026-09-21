@@ -186,10 +186,15 @@ class MfaUtils
             $secret = null;
         }
         if (empty($secret)) {
-            // Second, try the password hash, which was setup during install and is temporary
-            $passwordResults = privQuery(
-                "SELECT password FROM users_secure WHERE username = ?",
-                [$_POST["authUser"]]
+            // Second, try the password hash, which was setup during install and is temporary.
+            // Look up by uid (authoritative for this MfaUtils instance) rather
+            // than $_POST['authUser']; the OAuth2 password grant posts the
+            // field as 'username', so the superglobal read would come back
+            // empty for password-grant callers and users with legacy-encrypted
+            // TOTP secrets could not complete the grant.
+            $passwordResults = QueryUtils::querySingleRow(
+                "SELECT `password` FROM `users_secure` WHERE `id` = ?",
+                [$this->uid]
             );
             if (!empty($passwordResults["password"])) {
                 $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
