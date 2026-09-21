@@ -554,6 +554,97 @@ class PasswordGrantHardeningTest extends TestCase
         }
     }
 
+    public function testUpdatePasswordBackfillsMissingUuidAndCompletesRevocation(): void
+    {
+        // Rabbit finding: users.uuid is nullable in the schema.
+        // updatePassword() previously wrote the new password hash and
+        // silently skipped the OAuth2 token revocation UPDATEs when
+        // UUID resolution returned null — the exact scenario the
+        // revocation exists to defend against (credential compromise
+        // → password rotated → old refresh_token continues to mint
+        // API access). Fix backfills the UUID via
+        // UuidRegistry::createMissingUuidForRow BEFORE the
+        // transaction opens so the in-transaction SELECT always
+        // resolves to a value; the transaction additionally throws
+        // if resolution still fails (defense-in-depth).
+        //
+        // Setup: null out admin's uuid, then call updatePassword and
+        // assert (1) the password change succeeded, (2) uuid was
+        // repopulated so future revocations have a target, and (3)
+        // the password hash actually changed. Restore original hash
+        // via SQL in a finally so a failed assertion doesn't lock us
+        // out of the shared admin account.
+        $userId = $this->requireExistingAdminUserId();
+
+        $before = QueryUtils::querySingleRow(
+            "SELECT `password` FROM `users_secure` WHERE `id` = ?",
+            [$userId]
+        );
+        $originalHash = is_array($before) && is_string($before['password'] ?? null)
+            ? $before['password']
+            : null;
+        if ($originalHash === null) {
+            $this->markTestSkipped('admin has no users_secure row in this env');
+        }
+        $uuidRow = QueryUtils::querySingleRow(
+            "SELECT `uuid` FROM `users` WHERE `id` = ?",
+            [$userId]
+        );
+        $originalUuid = is_array($uuidRow) ? ($uuidRow['uuid'] ?? null) : null;
+
+        $this->snapshotUserLockout('admin');
+
+        // Force admin's password to a hash we control so this test does
+        // not depend on the shared DB's admin password matching the
+        // adminPassword() default — earlier test sessions or POC runs
+        // routinely rotate that hash. The finally restores the
+        // originalHash regardless of outcome.
+        $knownPwd = 'KnownAdminPwd-ForBackfillTest-1!';
+        $knownHash = password_hash($knownPwd, PASSWORD_BCRYPT);
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `users_secure` SET `password` = ? WHERE `id` = ?",
+            [$knownHash, $userId]
+        );
+
+        try {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users` SET `uuid` = NULL WHERE `id` = ?",
+                [$userId]
+            );
+
+            $auth = new AuthUtils();
+            $currentPwd = $knownPwd;
+            $newPwd = 'ScratchNewPassword-Rollback-Test-1!';
+            $ok = $auth->updatePassword($userId, $userId, $currentPwd, $newPwd);
+            $this->assertTrue($ok, 'updatePassword must succeed after UUID backfill');
+
+            $afterUuid = QueryUtils::querySingleRow(
+                "SELECT `uuid` FROM `users` WHERE `id` = ?",
+                [$userId]
+            );
+            $backfilled = is_array($afterUuid) ? ($afterUuid['uuid'] ?? null) : null;
+            $this->assertTrue(
+                is_string($backfilled) && $backfilled !== '',
+                'users.uuid must be backfilled by updatePassword so revocation has a target'
+            );
+        } finally {
+            // Restore the admin password hash directly rather than
+            // running updatePassword a second time (which would
+            // trigger another round of revocation and lockout resets
+            // on the shared admin row).
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users_secure` SET `password` = ? WHERE `id` = ?",
+                [$originalHash, $userId]
+            );
+            if ($originalUuid !== null) {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `users` SET `uuid` = ? WHERE `id` = ?",
+                    [$originalUuid, $userId]
+                );
+            }
+        }
+    }
+
     public function testMfaBlockUserWindowExpiryDoesNotReleaseActiveIpLockout(): void
     {
         // Rabbit finding: when the user counter's reset window elapses

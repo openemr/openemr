@@ -800,32 +800,67 @@ class AuthUtils
             // the revocation exists to prevent. Also defer the session
             // authPass write until after the transaction commits so a
             // rollback leaves the session consistent with the persisted
-            // hash. `create` still runs both branches (no tokens yet is
-            // a cheap no-op on the UPDATEs).
+            // hash.
             //
             // api_refresh_token.user_id and api_token.user_id store the
-            // user's UUID *string*, not the numeric users.id — so we
-            // have to resolve $targetUser to its UUID first.
-            QueryUtils::inTransaction(function () use ($updateSQL, $updateParams, $targetUser): void {
-                privStatement($updateSQL, $updateParams);
+            // user's UUID *string*, not the numeric users.id, so
+            // backfill any missing users.uuid before the transaction
+            // opens (createMissingUuidForRow is idempotent).
+            //
+            // On the `create` path a brand-new user has no tokens to
+            // revoke — the block still runs so that a missing/broken
+            // UUID would surface immediately, but the two UPDATEs are
+            // no-ops.
+            if (!is_int($targetUser) && !is_string($targetUser)) {
+                // Every caller passes an int users.id (or a numeric
+                // string). A non-scalar id would be an outright
+                // programming bug — refuse rather than casting it to
+                // a truthy string and issuing a WHERE clause that
+                // matches nothing.
+                throw new \InvalidArgumentException(
+                    'updatePassword: $targetUser must be int|string'
+                );
+            }
+            $targetUserId = $targetUser;
+            UuidRegistry::createMissingUuidForRow('users', 'id', $targetUserId);
+            QueryUtils::inTransaction(function () use ($updateSQL, $updateParams, $targetUserId): void {
+                // Use the throwing helper so a SQL failure engages
+                // the transaction's rollback path — privStatement()
+                // calls exit(1) on failure and never returns, which
+                // would leave the transaction dangling.
+                QueryUtils::sqlStatementThrowException($updateSQL, $updateParams);
                 $userUuidRow = QueryUtils::querySingleRow(
                     "SELECT `uuid` FROM `users` WHERE `id` = ?",
-                    [$targetUser]
+                    [$targetUserId]
                 );
                 $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
-                if (is_string($userUuidBytes) && $userUuidBytes !== '') {
-                    $userUuidStr = UuidRegistry::uuidToString($userUuidBytes);
-                    QueryUtils::sqlStatementThrowException(
-                        "UPDATE `api_refresh_token` SET `revoked` = 1 "
-                            . "WHERE `user_id` = ? AND `revoked` = 0",
-                        [$userUuidStr]
-                    );
-                    QueryUtils::sqlStatementThrowException(
-                        "UPDATE `api_token` SET `revoked` = 1 "
-                            . "WHERE `user_id` = ? AND `revoked` = 0",
-                        [$userUuidStr]
+                if (!is_string($userUuidBytes) || $userUuidBytes === '') {
+                    // users.uuid is nullable in the schema so an
+                    // existing user really can have no UUID. Silently
+                    // skipping the revocation UPDATEs here would let
+                    // stale refresh_tokens survive a password change
+                    // that was probably triggered by credential
+                    // compromise — the whole reason the revocation
+                    // block exists. Throw so the transaction rolls
+                    // back the password write; the caller sees
+                    // failure and can retry after the UUID is
+                    // backfilled.
+                    throw new \RuntimeException(
+                        'Cannot revoke API tokens for user id=' . $targetUserId
+                            . ' — users.uuid resolution failed. Password update rolled back.'
                     );
                 }
+                $userUuidStr = UuidRegistry::uuidToString($userUuidBytes);
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `api_refresh_token` SET `revoked` = 1 "
+                        . "WHERE `user_id` = ? AND `revoked` = 0",
+                    [$userUuidStr]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `api_token` SET `revoked` = 1 "
+                        . "WHERE `user_id` = ? AND `revoked` = 0",
+                    [$userUuidStr]
+                );
             });
 
             // If the user is changing their own password, update the
