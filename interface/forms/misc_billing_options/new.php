@@ -72,7 +72,8 @@ if (empty($formid)) {
         $formid = (int) $mboquery['id'];
     }
 }
-$obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
+$fetched = $formid ? formFetch("form_misc_billing_options", $formid) : [];
+$obj = is_array($fetched) ? $fetched : [];
 ?>
 <html>
 <head>
@@ -311,15 +312,14 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
-<!-- ai gen'ed code ends -->
-                                <input type="text" class="form-control" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
-                                    value="<?php echo attr($obj["medicaid_resubmission_code"] ?? ''); ?>" />
+                                <label for="resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
+                                <input type="text" class="form-control" name="resubmission_code" id="resubmission_code"
+                                    value="<?php echo attr($obj["resubmission_code"] ?? ''); ?>" />
                             </div>
                             <div class="col-md">
-                                <label><?php echo xlt('Medicaid Original Reference No.'); ?>:</label>
-                                <input type="text" class="form-control" name="medicaid_original_reference" id="medicaid_original_reference"
-                                    value="<?php echo attr($obj["medicaid_original_reference"] ?? ''); ?>" />
+                                <label><?php echo xlt('Box 22a. Original Ref. No.'); ?>:</label>
+                                <input type="text" class="form-control" name="original_reference_number" id="original_reference_number"
+                                    value="<?php echo attr($obj["original_reference_number"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-group mt-3">

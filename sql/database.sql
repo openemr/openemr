@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 543
+-- v_database: 544
 --
 
 --
@@ -2095,8 +2095,8 @@ CREATE TABLE `form_misc_billing_options` (
   `is_hospitalized` tinyint(1) default NULL,
   `hospitalization_date_from` date default NULL,
   `hospitalization_date_to` date default NULL,
-  `medicaid_resubmission_code` varchar(10) default NULL,
-  `medicaid_original_reference` varchar(15) default NULL,
+  `resubmission_code` varchar(10) default NULL,
+  `original_reference_number` varchar(50) default NULL,
   `prior_auth_number` varchar(20) default NULL,
   `comments` varchar(255) default NULL,
   `replacement_claim` tinyint(1) default 0,
@@ -10215,7 +10215,7 @@ CREATE TABLE ar_activity (
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
   deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
   post_date      date DEFAULT NULL COMMENT 'Posting date if specified at payment time',
-  payer_claim_number varchar(30) DEFAULT NULL,
+  payer_claim_number varchar(50) DEFAULT NULL COMMENT 'CLP07 from the payer 835',
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
