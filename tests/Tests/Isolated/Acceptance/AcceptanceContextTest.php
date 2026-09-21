@@ -116,14 +116,17 @@ class AcceptanceContextTest extends TestCase
         self::assertFalse(AcceptanceContext::hasExpectedVersion());
     }
 
-    public function testHasExpectedVersionFalseWhenMalformed(): void
+    public function testHasExpectedVersionTrueWhenSetButMalformed(): void
     {
-        // The predicate is stricter than "env is set" -- it also
-        // rejects malformed values so callers that gate on it don't
-        // then hit the shape check inside expectedVersion() and get
-        // a surprise throw.
+        // Item 2 iteration (rabbit-review outcome): predicate answers
+        // "was a value provided?" and intentionally does NOT validate
+        // shape. Malformed values return true so callers that gate on
+        // this predicate then hit expectedVersion()'s shape check and
+        // get a hard failure -- rather than silently skipping on
+        // misconfigured input (previous semantics silently masked
+        // e.g. a `-dev` suffix leaking into ACCEPTANCE_EXPECTED_VERSION).
         putenv('ACCEPTANCE_EXPECTED_VERSION=8.5.0-dev');
-        self::assertFalse(AcceptanceContext::hasExpectedVersion());
+        self::assertTrue(AcceptanceContext::hasExpectedVersion());
     }
 
     public function testArtifactUrlDefaultsToLocalhost8580WhenUnset(): void
