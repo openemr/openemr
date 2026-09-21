@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Acceptance;
 
+use OpenEMR\Tests\Acceptance\Support\AcceptanceContext;
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
 use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
 use PHPUnit\Framework\Attributes\Group;
@@ -59,7 +60,8 @@ use PHPUnit\Framework\TestCase;
  * follow-up. Runs only after `api-enable.php` has flipped the
  * `rest_api` global (workflow ordering).
  */
-#[Group('version-api')]
+#[Group('api-enabled-post-install')]
+#[Group('api-enabled-post-upgrade')]
 final class VersionApiAcceptanceTest extends TestCase
 {
     /**
@@ -76,16 +78,13 @@ final class VersionApiAcceptanceTest extends TestCase
 
     public function testVersionEndpointReturnsExpectedVersion(): void
     {
-        $expected = getenv('ACCEPTANCE_EXPECTED_VERSION');
-        self::assertNotFalse(
-            $expected,
-            'ACCEPTANCE_EXPECTED_VERSION env is unset — the acceptance-package.yml matrix cell must set this so the test knows which version to assert against. Passing an empty string is not a valid override.',
-        );
-        self::assertMatchesRegularExpression(
-            '/^\d+\.\d+\.\d+$/',
-            $expected,
-            "ACCEPTANCE_EXPECTED_VERSION='{$expected}' does not match required X.Y.Z shape",
-        );
+        // Skip cleanly when the env isn't set -- see
+        // VersionDisplayAcceptanceTest for the acceptance-docker.yml
+        // floating-tag rationale. Tarball workflow always sets it.
+        if (!AcceptanceContext::hasExpectedVersion()) {
+            self::markTestSkipped('ACCEPTANCE_EXPECTED_VERSION not set -- expected in contexts without version resolution (e.g., acceptance-docker.yml floating-tag runs until Item 4 lands).');
+        }
+        $expected = AcceptanceContext::expectedVersion();
 
         $browser = ArtifactBrowser::create();
         $browser->request('GET', ArtifactBrowser::baseUrl() . self::VERSION_ENDPOINT);
