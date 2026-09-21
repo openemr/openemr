@@ -13,9 +13,9 @@
 # All three scenarios exercise the same test classes in tests/Acceptance/
 # with different artifact endpoints + PHPUnit `--group` filters:
 #
-#   fresh-install of X   -> boot X, run --group=fresh-install (InstallTest)
+#   fresh-install of X   -> boot X, run --group=post-install (InstallTest)
 #   upgrade from_tag ->
-#     to_tag             -> boot from_tag, run --group=fresh-install,
+#     to_tag             -> boot from_tag, run --group=post-install,
 #                           down --preserve-volumes, boot to_tag (auto-upgrade
 #                           fires), run --group=post-upgrade
 #                           (UpgradeIntegrityTest)
@@ -411,18 +411,18 @@ jobs:
         - scenario: fresh-install-from
           description: 'Fresh install of from_tag'
           image_tag: ${{ inputs.from_tag || 'latest' }}
-          test_group: fresh-install
+          test_group: post-install
         - scenario: fresh-install-to
           description: 'Fresh install of to_tag'
           image_tag: ${{ inputs.to_tag || 'next' }}
-          test_group: fresh-install
+          test_group: post-install
         - scenario: upgrade
           description: 'Upgrade from_tag -> to_tag'
           image_tag: ${{ inputs.from_tag || 'latest' }}
-          # test_group runs first against from_tag, then repeats
-          # against to_tag with the post-upgrade group after the
-          # image swap.
-          test_group: fresh-install
+          # test_group runs first against from_tag (seeds any
+          # persistence fixtures), then post-upgrade group runs
+          # against to_tag after the image swap.
+          test_group: post-install
     env:
       FROM_TAG: ${{ inputs.from_tag || 'latest' }}
       TO_TAG: ${{ inputs.to_tag || 'next' }}
@@ -582,26 +582,26 @@ jobs:
     - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
       run: composer acceptance -- --group=${{ matrix.test_group }}
 
-    # api-enable bootstrap fires AFTER the fresh-install group only
+    # api-enable bootstrap fires AFTER the post-install group only
     # (not the plain upgrade scenario — the target of upgrade is api-
     # enabled downstream by its own path). The docker workflow uses
     # `fresh-install-from` and `fresh-install-to` as its two fresh-
     # install matrix values (the `-from` / `-to` distinction lets the
     # single fresh-install scenario stand in for both sides of a
     # future upgrade-target artifact test). Order matters:
-    # OAuth2SmokeTest's fresh-install-tagged assertions verify the
+    # OAuth2SmokeTest's post-install-tagged assertions verify the
     # API-disabled 404 gate that ships by default; the bootstrap
-    # flips those globals so the api-enabled group asserts the
-    # opposite behavior (endpoints return 200).
+    # flips those globals so the api-enabled-post-install group
+    # asserts the opposite behavior (endpoints return 200).
     - name: Bootstrap API via admin panel
       if: startsWith(matrix.scenario, 'fresh-install')
       env:
         OPENEMR_ENABLE_API_BOOTSTRAP: '1'
       run: php tests/Acceptance/bin/api-enable.php
 
-    - name: Run acceptance suite (--group=api-enabled) against ${{ steps.tags.outputs.boot_tag }}
+    - name: Run acceptance suite (--group=api-enabled-post-install) against ${{ steps.tags.outputs.boot_tag }}
       if: startsWith(matrix.scenario, 'fresh-install')
-      run: composer acceptance -- --group=api-enabled
+      run: composer acceptance -- --group=api-enabled-post-install
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
     - name: Stop containers (preserve named volumes)

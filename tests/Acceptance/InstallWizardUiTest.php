@@ -52,7 +52,7 @@ use Symfony\Component\Panther\Client;
  *     Bootstrap layout breakage that hides inputs)
  *   - PHP fatal errors partway through a state handler
  */
-#[Group('wizard-install')]
+#[Group('wizard-completed-post-install')]
 final class InstallWizardUiTest extends TestCase
 {
     private ?Client $client = null;
