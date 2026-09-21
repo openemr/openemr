@@ -60,7 +60,7 @@ use PHPUnit\Framework\Attributes\Group;
  * the dev stack unchanged — this class is purely additive against the
  * release artifact.
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 #[Group('post-upgrade')]
 final class FrontPaymentCssContrastAcceptanceTest extends PantherAcceptanceTestCase
 {

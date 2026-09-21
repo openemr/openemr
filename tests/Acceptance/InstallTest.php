@@ -38,7 +38,7 @@ use PHPUnit\Framework\TestCase;
  * assertions are only valid on a fresh install (not on a post-upgrade
  * stack where UpgradeIntegrityTest takes over).
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 final class InstallTest extends TestCase
 {
     public function testHomepageRedirectsToLoginAfterInstall(): void
