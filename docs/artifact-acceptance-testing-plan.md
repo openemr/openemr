@@ -2758,8 +2758,10 @@ Plus per-branch `FROM_VERSION` derivation from `sql/*-to-*_upgrade.sql`
 
 ### Refactor items (proposed, in priority order)
 
-**Item 1: `AcceptanceContext` support class** *(highest leverage, smallest surface)*
+**Item 1: `AcceptanceContext` support class** *(highest leverage, smallest surface)* — **SHIPPED (openemr/openemr#TBD, 2026-09-21)**
 Central resolver for "what am I running against?" — expected version, base URL, feature-flag state, scenario name — read from a common `ACCEPTANCE_*` env contract. Tests call `AcceptanceContext::expectedVersion()` instead of `getenv('ACCEPTANCE_EXPECTED_VERSION')`. Fail-fast diagnostic if the context isn't ready (rather than tests failing at their business assertions).
+
+As-shipped scope: three existing `ACCEPTANCE_*` env reads consolidated (`ACCEPTANCE_EXPECTED_VERSION` with X.Y.Z shape check + fail-fast; `ACCEPTANCE_ARTIFACT_URL` with default + trailing-slash strip; `ACCEPTANCE_TRUST_SELF_SIGNED` opt-in). `VersionApiAcceptanceTest` + `VersionDisplayAcceptanceTest` migrated as first direct consumers; `ArtifactBrowser` migrated internally (its `baseUrl()` + client-construction API unchanged for the ~15 other consumers). 19 isolated tests pin the resolver behavior (env-set / unset / empty / malformed / dev-suffix leak / trailing-slash strip / trust-string allowlist). Feature-flag / scenario-name / workflow-context accessors deferred to Items 2/3 as originally scoped.
 
 Migration path: introduce class, migrate `VersionDisplayAcceptanceTest` + `VersionApiAcceptanceTest` as the first consumers (they're already env-aware), then adopt in future tests. Existing tests can migrate opportunistically.
 
