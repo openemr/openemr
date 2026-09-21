@@ -481,8 +481,9 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         $teamName = is_string($record['team_name'] ?? null) ? $record['team_name'] : '';
 
         try {
-            $careTeamService = new CareTeamService();
-            $savedTeamId = $careTeamService->saveCareTeam($pid, $teamId, $teamName, $resolvedMembers, $status);
+            // The constructor already built one; a second costs another uuid backfill scan
+            // across four tables on every write that reaches here.
+            $savedTeamId = $this->careTeamService->saveCareTeam($pid, $teamId, $teamName, $resolvedMembers, $status);
         } catch (SqlQueryException | \RuntimeException | \LogicException $e) {
             // The class list is deliberate and stays narrow. ForbiddenCatchTypeRule rejects any
             // catch related to \Error or \ErrorException -- which rules out \Throwable and

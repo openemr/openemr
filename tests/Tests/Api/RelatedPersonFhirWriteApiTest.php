@@ -124,8 +124,17 @@ class RelatedPersonFhirWriteApiTest extends TestCase
         $id = $created['uuid'];
         $this->assertIsString($id);
 
+        // A real change, not just the required id: a handler that ignored the body and
+        // echoed the stored resource would satisfy a 200-only assertion. name[0].family -> `last_name`
+        $updatedFamily = 'test-fixture-RelatedLast-Updated';
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
+        $updatedName = $updated['name'] ?? null;
+        $this->assertIsArray($updatedName);
+        $this->assertArrayHasKey(0, $updatedName);
+        $this->assertIsArray($updatedName[0]);
+        $updatedName[0]['family'] = $updatedFamily;
+        $updated['name'] = $updatedName;
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
         $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
@@ -143,6 +152,11 @@ class RelatedPersonFhirWriteApiTest extends TestCase
         );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
+        $this->assertStringContainsString(
+            $updatedFamily,
+            (string) json_encode($putContents['name'] ?? null),
+            'PUT should answer with the updated family name, not the stored one. Body: ' . $putBody
+        );
     }
 
     /**

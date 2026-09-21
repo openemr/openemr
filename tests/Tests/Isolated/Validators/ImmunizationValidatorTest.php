@@ -99,6 +99,11 @@ class ImmunizationValidatorTest extends TestCase
             BaseValidator::DATABASE_UPDATE_CONTEXT
         );
         $this->assertFalse($result->isValid());
+        // The key, not just invalidity: any other rule rejecting this payload would otherwise
+        // keep the test green and removing the uuid rule would not fail it.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('uuid', $messages);
     }
 
     public function testValidatorClassExists(): void

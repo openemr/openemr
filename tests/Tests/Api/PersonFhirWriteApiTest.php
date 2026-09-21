@@ -8,12 +8,6 @@
  * the path the service-layer CRUD tests bypass. Person has no patient
  * compartment; the negative case strips the required NPI identifier.
  *
- * No PUT case: a Person created through the FHIR API has neither a username
- * nor an abook_type, and PractitionerService::search() (which backs the
- * post-update re-fetch) requires one of those. The update writes the row but
- * the re-fetch returns empty, so the HTTP layer maps the successful update to
- * 404. The service-layer CRUD test documents the same re-fetch quirk.
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>

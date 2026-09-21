@@ -124,8 +124,12 @@ class ServiceRequestFhirWriteApiTest extends TestCase
         $id = $created['uuid'];
         $this->assertIsString($id);
 
+        // A real change, not just the required id: a handler that ignored the body and
+        // echoed the stored resource would satisfy a 200-only assertion. priority -> procedure_order.order_priority
+        $updatedPriority = 'urgent';
         $updated = $this->fhirFixture;
         $updated['id'] = $id;
+        $updated['priority'] = $updatedPriority;
         $putResponse = $this->testClient->put(self::RESOURCE_URL, $id, $updated);
         $putBody = $putResponse->getBody()->getContents();
         $this->assertSame(
@@ -143,6 +147,11 @@ class ServiceRequestFhirWriteApiTest extends TestCase
         );
         $this->assertSame(self::RESOURCE_TYPE, $putContents['resourceType'] ?? null);
         $this->assertSame($id, $putContents['id'] ?? null);
+        $this->assertSame(
+            $updatedPriority,
+            $putContents['priority'] ?? null,
+            'PUT should answer with the updated priority, not the stored one. Body: ' . $putBody
+        );
     }
 
     public function testPostWithoutSubjectReturnsError(): void

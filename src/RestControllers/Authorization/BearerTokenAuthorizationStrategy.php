@@ -381,7 +381,10 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 "hint" => $exception->getHint(),
                 "cause" => $previous instanceof \Throwable ? $previous->getMessage() : null,
             ]);
-            throw new HttpException(401, $exception->getMessage(), $exception);
+            // A fixed message, not the dependency's: ExceptionHandlerListener puts
+            // HttpException::getMessage() straight into the 401 body, and League's text is not
+            // ours to expose. The detail is in the log line above, keyed by the same request.
+            throw new HttpException(401, 'Invalid access token.', $exception);
         } catch (\Throwable $exception) {
             if ($exception instanceof LogicException) {
                 $this->getSystemLogger()->error(

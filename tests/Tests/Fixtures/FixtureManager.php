@@ -427,6 +427,46 @@ class FixtureManager
             );
         }
 
+        // The write path also calls ContactService::getOrCreateForEntity('patient_data', $pid)
+        // for the relationship's owner, so a fixture patient that had no contact row gains one.
+        // Only person contacts were cleaned above, leaving that row pointing at a pid this
+        // teardown is about to delete. Scoping by the fixture pubpid prefix keeps a real
+        // patient's pre-existing contact untouched.
+        $patientContactIds = QueryUtils::fetchTableColumn(
+            "SELECT c.id FROM contact c "
+            . "JOIN patient_data p ON p.pid = c.foreign_id "
+            . "WHERE c.foreign_table_name = 'patient_data' AND p.pubpid LIKE ?",
+            'id',
+            [self::PATIENT_FIXTURE_PUBPID_PREFIX . '%']
+        );
+        if ($patientContactIds !== []) {
+            $ownerPlaceholders = implode(',', array_fill(0, count($patientContactIds), '?'));
+            $ownerAddressIds = QueryUtils::fetchTableColumn(
+                "SELECT address_id FROM contact_address WHERE contact_id IN ($ownerPlaceholders)",
+                'address_id',
+                $patientContactIds
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact_telecom WHERE contact_id IN ($ownerPlaceholders)",
+                $patientContactIds
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact_address WHERE contact_id IN ($ownerPlaceholders)",
+                $patientContactIds
+            );
+            if ($ownerAddressIds !== []) {
+                $ownerAddressPlaceholders = implode(',', array_fill(0, count($ownerAddressIds), '?'));
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM addresses WHERE id IN ($ownerAddressPlaceholders)",
+                    $ownerAddressIds
+                );
+            }
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact WHERE id IN ($ownerPlaceholders)",
+                $patientContactIds
+            );
+        }
+
         $personUuidBytes = QueryUtils::fetchTableColumn(
             "SELECT uuid FROM person WHERE id IN ($placeholders)",
             'uuid',

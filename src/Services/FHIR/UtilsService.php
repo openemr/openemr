@@ -489,11 +489,10 @@ class UtilsService
         }
         $path = $parts['path'] ?? $referenceString;
 
-        // Check if this is a local resource
+        // Check if this is a local resource. A relative reference (no host) is ours by
+        // definition; an absolute one has to match this server's own FHIR base.
         if (isset($parts['host'])) {
-            $oauthAddress = (new ServerConfig())->getOauthAddress();
-            $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
-            $parsed['localResource'] = ($parts['host'] === $oauthHost);
+            $parsed['localResource'] = self::isLocalFhirReference($parts);
         } else {
             $parsed['localResource'] = true;
         }
@@ -520,4 +519,84 @@ class UtilsService
 
         return $parsed;
     }
+
+    /**
+     * True when an absolute reference addresses this server's own FHIR base.
+     *
+     * Host alone was not enough. A second OpenEMR on the same machine differs only by port or
+     * by the path it is mounted at, and a reference into it matched on host, so its trailing
+     * segment was kept and stored as one of our uuids. Scheme, host, port and the FHIR base
+     * path are all compared, against ServerConfig::getFhirUrl() rather than getOauthAddress()
+     * -- the FHIR base is what a reference to a resource on this server actually looks like.
+     *
+     * A reference that fails this check keeps localResource false, which clears its uuid
+     * below, so the failure mode is a resolution error rather than a silent mis-binding.
+     *
+     * @param array<string, mixed> $parts parse_url() output for the reference
+     */
+    private static function isLocalFhirReference(array $parts): bool
+    {
+        $base = parse_url((new ServerConfig())->getFhirUrl());
+        if (!is_array($base) || !isset($base['host'])) {
+            return false;
+        }
+
+        $referenceHost = $parts['host'] ?? null;
+        if (!is_string($referenceHost)) {
+            return false;
+        }
+        if (strtolower($referenceHost) !== strtolower($base['host'])) {
+            return false;
+        }
+
+        if (self::urlScheme($parts) !== self::urlScheme($base)) {
+            return false;
+        }
+
+        if (self::urlPort($parts) !== self::urlPort($base)) {
+            return false;
+        }
+
+        $basePath = rtrim(is_string($base['path'] ?? null) ? $base['path'] : '', '/');
+        if ($basePath === '') {
+            return true;
+        }
+        $referencePath = is_string($parts['path'] ?? null) ? $parts['path'] : '';
+
+        return str_starts_with($referencePath, $basePath . '/');
+    }
+
+    /**
+     * @param array<string, mixed> $parts
+     */
+    private static function urlScheme(array $parts): string
+    {
+        $scheme = $parts['scheme'] ?? null;
+
+        return is_string($scheme) ? strtolower($scheme) : '';
+    }
+
+    /**
+     * The explicit port, or the scheme's default so that https://host and https://host:443
+     * compare equal.
+     *
+     * @param array<string, mixed> $parts
+     */
+    private static function urlPort(array $parts): ?int
+    {
+        $port = $parts['port'] ?? null;
+        if (is_int($port)) {
+            return $port;
+        }
+        if (is_string($port) && $port !== '' && ctype_digit($port)) {
+            return (int) $port;
+        }
+
+        return match (self::urlScheme($parts)) {
+            'https' => 443,
+            'http' => 80,
+            default => null,
+        };
+    }
+
 }

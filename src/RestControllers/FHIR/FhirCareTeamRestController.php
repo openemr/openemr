@@ -274,7 +274,7 @@ class FhirCareTeamRestController
     // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/CareTeam',
-        description: 'Creates a new CareTeam (patient-scoped). Practitioner participants are resolved to users; non-Practitioner participants (Organization, RelatedPerson) are currently not persisted on write.',
+        description: 'Creates a new CareTeam (patient-scoped). Only Practitioner participants are writable: a participant.member that is not a Practitioner reference (Organization, RelatedPerson) is rejected with a 400 rather than dropped.',
         tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -305,7 +305,7 @@ class FhirCareTeamRestController
      */
     #[OA\Put(
         path: '/fhir/CareTeam/{uuid}',
-        description: 'Modifies a CareTeam. Practitioner participants are diffed against existing members (saveCareTeam handles updates/inserts/inactivations).',
+        description: 'Modifies a CareTeam. Practitioner participants are diffed against existing members (saveCareTeam handles updates/inserts/inactivations). The same participant rule as POST applies: a participant.member that is not a Practitioner reference is rejected with a 400, so a team carrying Organization or RelatedPerson members cannot be read and written back unchanged.',
         tags: ['fhir'],
         parameters: [
             new OA\Parameter(
