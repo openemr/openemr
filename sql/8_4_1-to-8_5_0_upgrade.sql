@@ -150,3 +150,20 @@ ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `res
 #IfMissingColumn login_mfa_registrations last_used_step
 ALTER TABLE `login_mfa_registrations` ADD COLUMN `last_used_step` bigint DEFAULT NULL COMMENT 'TOTP time slice (RFC 6238) of the last consumed code. Incoming codes must land on a strictly greater slice; guards against A-B-A replay across two adjacent valid codes within the 90s acceptance window.';
 #EndIf
+
+-- Add per-user + per-IP MFA challenge failure counters. Kept
+-- independent of login_fail_counter / ip_login_fail_counter so an
+-- in-progress MFA brute force is not zeroed out by the
+-- password-verify-success reset that happens on every attempt.
+#IfMissingColumn users_secure mfa_fail_counter
+ALTER TABLE `users_secure` ADD COLUMN `mfa_fail_counter` bigint DEFAULT 0 COMMENT 'Per-user MFA challenge failure counter. Independent of login_fail_counter so an in-progress MFA brute force does not get zeroed out by the password verify success that happens on every attempt.';
+#EndIf
+#IfMissingColumn users_secure mfa_last_fail
+ALTER TABLE `users_secure` ADD COLUMN `mfa_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure. Used for time-based counter reset.';
+#EndIf
+#IfMissingColumn ip_tracking mfa_login_fail_counter
+ALTER TABLE `ip_tracking` ADD COLUMN `mfa_login_fail_counter` bigint DEFAULT 0 COMMENT 'Per-IP MFA challenge failure counter. Independent of ip_login_fail_counter so an in-progress MFA brute force is not zeroed out by the password verify success on each attempt.';
+#EndIf
+#IfMissingColumn ip_tracking mfa_last_login_fail
+ALTER TABLE `ip_tracking` ADD COLUMN `mfa_last_login_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure from this IP. Used for time-based counter reset.';
+#EndIf

@@ -133,12 +133,11 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                         );
                     }
                     if (!$mfa->check($mfaToken, MfaUtils::TOTP)) {
-                        // Count the failed TOTP attempt against the standard
-                        // user + IP lockout counters. Without this, an
-                        // attacker who knows the password can grind the
-                        // 6-digit code with no rate limit (confirmPassword
-                        // resets the counters on the password-success path).
-                        (new AuthUtils())->recordFailedAuthChallenge(is_string($username) ? $username : null);
+                        // MfaUtils::checkTOTP itself bumps the
+                        // mfa_fail_counter / mfa_login_fail_counter
+                        // (kept independent of the password lockout
+                        // counters so the confirmPassword-success
+                        // reset does not wipe them on every attempt).
                         throw new OAuthServerException(
                             $mfa->errorMessage(),
                             12,
@@ -146,6 +145,14 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                             401
                         );
                     }
+                    // Full auth (password + MFA) succeeded — zero the
+                    // MFA-specific counters so this user / IP starts
+                    // fresh for the next authentication session.
+                    $ip = collectIpAddresses();
+                    AuthUtils::resetMfaChallengeCounters(
+                        is_string($username) ? $username : null,
+                        $ip['ip_string']
+                    );
                     return true;
                 }
 

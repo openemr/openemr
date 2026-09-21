@@ -1341,6 +1341,131 @@ class AuthUtils
     }
 
     /**
+     * Bump the MFA-specific per-user + per-IP failure counters. Kept
+     * separate from recordFailedAuthChallenge / login_fail_counter so
+     * an in-progress MFA brute force is not zeroed out by the
+     * password-verify-success reset that confirmPassword performs on
+     * every attempt (a MFA-enrolled login runs confirmPassword →
+     * password succeeds → counters reset → checkTOTP fails → counters
+     * would only ever grow to 1 if we shared the counter with the
+     * password path).
+     *
+     * @param string|null $username the user whose MFA attempt failed
+     */
+    public function recordFailedMfaChallenge(?string $username): void
+    {
+        if ($username !== null && $username !== '') {
+            $this->incrementMfaFailCounter($username);
+        }
+        $ip = collectIpAddresses();
+        if ($ip['ip_string'] !== '') {
+            $this->incrementIpMfaLoginFailCounter($ip['ip_string']);
+        }
+    }
+
+    /**
+     * Zero the MFA failure counters on full-auth success (password +
+     * MFA both passed). Callers must invoke this only after MFA has
+     * been verified — a bare confirmPassword success is not enough.
+     *
+     * @param string|null $username user whose MFA challenge succeeded
+     * @param string      $ipString caller's IP (from collectIpAddresses)
+     */
+    public static function resetMfaChallengeCounters(?string $username, string $ipString): void
+    {
+        if ($username !== null && $username !== '') {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users_secure` SET `mfa_fail_counter` = 0, `mfa_last_fail` = NULL "
+                    . "WHERE BINARY `username` = ?",
+                [$username],
+                noLog: true
+            );
+        }
+        if ($ipString !== '') {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `ip_tracking` SET `mfa_login_fail_counter` = 0, `mfa_last_login_fail` = NULL "
+                    . "WHERE `ip_string` = ?",
+                [$ipString],
+                noLog: true
+            );
+        }
+    }
+
+    /**
+     * Check whether MFA challenges from this user / IP are currently
+     * over the standard lockout thresholds. Called by
+     * MfaUtils::checkTOTP before validating so a locked-out attacker
+     * cannot grind further codes even against an already-blocked
+     * counter — same shape as checkLoginFailedCounter uses for
+     * password attempts.
+     *
+     * Reuses the existing password_max_failed_logins and
+     * ip_max_failed_logins globals for thresholds; MFA does not
+     * warrant its own separate configuration knob today.
+     *
+     * @param string|null $username may be null for the OAuth2 password
+     *                              grant path when identity is not yet
+     *                              resolved
+     * @param string      $ipString caller's IP (from collectIpAddresses)
+     */
+    public function isMfaChallengeBlocked(?string $username, string $ipString): bool
+    {
+        $userMax = OEGlobalsBag::getInstance()->getInt('password_max_failed_logins');
+        if ($userMax > 0 && $username !== null && $username !== '') {
+            $row = QueryUtils::querySingleRow(
+                "SELECT `mfa_fail_counter` FROM `users_secure` WHERE BINARY `username` = ?",
+                [$username]
+            );
+            $counter = is_array($row) && is_numeric($row['mfa_fail_counter'] ?? null)
+                ? (int) $row['mfa_fail_counter']
+                : 0;
+            if ($counter >= $userMax) {
+                return true;
+            }
+        }
+        $ipMax = OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins');
+        if ($ipMax > 0 && $ipString !== '') {
+            $row = QueryUtils::querySingleRow(
+                "SELECT `mfa_login_fail_counter` FROM `ip_tracking` WHERE `ip_string` = ?",
+                [$ipString]
+            );
+            $counter = is_array($row) && is_numeric($row['mfa_login_fail_counter'] ?? null)
+                ? (int) $row['mfa_login_fail_counter']
+                : 0;
+            if ($counter >= $ipMax) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function incrementMfaFailCounter(string $username): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `users_secure` "
+                . "SET `mfa_fail_counter` = `mfa_fail_counter` + 1, `mfa_last_fail` = NOW() "
+                . "WHERE BINARY `username` = ?",
+            [$username],
+            noLog: true
+        );
+    }
+
+    private function incrementIpMfaLoginFailCounter(string $ipString): void
+    {
+        // Ensure a row exists — setupIpLoginFailedCounter mirrors this
+        // pattern for the password path.
+        $this->setupIpLoginFailedCounter($ipString);
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `ip_tracking` "
+                . "SET `mfa_login_fail_counter` = `mfa_login_fail_counter` + 1, "
+                . "`mfa_last_login_fail` = NOW() "
+                . "WHERE `ip_string` = ?",
+            [$ipString],
+            noLog: true
+        );
+    }
+
+    /**
      * @param $user
      * @return void
      */

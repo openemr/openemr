@@ -143,6 +143,24 @@ class MfaUtils
      */
     private function checkTOTP($token): bool
     {
+        // Refuse further attempts if this user or IP has already
+        // exceeded the standard lockout threshold on MFA challenges.
+        // Prevents attackers from continuing to grind codes against
+        // an already-blocked counter. The dedicated mfa_fail_counter
+        // / mfa_login_fail_counter are separate from the password
+        // counters so an in-progress MFA brute force is not zeroed
+        // out by the password-verify-success reset that happens on
+        // every login attempt.
+        $ip = collectIpAddresses();
+        $callerIp = $ip['ip_string'];
+        $postAuthUser = $_POST['authUser'] ?? null;
+        $authUser = is_string($postAuthUser) ? $postAuthUser : null;
+        $authUtils = new AuthUtils();
+        if ($authUtils->isMfaChallengeBlocked($authUser, $callerIp)) {
+            $this->errorMsg = 'The MFA code you entered was not valid.';
+            return false;
+        }
+
         $registrationSecret = false;
         if (!empty($this->var1TOTP)) {
             $registrationSecret = $this->var1TOTP;
@@ -222,11 +240,13 @@ class MfaUtils
                 // Either a concurrent request already consumed this
                 // slice, or the incoming code came from an earlier
                 // slice than the last consumed one (A-B-A replay).
+                $authUtils->recordFailedMfaChallenge($authUser);
                 $this->errorMsg = 'The MFA code you entered was not valid.';
                 return false;
             }
             return true;
         } else {
+            $authUtils->recordFailedMfaChallenge($authUser);
             $this->errorMsg = 'The MFA code you entered was not valid.';
             return false;
         }

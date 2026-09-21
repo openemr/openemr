@@ -3423,6 +3423,8 @@ CREATE TABLE `ip_tracking` (
     `ip_auto_block_emailed` tinyint DEFAULT 0,
     `ip_force_block` tinyint DEFAULT 0,
     `ip_no_prevent_timing_attack` tinyint DEFAULT 0,
+    `mfa_login_fail_counter` bigint DEFAULT 0 COMMENT 'Per-IP MFA challenge failure counter. Independent of ip_login_fail_counter so an in-progress MFA brute force is not zeroed out by the password verify success on each attempt.',
+    `mfa_last_login_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure from this IP. Used for time-based counter reset.',
     PRIMARY KEY (`id`),
     UNIQUE KEY `ip_string` (`ip_string`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
@@ -9894,6 +9896,8 @@ CREATE TABLE `users_secure` (
   `login_fail_counter` INT(11) DEFAULT '0',
   `last_login_fail` datetime DEFAULT NULL,
   `auto_block_emailed` tinyint DEFAULT 0,
+  `mfa_fail_counter` bigint DEFAULT 0 COMMENT 'Per-user MFA challenge failure counter. Independent of login_fail_counter so an in-progress MFA brute force does not get zeroed out by the password verify success that happens on every attempt.',
+  `mfa_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure. Used for time-based counter reset.',
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;

@@ -199,6 +199,15 @@ if (isset($_POST['new_login_session_management'])) {
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
                         [$session->get('authUserID')]
                     );
+                    // Full auth (password + MFA) succeeded — zero the
+                    // MFA-specific counters so the next login session
+                    // starts fresh.
+                    $ip = collectIpAddresses();
+                    $mfaUsername = $session->get('authUser');
+                    AuthUtils::resetMfaChallengeCounters(
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        $ip['ip_string']
+                    );
                 } else {
                     $mfaUsername = $session->get('authUser');
                     $mfaAuthGroup = $session->get('authProvider');
@@ -208,10 +217,10 @@ if (isset($_POST['new_login_session_management'])) {
                         is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
                         'TOTP code incorrect'
                     );
-                    // Count the TOTP miss against the same user/IP lockout
-                    // counters the password step uses, so repeated TOTP
-                    // guesses trip the standard block on the next login.
-                    (new AuthUtils())->recordFailedAuthChallenge(is_string($mfaUsername) ? $mfaUsername : null);
+                    // MfaUtils::checkTOTP itself bumps the
+                    // mfa_fail_counter / mfa_login_fail_counter and
+                    // enforces the block gate; no additional counter
+                    // work required here.
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }

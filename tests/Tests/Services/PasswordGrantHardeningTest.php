@@ -153,12 +153,15 @@ class PasswordGrantHardeningTest extends TestCase
             // real activity before the test ran.
             QueryUtils::sqlStatementThrowException(
                 "UPDATE `users_secure` SET `login_fail_counter` = ?, "
-                    . "`last_login_fail` = ?, `auto_block_emailed` = ? "
+                    . "`last_login_fail` = ?, `auto_block_emailed` = ?, "
+                    . "`mfa_fail_counter` = ?, `mfa_last_fail` = ? "
                     . "WHERE BINARY `username` = ?",
                 [
                     $original['login_fail_counter'],
                     $original['last_login_fail'],
                     $original['auto_block_emailed'],
+                    $original['mfa_fail_counter'],
+                    $original['mfa_last_fail'],
                     $username,
                 ]
             );
@@ -179,13 +182,16 @@ class PasswordGrantHardeningTest extends TestCase
             QueryUtils::sqlStatementThrowException(
                 "UPDATE `ip_tracking` SET `total_ip_login_fail_counter` = ?, "
                     . "`ip_login_fail_counter` = ?, `ip_last_login_fail` = ?, "
-                    . "`ip_auto_block_emailed` = ? "
+                    . "`ip_auto_block_emailed` = ?, "
+                    . "`mfa_login_fail_counter` = ?, `mfa_last_login_fail` = ? "
                     . "WHERE `ip_string` = ?",
                 [
                     $original['total_ip_login_fail_counter'],
                     $original['ip_login_fail_counter'],
                     $original['ip_last_login_fail'],
                     $original['ip_auto_block_emailed'],
+                    $original['mfa_login_fail_counter'],
+                    $original['mfa_last_login_fail'],
                     $ipString,
                 ]
             );
@@ -196,7 +202,7 @@ class PasswordGrantHardeningTest extends TestCase
         // Restore mutated globals: tests here set $_POST and $_SERVER keys
         // for MfaUtils / IP resolution. phpunit does not run in isolation,
         // so leaving them set leaks into unrelated tests in the same process.
-        unset($_POST['mfa_token'], $_POST['mfa_type']);
+        unset($_POST['mfa_token'], $_POST['mfa_type'], $_POST['authUser']);
         if ($this->originalHttpHostWasSet) {
             $_SERVER['HTTP_HOST'] = $this->originalHttpHost;
         } else {
@@ -309,7 +315,7 @@ class PasswordGrantHardeningTest extends TestCase
         $userId = $this->requireExistingAdminUserId();
         $this->enrollTotpForUser($userId);
 
-        unset($_POST['mfa_token'], $_POST['mfa_type']);
+        unset($_POST['mfa_token'], $_POST['mfa_type'], $_POST['authUser']);
         $password = $this->adminPassword();
 
         $repo = $this->buildUserRepository();
@@ -348,7 +354,7 @@ class PasswordGrantHardeningTest extends TestCase
         // satisfy those factors and must deny rather than fall through.
         $userId = $this->requireExistingAdminUserId();
         $this->enrollNonTotpForUser($userId);
-        unset($_POST['mfa_token'], $_POST['mfa_type']);
+        unset($_POST['mfa_token'], $_POST['mfa_type'], $_POST['authUser']);
         $password = $this->adminPassword();
 
         $repo = $this->buildUserRepository();
@@ -361,19 +367,22 @@ class PasswordGrantHardeningTest extends TestCase
         }
     }
 
-    public function testPasswordGrantTotpFailureIncrementsLockoutCounters(): void
+    public function testPasswordGrantTotpFailureIncrementsMfaLockoutCounters(): void
     {
-        // A wrong TOTP code on password grant must engage the standard
-        // user + IP lockout counters — otherwise an attacker with the
-        // right password can grind the 6-digit code indefinitely.
+        // A wrong TOTP code on password grant must engage the dedicated
+        // MFA lockout counters — otherwise an attacker with the right
+        // password can grind the 6-digit code indefinitely. The MFA
+        // counters are kept independent of the password login-fail
+        // counters so the confirmPassword-success reset (which fires on
+        // every attempt) does not zero them between iterations.
         $userId = $this->requireExistingAdminUserId();
         $secret = $this->enrollTotpForUser($userId);
         $this->snapshotUserLockout('admin');
         $this->snapshotIpTracking($this->clientIp);
 
-        AuthUtils::resetLoginFailedCounter('admin');
-        $userBefore = $this->readUserCounter('admin');
-        $ipBefore = $this->readIpCounter($this->clientIp);
+        AuthUtils::resetMfaChallengeCounters('admin', $this->clientIp);
+        $userBefore = $this->readMfaUserCounter('admin');
+        $ipBefore = $this->readMfaIpCounter($this->clientIp);
 
         // Derive a code that is guaranteed to differ from the currently-valid
         // TOTP so this negative-path test cannot flake on the roughly 1-in-1M
@@ -383,6 +392,7 @@ class PasswordGrantHardeningTest extends TestCase
         $wrongCode = str_pad((string) (($currentCode + 1) % 1000000), 6, '0', STR_PAD_LEFT);
         $_POST['mfa_token'] = $wrongCode;
         $_POST['mfa_type'] = 'TOTP';
+        $_POST['authUser'] = 'admin';
         $password = $this->adminPassword();
 
         $repo = $this->buildUserRepository();
@@ -395,13 +405,71 @@ class PasswordGrantHardeningTest extends TestCase
 
         $this->assertSame(
             $userBefore + 1,
-            $this->readUserCounter('admin'),
-            'Wrong TOTP on password grant must bump users_secure.login_fail_counter'
+            $this->readMfaUserCounter('admin'),
+            'Wrong TOTP on password grant must bump users_secure.mfa_fail_counter'
         );
         $this->assertGreaterThan(
             $ipBefore,
-            $this->readIpCounter($this->clientIp),
-            'Wrong TOTP on password grant must bump ip_tracking.ip_login_fail_counter'
+            $this->readMfaIpCounter($this->clientIp),
+            'Wrong TOTP on password grant must bump ip_tracking.mfa_login_fail_counter'
+        );
+    }
+
+    public function testPasswordGrantMfaLockoutCounterGrowsAcrossRepeatedFailures(): void
+    {
+        // Regression: prior to option B (dedicated MFA counters), the
+        // password-lockout counter was reset on every attempt by the
+        // confirmPassword-success reset in AuthUtils. That capped the
+        // observable counter at 1 and made the lockout gate unreachable
+        // via brute force. This test drives four consecutive wrong-TOTP
+        // attempts and asserts the MFA counter grows linearly, proving
+        // the counter survives the confirmPassword reset.
+        $userId = $this->requireExistingAdminUserId();
+        $secret = $this->enrollTotpForUser($userId);
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
+
+        AuthUtils::resetMfaChallengeCounters('admin', $this->clientIp);
+        $userBefore = $this->readMfaUserCounter('admin');
+        $ipBefore = $this->readMfaIpCounter($this->clientIp);
+
+        $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+        $password = $this->adminPassword();
+        $_POST['mfa_type'] = 'TOTP';
+        $_POST['authUser'] = 'admin';
+
+        $attempts = 4;
+        for ($i = 1; $i <= $attempts; $i++) {
+            // Regenerate each iteration so a clock tick across the loop
+            // still lands on a distinct wrong code.
+            $currentCode = (int) $tfa->getCode($secret);
+            $wrongCode = str_pad((string) (($currentCode + $i) % 1000000), 6, '0', STR_PAD_LEFT);
+            $_POST['mfa_token'] = $wrongCode;
+
+            $repo = $this->buildUserRepository();
+            try {
+                $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+                $this->fail("Expected OAuthServerException on wrong TOTP attempt $i");
+            } catch (OAuthServerException $e) {
+                $this->assertSame('mfa_token_invalid', $e->getErrorType(), "Attempt $i must yield mfa_token_invalid");
+            }
+
+            $this->assertSame(
+                $userBefore + $i,
+                $this->readMfaUserCounter('admin'),
+                "users_secure.mfa_fail_counter must equal $i after $i failed attempts"
+            );
+        }
+
+        $this->assertSame(
+            $userBefore + $attempts,
+            $this->readMfaUserCounter('admin'),
+            "Final mfa_fail_counter must equal $attempts (proves counter is not being reset)"
+        );
+        $this->assertGreaterThanOrEqual(
+            $ipBefore + $attempts,
+            $this->readMfaIpCounter($this->clientIp),
+            "Final mfa_login_fail_counter must grow by at least $attempts across the loop"
         );
     }
 
@@ -877,7 +945,8 @@ class PasswordGrantHardeningTest extends TestCase
             return;
         }
         $row = QueryUtils::querySingleRow(
-            "SELECT `login_fail_counter`, `last_login_fail`, `auto_block_emailed` "
+            "SELECT `login_fail_counter`, `last_login_fail`, `auto_block_emailed`, "
+                . "`mfa_fail_counter`, `mfa_last_fail` "
                 . "FROM `users_secure` WHERE BINARY `username` = ?",
             [$username]
         );
@@ -903,7 +972,8 @@ class PasswordGrantHardeningTest extends TestCase
         }
         $row = QueryUtils::querySingleRow(
             "SELECT `total_ip_login_fail_counter`, `ip_login_fail_counter`, "
-                . "`ip_last_login_fail`, `ip_auto_block_emailed` "
+                . "`ip_last_login_fail`, `ip_auto_block_emailed`, "
+                . "`mfa_login_fail_counter`, `mfa_last_login_fail` "
                 . "FROM `ip_tracking` WHERE `ip_string` = ?",
             [$ipString]
         );
@@ -997,6 +1067,26 @@ class PasswordGrantHardeningTest extends TestCase
             [$ipString]
         );
         $value = $row['ip_login_fail_counter'] ?? 0;
+        return is_numeric($value) ? (int) $value : 0;
+    }
+
+    private function readMfaUserCounter(string $username): int
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT mfa_fail_counter FROM users_secure WHERE BINARY username = ?",
+            [$username]
+        );
+        $value = $row['mfa_fail_counter'] ?? 0;
+        return is_numeric($value) ? (int) $value : 0;
+    }
+
+    private function readMfaIpCounter(string $ipString): int
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT mfa_login_fail_counter FROM ip_tracking WHERE ip_string = ?",
+            [$ipString]
+        );
+        $value = $row['mfa_login_fail_counter'] ?? 0;
         return is_numeric($value) ? (int) $value : 0;
     }
 }

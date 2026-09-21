@@ -989,16 +989,26 @@ class AuthorizationController implements LoggerAwareInterface
                         }
                     }
                     EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
-                    // Count the second-factor miss against the same user/IP
-                    // lockout counters the password step uses, so repeated
-                    // TOTP/U2F guesses trip the standard block on the next
-                    // login.
-                    (new AuthUtils())->recordFailedAuthChallenge($mfaUsername);
+                    // MfaUtils::checkTOTP itself bumps the
+                    // mfa_fail_counter / mfa_login_fail_counter and
+                    // enforces the block gate; no additional counter
+                    // work required here.
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
                     return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
                 }
+                // Full auth (password + MFA) succeeded — zero the
+                // MFA-specific counters so this user / IP starts
+                // fresh for the next authentication session.
+                $userService = new UserService();
+                $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
+                $mfaUsername = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : null;
+                $ip = collectIpAddresses();
+                AuthUtils::resetMfaChallengeCounters(
+                    is_string($mfaUsername) ? $mfaUsername : null,
+                    $ip['ip_string']
+                );
             }
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
