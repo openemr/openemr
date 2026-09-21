@@ -993,6 +993,11 @@ class PasswordGrantHardeningTest extends TestCase
     public function testRecordFailedAuthChallengeSkipsUserCounterWhenUsernameNull(): void
     {
         $ipString = $this->clientIp;
+        // Snapshot BEFORE resetting so tearDown restores whatever the
+        // shared admin row looked like pre-test; without the snapshot
+        // the reset (and any real prior counter state) would leak past
+        // this test.
+        $this->snapshotUserLockout('admin');
         $this->snapshotIpTracking($ipString);
         // Baseline the admin counter so we can prove it was not touched.
         AuthUtils::resetLoginFailedCounter('admin');
@@ -1186,6 +1191,21 @@ class PasswordGrantHardeningTest extends TestCase
         string $password,
         string $email = ''
     ): bool {
+        // Every call here mutates lockout state: staff branch runs
+        // confirmPassword which resets both counters on success or
+        // bumps them on failure; MFA success additionally resets the
+        // MFA counters; the patient branch flows through
+        // confirmPatientPassword's IP counter. Register the relevant
+        // snapshots (idempotent) so tearDown restores whatever the
+        // shared admin / IP row looked like before the test, not
+        // whatever this helper left behind. Tests that also mutate
+        // MFA state or portal state can still call the individual
+        // snapshot helpers explicitly.
+        if ($userRole === UuidUserAccount::USER_ROLE_USERS) {
+            $this->snapshotUserLockout($username);
+        }
+        $this->snapshotIpTracking($this->clientIp);
+
         $rc = new ReflectionClass(UserRepository::class);
         $method = $rc->getMethod('getAccountByPassword');
         $user = new UserEntity();
