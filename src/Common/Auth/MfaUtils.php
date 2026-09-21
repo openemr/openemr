@@ -153,8 +153,19 @@ class MfaUtils
         // every login attempt.
         $ip = collectIpAddresses();
         $callerIp = $ip['ip_string'];
-        $postAuthUser = $_POST['authUser'] ?? null;
-        $authUser = is_string($postAuthUser) ? $postAuthUser : null;
+        // Resolve the username from the uid the constructor loaded MFA
+        // rows for, not from $_POST. The web login form posts 'authUser'
+        // but the OAuth2 password grant posts 'username' — pulling from
+        // the request would leave the per-user counter unbumped on the
+        // password-grant path. The uid is authoritative for either
+        // caller.
+        $userRow = QueryUtils::querySingleRow(
+            "SELECT `username` FROM `users_secure` WHERE `id` = ?",
+            [$this->uid]
+        );
+        $authUser = is_array($userRow) && is_string($userRow['username'] ?? null)
+            ? $userRow['username']
+            : null;
         $authUtils = new AuthUtils();
         if ($authUtils->isMfaChallengeBlocked($authUser, $callerIp)) {
             $this->errorMsg = 'The MFA code you entered was not valid.';

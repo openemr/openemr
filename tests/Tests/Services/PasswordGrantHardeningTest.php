@@ -392,7 +392,6 @@ class PasswordGrantHardeningTest extends TestCase
         $wrongCode = str_pad((string) (($currentCode + 1) % 1000000), 6, '0', STR_PAD_LEFT);
         $_POST['mfa_token'] = $wrongCode;
         $_POST['mfa_type'] = 'TOTP';
-        $_POST['authUser'] = 'admin';
         $password = $this->adminPassword();
 
         $repo = $this->buildUserRepository();
@@ -436,7 +435,6 @@ class PasswordGrantHardeningTest extends TestCase
         $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
         $password = $this->adminPassword();
         $_POST['mfa_type'] = 'TOTP';
-        $_POST['authUser'] = 'admin';
 
         $attempts = 4;
         for ($i = 1; $i <= $attempts; $i++) {
