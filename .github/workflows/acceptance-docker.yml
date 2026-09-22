@@ -580,45 +580,69 @@ jobs:
           up --detach --wait --wait-timeout 900
 
     # Item 4 of the post-8.4.0 acceptance-surface refactor: resolve the
-    # running artifact's self-reported version so
-    # ACCEPTANCE_EXPECTED_VERSION can be set for docker context (previously
-    # docker acceptance skipped version-check tests entirely because
-    # nothing here knew which X.Y.Z the running image would report). Reads
-    # version.php directly from the booted container -- ground truth,
-    # avoids the OCI-label edge cases (pr-built image built without
-    # --build-arg IMAGE_VERSION has an empty label; floating tags like
-    # `next` and `dev` carry `X.Y.Z-dev` labels where the strip-suffix
-    # path works but adds a branch). Mirrors detect-acceptance-mode.sh's
-    # read_tree_version pattern on the tarball build_locally path.
+    # running artifact's version so ACCEPTANCE_EXPECTED_VERSION can be
+    # set for docker context (previously docker acceptance skipped
+    # version-check tests entirely because nothing here knew which
+    # X.Y.Z the running image would report).
     #
-    # Emits the X.Y.Z string as `resolved` output. Fails hard if
-    # $v_major/$v_minor/$v_patch aren't all integers -- caller then
-    # can't set ACCEPTANCE_EXPECTED_VERSION to a sensible value, and
-    # AcceptanceContext::expectedVersion() would fail-hard downstream
-    # anyway, so fail here with a clearer diagnostic.
-    - name: Resolve running artifact version (from version.php)
+    # Two-tier resolution -- OCI label first, version.php fallback:
+    #
+    # * OCI label `org.opencontainers.image.version` is set at docker-
+    #   BUILD time by --build-arg IMAGE_VERSION baked into the release
+    #   pipeline. Independent source from both version.php (in the
+    #   image's code tree) and the DB `version` table (populated by
+    #   sql_upgrade.php). Using it as expected_version gives a genuine
+    #   3-source cross-check when the version-display + version-api
+    #   tests run: OCI label vs version.php (via About page render pipe)
+    #   vs DB (via /api/version). Catches the "mislabeled image" bug
+    #   class (label says 8.4.1, image code says 8.4.0). Applies to
+    #   every shipped-tag image (`latest`, `next`, `dev`, `8.4.1`, ...).
+    #
+    # * version.php read from the container is the fallback for
+    #   `pr-built`. The workflow's build-image job builds without
+    #   --build-arg IMAGE_VERSION, so the OCI label is empty. In
+    #   pr-built context the PR IS the version source of truth (may
+    #   contain version.php changes itself), so cross-signal isn't
+    #   available anyway -- fall back to version.php + accept the
+    #   weakened signal (still tests the render pipeline). Mirrors
+    #   detect-acceptance-mode.sh's read_tree_version pattern on the
+    #   tarball build_locally path.
+    #
+    # Strip trailing pre-release suffix (`-dev` for master builds,
+    # etc.): version-check tests compare X.Y.Z prefixes only (see
+    # VersionDisplayAcceptanceTest line ~127 preg_match).
+    - name: Resolve running artifact version (OCI label, fallback version.php)
       id: boot-version
+      env:
+        OPENEMR_TAG: ${{ steps.tags.outputs.boot_tag }}
       run: |
         set -eo pipefail
-        RESOLVED=$(
-          docker compose \
-            -f docker/production/docker-compose.yml \
-            -f .github/docker/acceptance-docker-compose.yml \
-            exec -T openemr php -r '
-              require "/var/www/localhost/htdocs/openemr/version.php";
-              if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
-                  fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
-                  exit(1);
-              }
-              echo "$v_major.$v_minor.$v_patch";
-            '
-        )
+        LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
+        if [[ "$LABEL" =~ ^([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+          RESOLVED="${BASH_REMATCH[1]}"
+          echo "==> OCI label 'org.opencontainers.image.version' = '$LABEL' -> resolved X.Y.Z prefix = '$RESOLVED'"
+        else
+          echo "==> OCI label empty or malformed ('$LABEL') -- likely pr-built. Falling back to version.php read."
+          RESOLVED=$(
+            docker compose \
+              -f docker/production/docker-compose.yml \
+              -f .github/docker/acceptance-docker-compose.yml \
+              exec -T openemr php -r '
+                require "/var/www/localhost/htdocs/openemr/version.php";
+                if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
+                    fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
+                    exit(1);
+                }
+                echo "$v_major.$v_minor.$v_patch";
+              '
+          )
+          echo "==> version.php reports: $RESOLVED"
+        fi
         if [[ ! "$RESOLVED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "::error::Resolved version '$RESOLVED' from running artifact's version.php does not match X.Y.Z shape"
+          echo "::error::Resolved version '$RESOLVED' does not match X.Y.Z shape (neither OCI label nor version.php yielded a valid version)"
           exit 1
         fi
         echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
-        echo "==> Running artifact self-reports version: $RESOLVED"
 
     - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
       uses: ./.github/actions/run-acceptance-group
@@ -688,35 +712,45 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 1200
 
-    # Re-resolve running artifact version after the upgrade-target boot
-    # -- the swap-and-reboot brings up a different image (usually
+    # Re-resolve running artifact version after the upgrade-target
+    # boot -- the swap-and-reboot brings up a different image (usually
     # from_tag -> to_tag, e.g. `latest` -> `next`, upgraded DB now
-    # reports the to-tag's version). Same version.php read pattern as
-    # the pre-upgrade resolve above.
-    - name: Resolve running artifact version after upgrade (from version.php)
+    # reports the to-tag's version). Same OCI-label-first pattern as
+    # the pre-upgrade resolve above -- see that step for the two-tier
+    # rationale.
+    - name: Resolve running artifact version after upgrade (OCI label, fallback version.php)
       id: upgrade-target-version
       if: matrix.scenario == 'upgrade'
+      env:
+        OPENEMR_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
       run: |
         set -eo pipefail
-        RESOLVED=$(
-          docker compose \
-            -f docker/production/docker-compose.yml \
-            -f .github/docker/acceptance-docker-compose.yml \
-            exec -T openemr php -r '
-              require "/var/www/localhost/htdocs/openemr/version.php";
-              if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
-                  fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
-                  exit(1);
-              }
-              echo "$v_major.$v_minor.$v_patch";
-            '
-        )
+        LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
+        if [[ "$LABEL" =~ ^([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+          RESOLVED="${BASH_REMATCH[1]}"
+          echo "==> OCI label 'org.opencontainers.image.version' = '$LABEL' -> resolved X.Y.Z prefix = '$RESOLVED'"
+        else
+          echo "==> OCI label empty or malformed ('$LABEL') -- likely pr-built. Falling back to version.php read."
+          RESOLVED=$(
+            docker compose \
+              -f docker/production/docker-compose.yml \
+              -f .github/docker/acceptance-docker-compose.yml \
+              exec -T openemr php -r '
+                require "/var/www/localhost/htdocs/openemr/version.php";
+                if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
+                    fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
+                    exit(1);
+                }
+                echo "$v_major.$v_minor.$v_patch";
+              '
+          )
+          echo "==> version.php reports: $RESOLVED"
+        fi
         if [[ ! "$RESOLVED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "::error::Resolved version '$RESOLVED' from upgraded artifact's version.php does not match X.Y.Z shape"
+          echo "::error::Resolved version '$RESOLVED' does not match X.Y.Z shape (neither OCI label nor version.php yielded a valid version)"
           exit 1
         fi
         echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
-        echo "==> Upgraded artifact self-reports version: $RESOLVED"
 
     - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
       if: matrix.scenario == 'upgrade'
