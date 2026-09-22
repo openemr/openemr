@@ -32,8 +32,20 @@ use function set_error_handler;
 use function set_exception_handler;
 use function sprintf;
 
+use const E_COMPILE_ERROR;
+use const E_COMPILE_WARNING;
+use const E_CORE_ERROR;
+use const E_CORE_WARNING;
 use const E_DEPRECATED;
+use const E_ERROR;
+use const E_NOTICE;
+use const E_PARSE;
+use const E_RECOVERABLE_ERROR;
 use const E_USER_DEPRECATED;
+use const E_USER_ERROR;
+use const E_USER_NOTICE;
+use const E_USER_WARNING;
+use const E_WARNING;
 
 readonly class ErrorHandler
 {
@@ -68,8 +80,13 @@ readonly class ErrorHandler
             match ($this->errorMode) {
                 ErrorHandlingMode::Log => $this->logger->log(
                     self::pickErrorLevel($errno),
-                    $message,
-                    $context,
+                    'PHP error: {message} ({file}:{line})',
+                    [
+                        'errno' => $errno,
+                        'message' => $errstr,
+                        'file' => $errfile,
+                        'line' => $errline,
+                    ],
                 ),
                 ErrorHandlingMode::Throw => throw new ErrorException($errstr, 0, $errno, $errfile, $errline),
             };
@@ -220,10 +237,21 @@ readonly class ErrorHandler
     }
 
     /**
-     * @param E_* $phpErrorLevel
+     * Ported from Monolog\ErrorHandler::defaultErrorLevelMap(). The literal
+     * 2048 is E_STRICT, which is removed in PHP 8.4 but retained here so
+     * lookups still resolve if a legacy caller passes the raw int.
+     *
      * @return LogLevel::*
      */
     private static function pickErrorLevel(int $phpErrorLevel): string
     {
+        return match ($phpErrorLevel) {
+            E_ERROR, E_CORE_ERROR => LogLevel::CRITICAL,
+            E_PARSE, E_COMPILE_ERROR => LogLevel::ALERT,
+            E_USER_ERROR, E_RECOVERABLE_ERROR => LogLevel::ERROR,
+            E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING => LogLevel::WARNING,
+            E_NOTICE, E_USER_NOTICE, E_DEPRECATED, E_USER_DEPRECATED, 2048 => LogLevel::NOTICE,
+            default => LogLevel::CRITICAL,
+        };
     }
 }
