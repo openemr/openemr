@@ -330,11 +330,14 @@ _As-of: 2026-09-22 (post-Item-4 refactor)._
 
 ### Trigger contexts
 
-Both workflows fire from five trigger shapes. The trigger determines the
-artifact source, the expected-version signal, and whether the matrix
-runs its "default" subset (schedule/push/PR paths of the workflow
-itself) or its "expanded" subset (dispatch, workflow_call, or
-source-side changes touching the artifact-build path).
+Both workflows fire from five trigger shapes. The trigger determines
+the artifact source and the expected-version signal. Package source-
+side changes (`tools/release/**` / `build.xml` / `.gitattributes`) can
+expand the scenario matrix from its default (fresh-install + wizard-
+install) up to the full four scenarios. Docker source-side changes
+(`docker/release/**`) keep the default three-scenario matrix (fresh-
+install-from + fresh-install-to + upgrade) and add a `build-image`
+job that produces the `pr-built` image the matrix cells then load.
 
 **`acceptance-package.yml`** (tarball / zip artifacts):
 
