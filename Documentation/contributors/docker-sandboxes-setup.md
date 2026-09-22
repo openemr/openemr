@@ -31,9 +31,9 @@ whichever fits your machine and your comfort with the tradeoffs below.
 - **The `sbx` CLI collects basic usage telemetry** (command name, success or
   failure, duration, and your Docker username). Set `SBX_NO_TELEMETRY=1` to opt
   out. Docker states it does not read prompts or code.
-- **The agent cannot open pull requests against `openemr/openemr`** — see
-  [Opening pull requests](#opening-pull-requests). This is the main functional
-  difference from the LXC configuration.
+- **The agent can push to your fork but cannot open the pull request** — a
+  fine-grained token covers one resource owner. See
+  [Opening pull requests](#opening-pull-requests).
 - **SSH deploy keys do not work** from inside a sandbox — see
   [Push access](#push-access).
 - **Ports are not published to the host automatically** — see
@@ -175,7 +175,7 @@ new sandbox.
 Save the following as `~/git/sbx-bootstrap.sh` and `chmod +x` it. Because it
 lives in the git directory, it is visible from inside every sandbox.
 
-```bash
+````bash
 #!/bin/bash
 # sbx-bootstrap.sh — run INSIDE a Docker Sandbox, once per sandbox.
 #
@@ -271,7 +271,7 @@ echo
 echo "==> ready"
 echo "    openemr-cmd : $(command -v openemr-cmd)"
 echo "    rules file  : ${RULES_FILE}"
-```
+````
 
 Run it inside the sandbox:
 
@@ -384,24 +384,20 @@ git push origin HEAD:refs/heads/sbx-auth-test --dry-run
 
 ## Opening pull requests
 
-An agent inside a sandbox **cannot open a pull request against
-`openemr/openemr`**, even with a token that has the necessary permissions.
+An agent inside a sandbox can push to your fork but cannot open a pull request
+against `openemr/openemr`, because of how the credential is scoped rather than
+any sandbox limitation.
 
-`sbx` brokers GitHub traffic through a host-side proxy that attaches its own
-stored credential, so a second token passed into the sandbox as an environment
-variable never reaches GitHub. There is one `github` secret slot per sandbox,
-and a fine-grained token belongs to a single resource owner — so one credential
-cannot cover both a push to your fork and a cross-repo pull request into the
-organization's repository.
+Creating a cross-repo pull request needs access to both repositories: the head
+repository to read the branch, and the base repository to open the request. A
+fine-grained token belongs to a single resource owner, so one token cannot cover
+both your fork and the organization's repository. `sbx` stores one `github`
+secret per sandbox, so the agent has one identity to work with.
 
-This is a consequence of the design that keeps tokens out of the agent's reach.
-It is the main functional difference from the LXC configuration, where
-credentials live in the container's filesystem and an agent can hold several.
+Keeping the sandbox token scoped to your fork alone is the right trade. The
+practical workflow:
 
-The practical workflow:
-
-1. The agent pushes the branch to your fork (this works — see
-   [Push access](#push-access)).
+1. The agent pushes the branch to your fork.
 2. The agent writes the complete `gh pr create` command to
    `<git-dir>/pr-<branch-slug>.sh`, with the body as a heredoc.
 3. You review that file and run it on the host, authenticated as yourself.
@@ -413,8 +409,7 @@ agents to follow this pattern.
 
 Reading works normally, so the review cycle is not affected: an agent can run
 `gh pr view <n> --repo openemr/openemr --comments` and `gh pr checks`, act on
-the feedback, and push fixes to the fork — which updates the pull request
-without any write to the organization's repository.
+the feedback, and push fixes to the fork — which updates the pull request.
 
 ## Notes and limitations
 
