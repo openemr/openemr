@@ -2808,8 +2808,32 @@ Both workflows repeat the boot→group→api-enable→group→teardown shape. Ex
 
 **Explicitly deferred (not in this PR)**: `AcceptanceContext::scenarioName()` / feature-flag / workflow-context accessors were called out as Item 3 scope originally, but no test currently needs them (persistence tests were split per-scenario in Item 2 rather than scenario-branching). Scaffolding-without-a-caller — drops in cleanly whenever a first concrete caller appears (e.g., an Item 4 docker path that needs to gate on scenario, or a future test wanting scenario-aware diagnostics).
 
-**Item 4: Docker workflow tag→version resolution**
+**Item 4: Docker workflow tag→version resolution** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**
 So `ACCEPTANCE_EXPECTED_VERSION` can be set in docker context too and the `version-display` / `version-api` isolation isn't needed. Options: query Docker Hub API for the tag→digest→config manifest, OR pull the image and read `version.php`, OR require the caller to pass the version explicitly (already the case for workflow_call gates). Simplest is the last one — scheduled/floating-tag runs can skip version-check by not setting the env.
+
+**As-shipped scope**: two-tier resolution — OCI label first, `version.php` fallback for pr-built. Two new steps in `acceptance-docker.yml`:
+
+- `Resolve running artifact version (OCI label, fallback version.php)` runs after the initial boot; tries `docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}'` first, extracts X.Y.Z prefix (regex `^\d+\.\d+\.\d+`) so `8.5.0-dev` → `8.5.0`. If the label is empty (pr-built image built without `--build-arg IMAGE_VERSION`), falls back to a docker-exec `php -r` read of `$v_major.$v_minor.$v_patch` from version.php in the container. Asserts final X.Y.Z shape, emits as `boot-version.resolved`.
+- `Resolve running artifact version after upgrade (OCI label, fallback version.php)` runs after the upgrade-target boot (upgrade scenario only); same two-tier logic against the new image, emits as `upgrade-target-version.resolved`. Needed because the swap-and-reboot brings up a different image reporting a different (upgraded) version.
+
+**Why OCI-label first, version.php fallback**: OCI label is set at docker-BUILD time from `--build-arg IMAGE_VERSION` baked into the release pipeline. It's an INDEPENDENT source from both `version.php` (in the image's code tree) and the DB `version` table (populated by `sql_upgrade.php`). Using the OCI label as `ACCEPTANCE_EXPECTED_VERSION` gives a genuine three-source cross-check when the version-display + version-api tests run: OCI label vs `version.php` (via About page render pipeline) vs DB (via `/api/version`). That catches the "mislabeled image" bug class (label says `8.4.1`, image code says `8.4.0`). A version.php-only approach can't catch that — it would be asserting `version.php == version.php` via the render pipeline, which weakens the signal to just "the render pipeline works." Reserved for the pr-built case where the OCI label is empty and no independent source exists (the PR IS the version source of truth, may contain `version.php` changes itself).
+
+All 5 `run-acceptance-group` invocations in `acceptance-docker.yml` now pass the resolved version instead of empty string. `docker-acceptance-only.yml` recovery workflow calls `acceptance-docker.yml` as a reusable and inherits the resolution transparently.
+
+**Version-check tests converted from skip to fail-hard**: `VersionApiAcceptanceTest` and `VersionDisplayAcceptanceTest` no longer gate their execution on `AcceptanceContext::hasExpectedVersion()`. They just call `expectedVersion()` and let its existing throw-on-unset fire. Rationale: post-Item-4, every CI path sets the env (tarball via `detect-acceptance-mode.sh`, docker via the two-tier resolver). A missing env value now means a workflow-side bug (a caller forgot to set it), and silently skipping would hide the regression. Local dev must set `ACCEPTANCE_EXPECTED_VERSION` explicitly — the fail message tells them exactly which env to set.
+
+**`AcceptanceContext::hasExpectedVersion()` kept**: the predicate is still a clean "was env provided?" check for hypothetical future callers who genuinely want to gate on env presence (not shape-validate). Not used by tests today but harmless to keep; drop later if it accumulates zero callers by Item 6-plus cleanup.
+
+**Upgrade cell skip logic (added post-review)**: the docker upgrade scenario is only meaningful when both from_tag and to_tag are shipped/rel-branch builds AND the target has upgrade infrastructure wired for the source. When it's not, the cell produces false-red signals: post-upgrade DB stays at the from version while code advances to to's version, and every downstream assertion (version-check, business, api-enabled) becomes unreliable. Even the boot's login-page healthcheck can fail because login requires sql_upgrade to have run.
+
+Skip criteria (evaluated per-cell after tag resolution, before boot):
+
+1. **`from_tag`'s OCI `revision` == `master`** — from IS master's build, no higher shipped version exists to upgrade TO. Same-or-lower target is either a no-op or an unsupported downgrade.
+2. **`to_tag`'s OCI `revision` == `master` AND master carries the `next` docker tag in `release-targets.yml`** — between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current `version.php` in this window. When `next` is on a rel-XXX branch instead (that branch's active dev cycle), the release-cut / patch-prep mutators cross-propagate fsupgrade + docker-version bumps to BOTH the rel branch AND master, so master's dev docker DOES have upgrade infra in that window and the cell WILL run.
+
+When either criterion fires, all upgrade-scenario steps (from boot, from-tag test group, stop containers, boot target, resolve upgrade-target version, run post-upgrade, api-enable post-upgrade, run api-enabled-post-upgrade) skip via `if:` condition. Cell shows all upgrade steps skipped; no red failures, no wasted runtime. Skip-notice step emits an annotation explaining the specific reason.
+
+Real signal preserved: `fresh-install-from` + `fresh-install-to` cells still exercise both images independently.
 
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc**
 Table of ~6 contexts × what each provides. Not covered elsewhere. Cheap; prevents future confusion. (The table above is a starting point.)
