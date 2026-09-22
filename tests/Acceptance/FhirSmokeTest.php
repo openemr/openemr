@@ -36,7 +36,7 @@ use PHPUnit\Framework\TestCase;
  * lands in Phase 4a-2, which introduces the OAuth2 dynamic-client-
  * registration + authorization-code helper.
  */
-#[Group('fresh-install')]
+#[Group('post-install')]
 #[Group('post-upgrade')]
 final class FhirSmokeTest extends TestCase
 {

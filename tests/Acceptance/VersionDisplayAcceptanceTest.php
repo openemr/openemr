@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use Facebook\WebDriver\WebDriverBy;
+use OpenEMR\Tests\Acceptance\Support\AcceptanceContext;
 use OpenEMR\Tests\Acceptance\Support\BrowserSession;
 use OpenEMR\Tests\Acceptance\Support\PantherAcceptanceTestCase;
 use PHPUnit\Framework\Attributes\Group;
@@ -42,18 +43,19 @@ use PHPUnit\Framework\Attributes\Group;
  * shifting from DB-read to file-read to match About page) doesn't
  * leave a coverage gap.
  *
- * Tagged with its OWN group `version-display` (not `fresh-install` /
- * `post-upgrade` / etc.) so `.github/workflows/acceptance-package.yml`
- * fires it via explicit `--group=version-display` steps at points
- * where `ACCEPTANCE_EXPECTED_VERSION` is definitively set. Piggy-
- * backing the existing scenario groups would leak this test into
- * `acceptance-docker.yml`, which today does not resolve floating
- * image tags (e.g., `latest`, `next`) into X.Y.Z at runtime — so
- * `ACCEPTANCE_EXPECTED_VERSION` couldn't be set there without
- * additional Docker-Hub tag-resolution plumbing. Docker parity is a
- * bounded follow-up.
+ * Tagged `post-install` + `post-upgrade` -- both scenarios boot an
+ * artifact reporting some version, so both are natural surfaces to
+ * assert against. Item 2 of the post-8.4.0 acceptance-surface
+ * refactor collapsed the historical `version-display` workaround
+ * group into the standard scenario tags, since
+ * `ACCEPTANCE_EXPECTED_VERSION` is now propagated at every workflow
+ * step (not just version-check steps). Docker workflow's floating-tag
+ * resolution remains a follow-up (Item 4); until it lands,
+ * `acceptance-docker.yml` skips this test by not setting the env,
+ * and `AcceptanceContext::hasExpectedVersion()` gates the assertion.
  */
-#[Group('version-display')]
+#[Group('post-install')]
+#[Group('post-upgrade')]
 final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
 {
     private const ABOUT_URL = '/interface/main/about_page.php';
@@ -93,16 +95,14 @@ final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
      */
     public function testAboutPageShowsExpectedVersion(): void
     {
-        $expected = getenv('ACCEPTANCE_EXPECTED_VERSION');
-        self::assertNotFalse(
-            $expected,
-            'ACCEPTANCE_EXPECTED_VERSION env is unset — the acceptance-package.yml matrix cell must set this so the test knows which version to assert against. Passing an empty string is not a valid override.',
-        );
-        self::assertMatchesRegularExpression(
-            '/^\d+\.\d+\.\d+$/',
-            $expected,
-            "ACCEPTANCE_EXPECTED_VERSION='{$expected}' does not match required X.Y.Z shape",
-        );
+        // Fail-hard on missing env (no skip guard): as of Item 4 of the
+        // post-8.4.0 acceptance-surface refactor, every CI path sets
+        // ACCEPTANCE_EXPECTED_VERSION (tarball via detect-acceptance-
+        // mode.sh, docker via a per-boot version.php read). A missing
+        // env value means a workflow-side bug; silently skipping would
+        // hide it. See VersionApiAcceptanceTest for the sibling
+        // rationale.
+        $expected = AcceptanceContext::expectedVersion();
 
         $this->client = BrowserSession::create();
         $this->performLoginAsAdmin();

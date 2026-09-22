@@ -41,7 +41,8 @@ use PHPUnit\Framework\TestCase;
  * PR intentionally covers only the "endpoints reachable + minting
  * credentials" half of the successful flow.
  */
-#[Group('api-enabled')]
+#[Group('api-enabled-post-install')]
+#[Group('api-enabled-post-upgrade')]
 final class OAuth2ApiEnabledTest extends TestCase
 {
     public function testOidcDiscoveryReturnsProviderMetadata(): void

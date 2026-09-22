@@ -64,7 +64,8 @@ use PHPUnit\Framework\TestCase;
  *   - Route dispatch to `FacilityRestController::getAll` and JSON
  *     response serialization
  */
-#[Group('api-enabled')]
+#[Group('api-enabled-post-install')]
+#[Group('api-enabled-post-upgrade')]
 final class ApiSmokeTest extends TestCase
 {
     public function testAuthenticatedFacilityEndpointReturnsFacilityList(): void
