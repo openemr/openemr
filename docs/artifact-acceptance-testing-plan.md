@@ -2824,6 +2824,17 @@ All 5 `run-acceptance-group` invocations in `acceptance-docker.yml` now pass the
 
 **`AcceptanceContext::hasExpectedVersion()` kept**: the predicate is still a clean "was env provided?" check for hypothetical future callers who genuinely want to gate on env presence (not shape-validate). Not used by tests today but harmless to keep; drop later if it accumulates zero callers by Item 6-plus cleanup.
 
+**Upgrade cell skip logic (added post-review)**: the docker upgrade scenario is only meaningful when both from_tag and to_tag are shipped/rel-branch builds AND the target has upgrade infrastructure wired for the source. When it's not, the cell produces false-red signals: post-upgrade DB stays at the from version while code advances to to's version, and every downstream assertion (version-check, business, api-enabled) becomes unreliable. Even the boot's login-page healthcheck can fail because login requires sql_upgrade to have run.
+
+Skip criteria (evaluated per-cell after tag resolution, before boot):
+
+1. **`from_tag`'s OCI `revision` == `master`** — from IS master's build, no higher shipped version exists to upgrade TO. Same-or-lower target is either a no-op or an unsupported downgrade.
+2. **`to_tag`'s OCI `revision` == `master` AND master carries the `next` docker tag in `release-targets.yml`** — between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current `version.php` in this window. When `next` is on a rel-XXX branch instead (that branch's active dev cycle), the release-cut / patch-prep mutators cross-propagate fsupgrade + docker-version bumps to BOTH the rel branch AND master, so master's dev docker DOES have upgrade infra in that window and the cell WILL run.
+
+When either criterion fires, all upgrade-scenario steps (from boot, from-tag test group, stop containers, boot target, resolve upgrade-target version, run post-upgrade, api-enable post-upgrade, run api-enabled-post-upgrade) skip via `if:` condition. Cell shows all upgrade steps skipped; no red failures, no wasted runtime. Skip-notice step emits an annotation explaining the specific reason.
+
+Real signal preserved: `fresh-install-from` + `fresh-install-to` cells still exercise both images independently.
+
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc**
 Table of ~6 contexts × what each provides. Not covered elsewhere. Cheap; prevents future confusion. (The table above is a starting point.)
 

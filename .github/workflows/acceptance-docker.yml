@@ -566,7 +566,103 @@ jobs:
       # Cache-friendly via composer.lock hash.
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
+    # Item 4 followup: decide whether the upgrade scenario cell can
+    # produce meaningful signal in this run's specific from/to image
+    # pairing. Two skip cases:
+    #
+    #   1. from_tag's OCI revision == master -- from IS master's build,
+    #      so no shipped version higher than from exists to upgrade TO.
+    #      Any to_tag would be same-or-lower version. Scenario is
+    #      meaningless.
+    #
+    #   2. to_tag's OCI revision == master AND master carries the `next`
+    #      docker tag in release-targets.yml (between-cycles state,
+    #      no rel branch in active dev cycle). In this state master's
+    #      docker-upgrade infrastructure (fsupgrade-N + docker-version
+    #      bump) hasn't been scaffolded to walk from currently-shipped
+    #      versions to master's current version.php -- so booting
+    #      master's dev docker on top of a shipped installation
+    #      produces a code-vs-DB mismatch (code advanced, DB stayed).
+    #      Every downstream assertion (version-check, business, api-
+    #      enabled) becomes unreliable. Even the boot's login-page
+    #      healthcheck can fail because login requires sql_upgrade to
+    #      have run.
+    #
+    #      Not-skip case in this branch: when `next` is on a rel-XXX
+    #      branch (that branch's active dev cycle), the release-cut /
+    #      patch-prep mutators cross-propagate fsupgrade + docker-
+    #      version bumps to BOTH the rel branch AND master. Master's
+    #      dev docker DOES have the upgrade infra in that window.
+    #      Detection: master's docker_tags in release-targets.yml
+    #      excludes `next` (next is somewhere else).
+    #
+    # Non-upgrade scenarios (fresh-install-from, fresh-install-to)
+    # never gate on this step -- `matrix.scenario == 'upgrade'`
+    # short-circuits the whole detection.
+    - name: Detect upgrade-cell skip criteria (from/to OCI revision + master's next-tag placement)
+      id: detect_upgrade_skip
+      if: matrix.scenario == 'upgrade'
+      env:
+        FROM_TAG: ${{ steps.tags.outputs.boot_tag }}
+        TO_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
+      run: |
+        set -eo pipefail
+        # Pull both images so docker inspect can read Config.Labels.
+        # Cached if the fresh-install-* cells already pulled them, but
+        # each matrix cell runs on its own runner so no cross-cell
+        # cache -- worst case one extra pull per image (~30s).
+        docker pull "openemr/openemr:${FROM_TAG}" 2>&1 | tail -1
+        docker pull "openemr/openemr:${TO_TAG}" 2>&1 | tail -1
+
+        FROM_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${FROM_TAG}" 2>/dev/null || echo "")
+        TO_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${TO_TAG}" 2>/dev/null || echo "")
+        echo "==> from_tag (${FROM_TAG}) revision: ${FROM_REV}"
+        echo "==> to_tag   (${TO_TAG}) revision: ${TO_REV}"
+
+        if [[ "${FROM_REV}" == "master" ]]; then
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "skip_reason<<REASON_EOF"
+            echo "from_tag (${FROM_TAG}) has OCI revision=master -- from IS master's build, no higher version exists to upgrade TO. Cell would exercise a same-or-lower version transition which the docker upgrade mechanism doesn't support."
+            echo "REASON_EOF"
+          } >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [[ "${TO_REV}" != "master" ]]; then
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "==> to_tag is a shipped or rel-branch build (revision=${TO_REV}) -- auto-upgrade infra present, cell will run"
+          exit 0
+        fi
+
+        # to_tag revision=master. Check if master carries the `next`
+        # docker tag: `awk` picks the master row's docker_tags line,
+        # then grep for a `next` word-boundary hit.
+        if awk '/^- branch: master$/{f=1} f && /^  docker_tags:/{print; exit}' .github/release-targets.yml | grep -qE '(^|,| )next(,| |$)'; then
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "skip_reason<<REASON_EOF"
+            echo "to_tag (${TO_TAG}) has OCI revision=master AND master carries the \`next\` docker tag in release-targets.yml -- indicates between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current version.php in this window. Post-upgrade DB will not advance -> code-vs-DB mismatch -> every downstream assertion unreliable."
+            echo "REASON_EOF"
+          } >> "$GITHUB_OUTPUT"
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "==> to_tag revision=master but master does NOT carry \`next\` tag -- indicates rel-XXX branch is in active dev cycle. Release-cut / patch-prep mutators cross-propagated upgrade infra to master; cell will run."
+        fi
+
+    - name: Skip upgrade scenario (early notice)
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true'
+      run: |
+        echo "::warning::Upgrade scenario cell skipping downstream steps."
+        printf '%s\n' "${{ steps.detect_upgrade_skip.outputs.skip_reason }}"
+        echo ""
+        echo "==> Real signal preserved: fresh-install-from + fresh-install-to cells still exercise both images independently."
+        echo "==> This cell will show all downstream steps as skipped via if: conditions."
+
     - name: Boot artifact (${{ steps.tags.outputs.boot_tag }})
+      # Skip when upgrade scenario is being skipped (see detect_upgrade_skip).
+      # Non-upgrade scenarios have empty skip output -> condition passes -> boot runs.
+      if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
       env:
         # boot_tag holds the effective image ref: either the matrix's
         # Docker Hub default OR openemr/openemr:pr-built when
@@ -613,6 +709,7 @@ jobs:
     # VersionDisplayAcceptanceTest line ~127 preg_match).
     - name: Resolve running artifact version (OCI label, fallback version.php)
       id: boot-version
+      if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
       env:
         OPENEMR_TAG: ${{ steps.tags.outputs.boot_tag }}
       run: |
@@ -623,15 +720,22 @@ jobs:
           echo "==> OCI label 'org.opencontainers.image.version' = '$LABEL' -> resolved X.Y.Z prefix = '$RESOLVED'"
         else
           echo "==> OCI label empty or malformed ('$LABEL') -- likely pr-built. Falling back to version.php read."
+          # is_int() || (is_string && ctype_digit): version.php in the
+          # repo assigns v_major/v_minor/v_patch as string literals
+          # ('8', '5', '0'), which is_int() would reject. Accept either
+          # native int or digit-only string; still reject any other type
+          # or non-digit content.
           RESOLVED=$(
             docker compose \
               -f docker/production/docker-compose.yml \
               -f .github/docker/acceptance-docker-compose.yml \
               exec -T openemr php -r '
                 require "/var/www/localhost/htdocs/openemr/version.php";
-                if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
-                    fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
-                    exit(1);
+                foreach (["v_major" => $v_major, "v_minor" => $v_minor, "v_patch" => $v_patch] as $name => $value) {
+                    if (!(is_int($value) || (is_string($value) && ctype_digit($value)))) {
+                        fwrite(STDERR, "version.php \${$name} must be int or digit-only string, got: " . var_export($value, true) . "\n");
+                        exit(1);
+                    }
                 }
                 echo "$v_major.$v_minor.$v_patch";
               '
@@ -645,6 +749,7 @@ jobs:
         echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
 
     - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
+      if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
       uses: ./.github/actions/run-acceptance-group
       with:
         group: ${{ matrix.test_group }}
@@ -674,7 +779,7 @@ jobs:
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
     - name: Stop containers (preserve named volumes)
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       run: |
         # `down` without --volumes preserves databasevolume + sitevolume
         # + logvolume01 -- the target artifact needs to see the existing
@@ -686,7 +791,7 @@ jobs:
           down
 
     - name: Confirm volumes persist post-down
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       run: |
         docker volume ls | grep "${COMPOSE_PROJECT_NAME}" || {
           echo "::error::Named volumes were unexpectedly removed by docker compose down"
@@ -694,7 +799,7 @@ jobs:
         }
 
     - name: Boot target artifact (${{ steps.tags.outputs.upgrade_target_tag }}) -- auto-upgrade path runs
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       env:
         # upgrade_target_tag = TO_TAG in the default path, or
         # openemr/openemr:pr-built when build-image ran
@@ -720,7 +825,7 @@ jobs:
     # rationale.
     - name: Resolve running artifact version after upgrade (OCI label, fallback version.php)
       id: upgrade-target-version
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       env:
         OPENEMR_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
       run: |
@@ -731,15 +836,20 @@ jobs:
           echo "==> OCI label 'org.opencontainers.image.version' = '$LABEL' -> resolved X.Y.Z prefix = '$RESOLVED'"
         else
           echo "==> OCI label empty or malformed ('$LABEL') -- likely pr-built. Falling back to version.php read."
+          # is_int() || (is_string && ctype_digit): see the pre-upgrade
+          # resolve step for the full rationale (version.php uses
+          # string literals for v_major/v_minor/v_patch).
           RESOLVED=$(
             docker compose \
               -f docker/production/docker-compose.yml \
               -f .github/docker/acceptance-docker-compose.yml \
               exec -T openemr php -r '
                 require "/var/www/localhost/htdocs/openemr/version.php";
-                if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
-                    fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
-                    exit(1);
+                foreach (["v_major" => $v_major, "v_minor" => $v_minor, "v_patch" => $v_patch] as $name => $value) {
+                    if (!(is_int($value) || (is_string($value) && ctype_digit($value)))) {
+                        fwrite(STDERR, "version.php \${$name} must be int or digit-only string, got: " . var_export($value, true) . "\n");
+                        exit(1);
+                    }
                 }
                 echo "$v_major.$v_minor.$v_patch";
               '
@@ -753,7 +863,7 @@ jobs:
         echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
 
     - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       uses: ./.github/actions/run-acceptance-group
       with:
         group: post-upgrade
@@ -767,11 +877,11 @@ jobs:
     # / OIDC discovery / DCR on the upgrade path would go uncaught here.
     # Item 3's composite extraction made adding this a one-liner.
     - name: Bootstrap API via admin panel (post-upgrade)
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       uses: ./.github/actions/api-enable-artifact
 
     - name: Run api-enabled-post-upgrade suite against ${{ steps.tags.outputs.upgrade_target_tag }}
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       uses: ./.github/actions/run-acceptance-group
       with:
         group: api-enabled-post-upgrade
