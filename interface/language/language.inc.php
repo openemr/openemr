@@ -3,66 +3,32 @@
 /**
  * language.inc.php script
  *
+ * Thin delegator kept for the existing call sites. The body lives in LanguageService; see
+ * the migration tracker, openemr/openemr#11674.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Services\LanguageService;
+
 function check_pattern($data, $pat): bool
 {
-    if (preg_match("/" . addcslashes((string) $pat, '/') . "/", (string) $data)) {
-        return true ;
-    } else {
-        return false;
-    }
+    return LanguageService::checkPattern((string) $data, (string) $pat);
 }
 
 // Function to insert/modify items in the language log table, lang_custom
+// (non-string arguments are ignored)
 //
 function insert_language_log($lang_desc, $lang_code, $cons_name, $def): void
 {
-    // set up the mysql collation string to ensure case is sensitive in the mysql queries
-    $case_sensitive_collation = "COLLATE utf8mb4_bin";
-
-
-    if ($cons_name == '') {
-        // NEW LANGUAGE
-        // (ensure not a repeat log entry)
-        $sql = "SELECT * FROM lang_custom WHERE constant_name='' AND lang_description " . $case_sensitive_collation . " =?";
-        $res_test = sqlStatement($sql, [$lang_desc]);
-        if (!sqlFetchArray($res_test)) {
-            $sql = "INSERT INTO lang_custom SET lang_code=?, lang_description=?";
-            sqlStatement($sql, [$lang_code, $lang_desc]);
-        }
-    } elseif ($lang_desc == '') {
-        // NEW CONSTANT
-        // (ensure not a repeat entry)
-        $sql = "SELECT * FROM lang_custom WHERE lang_description='' AND constant_name " . $case_sensitive_collation . " =?";
-        $res_test = sqlStatement($sql, [$cons_name]);
-        if (!sqlFetchArray($res_test)) {
-            $sql = "INSERT INTO lang_custom SET constant_name=?";
-            sqlStatement($sql, [$cons_name]);
-        }
-    } else {
-        // FULL ENTRY
-        // (ensure not a repeat log entry)
-        $sql = "SELECT * FROM lang_custom WHERE lang_description " . $case_sensitive_collation . " =? AND constant_name " . $case_sensitive_collation . " =? AND definition " . $case_sensitive_collation . " =?";
-        $res_test = sqlStatement($sql, [$lang_desc, $cons_name, $def]);
-        if (!sqlFetchArray($res_test)) {
-            // either modify already existing log entry or create a new one
-            $sql = "SELECT * FROM lang_custom WHERE lang_description " . $case_sensitive_collation . " =? AND constant_name " . $case_sensitive_collation . " =?";
-            $res_test2 = sqlStatement($sql, [$lang_desc, $cons_name]);
-            if (sqlFetchArray($res_test2)) {
-                // modify existing log entry(s)
-                $sql = "UPDATE lang_custom SET definition=? WHERE lang_description " . $case_sensitive_collation . " =? AND constant_name " . $case_sensitive_collation . " =?";
-                sqlStatement($sql, [$def, $lang_desc, $cons_name]);
-            } else {
-                // create new log entry
-                $sql = "INSERT INTO lang_custom (lang_description,lang_code,constant_name,definition) VALUES (?,?,?,?)";
-                sqlStatement($sql, [$lang_desc, $lang_code, $cons_name, $def]);
-            }
-        }
+    if (!is_string($lang_desc) || !is_string($lang_code) || !is_string($cons_name) || !is_string($def)) {
+        return;
     }
+    LanguageService::insertLanguageLog($lang_desc, $lang_code, $cons_name, $def);
 }
