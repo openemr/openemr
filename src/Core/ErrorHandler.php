@@ -62,10 +62,19 @@ readonly class ErrorHandler
         int $errline,
     ): bool {
         // If the current error_reporting error level matches the specified
-        // severity, convert it to an error exception. With this check, `@` error
-        // suppression (or changes to `error_reporting`) are respected.
+        // severity, handle the error in the configured manner. With this check,
+        // `@` error suppression (or changes to `error_reporting`) are respected.
         if ((error_reporting() & $errno) !== 0) {
-            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+            match ($this->errorMode) {
+                ErrorHandlingMode::Log => $this->logger->log(
+                    self::pickErrorLevel($errno),
+                    $message,
+                    $context,
+                ),
+                ErrorHandlingMode::Throw => throw new ErrorException($errstr, 0, $errno, $errfile, $errline),
+            };
+            // Indicates this has been handled.
+            return true;
         }
         // If the current error_reporting DOES NOT capture the error level,
         // still log deprecation warnings even if they're turned off at runtime.
@@ -208,5 +217,13 @@ readonly class ErrorHandler
     public function installExceptionHandler(): void
     {
         set_exception_handler($this->handleException(...));
+    }
+
+    /**
+     * @param E_* $phpErrorLevel
+     * @return LogLevel::*
+     */
+    private static function pickErrorLevel(int $phpErrorLevel): string
+    {
     }
 }
