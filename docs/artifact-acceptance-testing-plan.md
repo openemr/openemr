@@ -2835,6 +2835,14 @@ When either criterion fires, all upgrade-scenario steps (from boot, from-tag tes
 
 Real signal preserved: `fresh-install-from` + `fresh-install-to` cells still exercise both images independently.
 
+**Item 4 followup: BATS + PHPUnit-isolated coverage** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. Inline shell/php-r logic in `acceptance-docker.yml`'s three post-Item-4 steps (detect-upgrade-cell-skip, boot-version, upgrade-target-version) was extracted to three standalone scripts:
+
+- `.github/scripts/detect-upgrade-cell-skip.sh` — pure-shell skip decision logic (BATS: `tests/bats/ci-scripts/detect-upgrade-cell-skip/`, 17 cases).
+- `.github/scripts/parse-artifact-version.sh` — OCI-first + version.php-fallback parse/validate/emit (BATS: `tests/bats/ci-scripts/parse-artifact-version/`, 15 cases).
+- `.github/scripts/read-version-php.php` — `$v_major.$v_minor.$v_patch` reader with is_int-or-ctype_digit validation (PHPUnit-isolated: `tests/Tests/Isolated/Common/Command/Ci/ReadVersionPhpTest.php`, 14 cases).
+
+The workflow steps now compose `docker inspect` / `docker compose exec` (both need the Docker daemon so stay inline) with `bash <script>` invocations that own the pure logic. All three scripts added to `.github/byte-identical.yml` with `exclude-branches: [rel-800]` per G45/G47 pattern (script referenced by synced workflow must itself sync).
+
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc**
 Table of ~6 contexts × what each provides. Not covered elsewhere. Cheap; prevents future confusion. (The table above is a starting point.)
 
