@@ -343,6 +343,21 @@ files:
 # applies (that branch doesn't carry acceptance-package.yml).
 - path: .github/scripts/detect-acceptance-mode.sh
   exclude-branches: [rel-800]
+# Item 4 followup (openemr/openemr#TBD, 2026-09-22): three scripts
+# extracted from acceptance-docker.yml's inline shell/php-r logic so
+# they can be unit-tested (BATS + PHPUnit-isolated). Each is invoked
+# from acceptance-docker.yml at run-time against the branch's own
+# checkout, so every branch that carries the workflow must also carry
+# the scripts. Same rel-800 exclusion applies (that branch doesn't
+# carry acceptance-docker.yml). Third occurrence of the G45/G47 gap
+# class (script referenced by synced workflow but itself not in
+# manifest); adding the three entries preemptively per the pattern.
+- path: .github/scripts/detect-upgrade-cell-skip.sh
+  exclude-branches: [rel-800]
+- path: .github/scripts/parse-artifact-version.sh
+  exclude-branches: [rel-800]
+- path: .github/scripts/read-version-php.php
+  exclude-branches: [rel-800]
 - path: .github/docker/acceptance-docker-compose.yml
   exclude-branches: [rel-800]
 - path: .github/docker/acceptance-package-compose.yml
