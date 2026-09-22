@@ -1132,6 +1132,86 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
+    public function testClearIpCounterOnAuthSuccessGlobalOptsIntoLegacyBehavior(): void
+    {
+        // Deployments behind shared NAT can opt back into "successful
+        // login zeros the shared IP counter" via the
+        // clear_ip_counter_on_auth_success global. Cover all three
+        // success paths (staff pw, portal pw, MFA) in a single test
+        // to pin the setting's uniform effect.
+        $fixture = $this->portalFixtures()->installPortalPatient(
+            portalLoginUsername: 'test-portal-user-optin-' . Uuid::uuid4()->toString(),
+            plainPassword: 'OptInPortalPassword1!'
+        );
+        $ipString = $this->clientIp;
+        $this->snapshotIpTracking($ipString);
+
+        $globals = OEGlobalsBag::getInstance();
+        $originalSetting = $globals->getBoolean('clear_ip_counter_on_auth_success');
+        try {
+            $globals->set('clear_ip_counter_on_auth_success', true);
+
+            // Seed the shared IP counter, then run a successful
+            // portal login; assert IP counter now clears too.
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO ip_tracking (ip_string, ip_login_fail_counter, ip_last_login_fail) "
+                    . "VALUES (?, 4, NOW()) ON DUPLICATE KEY UPDATE "
+                    . "ip_login_fail_counter = 4, ip_last_login_fail = NOW()",
+                [$ipString]
+            );
+            $auth = new AuthUtils('portal-api');
+            $login = $fixture['portal_login_username'];
+            $pw = $fixture['plain_password'];
+            $ok = $auth->confirmPassword($login, $pw, $fixture['email']);
+            $this->assertTrue($ok);
+            $this->assertSame(
+                0,
+                $this->readIpCounter($ipString),
+                'Portal success with setting ON must reset the shared IP counter'
+            );
+
+            // Same setting, MFA path: seed the MFA IP counter and run
+            // resetMfaChallengeCounters (which the success flow calls).
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO ip_tracking (ip_string, mfa_login_fail_counter, mfa_last_login_fail) "
+                    . "VALUES (?, 4, NOW()) ON DUPLICATE KEY UPDATE "
+                    . "mfa_login_fail_counter = 4, mfa_last_login_fail = NOW()",
+                [$ipString]
+            );
+            AuthUtils::resetMfaChallengeCounters(null, $ipString);
+            $this->assertSame(
+                0,
+                $this->readMfaIpCounter($ipString),
+                'MFA success with setting ON must reset the shared MFA IP counter'
+            );
+
+            // Flip OFF and verify same operations leave the IP
+            // counters untouched.
+            $globals->set('clear_ip_counter_on_auth_success', false);
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE ip_tracking SET ip_login_fail_counter = 5, "
+                    . "mfa_login_fail_counter = 5, ip_last_login_fail = NOW(), "
+                    . "mfa_last_login_fail = NOW() WHERE ip_string = ?",
+                [$ipString]
+            );
+            $pwRerun = $fixture['plain_password'];
+            $this->assertTrue($auth->confirmPassword($login, $pwRerun, $fixture['email']));
+            AuthUtils::resetMfaChallengeCounters(null, $ipString);
+            $this->assertSame(
+                5,
+                $this->readIpCounter($ipString),
+                'Portal success with setting OFF must NOT reset the shared IP counter'
+            );
+            $this->assertSame(
+                5,
+                $this->readMfaIpCounter($ipString),
+                'MFA success with setting OFF must NOT reset the shared MFA IP counter'
+            );
+        } finally {
+            $globals->set('clear_ip_counter_on_auth_success', $originalSetting);
+        }
+    }
+
     public function testPortalAccountIncrementResetsStalePartialCounterInsteadOfBuildingOnIt(): void
     {
         // Rabbit finding: increment helpers only reset counters that

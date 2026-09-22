@@ -2216,6 +2216,13 @@ $GLOBALS_METADATA = [
             xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ],
 
+        'clear_ip_counter_on_auth_success' => [
+            xl('Clear IP Failed-Login Counter on Successful Authentication'),
+            'bool',                           // data type
+            '0',                              // default OFF
+            xl('When enabled, a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. Convenient in shared-NAT environments where legitimate users may otherwise accumulate strikes across a day. When disabled (default), the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP.')
+        ],
+
         'portal_onetime_max_pin_attempts' => [
             xl('Portal One-Time Token Maximum PIN Attempts'),
             'num',                            // data type

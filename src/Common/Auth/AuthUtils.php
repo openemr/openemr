@@ -275,14 +275,15 @@ class AuthUtils
 
         // PASSED auth for the portal api
         $this->clearFromMemory($password);
-        // Reset ONLY the per-account counter on success. Deliberately
-        // do NOT reset the shared per-IP counter: an attacker with
-        // valid credentials for account A could otherwise clear the
-        // only rate-limit on the IP after every valid login and
-        // brute-force account B indefinitely. The IP counter's own
-        // time-based reset window (ip_time_reset_password_max_failed_logins)
-        // handles legit shared-NAT decay.
+        // Always clear this account's own per-portal-account counter
+        // on success. Clear the shared per-IP counter only when the
+        // global opt-in is set; default off so a valid login on
+        // account A cannot clear the IP counter that has been
+        // accumulating against account B from the same IP.
         $this->resetPortalAccountFailedCounter($username);
+        if (self::shouldClearIpCounterOnAuthSuccess()) {
+            $this->resetIpLoginFailedCounter($ip['ip_string']);
+        }
         //  Set up class variable that the api will need to collect (log for API is done outside)
         $this->patientId = $patientDataInfo['pid'];
         return true;
@@ -497,7 +498,13 @@ class AuthUtils
         if ($this->loginAuth || $this->apiAuth) {
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
             self::resetLoginFailedCounter($username);
-            $this->resetIpLoginFailedCounter($ip['ip_string']);
+            // Shared per-IP counter clears only when the global opt-in
+            // is set. Default off so a valid login on account A cannot
+            // clear the IP counter that has been accumulating against
+            // account B from the same IP.
+            if (self::shouldClearIpCounterOnAuthSuccess()) {
+                $this->resetIpLoginFailedCounter($ip['ip_string']);
+            }
         }
         if ($this->loginAuth) {
             // Specialized code for login auth (not api auth)
@@ -1506,27 +1513,72 @@ class AuthUtils
      * MFA both passed). Callers must invoke this only after MFA has
      * been verified — a bare confirmPassword success is not enough.
      *
+     * The per-user counter always resets. The shared per-IP counter
+     * only resets when the clear_ip_counter_on_auth_success global is
+     * enabled; default off so a valid MFA on account A cannot clear
+     * an IP counter that has been accumulating against account B
+     * from the same IP.
+     *
      * @param string|null $username user whose MFA challenge succeeded
      * @param string      $ipString caller's IP (from collectIpAddresses)
      */
     public static function resetMfaChallengeCounters(?string $username, string $ipString): void
     {
         if ($username !== null && $username !== '') {
-            QueryUtils::sqlStatementThrowException(
-                "UPDATE `users_secure` SET `mfa_fail_counter` = 0, `mfa_last_fail` = NULL "
-                    . "WHERE BINARY `username` = ?",
-                [$username],
-                noLog: true
-            );
+            self::resetMfaUserFailCounter($username);
         }
-        if ($ipString !== '') {
-            QueryUtils::sqlStatementThrowException(
-                "UPDATE `ip_tracking` SET `mfa_login_fail_counter` = 0, `mfa_last_login_fail` = NULL "
-                    . "WHERE `ip_string` = ?",
-                [$ipString],
-                noLog: true
-            );
+        if ($ipString !== '' && self::shouldClearIpCounterOnAuthSuccess()) {
+            self::resetMfaIpFailCounter($ipString);
         }
+    }
+
+    /**
+     * Zero the per-user MFA fail counter for the given user
+     * unconditionally. Used by success-path callers via
+     * resetMfaChallengeCounters() and by the time-based reset-window
+     * branch inside isMfaChallengeBlocked() (which must run even when
+     * the shared-IP-clear-on-success global is off — a legit user
+     * whose lockout window has elapsed still needs recovery).
+     */
+    private static function resetMfaUserFailCounter(string $username): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `users_secure` SET `mfa_fail_counter` = 0, `mfa_last_fail` = NULL "
+                . "WHERE BINARY `username` = ?",
+            [$username],
+            noLog: true
+        );
+    }
+
+    /**
+     * Zero the per-IP MFA fail counter for the given IP
+     * unconditionally. See resetMfaUserFailCounter() docblock — same
+     * reasoning for the IP axis.
+     */
+    private static function resetMfaIpFailCounter(string $ipString): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `ip_tracking` SET `mfa_login_fail_counter` = 0, `mfa_last_login_fail` = NULL "
+                . "WHERE `ip_string` = ?",
+            [$ipString],
+            noLog: true
+        );
+    }
+
+    /**
+     * Whether a successful authentication should clear the shared
+     * per-IP failed-login counters (both the standard
+     * ip_tracking.ip_login_fail_counter and the MFA-specific
+     * ip_tracking.mfa_login_fail_counter). Off by default so a
+     * valid login on one account cannot bypass the IP throttle that
+     * is being accumulated against another account from the same IP.
+     * Deployments behind shared NAT that prefer the convenience of
+     * a clean-on-success can enable
+     * `clear_ip_counter_on_auth_success` in globals.
+     */
+    private static function shouldClearIpCounterOnAuthSuccess(): bool
+    {
+        return OEGlobalsBag::getInstance()->getBoolean('clear_ip_counter_on_auth_success');
     }
 
     /**
@@ -1577,7 +1629,7 @@ class AuthUtils
                     // threshold with a fresh timestamp, and blindly
                     // clearing it here would silently release an
                     // active IP lockout.
-                    self::resetMfaChallengeCounters($username, '');
+                    self::resetMfaUserFailCounter($username);
                 } else {
                     return true;
                 }
@@ -1603,7 +1655,7 @@ class AuthUtils
                     // Same isolation as above — only reset the IP
                     // counter, so an unrelated active user lockout
                     // isn't cleared as a side effect.
-                    self::resetMfaChallengeCounters(null, $ipString);
+                    self::resetMfaIpFailCounter($ipString);
                 } else {
                     return true;
                 }

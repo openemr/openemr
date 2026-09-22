@@ -686,6 +686,19 @@ gate. Once the applicable threshold is reached, further attempts are
 rejected until the admin unblocks the row (or the automatic reset window
 elapses, when configured).
 
+**Per-user/per-account counters** (`users_secure.login_fail_counter`,
+`users_secure.mfa_fail_counter`, `patient_access_onsite.portal_fail_counter`)
+always zero on a successful authentication for that specific account.
+The shared per-IP counters (`ip_tracking.ip_login_fail_counter`,
+`ip_tracking.mfa_login_fail_counter`) do NOT zero on a successful login
+by default — they decay only via their configured
+`ip_time_reset_password_max_failed_logins` window. This keeps the per-IP
+throttle effective when an attacker holds valid credentials for one
+account and attempts to brute-force another from the same IP.
+Deployments behind shared NAT that prefer the convenience of a
+clean-on-success can enable `clear_ip_counter_on_auth_success` in globals
+to restore the pre-8.5.0 behavior.
+
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >
 > **Solutions for modified commands:**
