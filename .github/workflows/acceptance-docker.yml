@@ -579,8 +579,16 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 900
 
+    # expected_version passed as empty string because acceptance-docker.yml
+    # doesn't resolve floating tags (`latest`, `next`) to X.Y.Z at runtime
+    # yet (Item 4 of the post-8.4.0 refactor). Version-check tests
+    # (VersionApiAcceptanceTest, VersionDisplayAcceptanceTest) skip cleanly
+    # via AcceptanceContext::hasExpectedVersion() when the env is unset.
     - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
-      run: composer acceptance -- --group=${{ matrix.test_group }}
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: ${{ matrix.test_group }}
+        expected_version: ''
 
     # api-enable bootstrap fires AFTER the post-install group only
     # (not the plain upgrade scenario — the target of upgrade is api-
@@ -595,13 +603,14 @@ jobs:
     # asserts the opposite behavior (endpoints return 200).
     - name: Bootstrap API via admin panel
       if: startsWith(matrix.scenario, 'fresh-install')
-      env:
-        OPENEMR_ENABLE_API_BOOTSTRAP: '1'
-      run: php tests/Acceptance/bin/api-enable.php
+      uses: ./.github/actions/api-enable-artifact
 
     - name: Run acceptance suite (--group=api-enabled-post-install) against ${{ steps.tags.outputs.boot_tag }}
       if: startsWith(matrix.scenario, 'fresh-install')
-      run: composer acceptance -- --group=api-enabled-post-install
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: api-enabled-post-install
+        expected_version: ''
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
     - name: Stop containers (preserve named volumes)
@@ -645,7 +654,28 @@ jobs:
 
     - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
       if: matrix.scenario == 'upgrade'
-      run: composer acceptance -- --group=post-upgrade
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-upgrade
+        expected_version: ''
+
+    # api-enable + api-enabled-post-upgrade group closes Item 3's friction
+    # point #3 (documented in docs/artifact-acceptance-testing-plan.md):
+    # acceptance-package.yml already runs an api-enable + api-enabled-
+    # post-upgrade cycle after its upgrade scenario, but acceptance-
+    # docker.yml historically didn't -- a regression to /api/facility
+    # / OIDC discovery / DCR on the upgrade path would go uncaught here.
+    # Item 3's composite extraction made adding this a one-liner.
+    - name: Bootstrap API via admin panel (post-upgrade)
+      if: matrix.scenario == 'upgrade'
+      uses: ./.github/actions/api-enable-artifact
+
+    - name: Run api-enabled-post-upgrade suite against ${{ steps.tags.outputs.upgrade_target_tag }}
+      if: matrix.scenario == 'upgrade'
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: api-enabled-post-upgrade
+        expected_version: ''
 
     # ==== Debug capture on failure (all scenarios) ====
     - name: Capture container state (on failure)

@@ -264,6 +264,27 @@ files:
 # kept present solely so POST cleanup can resolve action.yml.
 # Operational cost: none (dormant file on 1 rel branch).
 - path: .github/actions/generate-app-token/**
+# G47 (openemr/openemr#TBD, 2026-09-22): run-acceptance-group and
+# api-enable-artifact composite actions (Item 3 of the post-8.4.0
+# acceptance-surface refactor, openemr/openemr#14168) are referenced
+# by acceptance-package.yml + acceptance-docker.yml -- both of which
+# are already in this manifest and sync to rel branches. Composites
+# themselves also need to sync so the referencing workflows can
+# resolve them at run time; otherwise every acceptance cell on the
+# rel branch fails with "Can't find 'action.yml' under
+# .github/actions/run-acceptance-group". Same class of gap as G45
+# (assert-inputs-nonempty.sh script was referenced by a synced
+# workflow but itself not synced).
+#
+# rel-800 excluded: it doesn't carry the acceptance-package.yml or
+# acceptance-docker.yml callers (the acceptance-surface section
+# below excludes rel-800), so the composites would be dormant there
+# with no invoker -- but present. Skip for now; can add later if a
+# caller ever appears on rel-800.
+- path: .github/actions/run-acceptance-group/**
+  exclude-branches: [rel-800]
+- path: .github/actions/api-enable-artifact/**
+  exclude-branches: [rel-800]
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
   exclude-branches: [rel-800]
 - path: .github/PULL_REQUEST_TEMPLATE/release-finalize.md
