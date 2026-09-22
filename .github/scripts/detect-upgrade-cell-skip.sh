@@ -49,7 +49,17 @@
 #                          'pr-built'). Used in skip-reason output.
 #   RELEASE_TARGETS_PATH   (optional) Path to release-targets.yml.
 #                          Defaults to '.github/release-targets.yml'
-#                          relative to cwd.
+#                          relative to cwd -- BUT callers running from
+#                          a rel-branch checkout MUST override with a
+#                          path to MASTER's copy (e.g. fetched via
+#                          `git show origin/master:.github/release-
+#                          targets.yml > /tmp/rt.yml`). The file is
+#                          master-authoritative (see its own header
+#                          comment); rel-branch copies are frozen
+#                          snapshots from cut time and drift as
+#                          master mutates. Reading the stale copy
+#                          gives the wrong skip decision when master
+#                          moves `next` between cycles.
 #
 # Outputs (written to $GITHUB_OUTPUT, or stdout if GITHUB_OUTPUT unset):
 #

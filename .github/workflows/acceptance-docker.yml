@@ -592,13 +592,28 @@ jobs:
           fi
         done
 
+        # release-targets.yml is master-authoritative -- rel-branch copies
+        # are frozen snapshots from cut time that drift as master mutates
+        # (see release-targets.yml's own header comment). This workflow
+        # byte-identical-syncs to rel branches and can fire from push/PR
+        # events there, so the local checkout's release-targets.yml would
+        # be the stale snapshot. Fetch master's live copy and pass its
+        # path to the script instead. On master-side runs origin/master
+        # matches the local copy exactly; on rel-branch runs we pick up
+        # any post-cut master mutations (e.g. `next` tag placement moves
+        # between cycles). Fetch is depth=1 -- we only need the tree at
+        # HEAD of master, no history.
+        git fetch --depth=1 origin master
+        MASTER_RELEASE_TARGETS="${RUNNER_TEMP}/release-targets-from-master.yml"
+        git show origin/master:.github/release-targets.yml > "${MASTER_RELEASE_TARGETS}"
+
         # docker inspect needs the Docker daemon so stays in the workflow;
         # the pure decision logic lives in detect-upgrade-cell-skip.sh
         # (BATS-tested by tests/bats/ci-scripts/detect-upgrade-cell-skip/).
         FROM_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${FROM_TAG}" 2>/dev/null || echo "")
         TO_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${TO_TAG}" 2>/dev/null || echo "")
         export FROM_REV TO_REV
-        bash .github/scripts/detect-upgrade-cell-skip.sh
+        RELEASE_TARGETS_PATH="${MASTER_RELEASE_TARGETS}" bash .github/scripts/detect-upgrade-cell-skip.sh
 
     - name: Skip upgrade scenario (early notice)
       if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true'
