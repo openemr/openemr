@@ -118,6 +118,7 @@ class ApiTestClient
         'user/PractitionerRole.read',
         'user/Procedure.read',
         'user/Provenance.read',
+        'user/ValueSet.read',
 
         'user/allergy.read',
         'user/allergy.write',
