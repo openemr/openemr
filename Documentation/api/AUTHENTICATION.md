@@ -723,6 +723,8 @@ Obtain new access tokens without re-authentication.
 - Refresh token must not be expired (3 months for most grants)
 
 #### Refresh Request
+
+**Public client** (no client_secret registered):
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
@@ -732,7 +734,19 @@ curl -X POST -k \
   --data-urlencode 'refresh_token=def5020017b484b0add020bf3491a8a537fa04eda12...'
 ```
 
-**For confidential clients**, include client authentication:
+**Confidential client** — must include client authentication or the
+token endpoint returns `401 invalid_client`. Either send the
+`client_secret` in the request body:
+```bash
+curl -X POST -k \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  https://localhost:9300/oauth2/default/token \
+  --data-urlencode 'grant_type=refresh_token' \
+  --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
+  --data-urlencode 'refresh_token=def5020017b484b0add020bf3491a8a537fa04eda12...'
+```
+Or use HTTP Basic authentication:
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \

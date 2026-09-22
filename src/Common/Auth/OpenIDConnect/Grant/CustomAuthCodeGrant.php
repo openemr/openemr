@@ -17,7 +17,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
-use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -199,12 +198,6 @@ class CustomAuthCodeGrant extends AuthCodeGrant
 
                 // Validate the JWT assertion
                 $this->jwtAuthService->validateJWTClientAssertion($request, $client);
-
-                // Validate client is authorized for this grant type
-                if (!$this->clientRepository->validateClient($clientId, null, $this->getIdentifier())) {
-                    $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-                    throw OAuthServerException::invalidClient($request);
-                }
 
                 // Validate redirect URI if provided
                 $redirectUri = $this->getRequestParameter('redirect_uri', $request);

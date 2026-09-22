@@ -272,39 +272,71 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
-    public function testValidateClientAllowsAuthCodeGrantForConfidentialClientWithNullSecret(): void
+    public function testValidateClientDeniesAuthCodeGrantWhenConfidentialClientOmitsSecret(): void
     {
-        // Regression guard: CustomAuthCodeGrant validates a JWT client
-        // assertion first and then calls validateClient() with a null
-        // client_secret purely to run the grant-authorization check.
-        // Rejecting that call would break every confidential client that
-        // authenticates with private_key_jwt on the authorization_code flow.
         $client = $this->insertConfidentialClientFixture(clientSecret: 'correct-secret');
         $repo = new ClientRepository();
-        $this->assertTrue(
+        $this->assertFalse(
             $repo->validateClient($client['client_id'], null, 'authorization_code'),
-            'Confidential client on authorization_code with null client_secret '
-                . 'must pass validateClient() so JWT-authenticated flows keep working.'
+            'Confidential client on authorization_code must not validate without a client_secret.'
         );
-        $this->assertTrue(
+        $this->assertFalse(
             $repo->validateClient($client['client_id'], '', 'authorization_code'),
-            'An empty-string client_secret on authorization_code must also pass '
-                . '(same semantics as null; League passes an empty string when '
-                . 'the request body has no client_secret parameter).'
+            'Confidential client on authorization_code must not validate with an empty client_secret.'
         );
     }
 
     public function testValidateClientDeniesAuthCodeGrantWhenConfidentialClientSecretIsWrong(): void
     {
-        // Complement to the null-secret allow test: when a client actually
-        // presents a secret on authorization_code, a wrong value must still
-        // reject. The null case is opt-in to JWT authentication upstream;
-        // sending a wrong secret is not.
         $client = $this->insertConfidentialClientFixture(clientSecret: 'correct-secret');
         $repo = new ClientRepository();
         $this->assertFalse(
             $repo->validateClient($client['client_id'], 'wrong-secret', 'authorization_code'),
             'Confidential client on authorization_code must reject a wrong secret.'
+        );
+    }
+
+    public function testValidateClientAllowsAuthCodeGrantWithCorrectConfidentialClientSecret(): void
+    {
+        $client = $this->insertConfidentialClientFixture(clientSecret: 'correct-secret');
+        $repo = new ClientRepository();
+        $this->assertTrue(
+            $repo->validateClient($client['client_id'], 'correct-secret', 'authorization_code'),
+            'Confidential client on authorization_code must validate with the correct client_secret.'
+        );
+    }
+
+    public function testValidateClientAllowsAuthCodeGrantForPublicClientWithNoSecret(): void
+    {
+        $client = $this->insertPublicClientFixture();
+        $repo = new ClientRepository();
+        $this->assertTrue(
+            $repo->validateClient($client['client_id'], null, 'authorization_code'),
+            'Public client on authorization_code with no client_secret must validate.'
+        );
+    }
+
+    public function testValidateClientDeniesRefreshGrantWhenConfidentialClientOmitsSecret(): void
+    {
+        $client = $this->insertConfidentialClientFixture(clientSecret: 'correct-secret');
+        $repo = new ClientRepository();
+        $this->assertFalse(
+            $repo->validateClient($client['client_id'], null, 'refresh_token'),
+            'Confidential client on refresh_token must not validate without a client_secret.'
+        );
+        $this->assertFalse(
+            $repo->validateClient($client['client_id'], '', 'refresh_token'),
+            'Confidential client on refresh_token must not validate with an empty client_secret.'
+        );
+    }
+
+    public function testValidateClientAllowsRefreshGrantForPublicClientWithNoSecret(): void
+    {
+        $client = $this->insertPublicClientFixture();
+        $repo = new ClientRepository();
+        $this->assertTrue(
+            $repo->validateClient($client['client_id'], null, 'refresh_token'),
+            'Public client on refresh_token with no client_secret must validate.'
         );
     }
 

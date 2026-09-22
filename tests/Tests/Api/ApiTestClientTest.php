@@ -222,6 +222,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
             "refresh_token" => $this->client->getRefreshToken()
         ];
         $this->client->setHeaders(
@@ -273,6 +274,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
             "refresh_token" => ApiTestClient::BOGUS_REFRESH_TOKEN
         ];
         $this->client->setHeaders(
@@ -337,6 +339,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
             "refresh_token" => $this->client->getRefreshToken()
         ];
         $this->client->setHeaders(
@@ -399,6 +402,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
             "scope" => $scopeCustom,
             "refresh_token" => $this->client->getRefreshToken()
         ];
@@ -462,6 +466,7 @@ class ApiTestClientTest extends TestCase
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
             "scope" => $scopeCustom,
             "refresh_token" => $this->client->getRefreshToken()
         ];

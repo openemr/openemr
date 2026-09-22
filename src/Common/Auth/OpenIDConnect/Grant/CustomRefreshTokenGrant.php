@@ -66,22 +66,6 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             "_REQUEST['scope']" => $_REQUEST['scope'] ?? ""
             ]);
 
-        // validate everything to do with the JWT...
-        // Check if JWT authentication service is available and request has JWT assertion
-        if (isset($this->jwtAuthService) && $this->jwtAuthService->hasJWTClientAssertion($request)) {
-            // Validate JWT assertion
-            try {
-                $this->jwtAuthService->validateJWTClientAssertion($request, $client);
-                $this->getSystemLogger()->debug("CustomRefreshTokenGrant->validateClient() JWT assertion validated successfully");
-            } catch (OAuthServerException $e) {
-                $this->getSystemLogger()->error(
-                    "CustomRefreshTokenGrant->validateClient() JWT validation failed",
-                    ['error' => $e->getMessage(), 'hint' => $e->getHint()]
-                );
-                throw $e;
-            }
-        }
-
         // we are going to grab our old access token and grab any context information that we may have
         if ($this->accessTokenRepository instanceof AccessTokenRepository) {
             $oldToken = $this->accessTokenRepository->getTokenByToken($oldRefreshToken['access_token_id']);
@@ -178,14 +162,33 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         }
     }
 
+    /**
+     * Authenticates the refresh-token client either via a JWT client
+     * assertion or a shared client secret. When a JWT assertion is
+     * present it is validated directly and the parent shared-secret
+     * check is skipped; otherwise the parent runs and enforces
+     * whatever ClientRepository::validateClient() requires (which for
+     * a confidential client is a matching client_secret).
+     */
     protected function validateClient(ServerRequestInterface $request)
     {
-        $client = parent::validateClient($request);
-        if (!($client instanceof ClientEntity)) {
-            $this->getSystemLogger()->error("Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
-            throw OAuthServerException::invalidClient($request);
+        if (isset($this->jwtAuthService) && $this->jwtAuthService->hasJWTClientAssertion($request)) {
+            $clientId = $this->jwtAuthService->extractClientIdFromJWT($request);
+            if (!is_string($clientId) || $clientId === '') {
+                throw OAuthServerException::invalidClient($request);
+            }
+            $client = $this->clientRepository->getClientEntity($clientId);
+            if (!($client instanceof ClientEntity)) {
+                throw OAuthServerException::invalidClient($request);
+            }
+            $this->jwtAuthService->validateJWTClientAssertion($request, $client);
+        } else {
+            $client = parent::validateClient($request);
+            if (!($client instanceof ClientEntity)) {
+                $this->getSystemLogger()->error("Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
+                throw OAuthServerException::invalidClient($request);
+            }
         }
-
         if (!$client->isEnabled()) {
             $this->getSystemLogger()->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
