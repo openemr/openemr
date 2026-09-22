@@ -26,8 +26,8 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * A ValueSet is either the "appointment-type" set (calendar categories of type 0) or one
  * list from list_options (the list's option_id in list_id "lists" is the ValueSet id, its
- * options are the concepts). Each test seeds its own list; tearDown removes every
- * list_options row whose list or option id starts with the fixture prefix.
+ * options are the concepts). Each test seeds its own two lists; setUp and tearDown remove exactly
+ * those two lists and their options.
  *
  * OpenEMR vs FHIR conventions (tests pin current server behavior, not the spec):
  * - Search bundles use type "collection" (FhirResourcesService), not FHIR's "searchset".
@@ -44,7 +44,7 @@ class ValueSetFhirApiTest extends TestCase
     /** Id of the ValueSet built from the calendar categories. */
     private const APPOINTMENT_TYPE = "appointment-type";
 
-    /** Id of the seeded list; also the prefix tearDown cleans up on. */
+    /** Id of the seeded list. */
     private const LIST_ID = "test-fixture-valueset";
 
     /** Id of a seeded list that has no options. */
@@ -269,14 +269,14 @@ class ValueSetFhirApiTest extends TestCase
     private function removeFixtureLists(): void
     {
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM list_options WHERE (list_id = 'lists' AND option_id LIKE ?) OR list_id LIKE ?",
-            [self::LIST_ID . '%', self::LIST_ID . '%']
+            "DELETE FROM list_options WHERE (list_id = 'lists' AND option_id IN (?, ?)) OR list_id IN (?, ?)",
+            [self::LIST_ID, self::EMPTY_LIST_ID, self::LIST_ID, self::EMPTY_LIST_ID]
         );
     }
 
     /**
-     * The concepts the appointment-type ValueSet should carry, read from the database:
-     * categories of type 0, pc_constant_id => pc_catname, in table order.
+     * The concepts the appointment-type ValueSet should carry, read from the database the way
+     * the service does: active categories of type 0, pc_constant_id => pc_catname, by pc_seq.
      *
      * @return array<string, string>
      */
@@ -284,7 +284,8 @@ class ValueSetFhirApiTest extends TestCase
     {
         $concepts = [];
         $rows = QueryUtils::fetchRecords(
-            "SELECT pc_constant_id, pc_catname FROM openemr_postcalendar_categories WHERE pc_cattype = 0 ORDER BY pc_catid"
+            "SELECT pc_constant_id, pc_catname FROM openemr_postcalendar_categories"
+            . " WHERE pc_active = 1 AND pc_cattype = 0 ORDER BY pc_seq"
         );
         foreach ($rows as $row) {
             $this->assertIsString($row['pc_constant_id'] ?? null);
