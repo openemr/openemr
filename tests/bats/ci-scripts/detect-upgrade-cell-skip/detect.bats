@@ -168,6 +168,20 @@ teardown() {
     [[ "${output}" == *"cannot read RELEASE_TARGETS_PATH"* ]]
 }
 
+@test "master row present but missing docker_tags: scope closes before next row -> skip=false" {
+    # Rabbit-caught bug in the naive awk pattern `{f=1} f && /^  docker_
+    # tags:/`: if master has no docker_tags line, the flag stays set and
+    # awk emits the NEXT row's docker_tags. That's wrong; a broken
+    # master row shouldn't inherit rel-840's `next` tag placement.
+    # Scope must close at the next `- branch:` sentinel.
+    export FROM_REV="v8_4_1" FROM_TAG="latest"
+    export TO_REV="master"   TO_TAG="dev"
+    write_release_targets_master_missing_docker_tags "8.4.1,latest,next"
+    run bash "${DETECT_UPGRADE_CELL_SKIP_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ "$(cat "${GITHUB_OUTPUT}")" == *"skip=false"* ]]
+}
+
 @test "release-targets.yml missing master row entirely -> skip=false (fail-safe: don't skip when unclear)" {
     # Broken repo state -- master row absent from release-targets.yml.
     # The awk pass finds nothing; grep sees empty input and fails to

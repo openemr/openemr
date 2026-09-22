@@ -47,3 +47,26 @@ write_release_targets() {
     RELEASE_TARGETS_PATH="${path}"
     export RELEASE_TARGETS_PATH
 }
+
+# Write a fixture where the master row exists but is missing its
+# docker_tags field entirely (i.e. every field except `- branch:` was
+# stripped). Rabbit-caught bug: naive `{f=1} f && /^  docker_tags:/`
+# awk leaks into the next row's docker_tags. This lets us pin the
+# scope-closing behavior.
+#
+# Args:
+#   $1  Comma-separated docker_tags for the subsequent rel-840 row
+#       (what a broken parser would misread as master's tags).
+write_release_targets_master_missing_docker_tags() {
+    local rel840_tags="$1"
+    local path="${CWD}/release-targets.yml"
+    {
+        echo "# BATS fixture -- master row present but missing docker_tags"
+        echo "- branch: master"
+        echo "  openemr_version_ref: refs/heads/master"
+        echo "- branch: rel-840"
+        echo "  docker_tags: ${rel840_tags}"
+    } > "${path}"
+    RELEASE_TARGETS_PATH="${path}"
+    export RELEASE_TARGETS_PATH
+}

@@ -159,11 +159,18 @@ if [[ ! -r "${RELEASE_TARGETS_PATH}" ]]; then
     exit 1
 fi
 
-# awk finds `- branch: master`, then emits the docker_tags line that
-# follows (the row's other fields don't matter). grep matches `next`
-# as a word (surrounded by start/end of string, comma, or space) so
-# we don't false-match on `next-something` or `nothing-next`.
-if awk '/^- branch: master$/{f=1} f && /^  docker_tags:/{print; exit}' "${RELEASE_TARGETS_PATH}" | grep -qE '(^|,| )next(,| |$)'; then
+# awk finds `- branch: master`, then emits the docker_tags line
+# within the master row. The `- branch:` sentinel on any other row
+# closes the master scope so an absent docker_tags line in master
+# doesn't leak into a later row's tags being read. grep matches
+# `next` as a word (surrounded by start/end of string, comma, or
+# space) so we don't false-match on `next-something` or `nothing-
+# next`.
+if awk '
+    /^- branch: master$/ { in_master=1; next }
+    /^- branch:/         { if (in_master) exit; next }
+    in_master && /^  docker_tags:/ { print; exit }
+' "${RELEASE_TARGETS_PATH}" | grep -qE '(^|,| )next(,| |$)'; then
     emit "skip=true"
     emit_multiline "skip_reason" "to_tag (${TO_TAG}) has OCI revision=master AND master carries the \`next\` docker tag in release-targets.yml -- indicates between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current version.php in this window. Post-upgrade DB will not advance -> code-vs-DB mismatch -> every downstream assertion unreliable."
 else

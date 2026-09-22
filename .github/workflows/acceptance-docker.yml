@@ -669,10 +669,16 @@ jobs:
         # ReadVersionPhpTest.php).
         OCI_VERSION_LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
         FALLBACK_VERSION=""
-        # Only pay for the docker exec round-trip when OCI label is
-        # empty (pr-built case). Shipped/rel-branch builds have the
-        # label baked in at docker BUILD time.
-        if [[ -z "${OCI_VERSION_LABEL}" ]]; then
+        # Trigger the fallback whenever the OCI label doesn't carry a
+        # valid X.Y.Z prefix. Empty label = pr-built case (build-image
+        # skips --build-arg IMAGE_VERSION). Non-empty but malformed
+        # label = misconfigured build baked garbage in; the fallback's
+        # version.php read still gives a useful expected_version in that
+        # case, so match parse-artifact-version.sh's documented "OCI-
+        # first, fallback whenever OCI unusable" contract rather than
+        # short-circuiting on the empty-only shape. Regex matches the
+        # same prefix parse-artifact-version.sh applies.
+        if [[ ! "${OCI_VERSION_LABEL}" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
           # docker cp the reader into the container -- the openemr
           # container has no host bind-mount so .github/scripts isn't
           # visible inside without an explicit copy.
@@ -777,7 +783,7 @@ jobs:
         # scripts test-coverage pointers.
         OCI_VERSION_LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
         FALLBACK_VERSION=""
-        if [[ -z "${OCI_VERSION_LABEL}" ]]; then
+        if [[ ! "${OCI_VERSION_LABEL}" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
           docker compose \
             -f docker/production/docker-compose.yml \
             -f .github/docker/acceptance-docker-compose.yml \
