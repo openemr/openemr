@@ -44,7 +44,7 @@ final readonly class SchemaRegistry
     }
 
     /**
-     * Warnings default on, matching the Node engine the PHP validator replaced.
+     * Warnings default off, matching the Node engine the PHP validator replaced.
      */
     public function loadValidator(string $type, bool $includeWarnings = false): SchematronValidator
     {
