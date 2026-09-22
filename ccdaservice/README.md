@@ -2,9 +2,12 @@
 This module/service will provide the necessary template engine to create a Patient Summary CCD.
 CCD's can be generated from the Onsite Patient Portal or the Carecoordination Module.
 
-Beside installing the C-CDA service, also included in this installation are two new services.
-- oe-schematron-service for validating QRDA and CDA type documents. Runs on port 6662.
+Beside installing the C-CDA service, this installation also includes:
 - oe-cqm-service is our CQM calculator service. Runs on port 6660
+
+Schematron validation of CCDA/QRDA documents is handled in-process by
+`OpenEMR\Services\Cda\Schematron\SchematronValidator` (pure PHP) and no longer
+requires a Node service.
 ## Prepare
 * If not already completed, you must install/initialize the CCM features by going to the `Modules->Manage Modules` top menu then click Unregistered tab and install the necessary components.
 * Add any appropriate settings like granting Access Control for the appropriate users. Menu item: `Modules->Manage Modules->Access Control->General->Care Coordination`.

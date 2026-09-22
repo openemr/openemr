@@ -3215,6 +3215,30 @@ cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 **Systemic lesson:** reusable-workflow concurrency needs to think about the SHAPE of parallel calls, not just the direct-trigger case. `acceptance-docker.yml`'s original concurrency block was designed for direct triggers (PR, push, schedule) where one workflow per ref is the natural granularity. The workflow_call fanout pattern (multiple simultaneous calls per ref, differentiated by input) requires the input to feed the group key too. Broader implication: audit every reusable workflow with concurrency for the same latent-race shape — if the reusable takes a `workflow_call` input that identifies which "thing" is being processed (candidate tag, package version, artifact ID), that input should be part of the group when set. Deferred: enumerate all `.github/workflows/reusable-*.yml` concurrency blocks and check each against its `workflow_call` inputs for the same shape gap. Not in scope here.
 
+### G47 — Item 3's two new composite actions were not added to `.github/byte-identical.yml`, broke every acceptance cell on the next sync PR to rel branches  *(SHIPPED 2026-09-22)*
+
+**STATUS: SHIPPED 2026-09-22.** Second same-shape recurrence of the G45 gap in ~2 days -- new files referenced by an already-synced workflow but themselves not added to the manifest, so the reference resolves on master (where the files live) but fails on rel branches (where sync carried the reference but not the target).
+
+**Trigger event:** Item 3 (openemr/openemr#14168) added two composite actions (`.github/actions/run-acceptance-group/`, `.github/actions/api-enable-artifact/`) and modified `acceptance-package.yml` + `acceptance-docker.yml` to reference them via `uses: ./.github/actions/<name>`. The modified workflows are already in `.github/byte-identical.yml` and sync to rel branches on every master push. The next auto-sync PRs (openemr/openemr#14169 rel-840, #14170 rel-830, #14171 rel-820, all opened 2026-09-22) failed EVERY acceptance cell with:
+
+```
+##[error]Can't find 'action.yml', 'action.yaml' or 'Dockerfile' under
+'/home/runner/work/openemr/openemr/.github/actions/run-acceptance-group'.
+Did you forget to run actions/checkout before running your local action?
+```
+
+Same shape on both fresh-install and wizard-install cells, both tar and zip variants, both amd64 and arm64 -- consistent across every acceptance-package + acceptance-docker cell that invoked a composite. The workflow reference resolved but the target action file didn't exist on the rel-branch checkout.
+
+**Root cause:** Item 3's PR added the two composite dirs but didn't add corresponding entries to `.github/byte-identical.yml`. Same class of gap as G45 (assert-inputs-nonempty.sh script was added to master, referenced by a synced workflow, but manifest entry was missed). The bug shape: **when adding a file that an already-synced workflow references via `uses:` or `run:` a path-relative reference, always add the new file to the manifest in the same PR.**
+
+**Fix (this PR):** two-line manifest addition patterned exactly on the existing `.github/actions/generate-app-token/**` entry (Phase 10b). `exclude-branches: [rel-800]` because rel-800 doesn't carry the acceptance-package or acceptance-docker callers (acceptance-surface section already excludes it), so the composites would be dormant there with no invoker.
+
+**Recovery for the failing sync PRs:** merge this fix → sync-byte-identical.yml fires on master push → force-updates the existing sync PRs (peter-evans force-pushes) with the composite dirs included → their acceptance cells then have the composites to invoke → re-runs pass.
+
+**Cross-check for related manifest gaps in Item 3's PR:** Item 3 added exactly two composite dirs, both under `.github/actions/`. No other new files. Both now in this PR's manifest entry. No sibling gap.
+
+**Systemic lesson (repeat from G45, worth restating):** the pattern is "any new file at any path that an already-synced workflow references at runtime must land in the same PR as its manifest entry." G45 caught the script variant; G47 catches the composite-action-directory variant. Every future PR that adds a file to `.github/actions/` or `.github/scripts/` and touches a workflow that references it should audit the manifest. Deferred (still): the `validate-byte-identical.sh`-style check that greps every synced workflow for `uses: ./` and `run: .github/` references and asserts each is present in the manifest -- would prevent this bug class entirely by construction. Item 3 was the first observable "gap keeps recurring even though the pattern is documented" moment; the tool-side check keeps looking like the right answer.
+
 ## Followup opportunities (not yet gap-numbered)
 
 Items surfaced during planning discussions or from operator experience that don't yet warrant a full gap entry — typically because they're extrapolations from existing patterns rather than confirmed bugs, or because they're operator-side observations that haven't been formalized. Move to a real G-entry when concrete scope + investigation are lined up. Kept here so option-listing across future planning sessions doesn't depend on session context.
