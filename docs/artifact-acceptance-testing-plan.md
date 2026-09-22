@@ -341,20 +341,28 @@ source-side changes touching the artifact-build path).
 | # | Trigger | Artifact source | Expected-version source | Matrix |
 |---|---------|-----------------|-------------------------|--------|
 | 1 | `schedule` (10:00 UTC daily) | GitHub Releases tarball at `to_version` | `detect-acceptance-mode.sh` emits `EXPECTED_VERSION` from shipped-version manifest | Default (fresh-install + wizard-install; no upgrade) |
-| 2 | `push` (paths: workflow, compose override, `tests/Acceptance/**`, composer, `tools/release/**`) | Same as (1) unless `tools/release/**` diff triggers `build_locally=true` → PR-built via `PackageAssembler` | Shipped tag OR synthetic `99.99.99` on build_locally | Default → Expanded when build_locally |
-| 3 | `pull_request` (same paths) | Same detection as (2) | Same | Same |
+| 2 | `push` (see paths + branch exclusions below) | Same as (1) unless `tools/release/**` / `build.xml` / `.gitattributes` diff triggers `build_locally=true` → PR-built via `PackageAssembler` | Shipped tag OR synthetic `99.99.99` on build_locally | Default → Expanded when build_locally |
+| 3 | `pull_request` (same paths as push) | Same detection as (2) | Same | Same |
 | 4 | `workflow_dispatch` | Shipped OR build_locally per operator input | Operator `to_version` input, else defaults per (1)/(2) | Expanded (all 4 scenarios) |
 | 5 | `workflow_call` (from `build-release.yml` Phase 7c gate + `acceptance-only.yml` recovery) | Caller-supplied tarball artifact (`caller_tarball_artifact` input) | Caller `to_version` input | Expanded |
+
+*Push/PR paths filter:* `.github/workflows/acceptance-package.yml`, `.github/docker/acceptance-package-compose.yml`, `tests/Acceptance/**`, `composer.json`, `composer.lock`, `tools/release/**`, `build.xml`, `.gitattributes`.
+
+*Push branch exclusions:* `branch-cut/**`, `patch-prep/**`, `release-prep/**`, `release-finalize/**`, `dependabot/**`. peter-evans and dependabot both push+PR in one motion, so the push run would duplicate the PR run against a stale artifact source; the exclusion keeps the pull_request run only.
 
 **`acceptance-docker.yml`** (Docker Hub images):
 
 | # | Trigger | Artifact source | Expected-version source | Matrix |
 |---|---------|-----------------|-------------------------|--------|
 | 1 | `schedule` (09:00 UTC daily) | Docker Hub `openemr/openemr:latest` (from) + `:next` (to) | OCI label `org.opencontainers.image.version` on the running image (X.Y.Z prefix); `version.php` fallback | Default (fresh-install-from + fresh-install-to + upgrade) |
-| 2 | `push` (paths: workflow, compose override, `tests/Acceptance/**`, composer, `docker/release/**`) | Same as (1) unless `docker/release/**` diff triggers `build_locally=true` → `pr-built` image via `build-image` job | Same OCI-first path (OCI label may be empty on `pr-built` → `version.php` fallback fires) | Default → adds `build-image` when build_locally |
-| 3 | `pull_request` (same paths) | Same detection as (2) | Same | Same |
+| 2 | `push` (see paths + branch exclusions below) | Same as (1) unless `docker/release/**` diff triggers `build_locally=true` → `pr-built` image via `build-image` job | Same OCI-first path (OCI label may be empty on `pr-built` → `version.php` fallback fires) | Default → adds `build-image` when build_locally |
+| 3 | `pull_request` (same paths as push) | Same detection as (2) | Same | Same |
 | 4 | `workflow_dispatch` | Docker Hub OR `pr-built` per operator input | Same OCI-first path | Default (operator picks tags) |
 | 5 | `workflow_call` (from `docker-build-release.yml` Phase 7c-docker gate + `docker-acceptance-only.yml` recovery) | Caller-supplied `pr-built` image (docker-load'd from build-image artifact) | Same | Default |
+
+*Push/PR paths filter:* `.github/workflows/acceptance-docker.yml`, `.github/docker/acceptance-docker-compose.yml`, `tests/Acceptance/**`, `composer.json`, `composer.lock`, `docker/release/**`.
+
+*Push branch exclusions:* same set as package (`branch-cut/**`, `patch-prep/**`, `release-prep/**`, `release-finalize/**`, `dependabot/**`), same rationale.
 
 **Key differences between the two workflows:**
 
@@ -429,16 +437,17 @@ data-loss masking hole.
 
 Tests read runtime context via [`AcceptanceContext`
 ](../tests/Acceptance/Support/AcceptanceContext.php) — a static
-resolver over four `ACCEPTANCE_*` env vars. Fails fast on missing or
-malformed input so a plumbing bug (workflow forgot to set the env)
-surfaces as a clear diagnostic, not a business-assertion failure with
-a misleading error.
+resolver over three distinct `ACCEPTANCE_*` env vars (four accessors;
+`expectedVersion()` and `hasExpectedVersion()` both read the same
+env). Fails fast on missing or malformed input so a plumbing bug
+(workflow forgot to set the env) surfaces as a clear diagnostic, not
+a business-assertion failure with a misleading error.
 
 | Env var | Accessor | Set by | Behavior on unset |
 |---------|----------|--------|-------------------|
 | `ACCEPTANCE_EXPECTED_VERSION` | `expectedVersion(): string` — asserts `X.Y.Z` shape | `run-acceptance-group` composite `expected_version` input, driven by package's `EXPECTED_VERSION` workflow env OR docker's per-cell resolve step | `RuntimeException` "must set this so the test knows which version to assert against" |
-| — | `hasExpectedVersion(): bool` — soft probe | (same) | Returns `false` |
-| `ACCEPTANCE_ARTIFACT_URL` | `artifactUrl(): string` — trailing slash stripped | Package workflow env; docker uses accessor default | Default `http://localhost:8680` (the compose override port) |
+| `ACCEPTANCE_EXPECTED_VERSION` | `hasExpectedVersion(): bool` — soft probe | (same) | Returns `false` |
+| `ACCEPTANCE_ARTIFACT_URL` | `artifactUrl(): string` — trailing slash stripped | Package workflow env sets the compose port for the tarball harness; docker uses the accessor default | Default `http://localhost:8580` |
 | `ACCEPTANCE_TRUST_SELF_SIGNED` | `trustSelfSigned(): bool` — allowlist strings only | Not currently set in CI; hook for HTTPS harnesses | Returns `false` |
 
 Tests **must not** call `getenv('ACCEPTANCE_*')` directly. The
