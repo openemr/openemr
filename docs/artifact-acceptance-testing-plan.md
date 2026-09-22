@@ -2808,8 +2808,21 @@ Both workflows repeat the boot→group→api-enable→group→teardown shape. Ex
 
 **Explicitly deferred (not in this PR)**: `AcceptanceContext::scenarioName()` / feature-flag / workflow-context accessors were called out as Item 3 scope originally, but no test currently needs them (persistence tests were split per-scenario in Item 2 rather than scenario-branching). Scaffolding-without-a-caller — drops in cleanly whenever a first concrete caller appears (e.g., an Item 4 docker path that needs to gate on scenario, or a future test wanting scenario-aware diagnostics).
 
-**Item 4: Docker workflow tag→version resolution**
+**Item 4: Docker workflow tag→version resolution** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**
 So `ACCEPTANCE_EXPECTED_VERSION` can be set in docker context too and the `version-display` / `version-api` isolation isn't needed. Options: query Docker Hub API for the tag→digest→config manifest, OR pull the image and read `version.php`, OR require the caller to pass the version explicitly (already the case for workflow_call gates). Simplest is the last one — scheduled/floating-tag runs can skip version-check by not setting the env.
+
+**As-shipped scope**: version.php read from the booted container, mirroring `detect-acceptance-mode.sh`'s `read_tree_version` pattern on the tarball build_locally path. Two new steps in `acceptance-docker.yml`:
+
+- `Resolve running artifact version (from version.php)` runs after the initial boot; docker-execs `php -r` into the container to read `$v_major.$v_minor.$v_patch`, asserts X.Y.Z shape, emits as step output `boot-version.resolved`.
+- `Resolve running artifact version after upgrade (from version.php)` runs after the upgrade-target boot (upgrade scenario only); same shape, emits as `upgrade-target-version.resolved`. Needed because the swap-and-reboot brings up a different image reporting a different (upgraded) version.
+
+All 5 `run-acceptance-group` invocations in `acceptance-docker.yml` now pass the resolved version instead of empty string. `docker-acceptance-only.yml` recovery workflow calls `acceptance-docker.yml` as a reusable and inherits the resolution transparently.
+
+**Version-check tests converted from skip to fail-hard**: `VersionApiAcceptanceTest` and `VersionDisplayAcceptanceTest` no longer gate their execution on `AcceptanceContext::hasExpectedVersion()`. They just call `expectedVersion()` and let its existing throw-on-unset fire. Rationale: post-Item-4, every CI path sets the env (tarball via `detect-acceptance-mode.sh`, docker via `version.php` read). A missing env value now means a workflow-side bug (a caller forgot to set it), and silently skipping would hide the regression. Local dev must set `ACCEPTANCE_EXPECTED_VERSION` explicitly — the fail message tells them exactly which env to set.
+
+**Why version.php read over OCI-label read**: the pr-built image (built in the workflow's `build-image` job without `--build-arg IMAGE_VERSION`) carries an empty `org.opencontainers.image.version` label. version.php is the ground truth regardless of how the image was built. Matches the pattern `detect-acceptance-mode.sh` already uses on the tarball build_locally path (also has empty-label problem). Both floating-tag (`latest`, `next`, `dev`) and pr-built cases resolve cleanly.
+
+**`AcceptanceContext::hasExpectedVersion()` kept**: the predicate is still a clean "was env provided?" check for hypothetical future callers who genuinely want to gate on env presence (not shape-validate). Not used by tests today but harmless to keep; drop later if it accumulates zero callers by Item 6-plus cleanup.
 
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc**
 Table of ~6 contexts × what each provides. Not covered elsewhere. Cheap; prevents future confusion. (The table above is a starting point.)

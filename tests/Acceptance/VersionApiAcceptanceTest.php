@@ -78,12 +78,15 @@ final class VersionApiAcceptanceTest extends TestCase
 
     public function testVersionEndpointReturnsExpectedVersion(): void
     {
-        // Skip cleanly when the env isn't set -- see
-        // VersionDisplayAcceptanceTest for the acceptance-docker.yml
-        // floating-tag rationale. Tarball workflow always sets it.
-        if (!AcceptanceContext::hasExpectedVersion()) {
-            self::markTestSkipped('ACCEPTANCE_EXPECTED_VERSION not set -- expected in contexts without version resolution (e.g., acceptance-docker.yml floating-tag runs until Item 4 lands).');
-        }
+        // Fail-hard on missing env (no skip guard): as of Item 4 of the
+        // post-8.4.0 acceptance-surface refactor, every CI path that
+        // invokes this test sets ACCEPTANCE_EXPECTED_VERSION -- the
+        // tarball workflow sets it per-step from detect-acceptance-mode.sh,
+        // the docker workflow resolves it from the booted artifact's
+        // version.php. A missing env value here means a workflow-side
+        // bug (a caller forgot to set it), and silently skipping would
+        // hide the regression -- expectedVersion() throws with a clear
+        // "must be set" message instead. Local dev must set it explicitly.
         $expected = AcceptanceContext::expectedVersion();
 
         $browser = ArtifactBrowser::create();

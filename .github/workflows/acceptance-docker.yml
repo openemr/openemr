@@ -579,16 +579,52 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 900
 
-    # expected_version passed as empty string because acceptance-docker.yml
-    # doesn't resolve floating tags (`latest`, `next`) to X.Y.Z at runtime
-    # yet (Item 4 of the post-8.4.0 refactor). Version-check tests
-    # (VersionApiAcceptanceTest, VersionDisplayAcceptanceTest) skip cleanly
-    # via AcceptanceContext::hasExpectedVersion() when the env is unset.
+    # Item 4 of the post-8.4.0 acceptance-surface refactor: resolve the
+    # running artifact's self-reported version so
+    # ACCEPTANCE_EXPECTED_VERSION can be set for docker context (previously
+    # docker acceptance skipped version-check tests entirely because
+    # nothing here knew which X.Y.Z the running image would report). Reads
+    # version.php directly from the booted container -- ground truth,
+    # avoids the OCI-label edge cases (pr-built image built without
+    # --build-arg IMAGE_VERSION has an empty label; floating tags like
+    # `next` and `dev` carry `X.Y.Z-dev` labels where the strip-suffix
+    # path works but adds a branch). Mirrors detect-acceptance-mode.sh's
+    # read_tree_version pattern on the tarball build_locally path.
+    #
+    # Emits the X.Y.Z string as `resolved` output. Fails hard if
+    # $v_major/$v_minor/$v_patch aren't all integers -- caller then
+    # can't set ACCEPTANCE_EXPECTED_VERSION to a sensible value, and
+    # AcceptanceContext::expectedVersion() would fail-hard downstream
+    # anyway, so fail here with a clearer diagnostic.
+    - name: Resolve running artifact version (from version.php)
+      id: boot-version
+      run: |
+        set -eo pipefail
+        RESOLVED=$(
+          docker compose \
+            -f docker/production/docker-compose.yml \
+            -f .github/docker/acceptance-docker-compose.yml \
+            exec -T openemr php -r '
+              require "/var/www/localhost/htdocs/openemr/version.php";
+              if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
+                  fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
+                  exit(1);
+              }
+              echo "$v_major.$v_minor.$v_patch";
+            '
+        )
+        if [[ ! "$RESOLVED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::Resolved version '$RESOLVED' from running artifact's version.php does not match X.Y.Z shape"
+          exit 1
+        fi
+        echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
+        echo "==> Running artifact self-reports version: $RESOLVED"
+
     - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
       uses: ./.github/actions/run-acceptance-group
       with:
         group: ${{ matrix.test_group }}
-        expected_version: ''
+        expected_version: ${{ steps.boot-version.outputs.resolved }}
 
     # api-enable bootstrap fires AFTER the post-install group only
     # (not the plain upgrade scenario — the target of upgrade is api-
@@ -610,7 +646,7 @@ jobs:
       uses: ./.github/actions/run-acceptance-group
       with:
         group: api-enabled-post-install
-        expected_version: ''
+        expected_version: ${{ steps.boot-version.outputs.resolved }}
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
     - name: Stop containers (preserve named volumes)
@@ -652,12 +688,42 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 1200
 
+    # Re-resolve running artifact version after the upgrade-target boot
+    # -- the swap-and-reboot brings up a different image (usually
+    # from_tag -> to_tag, e.g. `latest` -> `next`, upgraded DB now
+    # reports the to-tag's version). Same version.php read pattern as
+    # the pre-upgrade resolve above.
+    - name: Resolve running artifact version after upgrade (from version.php)
+      id: upgrade-target-version
+      if: matrix.scenario == 'upgrade'
+      run: |
+        set -eo pipefail
+        RESOLVED=$(
+          docker compose \
+            -f docker/production/docker-compose.yml \
+            -f .github/docker/acceptance-docker-compose.yml \
+            exec -T openemr php -r '
+              require "/var/www/localhost/htdocs/openemr/version.php";
+              if (!is_int($v_major) || !is_int($v_minor) || !is_int($v_patch)) {
+                  fwrite(STDERR, "version.php has non-integer v_major/v_minor/v_patch\n");
+                  exit(1);
+              }
+              echo "$v_major.$v_minor.$v_patch";
+            '
+        )
+        if [[ ! "$RESOLVED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::Resolved version '$RESOLVED' from upgraded artifact's version.php does not match X.Y.Z shape"
+          exit 1
+        fi
+        echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
+        echo "==> Upgraded artifact self-reports version: $RESOLVED"
+
     - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
       if: matrix.scenario == 'upgrade'
       uses: ./.github/actions/run-acceptance-group
       with:
         group: post-upgrade
-        expected_version: ''
+        expected_version: ${{ steps.upgrade-target-version.outputs.resolved }}
 
     # api-enable + api-enabled-post-upgrade group closes Item 3's friction
     # point #3 (documented in docs/artifact-acceptance-testing-plan.md):
@@ -675,7 +741,7 @@ jobs:
       uses: ./.github/actions/run-acceptance-group
       with:
         group: api-enabled-post-upgrade
-        expected_version: ''
+        expected_version: ${{ steps.upgrade-target-version.outputs.resolved }}
 
     # ==== Debug capture on failure (all scenarios) ====
     - name: Capture container state (on failure)
