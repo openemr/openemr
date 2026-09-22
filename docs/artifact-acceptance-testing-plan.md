@@ -26,6 +26,7 @@ phase that owns the affected area.
 - [Proposed model](#proposed-model)
 - [Test surfaces after the migration](#test-surfaces-after-the-migration)
 - [What lives where (concrete)](#what-lives-where-concrete)
+- [Invocation contexts reference](#invocation-contexts-reference)
 - [What stays unchanged](#what-stays-unchanged)
 - [Phased plan](#phased-plan)
 - [Test-coverage philosophy](#test-coverage-philosophy)
@@ -311,6 +312,147 @@ Shared harness compose files under `.github/docker/`:
   - MariaDB service (matching production-supported version)
   - php:${VER}-apache image with required extensions installed
   - Volume mounts driven by env vars
+
+## Invocation contexts reference
+
+Authoritative mapping between "how the workflow got invoked" and "what
+runs against what." Skim this to answer the recurring contributor
+question: *if I add a test tagged `#[Group('post-upgrade')]`, when and
+where will it fire, and what expected-version signal will it see?* The
+plan sections above document how the surface grew; this section
+documents the surface as it stands today.
+
+Every fact in this section is grounded in a specific file — no
+speculation. When it drifts (e.g. a new scenario, a new group, a new
+env var), update this section in the same PR.
+
+_As-of: 2026-09-22 (post-Item-4 refactor)._
+
+### Trigger contexts
+
+Both workflows fire from five trigger shapes. The trigger determines the
+artifact source, the expected-version signal, and whether the matrix
+runs its "default" subset (schedule/push/PR paths of the workflow
+itself) or its "expanded" subset (dispatch, workflow_call, or
+source-side changes touching the artifact-build path).
+
+**`acceptance-package.yml`** (tarball / zip artifacts):
+
+| # | Trigger | Artifact source | Expected-version source | Matrix |
+|---|---------|-----------------|-------------------------|--------|
+| 1 | `schedule` (10:00 UTC daily) | GitHub Releases tarball at `to_version` | `detect-acceptance-mode.sh` emits `EXPECTED_VERSION` from shipped-version manifest | Default (fresh-install + wizard-install; no upgrade) |
+| 2 | `push` (paths: workflow, compose override, `tests/Acceptance/**`, composer, `tools/release/**`) | Same as (1) unless `tools/release/**` diff triggers `build_locally=true` → PR-built via `PackageAssembler` | Shipped tag OR synthetic `99.99.99` on build_locally | Default → Expanded when build_locally |
+| 3 | `pull_request` (same paths) | Same detection as (2) | Same | Same |
+| 4 | `workflow_dispatch` | Shipped OR build_locally per operator input | Operator `to_version` input, else defaults per (1)/(2) | Expanded (all 4 scenarios) |
+| 5 | `workflow_call` (from `build-release.yml` Phase 7c gate + `acceptance-only.yml` recovery) | Caller-supplied tarball artifact (`caller_tarball_artifact` input) | Caller `to_version` input | Expanded |
+
+**`acceptance-docker.yml`** (Docker Hub images):
+
+| # | Trigger | Artifact source | Expected-version source | Matrix |
+|---|---------|-----------------|-------------------------|--------|
+| 1 | `schedule` (09:00 UTC daily) | Docker Hub `openemr/openemr:latest` (from) + `:next` (to) | OCI label `org.opencontainers.image.version` on the running image (X.Y.Z prefix); `version.php` fallback | Default (fresh-install-from + fresh-install-to + upgrade) |
+| 2 | `push` (paths: workflow, compose override, `tests/Acceptance/**`, composer, `docker/release/**`) | Same as (1) unless `docker/release/**` diff triggers `build_locally=true` → `pr-built` image via `build-image` job | Same OCI-first path (OCI label may be empty on `pr-built` → `version.php` fallback fires) | Default → adds `build-image` when build_locally |
+| 3 | `pull_request` (same paths) | Same detection as (2) | Same | Same |
+| 4 | `workflow_dispatch` | Docker Hub OR `pr-built` per operator input | Same OCI-first path | Default (operator picks tags) |
+| 5 | `workflow_call` (from `docker-build-release.yml` Phase 7c-docker gate + `docker-acceptance-only.yml` recovery) | Caller-supplied `pr-built` image (docker-load'd from build-image artifact) | Same | Default |
+
+**Key differences between the two workflows:**
+
+- Package resolves expected version at the workflow level (env
+  `EXPECTED_VERSION` set once by `detect-mode` job, passed through the
+  `run-acceptance-group` action). Docker resolves per-cell after boot
+  (OCI label read via `docker inspect`; `version.php` fallback only
+  when OCI is missing or malformed) — the image being tested may not
+  match the workflow's checkout, so cell-time resolution is needed.
+- Package treats `wizard-install` and `wizard-upgrade` as first-class
+  scenarios in the expanded matrix. Docker doesn't yet (friction point
+  #7 in the refactor plan).
+- Docker's `upgrade` scenario has an [auto-skip
+  path](../.github/scripts/detect-upgrade-cell-skip.sh) for
+  between-cycles master state (Item 4); package has no equivalent
+  because tarball upgrades resolve `from_version` from
+  `sql/*-to-*_upgrade.sql`, which always includes a valid ancestor.
+
+### Scenario → step sequence
+
+For each `matrix.scenario` value, the step sequence a cell walks. All
+scenarios use the shared [`run-acceptance-group`
+composite](../.github/actions/run-acceptance-group/action.yml) to
+invoke a group (sets `ACCEPTANCE_EXPECTED_VERSION` from the caller,
+runs `composer acceptance -- --group=<group>`).
+
+**Package workflow (`acceptance-package.yml`):**
+
+| Scenario | Steps |
+|----------|-------|
+| `fresh-install` | boot `to_version` artifact → `--group=post-install` → [`api-enable-artifact`](../.github/actions/api-enable-artifact/action.yml) → `--group=api-enabled-post-install` |
+| `wizard-install` | boot `to_version` artifact → **first invocation:** `--group=wizard-completed-post-install` (Panther drives wizard, PHPUnit exits) → **second invocation, fresh PHPUnit process:** `--group=post-install` (HTTP-only business tests). Two-invocation split (Item 2.5) works around Panther leaving server-side state that breaks subsequent HTTP tests in the same process. |
+| `upgrade` | boot `from_version` artifact → `--group=post-install` (seeds persistence fixtures) → seed post-install data → down + boot `to_version` (auto-upgrade runs) → `--group=post-upgrade` → `api-enable-artifact` → `--group=api-enabled-post-upgrade` |
+| `wizard-upgrade` | boot `from_version` → wizard install → seed → boot `to_version` (auto-upgrade) → `--group=wizard-completed-post-upgrade` → `--group=post-upgrade` |
+
+**Docker workflow (`acceptance-docker.yml`):**
+
+| Scenario | Steps |
+|----------|-------|
+| `fresh-install-from` | boot `from_tag` image → resolve version (OCI/`version.php`) → `--group=post-install` → `api-enable-artifact` → `--group=api-enabled-post-install` |
+| `fresh-install-to` | boot `to_tag` image → same downstream as `fresh-install-from` |
+| `upgrade` | [detect skip](../.github/scripts/detect-upgrade-cell-skip.sh) → if skip=true, all downstream steps show `skipped`; else: boot `from_tag` → resolve version → `--group=post-install` → down + boot `to_tag` (auto-upgrade runs) → re-resolve version against `to_tag` → `--group=post-upgrade` → `api-enable-artifact` → `--group=api-enabled-post-upgrade` |
+
+Only the `upgrade` scenario gates on the skip check — the two
+`fresh-install-*` scenarios still exercise both images independently
+when `upgrade` is skipped, so image-side signal is preserved.
+
+### Group → tests → scenario cells
+
+PHPUnit `--group` filters drive which tests run in each cell. Tests
+declare their groups via `#[Group('<name>')]` attributes on the class
+or method.
+
+| Group | Tests | Fired by |
+|-------|-------|----------|
+| `post-install` | 14 classes covering fresh installer output: `Aa`, `Appointment`, `Bb`, `Dd`, `Document`, `E2e`, `Ff`, `Fhir`, `FrontPayment`, `Gg`, `Install`, `Kk`, `OAuth2Smoke`, `VersionDisplay` | package `fresh-install` + `upgrade`(from-side) + `wizard-install`(second invocation); docker `fresh-install-*` + `upgrade`(from-side) |
+| `post-upgrade` | 14 classes: same as `post-install` minus `Install`, plus `UpgradeIntegrity` | package `upgrade`(to-side) + `wizard-upgrade`(to-side); docker `upgrade`(to-side) |
+| `wizard-completed-post-install` | `InstallWizardUiTest` | package `wizard-install`(first invocation) |
+| `wizard-completed-post-upgrade` | `UpgradeWizardUiTest` | package `wizard-upgrade`(after upgrade) |
+| `api-enabled-post-install` | `ApiSmokeTest`, `OAuth2ApiEnabledTest`, `VersionApiAcceptanceTest` | package `fresh-install` after `api-enable`; docker `fresh-install-*` after `api-enable` |
+| `api-enabled-post-upgrade` | Same 3 tests, post-upgrade context | package `upgrade` after `api-enable`; docker `upgrade` after `api-enable` |
+
+Two-tag pattern: tests that should run in both a fresh-install and an
+upgrade scenario declare both `#[Group('post-install')]` and
+`#[Group('post-upgrade')]` (PHPUnit's `--group` is OR-semantics, so
+one method declaration lands in both groups). Persistence tests split
+their fresh-vs-post assertions into separate methods with per-scenario
+tags — Item 2 established this pattern to close the silent-upgrade-
+data-loss masking hole.
+
+### AcceptanceContext env contract
+
+Tests read runtime context via [`AcceptanceContext`
+](../tests/Acceptance/Support/AcceptanceContext.php) — a static
+resolver over four `ACCEPTANCE_*` env vars. Fails fast on missing or
+malformed input so a plumbing bug (workflow forgot to set the env)
+surfaces as a clear diagnostic, not a business-assertion failure with
+a misleading error.
+
+| Env var | Accessor | Set by | Behavior on unset |
+|---------|----------|--------|-------------------|
+| `ACCEPTANCE_EXPECTED_VERSION` | `expectedVersion(): string` — asserts `X.Y.Z` shape | `run-acceptance-group` composite `expected_version` input, driven by package's `EXPECTED_VERSION` workflow env OR docker's per-cell resolve step | `RuntimeException` "must set this so the test knows which version to assert against" |
+| — | `hasExpectedVersion(): bool` — soft probe | (same) | Returns `false` |
+| `ACCEPTANCE_ARTIFACT_URL` | `artifactUrl(): string` — trailing slash stripped | Package workflow env; docker uses accessor default | Default `http://localhost:8680` (the compose override port) |
+| `ACCEPTANCE_TRUST_SELF_SIGNED` | `trustSelfSigned(): bool` — allowlist strings only | Not currently set in CI; hook for HTTPS harnesses | Returns `false` |
+
+Tests **must not** call `getenv('ACCEPTANCE_*')` directly. The
+accessor's fail-fast + normalization contract only holds if every
+consumer routes through the resolver.
+
+### Reading this section
+
+To answer "will my new test run in context X?": look up the test's
+group tag in the **Group → tests** table, then the scenario cell in
+the **Scenario → step sequence** table, then the trigger in the
+**Trigger contexts** table. If none of the trigger contexts match your
+target, that context isn't wired — file a plan-doc friction point (or
+add the wiring in a targeted PR).
 
 ## What stays unchanged
 
@@ -2701,50 +2843,12 @@ surfaced during #13635's design:
 
 ### Current-state snapshot
 
-**Invocation contexts (`acceptance-package.yml`):**
-
-| # | Trigger | Artifact source | Version signal | Matrix |
-|---|---------|-----------------|----------------|--------|
-| 1 | schedule (daily) | GitHub Releases tarball | `TO_VERSION` default | Default (install-only) |
-| 2 | push (paths filter) | GitHub Releases tarball | Same | Default |
-| 3 | pull_request (paths filter) | GitHub Releases tarball | Same | Default |
-| 4 | push/PR touching `tools/release/**` | PR-built via PackageAssembler | Synthetic `99.99.99` | Expanded |
-| 5 | `release-prep/*` branch | PR-built | Parsed from PR title | Expanded |
-| 6 | workflow_dispatch | GitHub OR PR-built | Operator input | Expanded |
-| 7 | workflow_call (build-release.yml Phase 7c) | Caller artifact | Caller `to_version` | Expanded |
-| 8 | workflow_call (acceptance-only.yml Phase 9) | Same replayed | Same | Expanded |
-
-Plus per-branch `FROM_VERSION` derivation from `sql/*-to-*_upgrade.sql`
-× shipped-versions manifest (#13630).
-
-**Invocation contexts (`acceptance-docker.yml`):**
-
-| # | Trigger | Artifact source | Version signal | Matrix |
-|---|---------|-----------------|----------------|--------|
-| 1 | schedule (daily) | Docker Hub `:latest` + `:next` | Floating tag — no `X.Y.Z` resolution | Default |
-| 2 | push/PR (paths filter) | Docker Hub tags | Same | Default |
-| 3 | workflow_dispatch | Docker Hub OR PR-built image | Operator tag input | Expanded |
-| 4 | workflow_call (docker-build-release.yml) | PR-built image | Caller `to_tag` | Expanded |
-| 5 | workflow_call (docker-acceptance-only.yml) | Same | Same | Expanded |
-
-**Group → tests (as of 2026-08-20):**
-
-| Group | Tests |
-|-------|-------|
-| `fresh-install` | Aa, Appointment, Bb, Dd, Document, E2e, Ff, Fhir, FrontPayment, Gg, Install, Kk, OAuth2Smoke |
-| `post-upgrade` | Same 13 minus `InstallTest`, plus `UpgradeIntegrity` |
-| `wizard-install` | `InstallWizardUiTest` |
-| `wizard-upgrade` | `UpgradeWizardUiTest` |
-| `api-enabled` | `ApiSmokeTest`, `OAuth2ApiEnabledTest` |
-| `version-display` (workaround, #13635) | `VersionDisplayAcceptanceTest` |
-| `version-api` (workaround, #13635) | `VersionApiAcceptanceTest` |
-
-**Group invocation per scenario (package workflow):**
-
-- `fresh-install` scenario → `--group=fresh-install` → `api-enable.php` → `--group=api-enabled` → (post-#13635) `--group=version-display` + `--group=version-api`
-- `wizard-install` scenario → `--group=wizard-install` → (post-#13635) `--group=version-display`
-- `upgrade` scenario → `--group=fresh-install` (against from) → upgrade → `--group=post-upgrade` → (post-#13635) `--group=version-display` + `api-enable.php` + `--group=api-enabled` + `--group=version-api`
-- `wizard-upgrade` scenario → `--group=wizard-upgrade` → (post-#13635) `--group=version-display`
+For the authoritative "what runs where" mapping (triggers, scenarios,
+groups, env contract) as of the latest Item, see the
+[Invocation contexts reference](#invocation-contexts-reference)
+section above. This subsection historically held pre-refactor
+snapshots that captured the friction below; the reference section now
+supersedes them.
 
 ### Friction points captured
 
@@ -2753,7 +2857,7 @@ Plus per-branch `FROM_VERSION` derivation from `sql/*-to-*_upgrade.sql`
 3. `api-enabled` post-upgrade coverage gap (partially closed in #13635 for package workflow; docker workflow still has the gap).
 4. Group tags overloaded across three concerns (scenario timeline, runtime state, workflow isolation).
 5. Workflow YAML duplication — both workflows walk the same boot→group→api-enable→group shape independently, with drift risk (e.g., #13635 added post-upgrade api-enable to package only).
-6. No mapping-doc reference table for "what runs where" — contributors have to grep both workflows to understand a test's blast radius.
+6. No mapping-doc reference table for "what runs where" — contributors have to grep both workflows to understand a test's blast radius. **(Closed by Item 5, see [Invocation contexts reference](#invocation-contexts-reference) above.)**
 7. Docker workflow's default matrix excludes wizard-* — a wizard-flow regression on `:latest` wouldn't fire outside dispatch.
 
 ### Refactor items (proposed, in priority order)
@@ -2843,8 +2947,7 @@ Real signal preserved: `fresh-install-from` + `fresh-install-to` cells still exe
 
 The workflow steps now compose `docker inspect` / `docker compose exec` (both need the Docker daemon so stay inline) with `bash <script>` invocations that own the pure logic. All three scripts added to `.github/byte-identical.yml` with `exclude-branches: [rel-800]` per G45/G47 pattern (script referenced by synced workflow must itself sync).
 
-**Item 5 (hygiene): "Invocation contexts" reference section in this doc**
-Table of ~6 contexts × what each provides. Not covered elsewhere. Cheap; prevents future confusion. (The table above is a starting point.)
+**Item 5 (hygiene): "Invocation contexts" reference section in this doc** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. New [Invocation contexts reference](#invocation-contexts-reference) section added above between "What lives where (concrete)" and "What stays unchanged". Four subsections: trigger contexts (per-workflow trigger × artifact × version × matrix), scenario → step sequence, group → tests → scenario cells, `AcceptanceContext` env contract. Also closes Friction point #6 (no mapping-doc reference table). The pre-Item-1..4 "Current-state snapshot" tables under this section were superseded and trimmed to a pointer.
 
 **Item 6 (hygiene): Directory structure by concern as suite grows**
 `tests/Acceptance/Version/`, `Upgrade/`, `OAuth/`, `Ui/`. Currently all flat under `tests/Acceptance/`. PHPUnit `<directory>` config handles it naturally.
