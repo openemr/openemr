@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Default values for optional variables that are allowed to be set by callers.
+ * Controls how ErrorHandler reacts when a PHP error passes the
+ * error_reporting() filter.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
