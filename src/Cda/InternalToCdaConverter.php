@@ -3753,10 +3753,15 @@ class InternalToCdaConverter
         $tribalCode = $this->xpathValue('/CCDA/patient/tribal');
         $pregnancyCode = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_code');
         $hungerRiskCode = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/risk_status/answer_code');
-        $disabilityStatusCode = $this->xpathValue('/CCDA/patient/sdoh_data/disability_assessment/overall_status/answer_code');
-        $disabilityQuestions = $this->xpath('/CCDA/patient/sdoh_data/disability_assessment/disability_questions/question');
+        // Disability status is NOT a social history observation. The Node service
+        // renders it as a Disability Status Observation (2.16.840.1.113883.10.20.22.4.505)
+        // in the Functional Status section; see renderFunctionalStatusSection(). The
+        // Social History Observation (...4.38) shape this section previously used for
+        // disability has no counterpart in the Node section trees --
+        // socialHistoryEntryLevel.disabilityAssessmentObservation is exported but never
+        // referenced by any section, so it is never emitted.
         // Note: patientGender alone does NOT trigger social history generation per Node.js logic
-        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '' || $disabilityStatusCode !== '' || $disabilityQuestions->length > 0;
+        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '';
 
         if ($socialHistory->length === 0 && !$hasUscdiData) {
             $section->setAttribute('nullFlavor', 'NI');
@@ -3786,7 +3791,6 @@ class InternalToCdaConverter
             $this->appendTribalAffiliationObservationEntry($section, $tribalCode);
             $this->appendPregnancyStatusObservationEntry($section, $pregnancyCode);
             $this->appendHungerVitalSignsObservationEntry($section, $hungerRiskCode);
-            $this->appendDisabilityAssessmentEntry($section, $disabilityStatusCode, $disabilityQuestions);
         }
 
         $this->appendSection($structuredBody, $component, $section);
@@ -4487,11 +4491,28 @@ class InternalToCdaConverter
     }
 
     /**
-     * @param \DOMNodeList<\DOMElement> $questions
+     * Disability Status Observation (C-CDA 2.16.840.1.113883.10.20.22.4.505,
+     * extension 2023-05-01).
+     *
+     * Port of Node functionalStatusEntryLevel.disabilityStatusObservation. Emitted
+     * in the Functional Status section, not Social History: the ONC Edge Test Tool
+     * enforces this template under Functional Status content validation for the
+     * USCDI v3 b(1) ToC scenarios.
+     *
+     * Gated on overall_status being present, matching the Node template's
+     * existsWhen (input.overall_status).
      */
-    private function appendDisabilityAssessmentEntry(DOMElement $section, string $statusCode, \DOMNodeList $questions): void
+    private function appendDisabilityStatusObservationEntry(DOMElement $section): void
     {
-        if ($statusCode === '' && $questions->length === 0) {
+        $base = '/CCDA/patient/sdoh_data/disability_assessment';
+
+        $statusCode = $this->xpathValue($base . '/overall_status/code');
+        $statusDisplay = $this->xpathValue($base . '/overall_status/display');
+        $answerCode = $this->xpathValue($base . '/overall_status/answer_code');
+        $answerDisplay = $this->xpathValue($base . '/overall_status/answer_display');
+        $questions = $this->xpath($base . '/disability_questions/question');
+
+        if ($statusCode === '' && $answerCode === '' && $questions->length === 0) {
             return;
         }
 
@@ -4502,7 +4523,8 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.505', '2023-05-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.505');
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid !== '') {
@@ -4512,33 +4534,49 @@ class InternalToCdaConverter
             $obs->appendChild($uniqueId);
         }
 
+        // Node takes the code from overall_status.*; the IG example uses LOINC
+        // 89571-4 "Disability Status [CUBS]". Fall back to that when the source
+        // carries no code so the required <code> is never emitted empty.
         $code = $this->createElement('code');
-        $code->setAttribute('code', '89571-4');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $code->setAttribute('displayName', 'Overall disability status CUBS');
+        $codeSystem = $this->xpathValue($base . '/overall_status/code_system');
+        $codeSystemName = $this->xpathValue($base . '/overall_status/code_system_name');
+        $code->setAttribute('code', $statusCode !== '' ? $this->cleanCode($statusCode) : '89571-4');
+        $code->setAttribute('codeSystem', $codeSystem !== '' ? $codeSystem : '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', $codeSystemName !== '' ? $codeSystemName : 'LOINC');
+        if ($statusDisplay !== '') {
+            $code->setAttribute('displayName', $statusDisplay);
+        } elseif ($statusCode === '') {
+            $code->setAttribute('displayName', 'Disability Status [CUBS]');
+        }
         $obs->appendChild($code);
 
         $this->appendStatusCode($obs, ActStatus::Completed);
 
-        if ($statusCode !== '') {
-            $statusDisplay = $this->xpathValue('/CCDA/patient/sdoh_data/disability_assessment/overall_status/answer_display');
-            $value = $this->output->createElement('value');
-            $this->setXsiType($value, 'CD');
-            $value->setAttribute('code', $statusCode);
-            $value->setAttribute('displayName', $statusDisplay);
-            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $obs->appendChild($value);
-        }
+        $effectiveTime = $this->createElement('effectiveTime');
+        $this->setDateAttribute($effectiveTime, $this->xpathValue('/CCDA/created_time_timezone'));
+        $obs->appendChild($effectiveTime);
 
-        // Component observations for individual disability questions
+        // value is drawn from the LOINC answer set associated with the status code.
+        $value = $this->output->createElement('value');
+        $this->setXsiType($value, 'CD');
+        if ($answerCode === '') {
+            $value->setAttribute('nullFlavor', 'UNK');
+        } else {
+            $value->setAttribute('code', $this->cleanCode($answerCode));
+            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $value->setAttribute('codeSystemName', 'LOINC');
+            if ($answerDisplay !== '') {
+                $value->setAttribute('displayName', $answerDisplay);
+            }
+        }
+        $obs->appendChild($value);
+
+        // Individual disability questions as COMP entryRelationships.
         foreach ($questions as $question) {
             $qCode = $this->xpathValue('code', $question);
-            $qDisplay = $this->xpathValue('display', $question);
-            $answerCode = $this->xpathValue('answer_code', $question);
-            $answerDisplay = $this->xpathValue('answer_display', $question);
+            $qAnswerCode = $this->xpathValue('answer_code', $question);
 
-            if ($qCode === '' || $answerCode === '') {
+            if ($qCode === '' || $qAnswerCode === '') {
                 continue;
             }
 
@@ -4558,20 +4596,30 @@ class InternalToCdaConverter
                 $qObs->appendChild($qUniqueId);
             }
 
+            $qCodeSystem = $this->xpathValue('code_system', $question);
+            $qCodeSystemName = $this->xpathValue('code_system_name', $question);
             $qCodeEl = $this->createElement('code');
-            $qCodeEl->setAttribute('code', $qCode);
-            $qCodeEl->setAttribute('displayName', $qDisplay);
-            $qCodeEl->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $qCodeEl->setAttribute('codeSystemName', 'LOINC');
+            $qCodeEl->setAttribute('code', $this->cleanCode($qCode));
+            $qCodeEl->setAttribute('codeSystem', $qCodeSystem !== '' ? $qCodeSystem : '2.16.840.1.113883.6.1');
+            $qCodeEl->setAttribute('codeSystemName', $qCodeSystemName !== '' ? $qCodeSystemName : 'LOINC');
+            $qDisplay = $this->xpathValue('display', $question);
+            if ($qDisplay !== '') {
+                $qCodeEl->setAttribute('displayName', $qDisplay);
+            }
             $qObs->appendChild($qCodeEl);
 
             $this->appendStatusCode($qObs, ActStatus::Completed);
 
+            $qAnswerSystem = $this->xpathValue('answer_code_system', $question);
+            $qAnswerDisplay = $this->xpathValue('answer_display', $question);
             $qValue = $this->output->createElement('value');
             $this->setXsiType($qValue, 'CD');
-            $qValue->setAttribute('code', $answerCode);
-            $qValue->setAttribute('displayName', $answerDisplay);
-            $qValue->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $qValue->setAttribute('code', $this->cleanCode($qAnswerCode));
+            $qValue->setAttribute('codeSystem', $qAnswerSystem !== '' ? $qAnswerSystem : '2.16.840.1.113883.6.1');
+            $qValue->setAttribute('codeSystemName', 'LOINC');
+            if ($qAnswerDisplay !== '') {
+                $qValue->setAttribute('displayName', $qAnswerDisplay);
+            }
             $qObs->appendChild($qValue);
 
             $entryRel->appendChild($qObs);
@@ -5274,6 +5322,15 @@ class InternalToCdaConverter
                 $this->appendFunctionalStatusEntry($section, $item);
             }
         }
+
+        // Disability Status Observation is a sibling entry of the functional status
+        // organizer, gated independently on its own data (Node: sectionLevel2
+        // functionalStatusSection, dataKey "disability_status"). It is therefore
+        // emitted even when there are no functional_status items and the section
+        // carries nullFlavor="NI" -- matching the Node engine, which computes the
+        // section attributes from the functional_status key alone but still renders
+        // entry content.
+        $this->appendDisabilityStatusObservationEntry($section);
 
         $this->appendSection($structuredBody, $component, $section);
     }

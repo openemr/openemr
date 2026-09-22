@@ -86,6 +86,89 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * Disability Status Observation (4.505) belongs in the Functional Status
+     * section, not Social History. The ONC Edge Test Tool enforces this template
+     * under Functional Status content validation for the USCDI v3 b(1) ToC
+     * scenarios, and the Node service renders it there via the
+     * functionalStatusSection "disability_status" entry.
+     *
+     * The Social History Observation (4.38) shape previously used for disability
+     * has no Node counterpart -- disabilityAssessmentObservation is exported but
+     * never referenced by a section tree -- so it must not appear.
+     */
+    public function testDisabilityStatusObservationIsInFunctionalStatusSection(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <sdoh_data>
+                        <disability_assessment>
+                            <overall_status>
+                                <code>89571-4</code>
+                                <code_system>2.16.840.1.113883.6.1</code_system>
+                                <code_system_name>LOINC</code_system_name>
+                                <display>Disability Status [CUBS]</display>
+                                <answer_code>LA29243-5</answer_code>
+                                <answer_display>I'm Vulnerable</answer_display>
+                            </overall_status>
+                            <disability_questions>
+                                <question>
+                                    <code>69858-3</code>
+                                    <display>Hearing difficulty</display>
+                                    <answer_code>LA33-6</answer_code>
+                                    <answer_display>No</answer_display>
+                                </question>
+                            </disability_questions>
+                        </disability_assessment>
+                    </sdoh_data>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $functionalSection = "//hl7:section[hl7:templateId[@root='2.16.840.1.113883.10.20.22.2.14']]";
+        $socialSection = "//hl7:section[hl7:templateId[@root='2.16.840.1.113883.10.20.22.2.17']]";
+
+        $inFunctional = $xpath->query(
+            $functionalSection . "//hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.505']]"
+        );
+        self::assertNotFalse($inFunctional, 'Disability Status query must be valid');
+        self::assertSame(1, $inFunctional->length, 'Disability Status Observation must be in the Functional Status section');
+
+        $inSocial = $xpath->query(
+            $socialSection . "//hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.505']]"
+        );
+        self::assertNotFalse($inSocial, 'Social History query must be valid');
+        self::assertSame(0, $inSocial->length, 'Disability Status Observation must not appear in Social History');
+
+        $observation = $inFunctional->item(0);
+        self::assertInstanceOf(\DOMElement::class, $observation, 'Observation node must be an element');
+
+        $versioned = $xpath->query(
+            "hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.505'][@extension='2023-05-01']",
+            $observation
+        );
+        self::assertNotFalse($versioned, 'Versioned templateId query must be valid');
+        self::assertSame(1, $versioned->length, 'Disability Status Observation carries the 2023-05-01 extension');
+
+        $value = $xpath->query("hl7:value[@code='LA29243-5']", $observation);
+        self::assertNotFalse($value, 'Value query must be valid');
+        self::assertSame(1, $value->length, 'value carries the LOINC answer set code');
+
+        $question = $xpath->query(
+            "hl7:entryRelationship[@typeCode='COMP']"
+            . "/hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.86']]",
+            $observation
+        );
+        self::assertNotFalse($question, 'Question observation query must be valid');
+        self::assertSame(1, $question->length, 'Each disability question is a COMP entryRelationship');
+    }
+
+    /**
      * A procedure with a code but no code type must omit the codeSystemName
      * attribute rather than emit codeSystemName="", which is an empty st value
      * the C-CDA IG rejects. Mirrors Node's translate.code omit-empty behavior.
