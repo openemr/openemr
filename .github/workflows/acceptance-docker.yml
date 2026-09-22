@@ -566,39 +566,12 @@ jobs:
       # Cache-friendly via composer.lock hash.
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
-    # Item 4 followup: decide whether the upgrade scenario cell can
-    # produce meaningful signal in this run's specific from/to image
-    # pairing. Two skip cases:
-    #
-    #   1. from_tag's OCI revision == master -- from IS master's build,
-    #      so no shipped version higher than from exists to upgrade TO.
-    #      Any to_tag would be same-or-lower version. Scenario is
-    #      meaningless.
-    #
-    #   2. to_tag's OCI revision == master AND master carries the `next`
-    #      docker tag in release-targets.yml (between-cycles state,
-    #      no rel branch in active dev cycle). In this state master's
-    #      docker-upgrade infrastructure (fsupgrade-N + docker-version
-    #      bump) hasn't been scaffolded to walk from currently-shipped
-    #      versions to master's current version.php -- so booting
-    #      master's dev docker on top of a shipped installation
-    #      produces a code-vs-DB mismatch (code advanced, DB stayed).
-    #      Every downstream assertion (version-check, business, api-
-    #      enabled) becomes unreliable. Even the boot's login-page
-    #      healthcheck can fail because login requires sql_upgrade to
-    #      have run.
-    #
-    #      Not-skip case in this branch: when `next` is on a rel-XXX
-    #      branch (that branch's active dev cycle), the release-cut /
-    #      patch-prep mutators cross-propagate fsupgrade + docker-
-    #      version bumps to BOTH the rel branch AND master. Master's
-    #      dev docker DOES have the upgrade infra in that window.
-    #      Detection: master's docker_tags in release-targets.yml
-    #      excludes `next` (next is somewhere else).
-    #
-    # Non-upgrade scenarios (fresh-install-from, fresh-install-to)
-    # never gate on this step -- `matrix.scenario == 'upgrade'`
-    # short-circuits the whole detection.
+    # Decide whether the upgrade scenario cell can produce meaningful
+    # signal in this run's specific from/to image pairing. Skip criteria
+    # + full rationale live in .github/scripts/detect-upgrade-cell-skip.sh.
+    # Non-upgrade scenarios (fresh-install-from, fresh-install-to) never
+    # gate on this step -- `matrix.scenario == 'upgrade'` short-circuits
+    # the whole detection.
     - name: Detect upgrade-cell skip criteria (from/to OCI revision + master's next-tag placement)
       id: detect_upgrade_skip
       if: matrix.scenario == 'upgrade'
@@ -619,41 +592,13 @@ jobs:
           fi
         done
 
+        # docker inspect needs the Docker daemon so stays in the workflow;
+        # the pure decision logic lives in detect-upgrade-cell-skip.sh
+        # (BATS-tested by tests/bats/ci-scripts/detect-upgrade-cell-skip/).
         FROM_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${FROM_TAG}" 2>/dev/null || echo "")
         TO_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${TO_TAG}" 2>/dev/null || echo "")
-        echo "==> from_tag (${FROM_TAG}) revision: ${FROM_REV}"
-        echo "==> to_tag   (${TO_TAG}) revision: ${TO_REV}"
-
-        if [[ "${FROM_REV}" == "master" ]]; then
-          echo "skip=true" >> "$GITHUB_OUTPUT"
-          {
-            echo "skip_reason<<REASON_EOF"
-            echo "from_tag (${FROM_TAG}) has OCI revision=master -- from IS master's build, no higher version exists to upgrade TO. Cell would exercise a same-or-lower version transition which the docker upgrade mechanism doesn't support."
-            echo "REASON_EOF"
-          } >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
-
-        if [[ "${TO_REV}" != "master" ]]; then
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "==> to_tag is a shipped or rel-branch build (revision=${TO_REV}) -- auto-upgrade infra present, cell will run"
-          exit 0
-        fi
-
-        # to_tag revision=master. Check if master carries the `next`
-        # docker tag: `awk` picks the master row's docker_tags line,
-        # then grep for a `next` word-boundary hit.
-        if awk '/^- branch: master$/{f=1} f && /^  docker_tags:/{print; exit}' .github/release-targets.yml | grep -qE '(^|,| )next(,| |$)'; then
-          echo "skip=true" >> "$GITHUB_OUTPUT"
-          {
-            echo "skip_reason<<REASON_EOF"
-            echo "to_tag (${TO_TAG}) has OCI revision=master AND master carries the \`next\` docker tag in release-targets.yml -- indicates between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current version.php in this window. Post-upgrade DB will not advance -> code-vs-DB mismatch -> every downstream assertion unreliable."
-            echo "REASON_EOF"
-          } >> "$GITHUB_OUTPUT"
-        else
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "==> to_tag revision=master but master does NOT carry \`next\` tag -- indicates rel-XXX branch is in active dev cycle. Release-cut / patch-prep mutators cross-propagated upgrade infra to master; cell will run."
-        fi
+        export FROM_REV TO_REV
+        bash .github/scripts/detect-upgrade-cell-skip.sh
 
     - name: Skip upgrade scenario (early notice)
       if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true'
@@ -688,38 +633,11 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 900
 
-    # Item 4 of the post-8.4.0 acceptance-surface refactor: resolve the
-    # running artifact's version so ACCEPTANCE_EXPECTED_VERSION can be
-    # set for docker context (previously docker acceptance skipped
-    # version-check tests entirely because nothing here knew which
-    # X.Y.Z the running image would report).
-    #
-    # Two-tier resolution -- OCI label first, version.php fallback:
-    #
-    # * OCI label `org.opencontainers.image.version` is set at docker-
-    #   BUILD time by --build-arg IMAGE_VERSION baked into the release
-    #   pipeline. Independent source from both version.php (in the
-    #   image's code tree) and the DB `version` table (populated by
-    #   sql_upgrade.php). Using it as expected_version gives a genuine
-    #   3-source cross-check when the version-display + version-api
-    #   tests run: OCI label vs version.php (via About page render pipe)
-    #   vs DB (via /api/version). Catches the "mislabeled image" bug
-    #   class (label says 8.4.1, image code says 8.4.0). Applies to
-    #   every shipped-tag image (`latest`, `next`, `dev`, `8.4.1`, ...).
-    #
-    # * version.php read from the container is the fallback for
-    #   `pr-built`. The workflow's build-image job builds without
-    #   --build-arg IMAGE_VERSION, so the OCI label is empty. In
-    #   pr-built context the PR IS the version source of truth (may
-    #   contain version.php changes itself), so cross-signal isn't
-    #   available anyway -- fall back to version.php + accept the
-    #   weakened signal (still tests the render pipeline). Mirrors
-    #   detect-acceptance-mode.sh's read_tree_version pattern on the
-    #   tarball build_locally path.
-    #
-    # Strip trailing pre-release suffix (`-dev` for master builds,
-    # etc.): version-check tests compare X.Y.Z prefixes only (see
-    # VersionDisplayAcceptanceTest line ~127 preg_match).
+    # Resolve the running artifact's version so ACCEPTANCE_EXPECTED_VERSION
+    # can be set for docker context. Two-tier resolution -- OCI label
+    # first, version.php fallback -- see .github/scripts/parse-artifact-
+    # version.sh for the full rationale (independent cross-check on
+    # shipped tags; weakened-signal fallback for pr-built).
     - name: Resolve running artifact version (OCI label, fallback version.php)
       id: boot-version
       if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
@@ -727,39 +645,35 @@ jobs:
         OPENEMR_TAG: ${{ steps.tags.outputs.boot_tag }}
       run: |
         set -eo pipefail
-        LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
-        if [[ "$LABEL" =~ ^([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-          RESOLVED="${BASH_REMATCH[1]}"
-          echo "==> OCI label 'org.opencontainers.image.version' = '$LABEL' -> resolved X.Y.Z prefix = '$RESOLVED'"
-        else
-          echo "==> OCI label empty or malformed ('$LABEL') -- likely pr-built. Falling back to version.php read."
-          # is_int() || (is_string && ctype_digit): version.php in the
-          # repo assigns v_major/v_minor/v_patch as string literals
-          # ('8', '5', '0'), which is_int() would reject. Accept either
-          # native int or digit-only string; still reject any other type
-          # or non-digit content.
-          RESOLVED=$(
+        # docker inspect + docker compose exec need the Docker daemon so
+        # stay in the workflow; the parse/validate/fallback decision
+        # logic lives in parse-artifact-version.sh (BATS-tested by
+        # tests/bats/ci-scripts/parse-artifact-version/) and the
+        # version.php read logic lives in read-version-php.php (PHPUnit-
+        # isolated by tests/Tests/Isolated/Common/Command/Ci/
+        # ReadVersionPhpTest.php).
+        OCI_VERSION_LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
+        FALLBACK_VERSION=""
+        # Only pay for the docker exec round-trip when OCI label is
+        # empty (pr-built case). Shipped/rel-branch builds have the
+        # label baked in at docker BUILD time.
+        if [[ -z "${OCI_VERSION_LABEL}" ]]; then
+          # docker cp the reader into the container -- the openemr
+          # container has no host bind-mount so .github/scripts isn't
+          # visible inside without an explicit copy.
+          docker compose \
+            -f docker/production/docker-compose.yml \
+            -f .github/docker/acceptance-docker-compose.yml \
+            cp .github/scripts/read-version-php.php openemr:/tmp/read-version-php.php
+          FALLBACK_VERSION=$(
             docker compose \
               -f docker/production/docker-compose.yml \
               -f .github/docker/acceptance-docker-compose.yml \
-              exec -T openemr php -r '
-                require "/var/www/localhost/htdocs/openemr/version.php";
-                foreach (["v_major" => $v_major, "v_minor" => $v_minor, "v_patch" => $v_patch] as $name => $value) {
-                    if (!(is_int($value) || (is_string($value) && ctype_digit($value)))) {
-                        fwrite(STDERR, "version.php \${$name} must be int or digit-only string, got: " . var_export($value, true) . "\n");
-                        exit(1);
-                    }
-                }
-                echo "$v_major.$v_minor.$v_patch";
-              '
+              exec -T openemr php /tmp/read-version-php.php
           )
-          echo "==> version.php reports: $RESOLVED"
         fi
-        if [[ ! "$RESOLVED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "::error::Resolved version '$RESOLVED' does not match X.Y.Z shape (neither OCI label nor version.php yielded a valid version)"
-          exit 1
-        fi
-        echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
+        export OCI_VERSION_LABEL FALLBACK_VERSION
+        bash .github/scripts/parse-artifact-version.sh
 
     - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
       if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
@@ -843,37 +757,25 @@ jobs:
         OPENEMR_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
       run: |
         set -eo pipefail
-        LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
-        if [[ "$LABEL" =~ ^([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-          RESOLVED="${BASH_REMATCH[1]}"
-          echo "==> OCI label 'org.opencontainers.image.version' = '$LABEL' -> resolved X.Y.Z prefix = '$RESOLVED'"
-        else
-          echo "==> OCI label empty or malformed ('$LABEL') -- likely pr-built. Falling back to version.php read."
-          # is_int() || (is_string && ctype_digit): see the pre-upgrade
-          # resolve step for the full rationale (version.php uses
-          # string literals for v_major/v_minor/v_patch).
-          RESOLVED=$(
+        # Same OCI-first + version.php-fallback pattern as the pre-
+        # upgrade boot-version step -- see there for the extracted-
+        # scripts test-coverage pointers.
+        OCI_VERSION_LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
+        FALLBACK_VERSION=""
+        if [[ -z "${OCI_VERSION_LABEL}" ]]; then
+          docker compose \
+            -f docker/production/docker-compose.yml \
+            -f .github/docker/acceptance-docker-compose.yml \
+            cp .github/scripts/read-version-php.php openemr:/tmp/read-version-php.php
+          FALLBACK_VERSION=$(
             docker compose \
               -f docker/production/docker-compose.yml \
               -f .github/docker/acceptance-docker-compose.yml \
-              exec -T openemr php -r '
-                require "/var/www/localhost/htdocs/openemr/version.php";
-                foreach (["v_major" => $v_major, "v_minor" => $v_minor, "v_patch" => $v_patch] as $name => $value) {
-                    if (!(is_int($value) || (is_string($value) && ctype_digit($value)))) {
-                        fwrite(STDERR, "version.php \${$name} must be int or digit-only string, got: " . var_export($value, true) . "\n");
-                        exit(1);
-                    }
-                }
-                echo "$v_major.$v_minor.$v_patch";
-              '
+              exec -T openemr php /tmp/read-version-php.php
           )
-          echo "==> version.php reports: $RESOLVED"
         fi
-        if [[ ! "$RESOLVED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "::error::Resolved version '$RESOLVED' does not match X.Y.Z shape (neither OCI label nor version.php yielded a valid version)"
-          exit 1
-        fi
-        echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
+        export OCI_VERSION_LABEL FALLBACK_VERSION
+        bash .github/scripts/parse-artifact-version.sh
 
     - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
       if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
