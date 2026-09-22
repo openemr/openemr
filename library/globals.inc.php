@@ -2220,7 +2220,7 @@ $GLOBALS_METADATA = [
             xl('Clear IP Failed-Login Counter on Successful Authentication'),
             'bool',                           // data type
             '0',                              // default OFF
-            xl('When enabled, a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. Convenient in shared-NAT environments where legitimate users may otherwise accumulate strikes across a day. When disabled (default), the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP.')
+            xl('When enabled, a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. Convenient in shared-NAT environments where legitimate users may otherwise accumulate strikes across a day. When disabled (default), the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP. If the reset window is also set to 0 (never auto-reset), the IP counter can only be cleared by an administrator via the IP Tracker report — plan for one or the other to provide recovery.')
         ],
 
         'portal_onetime_max_pin_attempts' => [

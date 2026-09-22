@@ -699,6 +699,12 @@ Deployments behind shared NAT that prefer the convenience of a
 clean-on-success can enable `clear_ip_counter_on_auth_success` in globals
 to restore the pre-8.5.0 behavior.
 
+> **Recovery note**: if you disable `clear_ip_counter_on_auth_success`
+> AND set `ip_time_reset_password_max_failed_logins` to `0` (no
+> auto-reset), the per-IP counter can only be cleared manually by an
+> administrator via the IP Tracker report. Plan for one or the other
+> to provide a recovery path for legitimate users behind shared NAT.
+
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >
 > **Solutions for modified commands:**
