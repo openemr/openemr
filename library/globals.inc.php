@@ -2755,13 +2755,13 @@ $GLOBALS_METADATA = [
         'user_php_debug' => [
             xl('User Debug PHP Reporting Options'),
             [
-                '0' => xl('Use Server Defaults (Display off)'),
-                '2' => xl('Display Errors Only'),
-                '3' => xl('Display Errors and Warnings Only'),
-                '4' => xl('Display Current Runtime Reporting'),
+                '0' => xl('Use Server Defaults'),
+                '2' => xl('Log Errors Only'),
+                '3' => xl('Log Errors and Warnings Only'),
+                '4' => xl('Log Current Runtime Reporting'),
             ],
             '0',
-            xl('Controls PHP error display/debug behavior without overriding server defaults unless explicitly selected.')
+            xl('Controls which PHP-level messages are captured in the application log. On-screen display is no longer part of this setting; check the log stream for output.')
         ],
 
         'user_debug' => [
