@@ -668,12 +668,15 @@ class PasswordGrantHardeningTest extends TestCase
                 "UPDATE `users_secure` SET `password` = ? WHERE `id` = ?",
                 [$originalHash, $userId]
             );
-            if ($originalUuid !== null) {
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE `users` SET `uuid` = ? WHERE `id` = ?",
-                    [$originalUuid, $userId]
-                );
-            }
+            // Restore unconditionally — if the row was already NULL
+            // pre-test, we still need to zero out the UUID that
+            // updatePassword's createMissingUuidForRow backfilled, or
+            // later tests in the same process see a UUID that wasn't
+            // there originally.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users` SET `uuid` = ? WHERE `id` = ?",
+                [$originalUuid, $userId]
+            );
         }
     }
 
