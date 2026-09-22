@@ -607,12 +607,17 @@ jobs:
         TO_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
       run: |
         set -eo pipefail
-        # Pull both images so docker inspect can read Config.Labels.
-        # Cached if the fresh-install-* cells already pulled them, but
-        # each matrix cell runs on its own runner so no cross-cell
-        # cache -- worst case one extra pull per image (~30s).
-        docker pull "openemr/openemr:${FROM_TAG}" 2>&1 | tail -1
-        docker pull "openemr/openemr:${TO_TAG}" 2>&1 | tail -1
+        # Ensure both images are locally available so docker inspect can
+        # read Config.Labels. Try local inspect first; only pull from
+        # Docker Hub if the image isn't already loaded. Critical for
+        # openemr/openemr:pr-built which is docker-load'd from the
+        # build-image artifact and does NOT exist on Docker Hub --
+        # unconditional pull would fail with tag-not-found.
+        for TAG in "${FROM_TAG}" "${TO_TAG}"; do
+          if ! docker image inspect "openemr/openemr:${TAG}" >/dev/null 2>&1; then
+            docker pull "openemr/openemr:${TAG}" 2>&1 | tail -1
+          fi
+        done
 
         FROM_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${FROM_TAG}" 2>/dev/null || echo "")
         TO_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${TO_TAG}" 2>/dev/null || echo "")
@@ -652,9 +657,17 @@ jobs:
 
     - name: Skip upgrade scenario (early notice)
       if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true'
+      env:
+        # Pass through env, NOT direct ${{ }} interpolation into run:
+        # -- skip_reason contains literal backticks around `next` for
+        # readability. Direct interpolation places them in Bash source
+        # where they'd trigger command substitution (Bash tries to
+        # execute `next` as a command). Env pass-through preserves
+        # backticks as literal characters.
+        SKIP_REASON: ${{ steps.detect_upgrade_skip.outputs.skip_reason }}
       run: |
         echo "::warning::Upgrade scenario cell skipping downstream steps."
-        printf '%s\n' "${{ steps.detect_upgrade_skip.outputs.skip_reason }}"
+        printf '%s\n' "${SKIP_REASON}"
         echo ""
         echo "==> Real signal preserved: fresh-install-from + fresh-install-to cells still exercise both images independently."
         echo "==> This cell will show all downstream steps as skipped via if: conditions."
