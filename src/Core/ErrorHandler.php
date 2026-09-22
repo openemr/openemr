@@ -43,6 +43,7 @@ readonly class ErrorHandler
         private LoggerInterface $logger,
         private ResponseFactoryInterface $rf,
         private StreamFactoryInterface $sf,
+        private ErrorHandlingMode $errorMode,
         private bool $shouldDisplayErrors,
     ) {
         $this->isCli = (PHP_SAPI === 'cli');

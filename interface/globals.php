@@ -89,12 +89,11 @@ $handler = new \OpenEMR\Core\ErrorHandler(
     logger: $logger,
     rf: ServiceContainer::getResponseFactory(),
     sf: ServiceContainer::getStreamFactory(),
+    errorMode: ErrorMode::Log,
     shouldDisplayErrors: ($_ENV['OPENEMR__ENVIRONMENT'] ?? null) === 'dev',
 );
 $handler->installExceptionHandler();
-// Note: installErrorHandler() is intentionally NOT called, too much would
-// break today. As we gain confidence in error handling, we can call it with
-// a high-severity level and incrementally move it to cover more.
+$handler->installErrorHandler();
 
 
 // Throw error if the php openssl module is not installed.
