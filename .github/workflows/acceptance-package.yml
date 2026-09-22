@@ -742,6 +742,18 @@ jobs:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
       run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
 
+    # Seed persistence fixtures against from_version -- mirrors the
+    # regular upgrade scenario's pre-upgrade post-install run. The
+    # persistence tests' post-upgrade methods assert-only (no seed
+    # fallback -- that's the whole point of the Item 2 split), so
+    # they'd fail here without something creating the patient +
+    # document + appointment fixtures on from_version first.
+    - name: Run post-install acceptance suite (seed fixtures on from_version)
+      if: matrix.scenario == 'wizard-upgrade'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
+      run: composer acceptance -- --group=post-install
+
     - name: Swap bind mount to to_version without running CLI upgrade
       if: matrix.scenario == 'wizard-upgrade'
       run: tests/Acceptance/bin/upgrade-package.sh --skip-sql-upgrade ${{ steps.bootflags.outputs.to_upgrade_local_flag }} "${FROM_VERSION}" "${TO_VERSION}"
