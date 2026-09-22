@@ -2796,8 +2796,17 @@ The 17 CI failures are triggered by something specific to Panther/ChromeDriver d
 
 **Persistence-test structural fix (collateral)**: `DocumentPersistenceAcceptanceTest` + `AppointmentPersistenceAcceptanceTest` split from single dual-tagged idempotent-seed methods into per-scenario method pairs. The old pattern silently masked upgrade data-loss regressions (seed-if-missing would just re-create anything the upgrade dropped, and the viewer assertion would pass with the freshly-created data). New shape: `testSeedsAndVerifies*InPostInstall()` (tagged post-install, seeds + verifies immediately) + `testStill*AfterUpgrade()` (tagged post-upgrade, verifies WITHOUT seed helpers). Missing-fixture is now a structural assertion failure. Two new `UiSeedingTrait` helpers (`assertPersistPatientExists`, `assertPersistDocumentExists`) provide strict-assert companions to the seed helpers.
 
-**Item 3: Shared boot-orchestration composite action**
+**Item 3: Shared boot-orchestration composite action** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**
 Both workflows repeat the boot→group→api-enable→group→teardown shape. Extract to a composite action at `.github/actions/run-acceptance-scenario/` (or a shared shell library at `tests/Acceptance/bin/lib/`). Workflows declare "here's the artifact, here's the expected version, run scenario X." Cuts YAML duplication; makes drift impossible (e.g., item #3 friction, and the `api-enabled` post-upgrade gap in docker workflow).
+
+**As-shipped scope**: two smaller composite actions instead of one big scenario wrapper. Boot mechanism stays in the workflow (differs enough between `boot-package.sh` and `docker compose up` that a unifying composite would need too many conditionals for too little payoff).
+
+- **`.github/actions/run-acceptance-group/`** — wraps `env: ACCEPTANCE_EXPECTED_VERSION` + `run: composer acceptance -- --group=<X>`. Replaces ~11 identical step blocks across both workflows. Callers pass `group` + `expected_version` (empty string in docker context until Item 4 lands; version tests skip cleanly via `AcceptanceContext::hasExpectedVersion()` when unset).
+- **`.github/actions/api-enable-artifact/`** — wraps `OPENEMR_ENABLE_API_BOOTSTRAP=1 php tests/Acceptance/bin/api-enable.php`. Replaces 3 identical step blocks. No inputs.
+
+**Collateral fix — closes friction point #3**: `acceptance-docker.yml`'s `upgrade` scenario now also runs api-enable + `--group=api-enabled-post-upgrade` after the upgrade completes, matching what `acceptance-package.yml` already does. The pre-Item-3 gap (docker upgrade path never exercised api-enable so a regression to /api/facility / OIDC discovery / DCR on upgrade would slip past) is closed by two new composite invocations in the docker workflow's upgrade branch.
+
+**Explicitly deferred (not in this PR)**: `AcceptanceContext::scenarioName()` / feature-flag / workflow-context accessors were called out as Item 3 scope originally, but no test currently needs them (persistence tests were split per-scenario in Item 2 rather than scenario-branching). Scaffolding-without-a-caller — drops in cleanly whenever a first concrete caller appears (e.g., an Item 4 docker path that needs to gate on scenario, or a future test wanting scenario-aware diagnostics).
 
 **Item 4: Docker workflow tag→version resolution**
 So `ACCEPTANCE_EXPECTED_VERSION` can be set in docker context too and the `version-display` / `version-api` isolation isn't needed. Options: query Docker Hub API for the tag→digest→config manifest, OR pull the image and read `version.php`, OR require the caller to pass the version explicitly (already the case for workflow_call gates). Simplest is the last one — scheduled/floating-tag runs can skip version-check by not setting the env.
