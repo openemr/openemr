@@ -589,9 +589,10 @@ jobs:
     # (label=99.99.99, tree=version.php); see openemr/openemr#13753.
     - name: Run post-install acceptance suite (fresh-install of to_version)
       if: matrix.scenario == 'fresh-install'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=post-install
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-install
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     # api-enable bootstrap fires AFTER the post-install group. Order
     # matters: OAuth2SmokeTest's post-install-tagged assertions verify
@@ -602,15 +603,14 @@ jobs:
     # too now (previously version-api workaround group).
     - name: Bootstrap API via admin panel
       if: matrix.scenario == 'fresh-install'
-      env:
-        OPENEMR_ENABLE_API_BOOTSTRAP: '1'
-      run: php tests/Acceptance/bin/api-enable.php
+      uses: ./.github/actions/api-enable-artifact
 
     - name: Run api-enabled-post-install acceptance suite (fresh-install of to_version)
       if: matrix.scenario == 'fresh-install'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=api-enabled-post-install
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: api-enabled-post-install
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     # ==== wizard-install scenario ====
     # Boots the artifact WITHOUT running install-helper.php so the
@@ -640,15 +640,17 @@ jobs:
 
     - name: Run wizard-completed-post-install (Panther-driven wizard test)
       if: matrix.scenario == 'wizard-install'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=wizard-completed-post-install
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: wizard-completed-post-install
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     - name: Run post-install business tests against wizard-installed artifact (fresh PHPUnit process)
       if: matrix.scenario == 'wizard-install'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=post-install
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-install
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     # ==== upgrade scenario ====
     # from_version is always the shipped GitHub-release tarball (no
@@ -676,9 +678,10 @@ jobs:
     # methods will assert those fixtures survived the upgrade).
     - name: Run post-install acceptance suite (fresh-install of from_version)
       if: matrix.scenario == 'upgrade'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
-      run: composer acceptance -- --group=post-install
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-install
+        expected_version: ${{ env.FROM_VERSION }}
 
     - name: Upgrade from_version -> to_version
       if: matrix.scenario == 'upgrade'
@@ -690,9 +693,10 @@ jobs:
     # above survived the migration.
     - name: Run post-upgrade acceptance suite against to_version
       if: matrix.scenario == 'upgrade'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=post-upgrade
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-upgrade
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     # api-enable bootstrap fires AFTER post-upgrade so the
     # api-enabled-post-upgrade group (ApiSmokeTest, OAuth2ApiEnabledTest,
@@ -707,15 +711,14 @@ jobs:
     # openemr/openemr#13634).
     - name: Bootstrap API via admin panel (post-upgrade)
       if: matrix.scenario == 'upgrade'
-      env:
-        OPENEMR_ENABLE_API_BOOTSTRAP: '1'
-      run: php tests/Acceptance/bin/api-enable.php
+      uses: ./.github/actions/api-enable-artifact
 
     - name: Run api-enabled-post-upgrade acceptance suite (api-enabled of to_version, post-upgrade)
       if: matrix.scenario == 'upgrade'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=api-enabled-post-upgrade
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: api-enabled-post-upgrade
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     # ==== wizard-upgrade scenario ====
     # Boots the from-version normally (install-helper.php runs, DB
@@ -750,9 +753,10 @@ jobs:
     # document + appointment fixtures on from_version first.
     - name: Run post-install acceptance suite (seed fixtures on from_version)
       if: matrix.scenario == 'wizard-upgrade'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
-      run: composer acceptance -- --group=post-install
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-install
+        expected_version: ${{ env.FROM_VERSION }}
 
     - name: Swap bind mount to to_version without running CLI upgrade
       if: matrix.scenario == 'wizard-upgrade'
@@ -760,15 +764,17 @@ jobs:
 
     - name: Run wizard-completed-post-upgrade (Panther-driven wizard test)
       if: matrix.scenario == 'wizard-upgrade'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=wizard-completed-post-upgrade
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: wizard-completed-post-upgrade
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     - name: Run post-upgrade business tests against wizard-upgraded artifact (fresh PHPUnit process)
       if: matrix.scenario == 'wizard-upgrade'
-      env:
-        ACCEPTANCE_EXPECTED_VERSION: ${{ env.EXPECTED_VERSION }}
-      run: composer acceptance -- --group=post-upgrade
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-upgrade
+        expected_version: ${{ env.EXPECTED_VERSION }}
 
     # ==== debug + teardown (all scenarios) ====
     - name: Capture container state (on failure)
