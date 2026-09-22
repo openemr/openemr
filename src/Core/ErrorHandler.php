@@ -95,9 +95,10 @@ readonly class ErrorHandler
         }
         // If the current error_reporting DOES NOT capture the error level,
         // still log deprecation warnings even if they're turned off at runtime.
-        // If running inside unit tests, throw anyway.
+        // Under PHPUnit, throw anyway so tests do not silently swallow them,
+        // but only when the caller has opted into throw semantics.
         if ($errno === E_USER_DEPRECATED || $errno === E_DEPRECATED) {
-            if (defined('PHPUNIT_COMPOSER_INSTALL')) {
+            if ($this->errorMode === ErrorHandlingMode::Throw && defined('PHPUNIT_COMPOSER_INSTALL')) {
                 throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
             }
             $this->logger->warning('Deprecated: {message} ({file}:{line})', [
