@@ -104,12 +104,13 @@ class SurgeryService extends BaseService
                                          AND list_encounters.ie_pid = patient.pid
                 LEFT JOIN (
                     SELECT
-                        id AS eid
+                        encounter AS eid
                         ,uuid AS euuid
                         ,pid AS encounter_pid
                     FROM form_encounter
                 ) encounter
-                ON list_encounters.ie_encounter_id = encounter.eid";
+                ON list_encounters.ie_encounter_id = encounter.eid
+                    AND list_encounters.ie_pid = encounter.encounter_pid";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
