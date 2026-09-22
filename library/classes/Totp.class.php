@@ -100,8 +100,15 @@ class Totp
         }
         $tfa = new TwoFactorAuth($this->getQrProvider());
         $slice = 0;
-        $tfa->verifyCode($this->_secret, $totp, 1, null, $slice);
-        return $slice;
+        // Only return the slice when verifyCode itself returns true.
+        // Current RobThree implementation leaves $slice at 0 on
+        // failure, so this is equivalent today — but treating the
+        // return value as the source of truth (and $slice as a
+        // secondary datum) hardens against any future RobThree API
+        // drift where the by-ref parameter might be populated on
+        // paths that don't match.
+        $ok = $tfa->verifyCode($this->_secret, $totp, 1, null, $slice);
+        return $ok ? $slice : 0;
     }
 
     /**
