@@ -85,16 +85,39 @@ class ErrorHandlerTest extends TestCase
         self::assertFalse($result);
     }
 
-    public function testDeprecationThrowsEvenWhenSuppressed(): void
+    public function testDeprecationThrowsUnderPhpUnitWhenSuppressedInThrowMode(): void
     {
         // PHPUNIT_COMPOSER_INSTALL is defined during test runs, so deprecations
-        // always throw regardless of error_reporting level
+        // always throw in Throw mode regardless of error_reporting level.
         $handler = $this->createHandler();
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessage('Deprecated function');
 
         @$handler->handleError(E_DEPRECATED, 'Deprecated function', '/path/to/file.php', 50);
+    }
+
+    public function testDeprecationDoesNotThrowUnderPhpUnitWhenSuppressedInLogMode(): void
+    {
+        // Log mode must never change control flow, even when the PHPUnit
+        // deprecation-visibility guard would otherwise fire. See PR #14183.
+        $logger = new class extends AbstractLogger {
+            /** @var list<array{level: mixed, message: string|Stringable, context: array<mixed>}> */
+            public array $records = [];
+
+            public function log($level, string|Stringable $message, array $context = []): void
+            {
+                $this->records[] = ['level' => $level, 'message' => $message, 'context' => $context];
+            }
+        };
+        $handler = $this->createHandler(errorMode: ErrorHandlingMode::Log, logger: $logger);
+
+        $result = @$handler->handleError(E_DEPRECATED, 'Deprecated function', '/path/to/file.php', 50);
+
+        self::assertFalse($result, 'Suppressed deprecation should let the normal error handler continue');
+        self::assertCount(1, $logger->records, 'Suppressed deprecation should still be recorded once in Log mode');
+        self::assertSame(LogLevel::WARNING, $logger->records[0]['level'], 'Suppressed deprecation is logged at WARNING to stand out from routine notices');
+        self::assertSame('Deprecated function', $logger->records[0]['context']['message'], 'Original message is preserved in context');
     }
 
     public function testErrorHandlerInstallation(): void
