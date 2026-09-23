@@ -253,7 +253,7 @@ class ProcedureFhirApiTest extends TestCase
         );
 
         $reasonCoding = $this->firstElement($this->firstElement($resource, 'reasonCode'), 'coding');
-        $this->assertSame("http://hl7.org/fhir/sid/icd-10", $reasonCoding['system'] ?? null);
+        $this->assertSame("http://hl7.org/fhir/sid/icd-10-cm", $reasonCoding['system'] ?? null);
         $this->assertSame("E78.5", $reasonCoding['code'] ?? null);
     }
 
