@@ -24,9 +24,10 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The isolated tests pin the SQL text of the MISSING modifier; this one runs it. The difference
- * matters on MySQL 8, where `CAST(col AS CHAR)` of a binary uuid that is not valid UTF-8 is NULL,
- * so a "not missing" filter on a uuid column matched no row at all. MariaDB returns the bytes,
- * so the same SQL worked there.
+ * matters on MySQL 8, where `CAST(col AS CHAR)` of a binary uuid that is not valid UTF-8 is cut
+ * at the first invalid byte (to '' when that is the first byte) under the sql_mode OpenEMR sets,
+ * or NULL in strict mode, so the uuid looked missing. MariaDB returns the bytes, so the same SQL
+ * worked there.
  *
  * One patient row is seeded with a binary uuid that is never valid UTF-8 (first byte 0xFF), a
  * `date`, no `deceased_date`, and a `mname` made only of spaces.

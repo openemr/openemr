@@ -250,17 +250,20 @@ class SearchFieldStatementResolver
             /** @var TokenSearchValue $value  */
 
             if ($modifier === SearchModifier::MISSING) {
+                // On MySQL 8, CAST(col AS CHAR) of a binary uuid that is not valid UTF-8 is cut at the
+                // first invalid byte (often to '') with the sql_mode OpenEMR sets, or NULL in strict
+                // mode, so the uuid looked missing. A value whose bytes are not all spaces is never
+                // missing; every value the CHAR cast can read compares exactly as before.
                 if ($value->getCode() === false) {
-                    // often our tokens get treated as string values so we will do this here also.
-                    // Null-safe: on MySQL 8, CAST(col AS CHAR) of a binary uuid that is not valid UTF-8
-                    // is NULL, and `NULL != ''` dropped every row. A value that can't be read as text
-                    // is not missing; every other value compares exactly as before.
-                    $clauses[] = "(" . $field . " IS NOT NULL AND NOT (CAST(" . $field . " AS CHAR) <=> '')) ";
+                    // often our tokens get treated as string values so we will do this here also
+                    $clauses[] = "(" . $field . " IS NOT NULL AND (CAST(" . $field . " AS CHAR) != ''"
+                        . " OR TRIM(CAST(" . $field . " AS BINARY)) != '')) ";
                 } else {
                     // TODO: @adunsulag do we want to compare token values to empty strings... it seems like that would be a missing value but
                     // could we get an inaccurate result here? or will we end up with a case with a number to string conversion on a field
                     // if the value is not a string?
-                    $clauses[] = "(" . $field . " IS NULL OR CAST(" . $field . " AS CHAR) = '') ";
+                    $clauses[] = "(" . $field . " IS NULL OR (CAST(" . $field . " AS CHAR) = ''"
+                        . " AND TRIM(CAST(" . $field . " AS BINARY)) = '')) ";
                 }
             // if we have other modifiers we would handle them here
             } else {
