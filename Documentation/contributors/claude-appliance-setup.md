@@ -35,6 +35,8 @@ Before changing anything below, understand what this appliance is and is not:
 - **What is *not* protected:** anything reachable from the bind-mounted `<git-dir>`, anything the container can dial outbound (LAN included, unless you add egress firewall rules), and the contents of any tokens/keys you place inside the container (the GitHub PAT, the deploy key, the optional GPG key).
 - **Posture:** treat the appliance as disposable. Snapshots are the rollback path. Do not put credentials in the container that you would not be willing to revoke. Use a separate GitHub PAT, a per-repo deploy key, and (if you sign) a separate signing key — all documented below.
 - **If you want stricter outbound isolation,** add explicit host firewall rules to block container → LAN traffic (e.g. `iptables` rules dropping `lxcbr0` traffic destined for RFC1918 ranges other than the loopback uplink). The default config below does *not* do this.
+- **What this container boundary is *not* equivalent to.** LXC is a namespace/cgroup/AppArmor jail sharing the host kernel. It is not a hypervisor. A kernel-level escape from inside the container lands on the host kernel directly. The setup below is a **privileged** LXC container with `lxc.apparmor.profile = unconfined` — required for nested Docker, explained at Step 4. That is a real trade, chosen for setup simplicity and because the appliance is treated as disposable; it is not the strongest possible isolation. If a hypervisor boundary matters for your work, a microVM-based sandbox — its own guest kernel between the agent and the host — is a categorically different tradeoff worth considering alongside this one. See the reference configurations table in [CONTRIBUTING.md](../../CONTRIBUTING.md#ai-agent-development-environment) for what is currently documented in this repo.
+- **Reducing this posture further is a documented followup** — see [Future direction: unprivileged LXC migration](#future-direction-unprivileged-lxc-migration) at the end of this guide.
 
 ---
 
@@ -697,3 +699,29 @@ echo "==> All agents launched"
 **Internet access:** The container reaches the internet via the host's NAT — works on any connection including mobile hotspot. No special networking on the host is required.
 
 **If you ever want bridge + mDNS instead:** The switch is non-destructive. Configure `br0` on the host, update the LXC config to use `lxc.net.0.link = br0`, remove the static IP netplan config inside the container, and delete the `/etc/hosts` line. The NAT approach has no downsides for a single-developer setup.
+
+---
+
+## Future direction: unprivileged LXC migration
+
+The setup above is a **privileged** LXC container: the container's root user maps to root on the host, and AppArmor is unconfined because the `generated` profile blocks runc from writing per-container sysctls under Docker 26+ (explained at Step 4). The container's process namespace, filesystem, and network are isolated, and NAT plus the bind mount close off most reach paths, but a kernel-level escape from inside the container lands as host root.
+
+A planned followup migrates this to a **user-unprivileged** LXC:
+
+- **Root maps to a shifted host UID** (`100000`) that owns nothing on the host. A container-to-host kernel escape then lands as an unprivileged host UID with no filesystem reach outside the bind-mounted git directory.
+- **Container lives under `~/.local/share/lxc/`** and is managed by the contributor's own user account — no root in the lifecycle after initial host setup, no `sudo lxc-*` commands day-to-day.
+- **Bind mount from the host git directory goes through a bindfs FUSE shim** (`/var/lib/lxc-bind/git`) that translates ownership between host UID `1000` and container-shifted UID `100001`. Files the agent creates inside the container still appear as host-owned to the contributor, so host-side editors, git, and `git commit` continue to work.
+- **Lifecycle runs under user-systemd** (`systemctl --user`) rather than system-systemd. Nothing is autostarted as host root.
+- **AppArmor stays as-is.** The stronger boundary comes from the UID shift, not from a tighter AppArmor profile — `profile = generated` was evaluated and still runs into the Docker 26+ sysctl issue.
+
+The migration is not free: it adds a bindfs dependency, a system-level systemd mount unit for the bindfs shim, doc divergence from the current privileged setup, and roughly 5–10% bind-mount I/O overhead. Verification runs against nine gates covering nested Docker, per-worktree stacks, port mapping through LXC NAT, and reboot resilience.
+
+Design decisions locked so far (subject to revision when the work is picked up):
+
+- **User unprivileged, not system unprivileged.** No `/etc/subuid` edits, no root range allocated for LXC. Reuses the contributor's existing `100000:65536` subuid range.
+- **bindfs FUSE shim**, not in-kernel `mount --bind --map-users=` (util-linux too old on Ubuntu 22.04) and not LXC-side `idmap=` on `lxc.mount.entry` (LXC 5.0 only supports `idmap=` on `lxc.rootfs.options`).
+- **Greenfield side-by-side build**, not in-place conversion — a distinct container name (e.g. `claude-appliance-userns`), distinct static IP, distinct `/etc/hosts` entry. Preserves rollback.
+- **Privileged variant retired from the doc at cutover** — no legacy appendix, no "deploy privileged first then migrate" path.
+- **No dedicated `claude-runner` host user.** Considered as defense-in-depth, rejected as friction without meaningful additional bounding on top of the UID shift.
+
+Until this followup lands, the privileged posture above is the trade this guide makes: shorter setup and no bindfs/userns machinery, at the cost of a jail that shares the host kernel and would not survive a kernel-privilege escape. That is why the threat model above treats the appliance as disposable and instructs contributors not to place credentials in the container that they would not be willing to revoke.
