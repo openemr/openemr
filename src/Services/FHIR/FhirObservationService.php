@@ -5,6 +5,8 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationAdvanceDirectiveService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationCareExperiencePreferenceService;
@@ -13,6 +15,7 @@ use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationQuestionnaireItemService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationTreatmentInterventionPreferenceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
@@ -261,5 +264,123 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
 
         $profiles = array_merge(...$profileSets);
         return $profiles;
+    }
+
+    /**
+     * Why each mapped sub-service cannot accept a write.
+     *
+     * Observation is a dispatcher over stores with very different shapes. Several of them
+     * are views over demographic and history columns rather than tables of observations, so
+     * there is nothing to write back through. A client is told which one it hit instead of
+     * having the resource accepted and dropped -- the failure mode the read path would
+     * otherwise hide, since the next GET reconstructs the resource from the untouched
+     * underlying field.
+     *
+     * A service absent from this map accepts writes.
+     *
+     * @var array<class-string, string>
+     */
+    private const WRITE_REJECTION_REASONS = [
+        FhirObservationSocialHistoryService::class =>
+            'social history observations are a view over the patient history record; write them through that record',
+        FhirObservationHistorySdohService::class =>
+            'SDOH observations are a view over the patient history record; write them through that record',
+        FhirObservationPatientService::class =>
+            'patient-derived observations are a view over patient demographics; write them through Patient',
+        FhirObservationEmployerService::class =>
+            'employer-derived observations are a view over employer demographics; write them through Patient',
+        FhirObservationLaboratoryService::class =>
+            'laboratory results are written through their procedure order; Observation write for laboratory is not implemented yet',
+        FhirObservationObservationFormService::class =>
+            'observation form results are written through their form; Observation write for this category is not implemented yet',
+        FhirObservationAdvanceDirectiveService::class =>
+            'advance directive observations are written through their document; Observation write is not implemented for them',
+        FhirObservationQuestionnaireItemService::class =>
+            'questionnaire answers are written through QuestionnaireResponse',
+        FhirObservationCareExperiencePreferenceService::class =>
+            'care experience preferences are not writable through Observation yet',
+        FhirObservationTreatmentInterventionPreferenceService::class =>
+            'treatment intervention preferences are not writable through Observation yet',
+    ];
+
+    /**
+     * Inserts an Observation by routing it to the service that owns its code.
+     */
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult
+    {
+        $service = $this->getWriteServiceForResource($fhirResource);
+        if ($service instanceof ProcessingResult) {
+            return $service;
+        }
+        return $service->insert($fhirResource);
+    }
+
+    /**
+     * Updates an Observation by routing it to the service that owns its code.
+     *
+     * The id is checked by the sub-service rather than here: which store an id belongs to
+     * is a property of that store's mapping, and the sub-service is the only place that
+     * knows it.
+     *
+     * @param mixed $fhirResourceId
+     */
+    public function update($fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult
+    {
+        if (!is_string($fhirResourceId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Invalid Observation id']);
+            return $result;
+        }
+        $service = $this->getWriteServiceForResource($fhirResource);
+        if ($service instanceof ProcessingResult) {
+            return $service;
+        }
+        return $service->update($fhirResourceId, $fhirResource);
+    }
+
+    /**
+     * Picks the sub-service that should handle a write, or the rejection to return instead.
+     *
+     * @return FhirServiceBase|ProcessingResult
+     */
+    private function getWriteServiceForResource(FHIRDomainResource $fhirResource): FhirServiceBase|ProcessingResult
+    {
+        if (!($fhirResource instanceof FHIRObservation)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRObservation resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $code = FhirPayloadReader::firstCodingCode($json['code'] ?? null);
+        if ($code === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['code' => 'Observation.code is required (FHIR R4 1..1)']);
+            return $result;
+        }
+
+        // getServiceListForCode() is the same lookup the read path uses, so a code routes to
+        // the same store whichever direction it is travelling in.
+        $candidates = $this->getServiceListForCode(new TokenSearchField('code', [$code]));
+        $matched = is_array($candidates) ? ($candidates[0] ?? null) : null;
+
+        if (!$matched instanceof FhirServiceBase) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'code' => 'Observation.code "' . $code . '" is not a code OpenEMR stores',
+            ]);
+            return $result;
+        }
+
+        $reason = self::WRITE_REJECTION_REASONS[$matched::class] ?? null;
+        if ($reason !== null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'code' => 'Observation.code "' . $code . '" cannot be written: ' . $reason,
+            ]);
+            return $result;
+        }
+
+        return $matched;
     }
 }

@@ -863,6 +863,30 @@ return [
         $controller->addAclRestrictions("patients", "med");
         return $controller->getOne($uuid);
     },
+
+    "POST /fhir/Observation" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
+        $controller->setExpectedResourceType("Observation");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    "PUT /fhir/Observation/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody($request, true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
+        $controller->setExpectedResourceType("Observation");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
     "GET /fhir/Organization" => function (HttpRestRequest $request) {
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "admin", "users");
