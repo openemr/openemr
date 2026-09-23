@@ -28,8 +28,16 @@ class MfaUtils
     private $regs;
     private $registrations;
     private $var1U2F;
-    private $var1TOTP;
-    private ?string $nameTOTP = null;
+    /**
+     * List of TOTP registrations for this user. Each entry is
+     * ['name' => string, 'var1' => string]. The schema PK
+     * (user_id, name) permits multiple TOTP rows per user, so
+     * checkTOTP iterates the list trying each secret and pins
+     * atomic-consumption UPDATEs to the specific name that matched.
+     *
+     * @var list<array{name: string, var1: string}>
+     */
+    private array $totpRegistrations = [];
     private $errorMsg = '';
     private $appId;
 
@@ -54,13 +62,27 @@ class MfaUtils
                 $this->registrations[] = $regobj;
             } elseif ($row['method'] == 'TOTP') {
                 $this->types[] = 'TOTP';
-                $this->var1TOTP = $row['var1'];
-                // Save the row's name so the atomic-consumption UPDATE
-                // in checkTOTP can target exactly this registration.
-                // The (user_id, name) primary key does not enforce
-                // one TOTP row per user, so we must pin the update
-                // to the row whose secret we're validating.
-                $this->nameTOTP = is_string($row['name']) ? $row['name'] : null;
+                // Skip rows whose name isn't a usable string — the
+                // atomic-consumption UPDATE in checkTOTP pins to
+                // `name = ?` so a non-string here would never match
+                // and the row's code would silently fail. Also
+                // require var1 (the encrypted secret) to be present.
+                if (
+                    !is_string($row['name'])
+                    || $row['name'] === ''
+                    || !is_string($row['var1'])
+                    || $row['var1'] === ''
+                ) {
+                    error_log(
+                        'MfaUtils: skipping malformed TOTP registration for uid='
+                        . errorLogEscape((string) $this->uid)
+                    );
+                    continue;
+                }
+                $this->totpRegistrations[] = [
+                    'name' => $row['name'],
+                    'var1' => $row['var1'],
+                ];
             }
         }
         $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
@@ -172,63 +194,68 @@ class MfaUtils
             return false;
         }
 
-        $registrationSecret = false;
-        if (!empty($this->var1TOTP)) {
-            $registrationSecret = $this->var1TOTP;
-        }
-
-        // Decrypt the secret
-        // First, try standard method that uses standard key
+        // Iterate every TOTP registration for this user — the
+        // (user_id, name) PK on login_mfa_registrations permits
+        // multiple TOTP rows and a user may have enrolled more than
+        // one device. Try each registration's secret in turn; the
+        // first one whose decryption yields a valid code wins.
         $cryptoGen = ServiceContainer::getCrypto();
-        try {
-            $secret = $cryptoGen->decryptFromDatabase(is_string($registrationSecret) ? $registrationSecret : null);
-        } catch (CryptoGenException) {
-            $secret = null;
-        }
-        if (empty($secret)) {
-            // Second, try the password hash, which was setup during install and is temporary.
-            // Look up by uid (authoritative for this MfaUtils instance) rather
-            // than $_POST['authUser']; the OAuth2 password grant posts the
-            // field as 'username', so the superglobal read would come back
-            // empty for password-grant callers and users with legacy-encrypted
-            // TOTP secrets could not complete the grant.
-            $passwordResults = QueryUtils::querySingleRow(
-                "SELECT `password` FROM `users_secure` WHERE `id` = ?",
-                [$this->uid]
-            );
-            if (!empty($passwordResults["password"])) {
-                $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
-                try {
-                    $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
-                } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
-                    $secret = null;
-                }
-                if (!empty($secret)) {
-                    error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
-                    // Re-encrypt with the more secure standard key. Pin the
-                    // update to the specific registration row that owned the
-                    // legacy-encrypted secret — the schema's composite
-                    // (user_id, name) key allows multiple TOTP rows per
-                    // user, so a bare user_id + method match would overwrite
-                    // sibling rows with the wrong secret.
-                    $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
-                    QueryUtils::sqlStatementThrowException(
-                        "UPDATE login_mfa_registrations SET var1 = ? "
-                            . "WHERE user_id = ? AND method = 'TOTP' AND name = ?",
-                        [$secretEncrypt, $this->uid, $this->nameTOTP],
-                        noLog: true
-                    );
+        foreach ($this->totpRegistrations as $registration) {
+            $registrationName = $registration['name'];
+            $registrationSecret = $registration['var1'];
+
+            // First, try standard method that uses standard key
+            try {
+                $secret = $cryptoGen->decryptFromDatabase($registrationSecret);
+            } catch (CryptoGenException) {
+                $secret = null;
+            }
+            if (empty($secret)) {
+                // Second, try the password hash, which was setup during install and is temporary.
+                // Look up by uid (authoritative for this MfaUtils instance) rather
+                // than $_POST['authUser']; the OAuth2 password grant posts the
+                // field as 'username', so the superglobal read would come back
+                // empty for password-grant callers and users with legacy-encrypted
+                // TOTP secrets could not complete the grant.
+                $passwordResults = QueryUtils::querySingleRow(
+                    "SELECT `password` FROM `users_secure` WHERE `id` = ?",
+                    [$this->uid]
+                );
+                if (!empty($passwordResults["password"])) {
+                    $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                    try {
+                        $secret = $passwordCrypto->decrypt($registrationSecret, (string) $passwordResults["password"]);
+                    } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                        $secret = null;
+                    }
+                    if (!empty($secret)) {
+                        error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
+                        // Re-encrypt with the more secure standard key. Pin the
+                        // update to the specific registration row that owned the
+                        // legacy-encrypted secret — the schema's composite
+                        // (user_id, name) key allows multiple TOTP rows per
+                        // user, so a bare user_id + method match would overwrite
+                        // sibling rows with the wrong secret.
+                        $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
+                        QueryUtils::sqlStatementThrowException(
+                            "UPDATE login_mfa_registrations SET var1 = ? "
+                                . "WHERE user_id = ? AND method = 'TOTP' AND name = ?",
+                            [$secretEncrypt, $this->uid, $registrationName],
+                            noLog: true
+                        );
+                    }
                 }
             }
-        }
 
-        $matchedSlice = 0;
-        if (!empty($secret)) {
-            $googleAuth = new \Totp($secret);
-            $matchedSlice = $googleAuth->validateCodeAndGetSlice($token);
-        }
+            $matchedSlice = 0;
+            if (!empty($secret)) {
+                $googleAuth = new \Totp($secret);
+                $matchedSlice = $googleAuth->validateCodeAndGetSlice($token);
+            }
+            if ($matchedSlice <= 0) {
+                continue;
+            }
 
-        if ($matchedSlice > 0) {
             // Atomic single-use consumption via slice-monotonic replay
             // check (RFC 6238's recommended defense). RobThree's
             // verifyCode accepts codes for slices {T-1, T, T+1} with
@@ -243,13 +270,14 @@ class MfaUtils
             // The UPDATE is conditional on the monotonicity predicate
             // and we require affectedRows === 1, so two concurrent
             // requests race for exactly one winner rather than both
-            // passing a separate pre-check.
+            // passing a separate pre-check. Pins to the specific
+            // registration that just verified.
             QueryUtils::sqlStatementThrowException(
                 "UPDATE `login_mfa_registrations` "
                     . "SET `last_used_step` = ?, `last_challenge` = NOW() "
                     . "WHERE `user_id` = ? AND `method` = 'TOTP' AND `name` = ? "
                     . "AND (`last_used_step` IS NULL OR `last_used_step` < ?)",
-                [$matchedSlice, $this->uid, $this->nameTOTP, $matchedSlice],
+                [$matchedSlice, $this->uid, $registrationName, $matchedSlice],
                 noLog: true
             );
             if (QueryUtils::affectedRows() !== 1) {
@@ -261,11 +289,12 @@ class MfaUtils
                 return false;
             }
             return true;
-        } else {
-            $authUtils->recordFailedMfaChallenge($authUser);
-            $this->errorMsg = 'The MFA code you entered was not valid.';
-            return false;
         }
+
+        // No registration accepted the code.
+        $authUtils->recordFailedMfaChallenge($authUser);
+        $this->errorMsg = 'The MFA code you entered was not valid.';
+        return false;
     }
 
     /**
