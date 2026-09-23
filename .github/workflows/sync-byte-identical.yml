@@ -130,12 +130,24 @@ jobs:
     # since propagated to every rel branch via byte-identical, so this
     # sparse pre-checkout is nominally redundant -- kept as a resilience
     # hedge for any future rel branch that happens to lack it.
-    - name: Checkout composite action (isolated path prevents sparse-checkout leak)
+    - name: Checkout composite action (isolated path, no sparse-checkout)
       uses: actions/checkout@v7
       with:
+        # Pin explicitly to master so the composite is always sourced
+        # from master's copy -- workflow_dispatch fired from the Actions
+        # UI against a non-master ref would otherwise pick up that
+        # ref's rel-branch copy of the composite (harmless in practice
+        # given Phase 10b propagated the composite to every rel branch,
+        # but the workflow's intent is master-authoritative).
+        ref: master
         path: master-composite
-        sparse-checkout: .github/actions/generate-app-token
-        sparse-checkout-cone-mode: false
+        # Full shallow clone rather than sparse-checkout: `path: <subdir>`
+        # + `sparse-checkout: <pattern>` don't compose in actions/checkout@v7
+        # -- the sparse pattern is set against the working dir but the
+        # resulting index shows the referenced action.yml is missing at
+        # <subdir>/<pattern>/action.yml (verified empirically on run
+        # 35816164197). A whole shallow clone is a few seconds of extra
+        # overhead and eliminates the sparse-config surface entirely.
         persist-credentials: false
 
     - name: Mint App token
