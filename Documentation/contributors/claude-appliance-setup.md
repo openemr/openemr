@@ -595,7 +595,7 @@ That's it — go to town.
 
 ### Running multiple sessions in parallel
 
-Open a second terminal on the host, repeat steps 2 and 3 there. As many concurrent sessions as you want are fine, provided each session works in its own worktree (create with `openemr-cmd worktree add <branch> -b --start`). `openemr-cmd` assigns each worktree a distinct port offset and namespaces its Docker volumes, so parallel stacks do not collide.
+Open a second terminal on the host, repeat steps 2 and 3 there. Run as many concurrent sessions as you want — each just needs to drive its worktrees via `openemr-cmd worktree` per the rules in [`CLAUDE.md`](../../CLAUDE.md). `openemr-cmd` assigns each worktree a distinct port offset and namespaces its Docker volumes, so parallel stacks do not collide — whether a session works one worktree at a time or several.
 
 > **Why `--dangerously-skip-permissions` is acceptable here.** Claude Code's per-action permission prompts are the guardrail for agents running directly on your host. Inside this appliance the LXC + NAT boundary is the security model — see the [threat model](#threat-model) section at the top for what that does and does not protect. Outside this context, leave the prompts on.
 
