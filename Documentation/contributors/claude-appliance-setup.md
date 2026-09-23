@@ -605,17 +605,22 @@ Open a second terminal on the host, repeat steps 2 and 3 there. Run as many conc
 
 ---
 
-## Browser URL quick reference
+## Service quick reference
+
+Full port-derivation formulas (any offset) live in [`CLAUDE.md`](../../CLAUDE.md#working-in-a-git-worktree). This table shows the offset-1/2/3 examples for the services `openemr-cmd` brings up on each worktree:
 
 | Service | Worktree 1 | Worktree 2 | Worktree 3 |
 |---------|-----------|-----------|-----------|
 | OpenEMR HTTPS | `https://claude-appliance.local:9301` | `:9302` | `:9303` |
 | OpenEMR HTTP | `http://claude-appliance.local:8301` | `:8302` | `:8303` |
 | phpMyAdmin | `http://claude-appliance.local:8311` | `:8312` | `:8313` |
+| MySQL | `claude-appliance.local:8321` | `:8322` | `:8323` |
 | Mailpit | `http://claude-appliance.local:8026` | `:8027` | `:8028` |
 | CouchDB | `http://claude-appliance.local:5985` | `:5986` | `:5987` |
+| Selenium (WebDriver) | `http://claude-appliance.local:4445/wd/hub` | `:4446/wd/hub` | `:4447/wd/hub` |
+| Redis | `claude-appliance.local:6380` | `:6381` | `:6382` |
 
-> SSL warning on HTTPS is expected — the dev stack uses a self-signed cert. The connection is still encrypted. Click through once; Firefox lets you add a permanent exception.
+> SSL warning on OpenEMR HTTPS is expected — the dev stack uses a self-signed cert. The connection is still encrypted. Click through once; Firefox lets you add a permanent exception.
 
 ---
 
