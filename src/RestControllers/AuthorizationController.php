@@ -1537,9 +1537,21 @@ class AuthorizationController implements LoggerAwareInterface
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
             $this->session->invalidate();
+            // Never surface $exception->getMessage() to the caller —
+            // it can carry SQL fragments, file paths, or other
+            // internal detail that a token-endpoint client (potentially
+            // unauthenticated) should not see. The message is already
+            // logged for admin diagnosis; return the OAuth2-shaped
+            // generic error instead.
             $body = $response->getBody();
-            $body->write($exception->getMessage());
-            return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
+            $body->write((string) json_encode([
+                'error' => 'server_error',
+                'error_description' => 'An unexpected server error occurred processing the request.',
+            ]));
+            return $response
+                ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($body);
         }
     }
 
