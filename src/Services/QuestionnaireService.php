@@ -87,7 +87,8 @@ class QuestionnaireService extends BaseService
      * TODO: There are so many arguments here this should be refactored to use a data object.
      * @param $q
      * @param $name
-     * @param ?int $q_record_id
+     * @param int|array<string, mixed>|null $q_record_id the `questionnaire_repository` row being updated, either as
+     *                                      the bare row id or as a row array carrying `id` and `version`
      * @param $q_id
      * @param $lform
      * @param $type
@@ -131,7 +132,17 @@ class QuestionnaireService extends BaseService
             $name = $q_ob['name'] ?? null;
         }
         $name = trim((string) $name);
-        $id = empty($q_record_id) ? $this->getQuestionnaireIdAndVersion($name, $q_id) : $q_record_id;
+        if (empty($q_record_id)) {
+            $id = $this->getQuestionnaireIdAndVersion($name, $q_id);
+        } elseif (is_array($q_record_id)) {
+            // already the row shape the update branch below reads
+            $id = $q_record_id;
+        } else {
+            // a bare `questionnaire_repository`.`id`: resolve it to the same row shape so the
+            // update branch can read `id` and `version` off it. Without this the update branch
+            // indexes an int and silently writes `WHERE id = NULL`, updating nothing.
+            $id = $this->fetchQuestionnaireById($q_record_id);
+        }
         $q_uuid = null;
         $q_url = null;
         if (empty($id)) {
