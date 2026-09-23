@@ -3749,9 +3749,20 @@ class InternalToCdaConverter
         // social history section when there are history items OR sex_observation is present
         $patientGender = $this->xpathValue('/CCDA/patient/gender');
         $sexObservation = $this->xpathValue('/CCDA/patient/sex_observation');
-        $occupationCode = $this->xpathValue('/CCDA/patient/occupation/occupation_code');
-        $tribalCode = $this->xpathValue('/CCDA/patient/tribal');
-        $pregnancyCode = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_code');
+        $occupationCode = $this->xpathValue('/CCDA/occupation/occupation_code');
+        // The internal XML carries three sibling tribal elements: tribal_code (the
+        // numeric TribalEntityUS code, e.g. "65"), tribal_title (the display name,
+        // e.g. "Coquille Indian Tribe") and tribal (an internal slug, e.g.
+        // "coquille"). Only tribal_code is a valid @code for the CD value; the slug
+        // is not a code in any system. Fall back to the slug only so a document with
+        // no coded tribal data still round-trips as it did before.
+        $tribalCode = $this->xpathValue('/CCDA/patient/tribal_code');
+        $tribalTitle = $this->xpathValue('/CCDA/patient/tribal_title');
+        if ($tribalCode === '') {
+            $tribalCode = $this->xpathValue('/CCDA/patient/tribal');
+            $tribalTitle = $tribalTitle !== '' ? $tribalTitle : $tribalCode;
+        }
+        $pregnancyCode = $this->xpathValue('/CCDA/sdoh_data/pregnancy_code');
         $hungerRiskCode = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/risk_status/answer_code');
         // Disability status is NOT a social history observation. The Node service
         // renders it as a Disability Status Observation (2.16.840.1.113883.10.20.22.4.505)
@@ -3788,7 +3799,7 @@ class InternalToCdaConverter
             $this->appendGenderIdentityObservationEntry($section);
             $this->appendSexObservationEntry($section, $sexObservation);
             $this->appendOccupationObservationEntry($section, $occupationCode);
-            $this->appendTribalAffiliationObservationEntry($section, $tribalCode);
+            $this->appendTribalAffiliationObservationEntry($section, $tribalCode, $tribalTitle);
             $this->appendPregnancyStatusObservationEntry($section, $pregnancyCode);
             $this->appendHungerVitalSignsObservationEntry($section, $hungerRiskCode);
         }
@@ -4143,7 +4154,7 @@ class InternalToCdaConverter
         $this->appendStatusCode($obs, ActStatus::Completed);
 
         // Effective time with low/high
-        $startDate = $this->xpathValue('/CCDA/patient/occupation/start_date');
+        $startDate = $this->xpathValue('/CCDA/occupation/start_date');
         if ($startDate !== '') {
             $effTime = $this->createElement('effectiveTime');
             $low = $this->createElement('low');
@@ -4153,7 +4164,7 @@ class InternalToCdaConverter
         }
 
         // Value
-        $occupationTitle = $this->xpathValue('/CCDA/patient/occupation/occupation_title');
+        $occupationTitle = $this->xpathValue('/CCDA/occupation/occupation_title');
         $value = $this->output->createElement('value');
         $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $occupationCode);
@@ -4163,7 +4174,7 @@ class InternalToCdaConverter
         $obs->appendChild($value);
 
         // Industry entryRelationship
-        $industryCode = $this->xpathValue('/CCDA/patient/occupation/industry/industry_code');
+        $industryCode = $this->xpathValue('/CCDA/occupation/industry_code');
         if ($industryCode !== '') {
             $this->appendOccupationIndustryObservation($obs);
         }
@@ -4198,7 +4209,7 @@ class InternalToCdaConverter
         $obs->appendChild($this->createLoincCode('86188-0', 'History of occupation industry'));
         $this->appendStatusCode($obs, ActStatus::Completed);
 
-        $industryStartDate = $this->xpathValue('/CCDA/patient/occupation/industry/industry_start_date');
+        $industryStartDate = $this->xpathValue('/CCDA/occupation/industry_start_date');
         if ($industryStartDate !== '') {
             $effTime = $this->createElement('effectiveTime');
             $low = $this->createElement('low');
@@ -4207,8 +4218,8 @@ class InternalToCdaConverter
             $obs->appendChild($effTime);
         }
 
-        $industryCode = $this->xpathValue('/CCDA/patient/occupation/industry/industry_code');
-        $industryTitle = $this->xpathValue('/CCDA/patient/occupation/industry/industry_title');
+        $industryCode = $this->xpathValue('/CCDA/occupation/industry_code');
+        $industryTitle = $this->xpathValue('/CCDA/occupation/industry_title');
         $value = $this->output->createElement('value');
         $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $industryCode);
@@ -4221,7 +4232,11 @@ class InternalToCdaConverter
         $parentObs->appendChild($entryRel);
     }
 
-    private function appendTribalAffiliationObservationEntry(DOMElement $section, string $tribalCode): void
+    private function appendTribalAffiliationObservationEntry(
+        DOMElement $section,
+        string $tribalCode,
+        string $tribalTitle = ''
+    ): void
     {
         if ($tribalCode === '') {
             return;
@@ -4255,13 +4270,12 @@ class InternalToCdaConverter
         $effTime->setAttribute('nullFlavor', 'NI');
         $obs->appendChild($effTime);
 
-        // Value - tribal code is the title/name, not a coded value in the current implementation
         $value = $this->output->createElement('value');
         $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $tribalCode);
         $value->setAttribute('codeSystem', '2.16.840.1.113883.5.140');
         $value->setAttribute('codeSystemName', 'Tribal TribalEntityUS');
-        $value->setAttribute('displayName', $tribalCode);
+        $value->setAttribute('displayName', $tribalTitle !== '' ? $tribalTitle : $tribalCode);
         $obs->appendChild($value);
 
         $entry->appendChild($obs);
@@ -4306,7 +4320,7 @@ class InternalToCdaConverter
         $effTime->setAttribute('nullFlavor', 'NI');
         $obs->appendChild($effTime);
 
-        $pregnancyTitle = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_title');
+        $pregnancyTitle = $this->xpathValue('/CCDA/sdoh_data/pregnancy_title');
         $value = $this->output->createElement('value');
         $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $pregnancyCode);
@@ -4504,7 +4518,7 @@ class InternalToCdaConverter
      */
     private function appendDisabilityStatusObservationEntry(DOMElement $section): void
     {
-        $base = '/CCDA/patient/sdoh_data/disability_assessment';
+        $base = '/CCDA/sdoh_data/disability_assessment';
 
         $statusCode = $this->xpathValue($base . '/overall_status/code');
         $statusDisplay = $this->xpathValue($base . '/overall_status/display');
@@ -6211,7 +6225,7 @@ class InternalToCdaConverter
 
     private function renderGoalsSection(DOMElement $structuredBody): void
     {
-        $goals = $this->xpath('/CCDA/goals/goal');
+        $goals = $this->xpath('/CCDA/goals/item');
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 

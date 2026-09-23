@@ -86,6 +86,86 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * Input-contract regression guard.
+     *
+     * The converter reads the internal /CCDA/ XML by literal xpath. Several of
+     * those paths did not match the document the request model actually emits
+     * (e.g. /CCDA/patient/occupation/... where the document has /CCDA/occupation/...,
+     * and /CCDA/goals/goal where the document uses /CCDA/goals/item). Every one of
+     * those renderers returns early on a missing path, so the demo fixtures -- whose
+     * SDOH, goals, occupation and functional status elements are empty -- passed
+     * while the sections were silently dropped. The failures only surfaced in ONC
+     * scenario testing.
+     *
+     * This fixture is a full scenario patient with those elements populated. Each
+     * assertion below corresponds to a path that was previously wrong; a renamed or
+     * re-parented element in the internal XML will fail here rather than in a
+     * certification run.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function scenarioTemplateProvider(): array
+    {
+        return [
+            'goal observation' => ['2.16.840.1.113883.10.20.22.4.121', '/CCDA/goals/item'],
+            'basic occupation observation' => ['2.16.840.1.113883.10.20.22.4.503', '/CCDA/occupation/occupation_code'],
+            'disability status observation' => ['2.16.840.1.113883.10.20.22.4.505', '/CCDA/sdoh_data/disability_assessment'],
+        ];
+    }
+
+    #[DataProvider('scenarioTemplateProvider')]
+    public function testScenarioInputProducesExpectedTemplates(string $templateId, string $sourcePath): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $nodes = $xpath->query("//hl7:templateId[@root='" . $templateId . "']");
+        self::assertNotFalse($nodes, 'templateId query must be valid');
+        self::assertGreaterThan(
+            0,
+            $nodes->length,
+            $templateId . ' missing; check the converter xpath against ' . $sourcePath
+        );
+    }
+
+    /**
+     * Tribal affiliation must carry the numeric TribalEntityUS code, not the
+     * internal slug. The internal XML holds tribal_code ("65"), tribal_title
+     * ("Coquille Indian Tribe") and tribal ("coquille") as siblings; only the
+     * first is a valid @code.
+     */
+    public function testTribalAffiliationUsesCodedValue(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $value = $xpath->query(
+            "//hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.506']]/hl7:value"
+        );
+        self::assertNotFalse($value, 'Tribal value query must be valid');
+        self::assertSame(1, $value->length, 'Tribal Affiliation Observation must emit one value');
+
+        $element = $value->item(0);
+        self::assertInstanceOf(\DOMElement::class, $element, 'Value node must be an element');
+        self::assertSame('65', $element->getAttribute('code'), 'Tribal @code is the TribalEntityUS code');
+        self::assertSame(
+            'Coquille Indian Tribe',
+            $element->getAttribute('displayName'),
+            'Tribal @displayName is the tribe title, not the internal slug'
+        );
+    }
+
+    /**
      * Disability Status Observation (4.505) belongs in the Functional Status
      * section, not Social History. The ONC Edge Test Tool enforces this template
      * under Functional Status content validation for the USCDI v3 b(1) ToC
