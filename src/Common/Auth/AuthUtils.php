@@ -837,51 +837,71 @@ class AuthUtils
                 // programming bug — refuse rather than casting it to
                 // a truthy string and issuing a WHERE clause that
                 // matches nothing.
-                throw new \InvalidArgumentException(
-                    'updatePassword: $targetUser must be int|string'
-                );
+                $this->errorMessage = xl('Password update error!');
+                $this->clearFromMemory($newPwd);
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . ' Invalid target user id type');
+                return false;
             }
             $targetUserId = $targetUser;
-            UuidRegistry::createMissingUuidForRow('users', 'id', $targetUserId);
-            QueryUtils::inTransaction(function () use ($updateSQL, $updateParams, $targetUserId): void {
-                // Use the throwing helper so a SQL failure engages
-                // the transaction's rollback path — privStatement()
-                // calls exit(1) on failure and never returns, which
-                // would leave the transaction dangling.
-                QueryUtils::sqlStatementThrowException($updateSQL, $updateParams);
-                $userUuidRow = QueryUtils::querySingleRow(
-                    "SELECT `uuid` FROM `users` WHERE `id` = ?",
-                    [$targetUserId]
-                );
-                $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
-                if (!is_string($userUuidBytes) || $userUuidBytes === '') {
-                    // users.uuid is nullable in the schema so an
-                    // existing user really can have no UUID. Silently
-                    // skipping the revocation UPDATEs here would let
-                    // stale refresh_tokens survive a password change
-                    // that was probably triggered by credential
-                    // compromise — the whole reason the revocation
-                    // block exists. Throw so the transaction rolls
-                    // back the password write; the caller sees
-                    // failure and can retry after the UUID is
-                    // backfilled.
-                    throw new \RuntimeException(
-                        'Cannot revoke API tokens for user id=' . $targetUserId
-                            . ' — users.uuid resolution failed. Password update rolled back.'
+            try {
+                UuidRegistry::createMissingUuidForRow('users', 'id', $targetUserId);
+                QueryUtils::inTransaction(function () use ($updateSQL, $updateParams, $targetUserId): void {
+                    // Use the throwing helper so a SQL failure engages
+                    // the transaction's rollback path — privStatement()
+                    // calls exit(1) on failure and never returns, which
+                    // would leave the transaction dangling.
+                    QueryUtils::sqlStatementThrowException($updateSQL, $updateParams);
+                    $userUuidRow = QueryUtils::querySingleRow(
+                        "SELECT `uuid` FROM `users` WHERE `id` = ?",
+                        [$targetUserId]
                     );
-                }
-                $userUuidStr = UuidRegistry::uuidToString($userUuidBytes);
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE `api_refresh_token` SET `revoked` = 1 "
-                        . "WHERE `user_id` = ? AND `revoked` = 0",
-                    [$userUuidStr]
-                );
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE `api_token` SET `revoked` = 1 "
-                        . "WHERE `user_id` = ? AND `revoked` = 0",
-                    [$userUuidStr]
-                );
-            });
+                    $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
+                    if (!is_string($userUuidBytes) || $userUuidBytes === '') {
+                        // users.uuid is nullable in the schema so an
+                        // existing user really can have no UUID.
+                        // Silently skipping the revocation UPDATEs here
+                        // would let stale refresh_tokens survive a
+                        // password change that was probably triggered
+                        // by credential compromise — the whole reason
+                        // the revocation block exists. Throw so the
+                        // transaction rolls back the password write;
+                        // caller sees false + errorMessage and can
+                        // retry after the UUID is backfilled.
+                        throw new \RuntimeException(
+                            'Cannot revoke API tokens for user id=' . $targetUserId
+                                . ' — users.uuid resolution failed. Password update rolled back.'
+                        );
+                    }
+                    $userUuidStr = UuidRegistry::uuidToString($userUuidBytes);
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE `api_refresh_token` SET `revoked` = 1 "
+                            . "WHERE `user_id` = ? AND `revoked` = 0",
+                        [$userUuidStr]
+                    );
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE `api_token` SET `revoked` = 1 "
+                            . "WHERE `user_id` = ? AND `revoked` = 0",
+                        [$userUuidStr]
+                    );
+                });
+            } catch (\RuntimeException | \InvalidArgumentException $e) {
+                // Honour updatePassword's bool + errorMessage contract
+                // — callers surface $this->errorMessage to the user
+                // and expect a false return, not a stack trace.
+                // Narrow catch: RuntimeException covers both our own
+                // UUID-missing throw and SqlQueryException (which
+                // extends RuntimeException); InvalidArgumentException
+                // covers UuidRegistry validation. ErrorException and
+                // other \Error subclasses still propagate to the
+                // global handler per project guidance. Internal detail
+                // is logged for admin diagnosis; the user sees a
+                // generic message.
+                error_log('OpenEMR Error: updatePassword transaction failed: ' . $e->getMessage());
+                $this->errorMessage = xl('Password update error!');
+                $this->clearFromMemory($newPwd);
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . ' Transaction failed');
+                return false;
+            }
 
             // If the user is changing their own password, update the
             // session — only after the transaction committed so a
