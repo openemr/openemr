@@ -250,14 +250,18 @@ class SearchFieldStatementResolver
             /** @var TokenSearchValue $value  */
 
             if ($modifier === SearchModifier::MISSING) {
+                // Cast to BINARY, not CHAR: on MySQL 8, CAST(col AS CHAR) of a binary uuid that is not
+                // valid UTF-8 is NULL, so a "not missing" filter on a uuid column matched no row.
+                // A binary cast never fails, and it still keeps DATETIME columns from being compared
+                // to '' directly.
                 if ($value->getCode() === false) {
                     // often our tokens get treated as string values so we will do this here also
-                    $clauses[] = "(" . $field . " IS NOT NULL AND CAST(" . $field . " AS CHAR) != '') ";
+                    $clauses[] = "(" . $field . " IS NOT NULL AND CAST(" . $field . " AS BINARY) != '') ";
                 } else {
                     // TODO: @adunsulag do we want to compare token values to empty strings... it seems like that would be a missing value but
                     // could we get an inaccurate result here? or will we end up with a case with a number to string conversion on a field
                     // if the value is not a string?
-                    $clauses[] = "(" . $field . " IS NULL OR CAST(" . $field . " AS CHAR) = '') ";
+                    $clauses[] = "(" . $field . " IS NULL OR CAST(" . $field . " AS BINARY) = '') ";
                 }
             // if we have other modifiers we would handle them here
             } else {
