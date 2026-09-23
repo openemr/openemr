@@ -480,7 +480,19 @@ $buildFaxcache = static function () use ($ext, $filepath, $faxcache, $filesystem
         // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
         // not very good, so we upgrade it to "fine mode" fax quality.  It's really
         // better and faster if the scanner produces TIFFs instead of PDFs.
-        $process = $runProcess(['convert', '-density', '203x196', $filepath, $faxcache . '/deleteme.tif']);
+        //
+        // The tiff2pdf step that files the pages needs three more options:
+        // - -depth 8: a Q16 ImageMagick build writes 16 bits per sample by
+        //   default, which tiff2pdf rejects outright ("No support for <file>
+        //   with 16 bits per sample").
+        // - -alpha off: the alpha channel convert carries through makes a color
+        //   source 4 samples per pixel, which tiff2pdf -j hands to libjpeg as a
+        //   bogus colorspace. Dropping alpha rather than forcing grayscale
+        //   leaves the appearance of the scan alone.
+        // - -units PixelsPerInch: without it the page TIFFs carry a unitless
+        //   203x196 resolution, and tiff2pdf -p letter scales such a page down
+        //   to a speck, so the filed PDF renders blank.
+        $process = $runProcess(['convert', '-density', '203x196', '-units', 'PixelsPerInch', '-depth', '8', '-alpha', 'off', $filepath, $faxcache . '/deleteme.tif']);
         if (!$process->isSuccessful()) {
             $filesystem->remove($faxcache);
             return "convert returned " . text($processError($process));
