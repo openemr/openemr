@@ -390,6 +390,20 @@ job that produces the `pr-built` image the matrix cells then load.
   between-cycles master state (Item 4); package has no equivalent
   because tarball upgrades resolve `from_version` from
   `sql/*-to-*_upgrade.sql`, which always includes a valid ancestor.
+- Docker's `require_upgrade_cell` input (Item 4 followup) flips the
+  auto-skip from silent to loud when the caller is in *release mode*
+  — set true by `release-prep.yml`'s dispatch, `docker-build-
+  release.yml`'s acceptance-gate, and `docker-acceptance-only.yml`'s
+  recovery reusable. Any of those callers hitting a skip criterion
+  fails the workflow with a descriptive error instead of publishing
+  an artifact whose auto-upgrade path was never validated. Scheduled
+  runs and push/PR triggers can't override the default false. Operator
+  `workflow_dispatch` runs default to false but can be set true from
+  the Actions UI when the operator wants the same guardrail for a
+  manual re-run (e.g. investigating whether a specific tag pairing
+  legitimately triggers a skip vs. represents a broken setup).
+  Package has no equivalent because its skip mode is already loud
+  (matrix-level cells missing from the run count) rather than silent.
 
 ### Scenario → step sequence
 
@@ -2965,6 +2979,8 @@ Real signal preserved: `fresh-install-from` + `fresh-install-to` cells still exe
 - `.github/scripts/read-version-php.php` — `$v_major.$v_minor.$v_patch` reader with is_int-or-ctype_digit validation (PHPUnit-isolated: `tests/Tests/Isolated/Common/Command/Ci/ReadVersionPhpTest.php`, 14 cases).
 
 The workflow steps now compose `docker inspect` / `docker compose exec` (both need the Docker daemon so stay inline) with `bash <script>` invocations that own the pure logic. All three scripts added to `.github/byte-identical.yml` with `exclude-branches: [rel-800]` per G45/G47 pattern (script referenced by synced workflow must itself sync).
+
+**Item 4 followup: release-mode guardrail** — **SHIPPED (openemr/openemr#14215, 2026-09-23)**. The Item 4 upgrade-cell skip logic is silent by design (correct for tolerant paths — daily schedule, arbitrary workflow_dispatch — where the skip is a legitimate "no meaningful signal to produce" answer during between-cycles). In *release mode* the same silent skip is a red flag: we're about to publish an artifact whose auto-upgrade path was never validated. Guardrail: new `require_upgrade_cell` boolean input on `acceptance-docker.yml` (default false, backward-compatible) on both `workflow_dispatch` and `workflow_call`. When true, a step immediately after `detect_upgrade_skip` fails the job with a descriptive error naming which skip criterion fired. Callers who set it: `release-prep.yml`'s `gh workflow run acceptance-docker.yml` dispatch (release-prep-time), `docker-build-release.yml`'s acceptance-gate `workflow_call` (ship-time), `docker-acceptance-only.yml`'s recovery `workflow_call` (recovery-time). Scheduled runs and push/PR triggers can't override the default false and keep tolerant skip behavior; operator `workflow_dispatch` runs default to false but can be flipped from the Actions UI if the operator wants the same guardrail for a manual re-run. Package side needs no equivalent because `acceptance-package.yml` has no runtime skip mechanism — its "conditional coverage" is matrix-level and caller-driven, and release-time callers unconditionally trigger the expanded matrix that includes upgrade + wizard-upgrade cells.
 
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. New [Invocation contexts reference](#invocation-contexts-reference) section added above between "What lives where (concrete)" and "What stays unchanged". Four subsections: trigger contexts (per-workflow trigger × artifact × version × matrix), scenario → step sequence, group → tests → scenario cells, `AcceptanceContext` env contract. Also closes Friction point #6 (no mapping-doc reference table). The pre-Item-1..4 "Current-state snapshot" tables under this section were superseded and trimmed to a pointer.
 
