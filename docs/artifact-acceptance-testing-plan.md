@@ -183,8 +183,15 @@ Deleted:
 
 ### `tests/Acceptance/`
 
-New PSR-4 namespace, likely `OpenEMR\Tests\Acceptance\`. Directory
-sketch:
+New PSR-4 namespace, `OpenEMR\Tests\Acceptance\`.
+
+**Historical sketch** — the Phase-1 aspirational directory shape below
+predates the phased shipping. Some names (`ArtifactClient`,
+`ArtifactDatabase`, `DataSeed/`, `Assertions/`) never materialized;
+the flat test-file layout was reorganized into six subdirs in Item 6.
+See the [Invocation contexts reference](#invocation-contexts-reference)
+below for the actual current state (shipped tests, groups, and how
+they map to workflow scenarios).
 
 ```
 tests/Acceptance/
@@ -2964,6 +2971,8 @@ The workflow steps now compose `docker inspect` / `docker compose exec` (both ne
 **Item 6 (hygiene): Directory structure by concern as suite grows** — **SHIPPED (openemr/openemr#TBD, 2026-09-23)**. Six subdirs under `tests/Acceptance/`: `Install/` (2 files), `Upgrade/` (2), `Version/` (2), `OAuth/` (2), `Api/` (2), `Ui/` (10). Each moved file's namespace bumped from `OpenEMR\Tests\Acceptance` to `OpenEMR\Tests\Acceptance\<Subdir>`. `Support/` and `bin/` unchanged (already subdirs). PHPUnit's `<directory>.</directory>` recursively discovers the new layout; composer autoload PSR-4 rule `OpenEMR\Tests\Acceptance\ => tests/Acceptance` handles the deeper paths automatically. Byte-identical manifest's `tests/Acceptance/**` glob (recursive via `**` → `.*` in the glob-expand regex) picks up the subdir contents, and the sync script's rename-sweep deletes the old flat paths from rel branches on next propagation. Item 6 needed no test-file cross-reference updates (each test only imports from `Support/*`, which stays put).
 
 ### Sequencing recommendation
+
+_Historical — retained for design record. The full plan (Items 1-6 + Item 4 followup) shipped 2026-09-20 through 2026-09-23 in the order below._
 
 Item 1 first (small standalone refactor PR, highest leverage). Item 2 second (mechanical rename + workflow-invocation update). Item 3 third (biggest structural change; benefits from semantics being settled first). Items 4-6 opportunistic.
 
