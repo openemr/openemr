@@ -66,7 +66,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             'accession' => new FhirSearchParameterDefinition('accession', SearchFieldType::TOKEN, ['ps.accession_identifier']),
             'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['ps.specimen_type_code']),
             'collected' => new FhirSearchParameterDefinition('collected', SearchFieldType::DATETIME, ['ps.collected_date']),
-            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['ps.deleted']),
+            // unqualified 'deleted' so the field is keyed 'deleted', which searchForOpenEMRRecords() translates
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['deleted']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('ps.uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['ps.updated_at'])
         ];
