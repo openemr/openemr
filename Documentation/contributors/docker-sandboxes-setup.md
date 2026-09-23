@@ -1,5 +1,11 @@
 # Docker Sandboxes Setup for AI Coding Agents
 
+## Architecture
+
+![Docker Sandboxes architecture](../images/docker-sandboxes-architecture.svg)
+
+---
+
 One reference configuration for running AI coding agents against OpenEMR in an
 isolated environment. Each agent runs in a microVM with its own kernel, its own
 Docker daemon, and its own network stack, so it can bring up a full OpenEMR demo
@@ -383,6 +389,9 @@ attached by a host-side proxy and never enters the sandbox filesystem.
    sbx secret set github --command 'gh auth token'
    sbx secret ls
    ```
+   This stores the token globally for your user, so every sandbox you create uses
+   it. Use `--sandbox <name>` if you want a particular sandbox to carry a
+   different credential.
 
 4. Use an HTTPS origin in your clone:
 
@@ -450,13 +459,15 @@ practical workflow:
 For example:
 
 ```bash
-sudo -u <agent-user> cat /home/<agent-user>/git/pr-<branch-slug>.md > /tmp/body.md
+body_file=$(mktemp)
+sudo -u <agent-user> cat /home/<agent-user>/git/pr-<branch-slug>.md > "$body_file"
 cd ~/src/openemr                       # your own clone, not the shared one
 git fetch origin <branch-name>
 gh pr create --repo openemr/openemr --draft \
   --head <your-username>:<branch-name> \
   --title "<title>" \
-  --body-file /tmp/body.md
+  --body-file "$body_file"
+rm -f "$body_file"
 ```
 
 Have the agent write a body file. The body is read as data. Supplying the title

@@ -736,8 +736,9 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
 If you contribute with the help of AI coding agents (Claude Code, Codex, and
 similar), you may want a sandboxed environment that lets agents work against
-OpenEMR — each in its own git worktree with its own Docker stack — without
-exposing your host filesystem or host Docker daemon to the agent.
+OpenEMR — each in its own git worktree with its own Docker stack — while
+keeping the rest of your host filesystem and host Docker daemon inaccessible
+to the agent. The directory you mount remains shared with the agent.
 
 The repository's [`CLAUDE.md`](CLAUDE.md) documents the universal rules every
 agent environment must satisfy: required tools, the git directory layout, and
@@ -762,7 +763,7 @@ Whichever you choose, two things are worth doing regardless:
 - **Keep the permission prompts on unless the environment is a real boundary.**
   Skipping approval prompts is reasonable inside an isolated sandbox. It is not
   reasonable on a host with access to production systems or patient data.
-  
+
 ## Working without Docker
 
 The sections above describe the recommended Docker-based workflow. If you maintain a full host toolchain (PHP 8.3+, Composer with `composer install` populated `vendor/`, Node, Python 3 (if using pre-commit over prek)), you can run validation, code-quality checks, and isolated tests directly on your machine without invoking the openemr container.
