@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Acceptance;
+namespace OpenEMR\Tests\Acceptance\Version;
 
 use OpenEMR\Tests\Acceptance\Support\AcceptanceContext;
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
