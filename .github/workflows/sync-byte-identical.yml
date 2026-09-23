@@ -174,6 +174,20 @@ jobs:
         # need git's persisted-credentials to survive into other steps.
         persist-credentials: false
         fetch-depth: 0
+        # clean: false preserves master-composite/ (populated by the
+        # first checkout step above) across this rel-branch checkout.
+        # Default clean: true would run `git clean -ffdx` at ./ during
+        # setup and remove master-composite/ as an untracked directory,
+        # then at job end the composite action's post-cleanup step
+        # (Post Mint App token) would fail with "Can't find action.yml
+        # under master-composite/.github/actions/generate-app-token"
+        # because it needs to reload the action.yml for its `post:`
+        # phase. Non-issue for the actual sync work (which succeeds)
+        # but marks the job as failure + fires spurious failure emails.
+        # Safe to skip clean: fresh runner every time, nothing to
+        # clean; peter-evans's `git add` uses explicit add-paths so
+        # master-composite/ isn't at risk of being staged.
+        clean: false
 
     - name: Guard against inherited sparse-checkout config
       # Regression canary for the sparse-checkout leak described in the
