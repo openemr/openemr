@@ -333,7 +333,7 @@ Every fact in this section is grounded in a specific file — no
 speculation. When it drifts (e.g. a new scenario, a new group, a new
 env var), update this section in the same PR.
 
-_As-of: 2026-09-22 (post-Item-4 refactor)._
+_As-of: 2026-09-23 (post-Item-6)._
 
 ### Trigger contexts
 
