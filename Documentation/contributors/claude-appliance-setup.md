@@ -518,7 +518,7 @@ openemr-cmd pp
 openemr-cmd ut
 ```
 
-> 💻 **On the host** — open browser and visit:
+> 💻 **On the host** — open browser and visit the HTTPS URL for `test-appliance` using its assigned port from `openemr-cmd worktree list`. For offset 1, use:
 
 ```
 https://claude-appliance.local:9301
