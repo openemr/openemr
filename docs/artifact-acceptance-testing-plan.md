@@ -504,8 +504,8 @@ insertions:
 [openemr/openemr#13149](https://github.com/openemr/openemr/pull/13149).
 Delivered:
 - Planning doc landed for community discussion (this doc, draft PR #12811)
-- `tests/Acceptance/InstallTest.php` + `Support/ArtifactBrowser.php`
-  + `phpunit.acceptance.xml` + `bootstrap.php`
+- `tests/Acceptance/Install/InstallTest.php` + `Support/ArtifactBrowser.php`
+  + `phpunit.acceptance.xml` + `bootstrap.php` (Install/ subdir added in Item 6)
 - `.github/docker/acceptance-docker-compose.yml` compose override
 - `tests/Acceptance/bin/boot-docker.sh` + `down-docker.sh` laptop helpers
 - Symfony BrowserKit (`HttpBrowser`) — no Selenium needed for the
@@ -524,7 +524,7 @@ Delivered:
   matrix (fail-fast disabled): `fresh-install-from` (default
   `latest`), `fresh-install-to` (default `next`), `upgrade`
   (`from_tag` → `to_tag` with volume-preserving swap).
-- `tests/Acceptance/UpgradeIntegrityTest.php` — post-upgrade admin
+- `tests/Acceptance/Upgrade/UpgradeIntegrityTest.php` — post-upgrade admin
   login validation (session storage survived, users table intact,
   `token_main` machinery functional).
 - `tests/Acceptance/Support/ResponseHeaders.php` — shared BrowserKit
@@ -2961,8 +2961,7 @@ The workflow steps now compose `docker inspect` / `docker compose exec` (both ne
 
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. New [Invocation contexts reference](#invocation-contexts-reference) section added above between "What lives where (concrete)" and "What stays unchanged". Four subsections: trigger contexts (per-workflow trigger × artifact × version × matrix), scenario → step sequence, group → tests → scenario cells, `AcceptanceContext` env contract. Also closes Friction point #6 (no mapping-doc reference table). The pre-Item-1..4 "Current-state snapshot" tables under this section were superseded and trimmed to a pointer.
 
-**Item 6 (hygiene): Directory structure by concern as suite grows**
-`tests/Acceptance/Version/`, `Upgrade/`, `OAuth/`, `Ui/`. Currently all flat under `tests/Acceptance/`. PHPUnit `<directory>` config handles it naturally.
+**Item 6 (hygiene): Directory structure by concern as suite grows** — **SHIPPED (openemr/openemr#TBD, 2026-09-23)**. Six subdirs under `tests/Acceptance/`: `Install/` (2 files), `Upgrade/` (2), `Version/` (2), `OAuth/` (2), `Api/` (2), `Ui/` (10). Each moved file's namespace bumped from `OpenEMR\Tests\Acceptance` to `OpenEMR\Tests\Acceptance\<Subdir>`. `Support/` and `bin/` unchanged (already subdirs). PHPUnit's `<directory>.</directory>` recursively discovers the new layout; composer autoload PSR-4 rule `OpenEMR\Tests\Acceptance\ => tests/Acceptance` handles the deeper paths automatically. Byte-identical manifest's `tests/Acceptance/**` glob (recursive via `**` → `.*` in the glob-expand regex) picks up the subdir contents, and the sync script's rename-sweep deletes the old flat paths from rel branches on next propagation. Item 6 needed no test-file cross-reference updates (each test only imports from `Support/*`, which stays put).
 
 ### Sequencing recommendation
 
