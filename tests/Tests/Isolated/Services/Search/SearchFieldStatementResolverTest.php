@@ -215,7 +215,7 @@ class SearchFieldStatementResolverTest extends TestCase
         $notMissing->setModifier(SearchModifier::MISSING);
         $fragment = SearchFieldStatementResolver::resolveTokenField($notMissing);
         $this->assertEquals(
-            "(provider IS NOT NULL AND CAST(provider AS BINARY) != '') ",
+            "(provider IS NOT NULL AND NOT (CAST(provider AS CHAR) <=> '')) ",
             $fragment->getFragment()
         );
         $this->assertEmpty($fragment->getBoundValues());

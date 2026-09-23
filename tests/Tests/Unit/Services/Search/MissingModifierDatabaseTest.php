@@ -29,7 +29,7 @@ use PHPUnit\Framework\TestCase;
  * so the same SQL worked there.
  *
  * One patient row is seeded with a binary uuid that is never valid UTF-8 (first byte 0xFF), a
- * `date` and no `deceased_date`.
+ * `date`, no `deceased_date`, and a `mname` made only of spaces.
  */
 class MissingModifierDatabaseTest extends TestCase
 {
@@ -41,7 +41,7 @@ class MissingModifierDatabaseTest extends TestCase
         $this->assertIsNumeric($nextPid);
         $this->pid = (int) $nextPid;
         QueryUtils::sqlStatementThrowException(
-            "INSERT INTO patient_data (pid, uuid, fname, lname, `date`, deceased_date) VALUES (?, ?, ?, ?, ?, NULL)",
+            "INSERT INTO patient_data (pid, uuid, fname, lname, mname, `date`, deceased_date) VALUES (?, ?, ?, ?, '   ', ?, NULL)",
             [$this->pid, "\xFF" . random_bytes(15), 'test-fixture-missing', 'test-fixture-missing', '2024-01-02 03:04:05']
         );
     }
@@ -78,6 +78,56 @@ class MissingModifierDatabaseTest extends TestCase
         );
         $this->assertIsNumeric($count);
         $this->assertSame($expected, (int) $count);
+    }
+
+    /**
+     * On every column the CHAR cast can read, the filter keeps exactly the rows the plain CHAR
+     * comparison keeps: whatever the collation does with a value made only of spaces, the
+     * result is the one it was before the null-safe change.
+     *
+     * @param string $column patient_data column
+     * @param bool $missing true for `:missing=true`, false for `:missing=false`
+     */
+    #[DataProvider('textColumnProvider')]
+    public function testReadableColumnsMatchTheCharComparison(string $column, bool $missing): void
+    {
+        $field = new TokenSearchField($column, [new TokenSearchValue($missing)]);
+        $field->setModifier(SearchModifier::MISSING);
+        $fragment = SearchFieldStatementResolver::resolveTokenField($field);
+        $charComparison = $missing
+            ? "($column IS NULL OR CAST($column AS CHAR) = '')"
+            : "($column IS NOT NULL AND CAST($column AS CHAR) != '')";
+
+        $expected = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM patient_data WHERE pid = ? AND " . $charComparison,
+            'n',
+            [$this->pid]
+        );
+        $actual = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM patient_data WHERE pid = ? AND " . $fragment->getFragment(),
+            'n',
+            array_merge([$this->pid], $fragment->getBoundValues())
+        );
+        $this->assertIsNumeric($expected);
+        $this->assertIsNumeric($actual);
+        $this->assertSame((int) $expected, (int) $actual);
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function textColumnProvider(): array
+    {
+        return [
+            'space-only text, missing=false' => ['mname', false],
+            'space-only text, missing=true' => ['mname', true],
+            'text, missing=false' => ['fname', false],
+            'text, missing=true' => ['fname', true],
+            'datetime, missing=false' => ['date', false],
+            'null datetime, missing=true' => ['deceased_date', true],
+        ];
     }
 
     /**
