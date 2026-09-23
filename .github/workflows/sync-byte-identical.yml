@@ -97,22 +97,62 @@ jobs:
         branch: ${{ fromJson(needs.enumerate-rel-branches.outputs.branches) }}
     steps:
     # Sparse checkout of master's composite action so the token-mint
-    # step below can resolve `uses: ./.github/actions/...`. The rel-
-    # branch checkout below overwrites this with the branch's own
-    # tree (Phase 10b propagated the composite to every rel branch
-    # via .github/byte-identical.yml so it's now present everywhere,
-    # but the sparse pre-checkout keeps this job resilient to any
-    # future rel branch that happens to lack it).
-    - name: Checkout composite action
+    # step below can resolve `uses: ./master-composite/.github/
+    # actions/...`. This checkout lands in its own `master-composite/`
+    # subdir specifically so its sparse-checkout config lives in a
+    # separate .git/info/sparse-checkout and cannot bleed into the
+    # rel-branch working tree at ./.
+    #
+    # Pre-2026-09-23 we ran both checkouts at the same default path
+    # (./). The first checkout's sparse-checkout config persisted --
+    # actions/checkout@v7's second-invocation `git sparse-checkout
+    # disable` on the same path only partially cleared state -- and
+    # broke downstream git operations that touched paths outside the
+    # sparse definition:
+    #
+    #   * sync run 35502912896 (2026-09-20): peter-evans' `git add`
+    #     staged every FILES_ALL path as literal args, all of which
+    #     matched paths outside `.github/actions/generate-app-token/`
+    #     and were dropped from the index with "outside of your sparse-
+    #     checkout definition" -- the sync PR opened with an empty
+    #     diff.
+    #   * sync run 35811755599 (2026-09-23, Item 6 reorg): sync-byte-
+    #     identical.sh's rename-sweep tried to `git rm tests/Acceptance/
+    #     AaLoginAcceptanceTest.php` (path being retired by master's
+    #     reorg into subdirs) and hit the same sparse constraint,
+    #     failing the whole sync so Items 5+6 didn't propagate.
+    #
+    # Structural fix (this PR): separate `path:` for the composite
+    # checkout eliminates the interaction with the rel-branch tree.
+    # Same pattern already used in branch-cut-automation.yml /
+    # patch-prep-automation.yml / release-amendment.yml (`path: master-
+    # checkout` / `path: rel-checkout`). The Phase 10b composite has
+    # since propagated to every rel branch via byte-identical, so this
+    # sparse pre-checkout is nominally redundant -- kept as a resilience
+    # hedge for any future rel branch that happens to lack it.
+    - name: Checkout composite action (isolated path, no sparse-checkout)
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github/actions/generate-app-token
-        sparse-checkout-cone-mode: false
+        # Pin explicitly to master so the composite is always sourced
+        # from master's copy -- workflow_dispatch fired from the Actions
+        # UI against a non-master ref would otherwise pick up that
+        # ref's rel-branch copy of the composite (harmless in practice
+        # given Phase 10b propagated the composite to every rel branch,
+        # but the workflow's intent is master-authoritative).
+        ref: master
+        path: master-composite
+        # Full shallow clone rather than sparse-checkout: `path: <subdir>`
+        # + `sparse-checkout: <pattern>` don't compose in actions/checkout@v7
+        # -- the sparse pattern is set against the working dir but the
+        # resulting index shows the referenced action.yml is missing at
+        # <subdir>/<pattern>/action.yml (verified empirically on run
+        # 35816164197). A whole shallow clone is a few seconds of extra
+        # overhead and eliminates the sparse-config surface entirely.
         persist-credentials: false
 
     - name: Mint App token
       id: app-token
-      uses: ./.github/actions/generate-app-token
+      uses: ./master-composite/.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -134,6 +174,22 @@ jobs:
         # need git's persisted-credentials to survive into other steps.
         persist-credentials: false
         fetch-depth: 0
+
+    - name: Guard against inherited sparse-checkout config
+      # Regression canary for the sparse-checkout leak described in the
+      # "Checkout composite action" step above. The rel-branch checkout
+      # at ./ should NEVER have sparse-checkout active -- if it does, a
+      # downstream git op (sync script's `git rm`, peter-evans's `git
+      # add`) will silently drop paths from the index and either fail
+      # or open a nonsense sync PR. Fire early so the failure names the
+      # root cause instead of surfacing as a misleading downstream error.
+      run: |
+        if git sparse-checkout list 2>/dev/null | grep -q .; then
+          echo "::error::sparse-checkout is unexpectedly active on the rel-branch checkout at ./. See the Checkout composite action step comment for the leak surface this guards against; some future actions/checkout or workflow-step change has re-introduced the interaction."
+          git sparse-checkout list
+          exit 1
+        fi
+        echo "==> sparse-checkout inactive on rel-branch checkout (expected)"
 
     - name: Fetch master so we can compare
       run: git fetch origin master:master
