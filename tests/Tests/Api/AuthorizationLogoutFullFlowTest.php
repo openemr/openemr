@@ -134,6 +134,7 @@ class AuthorizationLogoutFullFlowTest extends TestCase
                 'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
                 'scope' => 'openid fhirUser offline_access',
+                'grant_types' => ['authorization_code', 'refresh_token'],
             ],
         ]);
         $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');

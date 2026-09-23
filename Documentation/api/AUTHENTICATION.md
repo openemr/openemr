@@ -612,6 +612,19 @@ See [Bulk FHIR Exports](FHIR_API.md#bulk-fhir-exports) for complete workflow.
 > those requests now return `401 invalid_client`. Public clients are
 > unaffected. Same applies to the refresh grant — see
 > [Refresh Request](#refresh-request).
+>
+> **Also in 8.5.0**: clients registered via Dynamic Client Registration
+> are enforced against their declared `grant_types` metadata per
+> RFC 7591 §2. A client that registered only for `authorization_code`
+> can no longer use `password` or `refresh_token` at `/token` even
+> with a valid `client_secret`. Legacy clients whose `oauth_clients`
+> row has a NULL/empty `grant_types` column fall through to
+> "allow all" for backwards compatibility — deployments that want
+> strict per-client enforcement on legacy clients can populate the
+> column via the admin UI or SQL. New DCR registrations should
+> declare every grant they intend to use (e.g.
+> `"grant_types": ["authorization_code", "refresh_token"]` for a
+> typical SMART launch app).
 
 #### Token Request (User Role — Confidential Client)
 ```bash

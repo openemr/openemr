@@ -215,6 +215,7 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
                 'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
                 'scope' => 'openid fhirUser',
+                'grant_types' => ['authorization_code'],
             ],
         ]);
         $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed for public client');

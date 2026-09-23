@@ -334,6 +334,10 @@ class ApiTestClient
             "token_endpoint_auth_method" => "client_secret_post",
             "contacts" => ["me@example.org", "them@example.org"],
             "scope" => implode(' ', 'private' !== $client ? self::PUBLIC_CLIENT_SCOPES : self::ALL_SCOPES),
+            // Declare every grant the test suite exercises so DCR
+            // registers the client for each one; ClientRepository
+            // enforces grant_types membership per RFC 7591 §2.
+            "grant_types" => ["authorization_code", "refresh_token", "password"],
         ];
         $clientResponse = $this->post($authURL . '/registration', $clientBody);
         if ($clientResponse->getStatusCode() >= 400) {

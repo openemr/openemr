@@ -128,6 +128,7 @@ class BulkAPITestClient extends ApiTestClient
             "contacts" => ["me@example.org", "them@example.org"],
             "scope" => self::SYSTEM_SCOPES
             ,'jwks' => $jwks
+            ,'grant_types' => ['client_credentials']
         ];
         $clientResponse = $this->post($authURL . '/registration', $clientBody);
         if ($clientResponse->getStatusCode() >= 400) {
