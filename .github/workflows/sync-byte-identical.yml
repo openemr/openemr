@@ -133,6 +133,13 @@ jobs:
     - name: Checkout composite action (isolated path, no sparse-checkout)
       uses: actions/checkout@v7
       with:
+        # Pin explicitly to master so the composite is always sourced
+        # from master's copy -- workflow_dispatch fired from the Actions
+        # UI against a non-master ref would otherwise pick up that
+        # ref's rel-branch copy of the composite (harmless in practice
+        # given Phase 10b propagated the composite to every rel branch,
+        # but the workflow's intent is master-authoritative).
+        ref: master
         path: master-composite
         # Full shallow clone rather than sparse-checkout: `path: <subdir>`
         # + `sparse-checkout: <pattern>` don't compose in actions/checkout@v7
