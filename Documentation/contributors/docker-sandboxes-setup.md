@@ -450,7 +450,7 @@ practical workflow:
 For example:
 
 ```bash
-sudo cat /home/<agent-user>/git/pr-<branch-slug>.md > /tmp/body.md
+sudo -u <agent-user> cat /home/<agent-user>/git/pr-<branch-slug>.md > /tmp/body.md
 cd ~/src/openemr                       # your own clone, not the shared one
 git fetch origin <branch-name>
 gh pr create --repo openemr/openemr --draft \
