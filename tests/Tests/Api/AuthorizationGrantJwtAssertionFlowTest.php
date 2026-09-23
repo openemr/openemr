@@ -246,6 +246,120 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
         );
     }
 
+    #[Test]
+    public function testRefreshGrantSucceedsWithValidJwtAssertion(): void
+    {
+        // Regression pin for the refresh-grant path with private_key_jwt.
+        // CustomRefreshTokenGrant overrides respondToAccessTokenRequest
+        // to do its own validateClient early, then delegates to the
+        // League parent which validates the client again. With JWT
+        // client authentication the assertion carries a one-time JTI —
+        // if validateJWTClientAssertion ran twice for the same request,
+        // the second call rejected the JTI as replay and returned
+        // 401 invalid_client on every JWT-authenticated refresh. The
+        // grant now memoizes the ClientEntity by spl_object_id of the
+        // request so the second internal call short-circuits.
+        //
+        // This test also exercises a second refresh from the same
+        // client with a fresh assertion, to prove the memo is scoped
+        // to one request object and doesn't leak across the process.
+        $http = $this->buildClient();
+        [$privateKey, $publicKey, $code] = $this->registerJwtClientAndObtainCode($http);
+
+        // Initial auth_code → tokens exchange using a JWT assertion,
+        // as the existing testAuthCodeGrantSucceedsWithValidJwtAssertion
+        // covers. The response should include a refresh_token because
+        // offline_access is in the granted scope.
+        $codeAssertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            (string) $this->clientId,
+        );
+        $codeResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => self::REDIRECT_URI,
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $codeAssertion,
+            ],
+        ]);
+        $this->assertSame(200, $codeResp->getStatusCode(), 'auth_code exchange should succeed');
+        $tokens = json_decode((string) $codeResp->getBody(), true);
+        $this->assertIsArray($tokens);
+        $this->assertArrayHasKey('refresh_token', $tokens, 'refresh_token expected since offline_access was granted');
+        $this->assertIsString($tokens['refresh_token']);
+        $refreshToken = $tokens['refresh_token'];
+
+        // First JWT-authenticated refresh. Under the pre-memo code
+        // path this returned 401 invalid_client because the JWT
+        // assertion's JTI was consumed by the first internal
+        // validateClient call and rejected by the second.
+        $refreshAssertion1 = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            (string) $this->clientId,
+        );
+        $refreshResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'scope' => 'openid fhirUser offline_access',
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $refreshAssertion1,
+            ],
+        ]);
+        $this->assertSame(
+            200,
+            $refreshResp->getStatusCode(),
+            'Refresh with JWT client_assertion should succeed. 401 invalid_client here typically means '
+            . 'validateClient was called twice for the same request and the JWT JTI dedupe rejected the second call.'
+        );
+        $refreshed = json_decode((string) $refreshResp->getBody(), true);
+        $this->assertIsArray($refreshed);
+        $this->assertArrayHasKey('access_token', $refreshed);
+        $this->assertIsString($refreshed['access_token']);
+        $this->assertNotSame(
+            $tokens['access_token'],
+            $refreshed['access_token'],
+            'Refreshed access_token should be a new token, not the original'
+        );
+        $this->assertArrayHasKey('refresh_token', $refreshed);
+        $this->assertIsString($refreshed['refresh_token']);
+        $nextRefreshToken = $refreshed['refresh_token'];
+
+        // Second refresh from the same client, brand-new JWT
+        // assertion (fresh JTI), rotated refresh_token from the
+        // previous response. Proves the memo is per-request and
+        // doesn't leak across the process.
+        $refreshAssertion2 = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            (string) $this->clientId,
+        );
+        $refreshResp2 = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $nextRefreshToken,
+                'scope' => 'openid fhirUser offline_access',
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $refreshAssertion2,
+            ],
+        ]);
+        $this->assertSame(
+            200,
+            $refreshResp2->getStatusCode(),
+            'A second refresh from the same JWT client should also succeed. '
+            . 'Failure here would suggest the validateClient memo is leaking across requests.'
+        );
+    }
+
     /**
      * Shared DCR + /authorize + login + consent → code path. Returns
      * [$privateKey, $publicKey, $code] so both tests can then do their
