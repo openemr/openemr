@@ -304,6 +304,27 @@ class MfaUtils
      */
     private function checkU2F($token): bool
     {
+        // Mirror checkTOTP's pre-validate lockout gate + on-failure
+        // counter bump. Without this, U2F assertions were unlimited —
+        // the dedicated MFA counters were only wired into the TOTP
+        // path. Uses the same isMfaChallengeBlocked /
+        // recordFailedMfaChallenge helpers so both second-factor
+        // methods share one throttle across users and IPs.
+        $ip = collectIpAddresses();
+        $callerIp = $ip['ip_string'];
+        $postAuthUser = $_POST['authUser'] ?? null;
+        $userRow = QueryUtils::querySingleRow(
+            "SELECT `username` FROM `users_secure` WHERE `id` = ?",
+            [$this->uid]
+        );
+        $authUser = is_array($userRow) && is_string($userRow['username'] ?? null)
+            ? $userRow['username']
+            : (is_string($postAuthUser) ? $postAuthUser : null);
+        $authUtils = new AuthUtils();
+        if ($authUtils->isMfaChallengeBlocked($authUser, $callerIp)) {
+            $this->errorMsg = xl('U2F Key Authentication error');
+            return false;
+        }
 
         $u2f = new \u2flib_server\U2F($this->appId);
         $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", [$this->uid]);
@@ -325,12 +346,14 @@ class MfaUtils
                 return true;
             } else {
                 error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
+                $authUtils->recordFailedMfaChallenge($authUser);
                 return false;
             }
         } catch (\u2flib_server\Error $e) {
             // Authentication failed so we will build the U2F form again.
             $form_response = '';
             $this->errorMsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
+            $authUtils->recordFailedMfaChallenge($authUser);
             return false;
         }
     }

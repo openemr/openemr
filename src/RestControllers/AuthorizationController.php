@@ -989,9 +989,9 @@ class AuthorizationController implements LoggerAwareInterface
                         }
                     }
                     EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
-                    // MfaUtils::checkTOTP itself bumps the
+                    // MfaUtils::checkTOTP / checkU2F both bump the
                     // mfa_fail_counter / mfa_login_fail_counter and
-                    // enforces the block gate; no additional counter
+                    // enforce the block gate; no additional counter
                     // work required here.
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;

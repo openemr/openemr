@@ -217,9 +217,9 @@ if (isset($_POST['new_login_session_management'])) {
                         is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
                         'TOTP code incorrect'
                     );
-                    // MfaUtils::checkTOTP itself bumps the
+                    // MfaUtils::checkTOTP / checkU2F both bump the
                     // mfa_fail_counter / mfa_login_fail_counter and
-                    // enforces the block gate; no additional counter
+                    // enforce the block gate; no additional counter
                     // work required here.
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
