@@ -4,6 +4,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\PostCalendar\ViewModel\SearchResultsBuilder;
 
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
@@ -443,53 +444,18 @@ function postcalendar_user_search()
     $searchResultsForTwig = [];
     $rawEvents = $tpl->getVar('A_EVENTS');
     if (is_array($rawEvents)) {
-        foreach ($rawEvents as $eDate => $dateEvents) {
-            if (!is_string($eDate) || !is_array($dateEvents)) {
-                continue;
-            }
-            $eventDateYmd = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
-            foreach ($dateEvents as $event) {
-                if (!is_array($event)) {
-                    continue;
-                }
-                $aid = $event['aid'] ?? null;
-                $provInfo = null;
-                if (is_int($aid) || (is_string($aid) && $aid !== '')) {
-                    $provRows = QueryUtils::fetchRecords('SELECT * FROM users WHERE id=?', [$aid]);
-                    $provInfo = $provRows[0] ?? null;
-                }
-
-                $startTimeRaw = $event['startTime'] ?? '00:00:00';
-                $startTimeStr = is_string($startTimeRaw) ? $startTimeRaw : '00:00:00';
-                $eventTs = strtotime($eDate . ' ' . $startTimeStr);
-                $datetimeDisplay = $eventTs !== false ? date('Y-m-d h:i a', $eventTs) : '';
-
-                $provFname = is_array($provInfo) && is_string($provInfo['fname'] ?? null) ? $provInfo['fname'] : '';
-                $provPhone = is_array($provInfo) && is_string($provInfo['phonew1'] ?? null) ? $provInfo['phonew1'] : '';
-                $provStreet = is_array($provInfo) && is_string($provInfo['street'] ?? null) ? $provInfo['street'] : '';
-                $provCity = is_array($provInfo) && is_string($provInfo['city'] ?? null) ? $provInfo['city'] : '';
-                $provState = is_array($provInfo) && is_string($provInfo['state'] ?? null) ? $provInfo['state'] : '';
-
-                $provInfoTitle = $provFname . ' ' . xl('contact info') . ":\n";
-                if (is_array($provInfo)) {
-                    $provInfoTitle .= $provPhone . "\n"
-                        . $provStreet . "\n"
-                        . $provCity . ' ' . $provState;
-                }
-
-                $eid = $event['eid'] ?? '';
-                $eidStr = is_int($eid) || is_string($eid) ? (string) $eid : '';
-
-                $searchResultsForTwig[] = [
-                    'event_id_token'      => $eidStr . '~' . $eventDateYmd,
-                    'datetime_display'    => $datetimeDisplay,
-                    'provider_name'       => is_string($event['provider_name'] ?? null) ? $event['provider_name'] : '',
-                    'provider_info_title' => $provInfoTitle,
-                    'catname'             => is_string($event['catname'] ?? null) ? $event['catname'] : '',
-                    'patient_name'        => is_string($event['patient_name'] ?? null) ? $event['patient_name'] : '',
-                ];
-            }
-        }
+        // one users query for the whole result set, not one per row (#13492)
+        $searchResultsBuilder = new SearchResultsBuilder(
+            static function (array $providerIds): array {
+                $placeholders = implode(',', array_fill(0, count($providerIds), '?'));
+                return QueryUtils::fetchRecords(
+                    "SELECT id, fname, phonew1, street, city, state FROM users WHERE id IN ($placeholders)",
+                    $providerIds
+                );
+            },
+            xl('contact info')
+        );
+        $searchResultsForTwig = $searchResultsBuilder->build($rawEvents);
     }
     $tpl->assign('search_results', $searchResultsForTwig);
 
