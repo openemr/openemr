@@ -98,12 +98,23 @@ On first `sbx run` you are asked to pick a global network policy. `Balanced`
 work — it did not block image pulls, Composer, or npm during testing. Change it
 later with `sbx policy`.
 
-## Step 3 — Optional: a dedicated user account
+## Step 3 — Recommended: a dedicated user account
 
-The microVM is the security boundary, so this step is not required. It is worth
-doing if you intend to let agents run unattended, because it keeps the agent's
-credentials separate from your own: a distinct GitHub token, a distinct Docker
-account, and no access to your personal SSH keys or working files.
+The microVM is what isolates the agent's processes, so this step is not what
+makes the setup safe. What it does is bound what the agent can reach *through*
+credentials — and that matters more the more access you have.
+
+If you hold commit rights beyond your own fork, your account can reach every
+repository you maintain, your servers, and whatever else your keys and tokens
+open. Running agents under a separate account means their reach is defined by
+one narrowly scoped token instead: a distinct GitHub token limited to your fork,
+a distinct Docker account, no access to your SSH keys, and nothing of yours in
+the environment.
+
+It also keeps you out of the shared git directory by accident — see
+[The shared git directory is not protected](#the-shared-git-directory-is-not-protected).
+
+Four commands:
 
 ```bash
 sudo useradd -m -s /bin/bash openemr-agent
@@ -123,6 +134,10 @@ root-equivalent on the host, and the sandbox provides its own daemon.
 
 Everything below is then done as that user. `sbx login`, the network policy, and
 stored secrets are all per-user.
+
+If you skip this step, the rest still works — run everything as yourself, and
+drop the `sudo` from the file handoff in
+[Opening pull requests](#opening-pull-requests).
 
 ## Step 4 — Lay out the git directory
 
@@ -248,9 +263,9 @@ openemr-cmd worktree list       # worktrees, status, assigned ports
 - Git pushes go over HTTPS; the token is attached by a host-side proxy. Do not
   try to configure SSH keys, and do not tell the human to push from their host.
 - You cannot open a pull request against `openemr/openemr`. Push the branch to
-  the fork, then write the complete `gh pr create` command to
-  `<git-dir>/pr-<branch-slug>.sh` with the body as a heredoc, and tell the
-  human the file name so they can run it on the host. Use one file per branch.
+  the fork, then write the PR body to `<git-dir>/pr-<branch-slug>.md` as plain
+  markdown — no title line, no code fences, no script — and tell the human the
+  file name and a suggested title. Use one file per branch.
 
 ## Rules
 
@@ -382,6 +397,35 @@ Verify from inside a sandbox before relying on it:
 git push origin HEAD:refs/heads/sbx-auth-test --dry-run
 ```
 
+## The shared git directory is not protected
+
+The microVM isolates the agent's processes, filesystem, and network. The
+directory you mount is shared by design, and the agent can write anywhere in it
+— the whole git directory, not just the repository: every worktree, the
+bootstrap script, and anything else you keep there.
+
+That includes git's own configuration. `.git/config` values such as
+`core.sshCommand`, `core.hooksPath`, and `credential.helper`, scripts under
+`.git/hooks/`, and filter drivers declared in `.gitattributes` all cause git to
+execute commands, and they are ordinary files in the shared directory. If you
+run a git command against that clone from your own account — push, fetch,
+checkout, or commit — git acts on whatever those files say, with your
+credentials.
+
+No sandbox boundary prevents this, because nothing escapes: the agent writes a
+file in a directory you chose to share, and your own git command reads it.
+
+**Keep a separate clone outside the shared directory** for git work you do under
+your own identity — signing, pushing to remotes you care about, or anything
+using your personal SSH key. Fetch the agent's branch there and work from there.
+Treat the shared directory as the agent's.
+
+The dedicated user account in [Step 3](#step-3--recommended-a-dedicated-user-account)
+mitigates the accidental version of this: with the agent's home directory at
+mode 750, your own account cannot read into the shared directory at all, so you
+cannot wander into it and run git by habit. Reaching it deliberately, with
+`sudo`, still works — which is what the pull request handoff below relies on.
+
 ## Opening pull requests
 
 An agent inside a sandbox can push to your fork but cannot open a pull request
@@ -398,14 +442,28 @@ Keeping the sandbox token scoped to your fork alone is the right trade. The
 practical workflow:
 
 1. The agent pushes the branch to your fork.
-2. The agent writes the complete `gh pr create` command to
-   `<git-dir>/pr-<branch-slug>.sh`, with the body as a heredoc.
-3. You review that file and run it on the host, authenticated as yourself.
+2. The agent writes the PR body to `<git-dir>/pr-<branch-slug>.md` as plain
+   markdown, and suggests a title.
+3. You read that file and pass it to `gh pr create --body-file` on the host,
+   from a clone outside the shared directory, authenticated as yourself.
 
-Because the git directory is shared, the file the agent writes is visible on the
-host without copying anything. A per-branch filename matters if you run several
-agents at once. The rules file written by `sbx-bootstrap.sh` already instructs
-agents to follow this pattern.
+For example:
+
+```bash
+sudo cat /home/<agent-user>/git/pr-<branch-slug>.md > /tmp/body.md
+cd ~/src/openemr                       # your own clone, not the shared one
+git fetch origin <branch-name>
+gh pr create --repo openemr/openemr --draft \
+  --head <your-username>:<branch-name> \
+  --title "<title>" \
+  --body-file /tmp/body.md
+```
+
+Have the agent write a body file. The body is read as data. Supplying the title
+yourself is also worth it — it is the first thing a reviewer sees.
+
+A per-branch filename matters if you run several agents at once. The rules file
+written by `sbx-bootstrap.sh` already instructs agents to follow this pattern.
 
 Reading works normally, so the review cycle is not affected: an agent can run
 `gh pr view <n> --repo openemr/openemr --comments` and `gh pr checks`, act on
