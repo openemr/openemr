@@ -565,116 +565,39 @@ sudo lxc-start -n claude-appliance
 
 ---
 
-## Step 14 — Agent launch script
+## Step 14 — Day-to-day use
 
-Save as `<git-dir>/launch-agent.sh`:
+The setup above only runs once. After that, launching an agent session is:
 
-```bash
-#!/bin/bash
-# Usage: ./launch-agent.sh <branch-name> [--env easy|easy-light|easy-redis]
+1. **Start the appliance** (skip if already running):
 
-set -euo pipefail
+   > 🖥️ **On the host**
+   ```bash
+   sudo lxc-start -n claude-appliance
+   ```
 
-BRANCH="${1:-}"
-ENV_NAME="easy"
-OPENEMR_ROOT="<git-dir>/openemr"
+2. **Enter the appliance as the agent user:**
 
-if [[ -z "${BRANCH}" ]]; then
-  echo "Usage: launch-agent.sh <branch-name> [--env easy|easy-light|easy-redis]" >&2
-  exit 1
-fi
+   > 🖥️ **On the host**
+   ```bash
+   sudo lxc-attach -n claude-appliance -- su - claude-agent
+   ```
 
-# Parse optional "--env <value>" — passed as two separate args, validated
-# against an allowlist so the value can never reach the shell unquoted.
-if [[ $# -ge 3 && "$2" == "--env" ]]; then
-  ENV_NAME="$3"
-fi
+3. **Go to the openemr checkout and launch Claude Code:**
 
-case "${ENV_NAME}" in
-  easy|easy-light|easy-redis) ;;
-  *) echo "Invalid --env value: ${ENV_NAME}" >&2; exit 1 ;;
-esac
+   > 🖥️ **Inside container** (as claude-agent)
+   ```bash
+   cd <git-dir>/openemr
+   claude --dangerously-skip-permissions
+   ```
 
-export OPENEMR_ROOT
+That's it — go to town.
 
-echo "==> Creating worktree and stack for: ${BRANCH} (env=${ENV_NAME})"
-openemr-cmd worktree add "${BRANCH}" -b --env "${ENV_NAME}" --start
+### Running multiple sessions in parallel
 
-# Resolve the worktree path from openemr-cmd output rather than reconstructing
-# the slug ourselves — keeps this script consistent with whatever naming
-# scheme openemr-cmd actually produces.
-WORKTREE_DIR="$(openemr-cmd worktree list \
-  | awk -v branch="${BRANCH}" '$1 == branch { print $NF; exit }')"
+Open a second terminal on the host, repeat steps 2 and 3 there. As many concurrent sessions as you want are fine, provided each session works in its own worktree (create with `openemr-cmd worktree add <branch> -b --start`). `openemr-cmd` assigns each worktree a distinct port offset and namespaces its Docker volumes, so parallel stacks do not collide.
 
-if [[ -z "${WORKTREE_DIR}" ]]; then
-  echo "Unable to determine worktree path for branch: ${BRANCH}" >&2
-  exit 1
-fi
-
-echo "==> Stack ports:"
-openemr-cmd worktree list | grep -F -- "${BRANCH}"
-
-echo "==> Launching Claude Code agent in ${WORKTREE_DIR}"
-cd "${WORKTREE_DIR}"
-
-# --dangerously-skip-permissions disables Claude Code's per-action permission
-# prompts. This is appropriate *inside this appliance* because the LXC + NAT
-# boundary is the security model (see threat model section). Outside this
-# context, leave the prompts on.
-claude --dangerously-skip-permissions
-```
-
----
-
-## Step 15 — Multi-agent orchestrator (optional)
-
-Save as `<git-dir>/orchestrate.sh`:
-
-```bash
-#!/bin/bash
-# Spawn agents for GitHub issues labelled 'ai-agent'
-# Usage: ./orchestrate.sh [--max-agents 3] [--env easy]
-
-set -euo pipefail
-
-MAX_AGENTS="${MAX_AGENTS:-3}"
-ENV="easy"
-REPO="openemr/openemr"
-
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --max-agents) MAX_AGENTS=$2; shift 2 ;;
-    --env)        ENV=$2; shift 2 ;;
-    *) echo "Unknown arg: $1"; exit 1 ;;
-  esac
-done
-
-echo "==> Fetching open issues labelled 'ai-agent' from ${REPO}"
-ISSUES=$(gh issue list \
-  --repo "${REPO}" \
-  --state open \
-  --label "ai-agent" \
-  --json number,title \
-  --limit "${MAX_AGENTS}")
-
-echo "${ISSUES}" | jq -r '.[] | "\(.number) \(.title)"' | while read -r NUM TITLE; do
-  BRANCH="agent/issue-${NUM}"
-
-  if openemr-cmd worktree list | grep -q "${BRANCH}"; then
-    echo "==> Skipping issue #${NUM} — worktree already exists"
-    continue
-  fi
-
-  echo "==> Spawning agent for issue #${NUM}: ${TITLE}"
-  bash <git-dir>/launch-agent.sh "${BRANCH}" --env "${ENV}" &
-
-  # Stagger starts to avoid port collision during stack init
-  sleep 5
-done
-
-wait
-echo "==> All agents launched"
-```
+> **Why `--dangerously-skip-permissions` is acceptable here.** Claude Code's per-action permission prompts are the guardrail for agents running directly on your host. Inside this appliance the LXC + NAT boundary is the security model — see the [threat model](#threat-model) section at the top for what that does and does not protect. Outside this context, leave the prompts on.
 
 ---
 

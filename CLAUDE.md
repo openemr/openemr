@@ -38,6 +38,10 @@ docker compose up --detach --wait
 - **Login:** `admin` / `pass`
 - **phpMyAdmin:** http://localhost:8310/
 
+## AI agent environments
+
+If you use an AI coding agent (Claude Code, Codex, etc.) against this repo, sandbox configurations for running the agent without giving it your host filesystem or host Docker daemon are documented in [CONTRIBUTING.md's AI Agent Development Environment section](CONTRIBUTING.md#ai-agent-development-environment). Any environment that satisfies the rules below works; the list there is a starting point, not a requirement.
+
 ## Working in a git worktree
 
 OpenEMR supports concurrent development across branches via git worktrees
