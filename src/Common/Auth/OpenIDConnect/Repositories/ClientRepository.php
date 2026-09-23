@@ -190,55 +190,7 @@ class ClientRepository implements ClientRepositoryInterface
         // CustomAuthCodeGrant::validateClient() and
         // CustomRefreshTokenGrant::validateClient().
         $grantTypeStr = is_string($grantType) ? $grantType : '';
-        if (!$this->validateConfidentialClientSecret($clientIdentifier, $clientSecret, $grantTypeStr)) {
-            return false;
-        }
-        return $this->clientAllowedForGrant($clientIdentifier, $grantTypeStr);
-    }
-
-    /**
-     * Enforce the client's registered `grant_types` metadata (RFC 7591 §2):
-     * a client that registered only `authorization_code` may not use
-     * the /token endpoint with `grant_type=password` on the strength
-     * of its client_secret alone.
-     *
-     * Backwards-compat: rows that predate this enforcement (NULL or
-     * empty `grant_types`) allow any grant, matching the pre-fix
-     * behaviour. New registrations get a default of
-     * `authorization_code` from ClientRepository::insertNewClient()
-     * — deployments that need broader grants for legacy rows can
-     * update the column via the admin UI (or SQL) to opt into
-     * strict per-client enforcement.
-     *
-     * @param mixed $clientIdentifier
-     */
-    private function clientAllowedForGrant($clientIdentifier, string $grantType): bool
-    {
-        if ($grantType === '') {
-            return true;
-        }
-        $row = sqlQueryNoLog(
-            "SELECT `grant_types` FROM `oauth_clients` WHERE `client_id` = ?",
-            [$clientIdentifier]
-        );
-        $registeredRaw = is_array($row) && is_string($row['grant_types'] ?? null)
-            ? trim((string) $row['grant_types'])
-            : '';
-        if ($registeredRaw === '') {
-            // Legacy row with no registered grant_types metadata —
-            // preserve pre-enforcement behaviour rather than break
-            // existing production clients on merge.
-            return true;
-        }
-        $registered = array_filter(array_map(trim(...), explode('|', $registeredRaw)));
-        if (in_array($grantType, $registered, true)) {
-            return true;
-        }
-        $this->getSystemLogger()->error(
-            "ClientRepository->validateClient() Client is not registered for this grant type. Validation failed",
-            ["client" => $clientIdentifier, "grantType" => $grantType, "registered" => $registered]
-        );
-        return false;
+        return $this->validateConfidentialClientSecret($clientIdentifier, $clientSecret, $grantTypeStr);
     }
 
     /**

@@ -340,100 +340,6 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
-    // ---------- ClientRepository::validateClient grant_types enforcement (RFC 7591 §2) ----------
-
-    public function testValidateClientDeniesGrantNotInRegisteredGrantTypes(): void
-    {
-        // A client registered only for authorization_code cannot use
-        // its client_secret to obtain a token via password grant,
-        // even if the secret is correct — RFC 7591 §2 defines
-        // grant_types as per-client metadata the server enforces.
-        $client = $this->insertConfidentialClientFixture(
-            clientSecret: 'correct-secret',
-            grantTypes: 'authorization_code'
-        );
-        $repo = new ClientRepository();
-        $this->assertTrue(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'authorization_code'),
-            'Registered grant must validate'
-        );
-        $this->assertFalse(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'password'),
-            'Unregistered grant must reject even with the correct client_secret'
-        );
-        $this->assertFalse(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'refresh_token'),
-            'Unregistered grant must reject even with the correct client_secret'
-        );
-    }
-
-    public function testValidateClientAllowsAllGrantsInPipedGrantTypesList(): void
-    {
-        // The grant_types column stores a pipe-delimited list. A
-        // client registered for authorization_code|refresh_token
-        // must be able to use both.
-        $client = $this->insertConfidentialClientFixture(
-            clientSecret: 'correct-secret',
-            grantTypes: 'authorization_code|refresh_token'
-        );
-        $repo = new ClientRepository();
-        $this->assertTrue(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'authorization_code'),
-            'authorization_code must validate'
-        );
-        $this->assertTrue(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'refresh_token'),
-            'refresh_token must validate'
-        );
-        $this->assertFalse(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'client_credentials'),
-            'client_credentials must reject — not in the registered list'
-        );
-    }
-
-    public function testValidateClientAllowsAnyGrantWhenGrantTypesColumnIsNull(): void
-    {
-        // Backwards-compat: pre-enforcement rows have NULL
-        // grant_types. Enforcing strictly would break every legacy
-        // production client on merge, so a NULL/empty grant_types
-        // column falls through to "allow all" and matches the
-        // pre-fix behaviour.
-        $client = $this->insertConfidentialClientFixture(
-            clientSecret: 'correct-secret',
-            grantTypes: null
-        );
-        $repo = new ClientRepository();
-        $this->assertTrue(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'authorization_code'),
-            'authorization_code must validate on legacy null-grant_types row'
-        );
-        $this->assertTrue(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'password'),
-            'password grant must validate on legacy null-grant_types row (backward compat)'
-        );
-        $this->assertTrue(
-            $repo->validateClient($client['client_id'], 'correct-secret', 'refresh_token'),
-            'refresh_token must validate on legacy null-grant_types row (backward compat)'
-        );
-    }
-
-    public function testValidateClientDeniesGrantForPublicClientWithMismatchedGrantTypes(): void
-    {
-        // Same enforcement applies to public clients — a public
-        // SMART app registered only for authorization_code cannot
-        // suddenly use the password grant.
-        $client = $this->insertPublicClientFixture(grantTypes: 'authorization_code');
-        $repo = new ClientRepository();
-        $this->assertTrue(
-            $repo->validateClient($client['client_id'], null, 'authorization_code'),
-            'Registered grant must validate on public client'
-        );
-        $this->assertFalse(
-            $repo->validateClient($client['client_id'], null, 'password'),
-            'Unregistered grant on public client must reject'
-        );
-    }
-
     // ---------- UserRepository::getAccountByPassword MFA required (6xc2) ----------
 
     public function testPasswordGrantRejectsTotpEnrolledUserWithoutMfaToken(): void
@@ -1747,14 +1653,14 @@ class PasswordGrantHardeningTest extends TestCase
     /**
      * @return array{client_id: string}
      */
-    private function insertConfidentialClientFixture(string $clientSecret, ?string $grantTypes = null): array
+    private function insertConfidentialClientFixture(string $clientSecret): array
     {
         $clientId = 'test-client-' . Uuid::uuid4()->toString();
         $encryptedSecret = (\OpenEMR\BC\ServiceContainer::getCrypto())->encryptForDatabase($clientSecret);
         QueryUtils::sqlStatementThrowException(
-            "INSERT INTO oauth_clients (client_id, client_secret, is_confidential, is_enabled, client_role, grant_types) "
-                . "VALUES (?, ?, 1, 1, 'users', ?)",
-            [$clientId, $encryptedSecret, $grantTypes]
+            "INSERT INTO oauth_clients (client_id, client_secret, is_confidential, is_enabled, client_role) "
+                . "VALUES (?, ?, 1, 1, 'users')",
+            [$clientId, $encryptedSecret]
         );
         $this->trackedClientIds[] = $clientId;
         return ['client_id' => $clientId];
@@ -1763,13 +1669,13 @@ class PasswordGrantHardeningTest extends TestCase
     /**
      * @return array{client_id: string}
      */
-    private function insertPublicClientFixture(?string $grantTypes = null): array
+    private function insertPublicClientFixture(): array
     {
         $clientId = 'test-client-public-' . Uuid::uuid4()->toString();
         QueryUtils::sqlStatementThrowException(
-            "INSERT INTO oauth_clients (client_id, client_secret, is_confidential, is_enabled, client_role, grant_types) "
-                . "VALUES (?, '', 0, 1, 'users', ?)",
-            [$clientId, $grantTypes]
+            "INSERT INTO oauth_clients (client_id, client_secret, is_confidential, is_enabled, client_role) "
+                . "VALUES (?, '', 0, 1, 'users')",
+            [$clientId]
         );
         $this->trackedClientIds[] = $clientId;
         return ['client_id' => $clientId];

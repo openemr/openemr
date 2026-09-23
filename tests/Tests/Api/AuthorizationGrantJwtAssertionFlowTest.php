@@ -393,7 +393,6 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
                 'token_endpoint_auth_method' => 'private_key_jwt',
                 'contacts' => ['e2e@test.example'],
                 'scope' => 'openid fhirUser offline_access',
-                'grant_types' => ['authorization_code', 'refresh_token'],
                 'jwks' => $jwks,
             ],
         ]);
