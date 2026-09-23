@@ -133,7 +133,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                     $translatedValues[] = '0';
                     break;
                 case 'entered-in-error':
-                case 'unavailable':
+                    // a deleted specimen reads back as entered-in-error (mapDeletedToFhirStatus()),
+                    // so no stored specimen is ever 'unavailable': that value falls to the default
                     $translatedValues[] = '1';
                     break;
                 default:

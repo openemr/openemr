@@ -177,7 +177,8 @@ class SpecimenFhirApiTest extends TestCase
             'collected before' => [['collected' => 'lt2024-04-01'], []],
             'status available' => [['status' => 'available'], ['available']],
             'status entered-in-error' => [['status' => 'entered-in-error'], ['deleted']],
-            'status unavailable' => [['status' => 'unavailable'], ['deleted']],
+            // a deleted specimen reads back as entered-in-error, so nothing stored is unavailable
+            'status unavailable' => [['status' => 'unavailable'], []],
             'status unknown' => [['status' => 'test-fixture-none'], []],
         ];
     }
