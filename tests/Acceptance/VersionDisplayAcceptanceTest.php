@@ -95,14 +95,13 @@ final class VersionDisplayAcceptanceTest extends PantherAcceptanceTestCase
      */
     public function testAboutPageShowsExpectedVersion(): void
     {
-        // Docker workflow can't resolve floating tags (`latest`,
-        // `next`) into X.Y.Z at runtime yet (Item 4 of the post-8.4.0
-        // refactor), so the env isn't set there. Skip cleanly when
-        // absent -- tarball workflow always sets it, so the signal
-        // stays enforced where the plumbing exists.
-        if (!AcceptanceContext::hasExpectedVersion()) {
-            self::markTestSkipped('ACCEPTANCE_EXPECTED_VERSION not set -- expected in contexts without version resolution (e.g., acceptance-docker.yml floating-tag runs until Item 4 lands).');
-        }
+        // Fail-hard on missing env (no skip guard): as of Item 4 of the
+        // post-8.4.0 acceptance-surface refactor, every CI path sets
+        // ACCEPTANCE_EXPECTED_VERSION (tarball via detect-acceptance-
+        // mode.sh, docker via a per-boot version.php read). A missing
+        // env value means a workflow-side bug; silently skipping would
+        // hide it. See VersionApiAcceptanceTest for the sibling
+        // rationale.
         $expected = AcceptanceContext::expectedVersion();
 
         $this->client = BrowserSession::create();
