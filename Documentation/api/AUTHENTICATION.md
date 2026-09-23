@@ -606,6 +606,13 @@ See [Bulk FHIR Exports](FHIR_API.md#bulk-fhir-exports) for complete workflow.
 
 **Administration → Config → Connectors → Enable OAuth2 Password Grant (Not considered secure)**
 
+> **Behavior change in 8.5.0**: confidential clients on the password
+> grant now require `client_secret` (via body or HTTP Basic auth).
+> Prior versions silently accepted requests with the secret omitted;
+> those requests now return `401 invalid_client`. Public clients are
+> unaffected. Same applies to the refresh grant — see
+> [Refresh Request](#refresh-request).
+
 #### Token Request (User Role — Confidential Client)
 ```bash
 curl -X POST -k \
