@@ -69,7 +69,7 @@ class GroupFhirApiTest extends TestCase
     protected function setUp(): void
     {
         $this->testClient = new ApiTestClient(self::baseUrl(), false);
-        $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setAuthTokenOrFail(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
     }
 
     /**
