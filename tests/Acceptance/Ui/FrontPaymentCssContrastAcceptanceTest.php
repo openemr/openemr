@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Acceptance;
+namespace OpenEMR\Tests\Acceptance\Ui;
 
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\JavaScriptExecutor;
