@@ -347,6 +347,14 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * read-back does too. A genuinely missing uuid still yields no data here, which is the
      * 404 the caller should get.
      *
+     * No stored-patient ownership check here, unlike the patient-compartment services on this
+     * branch (AllergyIntolerance, Condition, Immunization, MedicationRequest, ServiceRequest and
+     * the rest). Those compare the body's subject against the patient that owns the stored row,
+     * because the url id and the body's subject can disagree. Person has no subject: it maps to
+     * `users`, not to a patient chart, so there is no owning patient to compare against. The
+     * route's own ACL is what gates it. Recorded here so the absence reads as a decision rather
+     * than an omission the next reviewer has to re-derive.
+     *
      * @param string $fhirResourceId The users.uuid string
      * @param array<array-key, mixed> $updatedOpenEMRRecord
      */

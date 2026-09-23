@@ -120,7 +120,13 @@ class ServerScopeListEntity
                 'Device',
                 'Encounter',
                 'Goal',
+                // Group and Location have write routes but appear in no v2 resource list, so v1
+                // is the only place a write scope for them can be granted. Both are already in
+                // the v1 read list above, which keeps read and write on the same version -- see
+                // the note there about the authorize form reconstructing one version per resource.
+                'Group',
                 'Immunization',
+                'Location',
                 'Medication',
                 'MedicationRequest',
                 'Organization',
@@ -144,6 +150,11 @@ class ServerScopeListEntity
             }
             foreach ($fhirWriteResources as $resource) {
                 $fhirScopes[] = "user/$resource.write";
+                if ($systemEnabled) {
+                    // Backend-services clients had no write scope to be granted at all, so every
+                    // write endpoint answered 403 for them however the client was configured.
+                    $fhirScopes[] = "system/$resource.write";
+                }
             }
 
             $fhirScopes[] = 'patient/DocumentReference.$docref';
@@ -188,14 +199,54 @@ class ServerScopeListEntity
                 'ServiceRequest',
                 'Specimen'
             ];
+            // The subset of the above that has a FHIR write route. Kept as its own explicit
+            // list rather than derived from the routes: several resources here are readable but
+            // not writable, and a new write route should be a deliberate scope decision.
+            $writeResources = [
+                'AllergyIntolerance',
+                'CarePlan',
+                'CareTeam',
+                'Condition',
+                'Coverage',
+                'Device',
+                'DiagnosticReport',
+                'DocumentReference',
+                'Encounter',
+                'Goal',
+                'Immunization',
+                'MedicationDispense',
+                'MedicationRequest',
+                'Organization',
+                'Patient',
+                'Practitioner',
+                'PractitionerRole',
+                'Procedure',
+                'Provenance',
+                'Questionnaire',
+                'QuestionnaireResponse',
+                'RelatedPerson',
+                'ServiceRequest',
+            ];
             $scopes = [];
             $systemEnabled = $this->systemScopesEnabled;
             foreach ($resources as $resource) {
-                // we'll ignore write for now
                 $scopes[] = "patient/$resource.rs";
                 $scopes[] = "user/$resource.rs";
                 if ($systemEnabled) {
                     $scopes[] = "system/$resource.rs";
+                }
+            }
+            // 'cud' is the v2 spelling of v1's '.write': createFromString() maps 'write' to
+            // create+update+delete and requires a v2 permission to be an ordered CRUDS substring,
+            // so 'cud' is what the endpoint's derived 'c' / 'u' / 'd' requirement resolves against.
+            //
+            // No patient/ variant. FhirGenericRestController answers 403 for a patient-context
+            // token on every write path, so a patient/<Resource>.cud scope could be granted and
+            // never exercised -- advertising it would misrepresent what the server accepts.
+            foreach ($writeResources as $resource) {
+                $scopes[] = "user/$resource.cud";
+                if ($systemEnabled) {
+                    $scopes[] = "system/$resource.cud";
                 }
             }
             // now add the restrictions
