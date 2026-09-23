@@ -991,8 +991,15 @@ class AuthorizationController implements LoggerAwareInterface
                     EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
                     // MfaUtils::checkTOTP / checkU2F both bump the
                     // mfa_fail_counter / mfa_login_fail_counter and
-                    // enforce the block gate; no additional counter
-                    // work required here.
+                    // enforce the block gate on the wrong-code path.
+                    // But !$mfaToken (validateToken rejected a
+                    // malformed submission) short-circuits the ||
+                    // before check ever runs — attribute that
+                    // failure explicitly so malformed spam can't
+                    // sidestep the throttle.
+                    if (!$mfaToken) {
+                        (new AuthUtils())->recordFailedMfaChallenge(is_string($mfaUsername) ? $mfaUsername : null);
+                    }
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;

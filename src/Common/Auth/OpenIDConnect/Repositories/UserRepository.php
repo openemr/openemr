@@ -125,6 +125,20 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                         );
                     }
                     if (empty($mfaToken)) {
+                        // Distinguish the two shapes empty() catches:
+                        //   - null  = client hasn't submitted a token yet
+                        //             (legit; standard "please provide" flow)
+                        //   - false = client sent a malformed token that
+                        //             tokenFromRequest's validateToken
+                        //             rejected. That is an attempt; count
+                        //             it so malformed spam can't sidestep
+                        //             the MFA throttle. Preserve the
+                        //             mfa_token_required response shape
+                        //             either way — the block gate reads
+                        //             the same counter on the next call.
+                        if ($mfaToken === false) {
+                            (new AuthUtils())->recordFailedMfaChallenge(is_string($username) ? $username : null);
+                        }
                         throw new OAuthServerException(
                             'MFA token required.',
                             13,

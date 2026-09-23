@@ -945,6 +945,55 @@ class PasswordGrantHardeningTest extends TestCase
         }
     }
 
+    public function testMalformedMfaTokenBumpsMfaFailCounter(): void
+    {
+        // Rabbit finding: a malformed mfa_token (validateToken
+        // rejected via wrong length / non-numeric) short-circuits
+        // through the empty($mfaToken) branch without ever calling
+        // $mfa->check — so the counter and block gate that check
+        // owns never fire. An attacker could POST 'abcdef' forever
+        // and never trip the throttle. Verify a rejection bumps.
+        //
+        // The absent (null) case must NOT bump — that's the legit
+        // "user hasn't been shown the MFA prompt yet" flow.
+        $userId = $this->requireExistingAdminUserId();
+        $this->enrollTotpForUser($userId);
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($this->clientIp);
+        AuthUtils::resetMfaChallengeCounters('admin', $this->clientIp);
+
+        // Case 1: absent token — no bump.
+        unset($_POST['mfa_token']);
+        $_POST['mfa_type'] = 'TOTP';
+        $password = $this->adminPassword();
+        $userBeforeAbsent = $this->readMfaUserCounter('admin');
+        $repo = $this->buildUserRepository();
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+        } catch (OAuthServerException) {
+            // expected mfa_token_required
+        }
+        $this->assertSame(
+            $userBeforeAbsent,
+            $this->readMfaUserCounter('admin'),
+            'Absent mfa_token must not bump the MFA counter (legit no-token-yet flow)'
+        );
+
+        // Case 2: malformed token — must bump.
+        $_POST['mfa_token'] = 'abcdef';
+        $userBeforeMalformed = $this->readMfaUserCounter('admin');
+        try {
+            $this->invokeGetAccountByPassword($repo, UuidUserAccount::USER_ROLE_USERS, 'admin', $password);
+        } catch (OAuthServerException) {
+            // expected mfa_token_required
+        }
+        $this->assertSame(
+            $userBeforeMalformed + 1,
+            $this->readMfaUserCounter('admin'),
+            'Malformed mfa_token must bump the MFA counter so spam cannot sidestep the throttle'
+        );
+    }
+
     // ---------- oauth_password_grant global gate ----------
 
     public function testPasswordGrantIsRejectedWhenGlobalIsDisabled(): void
