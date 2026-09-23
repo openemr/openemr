@@ -38,6 +38,10 @@ docker compose up --detach --wait
 - **Login:** `admin` / `pass`
 - **phpMyAdmin:** http://localhost:8310/
 
+## AI agent environments
+
+If you use an AI coding agent (Claude Code, Codex, etc.) against this repo, sandbox configurations for running the agent without giving it your host filesystem or host Docker daemon are documented in [CONTRIBUTING.md's AI Agent Development Environment section](CONTRIBUTING.md#ai-agent-development-environment). Any environment that satisfies the rules below works; the list there is a starting point, not a requirement.
+
 ## Working in a git worktree
 
 OpenEMR supports concurrent development across branches via git worktrees
@@ -85,6 +89,12 @@ deletions of everything new on master" — a stray `git commit` after that
 wipes recent work. Use `git pull` or plain `git fetch` (then read via
 tracking ref) instead.
 
+**Agents don't create or push new commits directly to `master`/`main`.**
+Feature work lives on a feature branch created via `openemr-cmd worktree
+add <branch> -b`. Syncing your fork's `master` to upstream (fetch upstream
+→ fast-forward local master → push origin master) is fine — that's
+mirroring an authoritative ref, not new work.
+
 If `openemr-cmd worktree list` shows entries with status `missing` or
 `invalid` (and a footer `(N stale state entries — run "openemr-cmd worktree
 prune" to clean up; directories on disk are left intact)`), a worktree's
@@ -109,6 +119,27 @@ Any standard `openemr-cmd` command works through `exec` — `ut`, `at`, `et`,
 For short pauses, prefer `worktree stop` / `worktree start` over
 `worktree down` / `worktree up`. `stop`/`start` pause and resume existing
 containers (data preserved, much faster); `down`/`up` recreates them.
+
+`worktree add` accepts an `--env` flag selecting which docker environment
+comes up: `easy` (default: full dev stack with Selenium, CouchDB, Mailpit),
+`easy-light` (drops Selenium/CouchDB/Mailpit for faster boot; suits
+lint/refactor passes with no DB needs), or `easy-redis` (adds
+Redis/Sentinel for session or cache work). When in doubt, `easy`.
+
+Each worktree gets an integer port offset assigned at `worktree add` time
+(shown by `openemr-cmd worktree list`). Service ports derive from that
+offset:
+
+| Service    | Formula       | Offset 1 example |
+|------------|---------------|------------------|
+| HTTPS      | 9300 + offset | 9301             |
+| HTTP       | 8300 + offset | 8301             |
+| phpMyAdmin | 8310 + offset | 8311             |
+| MySQL      | 8320 + offset | 8321             |
+| Mailpit UI | 8025 + offset | 8026             |
+| CouchDB    | 5984 + offset | 5985             |
+| Selenium   | 4444 + offset | 4445             |
+| Redis      | 6379 + offset | 6380             |
 
 ## Testing
 
