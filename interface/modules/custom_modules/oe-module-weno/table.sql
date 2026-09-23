@@ -66,8 +66,8 @@ CREATE TABLE `weno_download_log` (
 #EndIf
 
 -- For early adopters of weno, in case they need to upgrade let's delete and add below.
-#IfRow background_services name WenoExchange
-DELETE FROM `background_services` WHERE `name` = 'WenoExchange';
+#IfRow2D background_services name WenoExchange function start_weno
+DELETE FROM `background_services` WHERE `name` = 'WenoExchange' AND `function` = 'start_weno';
 #EndIf
 
 #IfNotRow background_services name WenoExchangePharmacies
