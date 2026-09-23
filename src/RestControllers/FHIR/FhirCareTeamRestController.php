@@ -8,7 +8,7 @@
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
- * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -264,4 +264,76 @@ class FhirCareTeamRestController
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }
+    /**
+     * Creates a new FHIR CareTeam resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    // @codeCoverageIgnoreStart
+    #[OA\Post(
+        path: '/fhir/CareTeam',
+        description: 'Creates a new CareTeam (patient-scoped). Only Practitioner participants are writable: a participant.member that is not a Practitioner reference (Organization, RelatedPerson) is rejected with a 400 rather than dropped.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'CareTeam resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::post()
+    }
+
+    /**
+     * Updates an existing FHIR CareTeam resource.
+     * Routed via FhirGenericRestController::put(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Put(
+        path: '/fhir/CareTeam/{uuid}',
+        description: 'Modifies a CareTeam. Practitioner participants are diffed against existing members (saveCareTeam handles updates/inserts/inactivations). The same participant rule as POST applies: a participant.member that is not a Practitioner reference is rejected with a 400, so a team carrying Organization or RelatedPerson members cannot be read and written back unchanged.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the CareTeam resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'CareTeam resource updated'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $fhirId, array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::put()
+    }
+    // @codeCoverageIgnoreEnd
 }

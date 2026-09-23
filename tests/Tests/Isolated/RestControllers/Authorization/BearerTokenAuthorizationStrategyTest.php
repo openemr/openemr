@@ -2,6 +2,9 @@
 
 namespace OpenEMR\Tests\Isolated\RestControllers\Authorization;
 
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
 use League\OAuth2\Server\CryptKey;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
@@ -19,6 +22,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class BearerTokenAuthorizationStrategyTest extends TestCase
 {
@@ -133,6 +137,118 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $mockLogger = $this->createMock(LoggerInterface::class);
         $strategy = new BearerTokenAuthorizationStrategy(new OEGlobalsBag(), $auditLogger, $mockLogger);
         return $strategy;
+    }
+
+    /**
+     * Mints a signed access token whose iat/nbf are offset from now, mirroring the claim set
+     * OpenEMR's AccessTokenEntity::convertToJWT() produces.
+     *
+     * @param list<string> $scopes
+     */
+    private function mintTokenIssuedAt(
+        \DateTimeImmutable $issuedAt,
+        string $tokenId,
+        string $userUuid,
+        string $clientId,
+        array $scopes
+    ): string {
+        $config = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::file(self::KEY_PATH_PRIVATE),
+            InMemory::plainText('empty', 'empty')
+        );
+
+        return $config->builder()
+            ->permittedFor($clientId)
+            ->identifiedBy($tokenId)
+            ->issuedAt($issuedAt)
+            ->canOnlyBeUsedAfter($issuedAt)
+            ->expiresAt($issuedAt->modify('+1 hour'))
+            ->relatedTo($userUuid)
+            ->withClaim('scopes', $scopes)
+            ->issuedBy(self::ISSUER)
+            ->getToken($config->signer(), $config->signingKey())
+            ->toString();
+    }
+
+    private function requestForRawToken(string $jwt, string $uri): HttpRestRequest
+    {
+        $request = new HttpRestRequest([], [], [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $jwt,
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => $uri,
+            'SERVER_NAME' => 'example.com',
+        ]);
+        $request->setSession($this->getMockSessionForRequest($request));
+        return $request;
+    }
+
+    /**
+     * @param list<string> $scopes
+     */
+    private function authorizeTokenIssuedAt(\DateTimeImmutable $issuedAt, array $scopes = ['api:oemr']): bool
+    {
+        $userUuid = '123e4567-e89b-12d3-a456-426614174000';
+        $tokenId = 'clock-skew-token-id';
+        $user = ['id' => 1, 'username' => 'testuser', 'role' => 'users'];
+
+        $jwt = $this->mintTokenIssuedAt($issuedAt, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
+        $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+
+        $accessTokenRepository = $this->createMock(AccessTokenRepository::class);
+        $accessTokenRepository->method('getTokenExpiration')->willReturn(date('Y-m-d H:i:s', strtotime('+1 hour')));
+        $accessTokenRepository->method('isAccessTokenRevokedInDatabase')->willReturn(false);
+        $strategy->setAccessTokenRepository($accessTokenRepository);
+        $strategy->setPublicKey(new CryptKey(self::KEY_PATH_PUBLIC, null, false));
+
+        $trustedUserService = $this->createMock(TrustedUserService::class);
+        $trustedUserService->method('isTrustedUser')->willReturn(true);
+        $strategy->setTrustedUserService($trustedUserService);
+
+        $strategy->setUuidUserAccountFactory(function () use ($user) {
+            $mock = $this->createMock(UuidUserAccount::class);
+            $mock->method('getUserAccount')->willReturn($user);
+            $mock->method('getUserRole')->willReturn('users');
+            return $mock;
+        });
+        $mockUserService = $this->createMock(UserService::class);
+        $mockUserService->method('getAuthGroupForUser')->willReturn('Default');
+        $strategy->setUserService($mockUserService);
+
+        return $strategy->authorizeRequest($request);
+    }
+
+    /**
+     * lcobucci/jwt's LooseValidAt compares iat/nbf/exp against the clock, and League's default
+     * BearerTokenValidator supplies no leeway. A token presented in the same second it was issued
+     * in is then rejected as "The token was issued in the future" whenever the host clock steps
+     * backwards between the two requests -- which surfaces as an intermittent, endpoint-agnostic
+     * 401 carrying OAuth's generic access-denied message.
+     */
+    public function testTokenIssuedSlightlyInTheFutureIsAcceptedWithinClockSkewLeeway(): void
+    {
+        $this->assertTrue(
+            $this->authorizeTokenIssuedAt(new \DateTimeImmutable('+5 seconds')),
+            'A token issued 5 seconds ahead of this clock must survive; that is ordinary host clock skew'
+        );
+    }
+
+    /**
+     * The leeway is a tolerance, not an open door: a token issued far in the future is still
+     * rejected.
+     */
+    public function testTokenIssuedFarInTheFutureIsStillRejected(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->authorizeTokenIssuedAt(new \DateTimeImmutable('+30 minutes'));
+    }
+
+    public function testTokenIssuedInThePastIsAccepted(): void
+    {
+        $this->assertTrue($this->authorizeTokenIssuedAt(new \DateTimeImmutable('-5 seconds')));
     }
 
     public function testAuthorizeRequest(): void

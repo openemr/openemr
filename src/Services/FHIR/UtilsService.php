@@ -6,7 +6,9 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -449,26 +451,154 @@ class UtilsService
 
     public static function parseReference(?FHIRReference $reference)
     {
-        $parsed_reference = [
-            'localResource' => false
-            , 'uuid' => null
-            , 'type' => null
-        ];
-        if (empty($parsed_reference) || empty($reference->getReference())) {
-            return $parsed_reference;
+        if (empty($reference) || empty($reference->getReference())) {
+            return [
+                'localResource' => false,
+                'uuid' => null,
+                'type' => null,
+            ];
         }
-
-        $oauthAddress = (new ServerConfig())->getOauthAddress();
-        $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
-        $parts = parse_url($reference->getReference());
-
-        // if all we have is a path then we skip the host check
-        $parsed_reference['localResource'] = isset($parts['host']) ? $parts['host'] == $oauthHost : true;
-        $splitParts = explode("/", $parts['path']);
-        if (count($splitParts) >= 2) {
-            $parsed_reference['uuid'] = array_pop($splitParts);
-            $parsed_reference['type'] = array_pop($splitParts);
-        }
-        return $parsed_reference;
+        return self::parseReferenceString($reference->getReference());
     }
+
+    /**
+     * Parses a FHIR reference string (relative or absolute URL) and extracts the resource type and UUID.
+     *
+     * Handles both relative references (e.g., "Patient/uuid-here") and absolute URLs
+     * (e.g., "https://example.org/fhir/Patient/uuid-here").
+     *
+     * @param string|null $referenceString The reference string to parse
+     * @param string|null $expectedType If provided, validates that the reference is of this type
+     * @return array{localResource: bool, uuid: string|null, type: string|null}
+     */
+    public static function parseReferenceString(?string $referenceString, ?string $expectedType = null): array
+    {
+        $parsed = [
+            'localResource' => false,
+            'uuid' => null,
+            'type' => null,
+        ];
+
+        if ($referenceString === null || $referenceString === '') {
+            return $parsed;
+        }
+
+        // parse_url() returns false on a severely malformed URL (e.g. "http://:80"), and the
+        // reference string comes straight off a client payload, so it has to be guarded.
+        $parts = parse_url($referenceString);
+        if (!is_array($parts)) {
+            $parts = [];
+        }
+        $path = $parts['path'] ?? $referenceString;
+
+        // Check if this is a local resource. A relative reference (no host) is ours by
+        // definition; an absolute one has to match this server's own FHIR base.
+        if (isset($parts['host'])) {
+            $parsed['localResource'] = self::isLocalFhirReference($parts);
+        } else {
+            $parsed['localResource'] = true;
+        }
+
+        // Extract type and uuid from path (last two segments)
+        $splitParts = explode('/', trim($path, '/'));
+        if (count($splitParts) >= 2) {
+            $parsed['uuid'] = array_pop($splitParts);
+            $parsed['type'] = array_pop($splitParts);
+        }
+
+        // An absolute reference to another server names a resource we do not hold. Most
+        // callers read ['uuid'] without consulting ['localResource'], so returning the
+        // trailing segment would let a remote reference bind to a local record whose uuid
+        // happens to collide.
+        if (!$parsed['localResource']) {
+            $parsed['uuid'] = null;
+        }
+
+        // If expectedType is provided, return null uuid if type doesn't match
+        if ($expectedType !== null && $parsed['type'] !== $expectedType) {
+            $parsed['uuid'] = null;
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * True when an absolute reference addresses this server's own FHIR base.
+     *
+     * Host alone was not enough. A second OpenEMR on the same machine differs only by port or
+     * by the path it is mounted at, and a reference into it matched on host, so its trailing
+     * segment was kept and stored as one of our uuids. Scheme, host, port and the FHIR base
+     * path are all compared, against ServerConfig::getFhirUrl() rather than getOauthAddress()
+     * -- the FHIR base is what a reference to a resource on this server actually looks like.
+     *
+     * A reference that fails this check keeps localResource false, which clears its uuid
+     * below, so the failure mode is a resolution error rather than a silent mis-binding.
+     *
+     * @param array<string, mixed> $parts parse_url() output for the reference
+     */
+    private static function isLocalFhirReference(array $parts): bool
+    {
+        $base = parse_url((new ServerConfig())->getFhirUrl());
+        if (!is_array($base) || !isset($base['host'])) {
+            return false;
+        }
+
+        $referenceHost = $parts['host'] ?? null;
+        if (!is_string($referenceHost)) {
+            return false;
+        }
+        if (strtolower($referenceHost) !== strtolower($base['host'])) {
+            return false;
+        }
+
+        if (self::urlScheme($parts) !== self::urlScheme($base)) {
+            return false;
+        }
+
+        if (self::urlPort($parts) !== self::urlPort($base)) {
+            return false;
+        }
+
+        $basePath = rtrim(is_string($base['path'] ?? null) ? $base['path'] : '', '/');
+        if ($basePath === '') {
+            return true;
+        }
+        $referencePath = is_string($parts['path'] ?? null) ? $parts['path'] : '';
+
+        return str_starts_with($referencePath, $basePath . '/');
+    }
+
+    /**
+     * @param array<string, mixed> $parts
+     */
+    private static function urlScheme(array $parts): string
+    {
+        $scheme = $parts['scheme'] ?? null;
+
+        return is_string($scheme) ? strtolower($scheme) : '';
+    }
+
+    /**
+     * The explicit port, or the scheme's default so that https://host and https://host:443
+     * compare equal.
+     *
+     * @param array<string, mixed> $parts
+     */
+    private static function urlPort(array $parts): ?int
+    {
+        $port = $parts['port'] ?? null;
+        if (is_int($port)) {
+            return $port;
+        }
+        if (is_string($port) && $port !== '' && ctype_digit($port)) {
+            return (int) $port;
+        }
+
+        return match (self::urlScheme($parts)) {
+            'https' => 443,
+            'http' => 80,
+            default => null,
+        };
+    }
+
 }
