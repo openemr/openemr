@@ -696,21 +696,24 @@ elapses, when configured).
 **Per-user/per-account counters** (`users_secure.login_fail_counter`,
 `users_secure.mfa_fail_counter`, `patient_access_onsite.portal_fail_counter`)
 always zero on a successful authentication for that specific account.
-The shared per-IP counters (`ip_tracking.ip_login_fail_counter`,
-`ip_tracking.mfa_login_fail_counter`) do NOT zero on a successful login
-by default — they decay only via their configured
-`ip_time_reset_password_max_failed_logins` window. This keeps the per-IP
-throttle effective when an attacker holds valid credentials for one
-account and attempts to brute-force another from the same IP.
-Deployments behind shared NAT that prefer the convenience of a
-clean-on-success can enable `clear_ip_counter_on_auth_success` in globals
-to restore the pre-8.5.0 behavior.
 
-> **Recovery note**: if you disable `clear_ip_counter_on_auth_success`
-> AND set `ip_time_reset_password_max_failed_logins` to `0` (no
-> auto-reset), the per-IP counter can only be cleared manually by an
-> administrator via the IP Tracker report. Plan for one or the other
-> to provide a recovery path for legitimate users behind shared NAT.
+The shared per-IP counters (`ip_tracking.ip_login_fail_counter`,
+`ip_tracking.mfa_login_fail_counter`) also zero on a successful login by
+default (`clear_ip_counter_on_auth_success` = 1), matching the pre-8.5.0
+behaviour. Deployments in higher-security postures can flip the global
+to 0 so the per-IP counter decays only via its configured
+`ip_time_reset_password_max_failed_logins` window — that closes the case
+where an attacker holding valid credentials for one account can clear the
+in-progress IP throttle against another account from the same IP by
+logging in cleanly.
+
+> **Recovery note when opting into strict mode**: if you set
+> `clear_ip_counter_on_auth_success` to 0 AND
+> `ip_time_reset_password_max_failed_logins` to 0 (no auto-reset), the
+> per-IP counter has no automatic clearing path — an administrator has
+> to clear it manually via the IP Tracker report. Plan for one or the
+> other to provide a recovery path for legitimate users behind shared
+> NAT.
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >

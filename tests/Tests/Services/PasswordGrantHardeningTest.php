@@ -1168,12 +1168,17 @@ class PasswordGrantHardeningTest extends TestCase
 
     public function testPortalPasswordGrantResetsPortalAccountCounterOnSuccess(): void
     {
-        // Successful portal login clears the per-account failure
-        // counter for THIS account only. The shared per-IP counter
-        // must NOT clear on success — otherwise an attacker holding
-        // valid credentials for account A could use every successful
-        // login as a cache-clear for their in-progress brute force
-        // against account B.
+        // Successful portal login always clears the per-account
+        // failure counter for THIS account. The shared per-IP
+        // counter's clearing behaviour is admin-configurable via
+        // clear_ip_counter_on_auth_success (default ON — matches
+        // pre-8.5.0). This test locks in the strict-mode variant
+        // (setting=0): in that mode, portal success clears the
+        // per-account counter but the IP counter survives, so a
+        // valid login on account A cannot clear an in-progress
+        // brute force being accumulated against account B from the
+        // same IP. The setting-ON variant (default) is covered by
+        // testClearIpCounterOnAuthSuccessGlobalOptsIntoLegacyBehavior.
         $fixture = $this->portalFixtures()->installPortalPatient(
             portalLoginUsername: 'test-portal-user-reset-' . Uuid::uuid4()->toString(),
             plainPassword: 'CorrectPortalPassword1!'
@@ -1182,47 +1187,58 @@ class PasswordGrantHardeningTest extends TestCase
         $ipString = $this->clientIp;
         $this->snapshotIpTracking($ipString);
 
-        // Seed the per-account counter above zero so we can assert
-        // the success path zeroed it.
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE `patient_access_onsite` "
-                . "SET `portal_fail_counter` = 3, `portal_last_fail` = NOW() "
-                . "WHERE BINARY `portal_login_username` = ?",
-            [$fixture['portal_login_username']]
-        );
-        // And bump the IP counter — we assert this survives success.
-        QueryUtils::sqlStatementThrowException(
-            "INSERT INTO ip_tracking (ip_string, ip_login_fail_counter, ip_last_login_fail) "
-                . "VALUES (?, 3, NOW()) ON DUPLICATE KEY UPDATE "
-                . "ip_login_fail_counter = 3, ip_last_login_fail = NOW()",
-            [$ipString]
-        );
+        $globals = OEGlobalsBag::getInstance();
+        $originalSetting = $globals->getBoolean('clear_ip_counter_on_auth_success');
+        try {
+            $globals->set('clear_ip_counter_on_auth_success', false);
 
-        $auth = new AuthUtils('portal-api');
-        $login = $fixture['portal_login_username'];
-        $pw = $fixture['plain_password'];
-        $ok = $auth->confirmPassword($login, $pw, $fixture['email']);
-        $this->assertTrue($ok, 'Correct portal password must authenticate');
-        $this->assertSame(
-            0,
-            $this->readPortalAccountCounter($fixture['portal_login_username']),
-            'Successful portal login must reset the per-account counter'
-        );
-        $this->assertSame(
-            3,
-            $this->readIpCounter($ipString),
-            'Successful portal login must NOT reset the shared per-IP counter '
-                . '(otherwise a valid login on one account bypasses the brute-force gate on another)'
-        );
+            // Seed the per-account counter above zero so we can assert
+            // the success path zeroed it.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `patient_access_onsite` "
+                    . "SET `portal_fail_counter` = 3, `portal_last_fail` = NOW() "
+                    . "WHERE BINARY `portal_login_username` = ?",
+                [$fixture['portal_login_username']]
+            );
+            // And bump the IP counter — we assert this survives success
+            // under strict-mode.
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO ip_tracking (ip_string, ip_login_fail_counter, ip_last_login_fail) "
+                    . "VALUES (?, 3, NOW()) ON DUPLICATE KEY UPDATE "
+                    . "ip_login_fail_counter = 3, ip_last_login_fail = NOW()",
+                [$ipString]
+            );
+
+            $auth = new AuthUtils('portal-api');
+            $login = $fixture['portal_login_username'];
+            $pw = $fixture['plain_password'];
+            $ok = $auth->confirmPassword($login, $pw, $fixture['email']);
+            $this->assertTrue($ok, 'Correct portal password must authenticate');
+            $this->assertSame(
+                0,
+                $this->readPortalAccountCounter($fixture['portal_login_username']),
+                'Successful portal login must reset the per-account counter'
+            );
+            $this->assertSame(
+                3,
+                $this->readIpCounter($ipString),
+                'With clear_ip_counter_on_auth_success = 0, successful portal '
+                    . 'login must NOT reset the shared per-IP counter '
+                    . '(otherwise a valid login on one account bypasses the brute-force gate on another)'
+            );
+        } finally {
+            $globals->set('clear_ip_counter_on_auth_success', $originalSetting);
+        }
     }
 
-    public function testClearIpCounterOnAuthSuccessGlobalOptsIntoLegacyBehavior(): void
+    public function testClearIpCounterOnAuthSuccessGlobalFlipsBothWays(): void
     {
-        // Deployments behind shared NAT can opt back into "successful
-        // login zeros the shared IP counter" via the
-        // clear_ip_counter_on_auth_success global. Cover all three
-        // success paths (staff pw, portal pw, MFA) in a single test
-        // to pin the setting's uniform effect.
+        // The clear_ip_counter_on_auth_success global (default ON,
+        // preserving pre-8.5.0 behaviour) governs whether a
+        // successful login zeros the shared IP counter. Exercise
+        // both positions of the toggle in a single test to pin the
+        // setting's uniform effect across the portal + MFA success
+        // paths.
         $fixture = $this->portalFixtures()->installPortalPatient(
             portalLoginUsername: 'test-portal-user-optin-' . Uuid::uuid4()->toString(),
             plainPassword: 'OptInPortalPassword1!'
