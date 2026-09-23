@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Each test that needs data seeds one order (through ProcedureOrderFixtureManager, which also
  * brings the patient, encounter, lab and ordering practitioner) and one surgery for the same
- * patient; tearDown removes both.
+ * patient; the patient search also seeds a surgery for a second patient. tearDown removes them.
  *
  * OpenEMR vs FHIR conventions (tests pin current server behavior, not the spec):
  * - Search bundles use type "collection" (FhirResourcesService::createBundle()), not FHIR's
@@ -70,7 +70,11 @@ class ProcedureFhirApiTest extends TestCase
     /** @var list<string> uuid_registry entries (binary) created by seedProcedures() */
     private array $registeredUuids = [];
 
-    private ?int $surgeryId = null;
+    /** @var list<int> lists rows inserted by seedProcedures() and seedOtherPatientSurgery() */
+    private array $surgeryIds = [];
+
+    /** pid of the second patient inserted by seedOtherPatientSurgery() */
+    private ?int $otherPid = null;
 
     protected function setUp(): void
     {
@@ -81,15 +85,19 @@ class ProcedureFhirApiTest extends TestCase
     }
 
     /**
-     * Drop the surgery row, the uuids registered for it and for the order, then everything
-     * the order fixture manager created (order, codes, forms row, lab, practitioner,
+     * Drop the surgery rows, the second patient, the uuids registered for them and for the
+     * order, then everything the order fixture manager created (order, codes, forms row, lab, practitioner,
      * encounter, patient).
      */
     protected function tearDown(): void
     {
-        if ($this->surgeryId !== null) {
-            QueryUtils::sqlStatementThrowException("DELETE FROM lists WHERE id = ?", [$this->surgeryId]);
-            $this->surgeryId = null;
+        foreach ($this->surgeryIds as $surgeryId) {
+            QueryUtils::sqlStatementThrowException("DELETE FROM lists WHERE id = ?", [$surgeryId]);
+        }
+        $this->surgeryIds = [];
+        if ($this->otherPid !== null) {
+            QueryUtils::sqlStatementThrowException("DELETE FROM patient_data WHERE pid = ?", [$this->otherPid]);
+            $this->otherPid = null;
         }
         foreach ($this->registeredUuids as $uuid) {
             QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE uuid = ?", [$uuid]);
@@ -106,17 +114,21 @@ class ProcedureFhirApiTest extends TestCase
     // ---------------------------------------------------------------------
 
     /**
-     * Searching by patient returns both sources for that patient: the order and the surgery.
+     * Searching by patient returns both sources for that patient: the order and the surgery,
+     * and not another patient's surgery.
      */
     public function testSearchByPatientReturnsOrderAndSurgeryProcedures(): void
     {
         $seed = $this->seedProcedures();
+        $otherSurgery = $this->seedOtherPatientSurgery();
 
         $result = $this->testClient->get(self::ENDPOINT, ['patient' => $seed['patient']]);
         $this->assertSame(Response::HTTP_OK, $result->getStatusCode());
 
         $resources = $this->assertProcedureBundle($this->decodeJsonArray($result));
-        $this->assertEqualsCanonicalizing([$seed['order'], $seed['surgery']], $this->resourceIds($resources));
+        $ids = $this->resourceIds($resources);
+        $this->assertNotContains($otherSurgery, $ids, "Another patient's surgery should not be returned");
+        $this->assertEqualsCanonicalizing([$seed['order'], $seed['surgery']], $ids);
     }
 
     /**
@@ -268,6 +280,9 @@ class ProcedureFhirApiTest extends TestCase
         $this->assertIsArray($resource['code']);
         $coding = $this->firstElement($resource['code'], 'coding');
         $this->assertSame("http://www.ama-assn.org/go/cpt", $coding['system'] ?? null);
+        // The code currently keeps the code type prefix ("CPT4:44950"); accept it with or without.
+        $this->assertIsString($coding['code'] ?? null);
+        $this->assertMatchesRegularExpression('/^(CPT4:)?44950$/', $coding['code']);
     }
 
     /**
@@ -359,7 +374,7 @@ class ProcedureFhirApiTest extends TestCase
         $order = $rows[0];
 
         $surgeryUuid = $this->registerUuid(['table_name' => 'lists']);
-        $this->surgeryId = QueryUtils::sqlInsert(
+        $this->surgeryIds[] = QueryUtils::sqlInsert(
             <<<'SQL'
             INSERT INTO lists
             SET uuid = ?, pid = ?, type = 'surgery', title = ?, begdate = ?, diagnosis = ?,
@@ -376,6 +391,35 @@ class ProcedureFhirApiTest extends TestCase
             'encounter' => $this->uuidString($order, 'encounter_uuid'),
             'practitioner' => $this->uuidString($order, 'practitioner_uuid'),
         ];
+    }
+
+    /**
+     * Seed a second patient with one surgery, so a patient search has another patient's
+     * Procedure to leave out.
+     *
+     * @return string The surgery's uuid as a string
+     */
+    private function seedOtherPatientSurgery(): string
+    {
+        $nextPid = QueryUtils::fetchSingleValue("SELECT COALESCE(MAX(pid), 0) + 1 AS next_pid FROM patient_data", 'next_pid');
+        $this->assertIsNumeric($nextPid);
+        $this->otherPid = (int) $nextPid;
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO patient_data (pid, uuid, fname, lname) VALUES (?, ?, ?, ?)",
+            [$this->otherPid, $this->registerUuid(['table_name' => 'patient_data']), self::SURGERY_TITLE, self::SURGERY_TITLE]
+        );
+
+        $surgeryUuid = $this->registerUuid(['table_name' => 'lists']);
+        $this->surgeryIds[] = QueryUtils::sqlInsert(
+            <<<'SQL'
+            INSERT INTO lists
+            SET uuid = ?, pid = ?, type = 'surgery', title = ?, begdate = ?, diagnosis = ?,
+                activity = 1, user = 'admin', date = ?
+            SQL,
+            [$surgeryUuid, $this->otherPid, self::SURGERY_TITLE, self::SURGERY_BEGDATE, self::SURGERY_DIAGNOSIS, self::SURGERY_BEGDATE]
+        );
+
+        return UuidRegistry::uuidToString($surgeryUuid);
     }
 
     /**
