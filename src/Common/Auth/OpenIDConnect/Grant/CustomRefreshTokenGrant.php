@@ -185,7 +185,13 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         } else {
             $client = parent::validateClient($request);
             if (!($client instanceof ClientEntity)) {
-                $this->getSystemLogger()->error("Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
+                // $client may be false / null / a non-ClientEntity, so
+                // don't dereference it here. Log the client_id from the
+                // request if we can get it.
+                $this->getSystemLogger()->error(
+                    "Client returned was not a valid ClientEntity",
+                    ['client' => $this->getRequestParameter('client_id', $request, null)]
+                );
                 throw OAuthServerException::invalidClient($request);
             }
         }

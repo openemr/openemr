@@ -220,7 +220,13 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             $logger->debug('CustomAuthCodeGrant::validateClient: Using traditional client secret authentication');
             $client = parent::validateClient($request);
             if (!($client instanceof ClientEntity)) {
-                $logger->error("CustomAuthCodeGrant::validateClient: Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
+                // $client may be false / null / a non-ClientEntity, so
+                // don't dereference it here. Log the client_id from the
+                // request if we can get it.
+                $logger->error(
+                    "CustomAuthCodeGrant::validateClient: Client returned was not a valid ClientEntity",
+                    ['client' => $this->getRequestParameter('client_id', $request, null)]
+                );
                 throw OAuthServerException::invalidClient($request);
             }
         }
