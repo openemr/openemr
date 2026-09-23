@@ -51,6 +51,15 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
 
     const CATEGORY = 'clinical-note';
 
+    /**
+     * Official LOINC display values for clinical note types.
+     * @see https://loinc.org
+     */
+    private const LOINC_DISPLAY = [
+        '18842-5' => 'Discharge summary',
+        '11488-4' => 'Consult note',
+    ];
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
@@ -174,8 +183,16 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
             $docReference->setStatus('current');
         }
 
-        if (!empty($dataRecord['code'])) {
-            $type = UtilsService::createCodeableConcept($dataRecord['code'], FhirCodeSystemConstants::LOINC, $dataRecord['codetext']);
+        if (!empty($dataRecord['code']) && is_string($dataRecord['code'])) {
+            $code = $dataRecord['code'];
+            $display = self::LOINC_DISPLAY[$code] ?? $dataRecord['codetext'];
+            $type = UtilsService::createCodeableConcept([
+                $code => [
+                    'code' => $code,
+                    'description' => $display,
+                    'system' => FhirCodeSystemConstants::LOINC,
+                ]
+            ]);
             $docReference->setType($type);
         } else {
             $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
