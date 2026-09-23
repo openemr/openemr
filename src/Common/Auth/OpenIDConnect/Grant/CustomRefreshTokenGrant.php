@@ -37,6 +37,22 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      */
     private JWTClientAuthenticationService $jwtAuthService;
 
+    /**
+     * Per-request memo for validateClient() results. Both our
+     * override respondToAccessTokenRequest() and the parent's
+     * implementation call $this->validateClient($request) on the
+     * same request object — for JWT-authenticated clients the second
+     * call would fail because validateJWTClientAssertion records a
+     * one-time JTI on the first call. Cache by spl_object_id so the
+     * second call reuses the result.
+     *
+     * Keyed by spl_object_id($request); value is the ClientEntity
+     * returned by the previous validation.
+     *
+     * @var array<int, ClientEntity>
+     */
+    private array $validateClientMemo = [];
+
     public function __construct(private readonly SessionInterface $session, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
         parent::__construct($refreshTokenRepository);
@@ -169,9 +185,19 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      * check is skipped; otherwise the parent runs and enforces
      * whatever ClientRepository::validateClient() requires (which for
      * a confidential client is a matching client_secret).
+     *
+     * Result is memoized per request object so the same client is
+     * returned on repeat calls within a single refresh flow — the
+     * parent respondToAccessTokenRequest() runs validateClient()
+     * again after our override does, and validateJWTClientAssertion
+     * records a one-time JTI that would fail the second call.
      */
     protected function validateClient(ServerRequestInterface $request)
     {
+        $requestKey = spl_object_id($request);
+        if (isset($this->validateClientMemo[$requestKey])) {
+            return $this->validateClientMemo[$requestKey];
+        }
         if (isset($this->jwtAuthService) && $this->jwtAuthService->hasJWTClientAssertion($request)) {
             $clientId = $this->jwtAuthService->extractClientIdFromJWT($request);
             if (!is_string($clientId) || $clientId === '') {
@@ -199,6 +225,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             $this->getSystemLogger()->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
+        $this->validateClientMemo[$requestKey] = $client;
         return $client;
     }
 }
