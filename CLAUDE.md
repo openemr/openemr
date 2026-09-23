@@ -44,7 +44,7 @@ Regardless of how the development environment is set up, these rules always appl
 
 ### Environment-specific configuration
 
-Development environments vary. Check with your maintainer for the specifics of your setup. One reference configuration is documented below.
+Development environments vary. See [CONTRIBUTING.md's list of reference configurations](CONTRIBUTING.md#ai-agent-development-environment) for what is currently documented in this repo; the LXC appliance is summarized below for quick reference.
 
 #### LXC appliance (reference configuration)
 
