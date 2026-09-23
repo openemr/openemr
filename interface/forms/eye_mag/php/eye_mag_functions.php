@@ -486,11 +486,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo text('CycloMydril'); ?></label>
                         </td>
                         <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 2.5%" <?php
-                            if ($TROPICAMIDE == 'Tropicamide 2.5%') {
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 1%" <?php
+                            if ($TROPICAMIDE == 'Tropicamide 1%' || $TROPICAMIDE == 'Tropicamide 2.5%') {
                                 echo "checked='checked'";
                             } ?> />
-                            <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo text('Tropic 2.5%'); ?></label>
+                            <label for="PRIORS_Tropicamide" class="input-helper input-helper--checkbox"><?php echo xlt('Tropic 1%'); ?></label>
                         </td>
                       </tr>
                       <tr>
