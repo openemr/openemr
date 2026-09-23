@@ -490,7 +490,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             if ($TROPICAMIDE == 'Tropicamide 1%' || $TROPICAMIDE == 'Tropicamide 2.5%') {
                                 echo "checked='checked'";
                             } ?> />
-                            <label for="PRIORS_Tropicamide" class="input-helper input-helper--checkbox"><?php echo xlt('Tropic 1%'); ?></label>
+                            <label for="PRIORS_Tropicamide" class="input-helper input-helper--checkbox"><?php echo ($TROPICAMIDE == 'Tropicamide 2.5%') ? xlt('Tropic 2.5%') : xlt('Tropic 1%'); ?></label>
                         </td>
                       </tr>
                       <tr>

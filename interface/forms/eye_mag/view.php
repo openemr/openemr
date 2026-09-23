@@ -2430,9 +2430,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                             echo "checked='checked'";
                                                                                                                                       } ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
-                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 1%" <?php if ($TROPICAMIDE == 'Tropicamide 1%' || $TROPICAMIDE == 'Tropicamide 2.5%') {
+                                  <td><?php $tropLegacy = ($TROPICAMIDE == 'Tropicamide 2.5%'); ?><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="<?php echo attr($tropLegacy ? 'Tropicamide 2.5%' : 'Tropicamide 1%'); ?>" <?php if ($TROPICAMIDE == 'Tropicamide 1%' || $tropLegacy) {
                                             echo "checked='checked'";
-                                                                                                                                         } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 1%'); ?></label>
+                                      } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo $tropLegacy ? xlt('Tropic 2.5%') : xlt('Tropic 1%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
