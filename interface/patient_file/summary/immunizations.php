@@ -46,6 +46,12 @@ $code_text = '';
 
 if (isset($_GET['mode'])) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    if (
+        in_array($_GET['mode'], ['add', 'delete', 'added_error'], true)
+        && !AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])
+    ) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med write: Immunizations", xl("Immunizations"));
+    }
 
     /*
      * THIS IS A BUG. IF NEW IMMUN IS ADDED AND USER PRINTS PDF,
@@ -139,6 +145,9 @@ if (isset($_GET['mode'])) {
     } elseif ($_GET['mode'] == "edit") {
         $sql = "select * from immunizations where id = ? AND patient_id = ?";
         $result = sqlQuery($sql, [$_GET['id'], $pid]);
+        if (!is_array($result)) {
+            AccessDeniedHelper::denyWithTemplate("Immunization not found for current patient", xl("Immunizations"));
+        }
 
         $administered_date = new DateTime($result['administered_date']);
         $uuid = null;
