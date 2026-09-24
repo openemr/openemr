@@ -51,11 +51,19 @@ if ($session->has('pc_username')) {
 // different frame source page depending on session vars
 $userauthorized = $session->get('userauthorized');
 if ($userauthorized && OEGlobalsBag::getInstance()->getBoolean('docs_see_entire_calendar')) {
-    $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view";
+    $framesrc = "calendar/index.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+        'module' => 'PostCalendar',
+        'viewtype' => $viewtype,
+        'func' => 'view',
+    ]);
 } elseif ($userauthorized) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view&" . $pcuStr;
 } else {
-    $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=" . attr_url($viewtype);
+    $framesrc = "calendar/index.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+        'module' => 'PostCalendar',
+        'func' => 'view',
+        'viewtype' => $viewtype,
+    ]);
 }
 
 // Removed frame as it causes framing issues related to height

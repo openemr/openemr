@@ -50,7 +50,7 @@ if (!$result) { //If there are no lab data recorded
   <br />
     <?php
     echo xlt('Procedure') . ": " . text($result['theprocedure']) . " (" . text($result['thedate']) . ")<br />";
-    echo xlt('Encounter') . ": <a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($result['theencounter']) . "' target='RBot'>" . text($result['theencounter']) . "</a>";
+    echo xlt('Encounter') . ": <a href='../../patient_file/encounter/encounter_top.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['set_encounter' => $result['theencounter']]) . "' target='RBot'>" . text($result['theencounter']) . "</a>";
     ?>
   <br />
   </span><span class='text'>

@@ -151,7 +151,7 @@ use OpenEMR\Core\OEGlobalsBag;
                                   <td><input type="text" name="group_patient_comment[]" class="w-100" value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
                                   <?php if ($readonly == '') { ?>
                                       <td class="delete_btn">
-                                          <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId) . '&deleteParticipant=1&pid=' . attr_url($participant['pid']); ?>">&times;</a>
+                                          <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['method' => 'groupParticipants', 'group_id' => $groupId, 'deleteParticipant' => '1', 'pid' => $participant['pid']]); ?>">&times;</a>
                                       </td>
                                   <?php } ?>
                               </tr>

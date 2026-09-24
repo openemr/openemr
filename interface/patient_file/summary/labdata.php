@@ -313,7 +313,7 @@ function checkAll(bx) {
                                 echo "<td class='list_log'>"  . text($myrow['review_status']) . "</td>";
                                 echo "<td class='list_log'>";
                                 if (!$printable) {
-                                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($myrow['encounter_id']) . "' target='RBot'>";
+                                    echo "<a href='../../patient_file/encounter/encounter_top.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['set_encounter' => $myrow['encounter_id']]) . "' target='RBot'>";
                                     echo text($myrow['encounter_id']);
                                     echo "</a>";
                                 } else {

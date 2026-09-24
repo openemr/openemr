@@ -42,11 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_DocumentCategory.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "rxcuis" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
@@ -67,14 +62,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../index.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "key" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
+    'path' => __DIR__ . '/../../interface/billing/billing_tracker.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(unencoded\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -112,6 +107,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_patient_note.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Query parameter "codetype" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Query parameter "drug" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/add_edit_drug.php',
@@ -147,9 +147,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(unencoded\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/fax/faxq.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "encounter" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -357,21 +367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "blahblah" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "document_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "patient_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
@@ -542,6 +537,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Query parameter "codetype" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Query parameter "formid" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
@@ -582,11 +582,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/sdoh/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "set_encounter" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/track_anything/history.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/track_anything/history.php',
@@ -605,21 +600,6 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms_admin/forms_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms_admin/forms_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "name" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms_admin/forms_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand \\(unencoded, untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -702,49 +682,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "\\]" is concatenated by hand \\(attr\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "document_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/display_documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "patient_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/display_documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "itemized_test_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "numerator_label" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "pass_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "report_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "report_id" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -763,16 +703,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "viewtype" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_info.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "date" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "pid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
@@ -782,19 +717,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "site" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "set_pid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/lab_results_messages.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "begin" is concatenated by hand \\(attr\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -813,6 +738,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "noteid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "noteid" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
 ];
@@ -872,18 +802,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/onotes/office_comments_full.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "active" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/onotes/office_comments_full.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "offset" is concatenated by hand \\(attr\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/onotes/office_comments_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "offset" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/onotes/office_comments_full.php',
 ];
 $ignoreErrors[] = [
@@ -892,14 +812,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/tabs/main.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "redirect" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/public/index-portal.php',
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/moduleConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "site" is concatenated by hand \\(urlencode\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/public/index-portal.php',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/public/lab_setup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/public/primary_config.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(unencoded\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -910,6 +835,11 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "npi" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/public/primary_config_edit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/public/results.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(unencoded\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -972,29 +902,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "audit_render_id" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "auto_render_id" is concatenated by hand \\(urlencode\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "auto_render_name" is concatenated by hand \\(urlencode\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "pid" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "site" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "data" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1025,11 +935,6 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/weno_users.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "docId" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Listener/CCDAEventsSubscriber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1107,7 +1012,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Query parameter "language" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Query parameter "orderid" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "orderid" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
@@ -1120,6 +1035,11 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "orderid" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1137,8 +1057,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/types.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Query parameter "labid" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/orders/types.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Query parameter "order" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/types.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "order" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/orders/types.php',
 ];
 $ignoreErrors[] = [
@@ -1150,6 +1080,11 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/types.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "codetype" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "parent" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1237,19 +1172,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/diagnosis.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/diagnosis_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/diagnosis_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "formname" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/encounter_top.php',
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "target_element" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1332,49 +1257,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/search_code.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "code" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "fee" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "modifier" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "text" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "type" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "units" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/select_codes.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/view_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "payid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "payment_id" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1397,11 +1287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "doc_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "issue" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
@@ -1413,16 +1298,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "pagesize" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "pagestart" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "patient_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
 ];
@@ -1437,11 +1317,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "\\]" is concatenated by hand \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/history/history_full.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "pid" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
@@ -1452,13 +1327,28 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Query parameter "enc" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Query parameter "enid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "omitenc" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "ptid" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "ptid" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
@@ -1472,28 +1362,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "fill" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/printed_fee_sheet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "begin" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "mode" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "mode" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "patient_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 5,
     'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
 ];
 $ignoreErrors[] = [
@@ -1502,44 +1372,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "sortby" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "sortby" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "sortorder" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/reminder/patient_reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "document_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(unencoded\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "category" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/rules/patient_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "entryID" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/rules/patient_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "item" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/rules/patient_data.php',
+    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "default" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1547,22 +1387,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "formname" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(unencoded\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "visitid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
 ];
@@ -1577,38 +1402,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/advancedirectives.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "browsenum" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 20,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "browsenum" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "group_number\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "plan_name\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "policy_number\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "provider\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "set_pid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 20,
     'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
 ];
 $ignoreErrors[] = [
@@ -1617,108 +1412,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_DOB\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_city\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_country\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_employer\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_employer_city\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_employer_country\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_employer_postal_code\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_employer_state\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_employer_street\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_fname\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_lname\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_mname\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_phone\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_postal_code\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_sex\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_ss\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_state\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "subscriber_street\\.value" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/browse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "document_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
+    'message' => '#^Query parameter "formname" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "patient_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 5,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
@@ -1732,8 +1437,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "active" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/disclosure_full.php',
 ];
 $ignoreErrors[] = [
@@ -1742,19 +1447,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/disclosure_full.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "leftrecords" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/disclosure_full.php',
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/immunizations.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "offset" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/disclosure_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "set_encounter" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "sortby" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/labdata.php',
+    'path' => __DIR__ . '/../../interface/patient_file/summary/immunizations.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(unencoded\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1762,19 +1462,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/labdata.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "set_encounter" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/labdata_fragment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "formname" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/lbf_fragment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/list_amendments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "orderid" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1877,14 +1567,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full_add.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "formid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/track_anything_fragment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "transid" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/transaction/transactions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "title" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1895,6 +1585,11 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "transid" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/transaction/transactions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "site" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -1957,11 +1652,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "report_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/reports/report_results.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "enc" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/sales_by_item.php',
@@ -1982,34 +1672,29 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Query parameter "layout_id" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/super/edit_layout.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Query parameter "group_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_layout_props.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "group_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 4,
+    'message' => '#^Query parameter "groupid" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/appointmentComponent.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "group_id" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsGeneralData.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "group_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'message' => '#^Query parameter "group_id" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsParticipants.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "pid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsParticipants.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "group_id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/listGroups.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "\\]" is concatenated by hand \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/addrbook_edit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "userid" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -2045,26 +1730,6 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/user_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin_add.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin_add.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -2117,11 +1782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/CouchDB.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "category" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "item" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
@@ -2162,91 +1822,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/dicom_frame.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "fname" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "ftype" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "pid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "bht03" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 60,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "err" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "errseg" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "fname" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 49,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "ftype" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 47,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "ftype" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "icn" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "pid" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "rsptype" is concatenated by hand \\(attr_url\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "rsptype" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "trace" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "tracecheck" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand \\(unencoded int\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
@@ -2260,6 +1835,11 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "v" is concatenated by hand \\(unencoded, untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../library/options.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand in a template \\(js_escape\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/options.js.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "id" is concatenated by hand \\(attr_url\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
@@ -2304,6 +1884,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Query parameter "site" is concatenated by hand in a template \\(attr_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 4,
+    'path' => __DIR__ . '/../../portal/index.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Query parameter "site" is concatenated by hand in a template \\(js_url\\(\\)\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/index.php',
 ];
 $ignoreErrors[] = [
@@ -2452,31 +2037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sphere/initial_response.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/AbstractGenerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "delete" is concatenated by hand \\(urlencode\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/AbstractGenerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "location" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/AbstractGenerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "csrf_token_form" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "partner" is concatenated by hand \\(urlencode\\(\\), untyped\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Query parameter "id" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
@@ -2540,21 +2100,6 @@ $ignoreErrors[] = [
     'message' => '#^Query parameter "\\(dynamic\\)" is concatenated by hand \\(dynamic key\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "_id" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "name" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Query parameter "value" is concatenated by hand \\(unencoded string\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Query parameter "aggregators" is concatenated by hand \\(urlencode\\(\\), typed\\)\\. Build the query with QueryString\\:\\:build\\(\\)\\.$#',

@@ -132,7 +132,7 @@ use OpenEMR\Core\OEGlobalsBag;
             <tbody>
             <?php foreach ($therapyGroups as $group) { ?>
                 <tr>
-                    <td><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
+                    <td><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['method' => 'groupDetails', 'group_id' => $group['group_id']]); ?>"><?php echo text($group['group_name']);?></a></td>
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
@@ -148,7 +148,7 @@ use OpenEMR\Core\OEGlobalsBag;
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
                         if ($group['group_status'] == 10) { ?>
-                            <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr_url($group['group_id']); ?>"><?php
+                            <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['method' => 'listGroups', 'deleteGroup' => '1', 'group_id' => $group['group_id']]); ?>"><?php
                             if ($edit) { ?>
                                 <button class="btn btn-danger">&times;</button><?php
                             } ?>

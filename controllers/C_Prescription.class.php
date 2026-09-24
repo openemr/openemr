@@ -413,7 +413,7 @@ class C_Prescription extends Controller
         if ($dispenseError) {
             // Show error and return to prescription list
             echo "<script>alert(" . js_escape($dispenseError) . "); ";
-            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url($patientId) . "';</script>";
+            echo "window.location.href = 'controller.php?prescription&list&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['id' => $patientId]) . "';</script>";
             exit;
         }
 

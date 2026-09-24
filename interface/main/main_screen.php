@@ -319,7 +319,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id="challenge_form">';
+                echo '      <form method="post" action="main_screen.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['auth' => 'login', 'site' => $_GET['site']]) . '" target="_top" name="challenge_form" id="challenge_form">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Provide TOTP code') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -360,7 +360,7 @@ if (isset($_POST['new_login_session_management'])) {
                 }
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
+                echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['auth' => 'login', 'site' => $_GET['site']]) . '" target="_top">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Insert U2F Key') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -486,7 +486,7 @@ if ($is_expired) {
     ];
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     // Load the calendar, at the end
-    $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
+    $_notes = "calendar/index.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['pid' => $_GET['pid']]);
     $_notes = (isset($_GET['date'])) ? $_notes . "&date=" . attr_url($_GET['date']) : $_notes;
     $_tabs[] = [
         'notes' => $_notes,

@@ -1092,7 +1092,7 @@ function make_insurance() {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
+                <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['payid' => $payid]) : ""; ?>' onsubmit='return validate();'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>

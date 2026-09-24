@@ -105,11 +105,12 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
-            'key=' . urlencode((string) $filename) .
-            '&location=' . urlencode((string) $location) .
-            '&delete=' . urlencode($delete) .
-            '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session));
+        $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped([
+            'key' => (string) $filename,
+            'location' => (string) $location,
+            'delete' => $delete,
+            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+        ]);
         echo "<script type='text/JavaScript'>window.location = " . js_escape($url) . "</script>";
     }
 }
