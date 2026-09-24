@@ -1144,7 +1144,7 @@ class Events extends Base
         if (empty($appts)) {
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
-        $data = [];
+        $data = ['appts' => []];
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
@@ -1155,9 +1155,13 @@ class Events extends Base
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
                 $this->curl->getResponse();
-                $data       = [];
+                $data = ['appts' => []];
                 sleep(1);
             }
+        }
+        // the last batch already went out if the count landed exactly on a batch boundary
+        if ($data['appts'] === []) {
+            return true;
         }
         $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
         $this->curl->setData($data);
