@@ -22,8 +22,10 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
@@ -1445,8 +1447,8 @@ return [
         $return = (new FhirMetaDataRestController())->getMetaData();
         return $return;
     },
-    "GET /fhir/.well-known/smart-configuration" => function () {
-        $return = (new SMARTConfigurationController())->getConfig();
+    "GET /fhir/.well-known/smart-configuration" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $return = (new SMARTConfigurationController($globalsBag, new ScopeRepository(), new ServerConfig()))->getConfig();
 
         return $return;
     },
