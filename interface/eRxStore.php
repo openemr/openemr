@@ -7,9 +7,13 @@
  * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013-2015 Sam Likins <sam.likins@wsi-services.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Database\QueryUtils;
 
 class eRxStore
 {
@@ -86,12 +90,12 @@ class eRxStore
     /**
      * Return patient information using patient Id
      * @param int $patientId Id of patient
-     * @return array              Specified patient information: index [pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, date_of_birth, sex]
+     * @return array              Specified patient information: index [pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, phone_cell, date_of_birth, sex]
      */
     public function getPatientByPatientId($patientId)
     {
         return sqlQuery(
-            'SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
+            'SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, phone_cell, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
 			FROM patient_data
 			WHERE pid = ?;',
             [$patientId]
@@ -162,12 +166,15 @@ class eRxStore
 
     public function getPatientDiagnosisByPatientId($patientId)
     {
-        return sqlStatement(
-            'SELECT diagnosis, begdate, enddate, title, date
+        // Newest onset first: PatientDiagnosisList keeps the first row per code.
+        return QueryUtils::sqlStatementThrowException(
+            <<<'SQL'
+            SELECT diagnosis, begdate, enddate, title, date
             FROM lists
-            WHERE `type` = \'medical_problem\'
+            WHERE `type` = 'medical_problem'
                 AND pid = ?
-                ;',
+            ORDER BY begdate DESC, id DESC
+            SQL,
             [$patientId]
         );
     }
