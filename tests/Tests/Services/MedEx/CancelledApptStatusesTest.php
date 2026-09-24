@@ -57,18 +57,17 @@ class CancelledApptStatusesTest extends TestCase
     {
         $this->removeFixtures();
 
-        $globals = OEGlobalsBag::getInstance();
         if ($this->globalWasSet) {
-            $globals->set(self::GLOBAL_NAME, $this->savedGlobal);
+            OEGlobalsBag::getInstance()->set(self::GLOBAL_NAME, $this->savedGlobal);
         } else {
-            $globals->remove(self::GLOBAL_NAME);
+            $this->removeGlobal();
         }
     }
 
     #[Test]
     public function defaultsToCancelledStatusesWhenTheGlobalIsMissing(): void
     {
-        OEGlobalsBag::getInstance()->remove(self::GLOBAL_NAME);
+        $this->removeGlobal();
 
         $this->assertSame(['%', 'x'], $this->statuses());
     }
@@ -129,6 +128,16 @@ class CancelledApptStatusesTest extends TestCase
     private function setGlobal(array $statuses): void
     {
         OEGlobalsBag::getInstance()->set(self::GLOBAL_NAME, implode(';', $statuses));
+    }
+
+    /**
+     * OEGlobalsBag::set() writes through to $GLOBALS and has()/get() read it back,
+     * but remove() only clears the bag's own copy, so clear both.
+     */
+    private function removeGlobal(): void
+    {
+        OEGlobalsBag::getInstance()->remove(self::GLOBAL_NAME);
+        unset($GLOBALS[self::GLOBAL_NAME]);
     }
 
     /**
