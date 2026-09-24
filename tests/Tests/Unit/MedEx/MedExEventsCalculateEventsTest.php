@@ -41,6 +41,10 @@ class MedExEventsCalculateEventsTest extends TestCase
             'second Tuesday, two months' => ['2', '2', '2026-10-01', '2026-11-30', ['2026-10-13', '2026-11-10']],
             // November 2026 has four Fridays, so "fifth" falls back to the last one.
             'fifth Friday falls back to the last' => ['5', '5', '2026-10-01', '2026-11-30', ['2026-10-30', '2026-11-27']],
+            // Out-of-range specs yield no dates instead of looping down from the stored week.
+            'week 0 is out of range' => ['0', '2', '2026-10-01', '2026-10-31', []],
+            'week 1000000 is out of range' => ['1000000', '2', '2026-10-01', '2026-10-31', []],
+            'day 7 is out of range' => ['2', '7', '2026-10-01', '2026-10-31', []],
         ];
     }
 

@@ -1225,8 +1225,9 @@ class Events extends Base
                     break; }
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
-                $rnum  = filter_var($event_recurrspec['event_repeat_on_num'], FILTER_VALIDATE_INT);
-                $rday  = filter_var($event_recurrspec['event_repeat_on_day'], FILTER_VALIDATE_INT);
+                // Week 1..5 (5 = last) and day 0..6 (Sunday..Saturday), as RecurrenceSpec defines them.
+                $rnum  = filter_var($event_recurrspec['event_repeat_on_num'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]]);
+                $rday  = filter_var($event_recurrspec['event_repeat_on_day'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 6]]);
                 if ($rnum === false || $rday === false) {
                     break;
                 }
