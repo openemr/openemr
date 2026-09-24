@@ -104,6 +104,21 @@ On first `sbx run` you are asked to pick a global network policy. `Balanced`
 work — it did not block image pulls, Composer, or npm during testing. Change it
 later with `sbx policy`.
 
+Check what the policy actually blocks before relying on it — in particular
+whether a sandbox can reach other machines on your network. "Common developer
+sites allowed" does not say whether private address ranges are denied, and many
+OpenEMR contributors have clinic or server systems on the same LAN. From inside
+a sandbox:
+
+```bash
+curl -sS --max-time 5 http://<a-host-on-your-lan>/ >/dev/null; echo "lan: $?"
+curl -sS --max-time 5 https://github.com/ >/dev/null;        echo "github: $?"
+```
+
+The second should succeed and the first should not. If the LAN request goes
+through, tighten it — `Locked Down` plus explicit allow rules is the stricter
+starting point, at the cost of adding hosts as you hit them.
+
 ## Step 3 — Recommended: a dedicated user account
 
 The microVM is what isolates the agent's processes, so this step is not what
@@ -128,6 +143,11 @@ sudo usermod -aG kvm openemr-agent
 sudo chmod 750 /home/openemr-agent
 sudo chmod 750 "$HOME"          # if your home directory is world-readable
 ```
+
+> `chmod 750` on your own home directory will break anything that reads into it
+> as another user — a `~/public_html` served by a local web server, some desktop
+> file-sharing setups. Check before running it on a machine that does more than
+> development.
 
 Enter it with `sudo -u openemr-agent -i`. Confirm the separation:
 
@@ -267,7 +287,8 @@ openemr-cmd worktree list       # worktrees, status, assigned ports
   `sbx ports <sandbox-name> --publish <port>:<port>` on the host. You cannot do
   this from inside the sandbox.
 - Git pushes go over HTTPS; the token is attached by a host-side proxy. Do not
-  try to configure SSH keys, and do not tell the human to push from their host.
+  try to configure SSH keys. Push from the sandbox yourself rather than asking
+  the human to push from the shared directory.
 - You cannot open a pull request against `openemr/openemr`. Push the branch to
   the fork, then write the PR body to `<git-dir>/pr-<branch-slug>.md` as plain
   markdown — no title line, no code fences, no script — and tell the human the
@@ -376,11 +397,16 @@ attached by a host-side proxy and never enters the sandbox filesystem.
    | Pull requests | Read and write |
    | Issues | Read and write |
 
-2. Authenticate `gh` on the host with that token:
+2. Authenticate `gh` on the host **as the agent user** with that token:
 
    ```bash
-   gh auth login        # GitHub.com → HTTPS → paste an authentication token
+   sudo -u <agent-user> -i    # if you created one in Step 3
+   gh auth login              # GitHub.com → HTTPS → paste an authentication token
    ```
+
+   Do not run this as yourself. It replaces your personal `gh` login with the
+   fork-only token, which breaks the `gh pr create` step below and mixes the
+   two identities this setup keeps apart.
 
 3. Store it as a sandbox secret. Storing the *command* rather than the value
    means a rotated token is picked up automatically:
