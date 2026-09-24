@@ -248,7 +248,10 @@ class FhirObservationVitalsWriteTest extends TestCase
         $parsed = $this->parse(self::observation([
             'code' => self::loincCode('8867-4'),
             'valueQuantity' => ['value' => 72, 'code' => '/min'],
-            'effectiveDateTime' => '2026-03-04T09:30:00-05:00',
+            // Deliberately not the server's own offset: on 2026-03-04 America/New_York is
+            // UTC-05:00, so sending -05:00 here would pass even if the offset were dropped
+            // rather than applied. This is the same instant expressed as UTC.
+            'effectiveDateTime' => '2026-03-04T14:30:00Z',
         ]));
 
         // The row this Observation coalesces onto is keyed by encounter + date, so two

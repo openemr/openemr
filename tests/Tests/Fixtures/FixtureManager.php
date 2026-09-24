@@ -755,6 +755,23 @@ class FixtureManager
             return;
         }
         $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        // The registry rows go before the mapping and vitals rows they describe. A mapped
+        // registry row whose mapping has been deleted is not inert: the Observation read
+        // path resolves an id through the registry first, finds no mapping behind it, and
+        // answers a validation message instead of an empty result -- and every run would
+        // leave more of them behind.
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE uuid IN "
+            . "(SELECT mapping.uuid FROM uuid_mapping mapping "
+            . "JOIN form_vitals vitals ON vitals.uuid = mapping.target_uuid "
+            . "WHERE mapping.`table` = 'form_vitals' AND vitals.pid IN ($placeholders))",
+            $pids
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'form_vitals' AND uuid IN "
+            . "(SELECT uuid FROM form_vitals WHERE pid IN ($placeholders))",
+            $pids
+        );
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM uuid_mapping WHERE `table` = 'form_vitals' AND target_uuid IN "
             . "(SELECT uuid FROM form_vitals WHERE pid IN ($placeholders))",

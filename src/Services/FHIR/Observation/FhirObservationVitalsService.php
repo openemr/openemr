@@ -1350,26 +1350,41 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
 
         $columns = FhirPayloadReader::stringKeyed($openEmrRecord['columns'] ?? null);
-        $existing = $this->service->getVitalsFormForEncounterDate($context['eid'], $context['pid'], $date);
 
-        $vitalsData = $columns;
-        $vitalsData['pid'] = $context['pid'];
-        $vitalsData['eid'] = $context['eid'];
-        $vitalsData['authorized'] = 1;
-        if ($existing !== null) {
-            // A second vital sign for the same reading updates the row the first one created
-            // rather than starting another Vitals form on the encounter.
-            $vitalsData['id'] = $existing['id'];
-            // The row uuid has to travel with an update as well as an insert.
-            // UuidMappingEventsSubscriber keys the Observation mappings off the saved
-            // record's uuid, and without one it inserts uuid_mapping rows with a null
-            // target_uuid, which the column rejects.
-            $vitalsData['uuid'] = $existing['uuid'];
-        } else {
-            $vitalsData['date'] = $date;
-            $vitalsData['activity'] = 1;
-        }
-        $saved = $this->service->saveVitalsArray($vitalsData);
+        // The lookup and the save have to be one step. Two clients posting different vital
+        // signs for the same reading would otherwise both find no row and both insert one,
+        // leaving the encounter with two Vitals forms for a single reading -- which is the
+        // thing the coalescing exists to prevent, and a bulk importer posting a visit's
+        // vitals in parallel is the case that hits it. The form_encounter row is what every
+        // writer for this encounter has in common, so it is what they queue on.
+        $saved = QueryUtils::inTransaction(function () use ($columns, $context, $date): array {
+            QueryUtils::querySingleRow(
+                'SELECT `encounter` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ? FOR UPDATE',
+                [$context['eid'], $context['pid']]
+            );
+
+            $existing = $this->service->getVitalsFormForEncounterDate($context['eid'], $context['pid'], $date);
+
+            $vitalsData = $columns;
+            $vitalsData['pid'] = $context['pid'];
+            $vitalsData['eid'] = $context['eid'];
+            $vitalsData['authorized'] = 1;
+            if ($existing !== null) {
+                // A second vital sign for the same reading updates the row the first one
+                // created rather than starting another Vitals form on the encounter.
+                $vitalsData['id'] = $existing['id'];
+                // The row uuid has to travel with an update as well as an insert.
+                // UuidMappingEventsSubscriber keys the Observation mappings off the saved
+                // record's uuid, and without one it inserts uuid_mapping rows with a null
+                // target_uuid, which the column rejects.
+                $vitalsData['uuid'] = $existing['uuid'];
+            } else {
+                $vitalsData['date'] = $date;
+                $vitalsData['activity'] = 1;
+            }
+
+            return $this->service->saveVitalsArray($vitalsData);
+        });
         $savedUuid = $saved['uuid'] ?? null;
         if (!is_string($savedUuid) || $savedUuid === '') {
             $result = new ProcessingResult();
@@ -1448,8 +1463,15 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             return $result;
         }
         $rowUuid = UuidRegistry::uuidToString($targetUuid);
+        // The row's own encounter and date come back with it: both are shared by every
+        // vital sign on the record, so a PUT naming different ones is changing more than
+        // the Observation it addresses.
         $row = QueryUtils::querySingleRow(
-            'SELECT `id`, `pid` FROM `' . VitalsService::TABLE_VITALS . '` WHERE `uuid` = ?',
+            'SELECT vitals.`id`, vitals.`pid`, vitals.`date`, `forms`.`encounter`'
+            . ' FROM `' . VitalsService::TABLE_VITALS . '` vitals'
+            . " JOIN `forms` ON `forms`.`form_id` = vitals.`id` AND `forms`.`formdir` = 'vitals'"
+            . ' WHERE vitals.`uuid` = ?'
+            . ' AND (`forms`.`deleted` IS NULL OR `forms`.`deleted` = 0)',
             [UuidRegistry::uuidToBytes($rowUuid)]
         );
         $rowId = is_array($row) ? ($row['id'] ?? null) : null;
@@ -1461,10 +1483,20 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
 
         // Same stored-patient check the other write services make: a leaked Observation id
-        // must not let a caller write into a different patient's chart.
+        // must not let a caller write into a different patient's chart. This is checked
+        // before the encounter and date below, so "not yours" wins over "wrong encounter".
         if (!is_numeric($rowPid) || (int) $rowPid !== $context['pid']) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['uuid' => 'Observation not found for that id']);
+            return $result;
+        }
+
+        $rowEncounter = $row['encounter'] ?? null;
+        if (!is_numeric($rowEncounter) || (int) $rowEncounter !== $context['eid']) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'encounter' => 'Observation.encounter does not match the vitals record this id identifies',
+            ]);
             return $result;
         }
 
@@ -1473,12 +1505,25 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             throw new InvalidArgumentException('Parsed vitals record is missing its date');
         }
 
+        // The date is half the identity insertOpenEMRRecord() coalesces on. Writing the
+        // payload's date onto the row would move every sibling vital to the new time and
+        // leave a later POST for the original time creating a second Vitals form, so a
+        // changed effectiveDateTime is refused rather than applied.
+        $rowDate = $row['date'] ?? null;
+        if ($rowDate !== $date) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'effectiveDateTime' => 'Observation.effectiveDateTime is shared by every vital sign on this '
+                    . 'record and cannot be changed through one Observation',
+            ]);
+            return $result;
+        }
+
         $vitalsData = FhirPayloadReader::stringKeyed($updatedOpenEMRRecord['columns'] ?? null);
         $vitalsData['id'] = (int) $rowId;
         $vitalsData['uuid'] = $rowUuid;
         $vitalsData['pid'] = $context['pid'];
         $vitalsData['eid'] = $context['eid'];
-        $vitalsData['date'] = $date;
         $vitalsData['authorized'] = 1;
         // saveVitalsArray() builds its UPDATE from the keys it is handed, so the other
         // vital signs sharing this row are left alone.

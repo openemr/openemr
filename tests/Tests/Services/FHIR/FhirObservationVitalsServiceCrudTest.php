@@ -38,6 +38,8 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
     private string $patientUuid;
     private string $encounterUuid;
     private int $pid;
+    /** @var list<string> Encounters created by individual tests, removed in tearDown(). */
+    private array $extraEncounterUuids = [];
 
     protected function setUp(): void
     {
@@ -79,9 +81,66 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
         $this->fhirObservationService->setLogger($this->createMock(LoggerInterface::class));
     }
 
+    /**
+     * Creates an encounter for a patient and records it for cleanup.
+     */
+    private function createEncounterFor(string $patientUuid): string
+    {
+        $raw = file_get_contents(__DIR__ . '/../../Fixtures/FHIR/encounter.json');
+        $this->assertIsString($raw);
+        $encounterRaw = json_decode($raw, true);
+        $this->assertIsArray($encounterRaw);
+        $encounterPayload = $this->arrayValue($encounterRaw[0] ?? null);
+        $encounterPayload['subject'] = ['reference' => 'Patient/' . $patientUuid];
+
+        $encounterService = new FhirEncounterService();
+        $encounterService->setLogger($this->createMock(LoggerInterface::class));
+        $encounterInsert = $encounterService->insert(new FHIREncounter($encounterPayload));
+        $this->assertTrue(
+            $encounterInsert->isValid(),
+            'Encounter insert failed: ' . json_encode($encounterInsert->getValidationMessages())
+        );
+        $encounterUuid = $this->stringValue($this->firstDataRow($encounterInsert)['euuid'] ?? null);
+        $this->extraEncounterUuids[] = $encounterUuid;
+
+        return $encounterUuid;
+    }
+
+    /**
+     * Returns the uuid of a second patient fixture, for the cross-patient tests.
+     */
+    private function otherPatientUuid(): string
+    {
+        $otherPatient = $this->fixtureManager->getPatientFixtures()[1] ?? null;
+        $this->assertIsArray($otherPatient, 'a second patient fixture is required for this test');
+        $otherRecord = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT uuid FROM patient_data WHERE pubpid = ?",
+            [$otherPatient['pubpid']]
+        ));
+
+        return UuidRegistry::uuidToString($otherRecord['uuid']);
+    }
+
+    private function currentPulse(): float
+    {
+        $row = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT pulse FROM form_vitals WHERE pid = ?",
+            [$this->pid]
+        ));
+
+        return $this->floatValue($row['pulse'] ?? null);
+    }
+
     protected function tearDown(): void
     {
         $this->fixtureManager->removeObservationFixtures();
+        foreach ($this->extraEncounterUuids as $extraEncounterUuid) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM form_encounter WHERE uuid = ?",
+                [UuidRegistry::uuidToBytes($extraEncounterUuid)]
+            );
+        }
+        $this->extraEncounterUuids = [];
         // This run's encounter only -- a LIKE sweep would also delete the encounters of any
         // other worker running this suite and fail them with rows that vanished mid-test.
         if (isset($this->encounterUuid)) {
@@ -297,21 +356,74 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
     public function testUpdateRejectsAnIdBelongingToAnotherPatient(): void
     {
         $pulseUuid = $this->insertObservation('8867-4');
+        $originalPulse = $this->currentPulse();
 
-        $otherPatient = $this->fixtureManager->getPatientFixtures()[1] ?? null;
-        $this->assertIsArray($otherPatient, 'a second patient fixture is required for this test');
-        $otherRecord = QueryUtils::querySingleRow(
-            "SELECT uuid FROM patient_data WHERE pubpid = ?",
-            [$otherPatient['pubpid']]
-        );
-        $this->assertIsArray($otherRecord);
+        // The other patient gets their own encounter. Sending the first patient's encounter
+        // would be refused for that reason alone, and the id-ownership check this test is
+        // about would never run.
+        $otherPatientUuid = $this->otherPatientUuid();
+        $otherEncounterUuid = $this->createEncounterFor($otherPatientUuid);
 
         $payload = $this->observationPayload('8867-4');
         $payload['id'] = $pulseUuid;
-        $payload['subject'] = ['reference' => 'Patient/' . UuidRegistry::uuidToString($otherRecord['uuid'])];
+        $payload['subject'] = ['reference' => 'Patient/' . $otherPatientUuid];
+        $payload['encounter'] = ['reference' => 'Encounter/' . $otherEncounterUuid];
+        $quantity = $this->arrayValue($payload['valueQuantity'] ?? null);
+        $quantity['value'] = 88;
+        $payload['valueQuantity'] = $quantity;
 
         $result = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
         $this->assertFalse($result->isValid(), 'a leaked Observation id must not write into another chart');
+        $this->assertArrayHasKey('uuid', $this->arrayValue($result->getValidationMessages()));
+        $this->assertEqualsWithDelta(
+            $originalPulse,
+            $this->currentPulse(),
+            0.001,
+            'the rejected update must not have reached the first patient\'s record'
+        );
+    }
+
+    #[Test]
+    public function testUpdateRejectsAChangedEffectiveDateTime(): void
+    {
+        $this->insertObservation('29463-7');
+        $pulseUuid = $this->insertObservation('8867-4');
+
+        // The date belongs to the whole record, not to one Observation on it. Applying this
+        // would move the weight above to the new time as well, and leave a later POST for
+        // the original time starting a second Vitals form.
+        $payload = $this->observationPayload('8867-4', '2026-03-04T14:00:00-05:00');
+        $payload['id'] = $pulseUuid;
+
+        $result = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('effectiveDateTime', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(1, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testUpdateRejectsAnEncounterOtherThanTheRecordsOwn(): void
+    {
+        $pulseUuid = $this->insertObservation('8867-4');
+        $originalPulse = $this->currentPulse();
+
+        // A second encounter for the same patient: it passes the subject/encounter
+        // agreement check, so only the comparison against the record's own encounter
+        // catches it. saveVitalsArray() drops eid on update, so without this the write
+        // would answer 200 and silently change nothing.
+        $otherEncounterUuid = $this->createEncounterFor($this->patientUuid);
+
+        $payload = $this->observationPayload('8867-4');
+        $payload['id'] = $pulseUuid;
+        $payload['encounter'] = ['reference' => 'Encounter/' . $otherEncounterUuid];
+        $quantity = $this->arrayValue($payload['valueQuantity'] ?? null);
+        $quantity['value'] = 88;
+        $payload['valueQuantity'] = $quantity;
+
+        $result = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('encounter', $this->arrayValue($result->getValidationMessages()));
+        $this->assertEqualsWithDelta($originalPulse, $this->currentPulse(), 0.001);
     }
 
     #[Test]
