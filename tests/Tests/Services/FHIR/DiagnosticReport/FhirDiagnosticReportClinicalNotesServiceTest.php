@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Services\FHIR\DiagnosticReport;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
 use OpenEMR\Services\FHIR\DiagnosticReport\FhirDiagnosticReportClinicalNotesService;
+use OpenEMR\Services\FHIR\UtilsService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -40,15 +41,18 @@ class FhirDiagnosticReportClinicalNotesServiceTest extends TestCase
     }
 
     /**
-     * A dated note keeps its date as effective[x].
+     * A dated note keeps its date, converted to UTC, as effective[x] and as issued.
      */
     #[Test]
     public function datedNoteKeepsItsEffectiveDate(): void
     {
-        $effective = $this->parseToJson('2026-03-02')['effectiveDateTime'] ?? null;
+        $json = $this->parseToJson('2026-03-02');
+        $expected = UtilsService::getLocalDateAsUTC('2026-03-02');
 
-        $this->assertIsString($effective);
-        $this->assertStringStartsWith('2026-03-0', $effective);
+        $this->assertIsString($expected);
+        $this->assertStringStartsWith('2026-03-0', $expected);
+        $this->assertSame($expected, $json['effectiveDateTime'] ?? null);
+        $this->assertSame($expected, $json['issued'] ?? null);
     }
 
     /**
