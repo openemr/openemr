@@ -1199,6 +1199,7 @@ class Events extends Base
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
         $data = ['appts' => []];
+        $response = null;
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
@@ -1208,19 +1209,19 @@ class Events extends Base
                 $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
-                $this->curl->getResponse();
+                $response = $this->curl->getResponse();
                 $data = ['appts' => []];
                 sleep(1);
             }
         }
-        // the last batch already went out if the count landed exactly on a batch boundary
-        if ($data['appts'] === []) {
-            return true;
+        // when the count lands exactly on a batch boundary, the last batch has already
+        // gone out and $response holds its reply
+        if ($data['appts'] !== []) {
+            $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
+            $this->curl->setData($data);
+            $this->curl->makeRequest();
+            $response = $this->curl->getResponse();
         }
-        $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
-        $this->curl->setData($data);
-        $this->curl->makeRequest();
-        $response = $this->curl->getResponse();
 
         if (isset($response['success'])) {
             return $response;
