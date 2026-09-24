@@ -316,6 +316,9 @@ class Events extends Base
         $prefs = sqlQuery($sql2);
 
         foreach ($events as $event) {
+            if (!is_array($event)) {
+                continue;
+            }
             $escClause = [];
             $escapedArr = [];
             $build_langs = '';
@@ -461,9 +464,12 @@ class Events extends Base
                     continue;
                 }
 
+                // pat.pid > '' drops recalls whose patient no longer exists; the LEFT JOIN would
+                // otherwise return them with every patient column NULL, and they can never complete.
                 $query  = "SELECT * FROM medex_recalls AS recall
                             LEFT JOIN patient_data AS pat ON recall.r_pid=pat.pid
                             WHERE (recall.r_eventDate < CURDATE() " . $interval . " INTERVAL " . $timing . " DAY)
+                              AND pat.pid > ''
                             ORDER BY recall.r_eventDate";
                 $result = sqlStatement($query);
 
@@ -472,7 +478,7 @@ class Events extends Base
                     if ($results == false) {
                         continue;
                     }
-                    $show = $this->MedEx->display->show_progress_recall($recall, $event);
+                    $show = $this->MedEx->display->show_progress_recall($recall, $events);
                     if ($show['DONE'] == '1') {
                         $RECALLS_completed[] = $recall;
                         continue;
@@ -509,6 +515,8 @@ class Events extends Base
                     $recall2['phone_cell']    = $recall['phone_cell'];
                     $recall2['email']         = $recall['email'];
                     $recall2['C_UID']         = $event['C_UID'];
+                    // process() matches medex_outgoing on msg_type; without it the row stays 'To Send'
+                    $recall2['M_type']        = $event['M_type'];
                     $recall2['reply']         = "To Send";
                     $recall2['extra']         = "QUEUED";
                     $recall2['status']        = "SENT";
@@ -2321,6 +2329,9 @@ class Display extends Base
     public function show_progress_recall($recall, $events = '')
     {
         global $logged_in;
+        if (!is_array($recall)) {
+            throw new \InvalidArgumentException('Recall must be an array');
+        }
         //Two scenarios: First, appt is made as recall asks. Second, appt is made not for recall reason - recall still needed.
         //We can either require all recalls to be manually deleted or do some automatically...  If manual only,
         //the secretary looking at the board will need to know when they were last seen at least and when next appt is
@@ -2342,9 +2353,9 @@ class Display extends Base
 
         if ($count) {
             $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid = ?";
-            sqlStatement($sqlDELETE, ['recall_' . $recall['pid']]);
+            sqlStatement($sqlDELETE, ['recall_' . $recall['r_pid']]);
             $sqlDELETE = "DELETE FROM medex_recalls WHERE r_pid = ?";
-            sqlStatement($sqlDELETE, [$recall['pid']]);
+            sqlStatement($sqlDELETE, [$recall['r_pid']]);
             //log this action "Recall for $pid deleted now()"?
             $show['DONE'] = '1';//tells recall board to move on.
             $show['status'] = 'greenish'; //tells MedEx to move on, don't process this recall - delete it from their servers.
@@ -2354,7 +2365,7 @@ class Display extends Base
         }
 
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid = ?  ORDER BY msg_date ASC";
-        $result = sqlStatement($sql, ['recall_' . $recall['pid']]);
+        $result = sqlStatement($sql, ['recall_' . $recall['r_pid']]);
         $something_happened = '';
 
         while ($progress = sqlFetchArray($result)) {
@@ -2449,7 +2460,7 @@ class Display extends Base
                 $show['campaign'][$event['C_UID']] = $event;
                 $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
 
-                $rEventDate = is_array($recall) ? (is_string($recall['r_eventDate'] ?? null) ? $recall['r_eventDate'] : '') : '';
+                $rEventDate = is_string($recall['r_eventDate'] ?? null) ? $recall['r_eventDate'] : '';
                 $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($rEventDate)));
                 $date1 = date('Y-m-d');
                 $date_diff = strtotime($date1) - strtotime($rEventDate);
@@ -2466,7 +2477,7 @@ class Display extends Base
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
-        $result = sqlFetchArray(sqlStatement($query, [$recall['pid']]));
+        $result = sqlFetchArray(sqlStatement($query, [$recall['r_pid']]));
 
         if ($something_happened || $result) {
             if ($result) {
@@ -2492,7 +2503,7 @@ class Display extends Base
             $show['status'] = "whitish";
         }
         if ($logged_in) {
-            $show['progression'] =   '<div onclick="SMS_bot(\'recall_' . $recall['pid'] . '\');">' . $show['progression'] . '</div>';
+            $show['progression'] =   '<div onclick="SMS_bot(\'recall_' . $recall['r_pid'] . '\');">' . $show['progression'] . '</div>';
         }
         return $show;
     }
