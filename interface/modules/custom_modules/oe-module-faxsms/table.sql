@@ -26,16 +26,16 @@ PRIMARY KEY (`id`),
 KEY `uid` (`uid`,`receive_date`)
 ) ENGINE=InnoDB COMMENT='Fax queue';
 
-# IfNotRow categories name FAX
+#IfNotRow categories name FAX
 SET @max_rght = (SELECT MAX(rght) FROM categories);
 INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FAX', '', 1, @max_rght, @max_rght + 1, 'patients|docs' from categories where name = 'Categories';
 UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
-#Endif
+#EndIf
 
 #IfMissingColumn module_faxsms_credentials updated
 ALTER TABLE `module_faxsms_credentials` ADD `updated` DATETIME DEFAULT CURRENT_TIMESTAMP;
-#Endif
+#EndIf
 
 #IfIndex oe_faxsms_queue uniq_account_job_id
 ALTER TABLE `oe_faxsms_queue` DROP INDEX `uniq_account_job_id`;
