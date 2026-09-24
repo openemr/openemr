@@ -768,7 +768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 92,
+    'count' => 91,
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
