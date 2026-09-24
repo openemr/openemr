@@ -1189,8 +1189,15 @@ class PasswordGrantHardeningTest extends TestCase
 
         $globals = OEGlobalsBag::getInstance();
         $originalSetting = $globals->getBoolean('clear_ip_counter_on_auth_success');
+        $originalIpMax = $globals->getInt('ip_max_failed_logins');
+        $originalUserMax = $globals->getInt('password_max_failed_logins');
         try {
             $globals->set('clear_ip_counter_on_auth_success', false);
+            // Force thresholds well above the seeded value (3) so
+            // neither block gate false-trips on a test env that
+            // happens to have the max configured low.
+            $globals->set('ip_max_failed_logins', 100);
+            $globals->set('password_max_failed_logins', 100);
 
             // Seed the per-account counter above zero so we can assert
             // the success path zeroed it.
@@ -1228,6 +1235,8 @@ class PasswordGrantHardeningTest extends TestCase
             );
         } finally {
             $globals->set('clear_ip_counter_on_auth_success', $originalSetting);
+            $globals->set('ip_max_failed_logins', $originalIpMax);
+            $globals->set('password_max_failed_logins', $originalUserMax);
         }
     }
 
@@ -1248,7 +1257,12 @@ class PasswordGrantHardeningTest extends TestCase
 
         $globals = OEGlobalsBag::getInstance();
         $originalSetting = $globals->getBoolean('clear_ip_counter_on_auth_success');
+        // Force a threshold well above the seeded IP counter values
+        // (4 and 5) so the IP block gate doesn't false-trip on a test
+        // env that happens to have ip_max_failed_logins configured low.
+        $originalIpMax = $globals->getInt('ip_max_failed_logins');
         try {
+            $globals->set('ip_max_failed_logins', 100);
             $globals->set('clear_ip_counter_on_auth_success', true);
 
             // Seed the shared IP counter, then run a successful
@@ -1309,6 +1323,7 @@ class PasswordGrantHardeningTest extends TestCase
             );
         } finally {
             $globals->set('clear_ip_counter_on_auth_success', $originalSetting);
+            $globals->set('ip_max_failed_logins', $originalIpMax);
         }
     }
 

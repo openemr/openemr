@@ -210,7 +210,7 @@ class WebLoginTotpFlowTest extends TestCase
         $admin = $this->buildHttp();
         // Log in as admin via the standard main_screen.php login (no MFA
         // yet — we're the ones about to enroll it).
-        $admin->post($this->baseUrl . '/interface/main/main_screen.php?auth=login&site=default', [
+        $loginResp = $admin->post($this->baseUrl . '/interface/main/main_screen.php?auth=login&site=default', [
             'form_params' => [
                 'authUser' => 'admin',
                 'clearPass' => 'pass',
@@ -218,6 +218,21 @@ class WebLoginTotpFlowTest extends TestCase
                 'new_login_session_management' => '1',
             ],
         ]);
+        // Defensive skip: if admin already has TOTP enrolled (shared test
+        // env leftover, prior interrupted test run, or a real
+        // pre-existing enrollment), the login lands on the TOTP challenge
+        // form — the enrollment flow below would then either fail
+        // confusingly or delete the pre-existing registration in
+        // tearDown. Bail out before assigning $this->adminHttp so
+        // tearDown does nothing.
+        if (
+            $loginResp->getStatusCode() === 200
+            && (new Crawler((string) $loginResp->getBody()))
+                ->filterXPath('//input[@name="totp"]')
+                ->count() > 0
+        ) {
+            $this->markTestSkipped('Shared admin already has TOTP enrolled — skipping to avoid clobbering pre-existing registration');
+        }
 
         // Step reg1: fetch the password-prompt form to grab a CSRF token.
         $reg1 = $admin->get($this->baseUrl . '/interface/usergroup/mfa_totp.php?action=reg1');
