@@ -14,8 +14,10 @@
 namespace Carecoordination\Model;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Cda\InternalToCdaConverter;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CcdaGenerator
 {
@@ -126,8 +128,7 @@ class CcdaGenerator
             $send,
             $date_options
         );
-        $content = $this->socket_get($data);
-        $content = trim($content);
+        $content = $this->normalize($data);
         // split content if unstructured is included from service.
         // service will send back a CDA and an auto created unstructured document
         // if CCM sends the documents(patient_files object) with data array.
@@ -168,14 +169,19 @@ class CcdaGenerator
         return $generatedResult;
     }
 
-    public function socket_get($data): string
+    public function normalize(string $data): string
     {
-        $serviceRequestor = new CcdaServiceDocumentRequestor();
-        $content = $serviceRequestor->socket_get($data);
-        return $content;
+        // 1 -> Care coordination module, 2 -> portal, 3 -> Both
+        // Any non-zero value enables the service
+        if (OEGlobalsBag::getInstance()->getInt('ccda_alt_service_enable') === 0) {
+            throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
+        }
+
+        $converter = new InternalToCdaConverter();
+        return trim($converter->convert($data));
     }
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = [])
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = []): string
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
         $modelGenerator->create_data(
