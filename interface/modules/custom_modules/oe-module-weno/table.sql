@@ -66,8 +66,9 @@ CREATE TABLE `weno_download_log` (
 #EndIf
 
 -- For early adopters of weno, in case they need to upgrade let's delete and add below.
-#IfRow2D background_services name WenoExchange function start_weno
-DELETE FROM `background_services` WHERE `name` = 'WenoExchange' AND `function` = 'start_weno';
+-- Match the 6.1.0 start_weno row by require_once: row guards don't quote column names, and MySQL 8 reserves `function`.
+#IfRow2D background_services name WenoExchange require_once /library/weno_log_sync.php
+DELETE FROM `background_services` WHERE `name` = 'WenoExchange' AND `require_once` = '/library/weno_log_sync.php';
 #EndIf
 
 #IfNotRow background_services name WenoExchangePharmacies

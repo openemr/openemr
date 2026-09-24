@@ -36,41 +36,42 @@ use Symfony\Component\Process\Process;
 class ModuleSqlIdempotencyTest extends TestCase
 {
     /**
-     * Directives SQLUpgradeService evaluates. Any other `#` line is a comment,
-     * so a misspelled guard leaves the statements under it unguarded.
+     * Directives SQLUpgradeService evaluates, each with the argument pattern
+     * it must match. Any other `#` line, including a directive missing an
+     * argument, is a comment, so the statements under it are unguarded.
      */
     private const GUARD_DIRECTIVES = [
-        'IfCareTeamsV1MigrationNeeded',
-        'IfColumn',
-        'IfDocumentNamingNeeded',
-        'IfEyeFormLaserCategoriesNeeded',
-        'IfIndex',
-        'IfInnoDBMigrationNeeded',
-        'IfMBOEncounterNeeded',
-        'IfMissingColumn',
-        'IfNotColumnType',
-        'IfNotColumnTypeDefault',
-        'IfNotIndex',
-        'IfNotListImmunizationManufacturer',
-        'IfNotListOccupation',
-        'IfNotListReaction',
-        'IfNotMigrateClickOptions',
-        'IfNotRow',
-        'IfNotRow2D',
-        'IfNotRow2Dx2',
-        'IfNotRow3D',
-        'IfNotRow4D',
-        'IfNotTable',
-        'IfNotWenoRx',
-        'IfRow',
-        'IfRow2D',
-        'IfRow3D',
-        'IfRowIsNull',
-        'IfTable',
-        'IfTableEngine',
-        'IfTextNullFixNeeded',
-        'IfUpdateEditOptionsNeeded',
-        'IfVitalsDatesNeeded',
+        'IfCareTeamsV1MigrationNeeded' => '',
+        'IfColumn' => '(?:\s+\S+){2}',
+        'IfDocumentNamingNeeded' => '',
+        'IfEyeFormLaserCategoriesNeeded' => '',
+        'IfIndex' => '(?:\s+\S+){2}',
+        'IfInnoDBMigrationNeeded' => '',
+        'IfMBOEncounterNeeded' => '',
+        'IfMissingColumn' => '(?:\s+\S+){2}',
+        'IfNotColumnType' => '(?:\s+\S+){3}',
+        'IfNotColumnTypeDefault' => '(?:\s+\S+){3}',
+        'IfNotIndex' => '(?:\s+\S+){2}',
+        'IfNotListImmunizationManufacturer' => '',
+        'IfNotListOccupation' => '',
+        'IfNotListReaction' => '',
+        'IfNotMigrateClickOptions' => '',
+        'IfNotRow' => '(?:\s+\S+){3}',
+        'IfNotRow2D' => '(?:\s+\S+){5}',
+        'IfNotRow2Dx2' => '(?:\s+\S+){7}',
+        'IfNotRow3D' => '(?:\s+\S+){7}',
+        'IfNotRow4D' => '(?:\s+\S+){9}',
+        'IfNotTable' => '\s+\S+',
+        'IfNotWenoRx' => '',
+        'IfRow' => '(?:\s+\S+){3}',
+        'IfRow2D' => '(?:\s+\S+){5}',
+        'IfRow3D' => '(?:\s+\S+){7}',
+        'IfRowIsNull' => '(?:\s+\S+){2}',
+        'IfTable' => '\s+\S+',
+        'IfTableEngine' => '\s+\S+\s+(?:MyISAM|InnoDB)',
+        'IfTextNullFixNeeded' => '',
+        'IfUpdateEditOptionsNeeded' => '(?:\s+\S+){4}',
+        'IfVitalsDatesNeeded' => '',
     ];
 
     /**
@@ -78,7 +79,6 @@ class ModuleSqlIdempotencyTest extends TestCase
      */
     private const SAFE_UNGUARDED = [
         '/^CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s/i',
-        '/^DROP\s+\w+\s+IF\s+EXISTS\s/i',
         '/^SET\s+@/i',
     ];
 
@@ -140,18 +140,28 @@ class ModuleSqlIdempotencyTest extends TestCase
             'safe statements pass unguarded' => [
                 <<<'SQL'
                 CREATE TABLE IF NOT EXISTS foo (id INT);
-                DROP PROCEDURE IF EXISTS bar;
                 SET @x = 1;
                 SQL,
                 [],
             ],
-            'special sql passes' => [
+            'guarded special sql passes' => [
                 <<<'SQL'
+                #IfNotRow foo bar 1
                 #SpecialSql
-                CREATE PROCEDURE bar() BEGIN SELECT 1; END
+                INSERT INTO foo (bar) VALUES (1);
                 #EndSpecialSql
+                #EndIf
                 SQL,
                 [],
+            ],
+            'unguarded special sql is reported' => [
+                <<<'SQL'
+                #SpecialSql
+                INSERT INTO foo (bar)
+                VALUES (1);
+                #EndSpecialSql
+                SQL,
+                ['2: runs on every deploy: INSERT INTO foo (bar) VALUES (1);'],
             ],
             'statement after EndIf is unguarded' => [
                 <<<'SQL'
@@ -181,6 +191,17 @@ class ModuleSqlIdempotencyTest extends TestCase
                 SQL,
                 ['3: not a directive, so SQLUpgradeService ignores it: #Endif'],
             ],
+            'directive missing an argument is a comment' => [
+                <<<'SQL'
+                #IfNotRow categories name
+                INSERT INTO categories (name) VALUES ('FAX');
+                #EndIf
+                SQL,
+                [
+                    '1: not a directive, so SQLUpgradeService ignores it: #IfNotRow categories name',
+                    "2: runs on every deploy: INSERT INTO categories (name) VALUES ('FAX');",
+                ],
+            ],
             'unknown directive is a comment' => [
                 <<<'SQL'
                 #IfNotView foo
@@ -203,9 +224,35 @@ class ModuleSqlIdempotencyTest extends TestCase
                 SQL,
                 ['1: #IfRow and #IfNotRow on the same row toggle on every deploy: background_services name Sync'],
             ],
+            '2D row guards that toggle' => [
+                <<<'SQL'
+                #IfRow2D background_services name Sync active 1
+                DELETE FROM background_services WHERE name = 'Sync' AND active = 1;
+                #EndIf
+                #IfNotRow2D background_services name Sync active 1
+                INSERT INTO background_services (name, active) VALUES ('Sync', 1);
+                #EndIf
+                SQL,
+                ['1: #IfRow2D and #IfNotRow2D on the same row toggle on every deploy: background_services name Sync active 1'],
+            ],
+            'row guards of different dimensions do not pair' => [
+                <<<'SQL'
+                #IfRow2D background_services name Sync active 0
+                DELETE FROM background_services WHERE name = 'Sync' AND active = 0;
+                #EndIf
+                #IfNotRow background_services name Sync
+                INSERT INTO background_services (name, active) VALUES ('Sync', 1);
+                #EndIf
+                SQL,
+                [],
+            ],
             'drop table is not safe' => [
                 'DROP TABLE foo;',
                 ['1: runs on every deploy: DROP TABLE foo;'],
+            ],
+            'drop table if exists is not safe' => [
+                'DROP TABLE IF EXISTS foo;',
+                ['1: runs on every deploy: DROP TABLE IF EXISTS foo;'],
             ],
         ];
     }
@@ -218,7 +265,11 @@ class ModuleSqlIdempotencyTest extends TestCase
      */
     private static function problems(string $sql): array
     {
-        $directive = '/^#(' . implode('|', self::GUARD_DIRECTIVES) . ')(\s|$)/';
+        $directives = [];
+        foreach (self::GUARD_DIRECTIVES as $name => $arguments) {
+            $directives[] = $name . $arguments;
+        }
+        $directive = '/^#(?:' . implode('|', $directives) . ')/';
         $problems = [];
         $guarded = false;
         $special = false;
@@ -233,8 +284,8 @@ class ModuleSqlIdempotencyTest extends TestCase
             }
             if (preg_match($directive, $line) === 1) {
                 $guarded = true;
-                if (preg_match('/^#If(Not)?Row\s+(.+)$/', $line, $rowGuard) === 1) {
-                    $rowGuards[$rowGuard[1] === 'Not' ? 'absent' : 'present'][$rowGuard[2]] = $lineNumber;
+                if (preg_match('/^#If(Not)?Row([234]D)?\s+(.+)$/', $line, $rowGuard) === 1) {
+                    $rowGuards[$rowGuard[2]][$rowGuard[1] === 'Not' ? 'absent' : 'present'][$rowGuard[3]] = $lineNumber;
                 }
                 continue;
             }
@@ -247,24 +298,20 @@ class ModuleSqlIdempotencyTest extends TestCase
                 continue;
             }
             if (str_starts_with($line, '#EndSpecialSql')) {
+                // SQLUpgradeService runs the accumulated block once it ends in a semicolon.
                 $special = false;
-                $statement = '';
-                continue;
-            }
-            if (preg_match('/^\s*#/', $line) === 1) {
+                $line = '';
+            } elseif (preg_match('/^\s*#/', $line) === 1) {
                 if (preg_match('/^\s*#\s*(if|endif|specialsql|endspecialsql)/i', $line) === 1) {
                     $problems[] = $lineNumber . ': not a directive, so SQLUpgradeService ignores it: ' . trim($line);
                 }
-                continue;
-            }
-            if ($special) {
                 continue;
             }
             if ($statement === '') {
                 $statementLine = $lineNumber;
             }
             $statement = trim($statement . ' ' . trim($line));
-            if (!str_ends_with($statement, ';')) {
+            if ($special || !str_ends_with($statement, ';')) {
                 continue;
             }
             if (!$guarded && !self::isSafeUnguarded($statement)) {
@@ -274,8 +321,10 @@ class ModuleSqlIdempotencyTest extends TestCase
         }
         // A block that runs when a row exists and another that runs when it
         // does not cannot both settle: whichever ran last re-arms the other.
-        foreach (array_intersect_key($rowGuards['present'] ?? [], $rowGuards['absent'] ?? []) as $row => $lineNumber) {
-            $problems[] = $lineNumber . ': #IfRow and #IfNotRow on the same row toggle on every deploy: ' . $row;
+        foreach ($rowGuards as $dimension => $guards) {
+            foreach (array_intersect_key($guards['present'] ?? [], $guards['absent'] ?? []) as $row => $lineNumber) {
+                $problems[] = $lineNumber . ': #IfRow' . $dimension . ' and #IfNotRow' . $dimension . ' on the same row toggle on every deploy: ' . $row;
+            }
         }
         return $problems;
     }
