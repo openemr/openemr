@@ -431,7 +431,9 @@ class Events extends Base
                         $appt2['pc_startTime']  = $appt['pc_startTime'];
                         $appt2['pc_eid']        = $appt['pc_eid'];
                         $appt2['pc_aid']        = $appt['pc_aid'];
-                        $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                        $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                        $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                        $appt2['reason']        = $appt['pc_hometext'] ?? '';
                         $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                         $appt2['language']      = $appt['language'];
                         $appt2['pc_facility']   = $appt['pc_facility'];
@@ -645,7 +647,9 @@ class Events extends Base
                     $appt2['pc_startTime']  = $appt['pc_startTime'];
                     $appt2['pc_eid']        = $event['C_UID'] . '_' . $appt['pc_eid'];
                     $appt2['pc_aid']        = $appt['pc_aid'];
-                    $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                    $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                    $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                    $appt2['reason']        = $appt['pc_hometext'] ?? '';
                     $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                     $appt2['language']      = $appt['language'];
                     $appt2['pc_facility']   = $appt['pc_facility'];
@@ -728,7 +732,9 @@ class Events extends Base
                         $appt2['pc_startTime']  = $appt['pc_startTime'];
                         $appt2['pc_eid']        = $appt['pc_eid'];
                         $appt2['pc_aid']        = $appt['pc_aid'];
-                        $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                        $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                        $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                        $appt2['reason']        = $appt['pc_hometext'] ?? '';
                         $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                         $appt2['language']      = $appt['language'];
                         $appt2['pc_facility']   = $appt['pc_facility'];
@@ -966,7 +972,9 @@ class Events extends Base
                     $appt2['pc_startTime']  = $appt['pc_startTime'];
                     $appt2['pc_eid']        = $appt['pc_eid'];
                     $appt2['pc_aid']        = $appt['pc_aid'];
-                    $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                    $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                    $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                    $appt2['reason']        = $appt['pc_hometext'] ?? '';
                     $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                     $appt2['language']      = $appt['language'];
                     $appt2['pc_facility']   = $appt['pc_facility'];
