@@ -9,7 +9,11 @@
  * We probably need to refactor this in the future to have a more robust policy decision point (PDP) and policy enforcement point (PEP) system.
  * This would allow for more flexibility in the authorization process and would allow for more complex authorization scenarios.
  *
- *
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\RestControllers\Subscriber;
