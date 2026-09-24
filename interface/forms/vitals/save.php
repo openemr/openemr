@@ -29,8 +29,7 @@ $c->default_action_process();
 
 $validationErrors = $session->get('vitals_validation_errors');
 if ($validationErrors !== null && $validationErrors !== []) {
-    $formUrl = OEGlobalsBag::getInstance()->getWebRoot()
-        . '/interface/forms/vitals/new.php?id=' . (int) filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+    $formUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/vitals/new.php?' . \OpenEMR\Common\Http\QueryString::build(['id' => (int) filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT)]);
     formJump($formUrl);
 } else {
     formJump();

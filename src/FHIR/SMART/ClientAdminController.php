@@ -633,7 +633,7 @@ class ClientAdminController
             $action = implode("/", $action);
         }
         $csrfToken = $this->getCSRFToken();
-        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($csrfToken !== false ? $csrfToken : '');
+        $url = $this->actionURL . "?" . \OpenEMR\Common\Http\QueryString::build(['action' => $action, 'csrf_token' => $csrfToken !== false ? $csrfToken : '']);
         if (isset($options['queryParams']) && is_array($options['queryParams'])) {
             /** @var array<string, string> $queryParams */
             $queryParams = $options['queryParams'];

@@ -138,7 +138,7 @@ if (isset($_GET['typeid'])) {
 <body>
 <div class="container">
     <div class="row">
-        <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
+        <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?" . \OpenEMR\Common\Http\QueryString::build(['order' => $order, 'labid' => $labid]);
         if (isset($_GET['formid'])) {
             echo '&formid=' . attr_url($_GET['formid']);
         }

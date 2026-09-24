@@ -403,7 +403,7 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
 
     echo " if (opener.refreshme) opener.refreshme();\n";
     if ($new_drug) {
-        echo " window.location.href='add_edit_lot.php?drug=" . attr_url($drug_id) . "&lot=0'\n";
+        echo " window.location.href='add_edit_lot.php?" . \OpenEMR\Common\Http\QueryString::build(['drug' => $drug_id, 'lot' => '0']) . "'\n";
     } else {
         echo " window.close();\n";
     }

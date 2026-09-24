@@ -206,8 +206,7 @@ if (!empty($_POST['edit'])) {
     $res = sqlStatement($sql, $bind_sql_array);
 
         $isResults = false; //flag to record whether there are any results
-    echo ('<table><form method="post" action="?m=definition&csrf_token_form='
-        . CsrfUtils::collectCsrfToken(session: $session) . '" onsubmit="return top.restoreSession()">');
+    echo ('<table><form method="post" action="?' . \OpenEMR\Common\Http\QueryString::build(['m' => 'definition', 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . '" onsubmit="return top.restoreSession()">');
     echo ('<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken(session: $session) . '" />');
     // only english definitions
     if ($lang_id == 1) {

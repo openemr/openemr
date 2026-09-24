@@ -613,8 +613,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
         if ($rapid_data_entry || (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges']))) {
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
-            formJump(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/pos_checkout.php?framed=1" .
-            "&ptid=" . urlencode((string) $fs->pid) . "&enid=" . urlencode((string) $fs->encounter) . "&rde=" . urlencode((string) $rapid_data_entry));
+            formJump(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/pos_checkout.php?" . \OpenEMR\Common\Http\QueryString::build(['framed' => '1', 'ptid' => (string) $fs->pid, 'enid' => (string) $fs->encounter, 'rde' => (string) $rapid_data_entry]));
         } else {
             // Otherwise return to the normal encounter summary frameset.
             //

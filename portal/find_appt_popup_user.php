@@ -45,7 +45,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
     $site_id = $session->get('site_id');
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     //landing page definition -- where to go if something goes wrong
-    $landingpage = "index.php?site=" . urlencode((string) $site_id);
+    $landingpage = "index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $site_id]);
     header('Location: ' . $landingpage . '&w');
     exit();
 }

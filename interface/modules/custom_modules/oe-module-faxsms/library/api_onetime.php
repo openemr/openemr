@@ -62,7 +62,7 @@ function doOnetimeInvoiceRequest(): void
         'expiry_interval' => "P14D",
         'text_message' => $message,
         'html_message' => "",
-        'redirect_url' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode((string) $session->get('site_id')) . "&landOn=MakePayment",
+        'redirect_url' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id'), 'landOn' => 'MakePayment']),
         'phone' => $patient['phone'] ?? '',
         'email' => $patient['email'] ?? '',
         'actions' => [

@@ -229,11 +229,11 @@ class Bootstrap
         }
     }
 
-    private function getPublicPathFQDN()
+    private function getPublicPathFQDN(): string
     {
         // return the public path with the fully qualified domain name in it
         // qualified_site_addr already has the webroot in it.
-        return OEGlobalsBag::getInstance()->get('qualified_site_addr') . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
+        return OEGlobalsBag::getInstance()->getString('qualified_site_addr') . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
     }
 
     private function getAssetPath()

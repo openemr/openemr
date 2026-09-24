@@ -55,7 +55,7 @@ $method = 'aes-256-cbc';
 $key = substr(hash('sha256', $encryption_key, true), 0, 32);
 $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
 $encrypted = base64_encode(openssl_encrypt($json_object, $method, $key, OPENSSL_RAW_DATA, $iv));
-$fileUrl = $baseurl . "?useremail=" . urlencode((string) $weno_username) . "&data=" . urlencode($encrypted);
+$fileUrl = $baseurl . "?" . \OpenEMR\Common\Http\QueryString::build(['useremail' => (string) $weno_username, 'data' => $encrypted]);
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $comment = $isFullDirectory

@@ -449,7 +449,15 @@ final readonly class CalendarViewModel
         if (($event['patient_has_picture'] ?? null) === false) {
             return $webroot . '/public/images/patient-picture-default.png';
         }
-        return $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
+        return $webroot . '/controller.php?document&retrieve&' . \OpenEMR\Common\Http\QueryString::build([
+            'patient_id' => $patientIdAttr,
+            'document_id' => '-1',
+            'as_file' => 'false',
+            'original_file' => 'true',
+            'disable_exit' => 'false',
+            'show_original' => 'true',
+            'context' => 'patient_picture',
+        ]);
     }
 
     private function shouldSkipForOverlap(int $categoryId): bool

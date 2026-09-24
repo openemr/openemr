@@ -234,7 +234,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
+        $defaultUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $site_id, 'landOn' => 'MakePayment']);
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);

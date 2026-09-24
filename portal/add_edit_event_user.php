@@ -31,7 +31,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
+$landingpage = "index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id')]);
 //
 
 // kick out if patient not authenticated

@@ -146,7 +146,7 @@ class C_Prescription extends Controller
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $urlCodes = $this->getCodeTypesService()->collectCodeTypes("diagnosis", "csv");
-        $url = OEGlobalsBag::getInstance()->get('webroot') . '/interface/patient_file/encounter/select_codes.php?codetype=' . urlencode((string) $urlCodes);
+        $url = OEGlobalsBag::getInstance()->get('webroot') . '/interface/patient_file/encounter/select_codes.php?' . \OpenEMR\Common\Http\QueryString::build(['codetype' => (string) $urlCodes]);
         $this->assign('diagnosisCodes', $this->getDiagnosisCodesList($this->prescriptions[0]));
         $this->assign("addCodeUrl", $url);
 

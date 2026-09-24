@@ -321,10 +321,10 @@ if (empty($siteId) || !empty($_GET['site'])) {
         SessionUtil::clearSession();
         if (isset($landingpage) && !empty($landingpage)) {
             // OpenEMR Patient Portal use
-            header('Location: index.php?site=' . urlencode((string)$tmp));
+            header('Location: index.php?' . \OpenEMR\Common\Http\QueryString::build(['site' => (string)$tmp]));
         } else {
             // Main OpenEMR use
-            header('Location: ../login/login.php?site=' . urlencode((string)$tmp)); // Assuming in the interface/main directory
+            header('Location: ../login/login.php?' . \OpenEMR\Common\Http\QueryString::build(['site' => (string)$tmp])); // Assuming in the interface/main directory
         }
 
         exit(1);

@@ -467,14 +467,14 @@ $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 if ($is_expired) {
     //display the php file containing the password expiration message.
     array_unshift($_tabs, [
-        'notes' => "interface/main/pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
+        'notes' => "interface/main/pwd_expires_alert.php?" . \OpenEMR\Common\Http\QueryString::build(['csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]),
         'id' => "adm",
         "label" => xl("Password Reset"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
     // Patient is open, so add this to the list of tabs, at the end
     $patientID = (int) $_POST['patientID'];
-    $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
+    $_notes = "../patient_file/summary/demographics.php?" . \OpenEMR\Common\Http\QueryString::build(['set_pid' => $patientID]);
     if (!empty($_POST['encounterID'])) {
         $encounterID = (int) $_POST['encounterID'];
         $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
@@ -505,6 +505,6 @@ if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
 // Pass a unique token, so main.php script can not be run on its own
 $tokenMainPhp = RandomGenUtils::createUniqueToken();
 $session->set('token_main_php', $tokenMainPhp);
-header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp));
+header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?" . \OpenEMR\Common\Http\QueryString::build(['token_main' => $tokenMainPhp]));
 exit();
 ?>

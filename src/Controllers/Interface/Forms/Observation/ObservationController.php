@@ -596,9 +596,7 @@ class ObservationController
 
     private function buildObservationFormUrl(int|string $formId, string $status): string
     {
-        return OEGlobalsBag::getInstance()->getWebRoot()
-            . "/interface/forms/observation/new.php?id=" . urlencode((string) $formId)
-            . "&status=" . urlencode($status);
+        return OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/observation/new.php?" . \OpenEMR\Common\Http\QueryString::build(['id' => (string) $formId, 'status' => $status]);
     }
 
     /**

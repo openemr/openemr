@@ -158,8 +158,8 @@ function normalizeDirectoryName(string $input): string
 // do not change from $_REQUEST.
 $formid = (int)($_REQUEST['id'] ?? 0);
 
-$reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
-$req_url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
+$reload_url = $rootdir . '/patient_file/encounter/view_form.php?' . \OpenEMR\Common\Http\QueryString::build(['formname' => 'procedure_order', 'id' => $formid]);
+$req_url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&' . \OpenEMR\Common\Http\QueryString::build(['patient_id' => (string) $pid, 'document_id' => '']);
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.

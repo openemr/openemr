@@ -156,7 +156,7 @@ class MainMenuRole extends MenuRole
             // Create object for form menu item and put it in its category object.
             $formEntry = new \stdClass();
             $formEntry->label = xl_form_title($title);
-            $formEntry->url = '/interface/patient_file/encounter/load_form.php?formname=' . urlencode((string) $option_id);
+            $formEntry->url = '/interface/patient_file/encounter/load_form.php?' . \OpenEMR\Common\Http\QueryString::build(['formname' => (string) $option_id]);
             $formEntry->requirement = 2;
             $formEntry->target = 'enc';
             // Plug in ACO attribute, if any, of this form.
@@ -208,7 +208,7 @@ class MainMenuRole extends MenuRole
             // Create object for form menu item and put it in its category object.
             $formEntry = new \stdClass();
             $formEntry->label = xl_form_title($title);
-            $formEntry->url = '/interface/forms/LBF/printable.php?isform=1&formname=' . urlencode((string) $option_id);
+            $formEntry->url = '/interface/forms/LBF/printable.php?' . \OpenEMR\Common\Http\QueryString::build(['isform' => '1', 'formname' => (string) $option_id]);
             $formEntry->requirement = 0;
             $formEntry->target = 'pop';
             array_push($catEntry->children, $formEntry);
