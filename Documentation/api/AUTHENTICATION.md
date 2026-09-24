@@ -683,9 +683,10 @@ Failed password grant attempts engage the standard lockout counters:
   (`patient_access_onsite.portal_fail_counter`) and per-IP
   (`ip_tracking.ip_login_fail_counter`) counters. Unknown usernames only
   bump the per-IP counter because no `patient_access_onsite` row exists to
-  update. Successful portal authentication clears only the authenticated
-  account's counter — the per-IP counter is left engaged so a valid login
-  on account A cannot bypass the brute-force gate on account B.
+  update. Successful portal authentication always clears the authenticated
+  account's per-account counter; the shared per-IP counter also clears by
+  default and is opt-in-preservable via the
+  `clear_ip_counter_on_auth_success` global described below.
 
 All counters share the same `password_max_failed_logins` /
 `ip_max_failed_logins` thresholds and reset-window globals as the web login
@@ -710,10 +711,16 @@ logging in cleanly.
 > **Recovery note when opting into strict mode**: if you set
 > `clear_ip_counter_on_auth_success` to 0 AND
 > `ip_time_reset_password_max_failed_logins` to 0 (no auto-reset), the
-> per-IP counter has no automatic clearing path — an administrator has
-> to clear it manually via the IP Tracker report. Plan for one or the
-> other to provide a recovery path for legitimate users behind shared
-> NAT.
+> per-IP counter has no automatic clearing path. For
+> `ip_tracking.ip_login_fail_counter` an administrator can clear it via
+> the IP Tracker report. The new `ip_tracking.mfa_login_fail_counter`
+> is not yet exposed in that report — until the admin-unblock UI
+> follow-up ships, MFA IP-counter recovery requires direct SQL:
+> ```sql
+> UPDATE ip_tracking SET mfa_login_fail_counter = 0, mfa_last_login_fail = NULL WHERE ip_string = '...';
+> ```
+> Plan for one of the two globals to provide an automatic recovery path
+> for legitimate users behind shared NAT.
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >
