@@ -7,6 +7,7 @@ declare(strict_types=1);
 use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
 use OpenEMR\Rector\Rules\ConsolidateImportsRector;
 use OpenEMR\Rector\Rules\OEGlobalsBagTypedGettersRector;
+use OpenEMR\Rector\Rules\UrlencodeConcatToQueryStringRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Ternary\UnnecessaryTernaryExpressionRector;
@@ -116,6 +117,7 @@ return RectorConfig::configure()
         OEGlobalsBagTypedGettersRector::class,
         SimplifyIfElseToTernaryRector::class,
         UnnecessaryTernaryExpressionRector::class,
+        UrlencodeConcatToQueryStringRector::class,
     ])
     ->withPhpSets()
     ->withDeadCodeLevel(5)
