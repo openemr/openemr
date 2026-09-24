@@ -70,6 +70,11 @@ return RectorConfig::configure()
         ArrowFunctionDelegatingCallToFirstClassCallableRector::class => [
             __DIR__ . '/config',
         ],
+        // These fixtures exist to hold hand-built query strings for the
+        // PHPStan rules that flag them; converting them defeats the tests.
+        UrlencodeConcatToQueryStringRector::class => [
+            __DIR__ . '/tests/Tests/Isolated/PHPStan/data',
+        ],
         // Rector infers `: int` return types on the two arrow functions in
         // ObservationController::saveObservation that walk untyped `mixed`
         // sub-observation arrays: `fn($sub) => $sub['id'] ?? 0`. Adding the
