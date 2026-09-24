@@ -84,6 +84,7 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
@@ -3466,6 +3467,14 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',
             xl('Enable MedEx Communication Service')
+        ],
+
+        'medex_cancelled_apptstatus' => [
+            xl('MedEx Cancelled Appointment Statuses'),
+            GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR,
+            '%;x',
+            xl('Appointment statuses that mean the appointment is cancelled or rescheduled. MedEx sends no reminders for these appointments and withdraws messages already queued. Add any custom statuses your practice uses for this.'),
+            [GlobalSetting::DATA_TYPE_OPTION_LIST_ID => 'apptstat'],
         ],
 
         'erx_enable' => [

@@ -119,6 +119,40 @@ class Base
     {
         $this->curl = $this->MedEx->curl;
     }
+
+    /**
+     * Appointment statuses meaning the appointment is cancelled or rescheduled,
+     * from the medex_cancelled_apptstatus global.
+     *
+     * @return list<string>
+     */
+    protected function cancelledApptStatuses(): array
+    {
+        $globals = OEGlobalsBag::getInstance();
+        // not yet written to the globals table on sites that haven't run sql_upgrade.php
+        $configured = $globals->has('medex_cancelled_apptstatus')
+            ? $globals->getString('medex_cancelled_apptstatus')
+            : '%;x';
+        // These are embedded in SQL as literals (see cancelledApptStatusClause()),
+        // so accept only characters that apptstat option ids use; no quotes or backslashes.
+        return array_values(array_filter(
+            array_map(trim(...), explode(';', $configured)),
+            fn(string $status): bool => preg_match('/^[\w*%@~!#<>$^?+-]+$/', $status) === 1
+        ));
+    }
+
+    /**
+     * SQL fragment excluding cancelled appointments, for queries whose bound
+     * parameters are assembled positionally and can't take new placeholders safely.
+     */
+    protected function cancelledApptStatusClause(string $column = 'pc_apptstatus'): string
+    {
+        $statuses = $this->cancelledApptStatuses();
+        if ($statuses === []) {
+            return '';
+        }
+        return " AND " . $column . " NOT IN ('" . implode("','", $statuses) . "') ";
+    }
 }
 
 class Practice extends Base
@@ -200,10 +234,10 @@ class Practice extends Base
             $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?";
             $test2 = sqlStatement($query, [$result1['msg_pc_eid']]);
             $result2 = sqlFetchArray($test2);
-            //for custom installs, insert custom apptstatus here that mean appt is not happening/changed
+            // withdraw queued messages for cancelled appointments, and for '*' (reminder done by staff)
             if (
-                in_array($result2['pc_apptstatus'], ['*', '%', 'x'])
-            ) { //cancelled
+                in_array($result2['pc_apptstatus'], ['*', ...$this->cancelledApptStatuses()], true)
+            ) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result2['msg_uid']]);
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
@@ -341,22 +375,19 @@ class Events extends Base
             if ($event['M_group'] == 'REMINDER') {
                 if ($event['time_order'] > '0') {
                     $interval = "+";
-                    //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
                     if ($event['E_instructions'] == "stop") {   // ie. don't send this if it has been confirmed.
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                         // OR send anyway - unless appstatus is not cancelled, then it is no longer an appointment to confirm...
                     } elseif ($event['E_instructions'] == "always") {  //send anyway
-                        $appt_status = " and pc_apptstatus != '%'
-                                         and pc_apptstatus != 'x' ";
+                        $appt_status = $this->cancelledApptStatusClause();
                     } else { //reminders are always or stop, that's it
                         $event['E_instructions'] = 'stop';
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                     }
                 } else {
                      $interval = '-';
-                     $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat')
-                                     and pc_apptstatus != '%'
-                                     and pc_apptstatus != 'x' ";
+                     $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat') "
+                                    . $this->cancelledApptStatusClause();
                 }
                 //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
                 //Currently GoGreen only but added this for future flexibility in refining Appt Reminders too
@@ -711,9 +742,8 @@ class Events extends Base
                                     WHERE (
                                         cal.pc_eventDate > CURDATE() - INTERVAL " . filter_var($event['timing'], FILTER_VALIDATE_INT, ['options' => ['default' => 180]]) . " DAY AND
                                         cal.pc_eventDate < CURDATE() - INTERVAL 3 DAY) AND
-                                        pat.pid=cal.pc_pid AND
-                                        pc_apptstatus !='%' AND
-                                        pc_apptstatus != 'x' " .
+                                        pat.pid=cal.pc_pid " .
+                                        $this->cancelledApptStatusClause() .
                                         $appt_status .
                                         $facility_clause . "
                                         AND cal.pc_aid IN (?)
