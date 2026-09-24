@@ -83,6 +83,28 @@ class PatientAccessOnsiteService
         return $rtn['setting_value'] ?? 0;
     }
 
+    /**
+     * The $forced_reset_disable argument of saveCredentials() under the
+     * portal_force_credential_reset global: '1' skips the password change at the first portal
+     * login, '2' follows the "disable forced reset" box the user last left in the credentials
+     * dialog, and anything else, including the default '0', forces the change.
+     *
+     * @param string   $policy The portal_force_credential_reset global.
+     * @param int|null $userId The user whose dialog choice applies under '2'; null for the logged-in user.
+     * @return int 1 to skip the forced password change, 0 to force it.
+     */
+    public static function forcedResetDisableForPolicy(string $policy, ?int $userId = null): int
+    {
+        if ($policy === '1') {
+            return 1;
+        }
+        if ($policy !== '2') {
+            return 0;
+        }
+        $dialogChoice = self::fetchUserSetting('portal_login.credential_reset_disable', $userId);
+        return in_array($dialogChoice, ['1', 1], true) ? 1 : 0;
+    }
+
     public function setTwigEnvironment(Environment $twig)
     {
         $this->twig = $twig;

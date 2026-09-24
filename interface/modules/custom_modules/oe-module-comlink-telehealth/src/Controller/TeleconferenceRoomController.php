@@ -546,7 +546,10 @@ class TeleconferenceRoomController
         $uname = $patientData['fname'] . $patientData['id'];
         $login_uname = $patientAccessService->getUniqueTrustedUsernameForPid($pid);
         $login_uname ??= $uname;
-        $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname);
+        $forcedResetDisable = PatientAccessOnsiteService::forcedResetDisableForPolicy(
+            OEGlobalsBag::getInstance()->getString('portal_force_credential_reset', '0')
+        );
+        $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname, $forcedResetDisable);
 
         // TODO: @adunsulag we need to handle if the email credentials don't send, or if we want to bundle all of this
         // into a single email
