@@ -87,9 +87,9 @@
                                                              data-parent="#resourceAccordion">
                                                             <div class="card-body">
                                                                 {# Store resource context and version for scope reconstruction #}
-                                                                {# resourceKey groups the DOM (it is context+resource, so the same
-                                                                   resource in two contexts stays two independent cards); the scope
-                                                                   string is built from these two values, never from the key. #}
+                                                                {# resourceKey groups the DOM (it is context+resource+version, so the same
+                                                                   resource in two contexts or two versions stays two independent cards); the
+                                                                   scope string is built from these two values, never from the key. #}
                                                                 <input type="hidden"
                                                                        class="resource-name"
                                                                        data-resource="{{ resourceKey|attr }}"
@@ -485,7 +485,7 @@
                 });
 
                 resources.forEach(resourceKey => {
-                    // resourceKey identifies the card (context+resource). The scope string needs
+                    // resourceKey identifies the card (context+resource+version). The scope string needs
                     // the resource name on its own, so read it back rather than reusing the key.
                     const nameInput = document.querySelector(`.resource-name[data-resource="${resourceKey}"]`);
                     const contextInput = document.querySelector(`.resource-context[data-resource="${resourceKey}"]`);

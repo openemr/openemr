@@ -109,16 +109,19 @@ class ScopePermissionParser
                 continue;
             }
 
-            // Group by context AND resource, never by resource alone. A client may legitimately
+            // Group by context, resource AND version, never by resource alone. A client may legitimately
             // request the same resource in two contexts -- patient/Patient.read alongside
             // user/Patient.read and user/Patient.write is an ordinary SMART request. Keyed on the
             // resource alone those collapse into one entry whose context is whichever scope was
             // seen first, and the consent form then reconstructs every action under that one
             // context: the user/ scopes are never emitted and a patient/Patient.write that was
             // never requested is, which the server drops. The client ends up holding neither.
+            // The version is part of the key for the same reason: the form rebuilds a card in the
+            // card's one version, so user/Condition.rs with user/Condition.write in one card comes
+            // back as user/Condition.cruds and the requested .write is never emitted.
             // The key doubles as an HTML id and a CSS selector fragment, so it is joined with a
             // dash rather than the scope's own slash.
-            $key = $context . '-' . $resource;
+            $key = $context . '-' . $resource . '-' . $version;
 
             // Initialize resource structure if not exists
             if (!isset($structuredScopes[$key])) {
