@@ -580,8 +580,9 @@ class Events extends Base
                 $send_date = strtotime(is_string($event['start_date']) ? $event['start_date'] : '');
                 $start     = strtotime((string) $event['appts_start']);
 
-                // wait for the campaign's send date, not the first appointment date it targets
-                if ($today < $send_date) {
+                // wait for the campaign's send date, not the first appointment date it targets;
+                // an unparseable date would otherwise compare as 0 and send immediately
+                if ($send_date === false || $today < $send_date) {
                     continue;
                 }
                 if ($start >= $today) {
