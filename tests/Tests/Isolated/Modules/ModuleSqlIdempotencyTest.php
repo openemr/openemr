@@ -94,7 +94,7 @@ class ModuleSqlIdempotencyTest extends TestCase
         $process = new Process(['git', 'ls-files', '-z', '--', 'interface/modules/custom_modules'], $root);
         $process->mustRun();
         $files = array_values(array_filter(
-            explode("\0", $process->getOutput()),
+            explode(chr(0), $process->getOutput()),
             static fn(string $path): bool => preg_match(self::SWEPT_FILE, $path) === 1,
         ));
         self::assertNotSame([], $files, 'Expected tracked custom module SQL; is this a git checkout?');
@@ -179,8 +179,10 @@ class ModuleSqlIdempotencyTest extends TestCase
                 #EndIf
                 SQL,
                 [
-                    "1: not a directive, so SQLUpgradeService ignores it: # IfNotRow categories name FAX",
-                    "2: runs on every deploy: INSERT INTO categories (name) VALUES ('FAX');",
+                    '1: not a directive, so SQLUpgradeService ignores it: # IfNotRow categories name FAX',
+                    <<<'MESSAGE'
+                    2: runs on every deploy: INSERT INTO categories (name) VALUES ('FAX');
+                    MESSAGE,
                 ],
             ],
             'directive case matters' => [
@@ -199,7 +201,9 @@ class ModuleSqlIdempotencyTest extends TestCase
                 SQL,
                 [
                     '1: not a directive, so SQLUpgradeService ignores it: #IfNotRow categories name',
-                    "2: runs on every deploy: INSERT INTO categories (name) VALUES ('FAX');",
+                    <<<'MESSAGE'
+                    2: runs on every deploy: INSERT INTO categories (name) VALUES ('FAX');
+                    MESSAGE,
                 ],
             ],
             'unknown directive is a comment' => [
