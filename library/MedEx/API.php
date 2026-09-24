@@ -115,6 +115,9 @@ class Base
 {
     protected $curl;
 
+    /** @var list<string>|null */
+    private ?array $cancelledApptStatuses = null;
+
     public function __construct(protected $MedEx)
     {
         $this->curl = $this->MedEx->curl;
@@ -122,36 +125,48 @@ class Base
 
     /**
      * Appointment statuses meaning the appointment is cancelled or rescheduled,
-     * from the medex_cancelled_apptstatus global.
+     * from the medex_cancelled_apptstatus global, limited to ids in the apptstat list.
      *
      * @return list<string>
      */
     protected function cancelledApptStatuses(): array
     {
+        if ($this->cancelledApptStatuses !== null) {
+            return $this->cancelledApptStatuses;
+        }
         $globals = OEGlobalsBag::getInstance();
         // not yet written to the globals table on sites that haven't run sql_upgrade.php
         $configured = $globals->has('medex_cancelled_apptstatus')
             ? $globals->getString('medex_cancelled_apptstatus')
             : '%;x';
-        // These are embedded in SQL as literals (see cancelledApptStatusClause()),
-        // so accept only characters that apptstat option ids use; no quotes or backslashes.
-        return array_values(array_filter(
-            array_map(trim(...), explode(';', $configured)),
-            fn(string $status): bool => preg_match('/^[\w*%@~!#<>$^?+-]+$/', $status) === 1
-        ));
+        // Inactive statuses are included: appointments can still carry a status that
+        // has since been retired from the picker.
+        $known = array_filter(
+            QueryUtils::fetchTableColumn("SELECT option_id FROM list_options WHERE list_id = 'apptstat'", 'option_id'),
+            is_string(...)
+        );
+        $this->cancelledApptStatuses = array_values(array_intersect(explode(';', $configured), $known));
+        return $this->cancelledApptStatuses;
     }
 
     /**
-     * SQL fragment excluding cancelled appointments, for queries whose bound
-     * parameters are assembled positionally and can't take new placeholders safely.
+     * SQL fragment excluding cancelled appointments. The statuses are escaped literals
+     * rather than placeholders because these queries assemble their bound parameters
+     * positionally and can't take new ones safely.
      */
     protected function cancelledApptStatusClause(string $column = 'pc_apptstatus'): string
     {
-        $statuses = $this->cancelledApptStatuses();
-        if ($statuses === []) {
+        $quoted = [];
+        foreach ($this->cancelledApptStatuses() as $status) {
+            $escaped = \add_escape_custom($status);
+            if (is_string($escaped)) {
+                $quoted[] = "'" . $escaped . "'";
+            }
+        }
+        if ($quoted === []) {
             return '';
         }
-        return " AND " . $column . " NOT IN ('" . implode("','", $statuses) . "') ";
+        return " AND " . $column . " NOT IN (" . implode(',', $quoted) . ") ";
     }
 }
 
