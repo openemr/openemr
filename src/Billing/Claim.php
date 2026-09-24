@@ -242,6 +242,16 @@ class Claim
     }
 
     /**
+     * NM109 is digits. A hyphen or a space in the stored NPI must not be sent.
+     */
+    public function x12NpiDigits(string $npi): string
+    {
+        $digits = preg_replace('/\D/', '', $npi);
+
+        return $digits ?? '';
+    }
+
+    /**
      * Make sure dates have no formatting and zero filled becomes blank
      * Handles date time stamp formats as well
      *
@@ -800,7 +810,7 @@ class Claim
      */
     public function billingFacilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_facility['facility_npi']));
     }
 
     /**
@@ -944,7 +954,7 @@ class Claim
      */
     public function facilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->facility['facility_npi']));
     }
 
     /**
@@ -2031,7 +2041,7 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
-        return $this->x12Clean(trim($tmp['npi'] ?? ''));
+        return $this->x12Clean($this->x12NpiDigits(trim($tmp['npi'] ?? '')));
     }
 
     public function NPIValid($npi)
@@ -2106,7 +2116,7 @@ class Claim
      */
     public function referrerNPI()
     {
-        return $this->x12Clean(trim((string) $this->referrer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->referrer['npi']));
     }
 
     /**
@@ -2166,7 +2176,7 @@ class Claim
      */
     public function supervisorNPI()
     {
-        return $this->x12Clean(trim((string) $this->supervisor['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->supervisor['npi']));
     }
 
     /**
@@ -2239,7 +2249,7 @@ class Claim
      */
     public function billingProviderNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_prov_id['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_prov_id['npi']));
     }
 
     /**
@@ -2367,7 +2377,7 @@ class Claim
      */
     public function ordererNPI()
     {
-        return $this->x12Clean(trim((string) $this->orderer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->orderer['npi']));
     }
 
     /**
