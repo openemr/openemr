@@ -218,20 +218,36 @@ class WebLoginTotpFlowTest extends TestCase
                 'new_login_session_management' => '1',
             ],
         ]);
-        // Defensive skip: if admin already has TOTP enrolled (shared test
-        // env leftover, prior interrupted test run, or a real
-        // pre-existing enrollment), the login lands on the TOTP challenge
-        // form — the enrollment flow below would then either fail
-        // confusingly or delete the pre-existing registration in
-        // tearDown. Bail out before assigning $this->adminHttp so
-        // tearDown does nothing.
+        // Defensive guard: if admin already has TOTP enrolled (shared
+        // test env leftover, prior interrupted test run, or a real
+        // pre-existing enrollment), the login lands on the TOTP
+        // challenge form — the enrollment flow below would either
+        // fail confusingly or delete the pre-existing registration in
+        // tearDown. Skip is the right answer for local dev
+        // environments where a developer may have real TOTP enrolled.
+        // But in CI a silent skip would let the whole webui suite
+        // green-pass without actually exercising the valid-login and
+        // replay assertions this file exists to lock in — a real
+        // regression that stopped issuing TOTP challenges could ride
+        // in unnoticed. Hard-fail on CI so the ambiguity surfaces.
+        // Bail before assigning $this->adminHttp so tearDown does
+        // nothing in the skip case.
         if (
             $loginResp->getStatusCode() === 200
             && (new Crawler((string) $loginResp->getBody()))
                 ->filterXPath('//input[@name="totp"]')
                 ->count() > 0
         ) {
-            $this->markTestSkipped('Shared admin already has TOTP enrolled — skipping to avoid clobbering pre-existing registration');
+            $message = 'Shared admin already has TOTP enrolled — skipping to avoid clobbering pre-existing registration';
+            if (getenv('CI') !== false) {
+                self::fail(
+                    $message
+                    . '. In CI this is a hard failure — a clean runner should not have TOTP pre-enrolled for admin. '
+                    . 'If a CI job is intentionally sharing a stateful env, use a dedicated non-admin CI account for '
+                    . 'the enrollment flow instead of clearing admin state each run.'
+                );
+            }
+            $this->markTestSkipped($message);
         }
 
         // Step reg1: fetch the password-prompt form to grab a CSRF token.
