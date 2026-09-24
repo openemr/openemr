@@ -203,7 +203,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 
   # Collect the patient list first (from the provider)
     $patients = [];
-    if (empty($provider)) {
+    if (empty($provider_id)) {
         // Look at entire practice
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data`");
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
@@ -212,7 +212,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
     } else {
         // Look at one provider
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data` " .
-        "WHERE providerID=?", [$provider]);
+        "WHERE providerID=?", [$provider_id]);
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
              $patients[$iter] = $row;
         }
