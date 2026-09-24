@@ -15,6 +15,8 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -24,6 +26,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunizations", xl("Immunizations"));
+}
 
 /**
  * @var int $pid should come from globals, but to fix phpstan issues we are declaring it here
@@ -119,20 +124,21 @@ if (isset($_GET['mode'])) {
         // log the event
         EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
         // delete the immunization
-        $sql = "DELETE FROM immunizations WHERE id =? LIMIT 1";
-        sqlStatement($sql, [$_GET['id']]);
+        $sql = "DELETE FROM immunizations WHERE id = ? AND patient_id = ? LIMIT 1";
+        sqlStatement($sql, [$_GET['id'], $pid]);
     } elseif ($_GET['mode'] == "added_error") {
         $sql = "UPDATE immunizations " .
                "SET added_erroneously=? "  .
-               "WHERE id=?";
+               "WHERE id=? AND patient_id=?";
         $sql_arg_array = [
             ($_GET['isError'] === 'true'),
-            $_GET['id']
+            $_GET['id'],
+            $pid,
         ];
         sqlStatement($sql, $sql_arg_array);
     } elseif ($_GET['mode'] == "edit") {
-        $sql = "select * from immunizations where id = ?";
-        $result = sqlQuery($sql, [$_GET['id']]);
+        $sql = "select * from immunizations where id = ? AND patient_id = ?";
+        $result = sqlQuery($sql, [$_GET['id'], $pid]);
 
         $administered_date = new DateTime($result['administered_date']);
         $uuid = null;

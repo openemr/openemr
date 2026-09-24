@@ -20,11 +20,17 @@
 require_once("../interface/globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Chart Tracker", xl("Chart Tracker"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $form_newid   = isset($_POST['form_newid'  ]) ? trim((string) $_POST['form_newid'  ]) : '';
