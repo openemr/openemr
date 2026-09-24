@@ -85,7 +85,12 @@ class DashboardContextAdminService
      */
     public function createContext(array $data, int $createdBy): int|false
     {
-        $contextKey = $data['context_key'] ?? $this->generateContextKey($data['context_name']);
+        // The admin form sends an empty string when the key field is left blank.
+        $requestedKey = $data['context_key'] ?? null;
+        $contextKey = is_string($requestedKey) ? trim($requestedKey) : '';
+        if ($contextKey === '') {
+            $contextKey = $this->generateContextKey($data['context_name']);
+        }
 
         $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->contextTable} WHERE context_key = ?",
@@ -293,6 +298,18 @@ class DashboardContextAdminService
      */
     public function assignContextToUser(int $userId, string $contextKey, int $assignedBy, bool $isLocked = false, ?int $contextId = null): bool
     {
+        // Custom contexts are rows of the definitions table; deleteContext() finds their assignments by this id.
+        if ($contextId === null) {
+            $definitionId = QueryUtils::fetchSingleValue(
+                "SELECT id FROM {$this->contextTable} WHERE context_key = ?",
+                'id',
+                [$contextKey]
+            );
+            if (is_numeric($definitionId)) {
+                $contextId = (int) $definitionId;
+            }
+        }
+
         $currentContext = QueryUtils::querySingleRow(
             "SELECT active_context FROM {$this->userContextTable} WHERE user_id = ?",
             [$userId]
