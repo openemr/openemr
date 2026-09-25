@@ -176,6 +176,21 @@ final class DashboardContextAdminServiceTest extends TestCase
         $this->assertSame([['context_id' => null, 'context_key' => 'primary_care']], $this->activeAssignments());
     }
 
+    public function testSystemContextAssignmentIgnoresAnOlderDefinitionWithTheSameKey(): void
+    {
+        // Before createContext() refused system keys, an admin could save a definition keyed primary_care.
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO dashboard_context_definitions (user_id, context_key, context_name) VALUES (?, 'primary_care', 'Issue 11740 Legacy')",
+            [self::USER_ID]
+        );
+        $legacyId = QueryUtils::getLastInsertId();
+
+        $this->assertTrue($this->service->assignContextToUser(self::USER_ID, 'primary_care', self::USER_ID));
+        $this->assertTrue($this->service->deleteContext($legacyId));
+
+        $this->assertSame([['context_id' => null, 'context_key' => 'primary_care']], $this->activeAssignments());
+    }
+
     public function testDeletingAnAssignedCustomContextRemovesTheAssignment(): void
     {
         $contextId = $this->service->createContext(

@@ -93,7 +93,7 @@ class DashboardContextAdminService
         }
 
         // A definition sharing a system key would take over that context's assignments in assignContextToUser().
-        if (array_key_exists($contextKey, (new DashboardContextService())->getAvailableContexts())) {
+        if ($this->isSystemContextKey($contextKey)) {
             return false;
         }
 
@@ -304,7 +304,8 @@ class DashboardContextAdminService
     public function assignContextToUser(int $userId, string $contextKey, int $assignedBy, bool $isLocked = false, ?int $contextId = null): bool
     {
         // Custom contexts are rows of the definitions table; deleteContext() finds their assignments by this id.
-        if ($contextId === null) {
+        // A system key never takes an id, even from a definition saved before createContext() refused such keys.
+        if ($contextId === null && !$this->isSystemContextKey($contextKey)) {
             $definitionId = QueryUtils::fetchSingleValue(
                 "SELECT id FROM {$this->contextTable} WHERE context_key = ?",
                 'id',
@@ -667,6 +668,14 @@ class DashboardContextAdminService
         }
 
         return $logs;
+    }
+
+    /**
+     * Whether the key belongs to a built-in context rather than a custom definition
+     */
+    private function isSystemContextKey(string $contextKey): bool
+    {
+        return array_key_exists($contextKey, (new DashboardContextService())->getAvailableContexts());
     }
 
     /**
