@@ -313,30 +313,15 @@ function auto_populate_employer_address(){
                 break;
             }
 
-            print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["lname"] . ", " . $iter["fname"]) .
-                    "</td></a>\n";
-            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["ss"]) . "</a></td>";
+            print "<tr><td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["lname"] . ", " . $iter["fname"]) . "</td></a>\n";
+            print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["ss"]) . "</a></td>";
             if (!Utilities::isDateEmpty($iter["DOB"])) {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>" .
-                        text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>&nbsp;</a></td>";
             }
 
-            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["pubpid"]) . "</a></td>";
+            print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["pubpid"]) . "</a></td>";
 
             $total++;
         }
@@ -348,30 +333,15 @@ function auto_populate_employer_address(){
                 break;
             }
 
-            print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["lname"] . ", " . $iter["fname"]) .
-                    "</td></a>\n";
-            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["ss"]) . "</a></td>";
+            print "<tr><td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["lname"] . ", " . $iter["fname"]) . "</td></a>\n";
+            print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["ss"]) . "</a></td>";
             if (!Utilities::isDateEmpty($iter["DOB"])) {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>" .
-                        text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>&nbsp;</a></td>";
             }
 
-            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["pubpid"]) . "</a></td>";
+            print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["pubpid"]) . "</a></td>";
 
             $total++;
         }
@@ -383,30 +353,15 @@ function auto_populate_employer_address(){
                 break;
             }
 
-                print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>" .
-                        text($iter["lname"] . ", " . $iter["fname"]) .
-                        "</td></a>\n";
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>" .
-                        text($iter["ss"]) . "</a></td>";
+                print "<tr><td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["lname"] . ", " . $iter["fname"]) . "</td></a>\n";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["ss"]) . "</a></td>";
             if (!Utilities::isDateEmpty($iter["DOB"])) {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                attr_url($browsenum) . "&set_pid=" .
-                attr_url($iter["pid"]) . "'>" .
-                text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                attr_url($browsenum) . "&set_pid=" .
-                attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>&nbsp;</a></td>";
             }
 
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["pubpid"]) . "</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["pubpid"]) . "</a></td>";
 
             $total++;
         }
@@ -418,30 +373,15 @@ function auto_populate_employer_address(){
                 break;
             }
 
-                print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>" .
-                        text($iter["lname"] . ", " . $iter["fname"]) .
-                        "</td></a>\n";
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                        attr_url($browsenum) . "&set_pid=" .
-                        attr_url($iter["pid"]) . "'>" .
-                        text($iter["ss"]) . "</a></td>";
+                print "<tr><td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["lname"] . ", " . $iter["fname"]) . "</td></a>\n";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["ss"]) . "</a></td>";
             if (!Utilities::isDateEmpty($iter["DOB"])) {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                attr_url($browsenum) . "&set_pid=" .
-                attr_url($iter["pid"]) . "'>" .
-                text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                attr_url($browsenum) . "&set_pid=" .
-                attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>&nbsp;</a></td>";
             }
 
-                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
-                    attr_url($browsenum) . "&set_pid=" .
-                    attr_url($iter["pid"]) . "'>" .
-                    text($iter["pubpid"]) . "</a></td>";
+                print "<td><a class='text' target='_top' href='browse.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['browsenum' => $browsenum, 'set_pid' => $iter["pid"]]) . "'>" . text($iter["pubpid"]) . "</a></td>";
 
             $total++;
         }

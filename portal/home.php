@@ -240,7 +240,7 @@ function buildNav($newcnt, $pid, $result): array
                     'messageCount' => $newcnt ?? 0,
                 ],
                 [
-                    'url' => $globalsBag->getString('web_root') . '/portal/patient/onsitedocuments?pid=' . urlencode((string) $pid),
+                    'url' => $globalsBag->getString('web_root') . '/portal/patient/onsitedocuments?' . \OpenEMR\Common\Http\QueryString::build(['pid' => (string) $pid]),
                     'label' => xl('Forms and Documents'),
                     'icon' => 'fa-file',
                 ],

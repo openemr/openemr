@@ -323,13 +323,7 @@ function image_widget($doc_id, $doc_catg): void
     $extension = substr((string) $image_file_name, strrpos((string) $image_file_name, "."));
     $viewable_types = ['.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP'];
     if (in_array($extension, $viewable_types)) { // extension matches list
-        $to_url = "<td> <a href = '$web_root" .
-            "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'" .
-            " onclick='top.restoreSession();' class='image_modal'>" .
-            " <img src = '$web_root" .
-            "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
-            " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file_name) . "'>  </a> </td> <td class='align-middle'>" .
-            text($doc_catg) . '<br />&nbsp;' . text($image_file_name) . "</td>";
+        $to_url = "<td> <a href = '$web_root" . "/controller.php?document&retrieve&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $pid, 'document_id' => $doc_id, 'as_file' => 'false', 'original_file' => 'true', 'disable_exit' => 'false', 'show_original' => 'true']) . "' onclick='top.restoreSession();' class='image_modal'>" . " <img src = '$web_root" . "/controller.php?document&retrieve&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $pid, 'document_id' => $doc_id, 'as_file' => 'false']) . "'" . " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file_name) . "'>  </a> </td> <td class='align-middle'>" . text($doc_catg) . "<br />&nbsp;" . text($image_file_name) . "</td>";
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
             "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
@@ -1231,7 +1225,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs['btnLink'] = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/eRx.php?page=compose";
                         $viewArgs['linkMethod'] = 'html';
                     } else {
-                        $viewArgs['btnLink'] = "editScripts('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+                        $viewArgs['btnLink'] = "editScripts('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?prescription&list&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['id' => $pid]) . "')";
                         $viewArgs['linkMethod'] = "javascript";
                         $viewArgs['btnClass'] = "iframe";
                     }
@@ -1443,7 +1437,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Edit',
-                            'btnLink' => '../reminder/patient_reminders.php?mode=simple&patient_id=' . attr_url($pid),
+                            'btnLink' => '../reminder/patient_reminders.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['mode' => 'simple', 'patient_id' => $pid]),
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
                             'auth' => AclMain::aclCheckCore('patients', 'reminder', '', 'write'),
@@ -1494,7 +1488,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Edit',
-                            'btnLink' => OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
+                            'btnLink' => OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/list_amendments.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['id' => $pid]),
                             'btnCLass' => '',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
@@ -1774,7 +1768,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => "Edit",
-                            'btnLink' => "../reminder/clinical_reminders.php?patient_id=" . attr_url($pid),
+                            'btnLink' => "../reminder/clinical_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $pid]),
                             'linkMethod' => "html",
                             'auth' => AclMain::aclCheckCore('patients', 'alert', '', 'write'),
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),

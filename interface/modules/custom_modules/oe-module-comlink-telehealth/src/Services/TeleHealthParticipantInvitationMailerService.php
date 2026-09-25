@@ -28,7 +28,7 @@ class TeleHealthParticipantInvitationMailerService
 
     const MESSAGE_ID_TELEHEALTH_NEW_PATIENT = 'comlink-telehealth-invitation-new-patient';
 
-    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly Environment $twig, private $publicPathFQDN, private readonly TelehealthGlobalConfig $config)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly Environment $twig, private readonly string $publicPathFQDN, private readonly TelehealthGlobalConfig $config)
     {
     }
 
@@ -118,8 +118,7 @@ class TeleHealthParticipantInvitationMailerService
         if ($this->config->isOneTimePasswordLoginEnabled()) {
             $parameters = [
                 'pid' => $patient['pid']
-                ,'redirect_link' => $this->publicPathFQDN . "index-portal.php?action=" . urlencode((string) $thirdPartyLaunchAction)
-                    . "&pc_eid=" . urlencode((string) $session['pc_eid'])
+                ,'redirect_link' => $this->publicPathFQDN . "index-portal.php?" . \OpenEMR\Common\Http\QueryString::build(['action' => (string) $thirdPartyLaunchAction, 'pc_eid' => (string) $session['pc_eid']])
                 ,'email' => $patient['email']
                 ,'expiry_interval' => $this->config->getOneTimePasswordTimeoutSetting()
             ];
@@ -133,8 +132,7 @@ class TeleHealthParticipantInvitationMailerService
             }
         } else {
             // the index-portal will redirect the person to login before completing the action
-            return $this->publicPathFQDN . "index-portal.php?action=" . urlencode((string) $thirdPartyLaunchAction)
-                . "&pc_eid=" . urlencode((string) $session['pc_eid']);
+            return $this->publicPathFQDN . "index-portal.php?" . \OpenEMR\Common\Http\QueryString::build(['action' => (string) $thirdPartyLaunchAction, 'pc_eid' => (string) $session['pc_eid']]);
         }
 
         return $oneTime;

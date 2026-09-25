@@ -314,7 +314,7 @@ if ($popup) {
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
-        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
+        <?php echo "<a href='patient_select.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['from_page' => 'cdr_report', 'pass_id' => $pass_id, 'report_id' => $report_id, 'itemized_test_id' => $itemized_test_id, 'numerator_label' => $row['numerator_label'] ?? '', 'print_patients' => '1', 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'><?php

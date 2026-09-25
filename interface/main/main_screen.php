@@ -319,7 +319,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id="challenge_form">';
+                echo '      <form method="post" action="main_screen.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['auth' => 'login', 'site' => $_GET['site']]) . '" target="_top" name="challenge_form" id="challenge_form">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Provide TOTP code') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -360,7 +360,7 @@ if (isset($_POST['new_login_session_management'])) {
                 }
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
+                echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['auth' => 'login', 'site' => $_GET['site']]) . '" target="_top">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Insert U2F Key') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -467,14 +467,14 @@ $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 if ($is_expired) {
     //display the php file containing the password expiration message.
     array_unshift($_tabs, [
-        'notes' => "interface/main/pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
+        'notes' => "interface/main/pwd_expires_alert.php?" . \OpenEMR\Common\Http\QueryString::build(['csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]),
         'id' => "adm",
         "label" => xl("Password Reset"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
     // Patient is open, so add this to the list of tabs, at the end
     $patientID = (int) $_POST['patientID'];
-    $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
+    $_notes = "../patient_file/summary/demographics.php?" . \OpenEMR\Common\Http\QueryString::build(['set_pid' => $patientID]);
     if (!empty($_POST['encounterID'])) {
         $encounterID = (int) $_POST['encounterID'];
         $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
@@ -486,7 +486,7 @@ if ($is_expired) {
     ];
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     // Load the calendar, at the end
-    $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
+    $_notes = "calendar/index.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['pid' => $_GET['pid']]);
     $_notes = (isset($_GET['date'])) ? $_notes . "&date=" . attr_url($_GET['date']) : $_notes;
     $_tabs[] = [
         'notes' => $_notes,
@@ -505,6 +505,6 @@ if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
 // Pass a unique token, so main.php script can not be run on its own
 $tokenMainPhp = RandomGenUtils::createUniqueToken();
 $session->set('token_main_php', $tokenMainPhp);
-header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp));
+header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?" . \OpenEMR\Common\Http\QueryString::build(['token_main' => $tokenMainPhp]));
 exit();
 ?>

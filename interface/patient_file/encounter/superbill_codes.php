@@ -113,15 +113,7 @@ while ($index < $numlines) {
         if (!empty($value[$index])) {
             $code = $value[$index];
             echo "   <dd><a class='text' ";
-            echo "href='superbill_codes.php?back=1&mode=add" .
-                "&type="     . attr_url($key) .
-                "&modifier=" . attr_url($code["modifier"]) .
-                "&units="    . attr_url($code["units"]) .
-                "&fee="      . attr_url($code["fee"]) .
-                "&code="     . attr_url($code["code"]) .
-                "&text="     . attr_url($code["code_text"]) .
-                "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
-            "' onclick='top.restoreSession()'>";
+            echo "href='superbill_codes.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['back' => '1', 'mode' => 'add', 'type' => $key, 'modifier' => $code["modifier"], 'units' => $code["units"], 'fee' => $code["fee"], 'code' => $code["code"], 'text' => $code["code_text"], 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' onclick='top.restoreSession()'>";
             echo "<b>" . text($code['code']) . "</b>" . "&nbsp;" . text($code['modifier']) . "&nbsp;" . text($code['code_text']);
             echo "</a></dd>\n";
         }

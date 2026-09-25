@@ -116,7 +116,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
         if ($action['custom_flag']) {
             // Start link for reminders that use the custom rules input screen
-            $url = "../rules/patient_data.php?category=" . attr_url($action['category']);
+            $url = "../rules/patient_data.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['category' => $action['category']]);
             $url .= "&item=" . attr_url($action['item']);
             echo "<a href='" . $url . "' class='medium_modal' onclick='return top.restoreSession()'>";
         } elseif ($action['clin_rem_link']) {

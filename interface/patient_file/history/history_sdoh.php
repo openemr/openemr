@@ -169,7 +169,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                             <?php echo xlt("Last Updated") . ": " . text(oeFormatShortDate($info['updated_at'] ?? '')); ?>
                         </span>
                     <?php endif; ?>
-                    <a class="btn btn-outline-primary btn-sm" href="<?php echo attr($self . '?pid=' . $pid . '&new=1'); ?>">
+                    <a class="btn btn-outline-primary btn-sm" href="<?php echo attr($self . '?' . \OpenEMR\Common\Http\QueryString::build(['pid' => $pid, 'new' => '1'])); ?>">
                         <?php echo xlt("New Assessment"); ?>
                     </a>
                 </div>

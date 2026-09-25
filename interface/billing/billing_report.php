@@ -1253,7 +1253,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
 
                                         if ($crow['process_time']) {
-                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['process_time'], 0, 10))) . text(substr((string) $crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['process_time'], 0, 10))) . text(substr((string) $crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " <a href='get_claim_file.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['key' => $crow['process_file'], 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
                                             ++$lcount;
                                         }
 

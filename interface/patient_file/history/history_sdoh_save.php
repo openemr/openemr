@@ -164,9 +164,7 @@ try {
     // TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
     // Return to demographics (or wherever you prefer)
     // Redirect to health concerns selection page
-    $redirectUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_health_concerns.php"
-        . "?pid=" . urlencode((string) $pid)
-        . "&sdoh_id=" . urlencode((string) $id);
+    $redirectUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_health_concerns.php?" . \OpenEMR\Common\Http\QueryString::build(['pid' => (string) $pid, 'sdoh_id' => (string) $id]);
     header("Location: $redirectUrl");
 } catch (\Throwable $e) {
     $logger->error("Exception saving sdoh record: " . $e->getMessage(), ['exception' => $e]);

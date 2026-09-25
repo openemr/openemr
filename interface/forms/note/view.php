@@ -65,7 +65,7 @@ $(function () {
         });
 
 function PrintForm() {
-    newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?id=" . urlencode((string) $formId)); ?>,"mywin");
+    newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?" . \OpenEMR\Common\Http\QueryString::build(['id' => (string) $formId])); ?>,"mywin");
 }
 
 </script>
@@ -73,7 +73,7 @@ function PrintForm() {
 </head>
 <body class="body_top">
 
-<form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=update&id=" . attr_url((string) $formId);?>" name="my_form" id="my_form">
+<form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?" . \OpenEMR\Common\Http\QueryString::build(['mode' => 'update', 'id' => (string) $formId]);?>" name="my_form" id="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />

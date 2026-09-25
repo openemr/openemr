@@ -650,9 +650,7 @@ if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
 
     $grouplist = [];
     foreach ($result5 as $iter) {
-        $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . $iter["user"] .
-        "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . $iter["user"] . "(<a class='link_submit' href='usergroup_admin.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['mode' => 'delete_group', 'id' => $iter["id"], 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {

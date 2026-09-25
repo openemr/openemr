@@ -216,7 +216,7 @@ $display_div = "style='display:block;'";
                 <?php
                 if (sqlNumRows($resultSet)) {
                     while ($row = sqlFetchArray($resultSet)) {
-                        $url = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
+                        $url = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $row["foreign_id"], 'document_id' => $row["id"], 'as_file' => 'false']);
                         // Get the notes for this document.
                         $notes = [];
                         $note = '';

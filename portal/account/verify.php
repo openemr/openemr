@@ -34,7 +34,7 @@ SessionUtil::setSession('verifyPortalEmail', true);
 $ignoreAuth_onsite_portal = true;
 require_once("../../interface/globals.php");
 
-$landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
+$landingpage = "../index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id')]);
 
 if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->getString('google_recaptcha_site_key')) || empty($globalsBag->getString('google_recaptcha_secret_key'))) {
     SessionUtil::portalSessionCookieDestroy();

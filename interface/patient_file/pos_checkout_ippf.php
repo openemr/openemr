@@ -2294,7 +2294,7 @@ while ($urow = sqlFetchArray($ures)) {
 <body>
 
 <?php
-echo "<form method='post' action='pos_checkout.php?rde=" . attr_url($rapid_data_entry);
+echo "<form method='post' action='pos_checkout.php?" . \OpenEMR\Common\Http\QueryString::build(['rde' => $rapid_data_entry]);
 if ($encounter_id) {
     echo "&enid=" . attr_url($encounter_id);
 }

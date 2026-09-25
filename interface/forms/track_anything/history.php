@@ -243,7 +243,7 @@ while ($myrow = sqlFetchArray($query)) {
     // get every single tracks
     echo "<div id='graph" . attr($track_count) . "' class='chart-dygraphs'> </div><br />"; // here goes the graph
     echo "<small>[" . xlt('Data from') . " ";
-    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
+    echo "<a href='../../patient_file/encounter/encounter_top.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['set_encounter' => $the_encounter]) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
     echo "</small>";
     echo "<table border='1'>";
     $spell2  = "SELECT DISTINCT track_timestamp ";

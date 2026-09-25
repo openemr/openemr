@@ -216,7 +216,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $btnLinkPage = "eRx.php?page=medentry";
         } else {
             $viewArgs['btnLabel'] = "Edit";
-            $btnLinkPage = "patient_file/summary/stats_full.php?active=all&category=" . attr_url($key);
+            $btnLinkPage = "patient_file/summary/stats_full.php?" . \OpenEMR\Common\Http\QueryString::build(['active' => 'all', 'category' => $key]);
         }
         $viewArgs['btnLink'] = str_replace("__page__", $btnLinkPage, $btnLinkBase);
 
@@ -294,7 +294,7 @@ if (!OEGlobalsBag::getInstance()->getBoolean('disable_immunizations') && !OEGlob
             }
         }
 
-        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken(session: $session)));
+        $row['url'] = attr_js("immunizations.php?" . \OpenEMR\Common\Http\QueryString::build(['mode' => 'edit', 'id' => (string) $row['id'], 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]));
         $imxList[] = $row;
     }
     $id = "immunizations_ps_expand";

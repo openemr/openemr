@@ -753,9 +753,7 @@ function getCodeText($code)
                     echo " <li><a href='#'>" . text(oeFormatShortDate(substr((string) $vrow['date'], 0, 10))) . ' ' .
                         text($vrow['form_name']) . "</a></li>\n";
                     $tabcontents .= "<div class='tab' style='height:90%;width:98%;'>\n";
-                    $tabcontents .= "<iframe frameborder='0' class='h-100 w-100' " .
-                        "src='../../forms/LBF/new.php?formname=" . attr_url($formdir) . "&id=" . attr_url($formid) . "&visitid=" . attr_url($visitid) . "&from_issue_form=1'" .
-                        ">Oops</iframe>\n";
+                    $tabcontents .= "<iframe frameborder='0' class='h-100 w-100' src='../../forms/LBF/new.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['formname' => $formdir, 'id' => $formid, 'visitid' => $visitid, 'from_issue_form' => '1']) . "'>Oops</iframe>\n";
                     $tabcontents .= "</div>\n";
                 }
             }

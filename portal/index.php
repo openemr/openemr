@@ -57,7 +57,7 @@ require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
 //For redirect if the site on session does not match
-$landingpage = $globalsBag->getString('web_root') . "/portal/index.php?site=" . urlencode((string) $session->get('site_id', ''));
+$landingpage = $globalsBag->getString('web_root') . "/portal/index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id', '')]);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */

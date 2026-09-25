@@ -31,7 +31,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $ignoreAuth_onsite_portal = true;
 } else {
-    $landingpage = "./../index.php?site=" . urlencode((string) $session->get('site_id', ''));
+    $landingpage = "./../index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id', '')]);
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit;

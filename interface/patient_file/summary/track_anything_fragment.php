@@ -47,7 +47,7 @@ if (!sqlNumRows($result)) { //If there are no disclosures recorded
         $formname = $myrow['form_name'];
         $thedate = $myrow['maxdate'];
         $formid = $myrow['form_id'];
-        echo "<li><a href='../../forms/track_anything/history.php?formid=" . attr_url($formid) . "'>" . text($formname) . "</a></li> (" . text($thedate) . ")</li>";
+        echo "<li><a href='../../forms/track_anything/history.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['formid' => $formid]) . "'>" . text($formname) . "</a></li> (" . text($thedate) . ")</li>";
     }
 
     echo "</ul>";

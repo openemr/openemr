@@ -158,9 +158,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
         $parameters = [
             'pid' => $pid,
-            'redirect_link' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
-                "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
-                "&audit_render_id=" . urlencode((string) $audit_id) . "&site=" . urlencode((string) $site_id),
+            'redirect_link' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/patient/onsitedocuments?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['pid' => $pid, 'auto_render_id' => $document_id, 'auto_render_name' => $document_name, 'audit_render_id' => (string) $audit_id, 'site' => (string) $site_id]),
             'email' => '',
             'expiry_interval' => $data['expiry_interval'] ?? 'PT60M',
         ];
@@ -234,7 +232,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
+        $defaultUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $site_id, 'landOn' => 'MakePayment']);
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);

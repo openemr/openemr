@@ -711,14 +711,7 @@ function resetCounter(username) {
                                 $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . OEGlobalsBag::getInstance()->getInt('password_grace_time') . " days"));
                             }
 
-                            print "<tr>
-                                <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
-                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
-                                <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
-                                <td>" . text($iter["email"] ?? '') . "&nbsp;</td>
-                                <td>" . text($iter["info"]) . "&nbsp;</td>
-                                <td align='left'><span>" . text($iter["authorized"]) . "</td>
-                                <td align='left'><span>" . text($isMfa) . "</td>";
+                            print "<tr>\n                                <td><a href='user_admin.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['id' => $iter["id"], 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a></td>\n                                <td>" . text($iter["fname"]) . " " . text($iter["lname"]) . "&nbsp;</td>\n                                <td>" . text($iter["email"] ?? '') . "&nbsp;</td>\n                                <td>" . text($iter["info"]) . "&nbsp;</td>\n                                <td align='left'><span>" . text($iter["authorized"]) . "</td>\n                                <td align='left'><span>" . text($isMfa) . "</td>";
                             if ($checkPassExp) {
                                 if (AuthUtils::useActiveDirectory($iter["username"]) || empty($iter["active"])) {
                                     // LDAP bypasses expired password mechanism
@@ -787,9 +780,7 @@ function resetCounter(username) {
 
                 $grouplist = [];
                 foreach ($result5 as $iter) {
-                    $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . text($iter["user"]) .
-                        "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-                        attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
+                    $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . text($iter["user"]) . "(<a class='link_submit' href='usergroup_admin.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['mode' => 'delete_group', 'id' => $iter["id"], 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
                 }
 
                 foreach ($grouplist as $groupname => $list) {

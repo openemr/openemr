@@ -33,7 +33,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // kick out if patient not authenticated
 if (empty($session->get('pid')) || empty($session->get('patient_portal_onsite_two'))) {
     // landing page definition -- where to go if something goes wrong
-    $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
+    $landingpage = "../index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id')]);
 
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');

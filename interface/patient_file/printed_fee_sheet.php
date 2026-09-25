@@ -320,24 +320,7 @@ $html .= "<title>" . text($frow['name'] ?? '') . "</title>" .
     Header::setupHeader(['opener', 'topdialog'], false) .
     "<script>";
 
-$html .= "
-$(function () {
- var win = top.printLogSetup ? top : opener.top;
- win.printLogSetup(document.getElementById('printbutton'));
-});
-
-// Process click on Print button.
-function printlog_before_print() {
- var divstyle = document.getElementById('hideonprint').style;
- divstyle.display = 'none';
-}
-
-</script>
-</head>
-<body bgcolor='#ffffff'>
-<form name='theform' method='post' action='printed_fee_sheet.php?fill=" . attr_url($form_fill) . "'
-onsubmit='return opener.top.restoreSession()'>
-<div style='text-align: center;'>";
+$html .= "\n\$(function () {\n var win = top.printLogSetup ? top : opener.top;\n win.printLogSetup(document.getElementById('printbutton'));\n});\n\n// Process click on Print button.\nfunction printlog_before_print() {\n var divstyle = document.getElementById('hideonprint').style;\n divstyle.display = 'none';\n}\n\n</script>\n</head>\n<body bgcolor='#ffffff'>\n<form name='theform' method='post' action='printed_fee_sheet.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['fill' => $form_fill]) . "'\nonsubmit='return opener.top.restoreSession()'>\n<div style='text-align: center;'>";
 
 $today = date('Y-m-d');
 

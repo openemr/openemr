@@ -7,6 +7,7 @@ declare(strict_types=1);
 use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
 use OpenEMR\Rector\Rules\ConsolidateImportsRector;
 use OpenEMR\Rector\Rules\OEGlobalsBagTypedGettersRector;
+use OpenEMR\Rector\Rules\UrlencodeConcatToQueryStringRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Ternary\UnnecessaryTernaryExpressionRector;
@@ -69,6 +70,11 @@ return RectorConfig::configure()
         ArrowFunctionDelegatingCallToFirstClassCallableRector::class => [
             __DIR__ . '/config',
         ],
+        // These fixtures exist to hold hand-built query strings for the
+        // PHPStan rules that flag them; converting them defeats the tests.
+        UrlencodeConcatToQueryStringRector::class => [
+            __DIR__ . '/tests/Tests/Isolated/PHPStan/data',
+        ],
         // Rector infers `: int` return types on the two arrow functions in
         // ObservationController::saveObservation that walk untyped `mixed`
         // sub-observation arrays: `fn($sub) => $sub['id'] ?? 0`. Adding the
@@ -116,6 +122,7 @@ return RectorConfig::configure()
         OEGlobalsBagTypedGettersRector::class,
         SimplifyIfElseToTernaryRector::class,
         UnnecessaryTernaryExpressionRector::class,
+        UrlencodeConcatToQueryStringRector::class,
     ])
     ->withPhpSets()
     ->withDeadCodeLevel(5)
