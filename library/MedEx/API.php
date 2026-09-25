@@ -20,6 +20,9 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
+// Events::calculateEvents() needs checkEvent() and Date_Calc, which the background service does not load.
+require_once __DIR__ . '/../appointments.inc.php';
+
 error_reporting(0);
 
 class CurlRequest
@@ -1222,8 +1225,12 @@ class Events extends Base
                     break; }
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
-                $rnum  = $event_recurrspec['event_repeat_on_num'];
-                $rday  = $event_recurrspec['event_repeat_on_day'];
+                // Week 1..5 (5 = last) and day 0..6 (Sunday..Saturday), as RecurrenceSpec defines them.
+                $rnum  = filter_var($event_recurrspec['event_repeat_on_num'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]]);
+                $rday  = filter_var($event_recurrspec['event_repeat_on_day'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 6]]);
+                if ($rnum === false || $rday === false) {
+                    break;
+                }
                 $exdate = $event_recurrspec['exdate'];
 
                 [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
@@ -1250,7 +1257,7 @@ class Events extends Base
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                        $occurrence = \Date_Calc::NWeekdayOfMonth((string) $dnum--, (string) $rday, $nm, $ny, $format = "%Y-%m-%d");
                     } while ($occurrence === -1);
 
                     if ($occurrence >= $start_date && $occurrence <= $stop_date) {

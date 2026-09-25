@@ -1358,7 +1358,7 @@ class Date_Calc
      *
      * @access public
      *
-     * @return string date in given format
+     * @return string|int date in given format, or -1 when the month has no such weekday
      */
 
     public static function NWeekdayOfMonth($occurrence, $dayOfWeek, $month, $year, $format = "%Y%m%d")
