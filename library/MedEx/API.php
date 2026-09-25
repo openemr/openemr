@@ -1209,6 +1209,8 @@ class Events extends Base
         if (empty($appts)) {
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
+        // lastError describes this upload only, not an earlier request such as process_deletes()
+        $this->lastError = '';
         $data = ['appts' => []];
         $response = null;
         // a later batch that succeeds must not hide an earlier one that failed

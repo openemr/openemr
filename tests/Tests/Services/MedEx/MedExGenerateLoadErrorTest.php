@@ -57,6 +57,16 @@ class MedExGenerateLoadErrorTest extends TestCase
     }
 
     #[Test]
+    public function doesNotReportAnEarlierRequestsErrorAsTheUploadError(): void
+    {
+        // e.g. left by process_deletes() when recall deletion failed earlier in generate()
+        $responses = $this->generate([], 'recall deletion rejected');
+
+        $this->assertIsArray($responses);
+        $this->assertSame('MedEx did not accept the appointments', $responses['load_error'] ?? null);
+    }
+
+    #[Test]
     public function recordsNoErrorWhenMedExAcceptsTheAppointments(): void
     {
         $responses = $this->generate(['success' => 'ok']);
@@ -72,7 +82,7 @@ class MedExGenerateLoadErrorTest extends TestCase
      *
      * @param array<string, string> $loadApptsReply
      */
-    private function generate(array $loadApptsReply): mixed
+    private function generate(array $loadApptsReply, string $earlierError = ''): mixed
     {
         $curl = new class ($loadApptsReply) {
             /**
@@ -139,8 +149,10 @@ class MedExGenerateLoadErrorTest extends TestCase
             $raised[] = $message . ' at ' . basename($file) . ':' . $line;
             return true;
         });
+        $events = new Events($medex);
+        $events->lastError = $earlierError;
         try {
-            $responses = (new Events($medex))->generate('phpunit-token', [$announcement]);
+            $responses = $events->generate('phpunit-token', [$announcement]);
         } finally {
             restore_error_handler();
         }
