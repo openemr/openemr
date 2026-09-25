@@ -1302,11 +1302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$result_pat\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$setting_bootstrap_submenu\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',

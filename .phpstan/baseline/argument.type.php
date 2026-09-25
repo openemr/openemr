@@ -19128,7 +19128,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 58,
+    'count' => 48,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -19138,7 +19138,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 34,
+    'count' => 32,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [

@@ -2707,8 +2707,8 @@ class Display extends Base
     }
     public function display_add_recall($pid = 'new')
     {
-        global $result_pat;
-
+        // The form always opens empty; the patient is chosen with the search popup,
+        // which fills these fields in reminder_appts.js.
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         ?>
 
@@ -2729,8 +2729,8 @@ class Display extends Base
                             <div class="divTableCell indent20 form-group col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
-                                        value="<?php echo attr($result_pat['fname']) . " " . attr($result_pat['lname']); ?>" />
-                                <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>" />
+                                        value="" />
+                                <input type="hidden" name="new_pid" id="new_pid" value="" />
                             </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2738,11 +2738,8 @@ class Display extends Base
                             <label><?php echo xlt('DOB'); ?></label>
                         </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8">
-                            <?php
-                                $DOB = oeFormatShortDate($result_pat['DOB']);
-                            ?>
-                            <span name="new_DOB" id="new_DOB" style="width: 90px;"><?php echo text($DOB); ?></span> -
-                            <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span>
+                            <span name="new_DOB" id="new_DOB" style="width: 90px;"></span> -
+                            <span id="new_age" name="new_age"></span>
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2779,8 +2776,7 @@ class Display extends Base
                                 <label><?php echo xlt('Recall Reason'); ?></label>
                         </div>
                         <div class="form-group col-8 col-md-8 divTableCell indent20">
-                            <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                                 echo attr(rtrim("|", trim(is_string($result_pat['PLAN'] ?? null) ? $result_pat['PLAN'] : ''))); } ?>" />
+                            <input class="form-control" type="text" name="new_reason" id="new_reason" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2849,19 +2845,19 @@ class Display extends Base
                         </div>
                         <div class="divTableCell form-group col-8 col-md-8">
                             <div class="col-12 mb-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="" />
                             </div>
 
                             <div class="col-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="" />
                             </div>
 
                             <div class="col-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="" />
                             </div>
 
                             <div class="col-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="" />
                             </div>
                         </div>
                     </div>
@@ -2870,7 +2866,7 @@ class Display extends Base
                             <label><?php echo xlt('Home Phone'); ?></label>
                         </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8">
-                            <input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>" />
+                            <input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2878,7 +2874,7 @@ class Display extends Base
                             <label><?php echo xlt('Mobile Phone'); ?></label>
                         </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8">
-                            <input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>" />
+                            <input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2908,7 +2904,7 @@ class Display extends Base
                             <label><?php echo xlt('E-Mail'); ?></label>
                             </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8 form-check-inline">
-                            <input type="email" name="new_email" id="new_email" class="form-control" value="<?php echo attr($result_pat['email']); ?>" />
+                            <input type="email" name="new_email" id="new_email" class="form-control" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
