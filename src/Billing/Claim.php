@@ -242,13 +242,15 @@ class Claim
     }
 
     /**
-     * NM109 is digits. A hyphen or a space in the stored NPI must not be sent.
+     * Digits for NM109. Hyphens and spaces are removed. Any other character blanks the value.
      */
     public function x12NpiDigits(string $npi): string
     {
-        $digits = preg_replace('/\D/', '', $npi);
+        if (preg_match('/[^0-9 -]/', $npi) === 1) {
+            return '';
+        }
 
-        return $digits ?? '';
+        return str_replace(['-', ' '], '', $npi);
     }
 
     /**
