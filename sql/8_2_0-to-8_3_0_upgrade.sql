@@ -112,3 +112,8 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+-- Calendar date-range query scans the whole table without this; see #13493
+#IfNotIndex openemr_postcalendar_events pc_endDate
+CREATE INDEX `pc_endDate` ON `openemr_postcalendar_events` (`pc_endDate`);
+#EndIf
