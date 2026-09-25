@@ -196,6 +196,10 @@ class PrescriptionService extends BaseService
                 ,units_list.unit_title
                 ,units_list.unit_codes
 
+                ,combined_prescriptions.drug_form
+                ,forms_list.drug_form_title
+                ,forms_list.drug_form_codes
+
                 ,intervals_list.interval_id
                 ,intervals_list.interval_title
                 ,intervals_list.interval_codes
@@ -240,6 +244,7 @@ class PrescriptionService extends BaseService
                             ,drugs.uuid AS drug_uuid
                             ,prescriptions.drug_dosage_instructions
                             ,prescriptions.quantity
+                            ,COALESCE(prescriptions.form, drugs.form) AS drug_form
                             ,meds.medication_adherence_date_asserted
                             ,meds.medication_adherence
                             ,meds.medication_adherence_information_source
@@ -294,6 +299,7 @@ class PrescriptionService extends BaseService
                         ,NULL as drug_uuid
                         ,lists_medication.drug_dosage_instructions
                         ,NULL as quantity
+                        ,NULL AS drug_form
                         ,lists_medication.medication_adherence_date_asserted
                         ,lists_medication.medication_adherence
                         ,lists_medication.medication_adherence_information_source
@@ -353,6 +359,15 @@ class PrescriptionService extends BaseService
                   FROM list_options
                   WHERE list_id='drug_units'
                 ) units_list ON units_list.unit_id = combined_prescriptions.unit
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS drug_form_id
+                    ,title AS drug_form_title
+                    ,codes AS drug_form_codes
+                  FROM list_options
+                  WHERE list_id='drug_form'
+                ) forms_list ON forms_list.drug_form_id = combined_prescriptions.drug_form
                 LEFT JOIN
                 (
                   SELECT
