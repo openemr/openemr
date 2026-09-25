@@ -59,7 +59,7 @@ foreach ($documentIds as $documentId) {
     $path .= convert_safe_file_dir_name($cat['name']) . "/";
     // Create the folder structure at the temporary dir
     if (!is_dir($tmp . "/" . $pid . "/" . $path)) {
-        if (!mkdir($concurrentDirectory = $tmp . "/" . $pid . "/" . $path, 0777, true) && !is_dir($concurrentDirectory)) {
+        if (!mkdir($concurrentDirectory = $tmp . "/" . $pid . "/" . $path, 0700, true) && !is_dir($concurrentDirectory)) {
             die("Error creating directory!");
         }
     }
