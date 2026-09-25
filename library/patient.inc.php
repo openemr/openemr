@@ -10,16 +10,19 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Layouts\HistoryLayoutDefaults;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -1344,12 +1347,14 @@ function newHistoryData($pid, $new = false): void
 {
     $socialHistoryService = new SocialHistoryService();
 
-    $insertionRecord = $new;
-    if (!is_array(($insertionRecord))) {
-        $insertionRecord = [
-            'pid' => $pid
-        ];
-    }
+    $insertionRecord = is_array($new) ? $new : [];
+    $layoutDefaults = $socialHistoryService->fetchHistoryLayoutDefaults();
+    $insertionRecord = HistoryLayoutDefaults::apply(
+        $insertionRecord,
+        $layoutDefaults,
+        QueryUtils::listTableFields(SocialHistoryService::TABLE_NAME),
+    );
+    $insertionRecord['pid'] = $pid;
     $socialHistoryService->create($insertionRecord);
 }
 
