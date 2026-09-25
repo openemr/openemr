@@ -11,6 +11,8 @@
  */
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -229,6 +231,7 @@ if (count($file_contents) === 0) {
                 lang_id: <?php echo json_encode($lang_id);?>
                 ,translations:JSON.stringify(translations)
                 ,preview: true
+                ,csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>
             },
             function(data)
             {
@@ -258,6 +261,7 @@ if (count($file_contents) === 0) {
                 lang_id: <?php echo json_encode($lang_id);?>
                 ,translations:JSON.stringify(translations)
                 ,preview: false
+                ,csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>
             },
             function(data)
             {
