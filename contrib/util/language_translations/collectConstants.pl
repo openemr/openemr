@@ -154,12 +154,12 @@ foreach my $var (@filenames) {
  my $smartyXL = 0; #flag
 
 
- if ($fileString =~ /xl[ajtx]?\s*\(/i) {
+ if ($fileString =~ /xl[adjtx]?\s*\(/i) {
   # line contains a traditional xl(function)
   $traditionalXL = 1;
  }
 
- if ($fileString =~ /\{\s*xl[ajtx]?\s*t\s*=\s*/i) {
+ if ($fileString =~ /\{\s*xl[adjtx]?\s*t\s*=\s*/i) {
   # line contains a smarty xl function
   $smartyXL = 1;
  }
@@ -172,10 +172,10 @@ foreach my $var (@filenames) {
  # break apart each xl function statement if exist
  my @xlInstances;
  if ($smartyXL) {
-  @xlInstances = split(/\{\s*xl[ajtx]?\s*t\s*=\s*/i, $fileString);
+  @xlInstances = split(/\{\s*xl[adjtx]?\s*t\s*=\s*/i, $fileString);
  }
  elsif ($traditionalXL) {
-  @xlInstances = split(/xl[ajtx]?\s*\(+/i, $fileString);
+  @xlInstances = split(/xl[adjtx]?\s*\(+/i, $fileString);
  }
  else {
   # no xl functions to parse on this page
