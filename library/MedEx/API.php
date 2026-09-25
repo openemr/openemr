@@ -23,8 +23,6 @@ use OpenEMR\Services\VersionService;
 // Events::calculateEvents() needs checkEvent() and Date_Calc, which the background service does not load.
 require_once __DIR__ . '/../appointments.inc.php';
 
-error_reporting(0);
-
 class CurlRequest
 {
     private $url;

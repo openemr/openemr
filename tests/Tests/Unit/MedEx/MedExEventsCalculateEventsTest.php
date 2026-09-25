@@ -74,6 +74,6 @@ class MedExEventsCalculateEventsTest extends TestCase
             'pc_endDate' => '2026-12-31',
         ];
 
-        $this->assertSame($expected, (new Events(null))->calculateEvents($appointment, $start, $stop));
+        $this->assertSame($expected, (new Events((object) ['curl' => null]))->calculateEvents($appointment, $start, $stop));
     }
 }

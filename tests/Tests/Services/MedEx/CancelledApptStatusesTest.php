@@ -20,10 +20,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-// API.php calls error_reporting(0) when loaded; don't let that leak into the rest of the suite.
-$errorReportingLevel = error_reporting();
 require_once __DIR__ . '/../../../../library/MedEx/API.php';
-error_reporting($errorReportingLevel);
 
 class CancelledApptStatusesTest extends TestCase
 {
