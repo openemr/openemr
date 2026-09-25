@@ -464,6 +464,8 @@ class C_Document extends Controller
 
         $notes = $d->get_notes();
 
+        // The delete link sends this as document_pid; deleter.php refuses a document filed under another patient.
+        $this->assign("document_pid", $patient_id === null ? 0 : (int) $patient_id);
         $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken(session: $session));
 
         $this->assign("file", $d);
