@@ -88,7 +88,9 @@ repos:
     # Upstream CCDA/QRDA schematron files (HL7 IG deliverables). Consolidation.sch
     # is ~1MB; the QRDA I sch is ~574KB. Shipped verbatim so we don't need a
     # runtime Node service to fetch them.
-    exclude: ^src/Services/Cda/Schematron/schemas/.*\.sch$
+    # CMS ICD-10 code set zips (~0.7-2.2MB), replaced each fiscal year and
+    # shipped verbatim so External Data Loads can install them offline.
+    exclude: ^(src/Services/Cda/Schematron/schemas/.*\.sch|contrib/icd10/.*\.zip)$
   - id: check-merge-conflict
   - id: check-json
   # Two pretty-format-json instances split by ecosystem -- the same pattern
