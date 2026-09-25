@@ -74,37 +74,62 @@ function update_display_table(data)
     return rc;
 }
 
+// Serialize per-code AJAX posts so a second diagnosis cannot start while
+// one is outstanding. Each pick captures newcodes immediately; the queued
+// posts then use the checksum from the previous response.
+var codeselect_and_save_queue = Promise.resolve();
+
+function post_codeselect_and_save(newcodes)
+{
+    return new Promise(function (resolve) {
+        var f = document.forms[0];
+        function requestFailed() {
+            f.newcodes.value = newcodes;
+            alert('Fee sheet update failed. Please try again.');
+            resolve();
+        }
+        f.newcodes.value = newcodes;
+        top.restoreSession();
+        var form_data = $("form").serialize() + "&running_as_ajax=1";
+        $.post(fee_sheet_new, form_data)
+            .done(function (data) {
+                f.newcodes.value = "";
+                if (update_display_table(data)) {
+                    var save_data = $("form").serialize() + "&bn_save=Save&running_as_ajax=1";
+                    $.post(fee_sheet_new, save_data)
+                        .done(function (saved) {
+                            update_display_table(saved);
+                            resolve();
+                        })
+                        .fail(requestFailed);
+                } else {
+                    f.newcodes.value = newcodes;
+                    resolve();
+                }
+            })
+            .fail(requestFailed);
+    });
+}
+
 // This function is used to force an immediate save when choosing codes.
 function codeselect_and_save(selobj)
 {
-  var i = selobj ? selobj.selectedIndex : -1;
-  if (i) {
-    var f = document.forms[0];
-    if (selobj) f.newcodes.value = selobj.options[i].value;
-    // Submit the newly selected code.
-    top.restoreSession();
-    var form_data=$("form").serialize() + "&running_as_ajax=1";
-    $.post(fee_sheet_new,form_data,
-      function(data) {
-        // "data" here is the complete newly generated fee sheet HTML.
-        f.newcodes.value = "";
-        // Clear the selection
-        if (selobj) $(selobj).find("option:selected").prop("selected",false);
-        // We do a refresh and then save because refresh does not save the new line item.
-        // Note the save is skipped if refresh returned an error.
-        if (update_display_table(data)) {
-          // Save the newly selected code. Parameter running_as_ajax tells new.php
-          // to regenerate the form, including its checksum, after saving.
-          var form_data = $("form").serialize() + "&bn_save=Save&running_as_ajax=1";
-          $.post(fee_sheet_new, form_data,
-            function(data) {
-              update_display_table(data);
-            }
-          );
-        }
-      }
-    );
-  }
+    var i = selobj ? selobj.selectedIndex : -1;
+    if (selobj && i <= 0) {
+        return;
+    }
+    // The category chooser calls codeselect(null) after filling newcodes.
+    var newcodes = selobj ? selobj.options[i].value : document.forms[0].newcodes.value;
+    if (!newcodes) {
+        return;
+    }
+    document.forms[0].newcodes.value = "";
+    if (selobj) {
+        $(selobj).find("option:selected").prop("selected", false);
+    }
+    codeselect_and_save_queue = codeselect_and_save_queue.then(function () {
+        return post_codeselect_and_save(newcodes);
+    });
 }
 
 function parse_row_justify(row)
@@ -145,6 +170,15 @@ function justify_start(evt) {
             top.restoreSession();
         }
     }).done(function (data) {
+        // Preserve the current row while refreshing the checksum after the save.
+        const response = $(data.trim());
+        const error = response.find('input[name="form_alertmsg"]').val();
+        if (error) {
+            $("#wait").remove();
+            alert(error);
+            return;
+        }
+        $('input[name="form_checksum"]').val(response.find('input[name="form_checksum"]').val());
         // now init justify
         let parent = jqElem.parent();
         let template_div = parent.find("div.justify_template");
