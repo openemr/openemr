@@ -1209,6 +1209,8 @@ class Events extends Base
         }
         $data = ['appts' => []];
         $response = null;
+        // a later batch that succeeds must not hide an earlier one that failed
+        $firstError = null;
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
@@ -1219,6 +1221,9 @@ class Events extends Base
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
                 $response = $this->curl->getResponse();
+                if (is_array($response) && isset($response['error'])) {
+                    $firstError ??= $response['error'];
+                }
                 $data = ['appts' => []];
                 sleep(1);
             }
@@ -1232,6 +1237,10 @@ class Events extends Base
             $response = $this->curl->getResponse();
         }
 
+        if ($firstError !== null) {
+            $this->lastError = $firstError;
+            return false;
+        }
         if (isset($response['success'])) {
             return $response;
         } elseif (isset($response['error'])) {
