@@ -247,7 +247,13 @@ class Practice extends Base
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
 
-        $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid != 'recall_%' AND msg_reply LIKE 'To Send'";
+        // Messages to withdraw at MedEx, and the local updates that record the withdrawal.
+        // The updates are applied only once MedEx confirms the removal, so a failed or
+        // interrupted request leaves the rows "To Send" and the next sync retries it.
+        $tell_MedEx = ['DELETE_MSG' => []];
+        $withdrawn = [];
+
+        $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid NOT LIKE 'recall_%' AND msg_reply LIKE 'To Send'";
         $test = sqlStatement($sql);
         while ($result1 = sqlFetchArray($test)) {
             $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?";
@@ -257,8 +263,7 @@ class Practice extends Base
             if (
                 in_array($result2['pc_apptstatus'], ['*', ...$this->cancelledApptStatuses()], true)
             ) {
-                $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result1['msg_uid']]);
+                $withdrawn[] = ['DONE', $result2['pc_apptstatus'], $result1['msg_uid']];
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
             }
         }
@@ -271,22 +276,21 @@ class Practice extends Base
             $test3 = sqlStatement($query, [$pid]);
             $result3 = sqlFetchArray($test3);
             if ($result3) {
-                $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, [$result3['pc_eid'],$row['msg_uid']]);
+                $withdrawn[] = ['SCHEDULED', $result3['pc_eid'], $row['msg_uid']];
                 $tell_MedEx['DELETE_MSG'][] = $row['msg_pc_eid'];
             }
         }
 
-        while ($urow = sqlFetchArray($my_status)) {
-            $fields3['MedEx_lastupdated']   = $urow['MedEx_lastupdated'];
-            $fields3['ME_providers']        = $urow['ME_providers'];
-        }
-        $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token=' . $token . '&id=' . $urow['MedEx_id']));
+        // This used to loop sqlFetchArray() over $my_status, which is already a row, so the
+        // loop never ran: sync_responses and remMessaging have always been sent an empty id
+        // and no fields. Kept as-is until MedEx confirms what its server expects.
+        $medexId = '';
+        $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token=' . $token . '&id=' . $medexId));
         $this->curl->setData($fields3);
         $this->curl->makeRequest();
         $responses = $this->curl->getResponse();
 
-        foreach ($responses['messages'] as $data) {
+        foreach (is_array($responses) && is_array($responses['messages'] ?? null) ? $responses['messages'] : [] as $data) {
             $data['msg_extra'] = $data['msg_extra'] ?: '';
             $sqlQuery = "SELECT * FROM medex_outgoing WHERE medex_uid=?";
             $checker = sqlStatement($sqlQuery, [$data['msg_uid']]);
@@ -296,11 +300,19 @@ class Practice extends Base
         }
         $sqlUPDATE = "UPDATE medex_prefs SET MedEx_lastupdated=utc_timestamp()";
         sqlStatement($sqlUPDATE);
-        if ($tell_MedEx['DELETE_MSG']) {
-            $this->curl->setUrl($this->MedEx->getUrl('custom/remMessaging&token=' . $token . '&id=' . $urow['MedEx_id']));
+        if ($tell_MedEx['DELETE_MSG'] !== []) {
+            $this->curl->setUrl($this->MedEx->getUrl('custom/remMessaging&token=' . $token . '&id=' . $medexId));
             $this->curl->setData($tell_MedEx['DELETE_MSG']);
             $this->curl->makeRequest();
             $response = $this->curl->getResponse();
+            if (is_array($response) && !isset($response['error'])) {
+                foreach ($withdrawn as [$reply, $extraText, $msgUid]) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE medex_outgoing SET msg_reply = ?, msg_extra_text = ? WHERE msg_uid = ?",
+                        [$reply, $extraText, $msgUid]
+                    );
+                }
+            }
         }
         if (!empty($response['found_replies'])) {
             $response['success']['message'] = xlt("Replies retrieved") . ": " . $response['found_replies'];

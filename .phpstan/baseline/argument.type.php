@@ -19117,11 +19117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$r of function sqlFetchArray expects ADORecordSet\\|false, array\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function substr expects string, bool\\|string given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
