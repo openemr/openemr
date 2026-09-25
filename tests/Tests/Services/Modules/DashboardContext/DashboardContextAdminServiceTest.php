@@ -164,16 +164,31 @@ final class DashboardContextAdminServiceTest extends TestCase
         $this->assertSame([['context_id' => null, 'context_key' => 'primary_care']], $this->activeAssignments());
     }
 
-    public function testSystemContextKeyCannotBeTakenByACustomContext(): void
+    #[DataProvider('systemContextKeyProvider')]
+    public function testSystemContextKeyCannotBeTakenByACustomContext(string $contextKey): void
     {
         $this->assertFalse($this->service->createContext(
-            ['context_name' => 'Issue 11740 Primary Care', 'context_key' => 'primary_care'],
+            ['context_name' => 'Issue 11740 Primary Care', 'context_key' => $contextKey],
             self::USER_ID
         ));
 
         $this->assertTrue($this->service->assignContextToUser(self::USER_ID, 'primary_care', self::USER_ID));
 
         $this->assertSame([['context_id' => null, 'context_key' => 'primary_care']], $this->activeAssignments());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function systemContextKeyProvider(): array
+    {
+        return [
+            'same key' => ['primary_care'],
+            // context_key compares case-insensitively, so this row would answer lookups for primary_care.
+            'upper case' => ['PRIMARY_CARE'],
+        ];
     }
 
     public function testSystemContextAssignmentIgnoresAnOlderDefinitionWithTheSameKey(): void

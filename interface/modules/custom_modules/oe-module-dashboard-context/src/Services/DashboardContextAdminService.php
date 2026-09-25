@@ -672,10 +672,12 @@ class DashboardContextAdminService
 
     /**
      * Whether the key belongs to a built-in context rather than a custom definition
+     *
+     * context_key compares case-insensitively in the database, so PRIMARY_CARE counts as primary_care.
      */
     private function isSystemContextKey(string $contextKey): bool
     {
-        return array_key_exists($contextKey, (new DashboardContextService())->getAvailableContexts());
+        return array_key_exists(strtolower($contextKey), (new DashboardContextService())->getAvailableContexts());
     }
 
     /**
