@@ -257,7 +257,7 @@ class Practice extends Base
                 in_array($result2['pc_apptstatus'], ['*', ...$this->cancelledApptStatuses()], true)
             ) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result2['msg_uid']]);
+                sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result1['msg_uid']]);
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
             }
         }
@@ -271,7 +271,7 @@ class Practice extends Base
             $result3 = sqlFetchArray($test3);
             if ($result3) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, [$result3['pc_eid'],$result2['msg_uid']]);
+                sqlQuery($sqlUPDATE, [$result3['pc_eid'],$row['msg_uid']]);
                 $tell_MedEx['DELETE_MSG'][] = $row['msg_pc_eid'];
             }
         }
