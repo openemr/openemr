@@ -144,7 +144,8 @@ final class DashboardContextAdminServiceTest extends TestCase
         $this->assertSame('issue_11740_typed', $this->contextKeyOf($contextId));
     }
 
-    public function testAssigningACustomContextRecordsItsId(): void
+    #[DataProvider('assignedCustomContextKeyProvider')]
+    public function testAssigningACustomContextRecordsItsId(string $assignedKey): void
     {
         $contextId = $this->service->createContext(
             ['context_name' => 'Issue 11740 Typed', 'context_key' => 'issue_11740_typed'],
@@ -152,9 +153,36 @@ final class DashboardContextAdminServiceTest extends TestCase
         );
         $this->assertIsInt($contextId);
 
-        $this->assertTrue($this->service->assignContextToUser(self::USER_ID, 'issue_11740_typed', self::USER_ID));
+        $this->assertTrue($this->service->assignContextToUser(self::USER_ID, $assignedKey, self::USER_ID));
 
+        // The dashboard widget compares keys with ===, so both rows carry the definition's own spelling.
         $this->assertSame([['context_id' => $contextId, 'context_key' => 'issue_11740_typed']], $this->activeAssignments());
+        $this->assertSame('issue_11740_typed', QueryUtils::fetchSingleValue(
+            'SELECT active_context FROM user_dashboard_context WHERE user_id = ?',
+            'active_context',
+            [self::USER_ID]
+        ));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function assignedCustomContextKeyProvider(): array
+    {
+        return [
+            'same key' => ['issue_11740_typed'],
+            // context_key compares case-insensitively, so this finds the issue_11740_typed definition.
+            'upper case' => ['ISSUE_11740_TYPED'],
+        ];
+    }
+
+    public function testAssigningAKeyWithNoDefinitionRecordsNoId(): void
+    {
+        $this->assertTrue($this->service->assignContextToUser(self::USER_ID, 'issue_11740_missing', self::USER_ID));
+
+        $this->assertSame([['context_id' => null, 'context_key' => 'issue_11740_missing']], $this->activeAssignments());
     }
 
     public function testAssigningASystemContextRecordsNoId(): void

@@ -306,13 +306,14 @@ class DashboardContextAdminService
         // Custom contexts are rows of the definitions table; deleteContext() finds their assignments by this id.
         // A system key never takes an id, even from a definition saved before createContext() refused such keys.
         if ($contextId === null && !$this->isSystemContextKey($contextKey)) {
-            $definitionId = QueryUtils::fetchSingleValue(
-                "SELECT id FROM {$this->contextTable} WHERE context_key = ?",
-                'id',
+            $definition = QueryUtils::querySingleRow(
+                "SELECT id, context_key FROM {$this->contextTable} WHERE context_key = ?",
                 [$contextKey]
             );
-            if (is_numeric($definitionId)) {
-                $contextId = (int) $definitionId;
+            if (is_array($definition) && is_numeric($definition['id'] ?? null) && is_string($definition['context_key'] ?? null)) {
+                $contextId = (int) $definition['id'];
+                // The lookup ignores case; the dashboard widget compares keys with ===, so keep the definition's spelling.
+                $contextKey = $definition['context_key'];
             }
         }
 
