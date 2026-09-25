@@ -117,11 +117,22 @@ RUN apt-get update && apt-get install -y git \
 # far. Track that branch until upstream merges it into develop; the tripwire
 # above fires when install-php-extensions can install pcov cleanly, prompting
 # a switch back to the standard install path.
+#
+# The `sed -std=c99 -> -std=c11` patches pcov past a php-src master churn
+# point: on 2026-09-25 upstream removed the C11 fallback guard around the
+# `typedef max_align_t zend_max_align_t;` line in zend_portability.h, so any
+# extension compiling with `-std=c99` hits "unknown type name 'max_align_t'".
+# pcov's config.m4 hardcodes `-std=c99` into its PHP_NEW_EXTENSION call, which
+# GCC honors as the tail-most `-std=` flag on the compile line -- so passing
+# CFLAGS at ./configure time doesn't override it. Patching config.m4 before
+# phpize is the cleanest workaround. Retire once the topic branch merges
+# into develop or upstream restores the fallback.
 RUN apt-get update && apt-get install -y git \
  && mkdir -p /tmp/pcov \
  && cd /tmp/pcov \
  && git clone https://github.com/krakjoe/pcov.git . \
  && git checkout issue-php86a2 \
+ && sed -i 's/-std=c99/-std=c11/g' config.m4 \
  && phpize \
  && ./configure \
  && make && make install \
