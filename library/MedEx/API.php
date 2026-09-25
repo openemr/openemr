@@ -1054,12 +1054,16 @@ class Events extends Base
                 }
             }
         }
+        $deletes = null;
         if (!empty($RECALLS_completed)) {
             $deletes = $this->process_deletes($token, $RECALLS_completed);
         }
 
-        if (!empty($appt3)) {
-            $this->process($token, $appt3);
+        $responses = [];
+        if (!empty($appt3) && $this->process($token, $appt3) === false) {
+            // Saved with the rest of this response in medex_prefs.status. Not reported as a
+            // login error: login() disables the MedEx background service on any error.
+            $responses['load_error'] = $this->lastError !== '' ? $this->lastError : 'MedEx did not accept the appointments';
         }
         $responses['deletes'] = $deletes;
         $responses['count_appts'] = $count_appts;
