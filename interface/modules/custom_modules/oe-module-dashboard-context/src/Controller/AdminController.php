@@ -210,7 +210,7 @@ class AdminController
             return;
         }
 
-        $success = $this->adminService->removeUserAssignment($userId);
+        $success = $this->adminService->removeContextAssignment($userId, $this->adminUserId);
         $this->sendSuccess([], $success);
     }
 
