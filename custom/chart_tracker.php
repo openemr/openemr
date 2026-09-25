@@ -90,7 +90,7 @@ function userSelect() {
 
 if ($form_newloc || $form_newuser) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    if (!AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
+    if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
         AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt write: Chart Tracker", xl("Chart Tracker"));
     }
     sqlStatement("INSERT INTO `chart_tracker` (`ct_pid`, `ct_when`, `ct_userid`, `ct_location`) VALUES (?, NOW(), ?, ?)", [$form_curpid, $form_newuser, $form_newloc]);
