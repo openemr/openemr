@@ -118,6 +118,9 @@ class Base
 {
     protected $curl;
 
+    /** The error MedEx returned for the last failed request, if any. */
+    public mixed $lastError = '';
+
     /** @var list<string>|null */
     private ?array $cancelledApptStatuses = null;
 
