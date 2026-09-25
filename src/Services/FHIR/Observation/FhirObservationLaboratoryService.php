@@ -13,6 +13,7 @@
 namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -233,7 +234,9 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         if (!empty($dataRecord['report_date'])) {
             $observation->setEffectiveDateTime(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
         } else {
-            $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
+            $missingEffective = new OpenEMRFHIRDateTime();
+            $missingEffective->addExtension(UtilsService::createDataMissingExtension());
+            $observation->setEffectiveDateTime($missingEffective);
         }
 
         $obsCategoryCoding = UtilsService::createCodeableConcept([

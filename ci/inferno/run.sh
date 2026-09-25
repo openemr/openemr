@@ -125,19 +125,25 @@ run_testsuite() {
     . ci/ciLibrary.source
     # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
 
-    # Run PHPUnit tests with coverage if enabled
+    # Run PHPUnit tests with coverage if enabled.
+    # SC2310: capturing phpunit's exit code via `|| exit_code=$?` is the
+    # whole point here; losing set -e inside phpunit is intentional.
+    local exit_code=0
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # shellcheck disable=SC2310
         phpunit --testsuite certification \
                 --coverage-clover coverage.inferno-phpunit.clover.xml \
                 --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+                -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     else
+        # shellcheck disable=SC2310
         phpunit --testsuite certification \
                 --log-junit junit-inferno.xml \
-                -c "${OPENEMR_DIR}/phpunit.xml"
+                -c "${OPENEMR_DIR}/phpunit.xml" || exit_code=$?
     fi
 
     echo 'Certification Tests Executed'
+    return "${exit_code}"
 }
 
 collect_inferno_coverage() {
@@ -220,12 +226,14 @@ main() {
     initialize_openemr
 
     # Run the test suite and capture exit code
+    local exit_code=0
     # shellcheck disable=SC2310
-    if ! run_testsuite; then
-        local exit_code=$?
+    run_testsuite || exit_code=$?
+    if (( exit_code != 0 )); then
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
         # Still try to collect coverage even on failure
         if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            # shellcheck disable=SC2310
             collect_inferno_coverage || echo "Warning: Coverage collection failed"
         fi
         exit "${exit_code}"
