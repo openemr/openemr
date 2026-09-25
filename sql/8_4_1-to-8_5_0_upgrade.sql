@@ -141,3 +141,13 @@ ALTER TABLE `form_misc_billing_options` MODIFY `original_reference_number` VARCH
 #IfColumn form_misc_billing_options medicaid_resubmission_code
 ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `resubmission_code` VARCHAR(10) DEFAULT NULL;
 #EndIf
+
+-- ICD-10-CM and ICD-10-PCS FY 2027 code sets, effective 2026-10-01.
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-10-01 load_filename 2027-code-descriptions-in-tabular-order.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2026-10-01', '2027-code-descriptions-in-tabular-order.zip', 'd71d4467481e3396991576a02e030213');
+#EndIf
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-10-01 load_filename zip-file-3-2027-icd-10-pcs-codes-file.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2026-10-01', 'zip-file-3-2027-icd-10-pcs-codes-file.zip', 'ca7dd9e61622a3b9faf766ac6b1cd15d');
+#EndIf
