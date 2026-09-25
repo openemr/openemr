@@ -242,10 +242,12 @@ class Claim
     }
 
     /**
-     * Digits for NM109. Hyphens and spaces are removed. Any other character blanks the value.
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
      */
     public function x12NpiDigits(string $npi): string
     {
+        $npi = trim($npi);
         if (preg_match('/[^0-9 -]/', $npi) === 1) {
             return '';
         }
