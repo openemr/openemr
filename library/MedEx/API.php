@@ -1276,7 +1276,7 @@ class Events extends Base
                 while (strtotime((string) $occurrence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    $occurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
                     [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 //now we are cooking...
@@ -1295,7 +1295,7 @@ class Events extends Base
                     if ($excluded == false) {
                         $data[] = $occurrence;
                     }
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    $occurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
                     [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 break;
@@ -1371,15 +1371,10 @@ class Events extends Base
         return $data;
     }
 
-    private function &__increment($d, $m, $y, $f, $t)
+    private function __increment($d, $m, $y, $f, $t)
     {
-        define('REPEAT_EVERY_DAY', 0);
-        define('REPEAT_EVERY_WEEK', 1);
-        define('REPEAT_EVERY_MONTH', 2);
-        define('REPEAT_EVERY_YEAR', 3);
-        define('REPEAT_EVERY_WORK_DAY', 4);
-        define('REPEAT_DAYS_EVERY_WEEK', 6);
-
+        // the REPEAT_* constants come from library/encounter_events.inc.php, via the
+        // appointments.inc.php require at the top of this file
         if ($t == REPEAT_EVERY_DAY) {
             return date('Y-m-d', mktime(0, 0, 0, $m, ($d + $f), $y));
         } elseif ($t == REPEAT_EVERY_WORK_DAY) {
