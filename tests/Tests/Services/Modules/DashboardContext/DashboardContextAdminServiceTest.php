@@ -32,7 +32,22 @@ final class DashboardContextAdminServiceTest extends TestCase
      */
     private const USER_ID = 911740;
 
-    private static bool $moduleTablesCreatedByTest = false;
+    /**
+     * Tables created by the module's install.sql.
+     */
+    private const MODULE_TABLES = [
+        'user_dashboard_context',
+        'user_dashboard_context_config',
+        'dashboard_context_definitions',
+        'dashboard_context_assignments',
+        'dashboard_context_role_defaults',
+        'dashboard_context_audit_log',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private static array $tablesCreatedByTest = [];
 
     private DashboardContextAdminService $service;
 
@@ -45,19 +60,24 @@ final class DashboardContextAdminServiceTest extends TestCase
         );
 
         // The module is not installed in a fresh test database: install its
-        // tables for this class and uninstall them afterwards.
-        if (!QueryUtils::existsTable('dashboard_context_definitions')) {
+        // tables for this class and drop afterwards only the ones it created.
+        $missingTables = array_values(array_filter(
+            self::MODULE_TABLES,
+            static fn(string $table): bool => !QueryUtils::existsTable($table)
+        ));
+        if ($missingTables !== []) {
             self::runModuleSql('install.sql');
-            self::$moduleTablesCreatedByTest = true;
+            self::$tablesCreatedByTest = $missingTables;
         }
     }
 
     public static function tearDownAfterClass(): void
     {
-        if (self::$moduleTablesCreatedByTest) {
-            self::runModuleSql('uninstall.sql');
-            self::$moduleTablesCreatedByTest = false;
+        foreach (self::$tablesCreatedByTest as $table) {
+            QueryUtils::sqlStatementThrowException("DROP TABLE IF EXISTS `{$table}`");
         }
+        self::$tablesCreatedByTest = [];
+        QueryUtils::clearSchemaCache();
     }
 
     protected function setUp(): void
@@ -139,6 +159,18 @@ final class DashboardContextAdminServiceTest extends TestCase
 
     public function testAssigningASystemContextRecordsNoId(): void
     {
+        $this->assertTrue($this->service->assignContextToUser(self::USER_ID, 'primary_care', self::USER_ID));
+
+        $this->assertSame([['context_id' => null, 'context_key' => 'primary_care']], $this->activeAssignments());
+    }
+
+    public function testSystemContextKeyCannotBeTakenByACustomContext(): void
+    {
+        $this->assertFalse($this->service->createContext(
+            ['context_name' => 'Issue 11740 Primary Care', 'context_key' => 'primary_care'],
+            self::USER_ID
+        ));
+
         $this->assertTrue($this->service->assignContextToUser(self::USER_ID, 'primary_care', self::USER_ID));
 
         $this->assertSame([['context_id' => null, 'context_key' => 'primary_care']], $this->activeAssignments());

@@ -92,6 +92,11 @@ class DashboardContextAdminService
             $contextKey = $this->generateContextKey($data['context_name']);
         }
 
+        // A definition sharing a system key would take over that context's assignments in assignContextToUser().
+        if (array_key_exists($contextKey, (new DashboardContextService())->getAvailableContexts())) {
+            return false;
+        }
+
         $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->contextTable} WHERE context_key = ?",
             [$contextKey]
