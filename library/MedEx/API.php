@@ -500,6 +500,7 @@ class Events extends Base
                         $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
 
                         $appt2['C_UID']         = $event['C_UID'];
+                        $appt2['M_type']        = $event['M_type'];
                         $appt2['reply']         = "To Send";
                         $appt2['extra']         = "QUEUED";
                         $appt2['status']        = "SENT";
@@ -716,6 +717,7 @@ class Events extends Base
                     $appt2['email']         = $appt['email'];
                     $appt2['e_apptstatus']  = $appt['pc_apptstatus'];
                     $appt2['C_UID']         = $event['C_UID'];
+                    $appt2['M_type']        = $event['M_type'];
 
                     $appt2['reply']         = "To Send";
                     $appt2['extra']         = "QUEUED";
@@ -1041,6 +1043,7 @@ class Events extends Base
                     $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
 
                     $appt2['C_UID']         = $event['C_UID'];
+                    $appt2['M_type']        = $event['M_type'];
                     $appt2['reply']         = "To Send";
                     $appt2['extra']         = "QUEUED";
                     $appt2['status']        = "SENT";
