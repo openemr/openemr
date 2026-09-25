@@ -74,6 +74,76 @@ class MedExEventsCalculateEventsTest extends TestCase
             'pc_endDate' => '2026-12-31',
         ];
 
-        $this->assertSame($expected, (new Events(null))->calculateEvents($appointment, $start, $stop));
+        $this->assertSame($expected, $this->calculateEvents($appointment, $start, $stop));
+    }
+
+    /**
+     * Weekly appointments (pc_recurrtype 1), which step through Events::__increment().
+     *
+     * @return array<string, array{string, string, string, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function everyWeekProvider(): array
+    {
+        return [
+            'starts inside the range' => ['2026-10-06', '2026-10-01', '2026-10-31', ['2026-10-06', '2026-10-13', '2026-10-20', '2026-10-27']],
+            // steps forward from the first appointment to the start of the range first
+            'starts before the range' => ['2026-09-01', '2026-10-01', '2026-10-31', ['2026-10-06', '2026-10-13', '2026-10-20', '2026-10-27']],
+        ];
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[Test]
+    #[DataProvider('everyWeekProvider')]
+    public function weeklyRecurrenceListsItsDates(string $eventDate, string $start, string $stop, array $expected): void
+    {
+        $appointment = [
+            'pc_recurrtype' => '1',
+            'pc_recurrspec' => serialize([
+                'event_repeat_freq' => '1',
+                'event_repeat_freq_type' => '1',
+                'event_repeat_on_num' => '',
+                'event_repeat_on_day' => '',
+                'event_repeat_on_freq' => '',
+                'exdate' => '',
+            ]),
+            'pc_eventDate' => $eventDate,
+            'pc_endDate' => '2026-12-31',
+        ];
+
+        $this->assertSame($expected, $this->calculateEvents($appointment, $start, $stop));
+    }
+
+    /**
+     * Runs calculateEvents() and fails on any PHP warning or notice it raises;
+     * phpunit.xml reports those without failing the test.
+     *
+     * @param array<string, string> $appointment
+     * @return mixed
+     */
+    private function calculateEvents(array $appointment, string $start, string $stop): mixed
+    {
+        // calculateEvents() reaches __increment() through the MedEx object, as in production
+        $medex = new \stdClass();
+        $medex->curl = null;
+        $events = new Events($medex);
+        $medex->events = $events;
+
+        $raised = [];
+        set_error_handler(function (int $errno, string $message) use (&$raised): bool {
+            $raised[] = $message;
+            return true;
+        });
+        try {
+            $result = $events->calculateEvents($appointment, $start, $stop);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $raised);
+        return $result;
     }
 }

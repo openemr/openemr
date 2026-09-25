@@ -23,8 +23,6 @@ use OpenEMR\Services\VersionService;
 // Events::calculateEvents() needs checkEvent() and Date_Calc, which the background service does not load.
 require_once __DIR__ . '/../appointments.inc.php';
 
-error_reporting(0);
-
 class CurlRequest
 {
     private $url;
@@ -117,6 +115,9 @@ class CurlRequest
 class Base
 {
     protected $curl;
+
+    /** The error MedEx returned for the last failed request, if any. */
+    public mixed $lastError = '';
 
     /** @var list<string>|null */
     private ?array $cancelledApptStatuses = null;
@@ -246,7 +247,13 @@ class Practice extends Base
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
 
-        $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid != 'recall_%' AND msg_reply LIKE 'To Send'";
+        // Messages to withdraw at MedEx, and the local updates that record the withdrawal.
+        // The updates are applied only once MedEx confirms the removal, so a failed or
+        // interrupted request leaves the rows "To Send" and the next sync retries it.
+        $tell_MedEx = ['DELETE_MSG' => []];
+        $withdrawn = [];
+
+        $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid NOT LIKE 'recall_%' AND msg_reply LIKE 'To Send'";
         $test = sqlStatement($sql);
         while ($result1 = sqlFetchArray($test)) {
             $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?";
@@ -256,8 +263,7 @@ class Practice extends Base
             if (
                 in_array($result2['pc_apptstatus'], ['*', ...$this->cancelledApptStatuses()], true)
             ) {
-                $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result2['msg_uid']]);
+                $withdrawn[] = ['DONE', $result2['pc_apptstatus'], $result1['msg_uid']];
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
             }
         }
@@ -270,22 +276,21 @@ class Practice extends Base
             $test3 = sqlStatement($query, [$pid]);
             $result3 = sqlFetchArray($test3);
             if ($result3) {
-                $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
-                sqlQuery($sqlUPDATE, [$result3['pc_eid'],$result2['msg_uid']]);
+                $withdrawn[] = ['SCHEDULED', $result3['pc_eid'], $row['msg_uid']];
                 $tell_MedEx['DELETE_MSG'][] = $row['msg_pc_eid'];
             }
         }
 
-        while ($urow = sqlFetchArray($my_status)) {
-            $fields3['MedEx_lastupdated']   = $urow['MedEx_lastupdated'];
-            $fields3['ME_providers']        = $urow['ME_providers'];
-        }
-        $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token=' . $token . '&id=' . $urow['MedEx_id']));
+        // This used to loop sqlFetchArray() over $my_status, which is already a row, so the
+        // loop never ran: sync_responses and remMessaging have always been sent an empty id
+        // and no fields. Kept as-is until MedEx confirms what its server expects.
+        $medexId = '';
+        $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token=' . $token . '&id=' . $medexId));
         $this->curl->setData($fields3);
         $this->curl->makeRequest();
         $responses = $this->curl->getResponse();
 
-        foreach ($responses['messages'] as $data) {
+        foreach (is_array($responses) && is_array($responses['messages'] ?? null) ? $responses['messages'] : [] as $data) {
             $data['msg_extra'] = $data['msg_extra'] ?: '';
             $sqlQuery = "SELECT * FROM medex_outgoing WHERE medex_uid=?";
             $checker = sqlStatement($sqlQuery, [$data['msg_uid']]);
@@ -295,11 +300,19 @@ class Practice extends Base
         }
         $sqlUPDATE = "UPDATE medex_prefs SET MedEx_lastupdated=utc_timestamp()";
         sqlStatement($sqlUPDATE);
-        if ($tell_MedEx['DELETE_MSG']) {
-            $this->curl->setUrl($this->MedEx->getUrl('custom/remMessaging&token=' . $token . '&id=' . $urow['MedEx_id']));
+        if ($tell_MedEx['DELETE_MSG'] !== []) {
+            $this->curl->setUrl($this->MedEx->getUrl('custom/remMessaging&token=' . $token . '&id=' . $medexId));
             $this->curl->setData($tell_MedEx['DELETE_MSG']);
             $this->curl->makeRequest();
             $response = $this->curl->getResponse();
+            if (is_array($response) && !isset($response['error'])) {
+                foreach ($withdrawn as [$reply, $extraText, $msgUid]) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE medex_outgoing SET msg_reply = ?, msg_extra_text = ? WHERE msg_uid = ?",
+                        [$reply, $extraText, $msgUid]
+                    );
+                }
+            }
         }
         if (!empty($response['found_replies'])) {
             $response['success']['message'] = xlt("Replies retrieved") . ": " . $response['found_replies'];
@@ -500,6 +513,7 @@ class Events extends Base
                         $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
 
                         $appt2['C_UID']         = $event['C_UID'];
+                        $appt2['M_type']        = $event['M_type'];
                         $appt2['reply']         = "To Send";
                         $appt2['extra']         = "QUEUED";
                         $appt2['status']        = "SENT";
@@ -716,6 +730,7 @@ class Events extends Base
                     $appt2['email']         = $appt['email'];
                     $appt2['e_apptstatus']  = $appt['pc_apptstatus'];
                     $appt2['C_UID']         = $event['C_UID'];
+                    $appt2['M_type']        = $event['M_type'];
 
                     $appt2['reply']         = "To Send";
                     $appt2['extra']         = "QUEUED";
@@ -1041,6 +1056,7 @@ class Events extends Base
                     $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
 
                     $appt2['C_UID']         = $event['C_UID'];
+                    $appt2['M_type']        = $event['M_type'];
                     $appt2['reply']         = "To Send";
                     $appt2['extra']         = "QUEUED";
                     $appt2['status']        = "SENT";
@@ -1050,12 +1066,16 @@ class Events extends Base
                 }
             }
         }
+        $deletes = null;
         if (!empty($RECALLS_completed)) {
             $deletes = $this->process_deletes($token, $RECALLS_completed);
         }
 
-        if (!empty($appt3)) {
-            $this->process($token, $appt3);
+        $responses = [];
+        if (!empty($appt3) && $this->process($token, $appt3) === false) {
+            // Saved with the rest of this response in medex_prefs.status. Not reported as a
+            // login error: login() disables the MedEx background service on any error.
+            $responses['load_error'] = $this->lastError !== '' ? $this->lastError : 'MedEx did not accept the appointments';
         }
         $responses['deletes'] = $deletes;
         $responses['count_appts'] = $count_appts;
@@ -1201,8 +1221,12 @@ class Events extends Base
         if (empty($appts)) {
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
+        // lastError describes this upload only, not an earlier request such as process_deletes()
+        $this->lastError = '';
         $data = ['appts' => []];
         $response = null;
+        // a later batch that succeeds must not hide an earlier one that failed
+        $firstError = null;
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
@@ -1213,6 +1237,9 @@ class Events extends Base
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
                 $response = $this->curl->getResponse();
+                if (is_array($response) && isset($response['error'])) {
+                    $firstError ??= $response['error'];
+                }
                 $data = ['appts' => []];
                 sleep(1);
             }
@@ -1226,6 +1253,10 @@ class Events extends Base
             $response = $this->curl->getResponse();
         }
 
+        if ($firstError !== null) {
+            $this->lastError = $firstError;
+            return false;
+        }
         if (isset($response['success'])) {
             return $response;
         } elseif (isset($response['error'])) {
@@ -1263,7 +1294,7 @@ class Events extends Base
                 while (strtotime((string) $occurrence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    $occurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
                     [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 //now we are cooking...
@@ -1282,7 +1313,7 @@ class Events extends Base
                     if ($excluded == false) {
                         $data[] = $occurrence;
                     }
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    $occurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
                     [$ny, $nm, $nd] = explode('-', (string) $occurrence);
                 }
                 break;
@@ -1358,15 +1389,10 @@ class Events extends Base
         return $data;
     }
 
-    private function &__increment($d, $m, $y, $f, $t)
+    private function __increment($d, $m, $y, $f, $t)
     {
-        define('REPEAT_EVERY_DAY', 0);
-        define('REPEAT_EVERY_WEEK', 1);
-        define('REPEAT_EVERY_MONTH', 2);
-        define('REPEAT_EVERY_YEAR', 3);
-        define('REPEAT_EVERY_WORK_DAY', 4);
-        define('REPEAT_DAYS_EVERY_WEEK', 6);
-
+        // the REPEAT_* constants come from library/encounter_events.inc.php, via the
+        // appointments.inc.php require at the top of this file
         if ($t == REPEAT_EVERY_DAY) {
             return date('Y-m-d', mktime(0, 0, 0, $m, ($d + $f), $y));
         } elseif ($t == REPEAT_EVERY_WORK_DAY) {
@@ -2692,8 +2718,8 @@ class Display extends Base
     }
     public function display_add_recall($pid = 'new')
     {
-        global $result_pat;
-
+        // The form always opens empty; the patient is chosen with the search popup,
+        // which fills these fields in reminder_appts.js.
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         ?>
 
@@ -2714,8 +2740,8 @@ class Display extends Base
                             <div class="divTableCell indent20 form-group col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
-                                        value="<?php echo attr($result_pat['fname']) . " " . attr($result_pat['lname']); ?>" />
-                                <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>" />
+                                        value="" />
+                                <input type="hidden" name="new_pid" id="new_pid" value="" />
                             </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2723,11 +2749,8 @@ class Display extends Base
                             <label><?php echo xlt('DOB'); ?></label>
                         </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8">
-                            <?php
-                                $DOB = oeFormatShortDate($result_pat['DOB']);
-                            ?>
-                            <span name="new_DOB" id="new_DOB" style="width: 90px;"><?php echo text($DOB); ?></span> -
-                            <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span>
+                            <span name="new_DOB" id="new_DOB" style="width: 90px;"></span> -
+                            <span id="new_age" name="new_age"></span>
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2764,8 +2787,7 @@ class Display extends Base
                                 <label><?php echo xlt('Recall Reason'); ?></label>
                         </div>
                         <div class="form-group col-8 col-md-8 divTableCell indent20">
-                            <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                                 echo attr(rtrim("|", trim(is_string($result_pat['PLAN'] ?? null) ? $result_pat['PLAN'] : ''))); } ?>" />
+                            <input class="form-control" type="text" name="new_reason" id="new_reason" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2834,19 +2856,19 @@ class Display extends Base
                         </div>
                         <div class="divTableCell form-group col-8 col-md-8">
                             <div class="col-12 mb-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="" />
                             </div>
 
                             <div class="col-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="<?php echo attr($result_pat['city']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('City'); ?>" name="new_city" id="new_city" value="" />
                             </div>
 
                             <div class="col-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="<?php echo attr($result_pat['state']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('State'); ?>" name="new_state" id="new_state" value="" />
                             </div>
 
                             <div class="col-12">
-                                <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="<?php echo attr($result_pat['postal_code']); ?>" />
+                                <input type="text" class="form-control" placeholder="<?php echo xla('ZIP Code'); ?>" name="new_postal_code" id="new_postal_code" value="" />
                             </div>
                         </div>
                     </div>
@@ -2855,7 +2877,7 @@ class Display extends Base
                             <label><?php echo xlt('Home Phone'); ?></label>
                         </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8">
-                            <input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>" />
+                            <input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2863,7 +2885,7 @@ class Display extends Base
                             <label><?php echo xlt('Mobile Phone'); ?></label>
                         </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8">
-                            <input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>" />
+                            <input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2893,7 +2915,7 @@ class Display extends Base
                             <label><?php echo xlt('E-Mail'); ?></label>
                             </div>
                         <div class="divTableCell indent20 form-group col-8 col-md-8 form-check-inline">
-                            <input type="email" name="new_email" id="new_email" class="form-control" value="<?php echo attr($result_pat['email']); ?>" />
+                            <input type="email" name="new_email" id="new_email" class="form-control" value="" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
