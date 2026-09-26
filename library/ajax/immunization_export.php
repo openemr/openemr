@@ -40,4 +40,5 @@ try {
 } catch (\Throwable $e) {
     $logger = ServiceContainer::getLogger();
     $logger->error('Immunization registry spreadsheet export failed', ['exception' => $e]);
+    http_response_code(500);
 }
