@@ -41,7 +41,7 @@ class X125010837P
      * @param mixed $HLcount
      * @param mixed $edicount
      * @param mixed $patSegmentCount
-     * @return string|string[]|null
+     * @return string
      */
 
     // removed $HLBillingPayToProvider until it's supported in the generators
@@ -1652,7 +1652,7 @@ class X125010837P
             "~\n";
 
         // Remove any trailing empty fields (delimiters) from each segment.
-        $out = preg_replace('/\*+~/', '~', $out);
+        $out = preg_replace('/\*+~/', '~', $out) ?? $out;
 
         $log .= "\n";
         return $out;
