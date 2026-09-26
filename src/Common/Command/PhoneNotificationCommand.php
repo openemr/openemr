@@ -27,7 +27,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\IGlobalsAware;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
+use OpenEMR\Services\Traits\GlobalInterfaceTrait;
 use RestResponse;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
