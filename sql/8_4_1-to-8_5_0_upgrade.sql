@@ -141,3 +141,43 @@ ALTER TABLE `form_misc_billing_options` MODIFY `original_reference_number` VARCH
 #IfColumn form_misc_billing_options medicaid_resubmission_code
 ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `resubmission_code` VARCHAR(10) DEFAULT NULL;
 #EndIf
+
+-- Add TOTP replay-protection column: records the RFC 6238 time slice
+-- (floor(unix_ts/period)) of the last successfully consumed code so
+-- MfaUtils::checkTOTP can atomically reject any subsequent code whose
+-- slice is not strictly greater. Guards against A-B-A replay across
+-- two adjacent valid codes within the 90-second acceptance window.
+#IfMissingColumn login_mfa_registrations last_used_step
+ALTER TABLE `login_mfa_registrations` ADD COLUMN `last_used_step` bigint DEFAULT NULL COMMENT 'TOTP time slice (RFC 6238) of the last consumed code. Incoming codes must land on a strictly greater slice; guards against A-B-A replay across two adjacent valid codes within the 90s acceptance window.';
+#EndIf
+
+-- Add per-user + per-IP MFA challenge failure counters. Kept
+-- independent of login_fail_counter / ip_login_fail_counter so an
+-- in-progress MFA brute force is not zeroed out by the
+-- password-verify-success reset that happens on every attempt.
+#IfMissingColumn users_secure mfa_fail_counter
+ALTER TABLE `users_secure` ADD COLUMN `mfa_fail_counter` bigint DEFAULT 0 COMMENT 'Per-user MFA challenge failure counter. Independent of login_fail_counter so an in-progress MFA brute force does not get zeroed out by the password verify success that happens on every attempt.';
+#EndIf
+#IfMissingColumn users_secure mfa_last_fail
+ALTER TABLE `users_secure` ADD COLUMN `mfa_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure. Used for time-based counter reset.';
+#EndIf
+#IfMissingColumn ip_tracking mfa_login_fail_counter
+ALTER TABLE `ip_tracking` ADD COLUMN `mfa_login_fail_counter` bigint DEFAULT 0 COMMENT 'Per-IP MFA challenge failure counter. Independent of ip_login_fail_counter so an in-progress MFA brute force is not zeroed out by the password verify success on each attempt.';
+#EndIf
+#IfMissingColumn ip_tracking mfa_last_login_fail
+ALTER TABLE `ip_tracking` ADD COLUMN `mfa_last_login_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure from this IP. Used for time-based counter reset.';
+#EndIf
+
+-- Add per-portal-account failure counter. Portal auth has no per-user
+-- counter equivalent to users_secure.login_fail_counter — only the
+-- shared IP counter. An attacker holding valid credentials for one
+-- portal account could otherwise burn (threshold - 1) guesses against
+-- account B, log into A to zero the shared IP counter, and repeat
+-- indefinitely. Per-account counter is cleared only on success for
+-- that specific account, so blocks accumulate per victim account.
+#IfMissingColumn patient_access_onsite portal_fail_counter
+ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_fail_counter` bigint DEFAULT 0 COMMENT 'Per-portal-account failure counter. Independent of ip_login_fail_counter so a valid login on account A cannot clear an in-progress brute force against account B.';
+#EndIf
+#IfMissingColumn patient_access_onsite portal_last_fail
+ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last portal login failure for this account. Used for time-based counter reset.';
+#EndIf

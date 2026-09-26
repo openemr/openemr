@@ -3423,6 +3423,8 @@ CREATE TABLE `ip_tracking` (
     `ip_auto_block_emailed` tinyint DEFAULT 0,
     `ip_force_block` tinyint DEFAULT 0,
     `ip_no_prevent_timing_attack` tinyint DEFAULT 0,
+    `mfa_login_fail_counter` bigint DEFAULT 0 COMMENT 'Per-IP MFA challenge failure counter. Independent of ip_login_fail_counter so an in-progress MFA brute force is not zeroed out by the password verify success on each attempt.',
+    `mfa_last_login_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure from this IP. Used for time-based counter reset.',
     PRIMARY KEY (`id`),
     UNIQUE KEY `ip_string` (`ip_string`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
@@ -8329,6 +8331,8 @@ CREATE TABLE `patient_access_onsite`(
   `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username',
   `portal_onetime`  VARCHAR(255) DEFAULT NULL,
   `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `portal_fail_counter` bigint DEFAULT 0 COMMENT 'Per-portal-account failure counter. Independent of ip_login_fail_counter so a valid login on account A cannot clear an in-progress brute force against account B.',
+  `portal_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last portal login failure for this account. Used for time-based counter reset.',
   PRIMARY KEY (`id`),
   UNIQUE KEY `pid` (`pid`)
 )ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -9894,6 +9898,8 @@ CREATE TABLE `users_secure` (
   `login_fail_counter` INT(11) DEFAULT '0',
   `last_login_fail` datetime DEFAULT NULL,
   `auto_block_emailed` tinyint DEFAULT 0,
+  `mfa_fail_counter` bigint DEFAULT 0 COMMENT 'Per-user MFA challenge failure counter. Independent of login_fail_counter so an in-progress MFA brute force does not get zeroed out by the password verify success that happens on every attempt.',
+  `mfa_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last MFA challenge failure. Used for time-based counter reset.',
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
@@ -14080,7 +14086,8 @@ DROP TABLE IF EXISTS `login_mfa_registrations`;
 CREATE TABLE `login_mfa_registrations` (
   `user_id`         bigint(20)     NOT NULL,
   `name`            varchar(30)    NOT NULL,
-  `last_challenge`  datetime       DEFAULT NULL,
+  `last_challenge`  datetime       DEFAULT NULL COMMENT 'Timestamp of the last successful TOTP verification.',
+  `last_used_step`  bigint         DEFAULT NULL COMMENT 'TOTP time slice (RFC 6238) of the last consumed code. Incoming codes must land on a strictly greater slice; guards against A-B-A replay across two adjacent valid codes within the 90s acceptance window.',
   `method`          varchar(31)    NOT NULL COMMENT 'Q&A, U2F, TOTP etc.',
   `var1`            varchar(4096)  NOT NULL DEFAULT '' COMMENT 'Question, U2F registration etc.',
   `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',

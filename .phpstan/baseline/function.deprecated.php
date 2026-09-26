@@ -280,13 +280,13 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privQuery\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privStatement\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
@@ -622,20 +622,8 @@ Use the standard DB connections instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privStatement\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 11,
+    'count' => 10,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
-Use the standard DB connections instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
-Use the standard DB connections instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function get_db\\(\\)\\.$#',
