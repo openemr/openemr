@@ -1138,6 +1138,7 @@ $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEv
         $cid     = filter_input(INPUT_GET, 'catid', FILTER_VALIDATE_INT) ?: 0;
 
         $tabParams = array_filter([
+            'eid'        => $eid,
             'startampm'  => $startm,
             'starttimeh' => $starth,
             'userid'     => $uid,
