@@ -121,15 +121,5 @@ $ignoreErrors[] = [
     'count' => 2,
     'path' => __DIR__ . '/../../portal/index.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Call to function getPatientAge\\(\\) with incorrect case\\: getpatientAge$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFathbf.plugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function getPatientAge\\(\\) with incorrect case\\: getpatientAge$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFvbf.plugin.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

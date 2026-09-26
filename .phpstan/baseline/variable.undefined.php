@@ -1897,16 +1897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../setup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$pid$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFathbf.plugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$pid$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFvbf.plugin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$age_index might not be defined\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
