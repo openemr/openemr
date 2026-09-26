@@ -242,6 +242,7 @@ COPY openemr.sh ssl.sh xdebug.sh pcov.sh auto_configure.php /var/www/localhost/h
 
 # Copy admin unlock utilities (for password recovery)
 COPY utilities/unlock_admin.php utilities/unlock_admin.sh /root/
+COPY utilities/entrypoint_query.php utilities/EntrypointQuery.php /root/
 
 # Set script permissions:
 # - Executable scripts: 500 (read and execute for owner only)

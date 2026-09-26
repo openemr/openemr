@@ -283,6 +283,7 @@ COPY openemr.sh ssl.sh xdebug.sh auto_configure.php /var/www/localhost/htdocs/op
 
 # Copy admin unlock utilities (for password recovery)
 COPY utilities/unlock_admin.php utilities/unlock_admin.sh /root/
+COPY utilities/entrypoint_query.php utilities/EntrypointQuery.php /root/
 
 # Set script permissions:
 # - Executable scripts: 500 (read and execute for owner only)
@@ -407,6 +408,7 @@ COPY --from=production --chown=apache:apache /var/www/localhost/htdocs/openemr /
 
 # Copy additional files needed by openemr.sh
 COPY --from=production /root/devtoolsLibrary.source /root/
+COPY --from=production /root/entrypoint_query.php /root/EntrypointQuery.php /root/
 
 # Set Apache log directory environment variable (needed by Apache config)
 ENV APACHE_LOG_DIR=/var/log/apache2

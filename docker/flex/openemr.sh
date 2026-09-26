@@ -150,6 +150,7 @@ OE_ROOT="/var/www/localhost/htdocs/openemr"
 # shellcheck disable=SC2034  # AUTO_CONFIG is defined for consistency with 7.0.5, may be used in future
 AUTO_CONFIG="/var/www/localhost/htdocs/openemr/auto_configure.php"
 SQLCONF_FILE="${OE_ROOT}/sites/default/sqlconf.php"
+ENTRYPOINT_QUERY="/root/entrypoint_query.php"
 
 # ============================================================================
 # DATABASE CONFIGURATION
@@ -329,7 +330,7 @@ auto_setup() {
     rm -f auto_configure.ini
 
     echo "OpenEMR configured."
-    CONFIG=$(php -r "require_once('/var/www/localhost/htdocs/openemr/sites/default/sqlconf.php'); echo \$config;")
+    CONFIG=$(php "${ENTRYPOINT_QUERY}" config-flag "${SQLCONF_FILE}")
     if [[ "${CONFIG}" = "0" ]]; then
         echo "Error in auto-config. Configuration failed."
         exit 2
@@ -453,7 +454,7 @@ wait_for_redis() {
 # Checks if OpenEMR has already been configured.
 # Returns "1" if configured, "0" if not configured yet.
 is_configured() {
-    php -r "if (is_file('${SQLCONF_FILE}')) { require '${SQLCONF_FILE}'; echo isset(\$config) && \$config ? 1 : 0; } else { echo 0; }" 2>/dev/null | tail -1 || echo 0
+    php "${ENTRYPOINT_QUERY}" is-configured "${SQLCONF_FILE}" 2>/dev/null | tail -1 || echo 0
 }
 
 # ============================================================================
@@ -925,7 +926,7 @@ if [[ -f /var/www/localhost/htdocs/auto_configure.php ]]; then
     find /var/www/localhost/htdocs/openemr/ -name ".git" -prune -o -exec chown apache:apache {} + 2>/dev/null || true
 fi
 
-CONFIG=$(php -r "require_once('/var/www/localhost/htdocs/openemr/sites/default/sqlconf.php'); echo \$config;")
+CONFIG=$(php "${ENTRYPOINT_QUERY}" config-flag "${SQLCONF_FILE}")
 if [[ "${AUTHORITY}" = "no" ]] &&
    [[ "${CONFIG}" = "0" ]]; then
     echo "Critical failure! An OpenEMR worker is trying to run on a missing configuration."
@@ -1172,8 +1173,8 @@ if [[ "${REDIS_SERVER}" != "" ]] &&
     } > "/etc/php${PHP_VERSION_ABBR?}/conf.d/99-redis-sessions.ini"
 
     # Verify configuration was applied correctly
-    ACTUAL_HANDLER=$(php -r "echo ini_get('session.save_handler');")
-    ACTUAL_PATH=$(php -r "echo ini_get('session.save_path');")
+    ACTUAL_HANDLER=$(php "${ENTRYPOINT_QUERY}" ini-get session.save_handler)
+    ACTUAL_PATH=$(php "${ENTRYPOINT_QUERY}" ini-get session.save_path)
 
     if [[ "${ACTUAL_HANDLER}" != "redis" ]]; then
         echo "ERROR: Failed to configure session.save_handler. Expected 'redis', got '${ACTUAL_HANDLER}'"
