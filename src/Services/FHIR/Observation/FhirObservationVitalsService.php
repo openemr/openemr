@@ -1159,12 +1159,18 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             return $value;
         }
 
+        // Computed here rather than through MeasurementUtils' converters: those return
+        // number_format() strings with a thousands separator, and casting "1,102.311311" to
+        // float stops at the comma and yields 1.0 -- a 500 kg patient stored as 1 lb. The
+        // factors and precision are the ones MeasurementUtils uses, so a value converted
+        // here reads back through the read-side converters unchanged.
+        $precision = MeasurementUtils::MEASUREMENT_PRECISION;
         return match ([$from, $to]) {
-            ['kg', 'lb'] => (float) MeasurementUtils::kgToLb($value),
-            ['g', 'lb'] => (float) MeasurementUtils::kgToLb($value / 1000),
-            ['cm', 'in'] => (float) MeasurementUtils::cmToInches($value),
-            ['m', 'in'] => (float) MeasurementUtils::cmToInches($value * 100),
-            ['cel', 'degf'] => (float) MeasurementUtils::celsiusToFh($value),
+            ['kg', 'lb'] => round($value * 2.20462262185, $precision),
+            ['g', 'lb'] => round(($value / 1000) * 2.20462262185, $precision),
+            ['cm', 'in'] => round($value / 2.54, $precision),
+            ['m', 'in'] => round(($value * 100) / 2.54, $precision),
+            ['cel', 'degf'] => round(((9 / 5) * $value) + 32, $precision),
             default => null,
         };
     }

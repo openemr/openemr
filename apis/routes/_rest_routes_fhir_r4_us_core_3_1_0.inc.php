@@ -865,26 +865,26 @@ return [
     },
 
     "POST /fhir/Observation" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "encounters", "notes");
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
         $controller->setExpectedResourceType("Observation");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("encounters", "notes");
         return $controller->post($data);
     },
 
     "PUT /fhir/Observation/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "encounters", "notes");
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
         $controller->setExpectedResourceType("Observation");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("encounters", "notes");
         return $controller->put($uuid, $data);
     },
     "GET /fhir/Organization" => function (HttpRestRequest $request) {

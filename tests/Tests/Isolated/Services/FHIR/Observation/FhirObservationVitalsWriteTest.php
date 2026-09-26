@@ -185,6 +185,22 @@ class FhirObservationVitalsWriteTest extends TestCase
                 ]),
                 ['weight' => 154.323584],
             ],
+            // Converted weights of 1000 lb and up used to come back as 1-2 lb: the value went
+            // through a number_format() string whose thousands comma the float cast stopped at.
+            'weight over 1000 lb keeps its thousands' => [
+                self::observation([
+                    'code' => self::loincCode('29463-7'),
+                    'valueQuantity' => ['value' => 500, 'code' => 'kg'],
+                ]),
+                ['weight' => 1102.311311],
+            ],
+            'weight in grams over 1000 lb keeps its thousands' => [
+                self::observation([
+                    'code' => self::loincCode('29463-7'),
+                    'valueQuantity' => ['value' => 500000, 'code' => 'g'],
+                ]),
+                ['weight' => 1102.311311],
+            ],
             'weight already in pounds is stored as sent' => [
                 self::observation([
                     'code' => self::loincCode('29463-7'),
