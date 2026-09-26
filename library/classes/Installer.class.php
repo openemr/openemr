@@ -916,6 +916,8 @@ $config = 1; /////////////
         // xl('Placeholder')
         $gacl->add_object_section('Nation Notes', 'nationnotes', 10, 0, 'ACO');
         // xl('Nation Notes')
+        $gacl->add_object_section('CAMOS', 'camos', 10, 0, 'ACO');
+        // xl('CAMOS')
         $gacl->add_object_section('Patient Portal', 'patientportal', 10, 0, 'ACO');
         // xl('Patient Portal')
         $gacl->add_object_section('Menus', 'menus', 10, 0, 'ACO');
@@ -1062,6 +1064,10 @@ $config = 1; /////////////
         $gacl->add_object('nationnotes', 'Nation Notes Configure', 'nn_configure', 10, 0, 'ACO');
         // xl('Nation Notes Configure')
 
+        // Create ACO for CAMOS template curation.
+        $gacl->add_object('camos', 'CAMOS Template Curator', 'administer', 10, 0, 'ACO');
+        // xl('CAMOS Template Curator')
+
         // Create ACOs for Inventory.
         $gacl->add_object('inventory', 'Lots', 'lots', 10, 0, 'ACO');
         // xl('Lots')
@@ -1123,6 +1129,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
                 'sensitivities' => ['normal', 'high'],
                 'nationnotes' => ['nn_configure'],
+                'camos' => ['administer'],
                 'patientportal' => ['portal'],
                 'menus' => ['modle'],
                 'groups' => ['gadd','gcalendar','glog','gdlog','gm']
@@ -1189,6 +1196,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
                     'disclosure', 'rx', 'amendment', 'lab'],
                 'sensitivities' => ['normal', 'high'],
+                'camos' => ['administer'],
                 'groups' => ['gcalendar','glog']
             ],
             null,
@@ -1235,7 +1243,8 @@ $config = 1; /////////////
         // xl('Things that clinicians can read and enter but not modify')
         $gacl->add_acl(
             [
-                'patients' => ['med']
+                'patients' => ['med'],
+                'camos' => ['administer']
             ],
             null,
             [$clin],
@@ -1410,6 +1419,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
                 'sensitivities' => ['normal', 'high'],
                 'nationnotes' => ['nn_configure'],
+                'camos' => ['administer'],
                 'patientportal' => ['portal'],
                 'menus' => ['modle'],
                 'groups' => ['gadd','gcalendar','glog','gdlog','gm']

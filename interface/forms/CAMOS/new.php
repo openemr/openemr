@@ -34,7 +34,7 @@ if ((($session->get('encounter') == '') || ($session->get('pid') == '')) || (fil
 //  formHeader("Form: CAMOS");
 function myAuth(): int
 {
-    return AclMain::aclCheckCore('admin', 'super') ? 1 : 0;
+    return AclMain::aclCheckCore('camos', 'administer') ? 1 : 0;
 }
 ?>
 
@@ -76,8 +76,8 @@ $tbl_camos_item = escape_table_name("form_CAMOS_item");
 $hidden_mode = filter_input(INPUT_POST, 'hidden_mode') ?: '';
 $hidden_selection = filter_input(INPUT_POST, 'hidden_selection') ?: '';
 if ($hidden_mode !== '') {
-    if (!AclMain::aclCheckCore('admin', 'super')) {
-        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: CAMOS template administration", xl("CAMOS"));
+    if (!AclMain::aclCheckCore('camos', 'administer')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for camos/administer: CAMOS template administration", xl("CAMOS"));
     }
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
