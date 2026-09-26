@@ -843,9 +843,51 @@ if ($acl_version < $upgrade_acl) {
 
 
 
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 15
 $upgrade_acl = 15;
+if ($acl_version < $upgrade_acl) {
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
+
+    //Collect the ACL ID numbers.
+    echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+    $admin_write = AclExtended::getAclIdNumber('Administrators', 'write');
+    $doc_write = AclExtended::getAclIdNumber('Physicians', 'write');
+    $clin_write = AclExtended::getAclIdNumber('Clinicians', 'write');
+    $emergency_write = AclExtended::getAclIdNumber('Emergency Login', 'write');
+
+    //Add new object Sections
+    echo "<BR/><B>Adding new object sections</B><BR/>";
+    AclExtended::addObjectSectionAcl('camos', 'CAMOS');
+
+    //Add new Objects
+    echo "<BR/><B>Adding new objects</B><BR/>";
+    AclExtended::addObjectAcl('camos', 'CAMOS', 'administer', 'CAMOS Template Curator');
+
+    //Update already existing Objects
+    echo "<BR/><B>Upgrading objects</B><BR/>";
+
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
+    // (will also place in the appropriate group and CREATE a new group if needed)
+    echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+    //Update the ACLs
+    echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+    //Insert the 'administer' object from the 'camos' section into the Administrators group write ACL (added in 8.5.0)
+    AclExtended::updateAcl($admin_write, 'Administrators', 'camos', 'CAMOS', 'administer', 'CAMOS Template Curator', 'write');
+    //Insert the 'administer' object from the 'camos' section into the Physicians group write ACL (added in 8.5.0)
+    AclExtended::updateAcl($doc_write, 'Physicians', 'camos', 'CAMOS', 'administer', 'CAMOS Template Curator', 'write');
+    //Insert the 'administer' object from the 'camos' section into the Clinicians group write ACL (added in 8.5.0)
+    AclExtended::updateAcl($clin_write, 'Clinicians', 'camos', 'CAMOS', 'administer', 'CAMOS Template Curator', 'write');
+    //Insert the 'administer' object from the 'camos' section into the Emergency Login group write ACL (added in 8.5.0)
+    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'camos', 'CAMOS', 'administer', 'CAMOS Template Curator', 'write');
+
+    //DONE with upgrading to this version
+    $acl_version = $upgrade_acl;
+}
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 16
+$upgrade_acl = 16;
 if ($acl_version < $upgrade_acl) {
     echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
