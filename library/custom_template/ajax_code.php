@@ -44,11 +44,17 @@ $item = $_REQUEST['item'] ?? '';
 $multi = $_REQUEST['multi'] ?? '';
 $content = $_REQUEST['content'] ?? '';
 
+// Shared-administration actions (assign templates to other users, delete
+// a shared category, or preview a shared category's affected users) require
+// nn_configure. Per-user template association actions (add_template,
+// add_item, delete_item, update_item) already scope their writes by
+// authUserID and stay open for personalize.php's per-user workflow, per
+// the advisory recommendation.
 if (
-    !in_array($Source, ['check_item', 'display_item', 'item_show'], true)
+    in_array($Source, ['save_provider', 'delete_category', 'delete_full_category'], true)
     && !AclMain::aclCheckCore('nationnotes', 'nn_configure')
 ) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for nationnotes/nn_configure: Nation Notes template config", xl("Nation Notes"));
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for nationnotes/nn_configure: Nation Notes shared template administration", xl("Nation Notes"));
 }
 
 if ($Source == "add_template") {
@@ -171,14 +177,18 @@ if ($Source != "add_template") {
     while ($row = sqlFetchArray($res)) {
         $i++;
         echo "<li class='bg-dark text-light' id='clorder_" . attr($row['cl_list_slno']) . "' style='cursor:pointer'><span class='bg-dark text-light'>";
-        echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/b_edit.png' onclick='update_item_div(" . attr_js($row['cl_list_slno']) . ")'>";
+        if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
+            echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/b_edit.png' onclick='update_item_div(" . attr_js($row['cl_list_slno']) . ")'>";
+        }
         echo "<div style='display:inline' id='" . attr($row['cl_list_slno']) . "' onclick='moveOptions_11(" . attr_js($row['cl_list_slno']) . ", \"textarea1\")'>" . text($row['cl_list_item_long']) . "</div>";
-        echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/deleteBtn.png' onclick='delete_item(" . attr_js($row['cl_list_slno']) . ")'>";
-        echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . attr($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
-        echo "<input type='button' name='update' onclick='update_item(" . attr_js($row['cl_list_slno']) . ")' value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick='cancel_item(" . attr_js($row['cl_list_slno']) . ")'></div>";
+        if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
+            echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/deleteBtn.png' onclick='delete_item(" . attr_js($row['cl_list_slno']) . ")'>";
+            echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . attr($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
+            echo "<input type='button' name='update' onclick='update_item(" . attr_js($row['cl_list_slno']) . ")' value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick='cancel_item(" . attr_js($row['cl_list_slno']) . ")'></div>";
+        }
         echo "</span></li>";
     }
-    if ($templateid) {
+    if (AclMain::aclCheckCore('nationnotes', 'nn_configure') && $templateid) {
         echo "<li class='bg-dark text-light' style='cursor:pointer'><span class='bg-dark text-light' onclick='add_item()'>" . xlt('Click to add new components');
         echo "</span><div id='new_item' style='display:none' class='w-100'>";
         echo "<textarea name='item' id='item' class='w-100 bg-dark text-light'></textarea><br />";
