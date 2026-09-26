@@ -90,8 +90,10 @@ RUN set -eux; \
 #	fi; \
 	git clone https://github.com/php/php-src php; \
 	cd php; \
-# PHP 8.6 only exists on master today (no 8.6 tag or PHP-8.6 branch yet), so we clone master.
-# The point of this nightly image is to catch breakage against in-development PHP 8.6 early.
+# PHP 8.7 only exists on master today (no 8.7 tag or PHP-8.7 branch yet), so we clone master.
+# The point of this nightly image is to catch breakage against in-development PHP 8.7 early.
+# (When 8.6 was in this slot the same rationale applied; it graduated to
+# php:8.6-rc-fpm once upstream cut a PHP-8.6 branch + published RC images.)
 #	git checkout "$( \
 #		git for-each-ref --format='%(refname)' refs/tags \
 #		| grep -E 'refs/tags/php-8\.2[.0-9]+$' \
@@ -121,7 +123,6 @@ RUN set -eux; \
 		libcurl4-openssl-dev \
 		libedit-dev \
 		libffi-dev \
-		libonig-dev \
 		libreadline-dev \
 		libsodium-dev \
 		libsqlite3-dev \
@@ -159,8 +160,14 @@ RUN set -eux; \
 # --with-pic removed: newer Libtool rejects it as obsolete. PIC code is already produced via -fpic in PHP_CFLAGS above.
 # --enable-ftp is included here because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
 		--enable-ftp \
-# --enable-mbstring is included here because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
-		--enable-mbstring \
+# mbstring intentionally NOT bundled here, matching docker-library/php's 8.6+
+# policy (see docker-library/php#1654). Upstream dropped `--enable-mbstring`
+# and `libonig-dev` from the 8.6-rc image alongside `--with-pear`, since
+# mbstring was only bundled to support the removed PECL binary. Mirroring
+# that policy here keeps the 8.7 dev-track sidecar shape aligned with what
+# the eventual official php:8.7-fpm image will ship, so the sidecar catches
+# mbstring-related surprises before they hit downstream users. Sidecars
+# (dev-php-fpm-8-6, dev-php-fpm-8-7) install mbstring via install-php-extensions.
 # --enable-mysqlnd is included here because it's harder to compile after the fact than extensions are (since it's a plugin for several extensions, not an extension in itself)
 		--enable-mysqlnd \
 # https://wiki.php.net/rfc/argon2_password_hash (7.2+)
@@ -281,7 +288,7 @@ STOPSIGNAL SIGQUIT
 ### Verify
 ###
 RUN set -x \
-	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.6' \
+	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.7' \
 	&& /usr/local/sbin/php-fpm --test \
 	&& PHP_ERROR="$( php -v 2>&1 1>/dev/null )" \
 	&& if [ -n "${PHP_ERROR}" ]; then echo "${PHP_ERROR}"; false; fi

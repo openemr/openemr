@@ -20,6 +20,9 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
+// Events::calculateEvents() needs checkEvent() and Date_Calc, which the background service does not load.
+require_once __DIR__ . '/../appointments.inc.php';
+
 error_reporting(0);
 
 class CurlRequest
@@ -115,9 +118,58 @@ class Base
 {
     protected $curl;
 
+    /** @var list<string>|null */
+    private ?array $cancelledApptStatuses = null;
+
     public function __construct(protected $MedEx)
     {
         $this->curl = $this->MedEx->curl;
+    }
+
+    /**
+     * Appointment statuses meaning the appointment is cancelled or rescheduled,
+     * from the medex_cancelled_apptstatus global, limited to ids in the apptstat list.
+     *
+     * @return list<string>
+     */
+    protected function cancelledApptStatuses(): array
+    {
+        if ($this->cancelledApptStatuses !== null) {
+            return $this->cancelledApptStatuses;
+        }
+        $globals = OEGlobalsBag::getInstance();
+        // not yet written to the globals table on sites that haven't run sql_upgrade.php
+        $configured = $globals->has('medex_cancelled_apptstatus')
+            ? $globals->getString('medex_cancelled_apptstatus')
+            : '%;x';
+        // Inactive statuses are included: appointments can still carry a status that
+        // has since been retired from the picker.
+        $known = array_filter(
+            QueryUtils::fetchTableColumn("SELECT option_id FROM list_options WHERE list_id = 'apptstat'", 'option_id'),
+            is_string(...)
+        );
+        $this->cancelledApptStatuses = array_values(array_intersect(explode(';', $configured), $known));
+        return $this->cancelledApptStatuses;
+    }
+
+    /**
+     * SQL fragment excluding cancelled appointments. The statuses are escaped literals
+     * rather than placeholders because these queries assemble their bound parameters
+     * positionally and can't take new ones safely.
+     */
+    protected function cancelledApptStatusClause(string $column = 'pc_apptstatus'): string
+    {
+        $quoted = [];
+        foreach ($this->cancelledApptStatuses() as $status) {
+            $escaped = \add_escape_custom($status);
+            if (is_string($escaped)) {
+                $quoted[] = "'" . $escaped . "'";
+            }
+        }
+        if ($quoted === []) {
+            return '';
+        }
+        return " AND " . $column . " NOT IN (" . implode(',', $quoted) . ") ";
     }
 }
 
@@ -200,10 +252,10 @@ class Practice extends Base
             $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?";
             $test2 = sqlStatement($query, [$result1['msg_pc_eid']]);
             $result2 = sqlFetchArray($test2);
-            //for custom installs, insert custom apptstatus here that mean appt is not happening/changed
+            // withdraw queued messages for cancelled appointments, and for '*' (reminder done by staff)
             if (
-                in_array($result2['pc_apptstatus'], ['*', '%', 'x'])
-            ) { //cancelled
+                in_array($result2['pc_apptstatus'], ['*', ...$this->cancelledApptStatuses()], true)
+            ) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result2['msg_uid']]);
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
@@ -316,6 +368,9 @@ class Events extends Base
         $prefs = sqlQuery($sql2);
 
         foreach ($events as $event) {
+            if (!is_array($event)) {
+                continue;
+            }
             $escClause = [];
             $escapedArr = [];
             $build_langs = '';
@@ -338,22 +393,19 @@ class Events extends Base
             if ($event['M_group'] == 'REMINDER') {
                 if ($event['time_order'] > '0') {
                     $interval = "+";
-                    //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
                     if ($event['E_instructions'] == "stop") {   // ie. don't send this if it has been confirmed.
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                         // OR send anyway - unless appstatus is not cancelled, then it is no longer an appointment to confirm...
                     } elseif ($event['E_instructions'] == "always") {  //send anyway
-                        $appt_status = " and pc_apptstatus != '%'
-                                         and pc_apptstatus != 'x' ";
+                        $appt_status = $this->cancelledApptStatusClause();
                     } else { //reminders are always or stop, that's it
                         $event['E_instructions'] = 'stop';
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                     }
                 } else {
                      $interval = '-';
-                     $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat')
-                                     and pc_apptstatus != '%'
-                                     and pc_apptstatus != 'x' ";
+                     $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat') "
+                                    . $this->cancelledApptStatusClause();
                 }
                 //T_appt_stats = list of appstat(s) to restrict event to in a '|' separated list
                 //Currently GoGreen only but added this for future flexibility in refining Appt Reminders too
@@ -428,7 +480,9 @@ class Events extends Base
                         $appt2['pc_startTime']  = $appt['pc_startTime'];
                         $appt2['pc_eid']        = $appt['pc_eid'];
                         $appt2['pc_aid']        = $appt['pc_aid'];
-                        $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                        $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                        $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                        $appt2['reason']        = $appt['pc_hometext'] ?? '';
                         $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                         $appt2['language']      = $appt['language'];
                         $appt2['pc_facility']   = $appt['pc_facility'];
@@ -461,9 +515,12 @@ class Events extends Base
                     continue;
                 }
 
+                // pat.pid > '' drops recalls whose patient no longer exists; the LEFT JOIN would
+                // otherwise return them with every patient column NULL, and they can never complete.
                 $query  = "SELECT * FROM medex_recalls AS recall
                             LEFT JOIN patient_data AS pat ON recall.r_pid=pat.pid
                             WHERE (recall.r_eventDate < CURDATE() " . $interval . " INTERVAL " . $timing . " DAY)
+                              AND pat.pid > ''
                             ORDER BY recall.r_eventDate";
                 $result = sqlStatement($query);
 
@@ -472,7 +529,7 @@ class Events extends Base
                     if ($results == false) {
                         continue;
                     }
-                    $show = $this->MedEx->display->show_progress_recall($recall, $event);
+                    $show = $this->MedEx->display->show_progress_recall($recall, $events);
                     if ($show['DONE'] == '1') {
                         $RECALLS_completed[] = $recall;
                         continue;
@@ -509,6 +566,8 @@ class Events extends Base
                     $recall2['phone_cell']    = $recall['phone_cell'];
                     $recall2['email']         = $recall['email'];
                     $recall2['C_UID']         = $event['C_UID'];
+                    // process() matches medex_outgoing on msg_type; without it the row stays 'To Send'
+                    $recall2['M_type']        = $event['M_type'];
                     $recall2['reply']         = "To Send";
                     $recall2['extra']         = "QUEUED";
                     $recall2['status']        = "SENT";
@@ -520,10 +579,13 @@ class Events extends Base
                 if (empty($event['start_date'])) {
                     continue;
                 }
-                $today = strtotime(date('Y-m-d'));
-                $start = strtotime((string) $event['appts_start']);
+                $today     = strtotime(date('Y-m-d'));
+                $send_date = strtotime(is_string($event['start_date']) ? $event['start_date'] : '');
+                $start     = strtotime((string) $event['appts_start']);
 
-                if ($today < $start) {
+                // wait for the campaign's send date, not the first appointment date it targets;
+                // an unparsable date would otherwise compare as 0 and send immediately
+                if ($send_date === false || $today < $send_date) {
                     continue;
                 }
                 if ($start >= $today) {
@@ -635,7 +697,9 @@ class Events extends Base
                     $appt2['pc_startTime']  = $appt['pc_startTime'];
                     $appt2['pc_eid']        = $event['C_UID'] . '_' . $appt['pc_eid'];
                     $appt2['pc_aid']        = $appt['pc_aid'];
-                    $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                    $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                    $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                    $appt2['reason']        = $appt['pc_hometext'] ?? '';
                     $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                     $appt2['language']      = $appt['language'];
                     $appt2['pc_facility']   = $appt['pc_facility'];
@@ -697,9 +761,8 @@ class Events extends Base
                                     WHERE (
                                         cal.pc_eventDate > CURDATE() - INTERVAL " . filter_var($event['timing'], FILTER_VALIDATE_INT, ['options' => ['default' => 180]]) . " DAY AND
                                         cal.pc_eventDate < CURDATE() - INTERVAL 3 DAY) AND
-                                        pat.pid=cal.pc_pid AND
-                                        pc_apptstatus !='%' AND
-                                        pc_apptstatus != 'x' " .
+                                        pat.pid=cal.pc_pid " .
+                                        $this->cancelledApptStatusClause() .
                                         $appt_status .
                                         $facility_clause . "
                                         AND cal.pc_aid IN (?)
@@ -718,7 +781,9 @@ class Events extends Base
                         $appt2['pc_startTime']  = $appt['pc_startTime'];
                         $appt2['pc_eid']        = $appt['pc_eid'];
                         $appt2['pc_aid']        = $appt['pc_aid'];
-                        $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                        $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                        $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                        $appt2['reason']        = $appt['pc_hometext'] ?? '';
                         $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                         $appt2['language']      = $appt['language'];
                         $appt2['pc_facility']   = $appt['pc_facility'];
@@ -956,7 +1021,9 @@ class Events extends Base
                     $appt2['pc_startTime']  = $appt['pc_startTime'];
                     $appt2['pc_eid']        = $appt['pc_eid'];
                     $appt2['pc_aid']        = $appt['pc_aid'];
-                    $appt2['e_reason']      = (!empty($appt['e_reason'])) ?: '';
+                    $appt2['pc_catid']      = $appt['pc_catid'] ?? '';
+                    $appt2['pc_duration']   = $appt['pc_duration'] ?? 0;
+                    $appt2['reason']        = $appt['pc_hometext'] ?? '';
                     $appt2['e_is_subEvent_of'] = (!empty($appt['e_is_subEvent_of'])) ?: "0";
                     $appt2['language']      = $appt['language'];
                     $appt2['pc_facility']   = $appt['pc_facility'];
@@ -1134,7 +1201,8 @@ class Events extends Base
         if (empty($appts)) {
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
-        $data = [];
+        $data = ['appts' => []];
+        $response = null;
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
@@ -1144,15 +1212,19 @@ class Events extends Base
                 $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
-                $this->curl->getResponse();
-                $data       = [];
+                $response = $this->curl->getResponse();
+                $data = ['appts' => []];
                 sleep(1);
             }
         }
-        $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
-        $this->curl->setData($data);
-        $this->curl->makeRequest();
-        $response = $this->curl->getResponse();
+        // when the count lands exactly on a batch boundary, the last batch has already
+        // gone out and $response holds its reply
+        if ($data['appts'] !== []) {
+            $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token=' . $token));
+            $this->curl->setData($data);
+            $this->curl->makeRequest();
+            $response = $this->curl->getResponse();
+        }
 
         if (isset($response['success'])) {
             return $response;
@@ -1222,8 +1294,12 @@ class Events extends Base
                     break; }
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
-                $rnum  = $event_recurrspec['event_repeat_on_num'];
-                $rday  = $event_recurrspec['event_repeat_on_day'];
+                // Week 1..5 (5 = last) and day 0..6 (Sunday..Saturday), as RecurrenceSpec defines them.
+                $rnum  = filter_var($event_recurrspec['event_repeat_on_num'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]]);
+                $rday  = filter_var($event_recurrspec['event_repeat_on_day'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 6]]);
+                if ($rnum === false || $rday === false) {
+                    break;
+                }
                 $exdate = $event_recurrspec['exdate'];
 
                 [$ny, $nm, $nd] = explode('-', (string) $event['pc_eventDate']);
@@ -1250,7 +1326,7 @@ class Events extends Base
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                        $occurrence = \Date_Calc::NWeekdayOfMonth((string) $dnum--, (string) $rday, $nm, $ny, $format = "%Y-%m-%d");
                     } while ($occurrence === -1);
 
                     if ($occurrence >= $start_date && $occurrence <= $stop_date) {
@@ -2321,6 +2397,9 @@ class Display extends Base
     public function show_progress_recall($recall, $events = '')
     {
         global $logged_in;
+        if (!is_array($recall)) {
+            throw new \InvalidArgumentException('Recall must be an array');
+        }
         //Two scenarios: First, appt is made as recall asks. Second, appt is made not for recall reason - recall still needed.
         //We can either require all recalls to be manually deleted or do some automatically...  If manual only,
         //the secretary looking at the board will need to know when they were last seen at least and when next appt is
@@ -2342,9 +2421,9 @@ class Display extends Base
 
         if ($count) {
             $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid = ?";
-            sqlStatement($sqlDELETE, ['recall_' . $recall['pid']]);
+            sqlStatement($sqlDELETE, ['recall_' . $recall['r_pid']]);
             $sqlDELETE = "DELETE FROM medex_recalls WHERE r_pid = ?";
-            sqlStatement($sqlDELETE, [$recall['pid']]);
+            sqlStatement($sqlDELETE, [$recall['r_pid']]);
             //log this action "Recall for $pid deleted now()"?
             $show['DONE'] = '1';//tells recall board to move on.
             $show['status'] = 'greenish'; //tells MedEx to move on, don't process this recall - delete it from their servers.
@@ -2354,7 +2433,7 @@ class Display extends Base
         }
 
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid = ?  ORDER BY msg_date ASC";
-        $result = sqlStatement($sql, ['recall_' . $recall['pid']]);
+        $result = sqlStatement($sql, ['recall_' . $recall['r_pid']]);
         $something_happened = '';
 
         while ($progress = sqlFetchArray($result)) {
@@ -2449,7 +2528,7 @@ class Display extends Base
                 $show['campaign'][$event['C_UID']] = $event;
                 $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
 
-                $rEventDate = is_array($recall) ? (is_string($recall['r_eventDate'] ?? null) ? $recall['r_eventDate'] : '') : '';
+                $rEventDate = is_string($recall['r_eventDate'] ?? null) ? $recall['r_eventDate'] : '';
                 $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($rEventDate)));
                 $date1 = date('Y-m-d');
                 $date_diff = strtotime($date1) - strtotime($rEventDate);
@@ -2466,7 +2545,7 @@ class Display extends Base
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
-        $result = sqlFetchArray(sqlStatement($query, [$recall['pid']]));
+        $result = sqlFetchArray(sqlStatement($query, [$recall['r_pid']]));
 
         if ($something_happened || $result) {
             if ($result) {
@@ -2492,7 +2571,7 @@ class Display extends Base
             $show['status'] = "whitish";
         }
         if ($logged_in) {
-            $show['progression'] =   '<div onclick="SMS_bot(\'recall_' . $recall['pid'] . '\');">' . $show['progression'] . '</div>';
+            $show['progression'] =   '<div onclick="SMS_bot(\'recall_' . $recall['r_pid'] . '\');">' . $show['progression'] . '</div>';
         }
         return $show;
     }

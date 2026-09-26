@@ -10,20 +10,18 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-# 8.6-rc rolls forward as upstream cuts new RCs, giving the dev-track sidecar
-# coverage of the imminent 8.6 GA. The dev-source (php-src master) slot moved
-# to 8.7 in dev-php-fpm-8-7.
-FROM php:8.6-rc-fpm
+FROM openemr/dev-php-fpm:pre-build-dev-87
 
 # Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
 #
-# libonig-dev is needed for mbstring's mbregex functionality; php:8.6-rc-fpm
-# no longer bundles mbstring (docker-library/php#1654 dropped `--enable-mbstring`
-# alongside PECL removal), so install-php-extensions compiles it from source
-# below and needs oniguruma headers apt-installed first.
+# libonig-dev is needed for mbstring's mbregex functionality; the from-source
+# base intentionally omits `--enable-mbstring` to mirror docker-library/php's
+# 8.6+ policy (see dev-php-fpm/Dockerfile for the rationale), so mbstring is
+# installed via install-php-extensions below and needs oniguruma headers apt-
+# installed first.
 RUN apt-get update \
  && apt-get install -y curl \
                        imagemagick \
@@ -119,11 +117,22 @@ RUN apt-get update && apt-get install -y git \
 # far. Track that branch until upstream merges it into develop; the tripwire
 # above fires when install-php-extensions can install pcov cleanly, prompting
 # a switch back to the standard install path.
+#
+# The `sed -std=c99 -> -std=c11` patches pcov past a php-src master churn
+# point: on 2026-09-25 upstream removed the C11 fallback guard around the
+# `typedef max_align_t zend_max_align_t;` line in zend_portability.h, so any
+# extension compiling with `-std=c99` hits "unknown type name 'max_align_t'".
+# pcov's config.m4 hardcodes `-std=c99` into its PHP_NEW_EXTENSION call, which
+# GCC honors as the tail-most `-std=` flag on the compile line -- so passing
+# CFLAGS at ./configure time doesn't override it. Patching config.m4 before
+# phpize is the cleanest workaround. Retire once the topic branch merges
+# into develop or upstream restores the fallback.
 RUN apt-get update && apt-get install -y git \
  && mkdir -p /tmp/pcov \
  && cd /tmp/pcov \
  && git clone https://github.com/krakjoe/pcov.git . \
  && git checkout issue-php86a2 \
+ && sed -i 's/-std=c99/-std=c11/g' config.m4 \
  && phpize \
  && ./configure \
  && make && make install \
@@ -134,10 +143,9 @@ RUN apt-get update && apt-get install -y git \
 # imagick, redis, and pcov are handled by the from-source workaround blocks above;
 # the tripwire above monitors when they can move back into this list.
 #
-# mbstring is explicitly listed because php:8.6-rc-fpm no longer bundles it
-# (docker-library/php#1654 dropped `--enable-mbstring` from the 8.6+ image
-# template alongside PECL removal). libonig-dev is already apt-installed above
-# so install-php-extensions can compile it.
+# mbstring is explicitly listed because the from-source base intentionally omits
+# `--enable-mbstring` to mirror docker-library/php#1654's 8.6+ policy. libonig-dev
+# is already apt-installed above so install-php-extensions can compile it.
 RUN install-php-extensions bcmath \
                            calendar \
                            dom \
