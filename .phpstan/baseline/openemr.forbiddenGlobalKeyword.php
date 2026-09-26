@@ -1604,11 +1604,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$formid\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFathbf.plugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$formid\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../sites/default/LBF/LBFathv.plugin.php',
 ];
 $ignoreErrors[] = [
@@ -1630,11 +1625,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$pid, \\$encounter\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../sites/default/LBF/LBFgcac.plugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$formid\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/LBF/LBFvbf.plugin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$sqlconf\\)\\. Use dependency injection instead\\.$#',
