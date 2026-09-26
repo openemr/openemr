@@ -14,6 +14,8 @@ namespace OpenEMR\Services\FHIR\Observation;
 use BadMethodCallException;
 use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -29,6 +31,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirDateTimeParser;
+use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -1039,5 +1043,605 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE, self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION => self::VITALS_CODE_PULSE_OXIMETRY,
             default => $code,
         };
+    }
+
+    /**
+     * Storage columns each writable vitals code maps to.
+     *
+     * COLUMN_MAPPINGS pairs every value column with a `<column>_unit` name, but those
+     * unit names are synthesized on read by VitalsService::search() and have no column
+     * behind them in `form_vitals`, so the write path keys off the value columns alone.
+     *
+     * `unit` is the unit the column is stored in. VitalsService::search() converts
+     * weight/height/head_circ/temperature out of storage when the units_of_measurement
+     * global asks for metric, so a client can legitimately send either spelling; the
+     * write converts back rather than trusting the number it was handed.
+     *
+     * @var array<string, array<string, array{unit: string}>>
+     */
+    private const VITALS_WRITE_COLUMNS = [
+        '9279-1' => ['respiration' => ['unit' => '/min']],
+        '8867-4' => ['pulse' => ['unit' => '/min']],
+        '8310-5' => ['temperature' => ['unit' => 'degF']],
+        '8302-2' => ['height' => ['unit' => 'in']],
+        '9843-4' => ['head_circ' => ['unit' => 'in']],
+        '29463-7' => ['weight' => ['unit' => 'lb']],
+        self::VITALS_CODE_BLOOD_PRESSURE => [
+            'bps' => ['unit' => 'mm[Hg]'],
+            'bpd' => ['unit' => 'mm[Hg]'],
+        ],
+        self::VITALS_CODE_PULSE_OXIMETRY => [
+            'oxygen_saturation' => ['unit' => '%'],
+            'oxygen_flow_rate' => ['unit' => 'L/min'],
+            'inhaled_oxygen_concentration' => ['unit' => '%'],
+        ],
+        self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION => [
+            'oxygen_saturation' => ['unit' => '%'],
+            'oxygen_flow_rate' => ['unit' => 'L/min'],
+            'inhaled_oxygen_concentration' => ['unit' => '%'],
+        ],
+        '8289-1' => ['ped_head_circ' => ['unit' => '%']],
+        '59576-9' => ['ped_bmi' => ['unit' => '%']],
+        '77606-2' => ['ped_weight_height' => ['unit' => '%']],
+    ];
+
+    /**
+     * Codes this service reads but deliberately will not write, with the reason the
+     * client gets back.
+     *
+     * Rejecting beats accepting-and-dropping: a client that posts a BMI and reads back
+     * a different one has no way to tell the value was recomputed.
+     *
+     * @var array<string, string>
+     */
+    private const VITALS_UNWRITABLE_CODES = [
+        self::VITALS_PANEL_LOINC_CODE =>
+            'the vital signs panel is assembled from its members on read; post the individual vital signs instead',
+        '39156-5' =>
+            'BMI is derived from height and weight; post those instead',
+        self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE =>
+            'average blood pressure is calculated across encounters and is not stored',
+        '8327-9' =>
+            'temperature location is recorded with the temperature reading, not on its own',
+    ];
+
+    /**
+     * Component code -> storage column, for the two panel codes that carry their values
+     * in Observation.component rather than Observation.valueQuantity.
+     *
+     * @var array<string, string>
+     */
+    private const VITALS_COMPONENT_COLUMNS = [
+        self::VITALS_CODE_SYSTOLIC_BLOOD_PRESSURE => 'bps',
+        self::VITALS_CODE_DIASTOLIC_BLOOD_PRESSURE => 'bpd',
+        self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION => 'oxygen_saturation',
+        self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE => 'oxygen_flow_rate',
+        self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION => 'inhaled_oxygen_concentration',
+    ];
+
+    /**
+     * Builds a parsed record carrying a validation message for the caller to surface.
+     *
+     * @return array<string, mixed>
+     */
+    private static function vitalsValidationError(string $field, string $message): array
+    {
+        return [
+            '__validation_error__' => $message,
+            '__validation_field__' => $field,
+        ];
+    }
+
+    /**
+     * Converts an incoming quantity into the unit the column is stored in.
+     *
+     * Returns null when the unit is one this service cannot place. Storing the bare
+     * number in that case would silently record 70 lb for a 70 kg patient, so callers
+     * reject instead.
+     */
+    private static function convertQuantityToStorageUnit(float $value, string $fromUnit, string $storageUnit): ?float
+    {
+        $from = strtolower(trim($fromUnit));
+        // UCUM spells several of these more than one way, and the read side emits the
+        // short forms, so both are accepted.
+        $from = match ($from) {
+            '[lb_av]', 'lbs' => 'lb',
+            '[in_i]', 'inch', 'inches' => 'in',
+            '[degf]', 'f' => 'degf',
+            'cel', 'c' => 'cel',
+            '1/min', 'bpm', 'beats/min', 'breaths/min' => '/min',
+            '%%' => '%',
+            default => $from,
+        };
+        $to = strtolower($storageUnit);
+
+        if ($from === $to) {
+            return $value;
+        }
+
+        // Computed here rather than through MeasurementUtils' converters: those return
+        // number_format() strings with a thousands separator, and casting "1,102.311311" to
+        // float stops at the comma and yields 1.0 -- a 500 kg patient stored as 1 lb. The
+        // factors and precision are the ones MeasurementUtils uses, so a value converted
+        // here reads back through the read-side converters unchanged.
+        $precision = MeasurementUtils::MEASUREMENT_PRECISION;
+        return match ([$from, $to]) {
+            ['kg', 'lb'] => round($value * 2.20462262185, $precision),
+            ['g', 'lb'] => round(($value / 1000) * 2.20462262185, $precision),
+            ['cm', 'in'] => round($value / 2.54, $precision),
+            ['m', 'in'] => round(($value * 100) / 2.54, $precision),
+            ['cel', 'degf'] => round(((9 / 5) * $value) + 32, $precision),
+            default => null,
+        };
+    }
+
+    /**
+     * Pulls a numeric quantity value + unit out of a FHIR element.
+     *
+     * @param mixed $quantity The FHIRQuantity fragment as decoded JSON.
+     * @return array{value: float, unit: string}|null Null when there is no usable value.
+     */
+    private static function readQuantity(mixed $quantity): ?array
+    {
+        $fragment = FhirPayloadReader::stringKeyed($quantity);
+        $value = $fragment['value'] ?? null;
+        if (!is_int($value) && !is_float($value) && !(is_string($value) && is_numeric($value))) {
+            return null;
+        }
+        // Quantity.code is the UCUM symbol and Quantity.unit the human spelling; prefer
+        // the coded form, which is what the read side round-trips.
+        $unit = FhirPayloadReader::getString($fragment, 'code')
+            ?? FhirPayloadReader::getString($fragment, 'unit')
+            ?? '';
+
+        return ['value' => (float) $value, 'unit' => $unit];
+    }
+
+    /**
+     * Parses a FHIR Observation carrying a vital sign into the columns it writes.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRObservation)) {
+            throw new InvalidArgumentException(
+                'Expected FHIRObservation resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        $code = FhirPayloadReader::firstCodingCode($json['code'] ?? null);
+        if ($code === '') {
+            return self::vitalsValidationError('code', 'Observation.code is required (FHIR R4 1..1)');
+        }
+        $data['code'] = $code;
+
+        if (isset(self::VITALS_UNWRITABLE_CODES[$code])) {
+            return self::vitalsValidationError(
+                'code',
+                'Observation.code "' . $code . '" cannot be written: ' . self::VITALS_UNWRITABLE_CODES[$code]
+            );
+        }
+        if (!isset(self::VITALS_WRITE_COLUMNS[$code])) {
+            return self::vitalsValidationError(
+                'code',
+                'Observation.code "' . $code . '" is not a vital sign OpenEMR can store'
+            );
+        }
+
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        $subjectUuid = $subjectRef === null
+            ? null
+            : (UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null);
+        if (!is_string($subjectUuid) || $subjectUuid === '' || !UuidRegistry::isValidStringUUID($subjectUuid)) {
+            return self::vitalsValidationError(
+                'subject',
+                'Observation.subject must reference a Patient (FHIR R4 vital signs profile 1..1)'
+            );
+        }
+        $data['puuid'] = $subjectUuid;
+
+        // form_vitals rows are encounter forms -- VitalsService::saveVitalsArray() registers
+        // each new row against an encounter through addForm(). Without an encounter the row
+        // would be orphaned from the chart, so the reference is required rather than optional.
+        $encounterRef = FhirPayloadReader::reference($json['encounter'] ?? null);
+        $encounterUuid = $encounterRef === null
+            ? null
+            : (UtilsService::parseReferenceString($encounterRef, 'Encounter')['uuid'] ?? null);
+        if (!is_string($encounterUuid) || $encounterUuid === '' || !UuidRegistry::isValidStringUUID($encounterUuid)) {
+            return self::vitalsValidationError(
+                'encounter',
+                'Observation.encounter must reference an Encounter; vitals are stored as an encounter form'
+            );
+        }
+        $data['euuid'] = $encounterUuid;
+
+        // effectiveDateTime is half the identity of the row this Observation lands on, so a
+        // vitals write cannot fall back to "now" the way a less structured resource could.
+        $effective = $json['effectiveDateTime'] ?? null;
+        $date = FhirDateTimeParser::toDbDateTime($effective, 'Observation.effectiveDateTime');
+        if ($date === null) {
+            return self::vitalsValidationError(
+                'effectiveDateTime',
+                'Observation.effectiveDateTime is required; it identifies the vitals reading being written'
+            );
+        }
+        $data['date'] = $date;
+
+        $columns = [];
+        $spec = self::VITALS_WRITE_COLUMNS[$code];
+
+        // Panel codes (blood pressure, pulse oximetry) carry their numbers in component[];
+        // the single-value codes carry one valueQuantity.
+        foreach (FhirPayloadReader::rows($json['component'] ?? null) as $component) {
+            $componentCode = FhirPayloadReader::firstCodingCode($component['code'] ?? null);
+            $column = self::VITALS_COMPONENT_COLUMNS[$componentCode] ?? null;
+            if ($column === null || !isset($spec[$column])) {
+                continue;
+            }
+            $quantity = self::readQuantity($component['valueQuantity'] ?? null);
+            if ($quantity === null) {
+                continue;
+            }
+            $converted = self::convertQuantityToStorageUnit($quantity['value'], $quantity['unit'], $spec[$column]['unit']);
+            if ($converted === null) {
+                return self::vitalsValidationError(
+                    'component',
+                    'Observation.component "' . $componentCode . '" has unit "' . $quantity['unit']
+                    . '" which cannot be converted to "' . $spec[$column]['unit'] . '"'
+                );
+            }
+            $columns[$column] = $converted;
+        }
+
+        $quantity = self::readQuantity($json['valueQuantity'] ?? null);
+        if ($quantity !== null) {
+            // The single-value codes list exactly one column; the panel codes list several
+            // but put nothing in valueQuantity, so the first entry is the right target.
+            $column = array_key_first($spec);
+            $converted = self::convertQuantityToStorageUnit($quantity['value'], $quantity['unit'], $spec[$column]['unit']);
+            if ($converted === null) {
+                return self::vitalsValidationError(
+                    'valueQuantity',
+                    'Observation.valueQuantity has unit "' . $quantity['unit']
+                    . '" which cannot be converted to "' . $spec[$column]['unit'] . '"'
+                );
+            }
+            $columns[$column] = $converted;
+        }
+
+        if ($columns === []) {
+            return self::vitalsValidationError(
+                'value',
+                'Observation for code "' . $code . '" carries no value OpenEMR can store; '
+                . 'expected valueQuantity or a recognized component'
+            );
+        }
+        $data['columns'] = $columns;
+
+        return $data;
+    }
+
+    /**
+     * @param mixed $openEmrRecord
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new InvalidArgumentException('Expected a parsed OpenEMR vitals record array');
+        }
+        $validationResult = $this->vitalsValidationResult($openEmrRecord);
+        if ($validationResult !== null) {
+            return $validationResult;
+        }
+
+        $context = $this->resolveVitalsWriteContext($openEmrRecord);
+        if ($context instanceof ProcessingResult) {
+            return $context;
+        }
+
+        $code = $openEmrRecord['code'] ?? null;
+        $date = $openEmrRecord['date'] ?? null;
+        if (!is_string($code) || !is_string($date)) {
+            throw new InvalidArgumentException('Parsed vitals record is missing its code or date');
+        }
+
+        $columns = FhirPayloadReader::stringKeyed($openEmrRecord['columns'] ?? null);
+
+        // The lookup and the save have to be one step. Two clients posting different vital
+        // signs for the same reading would otherwise both find no row and both insert one,
+        // leaving the encounter with two Vitals forms for a single reading -- which is the
+        // thing the coalescing exists to prevent, and a bulk importer posting a visit's
+        // vitals in parallel is the case that hits it. The form_encounter row is what every
+        // writer for this encounter has in common, so it is what they queue on.
+        $saved = QueryUtils::inTransaction(function () use ($columns, $context, $date): array {
+            QueryUtils::querySingleRow(
+                'SELECT `encounter` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ? FOR UPDATE',
+                [$context['eid'], $context['pid']]
+            );
+
+            $existing = $this->service->getVitalsFormForEncounterDate($context['eid'], $context['pid'], $date);
+
+            $vitalsData = $columns;
+            $vitalsData['pid'] = $context['pid'];
+            $vitalsData['eid'] = $context['eid'];
+            $vitalsData['authorized'] = 1;
+            if ($existing !== null) {
+                // A second vital sign for the same reading updates the row the first one
+                // created rather than starting another Vitals form on the encounter.
+                $vitalsData['id'] = $existing['id'];
+                // The row uuid has to travel with an update as well as an insert.
+                // UuidMappingEventsSubscriber keys the Observation mappings off the saved
+                // record's uuid, and without one it inserts uuid_mapping rows with a null
+                // target_uuid, which the column rejects.
+                $vitalsData['uuid'] = $existing['uuid'];
+            } else {
+                $vitalsData['date'] = $date;
+                $vitalsData['activity'] = 1;
+            }
+
+            return $this->service->saveVitalsArray($vitalsData);
+        });
+        $savedUuid = $saved['uuid'] ?? null;
+        if (!is_string($savedUuid) || $savedUuid === '') {
+            $result = new ProcessingResult();
+            $result->setInternalErrors(['The vitals record was saved without a uuid']);
+            return $result;
+        }
+        $rowUuid = UuidRegistry::uuidToString($savedUuid);
+
+        $mappedUuid = $this->mappedObservationUuidForCode($rowUuid, $code);
+        if ($mappedUuid === null) {
+            $result = new ProcessingResult();
+            $result->setInternalErrors(['Failed to register the Observation id for the saved vitals record']);
+            return $result;
+        }
+
+        $result = new ProcessingResult();
+        $result->addData(['uuid' => $mappedUuid]);
+        return $result;
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param mixed $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        if (!is_array($updatedOpenEMRRecord)) {
+            throw new InvalidArgumentException('Expected a parsed OpenEMR vitals record array');
+        }
+        $validationResult = $this->vitalsValidationResult($updatedOpenEMRRecord);
+        if ($validationResult !== null) {
+            return $validationResult;
+        }
+
+        if (!UuidRegistry::isValidStringUUID($fhirResourceId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Invalid Observation id']);
+            return $result;
+        }
+
+        $mapping = UuidMapping::getMappingForUUID($fhirResourceId);
+        if (
+            !is_array($mapping)
+            || ($mapping['resource'] ?? null) !== 'Observation'
+            || ($mapping['table'] ?? null) !== VitalsService::TABLE_VITALS
+        ) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Observation not found for that id']);
+            return $result;
+        }
+
+        // The id names one code on one row. Letting a PUT change the code would silently
+        // move the value into a different column while keeping the same id, so the codes
+        // have to agree.
+        $mappedCode = $this->getCodeFromResourcePath($mapping['resource_path'] ?? null);
+        $requestedCode = $updatedOpenEMRRecord['code'] ?? null;
+        if (!is_string($requestedCode) || $mappedCode !== $requestedCode) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'code' => 'Observation.code "' . (is_string($requestedCode) ? $requestedCode : '')
+                    . '" does not match the code this id identifies ("'
+                    . (is_string($mappedCode) ? $mappedCode : 'unknown') . '")',
+            ]);
+            return $result;
+        }
+
+        $context = $this->resolveVitalsWriteContext($updatedOpenEMRRecord);
+        if ($context instanceof ProcessingResult) {
+            return $context;
+        }
+
+        $targetUuid = $mapping['target_uuid'] ?? '';
+        if ($targetUuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Observation not found for that id']);
+            return $result;
+        }
+        $rowUuid = UuidRegistry::uuidToString($targetUuid);
+        // The row's own encounter and date come back with it: both are shared by every
+        // vital sign on the record, so a PUT naming different ones is changing more than
+        // the Observation it addresses.
+        $row = QueryUtils::querySingleRow(
+            'SELECT vitals.`id`, vitals.`pid`, vitals.`date`, `forms`.`encounter`'
+            . ' FROM `' . VitalsService::TABLE_VITALS . '` vitals'
+            . " JOIN `forms` ON `forms`.`form_id` = vitals.`id` AND `forms`.`formdir` = 'vitals'"
+            . ' WHERE vitals.`uuid` = ?'
+            . ' AND (`forms`.`deleted` IS NULL OR `forms`.`deleted` = 0)',
+            [UuidRegistry::uuidToBytes($rowUuid)]
+        );
+        $rowId = is_array($row) ? ($row['id'] ?? null) : null;
+        $rowPid = is_array($row) ? ($row['pid'] ?? null) : null;
+        if (!is_numeric($rowId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Observation not found for that id']);
+            return $result;
+        }
+
+        // Same stored-patient check the other write services make: a leaked Observation id
+        // must not let a caller write into a different patient's chart. This is checked
+        // before the encounter and date below, so "not yours" wins over "wrong encounter".
+        if (!is_numeric($rowPid) || (int) $rowPid !== $context['pid']) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Observation not found for that id']);
+            return $result;
+        }
+
+        $rowEncounter = $row['encounter'] ?? null;
+        if (!is_numeric($rowEncounter) || (int) $rowEncounter !== $context['eid']) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'encounter' => 'Observation.encounter does not match the vitals record this id identifies',
+            ]);
+            return $result;
+        }
+
+        $date = $updatedOpenEMRRecord['date'] ?? null;
+        if (!is_string($date)) {
+            throw new InvalidArgumentException('Parsed vitals record is missing its date');
+        }
+
+        // The date is half the identity insertOpenEMRRecord() coalesces on. Writing the
+        // payload's date onto the row would move every sibling vital to the new time and
+        // leave a later POST for the original time creating a second Vitals form, so a
+        // changed effectiveDateTime is refused rather than applied.
+        $rowDate = $row['date'] ?? null;
+        if ($rowDate !== $date) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'effectiveDateTime' => 'Observation.effectiveDateTime is shared by every vital sign on this '
+                    . 'record and cannot be changed through one Observation',
+            ]);
+            return $result;
+        }
+
+        $vitalsData = FhirPayloadReader::stringKeyed($updatedOpenEMRRecord['columns'] ?? null);
+        $vitalsData['id'] = (int) $rowId;
+        $vitalsData['uuid'] = $rowUuid;
+        $vitalsData['pid'] = $context['pid'];
+        $vitalsData['eid'] = $context['eid'];
+        $vitalsData['authorized'] = 1;
+        // saveVitalsArray() builds its UPDATE from the keys it is handed, so the other
+        // vital signs sharing this row are left alone.
+        $this->service->saveVitalsArray($vitalsData);
+
+        // FhirServiceBase::update() runs this result's first row back through
+        // parseOpenEMRRecord() to build the response body, so it has to be the full
+        // observation record the read path produces -- a bare ['uuid' => ...] would
+        // serialize into an Observation with no code, subject or value.
+        $readResult = $this->searchForOpenEMRRecords([
+            'uuid' => new TokenSearchField('uuid', [$rowUuid], true),
+            'code' => new TokenSearchField('code', [$requestedCode]),
+        ]);
+        if (!$readResult->isValid() || $readResult->getData() === []) {
+            $result = new ProcessingResult();
+            $result->setInternalErrors(['The vitals record could not be read back after the update']);
+            return $result;
+        }
+
+        return $readResult;
+    }
+
+    /**
+     * Turns a parse-time validation marker into a ProcessingResult, or null when the
+     * record parsed cleanly.
+     *
+     * @param array<array-key, mixed> $record
+     */
+    private function vitalsValidationResult(array $record): ?ProcessingResult
+    {
+        $message = $record['__validation_error__'] ?? null;
+        if ($message === null) {
+            return null;
+        }
+        $field = $record['__validation_field__'] ?? 'code';
+        $result = new ProcessingResult();
+        $result->setValidationMessages([
+            is_string($field) ? $field : 'code' => $message,
+        ]);
+        return $result;
+    }
+
+    /**
+     * Resolves the patient and encounter a parsed vitals record writes to.
+     *
+     * @param array<array-key, mixed> $record
+     * @return array{pid: int, eid: int}|ProcessingResult The resolved ids, or the rejection to return.
+     */
+    private function resolveVitalsWriteContext(array $record): array|ProcessingResult
+    {
+        $puuid = $record['puuid'] ?? null;
+        $pid = is_string($puuid) && $puuid !== ''
+            ? QueryUtils::fetchSingleValue(
+                'SELECT pid FROM patient_data WHERE uuid = ?',
+                'pid',
+                [UuidRegistry::uuidToBytes($puuid)]
+            )
+            : null;
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'subject' => 'Patient reference could not be resolved: ' . (is_string($puuid) ? $puuid : ''),
+            ]);
+            return $result;
+        }
+
+        $euuid = $record['euuid'] ?? null;
+        $encounter = is_string($euuid) && $euuid !== ''
+            ? QueryUtils::querySingleRow(
+                'SELECT `encounter`, `pid` FROM `form_encounter` WHERE `uuid` = ?',
+                [UuidRegistry::uuidToBytes($euuid)]
+            )
+            : null;
+        $encounterId = is_array($encounter) ? ($encounter['encounter'] ?? null) : null;
+        $encounterPid = is_array($encounter) ? ($encounter['pid'] ?? null) : null;
+        if (!is_numeric($encounterId)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'encounter' => 'Encounter reference could not be resolved: ' . (is_string($euuid) ? $euuid : ''),
+            ]);
+            return $result;
+        }
+
+        // An encounter belonging to another patient would hang the vitals form off the
+        // wrong chart, so the two references have to agree.
+        if (!is_numeric($encounterPid) || (int) $encounterPid !== (int) $pid) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'encounter' => 'Encounter does not belong to the patient named in Observation.subject',
+            ]);
+            return $result;
+        }
+
+        return ['pid' => (int) $pid, 'eid' => (int) $encounterId];
+    }
+
+    /**
+     * Returns the mapped Observation uuid for one code on a form_vitals row.
+     *
+     * The mappings themselves are created by UuidMappingEventsSubscriber, which listens for
+     * the vitals save event and mints the full code set for the row. That runs through the
+     * kernel dispatcher on every save, so this only has to read the result back -- creating
+     * them here as well would be a second writer for the same rows.
+     */
+    private function mappedObservationUuidForCode(string $rowUuid, string $code): ?string
+    {
+        $mappings = $this->getVitalSignsUuidMappings(UuidRegistry::uuidToBytes($rowUuid));
+        $mappedUuid = $mappings[$code] ?? null;
+        if (!is_string($mappedUuid) || $mappedUuid === '') {
+            return null;
+        }
+
+        return UuidRegistry::uuidToString($mappedUuid);
     }
 }

@@ -7460,6 +7460,28 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Observation resource. Only vital sign Observations are writable; Observations whose code belongs to a category OpenEMR derives from other records (social history, SDOH, patient and employer demographics) are rejected rather than dropped.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Observation resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Observation/{uuid}':
     get:
       tags:
@@ -7538,6 +7560,36 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies an Observation resource. The uuid identifies one vital sign on one vitals record, so Observation.code must match the code that uuid was issued for.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Observation resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Observation resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
       security:
         -
           openemr_auth: {  }

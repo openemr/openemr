@@ -104,6 +104,11 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
 
     private function createMappingRecordsForService($targetUuid, $resource, $table, $keysToCreate)
     {
+        // uuid_mapping.target_uuid is NOT NULL, so a save event carrying no uuid used to
+        // abort the save with a SQL error rather than simply having nothing to map.
+        if ($targetUuid === null || $targetUuid === '') {
+            return;
+        }
         $records = UuidMapping::getMappedRecordsForTableUUID($targetUuid);
         foreach ($records as $mappedRecord) {
             $key = $mappedRecord['resource_path'];
