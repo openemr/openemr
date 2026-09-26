@@ -7,11 +7,45 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/**
+ * Parse a USA weight value, including the supported pounds#ounces format.
+ * Reject partial numbers so validation and BMI calculation use the same value.
+ *
+ * @param {string} value
+ * @returns {number}
+ */
+function parseUsWeightValue(value) {
+    const trimmedValue = String(value).trim();
+    const signedNumberPattern = /^-?(?:\d+(?:\.\d*)?|\.\d+)$/;
+    const unsignedNumberPattern = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
+
+    if (trimmedValue.indexOf("#") < 0) {
+        return signedNumberPattern.test(trimmedValue) ? Number(trimmedValue) : NaN;
+    }
+
+    const parts = trimmedValue.split("#").map((part) => part.trim());
+    if (
+        parts.length !== 2 ||
+        !unsignedNumberPattern.test(parts[0]) ||
+        !unsignedNumberPattern.test(parts[1])
+    ) {
+        return NaN;
+    }
+
+    return Number(parts[0]) + Number(parts[1]) / 16;
+}
+
 (function(window, oeUI) {
 
     let translations = {};
     let webroot = null;
 
+    /**
+     * Validate a Vitals input against its configured numeric and warning ranges.
+     *
+     * @param {HTMLInputElement} element
+     * @returns {{valid: boolean, warning: boolean}}
+     */
     function validateVitalField(element) {
         let value = element.value.trim();
         let warningSpan = document.getElementById(element.id + '_warning');
@@ -25,15 +59,9 @@
             return { valid: true, warning: false };
         }
 
-        // Special case: weight USA input allows # separator (lbs/oz format e.g. "5#4")
-        if (element.id === 'weight_input_usa' && value.indexOf('#') >= 0) {
-            let parts = value.split('#');
-            let pounds = parseFloat(parts[0]) || 0;
-            let ounces = parseFloat(parts[1]) || 0;
-            value = String(pounds + ounces / 16);
-        }
-
-        let numValue = parseFloat(value);
+        let numValue = element.id === 'weight_input_usa'
+            ? parseUsWeightValue(value)
+            : parseFloat(value);
 
         if (isNaN(numValue)) {
             element.classList.add('error');
@@ -71,10 +99,41 @@
         return { valid: true, warning: false };
     }
 
+    /**
+     * Validate the visible feet/inches helper fields without accepting partial numbers.
+     * Blank feet remains valid so inches-only entry such as 72 inches is supported.
+     *
+     * @param {HTMLInputElement} feetInput
+     * @param {HTMLInputElement} inchesInput
+     * @returns {boolean}
+     */
+    function validateHeightHelperInputs(feetInput, inchesInput) {
+        let feetValue = feetInput.value.trim();
+        let inchesValue = inchesInput.value.trim();
+        let feetValid = feetValue === '' || /^\d+$/.test(feetValue);
+        let inchesValid = inchesValue === '' || /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(inchesValue);
+
+        feetInput.classList.toggle('error', !feetValid);
+        inchesInput.classList.toggle('error', !inchesValid);
+        return feetValid && inchesValid;
+    }
+
+    /**
+     * Validate the Vitals form, including the visible feet/inches helpers, before submit.
+     *
+     * @returns {boolean}
+     */
     function vitalsFormSubmitted() {
         let vitalsForm = document.getElementById('vitalsForm');
         if (!vitalsForm) {
             return false;
+        }
+
+        // Rebuild the canonical total-inch height only after the helper UI has
+        // initialized, so a missing dependency cannot clear an existing height.
+        const helperWrapper = document.getElementById('height_input_usa_feet_inches');
+        if (helperWrapper && !helperWrapper.hidden) {
+            syncHeightTotalFromHelper();
         }
 
         let inputs = vitalsForm.querySelectorAll('input[data-min]');
@@ -87,6 +146,22 @@
             }
         });
 
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        let totalInput = document.getElementById('height_input_usa');
+        if (feetInput && inchesInput) {
+            if (!validateHeightHelperInputs(feetInput, inchesInput)) {
+                hasErrors = true;
+            } else if (totalInput && totalInput.value.trim() !== '') {
+                let heightValidation = validateVitalField(totalInput);
+                if (!heightValidation.valid) {
+                    feetInput.classList.add('error');
+                    inchesInput.classList.add('error');
+                    hasErrors = true;
+                }
+            }
+        }
+
         if (hasErrors) {
             alert(vitalsTranslations['validateFailed']);
             return false;
@@ -95,6 +170,11 @@
         return top.restoreSession();
     }
 
+    /**
+     * Convert a changed USA/metric Vitals input and update its stored counterpart.
+     *
+     * @param {Event} evt
+     */
     function convInputElement(evt) {
         let node = evt.currentTarget;
         if (!node) {
@@ -140,11 +220,110 @@
             inputConv.value = "";
         }
 
-        if (targetSaveUnit == "weight_input_usa" || targetSaveUnit == "height_input_usa") {
+        if (targetSaveUnit == "weight_input" || targetSaveUnit == "height_input") {
             calculateBMI();
         }
     }
 
+    /**
+     * Populate the feet/inches helpers from OpenEMR's authoritative total-inch field.
+     */
+    function syncHeightHelperFromTotal() {
+        let totalInput = document.getElementById('height_input_usa');
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        if (!totalInput || !feetInput || !inchesInput) {
+            return;
+        }
+
+        let total = parseFloat(totalInput.value);
+        if (isNaN(total) || total < 0) {
+            feetInput.value = '';
+            inchesInput.value = '';
+            return;
+        }
+
+        total = Math.round(total * 100) / 100;
+        let feet = Math.floor(total / 12);
+        let inches = Math.round((total - (feet * 12)) * 100) / 100;
+        if (inches >= 12) {
+            feet += 1;
+            inches = 0;
+        }
+
+        feetInput.value = feet > 0 ? String(feet) : '';
+        inchesInput.value = String(inches);
+        validateHeightHelperInputs(feetInput, inchesInput);
+    }
+
+    /**
+     * Convert the visible feet/inches helpers back to the authoritative total-inch field.
+     */
+    function syncHeightTotalFromHelper() {
+        let totalInput = document.getElementById('height_input_usa');
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        if (!totalInput || !feetInput || !inchesInput) {
+            return;
+        }
+
+        let feetValue = feetInput.value.trim();
+        let inchesValue = inchesInput.value.trim();
+        if (feetValue === '' && inchesValue === '') {
+            validateHeightHelperInputs(feetInput, inchesInput);
+            const hadHeight = totalInput.value.trim() !== '';
+            totalInput.value = '';
+            if (hadHeight) {
+                totalInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            return;
+        }
+
+        if (!validateHeightHelperInputs(feetInput, inchesInput)) {
+            // Do not leave a previously valid canonical height active after malformed helper input.
+            totalInput.value = '';
+            totalInput.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+
+        let feet = feetValue === '' ? 0 : Number(feetValue);
+        let inches = inchesValue === '' ? 0 : Number(inchesValue);
+        let total = Math.round(((feet * 12) + inches) * 100) / 100;
+        totalInput.value = String(total);
+        let validation = validateVitalField(totalInput);
+        feetInput.classList.toggle('error', !validation.valid);
+        inchesInput.classList.toggle('error', !validation.valid);
+        totalInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    /**
+     * Initialize the optional feet/inches UI while retaining total inches as the stored value.
+     */
+    function initHeightFeetInches() {
+        let wrapper = document.getElementById('height_input_usa_feet_inches');
+        let totalInput = document.getElementById('height_input_usa');
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        if (!wrapper || !totalInput || !feetInput || !inchesInput) {
+            return;
+        }
+
+        syncHeightHelperFromTotal();
+        wrapper.hidden = false;
+        totalInput.classList.add('vitals-height-total-inches-hidden');
+
+        feetInput.addEventListener('input', syncHeightTotalFromHelper);
+        inchesInput.addEventListener('input', syncHeightTotalFromHelper);
+
+        let metricInput = document.getElementById('height_input_metric');
+        if (metricInput) {
+            metricInput.addEventListener('change', syncHeightHelperFromTotal);
+        }
+    }
+
+    /**
+     * Attach Vitals form validation, conversion, helper, and live BMI event handlers.
+     */
     function initDOMEvents() {
         let vitalsForm = document.getElementById('vitalsForm');
         if (!vitalsForm) {
@@ -186,6 +365,13 @@
             });
         });
 
+        initHeightFeetInches();
+
+        let weightInput = document.getElementById('weight_input_usa');
+        if (weightInput) {
+            weightInput.addEventListener('input', calculateBMI);
+        }
+
         // Real-time validation for non-conversion inputs
         let vitalsValidatedInputs = vitalsForm.querySelectorAll('input[data-min]:not(.vitals-conv-unit)');
         vitalsValidatedInputs.forEach(function(node) {
@@ -194,6 +380,13 @@
             });
         });
     }
+
+    /**
+     * Initialize the Vitals JavaScript module.
+     *
+     * @param {string} webRootParam
+     * @param {Object} vitalsTranslations
+     */
     function init(webRootParam, vitalsTranslations) {
         webroot = webRootParam;
         translations = vitalsTranslations;
@@ -371,8 +564,8 @@ function calculateBMI() {
         return;
     }
     var height = parseFloat(heightNode.value);
-    var weight = parseFloat(weightNode.value);
-    if(isNaN(height) || height == 0 || isNaN(weight) || weight == 0) {
+    var weight = parseUsWeightValue(weightNode.value);
+    if (isNaN(height) || height <= 0 || isNaN(weight) || weight <= 0) {
         bmiNode.value = "";
     }
     else if((height == parseFloat(height)) && (weight == parseFloat(weight))) {
