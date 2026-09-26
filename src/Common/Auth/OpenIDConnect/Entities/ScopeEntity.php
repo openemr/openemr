@@ -152,13 +152,9 @@ class ScopeEntity implements ScopeEntityInterface
                 return $this->context . '/' . $this->resource;
             }
             return $this->context; // if no resource, just return context
+        } else {
+            return $this->getIdentifier();
         }
-        // getIdentifier() is inherited from League's EntityTrait and
-        // returns whatever was passed to setIdentifier(); its declared
-        // return type is `mixed`. OpenEMR only ever sets a string, so
-        // narrow with is_string and fall back to empty string.
-        $identifier = $this->getIdentifier();
-        return is_string($identifier) ? $identifier : '';
     }
 
     /**

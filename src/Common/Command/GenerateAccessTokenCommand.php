@@ -195,16 +195,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
                 ]
             ]);
             $bearerTokenResponse->setAccessToken($token);
-            $scopeIdentifiers = array_map(
-                // League's EntityTrait::getIdentifier() has no declared
-                // return type; narrow to string here so the array-map
-                // callback's declared string return type is honoured.
-                function ($scope): string {
-                    $id = $scope->getIdentifier();
-                    return is_string($id) ? $id : '';
-                },
-                $scopes
-            );
+            $scopeIdentifiers = array_map(fn($scope): string => $scope->getIdentifier(), $scopes);
             if ($hasOfflineScope) {
                 $refreshToken = $this->generateRefreshToken($token, $client, $scopeIdentifiers, $session);
                 $symfonyStyler->success("Refresh token successfully generated.");
