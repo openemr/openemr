@@ -4,7 +4,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -1387,19 +1389,60 @@ trait UiSeedingTrait
             );
         }
 
-        // Save. Muzzle handles any confirm() for outside-hours checks.
-        $client->findElement(WebDriverBy::xpath("//input[@id='form_save']"))->click();
+        // Save by posting the event form directly. Clicking #form_save
+        // runs validateform() then SubmitForm() then find_available(),
+        // which opens find_appt_popup.php. That popup auto-submits
+        // opener.document.forms[0] after confirm() — and when
+        // form_action is still empty, add_edit_event.php re-renders
+        // instead of emitting dlgclose(). Set the action and submit
+        // here so the seed cannot race the availability iframe.
+        $client->wait(15)->until(
+            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
+                'return typeof validateform === "function" && document.forms[0] && document.getElementById("form_action");',
+            ),
+        );
+        $client->executeScript(
+            'document.getElementById("form_action").value = "save";'
+            . 'if (window.top && typeof window.top.restoreSession === "function") { window.top.restoreSession(); }'
+            . 'document.forms[0].submit();',
+        );
 
         // Wait for modal to close (add_edit_event.php POSTs to
         // itself; on success it echoes dlgclose() which fires on
         // the parent frame).
         $client->switchTo()->defaultContent();
-        $client->wait(30)->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(
-                WebDriverBy::xpath("//iframe[@id='modalframe']"),
-            ),
-        );
+        try {
+            $client->wait(30)->until(
+                WebDriverExpectedCondition::invisibilityOfElementLocated(
+                    WebDriverBy::xpath("//iframe[@id='modalframe']"),
+                ),
+            );
+        } catch (TimeoutException $e) {
+            $this->fail($e->getMessage() . "\n" . $this->calendarSaveModalDiagnosticHtml());
+        }
         $this->dismissAnyOpenModals();
+    }
+
+    /**
+     * On a save-modal timeout, dump form_action and the iframe HTML
+     * so CI logs show whether the POST re-rendered the form.
+     */
+    private function calendarSaveModalDiagnosticHtml(): string
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $html = $client->executeScript(
+            'var iframe = document.getElementById("modalframe");'
+            . 'if (!iframe) { return "modalframe missing"; }'
+            . 'var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);'
+            . 'if (!doc) { return "modalframe document unavailable"; }'
+            . 'var input = doc.getElementById("form_action");'
+            . 'var action = input ? String(input.value) : "<missing>";'
+            . 'var markup = doc.documentElement ? doc.documentElement.outerHTML : "";'
+            . 'if (markup.length > 8000) { markup = markup.substring(0, 8000) + "...[truncated]"; }'
+            . 'return "form_action=" + action + "\\n" + markup;'
+        );
+        return is_string($html) ? $html : 'diagnostic script returned a non-string value';
     }
 
     /**
