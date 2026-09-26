@@ -306,6 +306,116 @@ class PasswordGrantMfaRefreshFlowTest extends TestCase
     }
 
     #[Test]
+    public function testConfidentialClientRefreshWithMissingClientSecretReturns401(): void
+    {
+        // Companion negative-path assertion for the happy-path refresh
+        // above. ClientRepository::validateClient now routes every grant
+        // (including refresh_token) through the same confidential-client
+        // secret check, so a confidential client that omits its
+        // client_secret on refresh must come back as 401 invalid_client.
+        // The unit-level equivalent is in PasswordGrantHardeningTest;
+        // this end-to-end variant pins that the League/OAuth2 grant
+        // chain surfaces the ClientRepository result to the caller.
+        $http = $this->buildClient();
+        [$clientId, $clientSecret] = $this->registerConfidentialClient($http);
+        $this->clientId = $clientId;
+
+        $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+        $tokens = $this->postToken(
+            $http,
+            [
+                'grant_type' => 'password',
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'scope' => 'openid api:oemr offline_access',
+                'user_role' => 'users',
+                'username' => 'admin',
+                'password' => 'pass',
+                'mfa_token' => $tfa->getCode('JBSWY3DPEHPK3PXP'),
+                'mfa_type' => 'TOTP',
+            ]
+        );
+        $this->assertArrayHasKey('refresh_token', $tokens);
+        $this->assertIsString($tokens['refresh_token']);
+        $refreshToken = $tokens['refresh_token'];
+
+        // Refresh with no client_secret in the body and no Basic auth.
+        $response = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id' => $clientId,
+            ],
+        ]);
+        $this->assertSame(
+            401,
+            $response->getStatusCode(),
+            'Confidential-client refresh with no client_secret must return 401. '
+                . 'Body: ' . (string) $response->getBody()
+        );
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame(
+            'invalid_client',
+            $body['error'] ?? null,
+            'Refresh with missing client_secret must return {"error":"invalid_client"}'
+        );
+    }
+
+    #[Test]
+    public function testConfidentialClientRefreshWithWrongClientSecretReturns401(): void
+    {
+        // Same shape as the missing-secret test above, but with a
+        // client_secret value that does not match the one issued at DCR
+        // registration. Locks in the wrong-secret branch of
+        // ClientRepository::validateConfidentialClientSecret().
+        $http = $this->buildClient();
+        [$clientId, $clientSecret] = $this->registerConfidentialClient($http);
+        $this->clientId = $clientId;
+
+        $tfa = new TwoFactorAuth(new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg'));
+        $tokens = $this->postToken(
+            $http,
+            [
+                'grant_type' => 'password',
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'scope' => 'openid api:oemr offline_access',
+                'user_role' => 'users',
+                'username' => 'admin',
+                'password' => 'pass',
+                'mfa_token' => $tfa->getCode('JBSWY3DPEHPK3PXP'),
+                'mfa_type' => 'TOTP',
+            ]
+        );
+        $this->assertArrayHasKey('refresh_token', $tokens);
+        $this->assertIsString($tokens['refresh_token']);
+        $refreshToken = $tokens['refresh_token'];
+
+        $response = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id' => $clientId,
+                'client_secret' => 'not-the-real-secret-' . bin2hex(random_bytes(4)),
+            ],
+        ]);
+        $this->assertSame(
+            401,
+            $response->getStatusCode(),
+            'Confidential-client refresh with wrong client_secret must return 401. '
+                . 'Body: ' . (string) $response->getBody()
+        );
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame(
+            'invalid_client',
+            $body['error'] ?? null,
+            'Refresh with wrong client_secret must return {"error":"invalid_client"}'
+        );
+    }
+
+    #[Test]
     public function testPasswordGrantRejectsWrongMfaTokenAndDoesNotIssueRefresh(): void
     {
         // Companion assertion — the "MFA was actually held on the way
