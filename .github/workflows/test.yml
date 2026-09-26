@@ -62,6 +62,7 @@ on:
         - nginx_84
         - nginx_85
         - nginx_86
+        - nginx_87
         default: apache_85_123
       enable_coverage:
         description: Enable coverage collection and reporting
