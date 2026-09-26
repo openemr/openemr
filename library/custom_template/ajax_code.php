@@ -34,10 +34,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-if (!AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for nationnotes/nn_configure: Nation Notes template config", xl("Nation Notes"));
-}
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $authUserID = $session->get('authUserID');
 
@@ -47,6 +43,13 @@ $list_id = $_REQUEST['list_id'] ?? '';
 $item = $_REQUEST['item'] ?? '';
 $multi = $_REQUEST['multi'] ?? '';
 $content = $_REQUEST['content'] ?? '';
+
+if (
+    !in_array($Source, ['check_item', 'display_item', 'item_show'], true)
+    && !AclMain::aclCheckCore('nationnotes', 'nn_configure')
+) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for nationnotes/nn_configure: Nation Notes template config", xl("Nation Notes"));
+}
 
 if ($Source == "add_template") {
     $arr = explode("|", (string) $multi);
