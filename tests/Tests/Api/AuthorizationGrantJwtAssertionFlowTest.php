@@ -247,6 +247,82 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
     }
 
     #[Test]
+    public function testRefreshGrantRejectsTamperedJwtAssertion(): void
+    {
+        // Companion negative for the JWT refresh happy path below. The
+        // auth_code path has testAuthCodeGrantRejectsTamperedJwtAssertion
+        // — the refresh path with private_key_jwt goes through the same
+        // JWTClientAuthenticationService::validateJWTClientAssertion but
+        // enters via CustomRefreshTokenGrant::validateClient rather than
+        // CustomAuthCodeGrant. Locks in that a tampered signature is
+        // rejected on both entry points, not just auth_code.
+        $http = $this->buildClient();
+        [$privateKey, $publicKey, $code] = $this->registerJwtClientAndObtainCode($http);
+
+        // Mint a refresh_token via the normal auth_code + JWT exchange.
+        $codeAssertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            (string) $this->clientId,
+        );
+        $codeResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => self::REDIRECT_URI,
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $codeAssertion,
+            ],
+        ]);
+        $this->assertSame(200, $codeResp->getStatusCode(), 'auth_code exchange should succeed');
+        $tokens = json_decode((string) $codeResp->getBody(), true);
+        $this->assertIsArray($tokens);
+        $this->assertArrayHasKey('refresh_token', $tokens);
+        $this->assertIsString($tokens['refresh_token']);
+
+        // Fresh assertion for the refresh attempt, then rewrite its
+        // signature segment to a well-formed base64url string that
+        // decodes to all-zero bytes — reaches the RSA verify step but
+        // fails the check. Matches the shape used in
+        // testAuthCodeGrantRejectsTamperedJwtAssertion.
+        $refreshAssertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $this->baseUrl . '/oauth2/default/token',
+            (string) $this->clientId,
+        );
+        $parts = explode('.', $refreshAssertion);
+        $parts[2] = str_repeat('A', strlen($parts[2]));
+        $tampered = implode('.', $parts);
+
+        $refreshResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $tokens['refresh_token'],
+                'scope' => 'openid fhirUser offline_access',
+                'client_id' => $this->clientId,
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $tampered,
+            ],
+        ]);
+        $this->assertContains(
+            $refreshResp->getStatusCode(),
+            [400, 401],
+            'Refresh with a JWT client_assertion whose signature does not verify against '
+                . 'the registered JWKS must be rejected. Body: ' . (string) $refreshResp->getBody()
+        );
+        $body = json_decode((string) $refreshResp->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame(
+            'invalid_client',
+            $body['error'] ?? null,
+            'Rejection error code should be OAuth2 invalid_client'
+        );
+    }
+
+    #[Test]
     public function testRefreshGrantSucceedsWithValidJwtAssertion(): void
     {
         // Regression pin for the refresh-grant path with private_key_jwt.
