@@ -127,7 +127,7 @@ function set_allday() {
     f.form_hour.disabled = timeDisabled;
     f.form_minute.disabled = timeDisabled;
     if (addEditEventConfig.timeDisplayFormat == 1 && f.form_ampm) {
-        f.form_ampm.disabled = durationDisabled;
+        f.form_ampm.disabled = timeDisabled;
     }
     f.form_duration.disabled = durationDisabled;
 }
