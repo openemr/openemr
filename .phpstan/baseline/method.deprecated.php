@@ -39,7 +39,7 @@ read from the \\-\\>logger property$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomRefreshTokenGrant\\:
 read from the \\-\\>logger property$#',
-    'count' => 9,
+    'count' => 7,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
 ];
 $ignoreErrors[] = [
@@ -57,7 +57,7 @@ read from the \\-\\>logger property$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:
 read from the \\-\\>logger property$#',
-    'count' => 5,
+    'count' => 6,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [
