@@ -23,9 +23,9 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PatientService;
 
-if (!AclMain::aclCheckCore('patients', 'notes', '', 'write')) {
+if (!AclMain::aclCheckCore('patients', 'notes')) {
     AccessDeniedHelper::deny(
-        'trusted-messages-ajax: patients/notes write',
+        'trusted-messages-ajax: patients/notes',
         format: AccessDeniedResponseFormat::Json
     );
 }

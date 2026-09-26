@@ -21,8 +21,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
 
-if (!AclMain::aclCheckCore('patients', 'notes', '', 'write')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/notes write: Trusted Messages", xl("Trusted Messages"));
+if (!AclMain::aclCheckCore('patients', 'notes')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/notes: Trusted Messages", xl("Trusted Messages"));
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
