@@ -1,69 +1,40 @@
 <?php
 
-// Copyright (C) 2011, 2016 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Thin delegator kept for the existing call sites of library/appointment_status.inc.php.
+ * The body lives in AppointmentStatusService; see the migration tracker, openemr/openemr#11674.
+ *
+ * patient_tracker.inc.php stays required: the service calls its manage_tracker_status() and the
+ * todaysEncounterCheck() of library/encounter_events.inc.php, which it loads.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Marcello Costagliola <marcello.costagliola1@gmail.com>
+ * @copyright Copyright (c) 2011, 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2026 Marcello Costagliola <marcello.costagliola1@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-// This is called to update the appointment status for a specified patient
-// with an encounter on the specified date. It does nothing unless the
-// feature to auto-update appointment statuses is enabled.
-
-// See sample code in: interface/patient_tracker/patient_tracker_status.php
-// This updates the patient tracker board as well as the appointment.
-
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AppointmentStatusService;
 
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
+/**
+ * Moves the patient's appointment on the encounter date to the new status when the
+ * auto-update switch is on; see AppointmentStatusService::updateAppointmentStatus().
+ * Arguments of any other type than the service takes change nothing.
+ */
 function updateAppointmentStatus($pid, $encdate, $newstatus): void
 {
-    if (empty(OEGlobalsBag::getInstance()->get('gbl_auto_update_appt_status'))) {
+    if (!is_int($pid) && !is_string($pid)) {
         return;
     }
-
-    $query = "SELECT pc_eid, pc_aid, pc_catid, pc_apptstatus, pc_eventDate, pc_startTime, " .
-    "pc_hometext, pc_facility, pc_billing_location, pc_room " .
-    "FROM openemr_postcalendar_events WHERE " .
-    "pc_pid = ? AND pc_recurrtype = 0 AND pc_eventDate = ? " .
-    "ORDER BY pc_startTime DESC, pc_eid DESC LIMIT 1";
-    $tmp = sqlQuery($query, [$pid, $encdate]);
-    if (!empty($tmp['pc_eid'])) {
-        $appt_eid = $tmp['pc_eid'];
-        $appt_status = $tmp['pc_apptstatus'];
-        // Some tests for illogical changes.
-        if ($appt_status == '$') {
-            return;
-        }
-
-        if ($newstatus == '<' && $appt_status == '>') {
-            return;
-        }
-
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-
-        $encounter = todaysEncounterCheck(
-            $pid,
-            $tmp['pc_eventDate'],
-            $tmp['pc_hometext'],
-            $tmp['pc_facility'],
-            $tmp['pc_billing_location'],
-            $tmp['pc_aid'],
-            $tmp['pc_catid'],
-            false
-        );
-        manage_tracker_status(
-            $tmp['pc_eventDate'],
-            $tmp['pc_startTime'],
-            $appt_eid,
-            $pid,
-            $session->get('authUser'),
-            $newstatus,
-            $tmp['pc_room'],
-            $encounter
-        );
+    if (!is_string($encdate)) {
+        return;
     }
+    if (!is_string($newstatus)) {
+        return;
+    }
+    AppointmentStatusService::updateAppointmentStatus($pid, $encdate, $newstatus);
 }
