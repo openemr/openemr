@@ -1,0 +1,227 @@
+{#
+  Generate statements for one LBF instance.
+
+  @package   OpenEMR
+  @author    Simon Quigley <squigley@altispeed.com>
+  @license   GNU General Public License 3
+#}
+<html>
+<head>
+    <title>{{ "Form statements"|xlt }}</title>
+    {{ setupHeader() }}
+    <style>
+      .lbf-stmt-inst tbody tr { cursor: pointer; }
+      .lbf-stmt-inst tbody tr:hover { background-color: #f4f6f8; }
+      .lbf-stmt-inst tr.lbf-stmt-current { background-color: #e8f0f8; }
+      .lbf-stmt-inst tr.lbf-stmt-current:hover { background-color: #dce7f2; }
+      .lbf-stmt-inst tbody td { padding: 0; }
+      .lbf-stmt-inst tbody td a {
+        display: block;
+        padding: 0.45rem 0.5rem;
+        color: inherit;
+        text-decoration: none;
+      }
+      .lbf-stmt-inst tbody td a.lbf-stmt-date { color: #0056b3; }
+      .lbf-stmt-inst tbody tr:hover td a.lbf-stmt-date { text-decoration: underline; }
+      .lbf-stmt-inst tbody tr.lbf-stmt-current td a { font-weight: 600; }
+      .lbf-stmt-inst .lbf-stmt-action { color: #0056b3; white-space: nowrap; }
+      .lbf-stmt-current-banner { border-left: 4px solid #6c8eb0; }
+      .lbf-stmt-meas { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+      .lbf-stmt-meas-card {
+        min-width: 8rem;
+        max-width: 16rem;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        background: #f8f9fa;
+      }
+      .lbf-stmt-meas-card .lbl {
+        font-size: 0.75rem;
+        color: #6c757d;
+        line-height: 1.25;
+      }
+      .lbf-stmt-meas-card .val {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-top: 0.15rem;
+        word-break: break-word;
+      }
+    </style>
+</head>
+<body class="p-3">
+    <div class="container-fluid">
+        <h2>{{ "Form statements"|xlt }}</h2>
+        {% include '_tabs.html.twig' %}
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error|text }}</div>
+        {% endif %}
+        {% if message %}
+            <div class="alert alert-success">{{ message|text }}</div>
+        {% endif %}
+
+        <form method="get" action="{{ postUrl|attr }}" class="mb-3" id="lbf-stmt-pick">
+            <div class="form-row align-items-end">
+                <div class="form-group col-md-6">
+                    <label for="patient_display">{{ "Patient"|xlt }}</label>
+                    <input type="hidden" name="pid" id="pid" value="{{ pid|attr }}" />
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="patient_display" readonly
+                               style="cursor:pointer;"
+                               placeholder="{{ "Click to select patient"|xlt }}"
+                               value="{{ patient ? patient.name|attr : '' }}"
+                               onclick="sel_patient()"
+                               title="{{ "Click to select patient"|xlt }}"
+                               data-finder-url="{{ finderUrl|attr }}" />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-secondary" onclick="sel_patient()">{{ "Find"|xlt }}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="form_id">{{ "Layout"|xlt }}</label>
+                    <select class="form-control" id="form_id" name="form_id" onchange="this.form.submit()">
+                        {% if formChoices is empty %}
+                            <option value="">{{ "No layouts with rules"|xlt }}</option>
+                        {% else %}
+                            <option value="">{{ "Select"|xlt }}</option>
+                        {% endif %}
+                        {% for layout in formChoices %}
+                            <option value="{{ layout.form_id|attr }}" {% if layout.form_id == form_id %}selected{% endif %}>
+                                {{ layout.title|text }} ({{ layout.form_id|text }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        {% if pid and form_id %}
+            <h3 class="h5">{{ "Choose a visit"|xlt }}</h3>
+            {% if instances is empty %}
+                <p class="text-muted">{{ "This patient has no saved instances of that layout."|xlt }}</p>
+            {% else %}
+                <p class="text-muted small mb-2">{{ "Click a row to generate statements for that visit."|xlt }}</p>
+                <table class="table table-sm lbf-stmt-inst mb-3">
+                    <thead>
+                        <tr>
+                            <th>{{ "Date"|xlt }}</th>
+                            <th>{{ "Encounter"|xlt }}</th>
+                            <th>{{ "Reason"|xlt }}</th>
+                            <th>{{ "Form"|xlt }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inst in instances %}
+                            <tr class="{% if inst.instance_id == instance_id %}lbf-stmt-current{% endif %}"
+                                {% if inst.instance_id == instance_id %}aria-current="true"{% endif %}>
+                                <td>
+                                    <a class="lbf-stmt-date lbf-stmt-pick-inst" href="index.php"
+                                       data-instance-id="{{ inst.instance_id|attr }}">
+                                        {{ inst.date|text }}
+                                        {% if inst.instance_id == instance_id %}
+                                            <span class="badge badge-secondary">{{ "Current"|xlt }}</span>
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td><a class="lbf-stmt-pick-inst" href="index.php" data-instance-id="{{ inst.instance_id|attr }}">{{ inst.encounter|text }}</a></td>
+                                <td><a class="lbf-stmt-pick-inst" href="index.php" data-instance-id="{{ inst.instance_id|attr }}">{{ inst.reason|text }}</a></td>
+                                <td><a class="lbf-stmt-pick-inst" href="index.php" data-instance-id="{{ inst.instance_id|attr }}">{{ inst.form_name|text }}</a></td>
+                                <td>
+                                    <a class="lbf-stmt-action lbf-stmt-pick-inst" href="index.php"
+                                       data-instance-id="{{ inst.instance_id|attr }}">
+                                        {% if inst.instance_id == instance_id %}{{ "Current"|xlt }}{% else %}{{ "Select"|xlt }}{% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+
+        {% if selectedInstance %}
+            <div class="alert alert-primary lbf-stmt-current-banner py-2" role="status">
+                <strong>{{ "This instance"|xlt }}:</strong>
+                {{ selectedInstance.form_name|text }}
+                · {{ selectedInstance.date|text }}
+                · {{ "encounter"|xlt }} {{ selectedInstance.encounter|text }}
+                {% if selectedInstance.reason %}
+                    · {{ selectedInstance.reason|text }}
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if instance_id %}
+            {% if measurements %}
+                <h3 class="h5">{{ "Measurements"|xlt }}</h3>
+                <div class="lbf-stmt-meas mb-4">
+                    {% for m in measurements %}
+                        <div class="lbf-stmt-meas-card">
+                            <div class="lbl">{{ m.title|text }}</div>
+                            <div class="val">{{ m.value|text }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <h3 class="h5">{{ "Generated"|xlt }}</h3>
+            {% if traces %}
+                <table class="table table-sm table-borderless mb-2">
+                    <tbody>
+                        {% for t in traces %}
+                            <tr>
+                                <td class="text-muted text-nowrap pr-3" style="width:1%;">{{ t.from|text }}</td>
+                                <td>{{ t.sentence|text }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if paragraphProposed %}
+                <p class="border p-3 bg-light">{{ paragraphProposed|text }}</p>
+            {% else %}
+                <p class="text-muted">{{ "No rules matched these measurements."|xlt }}</p>
+            {% endif %}
+
+            <form method="post" action="{{ postUrl|attr }}" class="mb-3">
+                {{ csrfToken('default', 'csrf_token_form') }}
+                <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
+                <input type="hidden" name="pid" value="{{ pid|attr }}" />
+                <input type="hidden" name="instance_id" value="{{ instance_id|attr }}" />
+                <input type="hidden" name="generate" value="1" />
+                <div class="form-group">
+                    <label for="paragraph_text">{% if paragraphTitle %}{{ paragraphTitle|text }}{% else %}{{ "Paragraph"|xlt }}{% endif %}</label>
+                    <textarea class="form-control" id="paragraph_text" name="paragraph_text" rows="8">{% if paragraphCurrent %}{{ paragraphCurrent|text }}{% else %}{{ paragraphProposed|text }}{% endif %}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ "Save"|xlt }}</button>
+            </form>
+
+            {% if formUrl %}
+                <a class="btn btn-outline-secondary" id="lbf-stmt-open-form"
+                   href="open_form.php"
+                   data-dest="form"
+                   data-form-id="{{ form_id|attr }}"
+                   data-pid="{{ pid|attr }}"
+                   data-instance-id="{{ instance_id|attr }}"
+                   data-csrf="{{ csrfTokenValue|attr }}"
+                   data-fallback-url="{{ formUrl|attr }}"
+                   {% if patientSetUrl %}data-tabs-url="{{ patientSetUrl|attr }}"{% endif %}
+                   onclick="if (typeof openEncounterTab === 'function') { openEncounterTab(event); return false; }">{{ "Open encounter"|xlt }}</a>
+            {% endif %}
+            {% if printUrl %}
+                <a class="btn btn-outline-secondary" id="lbf-stmt-print"
+                   href="open_form.php"
+                   data-dest="print"
+                   data-form-id="{{ form_id|attr }}"
+                   data-pid="{{ pid|attr }}"
+                   data-instance-id="{{ instance_id|attr }}"
+                   data-csrf="{{ csrfTokenValue|attr }}"
+                   target="_blank">{{ "Print"|xlt }}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+    <script src="{{ assetBase|attr }}generate.js?v=0.1.2"></script>
+</body>
+</html>
