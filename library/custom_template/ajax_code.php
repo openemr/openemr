@@ -29,9 +29,14 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for nationnotes/nn_configure: Nation Notes template config", xl("Nation Notes"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $authUserID = $session->get('authUserID');
@@ -163,18 +168,14 @@ if ($Source != "add_template") {
     while ($row = sqlFetchArray($res)) {
         $i++;
         echo "<li class='bg-dark text-light' id='clorder_" . attr($row['cl_list_slno']) . "' style='cursor:pointer'><span class='bg-dark text-light'>";
-        if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/b_edit.png' onclick='update_item_div(" . attr_js($row['cl_list_slno']) . ")'>";
-        }
+        echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/b_edit.png' onclick='update_item_div(" . attr_js($row['cl_list_slno']) . ")'>";
         echo "<div style='display:inline' id='" . attr($row['cl_list_slno']) . "' onclick='moveOptions_11(" . attr_js($row['cl_list_slno']) . ", \"textarea1\")'>" . text($row['cl_list_item_long']) . "</div>";
-        if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/deleteBtn.png' onclick='delete_item(" . attr_js($row['cl_list_slno']) . ")'>";
-            echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . attr($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
-            echo "<input type='button' name='update' onclick='update_item(" . attr_js($row['cl_list_slno']) . ")' value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick='cancel_item(" . attr_js($row['cl_list_slno']) . ")'></div>";
-        }
+        echo "<img src='" . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/deleteBtn.png' onclick='delete_item(" . attr_js($row['cl_list_slno']) . ")'>";
+        echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . attr($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
+        echo "<input type='button' name='update' onclick='update_item(" . attr_js($row['cl_list_slno']) . ")' value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick='cancel_item(" . attr_js($row['cl_list_slno']) . ")'></div>";
         echo "</span></li>";
     }
-    if (AclMain::aclCheckCore('nationnotes', 'nn_configure') && $templateid) {
+    if ($templateid) {
         echo "<li class='bg-dark text-light' style='cursor:pointer'><span class='bg-dark text-light' onclick='add_item()'>" . xlt('Click to add new components');
         echo "</span><div id='new_item' style='display:none' class='w-100'>";
         echo "<textarea name='item' id='item' class='w-100 bg-dark text-light'></textarea><br />";

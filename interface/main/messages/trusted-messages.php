@@ -12,12 +12,18 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
+
+if (!AclMain::aclCheckCore('patients', 'notes', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/notes write: Trusted Messages", xl("Trusted Messages"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $message = '';

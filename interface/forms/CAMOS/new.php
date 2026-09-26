@@ -15,6 +15,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -32,7 +34,7 @@ if ((($session->get('encounter') == '') || ($session->get('pid') == '')) || (fil
 //  formHeader("Form: CAMOS");
 function myAuth(): int
 {
-    return 1;
+    return AclMain::aclCheckCore('admin', 'super') ? 1 : 0;
 }
 ?>
 
@@ -73,6 +75,12 @@ $tbl_camos_item = escape_table_name("form_CAMOS_item");
 //handle changes to database
 $hidden_mode = filter_input(INPUT_POST, 'hidden_mode') ?: '';
 $hidden_selection = filter_input(INPUT_POST, 'hidden_selection') ?: '';
+if ($hidden_mode !== '') {
+    if (!AclMain::aclCheckCore('admin', 'super')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: CAMOS template administration", xl("CAMOS"));
+    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+}
 if (str_starts_with($hidden_mode, 'add')) {
     if ($hidden_selection == 'change_category') {
         $preselect_category_override = filter_input(INPUT_POST, 'change_category') ?: '';

@@ -30,8 +30,14 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for nationnotes/nn_configure: Nation Notes context config", xl("Nation Notes"));
+}
 
 if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
     $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0 AND cl_list_item_long=?", [$_POST['contextname']]);
