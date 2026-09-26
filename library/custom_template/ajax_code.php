@@ -29,6 +29,7 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -42,6 +43,19 @@ $list_id = $_REQUEST['list_id'] ?? '';
 $item = $_REQUEST['item'] ?? '';
 $multi = $_REQUEST['multi'] ?? '';
 $content = $_REQUEST['content'] ?? '';
+
+// Shared-administration actions (assign templates to other users, delete
+// a shared category, or preview a shared category's affected users) require
+// nn_configure. Per-user template association actions (add_template,
+// add_item, delete_item, update_item) already scope their writes by
+// authUserID and stay open for personalize.php's per-user workflow, per
+// the advisory recommendation.
+if (
+    in_array($Source, ['save_provider', 'delete_category', 'delete_full_category'], true)
+    && !AclMain::aclCheckCore('nationnotes', 'nn_configure')
+) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for nationnotes/nn_configure: Nation Notes shared template administration", xl("Nation Notes"));
+}
 
 if ($Source == "add_template") {
     $arr = explode("|", (string) $multi);
