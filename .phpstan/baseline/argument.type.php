@@ -19412,16 +19412,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/i18n_generator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$arrayData of class OpenEMR\\\\Services\\\\SpreadSheetService constructor expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$fields of class OpenEMR\\\\Services\\\\SpreadSheetService constructor expects array, null given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$html of class Html2Text\\\\Html2Text constructor expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/log_print_action_ajax.php',

@@ -3462,11 +3462,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/imm_autocomplete/search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/ajax/lists_touch.php',

@@ -197,11 +197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:logError\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method HTML_TreeMenu_Presentation\\:\\:toHTML\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
