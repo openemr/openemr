@@ -35,7 +35,7 @@ function custom_xml_Add($tag, $text): void
             $out .= "\t";
         }
 
-        $out .= "<$tag>" . htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8') . "</$tag>\n";
+        $out .= "<$tag>" . xmlEscape($text) . "</$tag>\n";
     }
 }
 

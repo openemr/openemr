@@ -133,16 +133,16 @@
         $fill = 'filllist';
       ?>
         <ul tabindex="0"
-            onKeyDown="move(event, '<?php echo $lineNo; ?>', '<?php echo 'list_' . $this->escapeHtml($this->escapeJs($this->searchEleNo)); ?>', '<?php echo $this->escapeHtml($this->escapeJs($this->searchEleNo)); ?>');"
-            id="<?php echo 'list_' . $this->escapeHtml($this->searchEleNo) . '_' . $lineNo; ?>"
+            onKeyDown="move(event, <?php echo attr_js($lineNo); ?>, <?php echo attr_js('list_' . $this->searchEleNo); ?>, <?php echo attr_js($this->searchEleNo); ?>);"
+            id="<?php echo attr('list_' . $this->searchEleNo . '_' . $lineNo); ?>"
             style="margin:0; padding:0;"
             class="<?php if ($lineNo == 1) { echo "row"; } else { echo $row;} ?>">
         <li>
 	  <?php
       if($this->searchType == 'emrdirect') {?>
           <span style="float: left;"
-              id="<?php echo $fill . '_' . $this->escapeHtml($this->searchEleNo) . '_' . $lineNo; ?>"
-              onClick='fill("<?php echo $this->escapeHtml($this->escapeJs($value['email'])) . '|' . $this->escapeHtml($this->escapeJs($value['id'])); ?>", "<?php echo $this->escapeHtml($this->escapeJs($this->searchType)); ?>", "<?php echo $this->escapeHtml($this->escapeJs($this->searchEleNo)); ?>" , "<?php echo $this->escapeHtml($this->escapeJs($this->searchMode)); ?>");'>
+              id="<?php echo attr($fill . '_' . $this->searchEleNo . '_' . $lineNo); ?>"
+              onClick='fill(<?php echo attr_js($value['email'] . '|' . $value['id']); ?>, <?php echo attr_js($this->searchType); ?>, <?php echo attr_js($this->searchEleNo); ?>, <?php echo attr_js($this->searchMode); ?>);'>
       <div class="itemBox" style="width:30px;"><?php echo $i; ?></div>
       <div class="itemBox" style="width: 180px;height: auto;">
       <?php
@@ -157,8 +157,8 @@
 	else{
         if ($this->searchType == 'patient') { ?>
           <span style="float: left;"
-              id="<?php echo $fill . '_' . $this->escapeHtml($this->searchEleNo) . '_' . $lineNo; ?>"
-              onClick='fill("<?php echo $this->escapeHtml($this->escapeJs($value['fname'])) . ' ' . $this->escapeHtml($this->escapeJs($value['lname'])) . '|' . $this->escapeHtml($this->escapeJs($value['pid'])); ?>", "<?php echo $this->escapeHtml($this->escapeJs($this->searchType)); ?>", "<?php echo $this->escapeHtml($this->escapeJs($this->searchEleNo)); ?>" , "<?php echo $this->escapeHtml($this->escapeJs($this->searchMode)); ?>");'>
+              id="<?php echo attr($fill . '_' . $this->searchEleNo . '_' . $lineNo); ?>"
+              onClick='fill(<?php echo attr_js($value['fname'] . ' ' . $value['lname'] . '|' . $value['pid']); ?>, <?php echo attr_js($this->searchType); ?>, <?php echo attr_js($this->searchEleNo); ?>, <?php echo attr_js($this->searchMode); ?>);'>
       <?php } ?>
       <div class="itemBox" style="width:30px;"><?php echo $i; ?></div>
       <div class="itemBox" style="width: 232px;height: auto;">
