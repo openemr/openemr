@@ -609,6 +609,21 @@ function resetCounter(username) {
     loginCounterElement.innerHTML = "0";
 }
 
+function resetMfaCounter(username) {
+    top.restoreSession();
+    request = new FormData;
+    request.append("function", "resetMfaFailCounter");
+    request.append("username", username);
+    request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+    fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: request
+    });
+    let mfaCounterElement = document.getElementById('mfa-counter-' + username);
+    mfaCounterElement.innerHTML = "0";
+}
+
 </script>
 
 </head>
@@ -670,6 +685,7 @@ function resetCounter(username) {
                             }
                             ?>
                             <th><?php echo xlt('Failed Login Counter'); ?></th>
+                            <th><?php echo xlt('MFA Fail Counter'); ?></th>
                         </tr>
                     <tbody>
                         <?php
@@ -739,9 +755,13 @@ function resetCounter(username) {
                             if (empty($iter["active"])) {
                                 echo '<td>';
                                 echo xlt('Not Applicable');
+                                echo '</td>';
+                                echo '<td>';
+                                echo xlt('Not Applicable');
+                                echo '</td>';
                             } else {
                                 echo '<td id="login-counter-' . attr($iter["username"]) .  '">';
-                                $queryCounter = privQuery("SELECT `login_fail_counter`, `last_login_fail`, TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$iter["username"]]);
+                                $queryCounter = privQuery("SELECT `login_fail_counter`, `last_login_fail`, `mfa_fail_counter`, `mfa_last_fail`, TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail`, TIMESTAMPDIFF(SECOND, `mfa_last_fail`, NOW()) as `seconds_mfa_last_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$iter["username"]]);
                                 if (!empty($queryCounter['login_fail_counter'])) {
                                     echo text($queryCounter['login_fail_counter']);
                                     if (!empty($queryCounter['last_login_fail'])) {
@@ -769,8 +789,39 @@ function resetCounter(username) {
                                 } else {
                                     echo '0';
                                 }
+                                echo '</td>';
+                                echo '<td id="mfa-counter-' . attr($iter["username"]) . '">';
+                                if (!empty($queryCounter['mfa_fail_counter'])) {
+                                    echo text($queryCounter['mfa_fail_counter']);
+                                    if (!empty($queryCounter['mfa_last_fail'])) {
+                                        echo ' (' . xlt('last on') . ' ' . text(DateFormatterUtils::oeFormatDateTime($queryCounter['mfa_last_fail'])) . ')';
+                                    }
+                                    echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetMfaCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
+                                    // MFA lockout mirrors the password lockout thresholds (password_max_failed_logins + time_reset_password_max_failed_logins)
+                                    // — see AuthUtils::isMfaChallengeBlocked() for the corresponding gate.
+                                    $mfaAutoBlocked = false;
+                                    $mfaAutoBlockEnd = null;
+                                    if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') != 0 && ($queryCounter['mfa_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('password_max_failed_logins'))) {
+                                        if (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') != 0) {
+                                            if ($queryCounter['seconds_mfa_last_fail'] < OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
+                                                $mfaAutoBlocked = true;
+                                                $mfaAutoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') - $queryCounter['seconds_mfa_last_fail'])));
+                                            }
+                                        } else {
+                                            $mfaAutoBlocked = true;
+                                        }
+                                    }
+                                    if ($mfaAutoBlocked) {
+                                        echo '<br>' . xlt("Currently Autoblocked");
+                                        if (!empty($mfaAutoBlockEnd)) {
+                                            echo ' (' . xlt("Autoblock ends on") . ' ' . text(DateFormatterUtils::oeFormatDateTime($mfaAutoBlockEnd)) . ')';
+                                        }
+                                    }
+                                } else {
+                                    echo '0';
+                                }
+                                echo '</td>';
                             }
-                            echo '</td>';
                             print "</tr>\n";
                         }
                         ?>

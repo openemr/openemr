@@ -7063,7 +7063,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between int\\<min, \\-1\\>\\|int\\<1, max\\> and mixed results in an error\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/ip_tracker.php',
 ];
 $ignoreErrors[] = [
@@ -7320,6 +7320,11 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'This transaction…\' and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/payment_processing_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\-" between int\\<min, \\-1\\>\\|int\\<1, max\\> and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/portal_lockout_tracker.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \', \' results in an error\\.$#',
@@ -7698,7 +7703,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between int\\<min, \\-1\\>\\|int\\<1, max\\> and mixed results in an error\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
