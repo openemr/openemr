@@ -4,7 +4,7 @@
  * The Modules menu opens for users allowed to manage modules.
  *
  * Regression test for issue #13414. The "Modules" top-level entry of the standard
- * menu required only menus/modle, so a role granted Administration > Manage Modules
+ * menu required only the Menus > Modules ACL, so a role granted Administration > Manage Modules
  * (admin/manage_modules, the ACL the "Manage Modules" child and the Installer
  * controller check) never saw the menu that holds its only page. MenuRole shows an
  * entry when any of the alternatives in a list-of-lists acl_req passes.
