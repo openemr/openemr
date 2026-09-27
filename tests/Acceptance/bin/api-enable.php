@@ -56,6 +56,7 @@ if (!getenv('OPENEMR_ENABLE_API_BOOTSTRAP')) {
 require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
 use OpenEMR\Tests\Acceptance\Support\BrowserSession;
 
@@ -148,15 +149,40 @@ try {
         }
     JS, [$baseUrl]);
 
-    // Step 5: submit form_save. The form posts to itself and reloads
-    // with success indicators + updated field values.
-    echo "==> Submitting form_save\n";
-    $client->findElement(WebDriverBy::name('form_save'))->click();
+    // Step 5: submit form_save. Use ->submit() on the form element
+    // rather than ->click() on the button -- the button-click path
+    // is unreliable in this Panther+ChromeDriver combo (observed
+    // "0 POSTs in access logs after clicks that returned success"
+    // for the install-wizard flow that led InstallWizardUiTest to
+    // switch to form->submit(); the same silent-no-POST failure was
+    // observed here on api-enable-post-install cells across daily
+    // acceptance-docker + recovery-path-smoketest + rel-branch sync
+    // PR CIs). When the click silently no-op'd, verification below
+    // would then read the pre-submit form values (all empty /
+    // unchecked) and fail with "expected 'http://localhost:8680',
+    // got ''". Form-based submit bypasses the button-click quirk.
+    //
+    // Grab a reference to the form BEFORE submit so we can use it
+    // as a staleness anchor in step 6.
+    echo "==> Submitting form (via form->submit(), not button->click())\n";
+    $form = $client->findElement(WebDriverBy::id('theform'));
+    $form->submit();
 
     // Step 6: verify by re-reading the field values after reload.
     // edit_globals.php pre-populates from DB, so if our save took,
     // the reloaded page will show the new values.
-    echo "==> Waiting for post-save reload\n";
+    //
+    // Two-phase wait: first wait for the OLD form reference to go
+    // stale (the POST landed and the page navigated). Only then wait
+    // for the NEW form to render. Without the staleness gate, the
+    // waitFor('#theform') below would return immediately because
+    // #theform is already present in the DOM (it's the form we just
+    // submitted, pre-navigation), and the verify JS would read the
+    // pre-navigation state. Same race the pre-fix version hit
+    // intermittently even when the button-click DID fire the POST.
+    echo "==> Waiting for post-save navigation (staleness of old form)\n";
+    $client->wait(30)->until(WebDriverExpectedCondition::stalenessOf($form));
+    echo "==> Waiting for new form to render\n";
     $client->waitFor('#theform', 30);
     /** @var string $verifyJson */
     $verifyJson = $client->executeScript(<<<JS_WRAP
