@@ -150,11 +150,11 @@ if ($Source == "add_template") {
     $Source = "add_template";
 } elseif ($Source == 'delete_full_category') {
     sqlStatement("UPDATE customlists SET cl_deleted=? WHERE cl_list_slno=?", [1, $templateid]);
-    sqlStatement("DELETE template_users WHERE tu_template_id=?", [$templateid]);
+    sqlStatement("DELETE FROM template_users WHERE tu_template_id=?", [$templateid]);
     $res = sqlStatement("SELECT * FROM customlists AS cl WHERE cl_list_id=?", [$templateid]);
     while ($row = sqlFetchArray($res)) {
         sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_slno=?", [$row['cl_list_slno']]);
-        sqlStatement("DELETE template_users WHERE tu_template_id=?", [$row['cl_list_slno']]);
+        sqlStatement("DELETE FROM template_users WHERE tu_template_id=?", [$row['cl_list_slno']]);
     }
 
     $Source = "add_template";
