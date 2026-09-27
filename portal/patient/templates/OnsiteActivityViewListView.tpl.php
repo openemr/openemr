@@ -129,7 +129,7 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
                 </td>
                 <td><%= _.escape(item.get('pendingAction') || '') %></td>
                 <td><%= _.escape(item.get('status') || '') %></td>
-                <td><button class="delete-button btn btn-sm btn-link" data-update-id=<%= _.escape(item.get('id') || '') %> data-delete-id=<%= _.escape(item.get('tableArgs') || '') %>><i class="fa fa-trash text-danger"></i></button></td>
+                <td><button class="delete-button btn btn-sm btn-link" data-update-id="<%= _.escape(item.get('id') || '') %>" data-delete-id="<%= _.escape(item.get('tableArgs') || '') %>"><i class="fa fa-trash text-danger"></i></button></td>
 <!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS - Leave in place for future use
                 <td><%= _.escape(item.get('id') || '') %></td>
                 <td><%= _.escape(item.get('actionTaken') || '') %></td>

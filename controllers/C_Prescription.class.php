@@ -580,11 +580,11 @@ class C_Prescription extends Controller
         echo ('<span class="large">' . $facilityAddr . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
-        echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>' . '<br />');
+        echo ('<b><span class="large">' . text($p->provider->get_name_display()) . '</span></b>' . '<br />');
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
-                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br />');
+                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . text($p->provider->federal_drug_id) . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br />' );
             }
@@ -592,7 +592,7 @@ class C_Prescription extends Controller
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
-                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br />');
+                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . text($p->provider->npi) . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br />');
             }
@@ -600,7 +600,7 @@ class C_Prescription extends Controller
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
-                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br />');
+                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . text($p->provider->state_license_number) . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br />');
             }
@@ -630,13 +630,13 @@ class C_Prescription extends Controller
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br />');
-        echo ($p->patient->date_of_birth );
+        echo (text($p->patient->date_of_birth));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br />');
-        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo text(str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
