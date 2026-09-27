@@ -13,26 +13,55 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/group.inc.php");
-
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$therapy_group = ($pid === 0)
+    ? (SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group') ?? 0)
+    : 0;
+
+/**
+ * Set by the including script: new.php (create) or view.php (read/edit).
+ *
+ * @var bool   $viewmode false in new.php, true in view.php
+ * @var string $disabled '' in new.php; '' or 'disabled' in view.php, by the encounters/date_a ACL
+ */
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/group.inc.php");
+
 $facilityService = new FacilityService();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
+// Template state: the encounter row in view mode, the billing location's POS code
+// (assigned in the facility loop further down), and the therapy group visit categories.
+$result = [];
+$posCode = '';
+$therapyGroupCategories = [];
+if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
+    $therapyGroupCategories = QueryUtils::fetchTableColumn(
+        "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3 AND pc_active = 1",
+        'pc_catid'
+    );
+}
+
 if ($viewmode) {
     $id = $_REQUEST['id'] ?? '';
-    $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", [$id]);
-    $encounter = $result['encounter'];
-    if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
+    $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", [$id]) ?: [];
+    $encounter = $result['encounter'] ?? null;
+    $sensitivity = $result['sensitivity'] ?? null;
+    if (is_string($sensitivity) && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
         echo "<body>\n<html>\n";
         echo "<p>" . xlt('You are not authorized to see this encounter.') . "</p>\n";
         echo "</body>\n</html>\n";
@@ -109,7 +138,7 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_
  });
 
 function bill_loc(){
-var pid=<?php echo js_escape($pid);?>;
+var pid=<?php echo js_escape((string) $pid);?>;
 var dte=document.getElementById('form_date').value;
 var facility=document.forms[0].facility_id.value;
 ajax_bill_loc(pid,dte,facility);
@@ -290,7 +319,7 @@ $help_icon = '';
                                         $pc = new POSRef();
                                         foreach ($pc->get_pos_ref() as $pos) {
                                             echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                                            if ($pos["code"] == $result['pos_code'] || $pos["code"] == $posCode) {
+                                            if (($viewmode && $pos["code"] == $result['pos_code']) || $pos["code"] == $posCode) {
                                                 echo "selected";
                                             }
                                             echo ">" . text($pos['code'])  . ": " . xlt($pos['title']);
