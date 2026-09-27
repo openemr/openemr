@@ -191,3 +191,10 @@ ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_fail_counter` bigint DEFA
 #IfMissingColumn patient_access_onsite portal_last_fail
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last portal login failure for this account. Used for time-based counter reset.';
 #EndIf
+
+-- 6.0.0-to-6.1.0 seeded a WenoExchange background service pointing at /library/weno_log_sync.php
+-- and start_weno(), neither of which exists in core. The Weno module registers its own
+-- WenoExchange row (scripts/weno_log_sync.php, downloadWenoPrescriptionLog) when it is installed.
+#IfRow2D background_services name WenoExchange require_once /library/weno_log_sync.php
+DELETE FROM `background_services` WHERE `name` = 'WenoExchange' AND `require_once` = '/library/weno_log_sync.php';
+#EndIf
