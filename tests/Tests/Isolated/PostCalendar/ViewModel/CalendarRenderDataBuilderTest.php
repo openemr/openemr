@@ -15,6 +15,7 @@ namespace OpenEMR\Tests\Isolated\PostCalendar\ViewModel;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -457,6 +458,148 @@ final class CalendarRenderDataBuilderTest extends TestCase
 
         self::assertFalse($oneFacility['showFacilitySelect']);
         self::assertTrue($twoFacilities['showFacilitySelect']);
+    }
+
+    /**
+     * @return array<string, array{ViewType}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function screenViewProvider(): array
+    {
+        return [
+            'day' => [ViewType::Day],
+            'week' => [ViewType::Week],
+            'month' => [ViewType::Month],
+        ];
+    }
+
+    /**
+     * Inactive facilities stay out of the facility picker and its color legend (#13312),
+     * whether the database hands `inactive` back as an int or a string.
+     */
+    #[DataProvider('screenViewProvider')]
+    public function testScreenOffersOnlyActiveFacilities(ViewType $view): void
+    {
+        $result = $this->buildScreenWithFacilities($view, self::mixedFacilities(), 0);
+
+        self::assertSame([1, 3, 5], array_column($this->arrayAt($result, 'facilities'), 'id'));
+        self::assertTrue($result['showFacilitySelect']);
+    }
+
+    /**
+     * The facility the calendar is filtered on stays in the picker after it is deactivated.
+     */
+    public function testScreenKeepsTheSelectedFacilityEvenIfInactive(): void
+    {
+        $result = $this->buildScreenWithFacilities(ViewType::Day, self::mixedFacilities(), 4);
+
+        self::assertSame([1, 3, 4, 5], array_column($this->arrayAt($result, 'facilities'), 'id'));
+    }
+
+    /**
+     * With one active facility left, there is nothing to pick.
+     */
+    public function testFacilitySelectIsHiddenWhenOnlyOneFacilityIsActive(): void
+    {
+        $result = $this->buildScreenWithFacilities(
+            ViewType::Day,
+            [['id' => 1, 'name' => 'Main', 'inactive' => 0], ['id' => 2, 'name' => 'Closed', 'inactive' => 1]],
+            0
+        );
+
+        self::assertSame([1], array_column($this->arrayAt($result, 'facilities'), 'id'));
+        self::assertFalse($result['showFacilitySelect']);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private static function mixedFacilities(): array
+    {
+        return [
+            ['id' => 1, 'name' => 'Main', 'inactive' => 0],
+            ['id' => 2, 'name' => 'Closed (int)', 'inactive' => 1],
+            ['id' => 3, 'name' => 'Annex', 'inactive' => '0'],
+            ['id' => 4, 'name' => 'Closed (string)', 'inactive' => '1'],
+            ['id' => 5, 'name' => 'No flag'],
+        ];
+    }
+
+    /**
+     * @param  list<array<string, mixed>> $facilities
+     * @return array<string, mixed>
+     */
+    private function buildScreenWithFacilities(ViewType $view, array $facilities, int $pcFacility): array
+    {
+        $builder = $this->builder($view);
+        $providers = [$this->makeProvider()];
+
+        return match ($view) {
+            ViewType::Month => $builder->buildMonthScreenRenderData(
+                ['2026-03-15' => []],
+                $providers,
+                $providers,
+                $facilities,
+                '20260315',
+                $this->shortDayNames(),
+                $pcFacility,
+                0,
+                '/img',
+                '/openemr',
+                '?prev',
+                '?next',
+                'fa-chevron-left',
+                'fa-chevron-right',
+                '',
+                true,
+                'March 2026'
+            ),
+            ViewType::Week => $builder->buildWeekScreenRenderData(
+                ['2026-03-15' => []],
+                $providers,
+                $providers,
+                $facilities,
+                $this->makeTimes(),
+                30,
+                '20260315',
+                $this->shortDayNames(),
+                $pcFacility,
+                0,
+                '/img',
+                '/openemr',
+                '?prev',
+                '?next',
+                'fa-chevron-left',
+                'fa-chevron-right',
+                '',
+                true,
+                'Mar 15 - Mar 21 2026',
+                true
+            ),
+            default => $builder->buildDayScreenRenderData(
+                ['2026-03-15' => []],
+                $providers,
+                $providers,
+                $facilities,
+                $this->makeTimes(),
+                30,
+                '20260315',
+                $this->shortDayNames(),
+                $pcFacility,
+                0,
+                '/img',
+                '/openemr',
+                '?prev',
+                '?next',
+                'fa-chevron-left',
+                'fa-chevron-right',
+                '',
+                true,
+                'Sunday, March 15, 2026',
+                true
+            ),
+        };
     }
 
     public function testBuildWeekScreenRenderDataReturnsExpectedTopLevelKeys(): void
