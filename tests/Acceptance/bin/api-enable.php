@@ -149,24 +149,46 @@ try {
         }
     JS, [$baseUrl]);
 
-    // Step 5: submit form_save. Use ->submit() on the form element
-    // rather than ->click() on the button -- the button-click path
-    // is unreliable in this Panther+ChromeDriver combo (observed
-    // "0 POSTs in access logs after clicks that returned success"
-    // for the install-wizard flow that led InstallWizardUiTest to
-    // switch to form->submit(); the same silent-no-POST failure was
-    // observed here on api-enable-post-install cells across daily
-    // acceptance-docker + recovery-path-smoketest + rel-branch sync
-    // PR CIs). When the click silently no-op'd, verification below
-    // would then read the pre-submit form values (all empty /
-    // unchecked) and fail with "expected 'http://localhost:8680',
-    // got ''". Form-based submit bypasses the button-click quirk.
+    // Step 5: submit form_save. Two anti-patterns to avoid here:
+    //
+    //  (a) button->click() -- unreliable in this Panther+ChromeDriver
+    //      combo. Observed "0 POSTs in access logs after clicks that
+    //      returned success" in the install-wizard flow that led
+    //      InstallWizardUiTest to switch away from button->click()
+    //      (see tests/Acceptance/Install/InstallWizardUiTest.php:155-
+    //      158). Same silent-no-POST failure was observed here on
+    //      api-enable-post-install cells across daily acceptance-
+    //      docker + recovery-path-smoketest + rel-branch sync PR CIs.
+    //
+    //  (b) form->submit() (or the JS equivalent form.submit()) --
+    //      superficially fixes (a) BUT drops the submitter button's
+    //      name/value from the POST body. edit_globals.php's server-
+    //      side handler gates on `$_POST['form_save']` being truthy
+    //      (see interface/super/edit_globals.php line 221 for the
+    //      admin-mode branch + line 165 for the user-mode branch),
+    //      which requires the form_save button to have been the
+    //      submitter. Without it, the whole POST body still arrives
+    //      but the save handler branch is never entered, and the
+    //      subsequent verify sees the pre-submit state -- exact same
+    //      symptom as (a).
+    //
+    // Correct fix: JS `form.requestSubmit(button)`. Modern
+    // HTMLFormElement API (WHATWG spec, all browsers Chrome 76+ /
+    // Firefox 75+ / Safari 16+) that fires the submit event AS IF
+    // the user had clicked the specified button. Includes the
+    // submitter's name/value in the POST body (same as button-click)
+    // AND is a direct JS API call rather than a synthesized DOM
+    // click event, so it's not subject to the ChromeDriver click-
+    // dispatch quirk that plagues (a).
     //
     // Grab a reference to the form BEFORE submit so we can use it
     // as a staleness anchor in step 6.
-    echo "==> Submitting form (via form->submit(), not button->click())\n";
+    echo "==> Submitting form (via form.requestSubmit(form_save button))\n";
     $form = $client->findElement(WebDriverBy::id('theform'));
-    $form->submit();
+    $client->executeScript(
+        "document.getElementById('theform').requestSubmit("
+        . "document.querySelector('[name=\"form_save\"]'));",
+    );
 
     // Step 6: verify by re-reading the field values after reload.
     // edit_globals.php pre-populates from DB, so if our save took,
