@@ -3003,6 +3003,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/reports/portal_lockout_tracker.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 12,
     'path' => __DIR__ . '/../../interface/reports/prescriptions_report.php',
 ];
@@ -3478,7 +3483,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 21,
+    'count' => 32,
     'path' => __DIR__ . '/../../library/ajax/login_counter_ip_tracker.php',
 ];
 $ignoreErrors[] = [

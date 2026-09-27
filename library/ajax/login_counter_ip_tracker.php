@@ -39,6 +39,19 @@ if ($_POST['function'] == 'resetUsernameCounter') {
     exit;
 }
 
+if ($_POST['function'] == 'resetMfaFailCounter') {
+    if (!AclMain::aclCheckCore('admin', 'users')) {
+        error_log("Failed ACL access to login_counter_ip_tracker.php script for resetMfaFailCounter function");
+        exit;
+    }
+
+    if (empty($_POST['username']) || !is_string($_POST['username'])) {
+        exit;
+    }
+    AuthUtils::resetMfaUserFailCounter($_POST['username']);
+    exit;
+}
+
 
 // all function below require admin super access
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -83,5 +96,21 @@ if ($_POST['function'] == 'resetIpCounter') {
         exit;
     }
     AuthUtils::resetIpCounter((int)$_POST['ipId']);
+    exit;
+}
+
+if ($_POST['function'] == 'resetIpMfaCounter') {
+    if (empty((int)$_POST['ipId'])) {
+        exit;
+    }
+    AuthUtils::resetMfaIpCounter((int)$_POST['ipId']);
+    exit;
+}
+
+if ($_POST['function'] == 'resetPortalAccountCounter') {
+    if (empty($_POST['portalLoginUsername']) || !is_string($_POST['portalLoginUsername'])) {
+        exit;
+    }
+    AuthUtils::resetPortalAccountFailedCounter($_POST['portalLoginUsername']);
     exit;
 }

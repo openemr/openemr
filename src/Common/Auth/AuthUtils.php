@@ -280,7 +280,7 @@ class AuthUtils
         // global opt-in is set; default off so a valid login on
         // account A cannot clear the IP counter that has been
         // accumulating against account B from the same IP.
-        $this->resetPortalAccountFailedCounter($username);
+        self::resetPortalAccountFailedCounter(is_string($username) ? $username : '');
         if (self::shouldClearIpCounterOnAuthSuccess()) {
             $this->resetIpLoginFailedCounter($ip['ip_string']);
         }
@@ -1238,19 +1238,33 @@ class AuthUtils
         $sqlBind = [];
         $where = [];
         if ($showOnlyWithCount) {
-            $where[] = ' (`ip_login_fail_counter` > 0) ';
+            // Include rows with a non-zero password OR MFA per-IP
+            // counter; the report surfaces both axes and either one
+            // can be an active lockout that the admin might want to
+            // clear.
+            $where[] = ' (`ip_login_fail_counter` > 0 OR `mfa_login_fail_counter` > 0) ';
         }
         if ($showOnlyManuallyBlocked) {
             $where[] = ' (`ip_force_block` = 1) ';
         }
         if ($showOnlyAutoBlocked) {
             if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0) {
-                if (!empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) && OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') > 0) {
-                    $where[] = ' (ip_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) < ?) ';
-                    array_push($sqlBind, OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'), OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins'));
+                // Same auto-block predicate as the display renderer
+                // in ip_tracker.php: cap exceeded on either the
+                // password or MFA per-IP counter, gated by the
+                // matching last-fail timestamp when a reset window
+                // is configured.
+                $ipMax = OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins');
+                $ipWindow = OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins');
+                if ($ipWindow > 0) {
+                    $where[] = ' ('
+                        . '(ip_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) < ?) '
+                        . 'OR (mfa_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) < ?)'
+                        . ') ';
+                    array_push($sqlBind, $ipMax, $ipWindow, $ipMax, $ipWindow);
                 } else {
-                    $where[] = ' (ip_login_fail_counter > ?) ';
-                    array_push($sqlBind, OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'));
+                    $where[] = ' (ip_login_fail_counter > ? OR mfa_login_fail_counter > ?) ';
+                    array_push($sqlBind, $ipMax, $ipMax);
                 }
             }
         }
@@ -1261,7 +1275,7 @@ class AuthUtils
             $where = '';
         }
 
-        return sqlStatement("SELECT `id`, `ip_string`, `ip_force_block`, `ip_no_prevent_timing_attack`, `total_ip_login_fail_counter`, `ip_login_fail_counter`, `ip_last_login_fail`, TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) as `seconds_last_ip_login_fail` FROM `ip_tracking` $where ORDER BY `ip_last_login_fail` DESC, `total_ip_login_fail_counter` DESC", $sqlBind);
+        return sqlStatement("SELECT `id`, `ip_string`, `ip_force_block`, `ip_no_prevent_timing_attack`, `total_ip_login_fail_counter`, `ip_login_fail_counter`, `ip_last_login_fail`, `mfa_login_fail_counter`, `mfa_last_login_fail`, TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) as `seconds_last_ip_login_fail`, TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) as `seconds_mfa_last_login_fail` FROM `ip_tracking` $where ORDER BY `ip_last_login_fail` DESC, `total_ip_login_fail_counter` DESC", $sqlBind);
     }
 
     /**
@@ -1464,13 +1478,18 @@ class AuthUtils
     }
 
     /**
-     * Zero the per-account portal failure counter on successful
-     * authentication for that specific account only. Deliberately
-     * does NOT touch the per-IP counter.
+     * Zero the per-account portal failure counter for the given
+     * portal_login_username. Deliberately does NOT touch the per-IP
+     * counter.
+     *
+     * Called by the portal-auth success path and by the admin
+     * unblock UI (interface/reports/portal_lockout_tracker.php via
+     * library/ajax/login_counter_ip_tracker.php), so both flows share
+     * the same UPDATE and cannot drift.
      */
-    private function resetPortalAccountFailedCounter(mixed $username): void
+    public static function resetPortalAccountFailedCounter(string $username): void
     {
-        if (!is_string($username) || $username === '') {
+        if ($username === '') {
             return;
         }
         QueryUtils::sqlStatementThrowException(
@@ -1553,12 +1572,14 @@ class AuthUtils
     /**
      * Zero the per-user MFA fail counter for the given user
      * unconditionally. Used by success-path callers via
-     * resetMfaChallengeCounters() and by the time-based reset-window
+     * resetMfaChallengeCounters(), by the time-based reset-window
      * branch inside isMfaChallengeBlocked() (which must run even when
      * the shared-IP-clear-on-success global is off — a legit user
-     * whose lockout window has elapsed still needs recovery).
+     * whose lockout window has elapsed still needs recovery), and by
+     * the admin unblock UI (interface/usergroup/usergroup_admin.php
+     * via library/ajax/login_counter_ip_tracker.php).
      */
-    private static function resetMfaUserFailCounter(string $username): void
+    public static function resetMfaUserFailCounter(string $username): void
     {
         QueryUtils::sqlStatementThrowException(
             "UPDATE `users_secure` SET `mfa_fail_counter` = 0, `mfa_last_fail` = NULL "
@@ -1571,14 +1592,35 @@ class AuthUtils
     /**
      * Zero the per-IP MFA fail counter for the given IP
      * unconditionally. See resetMfaUserFailCounter() docblock — same
-     * reasoning for the IP axis.
+     * reasoning for the IP axis. Also called by the admin unblock UI
+     * (interface/reports/ip_tracker.php via
+     * library/ajax/login_counter_ip_tracker.php), keyed by ip_string
+     * looked up from the ip_tracking row.
      */
-    private static function resetMfaIpFailCounter(string $ipString): void
+    public static function resetMfaIpFailCounter(string $ipString): void
     {
         QueryUtils::sqlStatementThrowException(
             "UPDATE `ip_tracking` SET `mfa_login_fail_counter` = 0, `mfa_last_login_fail` = NULL "
                 . "WHERE `ip_string` = ?",
             [$ipString],
+            noLog: true
+        );
+    }
+
+    /**
+     * Admin unblock: zero the per-IP MFA fail counter identified by
+     * the ip_tracking primary key. Row-scoped counterpart to the
+     * ip_string-keyed resetMfaIpFailCounter() above — matches the
+     * ip_tracker.php UI pattern where all row-scoped actions
+     * (resetIpCounter, disableIp, enableIp, skipTimingIp,
+     * noSkipTimingIp) take an id.
+     */
+    public static function resetMfaIpCounter(int $ipId): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `ip_tracking` SET `mfa_login_fail_counter` = 0, `mfa_last_login_fail` = NULL "
+                . "WHERE `id` = ?",
+            [$ipId],
             noLog: true
         );
     }
