@@ -19,6 +19,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -151,21 +153,33 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
         // patient_access_onsite is not a lockout candidate, and the table
         // holds every registered portal user, so a bare SELECT would list
         // the entire portal roster.
-        $sqlBind = [' (`portal_fail_counter` > 0) '];
+        $whereFragments = [' (`portal_fail_counter` > 0) '];
+        $bindings = [];
         if ($showOnlyAutoBlocked) {
-            if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') != 0) {
-                $sqlBind[] = ' (`portal_fail_counter` >= ' . (int) OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') . ') ';
-                if (!empty(OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) && OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') > 0) {
-                    $sqlBind[] = ' (TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) < ' . OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') . ') ';
+            $maxFailed = OEGlobalsBag::getInstance()->getInt('password_max_failed_logins');
+            if ($maxFailed !== 0) {
+                $whereFragments[] = ' (`portal_fail_counter` >= ?) ';
+                $bindings[] = $maxFailed;
+                $window = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
+                if ($window > 0) {
+                    $whereFragments[] = ' (TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) < ?) ';
+                    $bindings[] = $window;
                 }
+            } else {
+                // Auto-block is globally disabled, so no row can be
+                // auto-blocked. Return an empty set rather than the
+                // whole active-counter list, which would every row as
+                // "No" and mislead the admin.
+                $whereFragments[] = ' 1 = 0 ';
             }
         }
-        $where = 'WHERE ' . implode(' AND ', $sqlBind);
+        $where = 'WHERE ' . implode(' AND ', $whereFragments);
         $rows = sqlStatement(
             "SELECT `pid`, `portal_login_username`, `portal_fail_counter`, `portal_last_fail`, "
             . "TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) as `seconds_last_portal_fail` "
             . "FROM `patient_access_onsite` $where "
-            . "ORDER BY `portal_last_fail` DESC, `portal_fail_counter` DESC"
+            . "ORDER BY `portal_last_fail` DESC, `portal_fail_counter` DESC",
+            $bindings
         );
         ?>
         <div id="report_results">
