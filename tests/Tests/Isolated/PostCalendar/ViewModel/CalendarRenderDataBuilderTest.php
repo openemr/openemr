@@ -513,6 +513,23 @@ final class CalendarRenderDataBuilderTest extends TestCase
     }
 
     /**
+     * A deactivated selection that is the only facility left keeps the picker, so "All Facilities"
+     * can clear it; without that option there is nothing to pick.
+     */
+    #[DataProvider('screenViewProvider')]
+    public function testPickerStaysForAnInactiveSelectionWhenAllFacilitiesIsOffered(ViewType $view): void
+    {
+        $facilities = [['id' => 1, 'name' => 'Closed A', 'inactive' => '1'], ['id' => 2, 'name' => 'Closed B', 'inactive' => 1]];
+
+        $withAll = $this->buildScreenWithFacilities($view, $facilities, 2, true);
+        $withoutAll = $this->buildScreenWithFacilities($view, $facilities, 2, false);
+
+        self::assertSame([2], array_column($this->arrayAt($withAll, 'facilities'), 'id'));
+        self::assertTrue($withAll['showFacilitySelect']);
+        self::assertFalse($withoutAll['showFacilitySelect']);
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     private static function mixedFacilities(): array
@@ -530,8 +547,12 @@ final class CalendarRenderDataBuilderTest extends TestCase
      * @param  list<array<string, mixed>> $facilities
      * @return array<string, mixed>
      */
-    private function buildScreenWithFacilities(ViewType $view, array $facilities, int $pcFacility): array
-    {
+    private function buildScreenWithFacilities(
+        ViewType $view,
+        array $facilities,
+        int $pcFacility,
+        bool $showAllFacilitiesOption = true
+    ): array {
         $builder = $this->builder($view);
         $providers = [$this->makeProvider()];
 
@@ -552,7 +573,7 @@ final class CalendarRenderDataBuilderTest extends TestCase
                 'fa-chevron-left',
                 'fa-chevron-right',
                 '',
-                true,
+                $showAllFacilitiesOption,
                 'March 2026'
             ),
             ViewType::Week => $builder->buildWeekScreenRenderData(
@@ -573,7 +594,7 @@ final class CalendarRenderDataBuilderTest extends TestCase
                 'fa-chevron-left',
                 'fa-chevron-right',
                 '',
-                true,
+                $showAllFacilitiesOption,
                 'Mar 15 - Mar 21 2026',
                 true
             ),
@@ -595,7 +616,7 @@ final class CalendarRenderDataBuilderTest extends TestCase
                 'fa-chevron-left',
                 'fa-chevron-right',
                 '',
-                true,
+                $showAllFacilitiesOption,
                 'Sunday, March 15, 2026',
                 true
             ),
