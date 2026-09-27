@@ -1249,21 +1249,25 @@ class AuthUtils
         }
         if ($showOnlyAutoBlocked) {
             if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0) {
-                // Same auto-block predicate as the display renderer
-                // in ip_tracker.php: cap exceeded on either the
-                // password or MFA per-IP counter, gated by the
-                // matching last-fail timestamp when a reset window
-                // is configured.
+                // Same auto-block predicate as the display renderer in
+                // ip_tracker.php: cap exceeded on either the password
+                // or MFA per-IP counter, gated by the matching last-
+                // fail timestamp when a reset window is configured.
+                // Password axis uses `>` to preserve pre-existing
+                // display behaviour; MFA axis uses `>=` because the
+                // enforced block in isMfaChallengeBlocked() triggers
+                // at counter == max, so `>` would hide a genuinely-
+                // blocked IP from the filter.
                 $ipMax = OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins');
                 $ipWindow = OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins');
                 if ($ipWindow > 0) {
                     $where[] = ' ('
                         . '(ip_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) < ?) '
-                        . 'OR (mfa_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) < ?)'
+                        . 'OR (mfa_login_fail_counter >= ? AND TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) < ?)'
                         . ') ';
                     array_push($sqlBind, $ipMax, $ipWindow, $ipMax, $ipWindow);
                 } else {
-                    $where[] = ' (ip_login_fail_counter > ? OR mfa_login_fail_counter > ?) ';
+                    $where[] = ' (ip_login_fail_counter > ? OR mfa_login_fail_counter >= ?) ';
                     array_push($sqlBind, $ipMax, $ipMax);
                 }
             }

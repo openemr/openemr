@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -41,7 +42,7 @@ if ($_POST['function'] == 'resetUsernameCounter') {
 
 if ($_POST['function'] == 'resetMfaFailCounter') {
     if (!AclMain::aclCheckCore('admin', 'users')) {
-        error_log("Failed ACL access to login_counter_ip_tracker.php script for resetMfaFailCounter function");
+        ServiceContainer::getLogger()->error('Failed ACL access to login_counter_ip_tracker.php script', ['function' => 'resetMfaFailCounter']);
         exit;
     }
 
