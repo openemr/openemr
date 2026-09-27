@@ -162,7 +162,11 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                 $bindings[] = $maxFailed;
                 $window = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
                 if ($window > 0) {
-                    $whereFragments[] = ' (TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) < ?) ';
+                    // isPortalAccountBlocked() expires the block only when
+                    // elapsed seconds are strictly greater than $window, so
+                    // the account is still blocked at seconds == window;
+                    // use <= to keep the filter aligned with the gate.
+                    $whereFragments[] = ' (TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) <= ?) ';
                     $bindings[] = $window;
                 }
             } else {
@@ -216,7 +220,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                                 $portalAutoBlockEnd = null;
                                 if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') != 0 && ($row['portal_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('password_max_failed_logins'))) {
                                     if (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') != 0) {
-                                        if ($row['seconds_last_portal_fail'] < OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
+                                        if ($row['seconds_last_portal_fail'] <= OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
                                             $portalAutoBlocked = true;
                                             $portalAutoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') - $row['seconds_last_portal_fail'])));
                                         }
