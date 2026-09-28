@@ -1253,17 +1253,20 @@ class AuthUtils
                 // ip_tracker.php: cap exceeded on either the password
                 // or MFA per-IP counter, gated by the matching last-
                 // fail timestamp when a reset window is configured.
-                // Password axis uses `>` to preserve pre-existing
-                // display behaviour; MFA axis uses `>=` because the
-                // enforced block in isMfaChallengeBlocked() triggers
-                // at counter == max, so `>` would hide a genuinely-
-                // blocked IP from the filter.
+                // Password axis uses `>` and `<` to preserve pre-
+                // existing display behaviour; MFA axis uses `>=` and
+                // `<=` because the enforced block in
+                // isMfaChallengeBlocked() triggers at counter == max
+                // and only expires when elapsed seconds are strictly
+                // greater than the window, so strict comparisons
+                // would hide a genuinely-blocked IP at either
+                // boundary.
                 $ipMax = OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins');
                 $ipWindow = OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins');
                 if ($ipWindow > 0) {
                     $where[] = ' ('
                         . '(ip_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) < ?) '
-                        . 'OR (mfa_login_fail_counter >= ? AND TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) < ?)'
+                        . 'OR (mfa_login_fail_counter >= ? AND TIMESTAMPDIFF(SECOND, `mfa_last_login_fail`, NOW()) <= ?)'
                         . ') ';
                     array_push($sqlBind, $ipMax, $ipWindow, $ipMax, $ipWindow);
                 } else {

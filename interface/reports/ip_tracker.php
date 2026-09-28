@@ -289,11 +289,15 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                             <?php
                             $mfaAutoBlocked = false;
                             $mfaAutoBlockEnd = null;
-                            // MFA gate is `>= ip_max_failed_logins` — see AuthUtils::isMfaChallengeBlocked() — matching that here so
-                            // the display doesn't disagree with the actual block at counter == max.
+                            // MFA gate is `>= ip_max_failed_logins` and only expires when elapsed seconds
+                            // are strictly greater than the window — see AuthUtils::isMfaChallengeBlocked().
+                            // Match both boundaries here (>= on counter, <= on seconds) so the display does
+                            // not disagree with the actual block at counter == max or at seconds == window.
+                            // The password axis above intentionally keeps < on the seconds comparison to
+                            // preserve pre-existing display behaviour.
                             if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0 && ($row['mfa_login_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'))) {
                                 if (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') != 0) {
-                                    if ($row['seconds_mfa_last_login_fail'] < OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) {
+                                    if ($row['seconds_mfa_last_login_fail'] <= OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) {
                                         $mfaAutoBlocked = true;
                                         $mfaAutoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') - $row['seconds_mfa_last_login_fail'])));
                                     }
