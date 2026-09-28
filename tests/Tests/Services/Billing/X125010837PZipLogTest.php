@@ -6,6 +6,9 @@
  * The isolated test only reads the constants. This one builds an encounter
  * so an old literal at either ZIP branch fails here.
  *
+ * Fixture ids are allocated from the live tables and removed by those ids.
+ * Nothing is deleted before this test has inserted it.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Simon Quigley <squigley@altispeed.com>
@@ -23,13 +26,9 @@ use PHPUnit\Framework\TestCase;
 
 class X125010837PZipLogTest extends TestCase
 {
-    private const PID = 989551001;
+    private int $pid = 0;
 
-    private const ENCOUNTER = 989551;
-
-    private const PARTNER_NAME = 'zip-log-test-partner';
-
-    private const USERNAME = 'zip-log-test-user';
+    private int $encounter = 0;
 
     private int $billingFacilityId = 0;
 
@@ -42,12 +41,17 @@ class X125010837PZipLogTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->removeFixture();
+        $this->pid = $this->allocatePositiveId(
+            'SELECT COALESCE(MAX(pid), 0) + 1 AS next_id FROM patient_data'
+        );
+        $this->encounter = $this->allocatePositiveId(
+            'SELECT COALESCE(MAX(encounter), 0) + 1 AS next_id FROM form_encounter'
+        );
     }
 
     protected function tearDown(): void
     {
-        $this->removeFixture();
+        $this->removeCreatedRows();
         parent::tearDown();
     }
 
@@ -79,21 +83,22 @@ class X125010837PZipLogTest extends TestCase
     {
         $this->providerId = $this->insertId(
             'INSERT INTO users (username, fname, lname, npi, active) VALUES (?, ?, ?, ?, 1)',
-            [self::USERNAME, 'Zip', 'Logger', '1234567893']
+            ['zip-log-user-' . $this->pid, 'Zip', 'Logger', '1234567893']
         );
-        $this->billingFacilityId = $this->insertFacility('zip-log-test-billing', $billingZip);
-        $this->serviceFacilityId = $this->insertFacility('zip-log-test-service', $serviceZip);
+        $this->billingFacilityId = $this->insertFacility('zip-log-billing-' . $this->pid, $billingZip);
+        $this->serviceFacilityId = $this->insertFacility('zip-log-service-' . $this->pid, $serviceZip);
         $this->partnerId = $this->insertPartner();
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO patient_data (pid, fname, lname, mname, DOB, sex, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [self::PID, 'Ada', 'Lovelace', '', '1980-01-01', 'Female', 'single']
+            [$this->pid, 'Ada', 'Lovelace', '', '1980-01-01', 'Female', 'single']
         );
         QueryUtils::sqlStatementThrowException(
-            'INSERT INTO form_encounter (pid, encounter, date, facility_id, billing_facility, provider_id, pos_code, reason)'
+            'INSERT INTO form_encounter (pid, encounter, date, facility_id, billing_facility,'
+            . ' provider_id, pos_code, reason)'
             . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [
-                self::PID,
-                self::ENCOUNTER,
+                $this->pid,
+                $this->encounter,
                 '2026-09-25 10:00:00',
                 $this->serviceFacilityId,
                 $this->billingFacilityId,
@@ -103,17 +108,18 @@ class X125010837PZipLogTest extends TestCase
             ]
         );
         QueryUtils::sqlStatementThrowException(
-            'INSERT INTO billing (pid, encounter, code, code_type, code_text, units, fee, provider_id, payer_id, activity)'
+            'INSERT INTO billing (pid, encounter, code, code_type, code_text, units, fee,'
+            . ' provider_id, payer_id, activity)'
             . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
-            [self::PID, self::ENCOUNTER, '99213', 'CPT4', 'Office visit', 1, 100, $this->providerId, 0]
+            [$this->pid, $this->encounter, '99213', 'CPT4', 'Office visit', 1, 100, $this->providerId, 0]
         );
 
         $log = '';
         $edicount = 0;
         $patSegmentCount = 0;
         $claimText = X125010837P::genX12837P(
-            self::PID,
-            self::ENCOUNTER,
+            $this->pid,
+            $this->encounter,
             $this->partnerId,
             $log,
             false,
@@ -134,26 +140,28 @@ class X125010837PZipLogTest extends TestCase
      */
     private function insertPartner(): int
     {
-        $id = $this->allocatePartnerId();
+        $id = $this->allocatePositiveId(
+            'SELECT COALESCE(MAX(`id`), 0) + 1 AS next_id FROM x12_partners'
+        );
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO x12_partners (id, name, x12_sender_id, x12_receiver_id, x12_gs02, x12_per06)'
             . ' VALUES (?, ?, ?, ?, ?, ?)',
-            [$id, self::PARTNER_NAME, 'SENDER', 'RECEIVER', 'ZIPLOG', '5555550100']
+            [$id, 'zip-log-partner-' . $this->pid, 'SENDER', 'RECEIVER', 'ZIPLOG', '5555550100']
         );
 
         return $id;
     }
 
-    private function allocatePartnerId(): int
+    private function allocatePositiveId(string $sql): int
     {
-        $row = QueryUtils::querySingleRow('SELECT COALESCE(MAX(`id`), 0) + 1 AS next_id FROM x12_partners');
+        $row = QueryUtils::querySingleRow($sql);
         $nextId = is_array($row) ? ($row['next_id'] ?? null) : null;
         if (is_string($nextId) && ctype_digit($nextId)) {
             $nextId = (int) $nextId;
         }
 
         if (!is_int($nextId) || $nextId <= 0) {
-            $this->fail('Could not allocate an X12 partner id');
+            $this->fail('Could not allocate an id');
         }
 
         return $nextId;
@@ -181,33 +189,33 @@ class X125010837PZipLogTest extends TestCase
         return $id;
     }
 
-    private function removeFixture(): void
+    /**
+     * Delete only the rows this process inserted. A shared database can already
+     * contain the same names; those rows are not ours.
+     */
+    private function removeCreatedRows(): void
     {
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM billing WHERE pid = ? AND encounter = ?',
-            [self::PID, self::ENCOUNTER]
-        );
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM form_encounter WHERE pid = ? AND encounter = ?',
-            [self::PID, self::ENCOUNTER]
-        );
-        QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pid = ?', [self::PID]);
-        QueryUtils::sqlStatementThrowException('DELETE FROM x12_partners WHERE name = ?', [self::PARTNER_NAME]);
+        if ($this->pid > 0 && $this->encounter > 0) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM billing WHERE pid = ? AND encounter = ?',
+                [$this->pid, $this->encounter]
+            );
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM form_encounter WHERE pid = ? AND encounter = ?',
+                [$this->pid, $this->encounter]
+            );
+        }
+        if ($this->pid > 0) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pid = ?', [$this->pid]);
+        }
         if ($this->partnerId > 0) {
             QueryUtils::sqlStatementThrowException('DELETE FROM x12_partners WHERE id = ?', [$this->partnerId]);
         }
-
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM facility WHERE name IN (?, ?)',
-            ['zip-log-test-billing', 'zip-log-test-service']
-        );
         foreach ([$this->billingFacilityId, $this->serviceFacilityId] as $facilityId) {
             if ($facilityId > 0) {
                 QueryUtils::sqlStatementThrowException('DELETE FROM facility WHERE id = ?', [$facilityId]);
             }
         }
-
-        QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE username = ?', [self::USERNAME]);
         if ($this->providerId > 0) {
             QueryUtils::sqlStatementThrowException('DELETE FROM users WHERE id = ?', [$this->providerId]);
         }
