@@ -11,12 +11,14 @@
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@growlingflea.com>
  * @copyright Copyright (c) 2014-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -42,6 +44,11 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     protected $batch;
 
     /**
+     * True when the global held this claim out of the batch.
+     */
+    private bool $claimHeld = false;
+
+    /**
      * @param mixed $action
      * @param bool $encounter_claim If "Allow Encounter Claims" is enabled, this allows the claims to use the alternate payor ID on the claim and sets the claims to report, not chargeable. ie: RP = reporting, CH = chargeable
      */
@@ -60,29 +67,129 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      *
      * @param BillingClaim $claim
      */
-    protected function updateBatchFile(BillingClaim $claim)
+    protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
     {
-        // Generate the file
-        $log = 'X12 ' . $claim->action . ' ';
-        $hlCount = 1;
-        $segs = explode(
-            "~\n",
-            (string) X125010837P::genX12837P(
-                $claim->getPid(),
-                $claim->getEncounter(),
-                $claim->getPartner(),
-                $log,
-                $this->encounter_claim,
-                false,
-                $hlCount
-            )
-        );
+        $this->claimHeld = false;
+        [$log, $segs] = $this->renderedClaim($claim);
         $this->appendToLog($log);
+        if ($this->holdClaimsThatWillDeny() && X125010837P::logShowsDenial($log)) {
+            $this->printDenialHold($log);
+            $this->claimHeld = true;
+            return;
+        }
+
+        if ($billIfAccepted) {
+            $this->markBilledExisting($claim);
+        }
+
         $this->batch->append_claim($segs);
 
         // Store the claims that are in this claims batch, because
         // if remote SFTP is enabled, we'll need the x12 partner ID to look up SFTP credentials
         $this->batch->addClaim($claim);
+    }
+
+    /**
+     * X12 segments for one claim. The log is the same string genX12837P appends to.
+     *
+     * @return array{string, list<string>}
+     */
+    protected function renderedClaim(BillingClaim $claim): array
+    {
+        $log = 'X12 ' . $claim->action . ' ';
+        $hlCount = 1;
+        $text = (string) X125010837P::genX12837P(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPartner(),
+            $log,
+            $this->encounter_claim,
+            false,
+            $hlCount
+        );
+        if (!is_string($log)) {
+            $log = 'X12 ';
+        }
+
+        return [$log, explode("~\n", $text)];
+    }
+
+    /**
+     * The opt-in hold for a claim the log says will deny. Off still sends the claim and writes the log.
+     */
+    protected function holdClaimsThatWillDeny(): bool
+    {
+        return OEGlobalsBag::getInstance()->getBoolean('gbl_hold_claims_that_will_deny', false);
+    }
+
+    /**
+     * Screen text for a claim left out of the batch. Same sentences as the log.
+     */
+    protected function printDenialHold(string $log): void
+    {
+        if (str_contains($log, X125010837P::BILLING_ZIP_LOG)) {
+            $this->printToScreen(xl(X125010837P::BILLING_ZIP_LOG));
+        }
+        if (str_contains($log, X125010837P::SERVICE_ZIP_LOG)) {
+            $this->printToScreen(xl(X125010837P::SERVICE_ZIP_LOG));
+        }
+    }
+
+    /**
+     * Store the payer before the 837 is built, and leave the claim unbilled.
+     */
+    protected function rememberPayer(BillingClaim $claim): void
+    {
+        BillingUtilities::updateClaim(
+            true,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_LEAVE_UNBILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            '',
+            $claim->getTarget(),
+            $claim->getPartner()
+        );
+    }
+
+    /**
+     * Master's first updateClaim: a new claim row, marked billed.
+     */
+    protected function markBilledNew(BillingClaim $claim): void
+    {
+        BillingUtilities::updateClaim(
+            true,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_MARK_AS_BILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            '',
+            $claim->getTarget(),
+            $claim->getPartner()
+        );
+    }
+
+    /**
+     * Mark the unbilled row from rememberPayer() as billed. Not a second claim version.
+     */
+    protected function markBilledExisting(BillingClaim $claim): void
+    {
+        BillingUtilities::updateClaim(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_MARK_AS_BILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            '',
+            $claim->getTarget(),
+            $claim->getPartner()
+        );
     }
 
     /**
@@ -105,6 +212,9 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     public function validateOnly(BillingClaim $claim)
     {
         $this->updateBatchFile($claim);
+        if ($this->claimHeld) {
+            return;
+        }
         $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
@@ -119,21 +229,19 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function validateAndClear(BillingClaim $claim)
     {
-        $return = BillingUtilities::updateClaim(
-            true,
-            $claim->getPid(),
-            $claim->getEncounter(),
-            $claim->getPayorId(),
-            $claim->getPayorType(),
-            BillingClaim::STATUS_MARK_AS_BILLED,
-            BillingClaim::BILL_PROCESS_IN_PROGRESS, // bill_process == 1 means??
-            '', // process_file
-            $claim->getTarget(),
-            $claim->getPartner()
-        );
+        $billIfAccepted = false;
+        if ($this->holdClaimsThatWillDeny()) {
+            $this->rememberPayer($claim);
+            $billIfAccepted = true;
+        } else {
+            $this->markBilledNew($claim);
+        }
 
         // Update the batch file content with this claim's data
-        $this->updateBatchFile($claim);
+        $this->updateBatchFile($claim, $billIfAccepted);
+        if ($this->claimHeld) {
+            return;
+        }
         $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() .  " " . xl("as billed"));
     }
 
@@ -148,21 +256,19 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function generate(BillingClaim $claim)
     {
-        $tmp = BillingUtilities::updateClaim(
-            true,
-            $claim->getPid(),
-            $claim->getEncounter(),
-            $claim->getPayorId(),
-            $claim->getPayorType(),
-            BillingClaim::STATUS_MARK_AS_BILLED,
-            BillingClaim::BILL_PROCESS_IN_PROGRESS, // bill_process == 1 means??
-            '', // process_file
-            $claim->getTarget(),
-            $claim->getPartner()
-        );
+        $billIfAccepted = false;
+        if ($this->holdClaimsThatWillDeny()) {
+            $this->rememberPayer($claim);
+            $billIfAccepted = true;
+        } else {
+            $this->markBilledNew($claim);
+        }
 
         // Update the batch file content with this claim's data
-        $this->updateBatchFile($claim);
+        $this->updateBatchFile($claim, $billIfAccepted);
+        if ($this->claimHeld) {
+            return;
+        }
 
         // After we save the claim, update it with the filename (don't create a new revision)
         if (!BillingUtilities::updateClaim(false, $claim->getPid(), $claim->getEncounter(), -1, -1, 2, 2, $this->batch->getBatFilename())) {
@@ -180,6 +286,10 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function completeToScreen(array $context)
     {
+        if ($this->batch->getClaims() === []) {
+            return;
+        }
+
         $this->batch->append_claim_close();
         // If we're validating only, or clearing and validating, don't write to our EDI directory
         // Just send to the browser in that case for the end-user to review.
@@ -198,6 +308,11 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function completeToFile(array $context)
     {
+        if ($this->batch->getClaims() === []) {
+            $this->printToScreen(xl('No claim file was written.'));
+            return;
+        }
+
         $this->batch->append_claim_close();
         $success = $this->batch->write_batch_file();
         if ($success) {

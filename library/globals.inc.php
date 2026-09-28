@@ -1537,6 +1537,13 @@ $GLOBALS_METADATA = [
             xl('For sending claims directly to insurance company, based on X12 Partner Settings')
         ],
 
+        'gbl_hold_claims_that_will_deny' => [
+            xl('Hold Claims That Will Deny'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Leave a claim out of the 837 and do not mark it billed when the log says the payer will deny it. Off still sends the claim and writes the log. The billing or service facility ZIP is the denial this covers. A pay-to warning does not hold the claim.')
+        ],
+
         'auto_sftp_claims_to_x12_partner' => [
             xl('Automatically SFTP Claims To X12 Partner'),
             'bool',                           // data type
