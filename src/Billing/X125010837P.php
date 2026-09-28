@@ -43,8 +43,6 @@ class X125010837P
      * @param mixed $patSegmentCount
      * @return string
      */
-
-    // removed $HLBillingPayToProvider until it's supported in the generators
     public static function genX12837P(
         $pid,
         $encounter,
@@ -57,6 +55,7 @@ class X125010837P
         &$patSegmentCount = 0,
         ?string $payerId = null
     ) {
+        // removed $HLBillingPayToProvider until it's supported in the generators
         $today = time();
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner, $payerId);
