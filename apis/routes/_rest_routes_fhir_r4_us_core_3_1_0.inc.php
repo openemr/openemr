@@ -85,6 +85,7 @@ use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use OpenEMR\RestControllers\FHIR\FhirClaimRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -1499,5 +1500,17 @@ return [
         $return = $fhirExportService->processDeleteExportForJob($job);
 
         return $return;
+    },
+	
+	"POST /fhir/Claim" => function (HttpRestRequest $request) {
+		RestConfig::authorization_check("patients", "write");
+
+		$data = json_decode(file_get_contents("php://input"), true);
+
+		$return = (new FhirClaimRestController())->post($data);
+
+		RestConfig::apiLog($return, $data);
+
+		return $return;
     },
 ];
