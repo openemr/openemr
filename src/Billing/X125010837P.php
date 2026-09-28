@@ -1672,4 +1672,14 @@ class X125010837P
     public const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
         . 'The 837 does not send a country code, so Medicare can reject this ZIP on the 277CA with CSC 500 '
         . 'and deny the service location with MA114.';
+
+    /**
+     * True when the log names a denial this hold covers.
+     * Today that is the billing or service facility ZIP. A pay-to warning does not count.
+     */
+    public static function logShowsDenial(string $log): bool
+    {
+        return str_contains($log, self::BILLING_ZIP_LOG)
+            || str_contains($log, self::SERVICE_ZIP_LOG);
+    }
 }
