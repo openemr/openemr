@@ -110,9 +110,9 @@ if (empty($skipSessionExpirationCheck)) {
         EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser'), $session->get('authProvider'), 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
-    } elseif (empty($_REQUEST['skip_timeout_reset'])) {
-        // Reset the session expiration timer unless the request opts out (e.g. background
-        // polling from Messages, Reminders, or the Flow Board).
+    } elseif (!SessionTracker::shouldSkipTimeoutReset()) {
+        // Reset the idle timer for real user activity only. Background polls may
+        // send skip_timeout_reset=1 or match known polling script paths.
         SessionTracker::updateSessionExpiration();
     }
 }

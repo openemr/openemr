@@ -69,6 +69,122 @@ class SessionTracker
         sqlStatementNoLog("UPDATE `session_tracker` SET `last_updated` = NOW() WHERE `uuid` = ?", [$session->get('session_database_uuid')]);
     }
 
+    /**
+     * Whether this request should leave session idle tracking alone.
+     *
+     * Background polls may opt out with skip_timeout_reset=1. Known polling
+     * scripts are also excluded by path so a missing client flag cannot keep
+     * the session alive indefinitely.
+     *
+     * Expiration is still enforced; only the last_updated refresh is skipped.
+     *
+     * @param  array<string, mixed>|null  $request
+     */
+    public static function shouldSkipTimeoutReset(
+        ?array $request = null,
+        ?string $scriptPath = null,
+        ?string $requestMethod = null,
+        ?string $requestUri = null
+    ): bool {
+        $request ??= $_REQUEST;
+        if (!empty($request['skip_timeout_reset'])) {
+            return true;
+        }
+
+        if (self::isBackgroundPollingRequest(
+            $scriptPath ?? self::currentRequestScriptPath(),
+            $requestMethod ?? strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')),
+            $requestUri ?? (string) ($_SERVER['REQUEST_URI'] ?? '')
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * True when the active script/URI is a known automatic poller.
+     */
+    public static function isBackgroundPollingRequest(
+        string $scriptPath,
+        string $requestMethod = 'GET',
+        string $requestUri = ''
+    ): bool {
+        $normalized = self::normalizeScriptPath($scriptPath);
+        $uri = self::normalizeScriptPath($requestUri);
+        $method = strtoupper($requestMethod);
+
+        // Local API background runner (main UI every ~60s via APICSRFTOKEN).
+        // Comment in main.php incorrectly assumed REST never touches SessionTracker;
+        // LocalApi bridges the core session and auth.inc.php would reset idle time.
+        if (
+            str_contains($uri, '/api/background_service/')
+            || str_contains($uri, '/api/background_service/%24')
+        ) {
+            return true;
+        }
+
+        if ($normalized === '') {
+            return false;
+        }
+
+        // Presence / status GET polls (user POSTs that queue invites still count as activity).
+        $getOnlySuffixes = [
+            '/interface/modules/custom_modules/oe-module-telehealth-jse/public/api/invite.php',
+            '/interface/modules/custom_modules/oe-module-telehealth-jse/public/api/invite_status_batch.php',
+            '/interface/modules/custom_modules/oe-module-telehealth-jse/public/api/patient_status.php',
+        ];
+        foreach ($getOnlySuffixes as $suffix) {
+            if (str_ends_with($normalized, $suffix)) {
+                return $method === 'GET';
+            }
+        }
+
+        // Core UI pollers (always background, any method).
+        $anyMethodSuffixes = [
+            '/library/ajax/dated_reminders_counter.php',
+            '/interface/main/dated_reminders/dated_reminders.php',
+            '/apis/dispatch.php',
+        ];
+        foreach ($anyMethodSuffixes as $suffix) {
+            if (str_ends_with($normalized, $suffix)) {
+                // Only skip dispatch.php when the route is the background runner.
+                if (str_ends_with($normalized, '/apis/dispatch.php')) {
+                    return str_contains($uri, '/api/background_service/');
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function currentRequestScriptPath(): string
+    {
+        $candidates = [
+            $_SERVER['SCRIPT_NAME'] ?? '',
+            $_SERVER['PHP_SELF'] ?? '',
+            $_SERVER['SCRIPT_FILENAME'] ?? '',
+        ];
+        foreach ($candidates as $candidate) {
+            $normalized = self::normalizeScriptPath((string) $candidate);
+            if ($normalized !== '') {
+                return $normalized;
+            }
+        }
+
+        return '';
+    }
+
+    private static function normalizeScriptPath(string $path): string
+    {
+        // Normalize Windows separators to forward slashes.
+        $path = str_replace(chr(92), '/', $path);
+        $path = explode('?', $path, 2)[0];
+
+        return rtrim($path, '/');
+    }
+
     // Function to update the throttle down function (ie. counting scripts)
     //  Only basically used for the online demos to prevent abuse of demo farm
     public static function updateSessionThrottleDown(): void

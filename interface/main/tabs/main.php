@@ -280,10 +280,9 @@ $twig = ServiceContainer::getTwig();
             if (!noBackgroundTasks) {
                 setTimeout(function () {
                     restoreSession();
-                    // Call the REST "run all due" endpoint via LocalApi (APICSRFTOKEN header).
-                    // The REST stack does not touch SessionTracker, so no skip_timeout_reset
-                    // equivalent is needed to avoid resetting the session expiration timer.
-                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run", {
+                    // LocalApi bridges the core session through globals/auth.inc.php, so this
+                    // must opt out of idle-timer reset like other background polls.
+                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run?skip_timeout_reset=1", {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
