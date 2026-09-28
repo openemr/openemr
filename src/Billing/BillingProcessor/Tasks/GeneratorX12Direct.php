@@ -11,8 +11,10 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -149,7 +151,10 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function validateOnly(BillingClaim $claim)
     {
-        $this->updateBatchFile($claim);
+        $batch = $this->updateBatchFile($claim);
+        if (!$batch instanceof BillingClaimBatch) {
+            return;
+        }
         $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
@@ -162,21 +167,27 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function validateAndClear(BillingClaim $claim)
     {
-        $return = BillingUtilities::updateClaim(
-            true,
-            $claim->getPid(),
-            $claim->getEncounter(),
-            $claim->getPayorId(),
-            $claim->getPayorType(),
-            BillingClaim::STATUS_MARK_AS_BILLED,
-            BillingClaim::BILL_PROCESS_IN_PROGRESS, // bill_process == 1 means??
-            '', // process_file
-            $claim->getTarget(),
-            $claim->getPartner()
-        );
+        $billIfAccepted = false;
+        if ($this->holdClaimsThatWillDeny()) {
+            $this->rememberPayer($claim);
+            $billIfAccepted = true;
+        } else {
+            BillingUtilities::updateClaim(
+                true,
+                $claim->getPid(),
+                $claim->getEncounter(),
+                $claim->getPayorId(),
+                $claim->getPayorType(),
+                BillingClaim::STATUS_MARK_AS_BILLED,
+                BillingClaim::BILL_PROCESS_IN_PROGRESS, // bill_process == 1 means??
+                '', // process_file
+                $claim->getTarget(),
+                $claim->getPartner()
+            );
+        }
 
         // Return the batch we updated (depending on x-12 partner)
-        return $this->updateBatchFile($claim);
+        return $this->updateBatchFile($claim, $billIfAccepted);
     }
 
     /**
@@ -191,6 +202,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Use the claim to update the appropriate batch file (depends on x-12 partner)
         // and return the batch we updated
         $batch = $this->validateAndClear($claim);
+        if (!$batch instanceof BillingClaimBatch) {
+            return;
+        }
 
         if (!BillingUtilities::updateClaim(false, $claim->getPid(), $claim->getEncounter(), -1, -1, 2, 2, $batch->getBatFilename())) {
             $this->printToScreen(xl("Internal error: claim ") . $claim->getId() . xl(" not found!") . "\n");
@@ -205,7 +219,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      * @param BillingClaim $claim
      * @return mixed
      */
-    protected function updateBatchFile(BillingClaim $claim)
+    protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
     {
         // Get the correct batch file using the X-12 partner ID
         $batch = $this->x12_partner_batches[$claim->getPartner()];
@@ -215,13 +229,22 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
         // Get the correct patient segment count for this x-12 partner using the partner ID
         $patSegmentCount = $this->pat_segment_counts[$claim->getPartner()];
+        $edicountBefore = $edicount;
+        $patSegmentCountBefore = $patSegmentCount;
 
-        // Tell our batch that we've processed this claim
-        $batch->addClaim($claim);
+        // Off: add the claim before the 837 is built, which is the master order.
+        // On: add it only after the ZIP is accepted, so a held claim is not in the batch.
+        $hold = $this->holdClaimsThatWillDeny();
+        if (!$hold) {
+            $batch->addClaim($claim);
+        }
 
         $log = 'X12Direct ' . $claim->action . ' ';
         $is_last_claim = $claim->getIsLast();
         $HLCount = count($batch->getClaims());
+        if ($hold) {
+            $HLCount++;
+        }
         if ($HLCount > 1) {
             $idx = $HLCount - 2;
             $prior_claim = $batch->getClaims()[$idx];
@@ -249,14 +272,91 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $edicount,
             $patSegmentCount
         ));
+        $logText = is_string($log) ? $log : '';
+        if ($hold && X125010837P::logShowsDenial($logText)) {
+            $edicount = $edicountBefore;
+            $patSegmentCount = $patSegmentCountBefore;
+        }
+
         // edi count is passed by reference and incremented in the genX12837P function, and we need to set it back here
         $this->edi_counts[$claim->getPartner()] = $edicount;
         // also for the patient segment counts
         $this->pat_segment_counts[$claim->getPartner()] = $patSegmentCount;
         $this->appendToLog($log);
+        if ($hold && X125010837P::logShowsDenial($logText)) {
+            $this->printDenialHold($logText);
+            return null;
+        }
+        if ($hold) {
+            if ($billIfAccepted) {
+                $this->markBilledExisting($claim);
+            }
+            if ($batch instanceof BillingClaimBatch) {
+                $batch->addClaim($claim);
+            }
+        }
         $batch->append_claim($segs);
 
         return $batch;
+    }
+
+    /**
+     * The opt-in hold for a claim the log says will deny. Off still sends the claim and writes the log.
+     */
+    protected function holdClaimsThatWillDeny(): bool
+    {
+        return OEGlobalsBag::getInstance()->getBoolean('gbl_hold_claims_that_will_deny', false);
+    }
+
+    /**
+     * Screen text for a claim left out of the batch. Same sentences as the log.
+     */
+    protected function printDenialHold(string $log): void
+    {
+        if (str_contains($log, X125010837P::BILLING_ZIP_LOG)) {
+            $this->printToScreen(xl(X125010837P::BILLING_ZIP_LOG));
+        }
+        if (str_contains($log, X125010837P::SERVICE_ZIP_LOG)) {
+            $this->printToScreen(xl(X125010837P::SERVICE_ZIP_LOG));
+        }
+    }
+
+    /**
+     * Store the payer before the 837 is built, and leave the claim unbilled.
+     */
+    protected function rememberPayer(BillingClaim $claim): void
+    {
+        BillingUtilities::updateClaim(
+            true,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_LEAVE_UNBILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            '',
+            $claim->getTarget(),
+            $claim->getPartner()
+        );
+    }
+
+    /**
+     * Mark the unbilled row from rememberPayer() as billed. Not a second claim version.
+     */
+    protected function markBilledExisting(BillingClaim $claim): void
+    {
+        BillingUtilities::updateClaim(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_MARK_AS_BILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            '',
+            $claim->getTarget(),
+            $claim->getPartner()
+        );
     }
 
     /**
@@ -275,6 +375,10 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             // Get the created_batches from the finish method
             $created_batches = $context['created_batches'];
+            if (is_array($created_batches) && $created_batches === []) {
+                $this->printToScreen(xl('No claim file was written.'));
+                return;
+            }
 
             // In the "normal" operation, we have written the batch files to disk above, and
             // need to build a presentation for the user to download them.
@@ -318,6 +422,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             // Get the format_bat string from the finish method
             $format_bat = $context['format_bat'];
+            if (is_string($format_bat) && $format_bat === '') {
+                return;
+            }
 
             // if validating (sending to screen for user)
             $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
