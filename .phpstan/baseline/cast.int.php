@@ -458,7 +458,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 12,
+    'count' => 10,
     'path' => __DIR__ . '/../../library/ajax/login_counter_ip_tracker.php',
 ];
 $ignoreErrors[] = [

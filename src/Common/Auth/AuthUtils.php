@@ -1273,6 +1273,12 @@ class AuthUtils
                     $where[] = ' (ip_login_fail_counter > ? OR mfa_login_fail_counter >= ?) ';
                     array_push($sqlBind, $ipMax, $ipMax);
                 }
+            } else {
+                // Auto-block is globally disabled — no row can be
+                // auto-blocked. Return an empty set rather than the
+                // whole ip_tracking table, which the renderer would
+                // uniformly label "No" and mislead the admin.
+                $where[] = ' 1 = 0 ';
             }
         }
         if (!empty($where)) {

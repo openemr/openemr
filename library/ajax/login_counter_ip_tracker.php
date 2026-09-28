@@ -14,9 +14,18 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once(__DIR__ . "/../../interface/globals.php");
+
+// The three admin-unblock handlers added for #14187 read their inputs via the
+// typed request bag rather than direct $_POST so the phpstan baseline for this
+// legacy file does not grow. Pre-existing branches (resetUsernameCounter,
+// disableIp, enableIp, skipTiming, noSkipTiming, resetIpCounter) are left
+// untouched to keep this PR's scope focused on the followup issue.
+$request = CurrentRequest::get();
+$requestFunction = $request->request->getString('function');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'counter')) {
@@ -40,16 +49,17 @@ if ($_POST['function'] == 'resetUsernameCounter') {
     exit;
 }
 
-if ($_POST['function'] == 'resetMfaFailCounter') {
+if ($requestFunction === 'resetMfaFailCounter') {
     if (!AclMain::aclCheckCore('admin', 'users')) {
         ServiceContainer::getLogger()->error('Failed ACL access to login_counter_ip_tracker.php script', ['function' => 'resetMfaFailCounter']);
         exit;
     }
 
-    if (empty($_POST['username']) || !is_string($_POST['username'])) {
+    $username = $request->request->getString('username');
+    if ($username === '') {
         exit;
     }
-    AuthUtils::resetMfaUserFailCounter($_POST['username']);
+    AuthUtils::resetMfaUserFailCounter($username);
     exit;
 }
 
@@ -100,18 +110,20 @@ if ($_POST['function'] == 'resetIpCounter') {
     exit;
 }
 
-if ($_POST['function'] == 'resetIpMfaCounter') {
-    if (empty((int)$_POST['ipId'])) {
+if ($requestFunction === 'resetIpMfaCounter') {
+    $ipId = $request->request->getInt('ipId');
+    if ($ipId <= 0) {
         exit;
     }
-    AuthUtils::resetMfaIpCounter((int)$_POST['ipId']);
+    AuthUtils::resetMfaIpCounter($ipId);
     exit;
 }
 
-if ($_POST['function'] == 'resetPortalAccountCounter') {
-    if (empty($_POST['portalLoginUsername']) || !is_string($_POST['portalLoginUsername'])) {
+if ($requestFunction === 'resetPortalAccountCounter') {
+    $portalLoginUsername = $request->request->getString('portalLoginUsername');
+    if ($portalLoginUsername === '') {
         exit;
     }
-    AuthUtils::resetPortalAccountFailedCounter($_POST['portalLoginUsername']);
+    AuthUtils::resetPortalAccountFailedCounter($portalLoginUsername);
     exit;
 }

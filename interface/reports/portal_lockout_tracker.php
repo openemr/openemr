@@ -26,13 +26,17 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!empty($_POST)) {
+$request = CurrentRequest::get();
+
+if ($request->isMethod('POST')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal_lockout_tracker', dieOnFail: true);
 }
 
@@ -40,7 +44,75 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Portal Lockout Tracker", xl("Portal Lockout Tracker"));
 }
 
-$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
+$showOnlyAutoBlocked = $request->request->getBoolean('showOnlyAutoBlocked');
+$formRefresh = $request->request->getString('form_refresh') !== '';
+
+$maxFailed = OEGlobalsBag::getInstance()->getInt('password_max_failed_logins');
+$resetWindow = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
+
+/** @var list<array{pid: int, portal_login_username: string, portal_fail_counter: int, portal_last_fail: ?string, seconds_last_portal_fail: ?int}> $rows */
+$rows = [];
+if ($formRefresh) {
+    // Only surface rows with an active counter — a zero-counter row on
+    // patient_access_onsite is not a lockout candidate, and the table holds
+    // every registered portal user, so a bare SELECT would list the entire
+    // portal roster.
+    $whereFragments = [' (`portal_fail_counter` > 0) '];
+    $bindings = [];
+    if ($showOnlyAutoBlocked) {
+        if ($maxFailed !== 0) {
+            $whereFragments[] = ' (`portal_fail_counter` >= ?) ';
+            $bindings[] = $maxFailed;
+            if ($resetWindow > 0) {
+                // isPortalAccountBlocked() expires the block only when
+                // elapsed seconds are strictly greater than $window, so the
+                // account is still blocked at seconds == window; use <= to
+                // keep the filter aligned with the gate.
+                $whereFragments[] = ' (TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) <= ?) ';
+                $bindings[] = $resetWindow;
+            }
+        } else {
+            // Auto-block is globally disabled, so no row can be auto-blocked.
+            // Return an empty set rather than the whole active-counter list,
+            // which the renderer would uniformly label "No" and mislead the
+            // admin.
+            $whereFragments[] = ' 1 = 0 ';
+        }
+    }
+    $where = implode(' AND ', $whereFragments);
+    /** @var list<array<string, mixed>> $rawRows */
+    $rawRows = QueryUtils::fetchRecords(
+        "SELECT `pid`, `portal_login_username`, `portal_fail_counter`, `portal_last_fail`, "
+            . "TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) AS `seconds_last_portal_fail` "
+            . "FROM `patient_access_onsite` WHERE " . $where . " "
+            . "ORDER BY `portal_last_fail` DESC, `portal_fail_counter` DESC",
+        $bindings
+    );
+    foreach ($rawRows as $raw) {
+        $rows[] = [
+            'pid' => is_numeric($raw['pid'] ?? null) ? (int) $raw['pid'] : 0,
+            'portal_login_username' => is_string($raw['portal_login_username'] ?? null)
+                ? $raw['portal_login_username']
+                : '',
+            'portal_fail_counter' => is_numeric($raw['portal_fail_counter'] ?? null)
+                ? (int) $raw['portal_fail_counter']
+                : 0,
+            'portal_last_fail' => is_string($raw['portal_last_fail'] ?? null)
+                ? $raw['portal_last_fail']
+                : null,
+            'seconds_last_portal_fail' => is_numeric($raw['seconds_last_portal_fail'] ?? null)
+                ? (int) $raw['seconds_last_portal_fail']
+                : null,
+        ];
+    }
+}
+
+/**
+ * Whether a row is currently auto-blocked given the configured thresholds.
+ * Matches AuthUtils::isPortalAccountBlocked(): counter >= max, and (window == 0
+ * → always blocked once at cap) or (elapsed seconds within the window).
+ */
+$computeAutoBlockEnd = (static fn(int $seconds): string => date('Y-m-d H:i:s', time() + ($resetWindow - $seconds)));
 
 ?>
 <html>
@@ -132,7 +204,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                                         <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                                             <?php echo xlt('Submit'); ?>
                                         </a>
-                                        <?php if (!empty($_POST['form_refresh'])) { ?>
+                                        <?php if ($formRefresh) { ?>
                                             <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                                 <?php echo xlt('Print'); ?>
                                             </a>
@@ -147,45 +219,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
         </table>
     </div>
     <!-- end of search parameters -->
-    <?php
-    if (!empty($_POST['form_refresh'])) {
-        // Only surface rows with an active counter — a zero-counter row on
-        // patient_access_onsite is not a lockout candidate, and the table
-        // holds every registered portal user, so a bare SELECT would list
-        // the entire portal roster.
-        $whereFragments = [' (`portal_fail_counter` > 0) '];
-        $bindings = [];
-        if ($showOnlyAutoBlocked) {
-            $maxFailed = OEGlobalsBag::getInstance()->getInt('password_max_failed_logins');
-            if ($maxFailed !== 0) {
-                $whereFragments[] = ' (`portal_fail_counter` >= ?) ';
-                $bindings[] = $maxFailed;
-                $window = OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins');
-                if ($window > 0) {
-                    // isPortalAccountBlocked() expires the block only when
-                    // elapsed seconds are strictly greater than $window, so
-                    // the account is still blocked at seconds == window;
-                    // use <= to keep the filter aligned with the gate.
-                    $whereFragments[] = ' (TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) <= ?) ';
-                    $bindings[] = $window;
-                }
-            } else {
-                // Auto-block is globally disabled, so no row can be
-                // auto-blocked. Return an empty set rather than the
-                // whole active-counter list, which would every row as
-                // "No" and mislead the admin.
-                $whereFragments[] = ' 1 = 0 ';
-            }
-        }
-        $where = 'WHERE ' . implode(' AND ', $whereFragments);
-        $rows = sqlStatement(
-            "SELECT `pid`, `portal_login_username`, `portal_fail_counter`, `portal_last_fail`, "
-            . "TIMESTAMPDIFF(SECOND, `portal_last_fail`, NOW()) as `seconds_last_portal_fail` "
-            . "FROM `patient_access_onsite` $where "
-            . "ORDER BY `portal_last_fail` DESC, `portal_fail_counter` DESC",
-            $bindings
-        );
-        ?>
+    <?php if ($formRefresh) { ?>
         <div id="report_results">
             <table class='table'>
                 <thead class='thead-light'>
@@ -196,41 +230,42 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                     <th><?php echo xlt('Auto Blocked'); ?></th>
                 </thead>
                 <tbody>
-                    <?php
-                    while ($row = sqlFetchArray($rows)) {
+                    <?php foreach ($rows as $row) {
+                        // Portal per-account gate is `>= password_max_failed_logins` and only expires when
+                        // elapsed seconds are strictly greater than the window — see
+                        // AuthUtils::isPortalAccountBlocked(). Match both boundaries here (>= on counter,
+                        // <= on seconds) so the display doesn't disagree with the actual block.
+                        $portalAutoBlocked = false;
+                        $portalAutoBlockEnd = null;
+                        if ($maxFailed !== 0 && $row['portal_fail_counter'] >= $maxFailed) {
+                            if ($resetWindow !== 0) {
+                                $seconds = $row['seconds_last_portal_fail'];
+                                if ($seconds !== null && $seconds <= $resetWindow) {
+                                    $portalAutoBlocked = true;
+                                    $portalAutoBlockEnd = $computeAutoBlockEnd($seconds);
+                                }
+                            } else {
+                                $portalAutoBlocked = true;
+                            }
+                        }
                         ?>
                         <tr valign='top'>
                             <td class="detail"><?php echo text($row['portal_login_username']); ?></td>
-                            <td class="detail"><?php echo text($row['pid']); ?></td>
+                            <td class="detail"><?php echo text((string) $row['pid']); ?></td>
                             <td class="detail" id="portal-fail-counter-<?php echo attr($row['portal_login_username']); ?>">
                                 <?php
-                                echo text($row['portal_fail_counter']);
+                                echo text((string) $row['portal_fail_counter']);
                                 if ($row['portal_fail_counter'] > 0) {
                                     echo '<button type="button" class="btn btn-sm btn-danger ml-2" onclick="resetPortalCounter(' . attr_js($row['portal_login_username']) . ')">' . xlt("Reset Counter") . '</button>';
                                 }
                                 ?>
                             </td>
-                            <td class="detail" id="portal-last-fail-<?php echo attr($row['portal_login_username']); ?>"><?php echo (!empty($row['portal_last_fail'])) ? text(DateFormatterUtils::oeFormatDateTime($row['portal_last_fail'])) : xlt("Not Applicable"); ?></td>
+                            <td class="detail" id="portal-last-fail-<?php echo attr($row['portal_login_username']); ?>"><?php echo ($row['portal_last_fail'] !== null) ? text(DateFormatterUtils::oeFormatDateTime($row['portal_last_fail'])) : xlt("Not Applicable"); ?></td>
                             <td class="detail" id="portal-autoblock-<?php echo attr($row['portal_login_username']); ?>">
                                 <?php
-                                // Portal per-account gate is `>= password_max_failed_logins` — see
-                                // AuthUtils::isPortalAccountBlocked() — matching that here so the
-                                // display doesn't disagree with the actual block at counter == max.
-                                $portalAutoBlocked = false;
-                                $portalAutoBlockEnd = null;
-                                if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') != 0 && ($row['portal_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('password_max_failed_logins'))) {
-                                    if (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') != 0) {
-                                        if ($row['seconds_last_portal_fail'] <= OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
-                                            $portalAutoBlocked = true;
-                                            $portalAutoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') - $row['seconds_last_portal_fail'])));
-                                        }
-                                    } else {
-                                        $portalAutoBlocked = true;
-                                    }
-                                }
                                 if ($portalAutoBlocked) {
                                     echo xlt("Yes");
-                                    if (!empty($portalAutoBlockEnd)) {
+                                    if ($portalAutoBlockEnd !== null) {
                                         echo ' (' . xlt("Autoblock ends on") . ' ' . text(DateFormatterUtils::oeFormatDateTime($portalAutoBlockEnd)) . ')';
                                     }
                                 } else {
