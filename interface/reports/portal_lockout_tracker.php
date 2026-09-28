@@ -139,16 +139,19 @@ $computeAutoBlockEnd = (static fn(int $seconds): string => date('Y-m-d H:i:s', t
                 credentials: 'same-origin',
                 body: request
             });
-            let cellId = 'portal-fail-counter-' + CSS.escape(portalLoginUsername);
-            let counterEl = document.getElementById(cellId);
+            // getElementById takes a raw id, not a CSS selector, so the raw
+            // portal_login_username is concatenated as-is; CSS.escape() would
+            // add backslashes before dots/@ and break lookups for the common
+            // case of an email-address portal username.
+            let counterEl = document.getElementById('portal-fail-counter-' + portalLoginUsername);
             if (counterEl) {
                 counterEl.innerHTML = "0";
             }
-            let lastFailEl = document.getElementById('portal-last-fail-' + CSS.escape(portalLoginUsername));
+            let lastFailEl = document.getElementById('portal-last-fail-' + portalLoginUsername);
             if (lastFailEl) {
                 lastFailEl.innerHTML = jsXlt("Not Applicable");
             }
-            let autoBlockEl = document.getElementById('portal-autoblock-' + CSS.escape(portalLoginUsername));
+            let autoBlockEl = document.getElementById('portal-autoblock-' + portalLoginUsername);
             if (autoBlockEl) {
                 autoBlockEl.innerHTML = jsXlt("No");
             }
