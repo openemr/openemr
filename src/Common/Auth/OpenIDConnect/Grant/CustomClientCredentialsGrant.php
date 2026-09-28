@@ -16,7 +16,6 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
-use League\OAuth2\Server\RequestEvent;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\JWTClientAuthenticationService;
@@ -223,12 +222,6 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         } else {
             // we only support JWT client assertions for this grant type
             $this->getSystemLogger()->error("CustomClientCredentialsGrant->validateClient() missing or invalid JWT client assertion", ['client' => $clientId]);
-            throw OAuthServerException::invalidClient($request);
-        }
-
-        if ($this->clientRepository->validateClient($clientId, null, $this->getIdentifier()) === false) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-
             throw OAuthServerException::invalidClient($request);
         }
 

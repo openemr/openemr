@@ -2217,6 +2217,13 @@ $GLOBALS_METADATA = [
             xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ],
 
+        'clear_ip_counter_on_auth_success' => [
+            xl('Clear IP Failed-Login Counter on Successful Authentication'),
+            'bool',                           // data type
+            '1',                              // default ON — preserves pre-8.5.0 behaviour
+            xl('When enabled (default), a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. This matches the pre-8.5.0 behaviour and is convenient in shared-NAT environments where legitimate users would otherwise accumulate strikes across a day. When disabled, the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP — recommended for higher-security deployments. If disabled AND the reset window is also 0 (never auto-reset), the ip_tracking.ip_login_fail_counter can be cleared by an administrator via the IP Tracker report; the ip_tracking.mfa_login_fail_counter has no admin UI yet and requires direct SQL to clear (see the follow-up admin-unblock issue tracked separately).')
+        ],
+
         'portal_onetime_max_pin_attempts' => [
             xl('Portal One-Time Token Maximum PIN Attempts'),
             'num',                            // data type
