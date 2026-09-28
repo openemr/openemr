@@ -2067,9 +2067,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $total_PMSFH = 0;
     $header1 = '';
     $display_PMSFH = [];
-    if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
-    }
+    $PMSFH = build_PMSFH($pid);
 
     ob_start();
     // There are two rows in our PMH section, only one in the side panel.
@@ -2688,9 +2686,7 @@ function show_PMSFH_report($PMSFH): void
 
     //4 panels
     $rows = '4';
-    if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
-    }
+    $PMSFH = build_PMSFH($pid);
 
     // Find out the number of items present now and put 1/4 in each column.
     foreach ($PMSFH[0] as $key => $value) {
@@ -4000,9 +3996,7 @@ function start_your_engines($FIELDS)
     $DX = '';
     $sub_term = '';
     $count = 0;
-    if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
-    }
+    $PMSFH = build_PMSFH($pid);
 
     $query = "select * from list_options where list_id ='Eye_Coding_Fields' Order by seq";
     $result = sqlStatement($query);
