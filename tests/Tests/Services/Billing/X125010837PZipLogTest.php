@@ -38,6 +38,9 @@ class X125010837PZipLogTest extends TestCase
 
     private int $providerId = 0;
 
+    /**
+     * Allocate a fresh patient id and encounter. Do not delete existing rows.
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,12 +52,18 @@ class X125010837PZipLogTest extends TestCase
         );
     }
 
+    /**
+     * Remove only the rows this test inserted.
+     */
     protected function tearDown(): void
     {
         $this->removeCreatedRows();
         parent::tearDown();
     }
 
+    /**
+     * A short billing ZIP and a short service ZIP are both named in the log.
+     */
     public function testShortFacilityZipsAreWrittenIntoTheClaimLog(): void
     {
         [$claimText, $log] = $this->generateClaim('10101', '20202');
@@ -66,6 +75,9 @@ class X125010837PZipLogTest extends TestCase
         $this->assertStringContainsString('*20202~', $claimText);
     }
 
+    /**
+     * Nine-digit ZIPs are still written on the claim, with no ZIP warning.
+     */
     public function testNineDigitFacilityZipsAreSentWithoutTheWarning(): void
     {
         [$claimText, $log] = $this->generateClaim('101010101', '202020202');
@@ -152,6 +164,9 @@ class X125010837PZipLogTest extends TestCase
         return $id;
     }
 
+    /**
+     * Read the next positive id from a MAX()+1 query.
+     */
     private function allocatePositiveId(string $sql): int
     {
         $row = QueryUtils::querySingleRow($sql);
@@ -167,6 +182,9 @@ class X125010837PZipLogTest extends TestCase
         return $nextId;
     }
 
+    /**
+     * Insert one facility and return its id.
+     */
     private function insertFacility(string $name, string $postalCode): int
     {
         return $this->insertId(
