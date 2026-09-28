@@ -473,6 +473,88 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
         $this->assertSame(0, $this->countVitalsRows());
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
+    private static function categoryConcept(string $category): array
+    {
+        return [[
+            'coding' => [[
+                'system' => 'http://terminology.hl7.org/CodeSystem/observation-category',
+                'code' => $category,
+            ]],
+        ]];
+    }
+
+    #[Test]
+    public function testALaboratoryResultWithAVitalSignCodeIsNotWrittenAsAVital(): void
+    {
+        // 2708-6 is both a pulse-oximetry vital sign and an arterial blood gas result. The
+        // category says which one this is, and laboratory writes are not implemented yet, so
+        // it is refused -- not stored in form_vitals and read back as a vital sign.
+        $payload = $this->observationPayload('8867-4');
+        $payload['category'] = self::categoryConcept('laboratory');
+        $payload['code'] = [
+            'coding' => [['system' => 'http://loinc.org', 'code' => '2708-6']],
+        ];
+        $payload['valueQuantity'] = ['value' => 97, 'unit' => '%', 'code' => '%'];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertStringContainsString(
+            'laboratory',
+            $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null)
+        );
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAWriteWithoutACategoryIsRejected(): void
+    {
+        $payload = $this->observationPayload('8867-4');
+        unset($payload['category']);
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('category', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAnUnknownCodeUnderVitalSignsIsNotWrittenAsAVital(): void
+    {
+        // Not a code the vitals service knows. Observation-form results are also filed
+        // under vital-signs and accept any code, so this routes there and is refused
+        // because that store is not writable yet. Either way nothing lands in form_vitals.
+        $payload = $this->observationPayload('8867-4');
+        $payload['code'] = [
+            'coding' => [['system' => 'http://loinc.org', 'code' => '99999-9']],
+        ];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('code', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testACategoryNoStoreAcceptsIsRejectedAsUnstored(): void
+    {
+        // With the category taken into account, a category no service accepts leaves no
+        // candidate at all. Before this, the laboratory service caught every code, so the
+        // "not a code OpenEMR stores" answer could never be returned.
+        $payload = $this->observationPayload('8867-4');
+        $payload['category'] = self::categoryConcept('not-a-real-category');
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertStringContainsString(
+            'is not a code OpenEMR stores',
+            $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null)
+        );
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
     #[Test]
     public function testADerivedVitalSignIsRejectedRatherThanStored(): void
     {

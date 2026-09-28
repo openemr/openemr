@@ -359,15 +359,51 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             return $result;
         }
 
-        // getServiceListForCode() is the same lookup the read path uses, so a code routes to
-        // the same store whichever direction it is travelling in.
-        $candidates = $this->getServiceListForCode(new TokenSearchField('code', [$code]));
-        $matched = is_array($candidates) ? ($candidates[0] ?? null) : null;
-
-        if (!$matched instanceof FhirServiceBase) {
+        // Category is half of the route. Codes alone overlap between stores -- 2708-6 is a
+        // vital sign here and a routine arterial blood gas result in a laboratory panel -- and
+        // the laboratory service claims every code, so routing on code alone would write a lab
+        // result into form_vitals and read it back as a vital sign.
+        $categories = [];
+        foreach (FhirPayloadReader::rows($json['category'] ?? null) as $concept) {
+            foreach (FhirPayloadReader::codings($concept) as $coding) {
+                $categoryCode = FhirPayloadReader::getString($coding, 'code');
+                if ($categoryCode !== null && $categoryCode !== '') {
+                    $categories[] = $categoryCode;
+                }
+            }
+        }
+        if ($categories === []) {
             $result = new ProcessingResult();
             $result->setValidationMessages([
-                'code' => 'Observation.code "' . $code . '" is not a code OpenEMR stores',
+                'category' => 'Observation.category is required to route a write; it decides which store the code belongs to',
+            ]);
+            return $result;
+        }
+
+        // The same intersection getAll() uses on the read path: services that accept the
+        // category, narrowed to those that accept the code. A code therefore routes to the
+        // same store whichever direction it is travelling in.
+        $acceptsCategory = [];
+        $categoryServices = $this->getServiceListForCategory(new TokenSearchField('category', $categories));
+        foreach (is_array($categoryServices) ? $categoryServices : [] as $service) {
+            if ($service instanceof FhirServiceBase) {
+                $acceptsCategory[$service::class] = true;
+            }
+        }
+        $matched = null;
+        $codeServices = $this->getServiceListForCode(new TokenSearchField('code', [$code]));
+        foreach (is_array($codeServices) ? $codeServices : [] as $service) {
+            if ($service instanceof FhirServiceBase && isset($acceptsCategory[$service::class])) {
+                $matched = $service;
+                break;
+            }
+        }
+
+        if ($matched === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'code' => 'Observation.code "' . $code . '" is not a code OpenEMR stores under category "'
+                    . implode('", "', $categories) . '"',
             ]);
             return $result;
         }
