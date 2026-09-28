@@ -3488,7 +3488,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 if (isset($zones[$zone])) {
                                                     $zones[$zone][$optionId] = $title;
                                                 }
-                                                echo '$("#' . $optionId . '").val("' . $title . '").css("background-color","beige");
+                                                echo '$(' . js_escape('#' . $optionId) . ').val(' . js_escape($title) . ').css("background-color","beige");
                                             ';
                                             }
                                             function startsWith($str, $needle)
@@ -3502,7 +3502,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         <?php
                         foreach ($zones['EXT'] as $item => $value) {
                             if (startsWith($item, "R")) {
-                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                 ';
                             }
                         }
@@ -3514,7 +3514,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         <?php
                         foreach ($zones['EXT'] as $item => $value) {
                             if (startsWith($item, "L")) {
-                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                 ';
                             }
                         }
@@ -3548,7 +3548,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     <?php
                     foreach ($zones['ANTSEG'] as $item => $value) {
                         if (startsWith($item, "OD")) {
-                            echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                            echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                     ';
                         }
                     }
@@ -3560,7 +3560,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                             <?php
                             foreach ($zones['ANTSEG'] as $item => $value) {
                                 if (startsWith($item, "OS")) {
-                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                    echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                             ';
                                 }
                             }
@@ -3635,7 +3635,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                             <?php
                             foreach ($zones['RETINA'] as $item => $value) {
                                 if (startsWith($item, "OD")) {
-                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                    echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                             ';
                                 }
                             }
@@ -3647,7 +3647,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         <?php
                         foreach ($zones['RETINA'] as $item => $value) {
                             if (startsWith($item, "OS")) {
-                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                         ';
                             }
                         }
@@ -3664,7 +3664,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     $("#NEURO_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($zones['NEURO'] as $item => $value) {
-                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                    echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                              ';
                                                 }
                                                 ?>
