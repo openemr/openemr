@@ -276,6 +276,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         if ($hold && X125010837P::logShowsDenial($logText)) {
             $edicount = $edicountBefore;
             $patSegmentCount = $patSegmentCountBefore;
+            if ($batch instanceof BillingClaimBatch && is_int($edicount) && $is_last_claim === true) {
+                $edicount = $this->appendSeForHeldLastClaim($batch, $edicount);
+            }
         }
 
         // edi count is passed by reference and incremented in the genX12837P function, and we need to set it back here
@@ -298,6 +301,23 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         $batch->append_claim($segs);
 
         return $batch;
+    }
+
+    /**
+     * The held claim included the SE trailer, and those segments were discarded.
+     * Claims already in the batch still need that trailer before GE and IEA.
+     */
+    protected function appendSeForHeldLastClaim(BillingClaimBatch $batch, int $segmentCount): int
+    {
+        if ($batch->getClaims() === [] || $batch->getBatContent() === '') {
+            return $segmentCount;
+        }
+
+        $segmentCount++;
+        $segments = ['SE*' . $segmentCount];
+        $batch->append_claim($segments);
+
+        return $segmentCount;
     }
 
     /**
