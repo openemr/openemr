@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Billing;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12;
+use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12Direct;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
@@ -177,6 +178,37 @@ class X125010837PZipTest extends TestCase
 
         return new HoldZipFixture($probe, $batch, $claim);
     }
+
+    /**
+     * A held last claim drops the SE trailer. Earlier claims in the batch still need it.
+     */
+    public function testDirectWritesSeWhenTheHeldClaimWasLast(): void
+    {
+        $probe = new DirectSeProbe('validate');
+        $batch = $this->batchWithPriorClaim();
+        $this->assertSame(13, $probe->seal($batch, 12));
+        $this->assertStringContainsString('SE*13*0001', $batch->getBatContent());
+
+        $only = $this->batchWithPriorClaim();
+        $only->setClaims([]);
+        $this->assertSame(12, $probe->seal($only, 12));
+        $this->assertStringNotContainsString('SE*', $only->getBatContent());
+    }
+
+    private function batchWithPriorClaim(): BillingClaimBatch
+    {
+        $batch = new BillingClaimBatch('.txt', [
+            'claims' => [(object) ['action' => 'validate']],
+        ]);
+        $content = new \ReflectionProperty(BillingClaimBatch::class, 'bat_content');
+        $content->setValue($batch, 'ISA~');
+        $transaction = new \ReflectionProperty(BillingClaimBatch::class, 'bat_stcount');
+        $transaction->setValue($batch, 1);
+        $batch->setClaims([new \stdClass()]);
+
+        return $batch;
+    }
+
 }
 
 final class HoldZipFixture
@@ -244,5 +276,13 @@ final class HoldZipGenerator extends GeneratorX12
     {
         $this->seen = $claim;
         $this->calls[] = 'mark-existing';
+    }
+}
+
+final class DirectSeProbe extends GeneratorX12Direct
+{
+    public function seal(BillingClaimBatch $batch, int $segmentCount): int
+    {
+        return $this->appendSeForHeldLastClaim($batch, $segmentCount);
     }
 }
