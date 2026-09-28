@@ -63,6 +63,9 @@ function submitform() {
         type: request_method,
         data: form_data
     }).done(function (r) { //
+        if (r) {
+            alert(r);
+        }
         dlgclose('refreshme', false);
     });
     return false;
