@@ -8,14 +8,17 @@
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
 
+use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -83,6 +86,14 @@ foreach ($columns as $c => $v) {
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
     $insert_id = $facilityService->insertFacility($values);
+    $postalNotice = X125010837P::facilityPostalSaveNotice(
+        (string) ($values['postal_code'] ?? ''),
+        ($values['billing_location'] ?? '') === '1',
+        ($values['service_location'] ?? '') === '1'
+    );
+    if ($postalNotice !== '') {
+        echo text(xl($postalNotice));
+    }
     exit(); // sjp 12/20/17 for ajax save
 }
 
@@ -96,6 +107,14 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     // This is necessary because some provider based code uses facility name for lookups instead of facility id.
     //
     $facilityService->updateUsersFacility($values['name'], $values['id']);
+    $postalNotice = X125010837P::facilityPostalSaveNotice(
+        (string) ($values['postal_code'] ?? ''),
+        ($values['billing_location'] ?? '') === '1',
+        ($values['service_location'] ?? '') === '1'
+    );
+    if ($postalNotice !== '') {
+        echo text(xl($postalNotice));
+    }
     exit(); // sjp 12/20/17 for ajax save
 }
 
