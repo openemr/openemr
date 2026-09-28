@@ -276,16 +276,24 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                             }
                             ?>
                         </td>
-                        <td class="detail" id="mfa-fail-counter-<?php echo attr($row['id']) ?>">
+                        <?php
+                        // Narrow the mixed row values coming out of sqlStatement into typed locals so the
+                        // new MFA column doesn't grow the phpstan baseline for this legacy renderer.
+                        $mfaCounter = is_numeric($row['mfa_login_fail_counter'] ?? null) ? (int) $row['mfa_login_fail_counter'] : 0;
+                        $mfaSeconds = is_numeric($row['seconds_mfa_last_login_fail'] ?? null) ? (int) $row['seconds_mfa_last_login_fail'] : 0;
+                        $mfaLastFail = is_string($row['mfa_last_login_fail'] ?? null) ? $row['mfa_last_login_fail'] : '';
+                        $rowId = is_numeric($row['id'] ?? null) ? (int) $row['id'] : 0;
+                        ?>
+                        <td class="detail" id="mfa-fail-counter-<?php echo attr((string) $rowId); ?>">
                             <?php
-                            echo text($row['mfa_login_fail_counter']);
-                            if ($row['mfa_login_fail_counter'] > 0) {
-                                echo '<button type="button" class="btn btn-sm btn-danger ml-2" onclick="resetMfaCounterIp(' . attr_js($row["id"]) . ')">' . xlt("Reset Counter") . '</button>';
+                            echo text((string) $mfaCounter);
+                            if ($mfaCounter > 0) {
+                                echo '<button type="button" class="btn btn-sm btn-danger ml-2" onclick="resetMfaCounterIp(' . attr_js((string) $rowId) . ')">' . xlt("Reset Counter") . '</button>';
                             }
                             ?>
                         </td>
-                        <td class="detail" id="mfa-last-fail-<?php echo attr($row['id']) ?>"><?php echo (!empty($row['mfa_last_login_fail'])) ? text(DateFormatterUtils::oeFormatDateTime($row['mfa_last_login_fail'])) : xlt("Not Applicable"); ?></td>
-                        <td class="detail" id="mfa-autoblock-<?php echo attr($row['id']) ?>">
+                        <td class="detail" id="mfa-last-fail-<?php echo attr((string) $rowId); ?>"><?php echo ($mfaLastFail !== '') ? text(DateFormatterUtils::oeFormatDateTime($mfaLastFail)) : xlt("Not Applicable"); ?></td>
+                        <td class="detail" id="mfa-autoblock-<?php echo attr((string) $rowId); ?>">
                             <?php
                             $mfaAutoBlocked = false;
                             $mfaAutoBlockEnd = null;
@@ -295,11 +303,13 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                             // not disagree with the actual block at counter == max or at seconds == window.
                             // The password axis above intentionally keeps < on the seconds comparison to
                             // preserve pre-existing display behaviour.
-                            if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0 && ($row['mfa_login_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'))) {
-                                if (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') != 0) {
-                                    if ($row['seconds_mfa_last_login_fail'] <= OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) {
+                            $ipMaxFailedLogins = OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins');
+                            $ipResetWindow = OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins');
+                            if ($ipMaxFailedLogins !== 0 && $mfaCounter >= $ipMaxFailedLogins) {
+                                if ($ipResetWindow !== 0) {
+                                    if ($mfaSeconds <= $ipResetWindow) {
                                         $mfaAutoBlocked = true;
-                                        $mfaAutoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') - $row['seconds_mfa_last_login_fail'])));
+                                        $mfaAutoBlockEnd = date('Y-m-d H:i:s', time() + ($ipResetWindow - $mfaSeconds));
                                     }
                                 } else {
                                     $mfaAutoBlocked = true;
@@ -307,7 +317,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                             }
                             if ($mfaAutoBlocked) {
                                 echo xlt("Yes");
-                                if (!empty($mfaAutoBlockEnd)) {
+                                if ($mfaAutoBlockEnd !== null) {
                                     echo ' (' . xlt("Autoblock ends on") . ' ' . text(DateFormatterUtils::oeFormatDateTime($mfaAutoBlockEnd)) . ')';
                                 }
                             } else {
