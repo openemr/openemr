@@ -797,13 +797,19 @@ function resetMfaCounter(username) {
                                         echo ' (' . xlt('last on') . ' ' . text(DateFormatterUtils::oeFormatDateTime($queryCounter['mfa_last_fail'])) . ')';
                                     }
                                     echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetMfaCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
-                                    // MFA lockout mirrors the password lockout thresholds (password_max_failed_logins + time_reset_password_max_failed_logins)
-                                    // — see AuthUtils::isMfaChallengeBlocked() for the corresponding gate.
+                                    // MFA lockout mirrors the password lockout thresholds
+                                    // (password_max_failed_logins + time_reset_password_max_failed_logins).
+                                    // The gate in AuthUtils::isMfaChallengeBlocked() uses `>=` on the
+                                    // counter and only expires the block when elapsed seconds are strictly
+                                    // greater than the window — match both boundaries here so this display
+                                    // doesn't disagree at counter == max or at seconds == window. The
+                                    // password display above intentionally keeps `<` on the seconds
+                                    // comparison to preserve pre-existing behaviour.
                                     $mfaAutoBlocked = false;
                                     $mfaAutoBlockEnd = null;
                                     if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') != 0 && ($queryCounter['mfa_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('password_max_failed_logins'))) {
                                         if (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') != 0) {
-                                            if ($queryCounter['seconds_mfa_last_fail'] < OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
+                                            if ($queryCounter['seconds_mfa_last_fail'] <= OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
                                                 $mfaAutoBlocked = true;
                                                 $mfaAutoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') - $queryCounter['seconds_mfa_last_fail'])));
                                             }
