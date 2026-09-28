@@ -39,17 +39,11 @@ class X125010837PZipLogTest extends TestCase
     private int $providerId = 0;
 
     /**
-     * Allocate a fresh patient id and encounter. Do not delete existing rows.
+     * No rows are created here, and nothing is deleted.
      */
     protected function setUp(): void
     {
         parent::setUp();
-        $this->pid = $this->allocatePositiveId(
-            'SELECT COALESCE(MAX(pid), 0) + 1 AS next_id FROM patient_data'
-        );
-        $this->encounter = $this->allocatePositiveId(
-            'SELECT COALESCE(MAX(encounter), 0) + 1 AS next_id FROM form_encounter'
-        );
     }
 
     /**
@@ -93,32 +87,14 @@ class X125010837PZipLogTest extends TestCase
      */
     private function generateClaim(string $billingZip, string $serviceZip): array
     {
+        $suffix = bin2hex(random_bytes(4));
         $this->providerId = $this->insertId(
             'INSERT INTO users (username, fname, lname, npi, active) VALUES (?, ?, ?, ?, 1)',
-            ['zip-log-user-' . $this->pid, 'Zip', 'Logger', '1234567893']
+            ['zip-log-user-' . $suffix, 'Zip', 'Logger', '1234567893']
         );
-        $this->billingFacilityId = $this->insertFacility('zip-log-billing-' . $this->pid, $billingZip);
-        $this->serviceFacilityId = $this->insertFacility('zip-log-service-' . $this->pid, $serviceZip);
-        $this->partnerId = $this->insertPartner();
-        QueryUtils::sqlStatementThrowException(
-            'INSERT INTO patient_data (pid, fname, lname, mname, DOB, sex, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$this->pid, 'Ada', 'Lovelace', '', '1980-01-01', 'Female', 'single']
-        );
-        QueryUtils::sqlStatementThrowException(
-            'INSERT INTO form_encounter (pid, encounter, date, facility_id, billing_facility,'
-            . ' provider_id, pos_code, reason)'
-            . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [
-                $this->pid,
-                $this->encounter,
-                '2026-09-25 10:00:00',
-                $this->serviceFacilityId,
-                $this->billingFacilityId,
-                $this->providerId,
-                11,
-                'zip-log-test',
-            ]
-        );
+        $this->billingFacilityId = $this->insertFacility('zip-log-billing-' . $suffix, $billingZip);
+        $this->serviceFacilityId = $this->insertFacility('zip-log-service-' . $suffix, $serviceZip);
+        $this->insertPatientEncounterAndPartner();
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO billing (pid, encounter, code, code_type, code_text, units, fee,'
             . ' provider_id, payer_id, activity)'
@@ -148,20 +124,59 @@ class X125010837PZipLogTest extends TestCase
     }
 
     /**
-     * x12_partners.id is not auto-increment. It defaults to 0, and a second insert then collides.
+     * Insert the patient, encounter, and X12 partner under one lock.
+     * Each id is stored only after its insert succeeds.
      */
-    private function insertPartner(): int
+    private function insertPatientEncounterAndPartner(): void
     {
-        $id = $this->allocatePositiveId(
-            'SELECT COALESCE(MAX(`id`), 0) + 1 AS next_id FROM x12_partners'
-        );
-        QueryUtils::sqlStatementThrowException(
-            'INSERT INTO x12_partners (id, name, x12_sender_id, x12_receiver_id, x12_gs02, x12_per06)'
-            . ' VALUES (?, ?, ?, ?, ?, ?)',
-            [$id, 'zip-log-partner-' . $this->pid, 'SENDER', 'RECEIVER', 'ZIPLOG', '5555550100']
-        );
+        $row = QueryUtils::querySingleRow('SELECT GET_LOCK(?, 5) AS locked', ['openemr_zip_log_fixture']);
+        $locked = is_array($row) ? ($row['locked'] ?? null) : null;
+        if ($locked !== 1 && $locked !== '1') {
+            $this->fail('Could not reserve fixture ids');
+        }
 
-        return $id;
+        try {
+            $pid = $this->allocatePositiveId(
+                'SELECT COALESCE(MAX(pid), 0) + 1 AS next_id FROM patient_data'
+            );
+            QueryUtils::sqlStatementThrowException(
+                'INSERT INTO patient_data (pid, fname, lname, mname, DOB, sex, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [$pid, 'Ada', 'Lovelace', '', '1980-01-01', 'Female', 'single']
+            );
+            $this->pid = $pid;
+
+            $encounter = $this->allocatePositiveId(
+                'SELECT COALESCE(MAX(encounter), 0) + 1 AS next_id FROM form_encounter'
+            );
+            QueryUtils::sqlStatementThrowException(
+                'INSERT INTO form_encounter (pid, encounter, date, facility_id, billing_facility,'
+                . ' provider_id, pos_code, reason)'
+                . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                    $pid,
+                    $encounter,
+                    '2026-09-25 10:00:00',
+                    $this->serviceFacilityId,
+                    $this->billingFacilityId,
+                    $this->providerId,
+                    11,
+                    'zip-log-test',
+                ]
+            );
+            $this->encounter = $encounter;
+
+            $partnerId = $this->allocatePositiveId(
+                'SELECT COALESCE(MAX(`id`), 0) + 1 AS next_id FROM x12_partners'
+            );
+            QueryUtils::sqlStatementThrowException(
+                'INSERT INTO x12_partners (id, name, x12_sender_id, x12_receiver_id, x12_gs02, x12_per06)'
+                . ' VALUES (?, ?, ?, ?, ?, ?)',
+                [$partnerId, 'zip-log-partner-' . $pid, 'SENDER', 'RECEIVER', 'ZIPLOG', '5555550100']
+            );
+            $this->partnerId = $partnerId;
+        } finally {
+            QueryUtils::sqlStatementThrowException('SELECT RELEASE_LOCK(?)', ['openemr_zip_log_fixture']);
+        }
     }
 
     /**
