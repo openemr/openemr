@@ -70,6 +70,7 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\RestControllers\SMART\ScopeConsentResolver;
 use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\DecisionSupportInterventionService;
@@ -1189,22 +1190,44 @@ class AuthorizationController implements LoggerAwareInterface
         $scopeString ??= "";
         $userRole ??= UuidUserAccount::USER_ROLE_PATIENT;
 
+        // Only offer what the client is registered for. finalizeScopes() would drop anything else
+        // after the user approved it, so showing it here only misleads the user.
+        $scopes = $this->filterScopesToClientRegistration($scopes, $client);
+
         // Parse and structure scopes with granular permissions
-        $scopeParser = new ScopePermissionParser($this->getScopeRepository($session));
-        $structuredScopes = $scopeParser->parseScopes($scopes);
+        $scopeRepository = $this->getScopeRepository($session);
+        $structuredScopes = $this->buildConsentCards($scopes);
 
         $otherScopes = [];
         $hiddenScopes = [];
-        $scopeRepository = $this->getScopeRepository($session);
-        $fhirRequiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+        // OpenID Connect identity scopes (profile, email, phone, ...) are presented in the
+        // "Identity Information Requested" column, not as scope checkboxes. That is unchanged.
+        $requiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+        $identityClaimScopes = array_values(array_filter(
+            $scopeRepository->getServerScopeList()->getOpenIDConnectScopes(),
+            static fn(mixed $identityScope): bool => is_string($identityScope) && !in_array($identityScope, $requiredSmartScopes, true)
+        ));
 
         foreach ($scopes as $scope) {
-            // Hidden scopes
+            if ($scope === '' || $this->isConsentCardScope($scope, $structuredScopes)) {
+                continue; // rendered as a resource card
+            }
+            if (in_array($scope, $identityClaimScopes, true)) {
+                continue;
+            }
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
-            } elseif (in_array($scope, $fhirRequiredSmartScopes)) {
-                $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
+                continue;
             }
+            // Everything else -- fhirUser, launch, api:*, and operation scopes such as
+            // patient/DocumentReference.$docref or system/*.$export -- is an individual checkbox.
+            try {
+                $description = $scopeRepository->lookupDescriptionForScope($scope);
+            } catch (\InvalidArgumentException $exception) {
+                $this->logger->debug('scopeAuthorizeConfirm() no description for scope', ['scope' => $scope, 'exception' => $exception]);
+                $description = '';
+            }
+            $otherScopes[$scope] = $description !== '' ? $description : $scope;
         }
 
         // Process claims
@@ -1328,7 +1351,10 @@ class AuthorizationController implements LoggerAwareInterface
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
         try {
-            $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $request->request->all('scope'));
+            $authRequest = $this->updateAuthRequestWithUserApprovedScopes(
+                $authRequest,
+                $this->resolveUserApprovedScopes($authRequest, $request)
+            );
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
             $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
 
@@ -1399,6 +1425,92 @@ class AuthorizationController implements LoggerAwareInterface
         return false;
     }
 
+    /**
+     * Rebuild the consent cards from the validated auth request exactly as scopeAuthorizeConfirm()
+     * rendered them, then intersect each requested scope with the user's checkbox choices.
+     *
+     * @return list<string>
+     */
+    private function resolveUserApprovedScopes(AuthorizationRequest $authRequest, HttpRestRequest $request): array
+    {
+        $requested = array_values(array_map(
+            static fn(ScopeEntityInterface $scope): string => $scope->getIdentifier(),
+            $authRequest->getScopes()
+        ));
+        $requested = $this->filterScopesToClientRegistration($requested, $authRequest->getClient());
+
+        return (new ScopeConsentResolver())->resolve(
+            $requested,
+            $this->buildConsentCards($requested),
+            $request->request->all('scope'),
+            $request->request->all('grant')
+        );
+    }
+
+    /**
+     * @param list<string> $scopes
+     * @return array<array-key, mixed>
+     */
+    private function buildConsentCards(array $scopes): array
+    {
+        return (new ScopePermissionParser($this->getScopeRepository($this->session)))->parseScopes($scopes);
+    }
+
+    /**
+     * @param array<array-key, mixed> $structuredScopes
+     */
+    private function isConsentCardScope(string $scope, array $structuredScopes): bool
+    {
+        try {
+            $entity = ScopeEntity::createFromString($scope);
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+        return $entity->isResourcePermissionScope()
+            && array_key_exists(($entity->getContext() ?? '') . '-' . ($entity->getResource() ?? ''), $structuredScopes);
+    }
+
+    /**
+     * Drop resource permission scopes the client is not registered for. Everything else
+     * (openid, launch/patient, api:*, offline_access, operations) is left to the existing
+     * grant checks.
+     *
+     * @param list<string> $scopes
+     * @return list<string>
+     */
+    private function filterScopesToClientRegistration(array $scopes, mixed $client): array
+    {
+        if (!$client instanceof ClientEntity) {
+            return $scopes;
+        }
+        $registeredScopes = $client->getScopes();
+        $registered = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
+        if ($registered === []) {
+            return $scopes;
+        }
+        $validators = $this->getScopeRepository($this->session)->buildScopeValidatorArray($registered);
+        $filtered = [];
+        foreach ($scopes as $scope) {
+            try {
+                $entity = ScopeEntity::createFromString($scope);
+            } catch (\InvalidArgumentException) {
+                $filtered[] = $scope; // leave malformed scopes to the existing validation paths
+                continue;
+            }
+            if (!$entity->isResourcePermissionScope()) {
+                $filtered[] = $scope;
+                continue;
+            }
+            $key = $entity->getScopeLookupKey();
+            if (isset($validators[$key]) && $validators[$key]->grantsScope($entity)) {
+                $filtered[] = $scope;
+            } else {
+                $this->logger->debug('Requested scope is not in the client registration and was not offered', ['scope' => $scope]);
+            }
+        }
+        return $filtered;
+    }
+
     private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes): AuthorizationRequest
     {
         $this->logger->debug(
@@ -1416,7 +1528,7 @@ class AuthorizationController implements LoggerAwareInterface
                 $lookupKey = $approvedScopeEntity->getScopeLookupKey();
                 if (
                     isset($scopeValidatorArray[$lookupKey])
-                    && $scopeValidatorArray[$lookupKey]->containsScope($approvedScopeEntity)
+                    && $scopeValidatorArray[$lookupKey]->grantsScope($approvedScopeEntity)
                 ) {
                     $scopeUpdates[] = $approvedScopeEntity;
                 }

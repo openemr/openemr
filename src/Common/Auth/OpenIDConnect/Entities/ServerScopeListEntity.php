@@ -98,11 +98,10 @@ class ServerScopeListEntity
                 'PractitionerRole',
                 'Procedure',
                 'Provenance',
-                // These four are writable (see $fhirWriteResources) but had no v1 read scope, so
-                // a client could hold user/<Resource>.write or user/<Resource>.rs but never both:
-                // the scope-authorize form groups its checkboxes by resource and reconstructs one
-                // version per resource, so mixing a v1 write with a v2 read silently drops the
-                // write from the approved set.
+                // These four are writable (see $fhirWriteResources) and get a v1 read scope so a
+                // v1-only client can hold read and write together. Mixing v1 and v2 for the same
+                // resource is also valid: grants are checked as a permission union
+                // (ResourceScopeEntityList::grantsScope) and consent keeps each scope's spelling.
                 'Questionnaire',
                 'QuestionnaireResponse',
                 'RelatedPerson',
@@ -121,9 +120,7 @@ class ServerScopeListEntity
                 'Encounter',
                 'Goal',
                 // Group and Location have write routes but appear in no v2 resource list, so v1
-                // is the only place a write scope for them can be granted. Both are already in
-                // the v1 read list above, which keeps read and write on the same version -- see
-                // the note there about the authorize form reconstructing one version per resource.
+                // is the only place a write scope for them can be granted.
                 'Group',
                 'Immunization',
                 'Location',
@@ -258,7 +255,7 @@ class ServerScopeListEntity
                 ]
                 , 'Observation' => [
                     'category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh'
-                    , 'category=http://terminology.hl7.org//CodeSystem-observation-category|social-history'
+                    , 'category=http://terminology.hl7.org/CodeSystem/observation-category|social-history'
                     , 'category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory'
                     , 'category=http://terminology.hl7.org/CodeSystem/observation-category|survey'
                     , 'category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs'

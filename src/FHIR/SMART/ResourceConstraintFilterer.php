@@ -16,6 +16,7 @@
 
 namespace OpenEMR\FHIR\SMART;
 
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -32,6 +33,15 @@ class ResourceConstraintFilterer {
         // TODO: @adunsulag we could move this all into the HttpRestRequest class... but it seems heavy, is there a better
         // class with more cohesion to put this logic into?
         $scopeEntities = $request->getAllContainedScopesForScopeEntity($endpointScope);
+        // Scopes are a union: if any granting scope is unconstrained the token may see every
+        // resource of this type. Merging constraints from a sibling category scope would
+        // otherwise narrow an unrestricted grant (e.g. patient/Observation.rs alongside
+        // patient/Observation.rs?category=...|laboratory would only return laboratory).
+        foreach ($scopeEntities as $scopeEntity) {
+            if ($scopeEntity instanceof ScopeEntity && !$scopeEntity->hasConstraints()) {
+                return true;
+            }
+        }
         foreach ($scopeEntities as $scopeEntity) {
             // Check if this scope entity matches or is contained by the given scope
             // add any constraints to the endpoint scope

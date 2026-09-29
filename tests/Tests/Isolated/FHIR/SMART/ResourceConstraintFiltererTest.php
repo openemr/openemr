@@ -140,6 +140,26 @@ class ResourceConstraintFiltererTest extends TestCase {
         $this->assertFalse($resourceConstraintFilterer->canAccessResource($condition, $httpRestRequest), "Access should be denied for Condition with category problem-list-item");
     }
 
+    /**
+     * Scopes are a union. An unrestricted grant held alongside a category grant must not be
+     * narrowed to that category by constraint merging.
+     */
+    public function testUnrestrictedScopeIsNotNarrowedBySiblingCategoryScope(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'user/Observation.rs',
+            'user/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Observation.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $this->assertTrue(
+            (new ResourceConstraintFilterer())->canAccessResource($this->createObservationWithCategories(['survey']), $httpRestRequest),
+            'An unrestricted Observation grant must reach a survey Observation even when a laboratory-only scope is also held'
+        );
+    }
+
     private function createObservationWithCategories(array $array): FHIRObservation
     {
         $observation = new FHIRObservation();
