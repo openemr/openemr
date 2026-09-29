@@ -130,16 +130,17 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
         $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
         exit();
     }
-    $updated = $facilityService->updateFacility($values);
-
-    // Update facility name for all users with this facility.
-    // This is necessary because some provider based code uses facility name for lookups instead of facility id.
-    //
-    $usersUpdated = $facilityService->updateUsersFacility($values['name'], $values['id']);
-    if (!X125010837P::facilityWriteLanded($updated)) {
+    $facilityService->updateFacility($values);
+    $stored = $facilityService->getById($values['id']);
+    if (!X125010837P::facilityEditStored($values, $stored)) {
         $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
         exit();
     }
+
+    // Update facility name for all users with this facility.
+    // This is necessary because some provider based code uses facility name for lookups instead of facility id.
+    // The dialog stays open when that sync does not finish, so the save can be sent again.
+    $usersUpdated = $facilityService->updateUsersFacility($values['name'], $values['id']);
     if (!X125010837P::facilityWriteLanded($usersUpdated)) {
         $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_SAVED_USERS_NOT_UPDATED));
         exit();
