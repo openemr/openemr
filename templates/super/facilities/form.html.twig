@@ -63,23 +63,31 @@ function submitform() {
         type: request_method,
         data: form_data
     }).done(function (r) { //
-        if (r) {
-            let message = r;
-            if (typeof r === 'string') {
-                try {
-                    const parsed = JSON.parse(r);
-                    if (typeof parsed === 'string') {
-                        message = parsed;
-                    }
-                } catch (e) {
-                    message = r;
-                }
-            }
-            if (message) {
-                alert(message);
+        let status = '';
+        let message = '';
+        let payload = r;
+        if (typeof r === 'string') {
+            try {
+                payload = JSON.parse(r);
+            } catch (e) {
+                message = r;
+                payload = null;
             }
         }
-        dlgclose('refreshme', false);
+        if (payload && typeof payload === 'object') {
+            if (typeof payload.status === 'string') {
+                status = payload.status;
+            }
+            if (typeof payload.message === 'string') {
+                message = payload.message;
+            }
+        }
+        if (message) {
+            alert(message);
+        }
+        if (status === 'saved') {
+            dlgclose('refreshme', false);
+        }
     });
     return false;
 }
