@@ -76,7 +76,7 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
-     * Global on leaves a denying claim out of the batch and does not mark it billed.
+     * Global on leaves a denying claim out of the batch and stores no version.
      */
     public function testGlobalOnHoldsAShortZipAndSkipsAnEmptyFile(): void
     {
@@ -85,7 +85,7 @@ class X125010837PZipTest extends TestCase
             $checked->probe->validateAndClear($checked->claim);
             $screen = implode("\n", $checked->probe->screen);
 
-            $this->assertSame(['remember'], $checked->probe->calls);
+            $this->assertSame([], $checked->probe->calls);
             $this->assertSame([], $checked->batch->getClaims());
             $this->assertStringContainsString('MA114', $screen);
             $this->assertStringNotContainsString('Successfully', $screen);
@@ -97,7 +97,7 @@ class X125010837PZipTest extends TestCase
 
             $generated = $this->generator(X125010837P::BILLING_ZIP_LOG);
             $generated->probe->generate($generated->claim);
-            $this->assertSame(['remember'], $generated->probe->calls);
+            $this->assertSame([], $generated->probe->calls);
             $generated->probe->completeToScreen([]);
             $generated->probe->completeToFile([]);
             $this->assertSame([], $generated->batch->getClaims());
@@ -242,6 +242,21 @@ class X125010837PZipTest extends TestCase
             $this->assertSame(['remember'], $gen->probe->calls);
             $this->assertSame([], $gen->batch->getClaims());
             $this->assertContains(FacilityZipDenial::LEFT_OUT_NOT_SAVED, $gen->probe->screen);
+        });
+    }
+
+    /**
+     * A second run of a held denial still stores no claim version.
+     */
+    public function testHeldDenialDoesNotStoreAnotherVersionOnRetry(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $gen = $this->generator(X125010837P::BILLING_ZIP_LOG);
+            $gen->probe->generate($gen->claim);
+            $gen->probe->generate($gen->claim);
+
+            $this->assertSame([], $gen->probe->calls);
+            $this->assertSame([], $gen->batch->getClaims());
         });
     }
 
@@ -612,7 +627,7 @@ final class DirectVersionProbe extends GeneratorX12Direct
      */
     protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
     {
-        if ($billIfAccepted) {
+        if ($billIfAccepted && $this->rememberPayer($claim)) {
             $this->markBilledExisting($claim);
         }
 

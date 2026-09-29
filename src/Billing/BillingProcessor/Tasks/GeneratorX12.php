@@ -73,13 +73,20 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         [$log, $segs, $denial] = $this->renderedClaim($claim);
         $this->appendToLog($log);
         $hold = $this->holdClaimsThatWillDeny();
+        // A denial stores no version. The next run stores one only if the ZIP is accepted.
+        $insertLanded = true;
+        if ($hold && $billIfAccepted && !$denial->willDeny()) {
+            $insertLanded = $this->rememberPayer($claim);
+        }
         $billedWriteLanded = true;
-        if ($billIfAccepted && !$denial->willDeny()) {
+        if ($insertLanded && $billIfAccepted && !$denial->willDeny()) {
             $billedWriteLanded = $this->markBilledExisting($claim);
         }
-        if (!$this->claimEntersBatch($hold, $denial, $billIfAccepted, $billedWriteLanded)) {
+        if (!$insertLanded || !$this->claimEntersBatch($hold, $denial, $billIfAccepted, $billedWriteLanded)) {
             if ($hold && $denial->willDeny()) {
                 $this->printDenialHold($denial);
+            } elseif (!$insertLanded) {
+                $this->printToScreen(xl(FacilityZipDenial::LEFT_OUT_NOT_SAVED));
             } else {
                 $this->printToScreen(xl(FacilityZipDenial::LEFT_OUT_NOT_BILLED));
             }
@@ -149,9 +156,11 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     }
 
     /**
-     * Store the payer before the 837 is built, and leave the claim unbilled.
+     * Store an accepted claim and leave that row unbilled.
      *
-     * False means the insert did not land, so this run has no version to bill.
+     * Called after the ZIP check. A denial does not store a version, so the
+     * next run does not add another one. False means the insert did not land,
+     * so this run has no version to bill.
      */
     protected function rememberPayer(BillingClaim $claim): bool
     {
@@ -251,10 +260,6 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $this->insertedClaimVersion = null;
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
-            if (!$this->rememberPayer($claim)) {
-                $this->printToScreen(xl(FacilityZipDenial::LEFT_OUT_NOT_SAVED));
-                return;
-            }
             $billIfAccepted = true;
         } else {
             $this->markBilledNew($claim);
@@ -282,10 +287,6 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $this->insertedClaimVersion = null;
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
-            if (!$this->rememberPayer($claim)) {
-                $this->printToScreen(xl(FacilityZipDenial::LEFT_OUT_NOT_SAVED));
-                return;
-            }
             $billIfAccepted = true;
         } else {
             $this->markBilledNew($claim);
