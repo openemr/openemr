@@ -86,10 +86,11 @@ class X125010837P
     }
 
     /**
-     * Whether an insert id or an update statement means that write finished.
+     * Whether an insert id or a linked-user statement means that write finished.
      *
-     * An insert finishes only with a positive id. An update finishes when the
-     * driver returns its statement result. False, null, and zero do not.
+     * An insert finishes only with a positive id. A statement object means the
+     * driver finished that statement. False, null, and zero do not. The
+     * facility edit reads the row back before it says the facility was saved.
      */
     public static function facilityWriteLanded(mixed $result): bool
     {
@@ -101,6 +102,81 @@ class X125010837P
         }
 
         return is_object($result);
+    }
+
+    /**
+     * Flag columns posted empty when the box is unchecked and stored as 0.
+     *
+     * @var list<string>
+     */
+    private const FACILITY_FLAG_FIELDS = [
+        'service_location',
+        'billing_location',
+        'accepts_assignment',
+        'primary_business_entity',
+        'inactive',
+    ];
+
+    /**
+     * Whether the facility row still holds the values this edit wrote.
+     *
+     * A statement object from the update does not prove the row remains.
+     * The row can be removed after the earlier lookup, and an unchanged
+     * edit can affect zero rows, so the saved response reads the row back.
+     *
+     * @param array<string, mixed> $posted
+     */
+    public static function facilityEditStored(array $posted, mixed $stored): bool
+    {
+        if (!is_array($stored) || $stored === []) {
+            return false;
+        }
+
+        $postedId = $posted['id'] ?? null;
+        if (!is_scalar($postedId) || trim((string) $postedId) === '') {
+            return false;
+        }
+        if (!array_key_exists('id', $stored) || !is_scalar($stored['id'])) {
+            return false;
+        }
+        if (trim((string) $stored['id']) !== trim((string) $postedId)) {
+            return false;
+        }
+
+        $compared = 0;
+        foreach ($posted as $key => $value) {
+            if ($key === 'id' || !array_key_exists($key, $stored)) {
+                continue;
+            }
+            if (!self::facilityColumnMatches($key, $value, $stored[$key])) {
+                return false;
+            }
+            $compared++;
+        }
+
+        return $compared > 0;
+    }
+
+    /**
+     * One posted facility column against the value read back from the row.
+     *
+     * An unchecked flag is posted as an empty string and stored as 0.
+     */
+    private static function facilityColumnMatches(string $key, mixed $posted, mixed $stored): bool
+    {
+        if (!is_scalar($posted) || !is_scalar($stored)) {
+            return false;
+        }
+
+        $left = trim((string) $posted);
+        $right = trim((string) $stored);
+        if ($left === $right) {
+            return true;
+        }
+
+        return in_array($key, self::FACILITY_FLAG_FIELDS, true)
+            && $left === ''
+            && $right === '0';
     }
 
     /*
