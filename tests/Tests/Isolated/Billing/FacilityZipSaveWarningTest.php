@@ -34,6 +34,8 @@ class FacilityZipSaveWarningTest extends TestCase
             'empty postal' => ['', true, false, X125010837P::FACILITY_SAVED_BILLING_POSTAL],
             'zip plus 4 is nine digits' => ['12345-6789', true, true, ''],
             'nine digits' => ['123456789', false, true, ''],
+            'letters after nine digits' => ['123456789abc', true, false, X125010837P::FACILITY_SAVED_BILLING_POSTAL],
+            'digits with a space' => ['12345 6789', true, true, X125010837P::FACILITY_SAVED_BOTH_POSTAL],
             'foreign short still notices' => ['K1A 0B1', false, true, X125010837P::FACILITY_SAVED_SERVICE_POSTAL],
             'foreign nine digits is quiet' => ['123456789', true, false, ''],
             'not a service or billing location' => ['12345', false, false, ''],
