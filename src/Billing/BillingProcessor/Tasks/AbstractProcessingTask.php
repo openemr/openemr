@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,6 +19,11 @@ use OpenEMR\Billing\BillingUtilities;
 
 abstract class AbstractProcessingTask
 {
+    /**
+     * Claim version this run inserted while the hold is on.
+     */
+    protected ?int $insertedClaimVersion = null;
+
     public function __construct(protected $action)
     {
     }
@@ -55,5 +62,41 @@ abstract class AbstractProcessingTask
             2
         ); // $sql .= " billed = 1, ";
         return $tmp;
+    }
+
+    /**
+     * Insert or update the claims row for this run.
+     *
+     * An insert returns the version number that was stored. Pass that
+     * version back in when a later update must change the same row.
+     */
+    protected function writeClaimRow(
+        mixed $newversion,
+        mixed $patientId,
+        mixed $encounterId,
+        mixed $payerId = -1,
+        mixed $payerType = -1,
+        mixed $status = -1,
+        mixed $billProcess = -1,
+        string $processFile = '',
+        string $target = '',
+        mixed $partnerId = -1,
+        ?int $claimVersion = null
+    ): mixed {
+        return BillingUtilities::updateClaim(
+            $newversion,
+            $patientId,
+            $encounterId,
+            $payerId,
+            $payerType,
+            $status,
+            $billProcess,
+            $processFile,
+            $target,
+            $partnerId,
+            0,
+            '',
+            $claimVersion
+        );
     }
 }
