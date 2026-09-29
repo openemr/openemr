@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -1525,8 +1526,9 @@ class BillingUtilities
      * Insert a claim version, or update an open row.
      *
      * An insert returns the version it stored. An update returns 1, or 0
-     * when no open row matches. $claimVersion updates that row. With none,
-     * the newest open row for the encounter is updated.
+     * when no open row matches. A billed update also returns 0 when that
+     * version is not marked billed afterward. $claimVersion updates that
+     * row. With none, the newest open row for the encounter is updated.
      */
     public static function updateClaim(
         $newversion,
@@ -1743,6 +1745,16 @@ class BillingUtilities
                 "patient_id = ? AND encounter_id = ? AND " .
                 "version = ?";
             sqlStatement($sql, $sqlBindArray);
+            // Affected_Rows() is the audit insert, not this update.
+            if ($status === BillingClaim::STATUS_MARK_AS_BILLED || $status === '2') {
+                $stored = QueryUtils::querySingleRow(
+                    "SELECT status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                    [$patient_id, $encounter_id, $row['version']]
+                );
+                if (!self::billedUpdateStored($stored)) {
+                    return 0;
+                }
+            }
         }
 
         // Whenever a claim is marked billed, update A/R accordingly.
@@ -1759,6 +1771,23 @@ class BillingUtilities
         }
 
         return 1;
+    }
+
+    /**
+     * Whether the re-read claims row is marked billed.
+     *
+     * The billed update returns failure when this is false, so a claim
+     * is not sent without that row.
+     */
+    public static function billedUpdateStored(mixed $row): bool
+    {
+        if (!is_array($row) || !array_key_exists('status', $row)) {
+            return false;
+        }
+
+        $status = $row['status'];
+
+        return $status === BillingClaim::STATUS_MARK_AS_BILLED || $status === '2';
     }
 
     /**
