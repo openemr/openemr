@@ -40,18 +40,18 @@ $facilityService = new FacilityService();
 $alertmsg = '';
 
 /**
- * Send one sentence to the facility save dialog.
+ * Send the facility save dialog its status and sentence.
  *
- * The dialog decodes the JSON body and passes that sentence to alert().
+ * The dialog alerts the sentence, then closes only when status is saved.
  * The encoded body is not HTML.
  */
-$echoFacilitySaveDialogSentence = function (string $sentence): void {
-    if ($sentence === '') {
-        return;
-    }
+$echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
     header('Content-Type: application/json; charset=utf-8');
     $encoded = json_encode(
-        $sentence,
+        [
+            'status' => $saved ? 'saved' : 'not_saved',
+            'message' => $sentence,
+        ],
         JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
     );
     if (is_string($encoded)) {
@@ -107,7 +107,7 @@ foreach ($columns as $c => $v) {
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
     $insertId = $facilityService->insertFacility($values);
     if (!X125010837P::facilityWriteLanded($insertId)) {
-        $echoFacilitySaveDialogSentence(xl(X125010837P::FACILITY_NOT_SAVED));
+        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
         exit();
     }
     $postalNotice = X125010837P::facilityPostalSaveNotice(
@@ -115,10 +115,9 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
         ($values['billing_location'] ?? '') === '1',
         ($values['service_location'] ?? '') === '1'
     );
-    if ($postalNotice !== '') {
-        // The save dialog decodes this body and passes it to alert().
-        $echoFacilitySaveDialogSentence(xl($postalNotice));
-    }
+    // The save dialog decodes this body and passes the sentence to alert().
+    $sentence = $postalNotice === '' ? '' : xl($postalNotice);
+    $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
@@ -128,7 +127,7 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     $values["id"] = trim($_POST['fid'] ?? '');
     $existing = $facilityService->getById($values['id']);
     if (!is_array($existing)) {
-        $echoFacilitySaveDialogSentence(xl(X125010837P::FACILITY_NOT_SAVED));
+        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
         exit();
     }
     $updated = $facilityService->updateFacility($values);
@@ -138,11 +137,11 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     //
     $usersUpdated = $facilityService->updateUsersFacility($values['name'], $values['id']);
     if (!X125010837P::facilityWriteLanded($updated)) {
-        $echoFacilitySaveDialogSentence(xl(X125010837P::FACILITY_NOT_SAVED));
+        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
         exit();
     }
     if (!X125010837P::facilityWriteLanded($usersUpdated)) {
-        $echoFacilitySaveDialogSentence(xl(X125010837P::FACILITY_SAVED_USERS_NOT_UPDATED));
+        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_SAVED_USERS_NOT_UPDATED));
         exit();
     }
     $postalNotice = X125010837P::facilityPostalSaveNotice(
@@ -150,10 +149,9 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
         ($values['billing_location'] ?? '') === '1',
         ($values['service_location'] ?? '') === '1'
     );
-    if ($postalNotice !== '') {
-        // The save dialog decodes this body and passes it to alert().
-        $echoFacilitySaveDialogSentence(xl($postalNotice));
-    }
+    // The save dialog decodes this body and passes the sentence to alert().
+    $sentence = $postalNotice === '' ? '' : xl($postalNotice);
+    $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
