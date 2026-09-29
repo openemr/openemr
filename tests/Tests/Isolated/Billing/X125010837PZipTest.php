@@ -18,6 +18,7 @@ use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12;
 use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12Direct;
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
@@ -119,6 +120,79 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
+     * The billed update names the version this run inserted.
+     */
+    public function testBilledUpdateTargetsTheInsertedVersion(): void
+    {
+        $this->assertSame(
+            ['ORDER BY version DESC LIMIT 1', []],
+            BillingUtilities::existingClaimVersionSql(null)
+        );
+        $this->assertSame(
+            ['ORDER BY version DESC LIMIT 1', []],
+            BillingUtilities::existingClaimVersionSql(0)
+        );
+        $this->assertSame(['AND version = ? ', [4]], BillingUtilities::existingClaimVersionSql(4));
+        $this->assertSame(4, BillingUtilities::insertedClaimVersion(4));
+        $this->assertSame(4, BillingUtilities::insertedClaimVersion('4'));
+        $this->assertSame(0, BillingUtilities::insertedClaimVersion('4abc'));
+        $this->assertSame(0, BillingUtilities::insertedClaimVersion(null));
+    }
+
+    /**
+     * Hold on keeps the inserted version through the billed update and the filename.
+     */
+    public function testHoldKeepsTheInsertedVersionOnTheBilledUpdate(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([
+                [true, null],
+                [false, 4],
+                [false, 4],
+            ], $probe->writes);
+        });
+    }
+
+    /**
+     * The next claim on the same run does not reuse the previous version.
+     */
+    public function testHoldOffStillUpdatesTheLatestVersion(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->generate($this->versionClaim());
+            $probe->writes = [];
+            OEGlobalsBag::getInstance()->set('gbl_hold_claims_that_will_deny', false);
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([
+                [true, null],
+                [false, null],
+            ], $probe->writes);
+        });
+    }
+
+    /**
+     * X12 Direct keeps the inserted version on the billed update and the filename.
+     */
+    public function testDirectHoldKeepsTheInsertedVersion(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = new DirectVersionProbe('generate');
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([
+                [true, null],
+                [false, 4],
+                [false, 4],
+            ], $probe->writes);
+        });
+    }
+
+    /**
      * A pay-to warning does not hold the claim when the denial hold is on.
      */
     public function testGlobalOnDoesNotHoldAPayToWarning(): void
@@ -180,6 +254,37 @@ class X125010837PZipTest extends TestCase
         $claim->method('getId')->willReturn('9-9');
 
         return new HoldZipFixture($probe, $batch, $claim);
+    }
+
+    /**
+     * Standard generator whose claim writes are recorded instead of stored.
+     */
+    private function versionProbe(): VersionHoldProbe
+    {
+        $probe = new VersionHoldProbe('generate');
+        $probe->useBatch(new BillingClaimBatch('.txt', [
+            'claims' => [(object) ['action' => 'validate']],
+        ]));
+
+        return $probe;
+    }
+
+    /**
+     * Claim double for a version-tracking case. The constructor reads the database.
+     */
+    private function versionClaim(): BillingClaim
+    {
+        $claim = $this->createMock(BillingClaim::class);
+        $claim->action = 'generate';
+        $claim->method('getId')->willReturn('9-9');
+        $claim->method('getPid')->willReturn('9');
+        $claim->method('getEncounter')->willReturn('9');
+        $claim->method('getPayorId')->willReturn('12');
+        $claim->method('getPayorType')->willReturn(1);
+        $claim->method('getTarget')->willReturn('standard');
+        $claim->method('getPartner')->willReturn('3');
+
+        return $claim;
     }
 
     /**
@@ -314,5 +419,119 @@ final class DirectSeProbe extends GeneratorX12Direct
     public function seal(BillingClaimBatch $batch, int $segmentCount): int
     {
         return $this->appendSeForHeldLastClaim($batch, $segmentCount);
+    }
+}
+
+final class VersionHoldProbe extends GeneratorX12
+{
+    /** @var list<array{0: bool, 1: ?int}> */
+    public array $writes = [];
+
+    /**
+     * Point the probe at the batch the case built.
+     */
+    public function useBatch(BillingClaimBatch $batch): void
+    {
+        $this->batch = $batch;
+    }
+
+    /**
+     * Record each claim write. An insert returns version 4.
+     */
+    protected function writeClaimRow(
+        mixed $newversion,
+        mixed $patientId,
+        mixed $encounterId,
+        mixed $payerId = -1,
+        mixed $payerType = -1,
+        mixed $status = -1,
+        mixed $billProcess = -1,
+        string $processFile = '',
+        string $target = '',
+        mixed $partnerId = -1,
+        ?int $claimVersion = null
+    ): mixed {
+        $this->writes[] = [(bool) $newversion, $claimVersion];
+
+        return $newversion ? 4 : 1;
+    }
+
+    /**
+     * Screen lines are unused in the version case.
+     */
+    public function printToScreen(mixed $message): void
+    {
+    }
+
+    /**
+     * The version case does not write the billing log.
+     */
+    public function appendToLog(mixed $message): void
+    {
+    }
+
+    /**
+     * @return array{string, list<string>}
+     */
+    protected function renderedClaim(BillingClaim $claim): array
+    {
+        return ['X12 generate patient on file.', ['']];
+    }
+}
+
+final class DirectVersionProbe extends GeneratorX12Direct
+{
+    /** @var list<array{0: bool, 1: ?int}> */
+    public array $writes = [];
+
+    /**
+     * Record each claim write. An insert returns version 4.
+     */
+    protected function writeClaimRow(
+        mixed $newversion,
+        mixed $patientId,
+        mixed $encounterId,
+        mixed $payerId = -1,
+        mixed $payerType = -1,
+        mixed $status = -1,
+        mixed $billProcess = -1,
+        string $processFile = '',
+        string $target = '',
+        mixed $partnerId = -1,
+        ?int $claimVersion = null
+    ): mixed {
+        $this->writes[] = [(bool) $newversion, $claimVersion];
+
+        return $newversion ? 4 : 1;
+    }
+
+    /**
+     * Skip claim text. An accepted claim still marks the stored version billed.
+     *
+     * @return BillingClaimBatch
+     */
+    protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
+    {
+        if ($billIfAccepted) {
+            $this->markBilledExisting($claim);
+        }
+
+        return new BillingClaimBatch('.txt', [
+            'claims' => [(object) ['action' => 'validate']],
+        ]);
+    }
+
+    /**
+     * Screen lines are unused in the version case.
+     */
+    public function printToScreen(mixed $message): void
+    {
+    }
+
+    /**
+     * The version case does not write the billing log.
+     */
+    public function appendToLog(mixed $message): void
+    {
     }
 }

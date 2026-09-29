@@ -30,7 +30,6 @@ use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
-use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -140,7 +139,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     protected function rememberPayer(BillingClaim $claim): void
     {
-        BillingUtilities::updateClaim(
+        $version = $this->writeClaimRow(
             true,
             $claim->getPid(),
             $claim->getEncounter(),
@@ -152,6 +151,9 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
             $claim->getTarget(),
             $claim->getPartner()
         );
+        if (is_int($version) && $version > 0) {
+            $this->insertedClaimVersion = $version;
+        }
     }
 
     /**
@@ -159,7 +161,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     protected function markBilledNew(BillingClaim $claim): void
     {
-        BillingUtilities::updateClaim(
+        $this->writeClaimRow(
             true,
             $claim->getPid(),
             $claim->getEncounter(),
@@ -178,7 +180,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     protected function markBilledExisting(BillingClaim $claim): void
     {
-        BillingUtilities::updateClaim(
+        $this->writeClaimRow(
             false,
             $claim->getPid(),
             $claim->getEncounter(),
@@ -188,7 +190,8 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
             BillingClaim::BILL_PROCESS_IN_PROGRESS,
             '',
             $claim->getTarget(),
-            $claim->getPartner()
+            $claim->getPartner(),
+            $this->insertedClaimVersion
         );
     }
 
@@ -229,6 +232,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function validateAndClear(BillingClaim $claim)
     {
+        $this->insertedClaimVersion = null;
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
             $this->rememberPayer($claim);
@@ -256,6 +260,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function generate(BillingClaim $claim)
     {
+        $this->insertedClaimVersion = null;
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
             $this->rememberPayer($claim);
@@ -271,7 +276,20 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         }
 
         // After we save the claim, update it with the filename (don't create a new revision)
-        if (!BillingUtilities::updateClaim(false, $claim->getPid(), $claim->getEncounter(), -1, -1, 2, 2, $this->batch->getBatFilename())) {
+        $updated = $this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            -1,
+            -1,
+            2,
+            2,
+            $this->batch->getBatFilename(),
+            '',
+            -1,
+            $this->insertedClaimVersion
+        );
+        if (!$updated) {
             $this->printToScreen(xl("Internal error: claim ") . $claim->getId() . xl(" not found!") . "\n");
         }
     }
