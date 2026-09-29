@@ -48,6 +48,10 @@ class X125010837P
     /**
      * Text for the facility save dialog. Empty when the dialog should stay quiet.
      * The caller has already inserted or updated the row.
+     * Nine digits, or five digits, a hyphen, and four digits, stay quiet.
+     *
+     * @return self::FACILITY_SAVED_BILLING_POSTAL|self::FACILITY_SAVED_SERVICE_POSTAL
+     *     |self::FACILITY_SAVED_BOTH_POSTAL|''
      */
     public static function facilityPostalSaveNotice(
         string $postal,
@@ -58,8 +62,7 @@ class X125010837P
         if (!$billingLocation && !$serviceLocation) {
             return '';
         }
-        $digits = preg_replace('/\D/', '', $postal);
-        if (!is_string($digits) || strlen($digits) === 9) {
+        if (preg_match('/^(?:\d{9}|\d{5}-\d{4})$/', $postal) === 1) {
             return '';
         }
         if ($billingLocation && $serviceLocation) {
