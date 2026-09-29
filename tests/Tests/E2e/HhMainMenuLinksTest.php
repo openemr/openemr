@@ -148,6 +148,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Reports -> Services -> Background Services menu link' => ['Reports||Services||Background Services', 'Background Services'],
             'Reports -> Services -> Direct Message Log menu link' => ['Reports||Services||Direct Message Log', 'Direct Message Log'],
             'Reports -> Services -> IP Tracker menu link' => ['Reports||Services||IP Tracker', 'IP Tracker'],
+            'Reports -> Services -> Portal Lockout Tracker menu link' => ['Reports||Services||Portal Lockout Tracker', 'Portal Lockout Tracker'],
             'Miscellaneous -> Dicom Viewer menu link' => ['Miscellaneous||Dicom Viewer', 'Dicom Viewer'],
             'Miscellaneous -> Patient Education menu link' => ['Miscellaneous||Patient Education', 'Web Search - Patient Education Materials'],
             'Miscellaneous -> Authorizations menu link' => ['Miscellaneous||Authorizations', 'Authorizations (More)'],
