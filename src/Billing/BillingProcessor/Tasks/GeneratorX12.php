@@ -158,12 +158,20 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     /**
      * Store an accepted claim and leave that row unbilled.
      *
-     * Called after the ZIP check. A denial does not store a version, so the
-     * next run does not add another one. False means the insert did not land,
-     * so this run has no version to bill.
+     * Called after the ZIP check. A denial does not store a version. An
+     * unbilled version from a failed billed update is kept and billed on
+     * the next run, instead of inserting another. False means this run
+     * has no version to bill.
      */
     protected function rememberPayer(BillingClaim $claim): bool
     {
+        $existing = $this->openUnbilledVersion($claim);
+        if ($existing !== null) {
+            $this->insertedClaimVersion = $existing;
+
+            return true;
+        }
+
         $version = $this->landedClaimWrite($this->writeClaimRow(
             true,
             $claim->getPid(),
