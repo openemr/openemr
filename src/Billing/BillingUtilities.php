@@ -1791,6 +1791,35 @@ class BillingUtilities
     }
 
     /**
+     * Version on an unbilled claims row, when the row has one.
+     */
+    public static function unbilledClaimVersion(mixed $row): ?int
+    {
+        if (!is_array($row) || !array_key_exists('version', $row)) {
+            return null;
+        }
+
+        $version = self::insertedClaimVersion($row['version']);
+
+        return $version > 0 ? $version : null;
+    }
+
+    /**
+     * Newest unbilled version for this patient, encounter, and payer.
+     *
+     * A failed billed update leaves that row. The next accepted run bills
+     * it instead of inserting another version.
+     */
+    public static function newestUnbilledClaimVersion(mixed $patientId, mixed $encounterId, mixed $payerId): ?int
+    {
+        return self::unbilledClaimVersion(QueryUtils::querySingleRow(
+            "SELECT version FROM claims WHERE patient_id = ? AND encounter_id = ? "
+            . "AND payer_id = ? AND status = ? ORDER BY version DESC LIMIT 1",
+            [$patientId, $encounterId, $payerId, BillingClaim::STATUS_LEAVE_UNBILLED]
+        ));
+    }
+
+    /**
      * SQL for the open claim row an update should change.
      *
      * The version this run inserted selects that row. Otherwise the newest
