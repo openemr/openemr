@@ -441,6 +441,11 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         });
     }
 
+    /**
+     * Validation writes the batch text to the screen.
+     *
+     * @param array $context
+     */
     public function completeToScreen(array $context)
     {
         $this->finish($context, function ($context): void {
