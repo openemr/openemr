@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -62,6 +62,11 @@ class ClientEntity implements ClientEntityInterface
 
 
     private int $dsiType;
+
+    /**
+     * @var list<string> OAuth2 grant types the client registered for (oauth_clients.grant_types)
+     */
+    private array $grantTypes = [];
 
     const DSI_TYPE_NONE = 0;
 
@@ -153,6 +158,28 @@ class ClientEntity implements ClientEntityInterface
             throw new \InvalidArgumentException("scopes parameter must be a valid array or string");
         }
         $this->scopes = $scopes;
+    }
+
+    /**
+     * @return list<string> the grant types stored for this client; empty when none were recorded
+     */
+    public function getGrantTypes(): array
+    {
+        return $this->grantTypes;
+    }
+
+    /**
+     * @param string|array<array-key, mixed>|null $grantTypes pipe-delimited string (as stored) or list
+     */
+    public function setGrantTypes(string|array|null $grantTypes): void
+    {
+        if (is_string($grantTypes)) {
+            $grantTypes = explode('|', $grantTypes);
+        }
+        $this->grantTypes = array_values(array_filter(
+            $grantTypes ?? [],
+            static fn(mixed $grantType): bool => is_string($grantType) && $grantType !== ''
+        ));
     }
 
     /**

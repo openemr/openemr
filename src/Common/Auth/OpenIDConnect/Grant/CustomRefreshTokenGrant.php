@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class CustomRefreshTokenGrant extends RefreshTokenGrant
 {
     use SystemLoggerAwareTrait;
+    use ClientGrantTypeGuardTrait;
 
 
     /**
@@ -225,6 +226,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             $this->getSystemLogger()->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $this->logger);
         $this->validateClientMemo[$requestKey] = $client;
         return $client;
     }

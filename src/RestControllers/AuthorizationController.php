@@ -34,6 +34,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
@@ -294,7 +295,7 @@ class AuthorizationController implements LoggerAwareInterface
                 'initiate_login_uri' => null, // for anything with a SMART 'launch/ehr' context we need to know how to initiate the login
                 'request_uris' => null,
                 'response_types' => null,
-                'grant_types' => null,
+                // grant_types is resolved separately below (ClientGrantTypePolicy)
                 // info on scope can be seen at
                 // OAUTH2 Dynamic Client Registration RFC 7591 Section 2 Page 9
                 // @see https://tools.ietf.org/html/rfc7591#section-2
@@ -345,7 +346,7 @@ class AuthorizationController implements LoggerAwareInterface
 
             foreach ($keys as $key => $supported_values) {
                 if ($data->has($key)) {
-                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
+                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
                     } elseif (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
@@ -431,6 +432,15 @@ class AuthorizationController implements LoggerAwareInterface
                     }
                 }
             }
+            // The grant types this client may use, enforced at the token endpoint by
+            // ClientGrantTypeGuardTrait. Validated when sent; derived when omitted.
+            $payload = $data->all();
+            $params['grant_types'] = implode('|', (new ClientGrantTypePolicy())->resolveRegistrationGrantTypes(
+                $payload['grant_types'] ?? null,
+                $data->get('application_type') === 'private',
+                ScopeEntity::scopeListHasContext($scope, 'system'),
+                $data->has('jwks') || $data->has('jwks_uri')
+            ));
             if (!$data->has('redirect_uris')) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
             }

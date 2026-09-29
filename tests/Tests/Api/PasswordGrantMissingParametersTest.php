@@ -233,6 +233,7 @@ class PasswordGrantMissingParametersTest extends TestCase
                 'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
                 'scope' => 'openid api:oemr api:port',
+                'grant_types' => ['password'],
             ],
         ]);
         $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');

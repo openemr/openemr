@@ -257,6 +257,9 @@ class CustomClientCredentialsGrantTest extends TestCase
         $clientEntity->setIdentifier(self::TEST_CLIENT_ID);
         $clientEntity->setIsConfidential(true);
         $clientEntity->setIsEnabled(true);
+        // a backend-services client is registered for client_credentials; clients without it
+        // are rejected with unauthorized_client (ClientGrantTypeGuardTrait)
+        $clientEntity->setGrantTypes(['client_credentials']);
         return $clientEntity;
     }
 

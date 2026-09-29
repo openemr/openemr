@@ -317,6 +317,7 @@ class DisabledClientRejectionTest extends TestCase
                 'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
                 'scope' => $scope,
+                'grant_types' => ['authorization_code', 'password', 'refresh_token'],
             ],
         ]);
         $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');

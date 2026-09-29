@@ -152,17 +152,6 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2026-10-01', 'zip-file-3-2027-icd-10-pcs-codes-file.zip', 'ca7dd9e61622a3b9faf766ac6b1cd15d');
 #EndIf
 
--- ICD-10-CM and ICD-10-PCS April 1, 2026 mid-year updates. CMS reuses the October
--- 2025 PCS file name, so the checksum tells the two releases apart.
-#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-04-01 load_filename april-1-2026-code-descriptions-in-tabular-order.zip
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2026-04-01', 'april-1-2026-code-descriptions-in-tabular-order.zip', '22700f631c4e0194467b96d0c1f83e67');
-#EndIf
-#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-04-01 load_filename zip-file-3-2026-icd-10-pcs-codes-file.zip
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2026-04-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '3521b090d9ca58af9c8d73bbf2b3110a');
-#EndIf
-
 -- Add TOTP replay-protection column: records the RFC 6238 time slice
 -- (floor(unix_ts/period)) of the last successfully consumed code so
 -- MfaUtils::checkTOTP can atomically reject any subsequent code whose
@@ -201,4 +190,19 @@ ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_fail_counter` bigint DEFA
 #EndIf
 #IfMissingColumn patient_access_onsite portal_last_fail
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last portal login failure for this account. Used for time-based counter reset.';
+#EndIf
+
+-- OAuth2 clients may now use only the grant types they registered for
+-- (oauth_clients.grant_types was stored but never enforced). Backfill it so
+-- existing clients keep working after the upgrade:
+--   * no recorded grant types: the RFC 7591 default, authorization_code
+--   * confidential backend-services clients (system/ scopes plus a JWKS):
+--     client_credentials, which the registration UI never recorded
+--   * clients that have already used the password grant, per
+--     oauth_trusted_user.grant_type: password
+-- Each statement is idempotent.
+#IfColumn oauth_clients grant_types
+UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_types` IS NULL OR `grant_types` = '';
+UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
+UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
 #EndIf
