@@ -87,7 +87,7 @@ foreach ($columns as $c => $v) {
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
     $insert_id = $facilityService->insertFacility($values);
     $postalNotice = X125010837P::facilityPostalSaveNotice(
-        (string) ($values['postal_code'] ?? ''),
+        $values['postal_code'] ?? '',
         ($values['billing_location'] ?? '') === '1',
         ($values['service_location'] ?? '') === '1'
     );
@@ -108,7 +108,7 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     //
     $facilityService->updateUsersFacility($values['name'], $values['id']);
     $postalNotice = X125010837P::facilityPostalSaveNotice(
-        (string) ($values['postal_code'] ?? ''),
+        $values['postal_code'] ?? '',
         ($values['billing_location'] ?? '') === '1',
         ($values['service_location'] ?? '') === '1'
     );
