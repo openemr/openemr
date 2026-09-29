@@ -572,9 +572,8 @@ function icd_import($type)
 
     // Batching the inserts into one transaction drastically speeds up import with InnoDB
     QueryUtils::inTransaction(function () use ($dir, $incoming, $file_keys, $loaded_keys): void {
-        // Inactivate only the tables this release replaces. A mid-year ICD-10-CM
-        // release (e.g. CMS April 1) ships no ICD-10-PCS file, so the active PCS
-        // revision must stay active.
+        // Inactivate only the tables this release replaces, so loading only a
+        // CM file (or only a PCS file) leaves the other code set active.
         if (in_array('icd10pcs_codes_', $loaded_keys, true)) {
             QueryUtils::sqlStatementThrowException('UPDATE icd10_pcs_order_code SET active = 0', [], noLog: true);
         }

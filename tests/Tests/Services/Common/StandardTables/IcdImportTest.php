@@ -2,7 +2,7 @@
 
 /**
  * Loads small ICD-10 releases through icd_import() and checks which code sets
- * end up active. A mid-year ICD-10-CM release must not retire the active
+ * end up active. Loading only an ICD-10-CM file must not retire the active
  * ICD-10-PCS set.
  *
  * @package   OpenEMR
@@ -69,7 +69,7 @@ final class IcdImportTest extends TestCase
         $this->filesystem->remove($this->tempDir);
     }
 
-    public function testMidYearCmOnlyReleaseKeepsActivePcsSet(): void
+    public function testCmOnlyLoadKeepsActivePcsSet(): void
     {
         $this->seedActiveRevisions();
         $this->stageRelease([

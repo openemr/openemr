@@ -49,7 +49,7 @@ final class IcdImportFileKeysTest extends TestCase
                     ['filename' => 'icd10pcs_codes_2027.txt', 'key' => 'icd10pcs_codes_'],
                 ],
             ],
-            'April CM-only release loads only diagnoses' => [
+            'CM zip alone loads only diagnoses' => [
                 [
                     'Code Descriptions',
                     'icd10OrderFiles.pdf',
