@@ -64,7 +64,20 @@ function submitform() {
         data: form_data
     }).done(function (r) { //
         if (r) {
-            alert(r);
+            let message = r;
+            if (typeof r === 'string') {
+                try {
+                    const parsed = JSON.parse(r);
+                    if (typeof parsed === 'string') {
+                        message = parsed;
+                    }
+                } catch (e) {
+                    message = r;
+                }
+            }
+            if (message) {
+                alert(message);
+            }
         }
         dlgclose('refreshme', false);
     });
