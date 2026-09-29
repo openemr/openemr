@@ -60,4 +60,34 @@ class FacilityZipSaveWarningTest extends TestCase
         $this->assertStringNotContainsString('MA114', $notice);
         $this->assertStringNotContainsString('277', $notice);
     }
+
+    /**
+     * @return array<string, array{mixed, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function writeLandedProvider(): array
+    {
+        return [
+            'positive id' => [4, true],
+            'digit string id' => ['12', true],
+            'zero' => [0, false],
+            'zero string' => ['0', false],
+            'empty string' => ['', false],
+            'false' => [false, false],
+            'null' => [null, false],
+            'statement result' => [new \stdClass(), true],
+        ];
+    }
+
+    /**
+     * The saved sentence waits until the facility write finishes.
+     */
+    #[DataProvider('writeLandedProvider')]
+    public function testSavedSentenceWaitsForTheWrite(mixed $result, bool $landed): void
+    {
+        $this->assertSame($landed, X125010837P::facilityWriteLanded($result));
+        $this->assertStringNotContainsString('was saved', X125010837P::FACILITY_NOT_SAVED);
+        $this->assertStringContainsString('was saved', X125010837P::FACILITY_SAVED_USERS_NOT_UPDATED);
+    }
 }
