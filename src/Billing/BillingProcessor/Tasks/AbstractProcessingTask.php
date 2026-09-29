@@ -15,8 +15,10 @@
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\FacilityZipDenial;
+use OpenEMR\Billing\UnbilledFileDecision;
 
 abstract class AbstractProcessingTask
 {
@@ -24,6 +26,28 @@ abstract class AbstractProcessingTask
      * Claim version this run inserted while the hold is on.
      */
     protected ?int $insertedClaimVersion = null;
+
+    /**
+     * Normal generation waits to mark the claim billed until the file is written.
+     */
+    protected bool $billWhenTheFileLands = false;
+
+    /**
+     * True while generate() is inside validate-and-clear, so that call does not clear the wait.
+     */
+    protected bool $insideGenerate = false;
+
+    /**
+     * File name read from the unbilled row for this claim.
+     */
+    protected string $settledFileName = '';
+
+    /**
+     * Accepted claims whose file name is stored and whose billed update waits for that file.
+     *
+     * @var list<array{claim: BillingClaim, version: int, filename: string}>
+     */
+    protected array $awaitingFile = [];
 
     public function __construct(protected $action)
     {
@@ -149,5 +173,186 @@ abstract class AbstractProcessingTask
         }
 
         return true;
+    }
+
+    /**
+     * File name already stored on the unbilled row. Empty when this run should assign one.
+     */
+    protected function openUnbilledFile(BillingClaim $claim): string
+    {
+        return BillingUtilities::newestUnbilledClaimFile(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId()
+        );
+    }
+
+    /**
+     * The named file is in this batch's edi directory.
+     *
+     * A name with a directory segment is not a file this run wrote.
+     */
+    protected function claimFileLanded(BillingClaimBatch $batch, string $filename): bool
+    {
+        if ($filename === '' || str_contains($filename, '/') || str_contains($filename, '\\') || str_contains($filename, '..')) {
+            return false;
+        }
+
+        $dir = $batch->getBatFiledir();
+        if ($dir === '') {
+            return false;
+        }
+
+        return is_file($dir . DIRECTORY_SEPARATOR . $filename);
+    }
+
+    /**
+     * Drop the file name on an unbilled row so the next run can write a new file.
+     */
+    protected function clearClaimFile(BillingClaim $claim, int $version): void
+    {
+        BillingUtilities::clearUnbilledClaimFile(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $version
+        );
+    }
+
+    /**
+     * Read the stored file name and clear it when that file is not on disk.
+     */
+    protected function previousFileDecision(BillingClaim $claim, BillingClaimBatch $batch): UnbilledFileDecision
+    {
+        $this->settledFileName = $this->openUnbilledFile($claim);
+        $decision = UnbilledFileDecision::fromStoredFile(
+            $this->settledFileName,
+            $this->settledFileName !== '' && $this->claimFileLanded($batch, $this->settledFileName)
+        );
+        if ($decision !== UnbilledFileDecision::Missing) {
+            return $decision;
+        }
+
+        $version = $this->openUnbilledVersion($claim);
+        if ($version !== null) {
+            $this->clearClaimFile($claim, $version);
+        }
+
+        return $decision;
+    }
+
+    /**
+     * Mark the unbilled row billed now that its file is already on disk.
+     */
+    protected function markStoredFileBilled(BillingClaim $claim): bool
+    {
+        $version = $this->openUnbilledVersion($claim);
+        if ($version === null) {
+            return false;
+        }
+
+        $this->insertedClaimVersion = $version;
+
+        return $this->landedClaimWrite($this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            -1,
+            -1,
+            BillingClaim::STATUS_MARK_AS_BILLED,
+            BillingClaim::BILL_PROCESS_BILLED,
+            $this->settledFileName,
+            '',
+            -1,
+            $version
+        )) !== null;
+    }
+
+    /**
+     * Store the file name on the unbilled row. The billed update waits until that file exists.
+     */
+    protected function noteClaimFile(BillingClaim $claim, BillingClaimBatch $batch): bool
+    {
+        $version = $this->insertedClaimVersion;
+        $filename = $batch->getBatFilename();
+        if ($version === null || $version <= 0 || $filename === '') {
+            return false;
+        }
+
+        $landed = $this->landedClaimWrite($this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_LEAVE_UNBILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            $filename,
+            $claim->getTarget(),
+            $claim->getPartner(),
+            $version
+        ));
+        if ($landed === null) {
+            return false;
+        }
+
+        $this->awaitingFile[] = [
+            'claim' => $claim,
+            'version' => $version,
+            'filename' => $filename,
+        ];
+
+        return true;
+    }
+
+    /**
+     * The file is on disk. Mark each claim that was waiting on this name.
+     */
+    protected function billAwaitingFile(string $filename): void
+    {
+        $stillWaiting = [];
+        foreach ($this->awaitingFile as $pending) {
+            if ($pending['filename'] !== $filename) {
+                $stillWaiting[] = $pending;
+                continue;
+            }
+
+            $claim = $pending['claim'];
+            $landed = $this->landedClaimWrite($this->writeClaimRow(
+                false,
+                $claim->getPid(),
+                $claim->getEncounter(),
+                -1,
+                -1,
+                BillingClaim::STATUS_MARK_AS_BILLED,
+                BillingClaim::BILL_PROCESS_BILLED,
+                $filename,
+                '',
+                -1,
+                $pending['version']
+            ));
+            if ($landed === null) {
+                $stillWaiting[] = $pending;
+            }
+        }
+
+        $this->awaitingFile = $stillWaiting;
+    }
+
+    /**
+     * The file was not written. Clear the name so the next run does not treat it as sent.
+     */
+    protected function releaseAwaitingFile(string $filename): void
+    {
+        $stillWaiting = [];
+        foreach ($this->awaitingFile as $pending) {
+            if ($pending['filename'] !== $filename) {
+                $stillWaiting[] = $pending;
+                continue;
+            }
+
+            $this->clearClaimFile($pending['claim'], $pending['version']);
+        }
+
+        $this->awaitingFile = $stillWaiting;
     }
 }
