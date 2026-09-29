@@ -92,7 +92,8 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
         ($values['service_location'] ?? '') === '1'
     );
     if ($postalNotice !== '') {
-        echo text(xl($postalNotice));
+        // The save dialog passes this body to alert().
+        echo xl($postalNotice);
     }
     exit(); // sjp 12/20/17 for ajax save
 }
@@ -113,7 +114,8 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
         ($values['service_location'] ?? '') === '1'
     );
     if ($postalNotice !== '') {
-        echo text(xl($postalNotice));
+        // The save dialog passes this body to alert().
+        echo xl($postalNotice);
     }
     exit(); // sjp 12/20/17 for ajax save
 }
