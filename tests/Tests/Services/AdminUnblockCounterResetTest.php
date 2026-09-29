@@ -37,6 +37,7 @@ namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Tests\Fixtures\PortalPatientFixtureManager;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
@@ -60,6 +61,13 @@ class AdminUnblockCounterResetTest extends TestCase
      * @var array<string, ?array<mixed>>
      */
     private array $originalIpTrackingByString = [];
+    /**
+     * Snapshots of mutated globals so tearDown can restore whatever value the
+     * shared runtime had before the test. Keyed by global name.
+     *
+     * @var array<string, mixed>
+     */
+    private array $originalGlobals = [];
 
     protected function tearDown(): void
     {
@@ -106,6 +114,14 @@ class AdminUnblockCounterResetTest extends TestCase
         }
 
         $this->portalFixtures?->removePortalPatientFixtures();
+
+        // Restore mutated globals so tests exercising collectIpLoginFailsSql
+        // don't leak lockout-threshold values into unrelated tests running in
+        // the same phpunit process.
+        $globals = OEGlobalsBag::getInstance();
+        foreach ($this->originalGlobals as $key => $value) {
+            $globals->set($key, $value);
+        }
 
         parent::tearDown();
     }
@@ -277,6 +293,179 @@ class AdminUnblockCounterResetTest extends TestCase
         $this->assertSame(0, $this->readPortalAccountCounter($unknown));
     }
 
+    // ---------- resetMfaIpFailCounter(string) ----------
+
+    public function testResetMfaIpFailCounterByStringZerosCounterAndClearsTimestamp(): void
+    {
+        // Success-path variant keyed by ip_string (as opposed to the by-id
+        // resetMfaIpCounter that backs the admin UI). Previously private,
+        // now public because both the success-path resetMfaChallengeCounters
+        // caller and the admin UI callers now live outside the class.
+        $ipString = 'test-mfa-ipstring-' . Uuid::uuid4()->toString();
+        $this->snapshotIpTracking($ipString);
+
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`, `mfa_last_login_fail`) "
+                . "VALUES (?, 4, NOW())",
+            [$ipString]
+        );
+        $this->assertSame(4, $this->readMfaIpCounter($ipString));
+        $this->assertNotNull($this->readMfaIpLastFail($ipString));
+
+        AuthUtils::resetMfaIpFailCounter($ipString);
+
+        $this->assertSame(0, $this->readMfaIpCounter($ipString));
+        $this->assertNull($this->readMfaIpLastFail($ipString));
+    }
+
+    // ---------- collectIpLoginFailsSql filter branches ----------
+    // These tests exercise the SELECT that ip_tracker.php uses to list the
+    // rows an admin can act on. They cover the new MFA columns in the
+    // projection and each of the new filter branches (with/without window,
+    // max=0 short-circuit, and the plain unfiltered case).
+
+    public function testCollectIpLoginFailsSqlSelectsMfaColumns(): void
+    {
+        // Regression guard: the SELECT projection includes the new MFA
+        // fields so ip_tracker.php can render the MFA columns without a
+        // second round-trip to the DB.
+        $ipString = 'test-mfa-select-' . Uuid::uuid4()->toString();
+        $this->snapshotIpTracking($ipString);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`, `mfa_last_login_fail`) "
+                . "VALUES (?, 3, NOW())",
+            [$ipString]
+        );
+
+        $row = $this->findIpTrackingRow(
+            AuthUtils::collectIpLoginFailsSql(true, false, false),
+            $ipString
+        );
+
+        $this->assertNotNull($row, 'showOnlyWithCount must return a row whose only non-zero counter is MFA');
+        $this->assertSame(3, is_numeric($row['mfa_login_fail_counter'] ?? null) ? (int) $row['mfa_login_fail_counter'] : 0);
+        $this->assertArrayHasKey('mfa_last_login_fail', $row);
+        $this->assertArrayHasKey('seconds_mfa_last_login_fail', $row);
+    }
+
+    public function testCollectIpLoginFailsSqlShowOnlyAutoBlockedMatchesMfaAtBoundary(): void
+    {
+        // AuthUtils::isMfaChallengeBlocked() still treats the IP as blocked at
+        // seconds == window; the filter must include those rows so admins can
+        // reset them.
+        $this->overrideGlobal('ip_max_failed_logins', 3);
+        $this->overrideGlobal('ip_time_reset_password_max_failed_logins', 300);
+
+        $ipString = 'test-mfa-window-boundary-' . Uuid::uuid4()->toString();
+        $this->snapshotIpTracking($ipString);
+        // counter is exactly at max (>= satisfies the MFA predicate) and the
+        // last-fail timestamp lands right inside the reset window.
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`, `mfa_last_login_fail`) "
+                . "VALUES (?, 3, DATE_SUB(NOW(), INTERVAL 60 SECOND))",
+            [$ipString]
+        );
+
+        $row = $this->findIpTrackingRow(
+            AuthUtils::collectIpLoginFailsSql(false, false, true),
+            $ipString
+        );
+        $this->assertNotNull(
+            $row,
+            'MFA counter at exactly ip_max_failed_logins inside the reset window must appear in the auto-blocked filter'
+        );
+    }
+
+    public function testCollectIpLoginFailsSqlShowOnlyAutoBlockedWithoutWindowIncludesMfaOverCap(): void
+    {
+        // No reset window configured — a row above the MFA cap is
+        // permanently blocked, so the filter must return it regardless
+        // of last-fail age.
+        $this->overrideGlobal('ip_max_failed_logins', 2);
+        $this->overrideGlobal('ip_time_reset_password_max_failed_logins', 0);
+
+        $ipString = 'test-mfa-nowindow-' . Uuid::uuid4()->toString();
+        $this->snapshotIpTracking($ipString);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`, `mfa_last_login_fail`) "
+                . "VALUES (?, 5, DATE_SUB(NOW(), INTERVAL 1 DAY))",
+            [$ipString]
+        );
+
+        $row = $this->findIpTrackingRow(
+            AuthUtils::collectIpLoginFailsSql(false, false, true),
+            $ipString
+        );
+        $this->assertNotNull(
+            $row,
+            'MFA-over-cap row must appear when auto-block window is disabled'
+        );
+    }
+
+    public function testCollectIpLoginFailsSqlShowOnlyAutoBlockedReturnsEmptyWhenMaxIsZero(): void
+    {
+        // ip_max_failed_logins = 0 disables auto-block entirely. Without the
+        // 1 = 0 short-circuit the query would fall through to no predicate and
+        // list every counter-active row (all labelled "No" by the renderer).
+        $this->overrideGlobal('ip_max_failed_logins', 0);
+
+        $ipString = 'test-max-zero-' . Uuid::uuid4()->toString();
+        $this->snapshotIpTracking($ipString);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `ip_login_fail_counter`, `mfa_login_fail_counter`) "
+                . "VALUES (?, 99, 99)",
+            [$ipString]
+        );
+
+        $row = $this->findIpTrackingRow(
+            AuthUtils::collectIpLoginFailsSql(false, false, true),
+            $ipString
+        );
+        $this->assertNull(
+            $row,
+            'When ip_max_failed_logins is 0 the auto-blocked filter must return no rows'
+        );
+    }
+
+    public function testCollectIpLoginFailsSqlShowOnlyManuallyBlockedIncludesMfaRow(): void
+    {
+        // Manual-block filter is orthogonal to the counter axes; a
+        // force-blocked row must appear regardless of MFA counter state.
+        $ipString = 'test-manual-block-' . Uuid::uuid4()->toString();
+        $this->snapshotIpTracking($ipString);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `ip_force_block`, `mfa_login_fail_counter`) "
+                . "VALUES (?, 1, 0)",
+            [$ipString]
+        );
+
+        $row = $this->findIpTrackingRow(
+            AuthUtils::collectIpLoginFailsSql(false, true, false),
+            $ipString
+        );
+        $this->assertNotNull($row, 'force-blocked row must appear in the manual-block filter');
+    }
+
+    public function testCollectIpLoginFailsSqlUnfilteredReturnsRowWithMfaColumnsPopulated(): void
+    {
+        // Baseline: no filters. Row must appear and carry the MFA-column
+        // additions in the projection.
+        $ipString = 'test-unfiltered-' . Uuid::uuid4()->toString();
+        $this->snapshotIpTracking($ipString);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `mfa_login_fail_counter`) VALUES (?, 0)",
+            [$ipString]
+        );
+
+        $row = $this->findIpTrackingRow(
+            AuthUtils::collectIpLoginFailsSql(false, false, false),
+            $ipString
+        );
+        $this->assertNotNull($row);
+        $this->assertArrayHasKey('mfa_login_fail_counter', $row);
+        $this->assertArrayHasKey('mfa_last_login_fail', $row);
+    }
+
     // ---------- helpers (mirrors PasswordGrantHardeningTest) ----------
 
     private function portalFixtures(): PortalPatientFixtureManager
@@ -394,5 +583,33 @@ class AdminUnblockCounterResetTest extends TestCase
         );
         $value = $row['portal_last_fail'] ?? null;
         return is_string($value) ? $value : null;
+    }
+
+    private function overrideGlobal(string $key, mixed $value): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+        if (!array_key_exists($key, $this->originalGlobals)) {
+            $this->originalGlobals[$key] = $globals->get($key);
+        }
+        $globals->set($key, $value);
+    }
+
+    /**
+     * Iterate a collectIpLoginFailsSql result set (an ADORecordSet from
+     * sqlStatement) and return the row whose ip_string matches, or null.
+     *
+     * @param false|\ADORecordSet $resultSet
+     *
+     * @return ?array<string, mixed>
+     */
+    private function findIpTrackingRow($resultSet, string $ipString): ?array
+    {
+        while (($row = QueryUtils::fetchArrayFromResultSet($resultSet)) !== false) {
+            if (($row['ip_string'] ?? null) === $ipString) {
+                /** @var array<string, mixed> $row */
+                return $row;
+            }
+        }
+        return null;
     }
 }
