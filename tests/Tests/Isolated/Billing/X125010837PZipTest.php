@@ -22,6 +22,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\FacilityZipDenial;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Core\OEGlobalsBag;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class X125010837PZipTest extends TestCase
@@ -138,6 +139,29 @@ class X125010837PZipTest extends TestCase
         $this->assertSame(4, BillingUtilities::insertedClaimVersion('4'));
         $this->assertSame(0, BillingUtilities::insertedClaimVersion('4abc'));
         $this->assertSame(0, BillingUtilities::insertedClaimVersion(null));
+    }
+
+    #[DataProvider('billedUpdateStoredProvider')]
+    public function testBilledUpdateStoredRequiresTheBilledRow(mixed $row, bool $stored): void
+    {
+        $this->assertSame($stored, BillingUtilities::billedUpdateStored($row));
+    }
+
+    /**
+     * @return array<string, array{mixed, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function billedUpdateStoredProvider(): array
+    {
+        return [
+            'missing row' => [false, false],
+            'billed int' => [['status' => 2], true],
+            'billed string' => [['status' => '2'], true],
+            'still unbilled' => [['status' => 1], false],
+            'unbilled string' => [['status' => '1'], false],
+            'no status' => [[], false],
+        ];
     }
 
     /**
