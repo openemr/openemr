@@ -18,8 +18,10 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Request;
 
 class SessionTracker
 {
@@ -78,28 +80,26 @@ class SessionTracker
      *
      * Expiration is still enforced; only the last_updated refresh is skipped.
      *
-     * @param  array<string, mixed>|null  $request
+     * @param  array<string, mixed>|null  $requestParams Optional override (tests).
+     *                                                    When null, reads from CurrentRequest.
      */
     public static function shouldSkipTimeoutReset(
-        ?array $request = null,
+        ?array $requestParams = null,
         ?string $scriptPath = null,
         ?string $requestMethod = null,
         ?string $requestUri = null
     ): bool {
-        $request ??= $_REQUEST;
-        if (!empty($request['skip_timeout_reset'])) {
+        if (self::hasTruthySkipTimeoutResetFlag(self::resolveSkipTimeoutResetFlag($requestParams))) {
             return true;
         }
 
-        if (self::isBackgroundPollingRequest(
-            $scriptPath ?? self::currentRequestScriptPath(),
-            $requestMethod ?? strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')),
-            $requestUri ?? (string) ($_SERVER['REQUEST_URI'] ?? '')
-        )) {
-            return true;
-        }
+        [$resolvedScriptPath, $resolvedMethod, $resolvedUri] = self::resolveRequestIdentity(
+            $scriptPath,
+            $requestMethod,
+            $requestUri
+        );
 
-        return false;
+        return self::isBackgroundPollingRequest($resolvedScriptPath, $resolvedMethod, $resolvedUri);
     }
 
     /**
@@ -128,7 +128,7 @@ class SessionTracker
             return false;
         }
 
-        // Presence / status GET polls (user POSTs that queue invites still count as activity).
+        // GET-only presence/status polls (mutating POSTs still count as activity).
         $getOnlySuffixes = [
             '/interface/modules/custom_modules/oe-module-telehealth-jse/public/api/invite.php',
             '/interface/modules/custom_modules/oe-module-telehealth-jse/public/api/invite_status_batch.php',
@@ -140,34 +140,79 @@ class SessionTracker
             }
         }
 
-        // Core UI pollers (always background, any method).
-        $anyMethodSuffixes = [
-            '/library/ajax/dated_reminders_counter.php',
-            '/interface/main/dated_reminders/dated_reminders.php',
-            '/apis/dispatch.php',
-        ];
-        foreach ($anyMethodSuffixes as $suffix) {
-            if (str_ends_with($normalized, $suffix)) {
-                // Only skip dispatch.php when the route is the background runner.
-                if (str_ends_with($normalized, '/apis/dispatch.php')) {
-                    return str_contains($uri, '/api/background_service/');
-                }
-                return true;
-            }
+        // Dated reminders page: AJAX refresh is POST; a plain GET page load is user activity.
+        if (str_ends_with($normalized, '/interface/main/dated_reminders/dated_reminders.php')) {
+            return $method !== 'GET';
+        }
+
+        // Dedicated counter endpoint is always a background poll.
+        if (str_ends_with($normalized, '/library/ajax/dated_reminders_counter.php')) {
+            return true;
+        }
+
+        // Only skip dispatch.php when the route is the background runner.
+        if (str_ends_with($normalized, '/apis/dispatch.php')) {
+            return str_contains($uri, '/api/background_service/');
         }
 
         return false;
     }
 
-    private static function currentRequestScriptPath(): string
+    /**
+     * @param  array<string, mixed>|null  $requestParams
+     */
+    private static function resolveSkipTimeoutResetFlag(?array $requestParams): mixed
     {
-        $candidates = [
-            $_SERVER['SCRIPT_NAME'] ?? '',
-            $_SERVER['PHP_SELF'] ?? '',
-            $_SERVER['SCRIPT_FILENAME'] ?? '',
-        ];
-        foreach ($candidates as $candidate) {
-            $normalized = self::normalizeScriptPath((string) $candidate);
+        if ($requestParams !== null) {
+            return $requestParams['skip_timeout_reset'] ?? null;
+        }
+
+        $httpRequest = CurrentRequest::get();
+        $fromBody = $httpRequest->request->get('skip_timeout_reset');
+        if ($fromBody !== null) {
+            return $fromBody;
+        }
+
+        return $httpRequest->query->get('skip_timeout_reset');
+    }
+
+    private static function hasTruthySkipTimeoutResetFlag(mixed $value): bool
+    {
+        if ($value === null || $value === false || $value === '' || $value === 0 || $value === '0') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private static function resolveRequestIdentity(
+        ?string $scriptPath,
+        ?string $requestMethod,
+        ?string $requestUri
+    ): array {
+        if ($scriptPath !== null && $requestMethod !== null && $requestUri !== null) {
+            return [$scriptPath, $requestMethod, $requestUri];
+        }
+
+        $httpRequest = CurrentRequest::get();
+        $scriptPath ??= self::scriptPathFromHttpRequest($httpRequest);
+        $requestMethod ??= $httpRequest->getMethod();
+        $requestUri ??= $httpRequest->getRequestUri();
+
+        return [$scriptPath, $requestMethod, $requestUri];
+    }
+
+    private static function scriptPathFromHttpRequest(Request $httpRequest): string
+    {
+        foreach (['SCRIPT_NAME', 'PHP_SELF', 'SCRIPT_FILENAME'] as $key) {
+            $candidate = $httpRequest->server->get($key);
+            if (!is_string($candidate) || $candidate === '') {
+                continue;
+            }
+            $normalized = self::normalizeScriptPath($candidate);
             if ($normalized !== '') {
                 return $normalized;
             }

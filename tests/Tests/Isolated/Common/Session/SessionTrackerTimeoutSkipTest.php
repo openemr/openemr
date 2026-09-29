@@ -44,11 +44,17 @@ final class SessionTrackerTimeoutSkipTest extends TestCase
                 'POST',
                 true,
             ],
-            'dated reminders ajax' => [
+            'dated reminders ajax post' => [
                 [],
                 '/interface/main/dated_reminders/dated_reminders.php',
                 'POST',
                 true,
+            ],
+            'dated reminders page get is user activity' => [
+                [],
+                '/interface/main/dated_reminders/dated_reminders.php',
+                'GET',
+                false,
             ],
             'telehealth invite get poll' => [
                 [],
