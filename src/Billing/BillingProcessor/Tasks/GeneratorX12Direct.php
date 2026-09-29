@@ -28,6 +28,7 @@ use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\FacilityZipDenial;
+use OpenEMR\Billing\UnbilledFileDecision;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -167,6 +168,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function validateAndClear(BillingClaim $claim)
     {
+        if (!$this->insideGenerate) {
+            $this->billWhenTheFileLands = false;
+        }
         $this->insertedClaimVersion = null;
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
@@ -201,8 +205,14 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // If we are doing final billing (normal) or validate and mark-as-billed,
         // Use the claim to update the appropriate batch file (depends on x-12 partner)
         // and return the batch we updated
+        $this->insideGenerate = true;
+        $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
         $batch = $this->validateAndClear($claim);
+        $this->insideGenerate = false;
         if (!$batch instanceof BillingClaimBatch) {
+            return;
+        }
+        if ($this->billWhenTheFileLands) {
             return;
         }
 
@@ -288,13 +298,44 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $denial
         ));
         assert($denial instanceof FacilityZipDenial);
+        if ($hold && $billIfAccepted && !$denial->willDeny() && $this->billWhenTheFileLands && $batch instanceof BillingClaimBatch) {
+            $previous = $this->previousFileDecision($claim, $batch);
+            if ($previous === UnbilledFileDecision::Present) {
+                $sentence = $this->markStoredFileBilled($claim)
+                    ? UnbilledFileDecision::ALREADY_WRITTEN
+                    : FacilityZipDenial::LEFT_OUT_NOT_BILLED;
+                $this->printToScreen(xl($sentence));
+                $edicount = $edicountBefore;
+                $patSegmentCount = $patSegmentCountBefore;
+                if (is_int($edicount) && $is_last_claim === true) {
+                    $edicount = $this->appendSeForHeldLastClaim($batch, $edicount);
+                }
+                $partnerKey = $claim->getPartner();
+                if (is_int($partnerKey) || is_string($partnerKey)) {
+                    $this->edi_counts[$partnerKey] = $edicount;
+                    $this->pat_segment_counts[$partnerKey] = $patSegmentCount;
+                }
+                $this->appendToLog($log);
+
+                return null;
+            }
+            if ($previous === UnbilledFileDecision::Missing) {
+                $this->printToScreen(xl(UnbilledFileDecision::FILE_WAS_MISSING));
+            }
+        }
         // A denial stores no version. The next run stores one only if the ZIP is accepted.
         $insertLanded = true;
         if ($hold && $billIfAccepted && !$denial->willDeny()) {
             $insertLanded = $this->rememberPayer($claim);
         }
         $billedWriteLanded = true;
-        if ($insertLanded && $hold && $billIfAccepted && !$denial->willDeny()) {
+        if ($insertLanded && $hold && $billIfAccepted && !$denial->willDeny() && $batch instanceof BillingClaimBatch) {
+            // The file name is stored while the row stays unbilled. The billed
+            // update runs after that file is written.
+            $billedWriteLanded = $this->billWhenTheFileLands
+                ? $this->noteClaimFile($claim, $batch)
+                : $this->markBilledExisting($claim);
+        } elseif ($insertLanded && $hold && $billIfAccepted && !$denial->willDeny()) {
             $billedWriteLanded = $this->markBilledExisting($claim);
         }
         $omit = !$insertLanded || !$this->claimEntersBatch($hold, $denial, $billIfAccepted, $billedWriteLanded);
@@ -456,11 +497,22 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             // user for download.
             $html .= "<ul class='list-group'>";
             foreach ($created_batches as $x12_partner_id => $created_batch) {
+                if (!$created_batch instanceof BillingClaimBatch) {
+                    continue;
+                }
                 // This is the final, validated claim, write to the edi location for this x12 partner
-                $created_batch->write_batch_file($x12_partner_id);
+                $filename = $created_batch->getBatFilename();
+                $wrote = $this->storeBatchFile($created_batch);
+                if ($this->awaitingFile !== []) {
+                    if ($wrote && $this->claimFileLanded($created_batch, $filename)) {
+                        $this->billAwaitingFile($filename);
+                    } else {
+                        $this->releaseAwaitingFile($filename);
+                    }
+                }
                 $x12_partner_name = text($this->x12_partners[$x12_partner_id]['name']);
                 // For the modal, build a list of downloads
-                $file = $created_batch->getBatFilename();
+                $file = $filename;
                 $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
                     '&partner=' . urlencode($x12_partner_id) .
@@ -540,5 +592,13 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             'created_batches' => $created_batches,
             'format_bat' => $format_bat
         ]);
+    }
+
+    /**
+     * Write one partner batch. Tests replace this so they do not create an edi file.
+     */
+    protected function storeBatchFile(BillingClaimBatch $batch): bool
+    {
+        return (bool) $batch->write_batch_file();
     }
 }

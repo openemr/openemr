@@ -1820,6 +1820,37 @@ class BillingUtilities
     }
 
     /**
+     * File name on the newest unbilled row for this patient, encounter, and payer.
+     *
+     * Empty when that row has no file name, or when there is no unbilled row.
+     */
+    public static function newestUnbilledClaimFile(mixed $patientId, mixed $encounterId, mixed $payerId): string
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT process_file FROM claims WHERE patient_id = ? AND encounter_id = ? "
+            . "AND payer_id = ? AND status = ? ORDER BY version DESC LIMIT 1",
+            [$patientId, $encounterId, $payerId, BillingClaim::STATUS_LEAVE_UNBILLED]
+        );
+        if (!is_array($row) || !array_key_exists('process_file', $row) || !is_string($row['process_file'])) {
+            return '';
+        }
+
+        return $row['process_file'];
+    }
+
+    /**
+     * Remove the file name from an unbilled row. A billed row is left alone.
+     */
+    public static function clearUnbilledClaimFile(mixed $patientId, mixed $encounterId, int $version): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE claims SET process_file = '' WHERE patient_id = ? AND encounter_id = ? "
+            . "AND version = ? AND status = ?",
+            [$patientId, $encounterId, $version, BillingClaim::STATUS_LEAVE_UNBILLED]
+        );
+    }
+
+    /**
      * SQL for the open claim row an update should change.
      *
      * The version this run inserted selects that row. Otherwise the newest

@@ -31,6 +31,7 @@ use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\FacilityZipDenial;
+use OpenEMR\Billing\UnbilledFileDecision;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -73,6 +74,21 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         [$log, $segs, $denial] = $this->renderedClaim($claim);
         $this->appendToLog($log);
         $hold = $this->holdClaimsThatWillDeny();
+        if ($hold && $billIfAccepted && !$denial->willDeny() && $this->billWhenTheFileLands) {
+            $previous = $this->previousFileDecision($claim, $this->batch);
+            if ($previous === UnbilledFileDecision::Present) {
+                $sentence = $this->markStoredFileBilled($claim)
+                    ? UnbilledFileDecision::ALREADY_WRITTEN
+                    : FacilityZipDenial::LEFT_OUT_NOT_BILLED;
+                $this->printToScreen(xl($sentence));
+                $this->claimHeld = true;
+
+                return;
+            }
+            if ($previous === UnbilledFileDecision::Missing) {
+                $this->printToScreen(xl(UnbilledFileDecision::FILE_WAS_MISSING));
+            }
+        }
         // A denial stores no version. The next run stores one only if the ZIP is accepted.
         $insertLanded = true;
         if ($hold && $billIfAccepted && !$denial->willDeny()) {
@@ -80,7 +96,11 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         }
         $billedWriteLanded = true;
         if ($insertLanded && $billIfAccepted && !$denial->willDeny()) {
-            $billedWriteLanded = $this->markBilledExisting($claim);
+            // The file name is stored while the row stays unbilled. The billed
+            // update runs after that file is written.
+            $billedWriteLanded = $this->billWhenTheFileLands
+                ? $this->noteClaimFile($claim, $this->batch)
+                : $this->markBilledExisting($claim);
         }
         if (!$insertLanded || !$this->claimEntersBatch($hold, $denial, $billIfAccepted, $billedWriteLanded)) {
             if ($hold && $denial->willDeny()) {
@@ -265,6 +285,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function validateAndClear(BillingClaim $claim)
     {
+        $this->billWhenTheFileLands = false;
         $this->insertedClaimVersion = null;
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
@@ -293,6 +314,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     public function generate(BillingClaim $claim)
     {
         $this->insertedClaimVersion = null;
+        $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
             $billIfAccepted = true;
@@ -302,7 +324,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
 
         // Update the batch file content with this claim's data
         $this->updateBatchFile($claim, $billIfAccepted);
-        if ($this->claimHeld) {
+        if ($this->claimHeld || $this->billWhenTheFileLands) {
             return;
         }
 
@@ -363,7 +385,16 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         }
 
         $this->batch->append_claim_close();
-        $success = $this->batch->write_batch_file();
+        $filename = $this->batch->getBatFilename();
+        $success = $this->storeBatchFile($this->batch);
+        if ($this->awaitingFile !== []) {
+            if ($success && $this->claimFileLanded($this->batch, $filename)) {
+                $this->billAwaitingFile($filename);
+            } else {
+                $this->releaseAwaitingFile($filename);
+                $success = false;
+            }
+        }
         if ($success) {
             $this->printToScreen(xl('X-12 Generated Successfully'));
         } else {
@@ -372,12 +403,20 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory unless it's going to be sent via sftp
-        if (!OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
+        if ($this->logger !== null && !OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
             $this->logger->setLogCompleteCallback(function (): void {
                 // This uses our parent's method to print the JS that automatically initiates
                 // the download of this file, after the screen bill_log messages have printed
                 $this->printDownloadClaimFileJS($this->batch->getBatFilename());
             });
         }
+    }
+
+    /**
+     * Write the batch. Tests replace this so they do not create an edi file.
+     */
+    protected function storeBatchFile(BillingClaimBatch $batch): bool
+    {
+        return (bool) $batch->write_batch_file();
     }
 }
