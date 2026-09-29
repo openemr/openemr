@@ -9,6 +9,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirClaimService;
@@ -26,7 +28,7 @@ class FhirClaimRestController
 
     public function post($data)
     {
-        if (empty($data)) {
+        if (empty($data) || !is_array($data)) {
             return RestControllerHelper::responseHandler("Invalid data", null, 400);
         }
 
@@ -35,10 +37,6 @@ class FhirClaimRestController
 
         $result = $this->fhirClaimService->insert($fhirObject);
 
-        if ($result->hasErrors()) {
-            return RestControllerHelper::responseHandler($result->getErrors(), null, 500);
-        }
-
-        return RestControllerHelper::responseHandler($result->getData(), null, 201);
+        return RestControllerHelper::handleFhirProcessingResult($result, 201);
     }
 }

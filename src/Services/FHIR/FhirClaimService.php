@@ -9,19 +9,27 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRClaim;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
 
-class FhirClaimService extends FhirServiceBase
+class FhirClaimService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     /**
      * Main Insert Method
@@ -31,27 +39,63 @@ class FhirClaimService extends FhirServiceBase
         $result = new ProcessingResult();
         $data = $this->parseFhirResource($fhirResource);
 
-        // Versioning Logic to prevent Duplicate Entry errors
-        $currentVersion = sqlQuery("SELECT MAX(version) as max_v FROM claims WHERE patient_id = ? AND encounter_id = ?", [
-            $data['patient_id'],
-            $data['encounter_id']
-        ]);
-        
-        $data['version'] = (!empty($currentVersion['max_v'])) ? (int)$currentVersion['max_v'] + 1 : 1;
-
-        $success = $this->insertOpenEMRRecord($data);
-
-        if ($success) {
-            $record = sqlQuery("SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?", [
-                $data['patient_id'],
-                $data['encounter_id'],
-                $data['version']
+        if (empty($data['patient_id']) || (int)$data['patient_id'] <= 0) {
+            $result->setValidationMessages([
+                'patient' => 'Claim.patient is required and must reference an existing patient',
             ]);
+            return $result;
+        }
+
+        if (empty($data['encounter_id']) || (int)$data['encounter_id'] <= 0) {
+            $result->setValidationMessages([
+                'encounter' => 'Claim.item[].encounter is required and must reference an existing encounter',
+            ]);
+            return $result;
+        }
+
+        // Validate that the encounter belongs to the specified patient
+        $encounterCheck = sqlQuery(
+            "SELECT encounter FROM form_encounter WHERE pid = ? AND encounter = ?",
+            [(int)$data['patient_id'], (int)$data['encounter_id']]
+        );
+        if (empty($encounterCheck)) {
+            $result->setValidationMessages([
+                'encounter' => 'The encounter does not exist or does not belong to the specified patient',
+            ]);
+            return $result;
+        }
+
+        try {
+            $record = QueryUtils::inTransaction(function () use ($data): array {
+                // Lock existing claims for this patient and encounter to avoid race conditions on version increment
+                $currentVersion = sqlQuery(
+                    "SELECT MAX(version) as max_v FROM claims WHERE patient_id = ? AND encounter_id = ? FOR UPDATE",
+                    [$data['patient_id'], $data['encounter_id']]
+                );
+
+                $data['version'] = (!empty($currentVersion['max_v'])) ? (int)$currentVersion['max_v'] + 1 : 1;
+
+                $success = $this->insertOpenEMRRecord($data);
+                if (!$success) {
+                    throw new \RuntimeException("Failed to insert claim into database.");
+                }
+
+                $record = sqlQuery(
+                    "SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                    [$data['patient_id'], $data['encounter_id'], $data['version']]
+                );
+
+                if (empty($record)) {
+                    throw new \RuntimeException("Failed to fetch newly inserted claim record.");
+                }
+
+                return $record;
+            });
 
             $this->createProvenanceResource($record);
-            $result->setData($this->parseOpenEMRRecord($record));
-        } else {
-            $result->addInternalError("Failed to insert claim into database.");
+            $result->addData($this->parseOpenEMRRecord($record));
+        } catch (\Throwable $e) {
+            $result->addInternalError("Failed to insert claim: " . $e->getMessage());
         }
 
         return $result;
@@ -67,41 +111,54 @@ class FhirClaimService extends FhirServiceBase
      */
     public function parseFhirResource($fhirResource)
     {
+        $json = $fhirResource instanceof FHIRDomainResource
+            ? $fhirResource->jsonSerialize()
+            : (is_array($fhirResource) ? $fhirResource : []);
+
         $data = [];
-        
-        // 1. Patient ID
-        $data['patient_id'] = $this->safeExtractId($fhirResource->getPatient(), 'Patient/');
-        
-        // 2. Encounter ID (Fix for the Fatal Error)
-        $encounterId = 0;
-        $items = $fhirResource->getItem();
-        if (!empty($items) && is_array($items)) {
-            $firstItem = $items[0];
-            // Check if it's an object before calling methods
-            if (is_object($firstItem) && method_exists($firstItem, 'getEncounter')) {
-                $encounterId = $this->safeExtractId($firstItem->getEncounter(), 'Encounter/');
-            } elseif (is_array($firstItem) && isset($firstItem['encounter'])) {
-                $encounterId = $this->safeExtractId($firstItem['encounter'], 'Encounter/');
+
+        // 1. Patient ID resolution (from UUID reference or numeric ID)
+        $patientRef = $json['patient'] ?? null;
+        $data['patient_id'] = $this->resolveReferenceId($patientRef, 'Patient', 'patient_data', 'pid');
+
+        // 2. Encounter ID resolution (from item[].encounter in FHIR R4)
+        $encounterRef = null;
+        if (!empty($json['item']) && is_array($json['item'])) {
+            foreach ($json['item'] as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                if (!empty($item['encounter'])) {
+                    if (is_array($item['encounter'])) {
+                        $encounterRef = isset($item['encounter'][0]) ? $item['encounter'][0] : $item['encounter'];
+                    } else {
+                        $encounterRef = $item['encounter'];
+                    }
+                    break;
+                }
             }
         }
-        $data['encounter_id'] = $encounterId;
+        if ($encounterRef === null && !empty($json['encounter'])) {
+            $encounterRef = $json['encounter'];
+        }
 
-        // 3. Payer ID
+        $data['encounter_id'] = $this->resolveReferenceId($encounterRef, 'Encounter', 'form_encounter', 'encounter');
+
+        // 3. Payer ID resolution (from insurance[].coverage)
         $payerId = 0;
-        $insurances = $fhirResource->getInsurance();
-        if (!empty($insurances) && is_array($insurances)) {
-            $firstIns = $insurances[0];
-            if (is_object($firstIns) && method_exists($firstIns, 'getCoverage')) {
-                $payerId = $this->safeExtractId($firstIns->getCoverage(), 'Coverage/');
-            } elseif (is_array($firstIns) && isset($firstIns['coverage'])) {
-                $payerId = $this->safeExtractId($firstIns['coverage'], 'Coverage/');
+        if (!empty($json['insurance']) && is_array($json['insurance'])) {
+            $firstIns = $json['insurance'][0] ?? null;
+            if (is_array($firstIns) && !empty($firstIns['coverage'])) {
+                $payerId = $this->resolveReferenceId($firstIns['coverage'], 'Coverage', 'insurance_data', 'id');
+                if ($payerId === 0) {
+                    $payerId = $this->resolveReferenceId($firstIns['coverage'], 'Organization', 'insurance_companies', 'id');
+                }
             }
         }
         $data['payer_id'] = $payerId;
 
         // 4. Status mapping
-        $statusObj = $fhirResource->getStatus();
-        $statusStr = is_object($statusObj) ? $statusObj->getValue() : (string)$statusObj;
+        $statusStr = is_string($json['status'] ?? null) ? $json['status'] : '';
         $data['status'] = ($statusStr === 'active') ? 0 : 1;
 
         // 5. Defaults
@@ -112,11 +169,66 @@ class FhirClaimService extends FhirServiceBase
         $data['process_file'] = null;
         $data['target'] = '0';
         $data['x12_partner_id'] = 0;
-        
+
         // 6. FULL JSON
         $data['submitted_claim'] = json_encode($fhirResource);
 
         return $data;
+    }
+
+    /**
+     * Resolves a FHIR reference to an internal integer database ID.
+     */
+    private function resolveReferenceId(mixed $refSource, string $expectedType, string $tableName, string $idColumn): int
+    {
+        if (empty($refSource)) {
+            return 0;
+        }
+
+        $refValue = '';
+        if (is_array($refSource)) {
+            $item = isset($refSource[0]) && is_array($refSource[0]) ? $refSource[0] : $refSource;
+            $refValue = is_string($item['reference'] ?? null) ? $item['reference'] : '';
+        } elseif (is_object($refSource)) {
+            if (method_exists($refSource, 'getReference')) {
+                $refObj = $refSource->getReference();
+                if (is_object($refObj) && method_exists($refObj, 'getValue')) {
+                    $refValue = (string) $refObj->getValue();
+                } elseif (is_string($refObj)) {
+                    $refValue = $refObj;
+                }
+            } elseif (method_exists($refSource, 'getValue')) {
+                $val = $refSource->getValue();
+                $refValue = is_string($val) ? $val : '';
+            }
+        } elseif (is_string($refSource)) {
+            $refValue = $refSource;
+        }
+
+        if (empty($refValue)) {
+            return 0;
+        }
+
+        $parsed = UtilsService::parseReferenceString($refValue, $expectedType);
+        $uuidOrId = $parsed['uuid'] ?? str_replace($expectedType . '/', '', $refValue);
+
+        if (empty($uuidOrId)) {
+            return 0;
+        }
+
+        // If reference is a valid UUID, look up by UUID in the database
+        if (UuidRegistry::isValidStringUUID($uuidOrId)) {
+            $id = BaseService::getIdByUuid(UuidRegistry::uuidToBytes($uuidOrId), $tableName, $idColumn);
+            return is_numeric($id) ? (int)$id : 0;
+        }
+
+        // If reference is a direct numeric ID, verify it exists
+        if (is_numeric($uuidOrId)) {
+            $row = sqlQuery("SELECT `{$idColumn}` FROM `{$tableName}` WHERE `{$idColumn}` = ?", [(int)$uuidOrId]);
+            return !empty($row) ? (int)$row[$idColumn] : 0;
+        }
+
+        return 0;
     }
 
     protected function insertOpenEMRRecord($data)
@@ -156,43 +268,21 @@ class FhirClaimService extends FhirServiceBase
     }
 
     /**
-     * Refactored helper to prevent "Argument #1 must be of type object|string, array given"
-     */
-    private function safeExtractId($refSource, $prefix)
-    {
-        if (empty($refSource)) return 0;
-
-        $refValue = '';
-
-        // Case 1: It's already an array (from json_decode or raw input)
-        if (is_array($refSource)) {
-            // Handle array of objects
-            $item = isset($refSource[0]) ? $refSource[0] : $refSource;
-            $refValue = isset($item['reference']) ? $item['reference'] : '';
-        } 
-        // Case 2: It's an object (FHIR library class)
-        elseif (is_object($refSource)) {
-            if (method_exists($refSource, 'getReference')) {
-                $refValue = $refSource->getReference()->getValue();
-            }
-        }
-
-        if (empty($refValue)) return 0;
-
-        return (int) str_replace($prefix, '', $refValue);
-    }
-
-    /**
      * Required Public Methods for Search functionality.
      */
-    public function loadSearchParameters()
+    protected function loadSearchParameters()
     {
         return [
-            'patient' => $this->getPatientContextSearchField()
+            'patient' => $this->getPatientContextSearchField(),
+            'encounter' => new FhirSearchParameterDefinition(
+                'encounter',
+                SearchFieldType::REFERENCE,
+                [new ServiceField('encounter_id', ServiceField::TYPE_NUMBER)]
+            ),
         ];
     }
 
-    public function getPatientContextSearchField()
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition(
             'patient',
@@ -201,18 +291,156 @@ class FhirClaimService extends FhirServiceBase
         );
     }
 
-    public function searchForOpenEMRRecords($searchParameters): ProcessingResult
+    protected function searchForOpenEMRRecordsWithConfig(array $openEMRSearchParameters, SearchQueryConfig $config): ProcessingResult
     {
         $result = new ProcessingResult();
-        $records = sqlStatement("SELECT * FROM claims");
+        $whereClauses = [];
+        $binds = [];
 
-        $data = [];
-        while ($row = sqlFetchArray($records)) {
-            $data[] = $this->parseOpenEMRRecord($row);
+        // 1. Patient filtering
+        if (isset($openEMRSearchParameters['patient'])) {
+            $patientIds = $this->extractPatientIdsFromSearchField($openEMRSearchParameters['patient']);
+            if (!empty($patientIds)) {
+                $placeholders = implode(',', array_fill(0, count($patientIds), '?'));
+                $whereClauses[] = "patient_id IN ({$placeholders})";
+                foreach ($patientIds as $pid) {
+                    $binds[] = (int) $pid;
+                }
+            } else {
+                // Patient reference provided but could not be resolved -> return empty result
+                return $result;
+            }
         }
 
-        $result->setData($data);
+        // 2. Encounter filtering
+        if (isset($openEMRSearchParameters['encounter'])) {
+            $encounterId = $this->extractEncounterIdFromSearchField($openEMRSearchParameters['encounter']);
+            if ($encounterId > 0) {
+                $whereClauses[] = "encounter_id = ?";
+                $binds[] = $encounterId;
+            } else {
+                // Encounter reference provided but could not be resolved -> return empty result
+                return $result;
+            }
+        }
+
+        $sql = "SELECT * FROM claims";
+        if (!empty($whereClauses)) {
+            $sql .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+        $sql .= " ORDER BY bill_time DESC, version DESC";
+
+        // 3. Database-level pagination
+        $pagination = $config->getPagination();
+        $limit = $pagination->getLimit();
+        $offset = $pagination->getOffset();
+
+        if ($limit > 0) {
+            $sql .= " LIMIT ? OFFSET ?";
+            $binds[] = $limit + 1;
+            $binds[] = $offset;
+        }
+
+        $records = sqlStatement($sql, $binds);
+        $count = 0;
+        while ($row = sqlFetchArray($records)) {
+            if ($limit > 0 && $count >= $limit) {
+                $pagination->setHasMoreData(true);
+                break;
+            }
+            $result->addData($row);
+            $count++;
+        }
+
+        $result->setPagination($pagination);
         return $result;
+    }
+
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    {
+        return $this->searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, new SearchQueryConfig());
+    }
+
+    private function extractPatientIdsFromSearchField(mixed $field): array
+    {
+        $rawValues = [];
+        if ($field instanceof ISearchField) {
+            $rawValues = $field->getValues();
+        } elseif (is_array($field)) {
+            $rawValues = $field;
+        } else {
+            $rawValues = [$field];
+        }
+
+        $patientIds = [];
+        foreach ($rawValues as $val) {
+            if ($val instanceof TokenSearchValue) {
+                $val = $val->getCode();
+            }
+            if (is_object($val) && method_exists($val, 'getValue')) {
+                $val = (string) $val->getValue();
+            }
+            if (!is_string($val) && !is_int($val)) {
+                continue;
+            }
+            $val = trim((string) $val);
+            if (empty($val)) {
+                continue;
+            }
+
+            $parsed = UtilsService::parseReferenceString($val, 'Patient');
+            $uuidOrId = $parsed['uuid'] ?? str_replace('Patient/', '', $val);
+
+            if (UuidRegistry::isValidStringUUID($uuidOrId)) {
+                $id = BaseService::getIdByUuid(UuidRegistry::uuidToBytes($uuidOrId), 'patient_data', 'pid');
+                if ($id !== false && is_numeric($id)) {
+                    $patientIds[] = (int) $id;
+                }
+            } elseif (is_numeric($uuidOrId)) {
+                $patientIds[] = (int) $uuidOrId;
+            }
+        }
+
+        return array_unique($patientIds);
+    }
+
+    private function extractEncounterIdFromSearchField(mixed $field): int
+    {
+        $rawValues = [];
+        if ($field instanceof ISearchField) {
+            $rawValues = $field->getValues();
+        } elseif (is_array($field)) {
+            $rawValues = $field;
+        } else {
+            $rawValues = [$field];
+        }
+
+        foreach ($rawValues as $val) {
+            if ($val instanceof TokenSearchValue) {
+                $val = $val->getCode();
+            }
+            if (!is_string($val) && !is_int($val)) {
+                continue;
+            }
+            $val = trim((string) $val);
+            if (empty($val)) {
+                continue;
+            }
+
+            $parsed = UtilsService::parseReferenceString($val, 'Encounter');
+            $uuidOrId = $parsed['uuid'] ?? str_replace('Encounter/', '', $val);
+
+            if (UuidRegistry::isValidStringUUID($uuidOrId)) {
+                $id = BaseService::getIdByUuid(UuidRegistry::uuidToBytes($uuidOrId), 'form_encounter', 'encounter');
+                if ($id !== false && is_numeric($id)) {
+                    return (int) $id;
+                }
+            } elseif (is_numeric($uuidOrId)) {
+                return (int) $uuidOrId;
+            }
+        }
+
+        return 0;
     }
 
     protected function updateOpenEMRRecord($data, $id)
