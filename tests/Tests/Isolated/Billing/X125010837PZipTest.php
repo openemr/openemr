@@ -20,6 +20,7 @@ use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12;
 use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12Direct;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\FacilityZipDenial;
+use OpenEMR\Billing\UnbilledFileDecision;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -199,8 +200,17 @@ class X125010837PZipTest extends TestCase
             $this->assertSame([
                 [true, null],
                 [false, 4],
+            ], $probe->writes);
+            $this->assertSame([1, 1], $probe->writeStatus);
+            $probe->fileOnDisk = true;
+            $probe->completeToFile([]);
+
+            $this->assertSame([
+                [true, null],
+                [false, 4],
                 [false, 4],
             ], $probe->writes);
+            $this->assertSame([1, 1, 2], $probe->writeStatus);
         });
     }
 
@@ -235,13 +245,13 @@ class X125010837PZipTest extends TestCase
             $this->assertSame([
                 [true, null],
                 [false, 4],
-                [false, 4],
             ], $probe->writes);
+            $this->assertSame([1, 1], $probe->writeStatus);
         });
     }
 
     /**
-     * A failed billed update leaves that version. The next run bills it.
+     * A failed file-name write leaves that version. The next run names it again.
      */
     public function testRetryBillsTheUnbilledVersion(): void
     {
@@ -257,15 +267,24 @@ class X125010837PZipTest extends TestCase
             $this->assertSame([], $probe->storedClaims());
 
             $probe->writes = [];
+            $probe->writeStatus = [];
             $probe->billedUpdateResult = 1;
             $probe->openUnbilled = 4;
             $probe->generate($this->versionClaim());
 
             $this->assertSame([
                 [false, 4],
+            ], $probe->writes);
+            $this->assertSame([1], $probe->writeStatus);
+            $this->assertCount(1, $probe->storedClaims());
+            $probe->fileOnDisk = true;
+            $probe->completeToFile([]);
+
+            $this->assertSame([
+                [false, 4],
                 [false, 4],
             ], $probe->writes);
-            $this->assertCount(1, $probe->storedClaims());
+            $this->assertSame([1, 2], $probe->writeStatus);
         });
     }
 
@@ -281,8 +300,8 @@ class X125010837PZipTest extends TestCase
 
             $this->assertSame([
                 [false, 7],
-                [false, 7],
             ], $probe->writes);
+            $this->assertSame([1], $probe->writeStatus);
         });
     }
 
@@ -503,6 +522,83 @@ class X125010837PZipTest extends TestCase
         return $batch;
     }
 
+    /**
+     * A file that is already on disk is marked billed and stays out of the new batch.
+     */
+    public function testWrittenFileIsMarkedBilledWithoutAnotherBatch(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'old-batch.txt';
+            $probe->fileOnDisk = true;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([[false, 4]], $probe->writes);
+            $this->assertSame([2], $probe->writeStatus);
+            $this->assertSame([], $probe->storedClaims());
+            $this->assertContains(UnbilledFileDecision::ALREADY_WRITTEN, $probe->screen);
+        });
+    }
+
+    /**
+     * A stored file name with no file is cleared, and the claim is generated again.
+     */
+    public function testMissingFileIsGeneratedAgain(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'missing-batch.txt';
+            $probe->fileOnDisk = false;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([4], $probe->cleared);
+            $this->assertSame([[false, 4]], $probe->writes);
+            $this->assertSame([1], $probe->writeStatus);
+            $this->assertCount(1, $probe->storedClaims());
+            $this->assertContains(UnbilledFileDecision::FILE_WAS_MISSING, $probe->screen);
+        });
+    }
+
+    /**
+     * A failed file write clears the name and does not mark the claim billed.
+     */
+    public function testFailedFileWriteClearsTheName(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->generate($this->versionClaim());
+            $probe->fileStored = false;
+            $probe->fileOnDisk = false;
+            $probe->completeToFile([]);
+
+            $this->assertSame([4], $probe->cleared);
+            $this->assertSame([1, 1], $probe->writeStatus);
+            $this->assertContains('Error Generating Batch File', $probe->screen);
+        });
+    }
+
+    /**
+     * @return array<string, array{string, bool, UnbilledFileDecision}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unbilledFileDecisionProvider(): array
+    {
+        return [
+            'no name yet' => ['', true, UnbilledFileDecision::None],
+            'name and file' => ['batch.txt', true, UnbilledFileDecision::Present],
+            'name without file' => ['batch.txt', false, UnbilledFileDecision::Missing],
+        ];
+    }
+
+    #[DataProvider('unbilledFileDecisionProvider')]
+    public function testUnbilledFileDecision(string $storedFile, bool $fileExists, UnbilledFileDecision $decision): void
+    {
+        $this->assertSame($decision, UnbilledFileDecision::fromStoredFile($storedFile, $fileExists));
+    }
+
 }
 
 final class HoldZipFixture
@@ -584,6 +680,14 @@ final class HoldZipGenerator extends GeneratorX12
     }
 
     /**
+     * The screen cases do not read a stored file name.
+     */
+    protected function openUnbilledFile(BillingClaim $claim): string
+    {
+        return '';
+    }
+
+    /**
      * Record the billed row written before the 837.
      */
     protected function markBilledNew(BillingClaim $claim): void
@@ -622,6 +726,21 @@ final class VersionHoldProbe extends GeneratorX12
 
     public ?int $openUnbilled = null;
 
+    public string $storedFile = '';
+
+    public bool $fileOnDisk = false;
+
+    public bool $fileStored = true;
+
+    /** @var list<int> */
+    public array $writeStatus = [];
+
+    /** @var list<int> */
+    public array $cleared = [];
+
+    /** @var list<string> */
+    public array $screen = [];
+
     public int $billedUpdateResult = 1;
 
     /**
@@ -659,8 +778,41 @@ final class VersionHoldProbe extends GeneratorX12
         ?int $claimVersion = null
     ): mixed {
         $this->writes[] = [(bool) $newversion, $claimVersion];
+        $this->writeStatus[] = is_int($status) ? $status : 0;
 
         return $newversion ? 4 : $this->billedUpdateResult;
+    }
+
+    /**
+     * The version case does not read the stored file name.
+     */
+    protected function openUnbilledFile(BillingClaim $claim): string
+    {
+        return $this->storedFile;
+    }
+
+    /**
+     * The version case decides whether the named file is present.
+     */
+    protected function claimFileLanded(BillingClaimBatch $batch, string $filename): bool
+    {
+        return $this->fileOnDisk;
+    }
+
+    /**
+     * Record a cleared file name instead of updating claims.
+     */
+    protected function clearClaimFile(BillingClaim $claim, int $version): void
+    {
+        $this->cleared[] = $version;
+    }
+
+    /**
+     * Skip the edi directory.
+     */
+    protected function storeBatchFile(BillingClaimBatch $batch): bool
+    {
+        return $this->fileStored;
     }
 
     /**
@@ -676,6 +828,7 @@ final class VersionHoldProbe extends GeneratorX12
      */
     public function printToScreen(mixed $message): void
     {
+        $this->screen[] = is_string($message) ? $message : '';
     }
 
     /**
@@ -716,6 +869,9 @@ final class DirectVersionProbe extends GeneratorX12Direct
 
     public ?int $openUnbilled = null;
 
+    /** @var list<int> */
+    public array $writeStatus = [];
+
     /**
      * Record each claim write. An insert returns version 4.
      */
@@ -733,6 +889,7 @@ final class DirectVersionProbe extends GeneratorX12Direct
         ?int $claimVersion = null
     ): mixed {
         $this->writes[] = [(bool) $newversion, $claimVersion];
+        $this->writeStatus[] = is_int($status) ? $status : 0;
 
         return $newversion ? 4 : 1;
     }
@@ -753,6 +910,14 @@ final class DirectVersionProbe extends GeneratorX12Direct
     protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
     {
         if ($billIfAccepted && $this->rememberPayer($claim)) {
+            if ($this->billWhenTheFileLands) {
+                $batch = new BillingClaimBatch('.txt', [
+                    'claims' => [(object) ['action' => 'validate']],
+                ]);
+                $this->noteClaimFile($claim, $batch);
+
+                return $batch;
+            }
             $this->markBilledExisting($claim);
         }
 
