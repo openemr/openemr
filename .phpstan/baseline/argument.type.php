@@ -27682,6 +27682,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$sources of method OpenApi\\\\Generator\\:\\:generate\\(\\) expects iterable, OpenApi\\\\Utils\\\\SourceFinder given\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$oauthTokenUrl of static method OpenEMR\\\\Tools\\\\OAuth2\\\\ClientCredentialsAssertionGenerator\\:\\:generateAssertion\\(\\) expects string, list\\<mixed\\>\\|string\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/CreateClientCredentialsAssertionCommand.php',
@@ -27868,7 +27873,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$binds of static method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:sqlStatementThrowException\\(\\) expects array\\<mixed\\>, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
