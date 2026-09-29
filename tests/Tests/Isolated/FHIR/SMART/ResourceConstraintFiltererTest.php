@@ -188,6 +188,32 @@ class ResourceConstraintFiltererTest extends TestCase {
     }
 
     /**
+     * Each granting scope is evaluated on its own. Merging constraints across scopes admitted
+     * an encounter-diagnosis + resolved Condition that neither scope grants.
+     */
+    public function testConstraintsAreNotMergedAcrossScopes(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis'
+            . '&clinicalStatus=http://terminology.hl7.org/CodeSystem/condition-clinical|active',
+            'user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item'
+            . '&clinicalStatus=http://terminology.hl7.org/CodeSystem/condition-clinical|resolved',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Condition', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Condition.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $filterer = new ResourceConstraintFilterer();
+        $this->assertTrue($filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'active'), $httpRestRequest));
+        $this->assertTrue($filterer->canAccessResource($this->createConditionWithStatus('problem-list-item', 'resolved'), $httpRestRequest));
+        $this->assertFalse(
+            $filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'resolved'), $httpRestRequest),
+            'a combination granted by neither scope must be denied'
+        );
+        $this->assertFalse($filterer->canAccessResource($this->createConditionWithStatus('problem-list-item', 'active'), $httpRestRequest));
+    }
+
+    /**
      * A constraint on an element that is not coded (Observation.status) cannot be matched and
      * is denied instead of raising a TypeError.
      */

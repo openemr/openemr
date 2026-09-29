@@ -205,8 +205,9 @@ final class ScopeConsentResolver
         if ($pos === false) {
             return null;
         }
-        $query = substr($scope, $pos + 1);
-        return $query === '' ? null : $query;
+        // a trailing '?' is an (empty, malformed) query, not "no query": categoryConstraint('')
+        // rejects it, so patient/Observation.rs? is never offered or granted
+        return substr($scope, $pos + 1);
     }
 
     /**

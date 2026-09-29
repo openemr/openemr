@@ -247,6 +247,7 @@ class ScopeConsentResolverIsolatedTest extends TestCase
             'array-form category' => ['patient/Observation.rs?category[]=' . self::LAB],
             'repeated category key' => ['patient/Observation.rs?category=' . self::LAB . '&category=' . self::VITALS],
             'empty category' => ['patient/Observation.rs?category='],
+            'trailing question mark' => ['patient/Observation.rs?'],
         ];
     }
 

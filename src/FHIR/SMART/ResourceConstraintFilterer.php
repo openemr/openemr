@@ -33,39 +33,38 @@ class ResourceConstraintFilterer {
         // TODO: @adunsulag we could move this all into the HttpRestRequest class... but it seems heavy, is there a better
         // class with more cohesion to put this logic into?
         $scopeEntities = $request->getAllContainedScopesForScopeEntity($endpointScope);
-        // Scopes are a union: if any granting scope is unconstrained the token may see every
-        // resource of this type. Merging constraints from a sibling category scope would
-        // otherwise narrow an unrestricted grant (e.g. patient/Observation.rs alongside
-        // patient/Observation.rs?category=...|laboratory would only return laboratory).
+        if ($scopeEntities === []) {
+            // no granting scope carries constraints for this endpoint; endpoint access itself is
+            // decided earlier by the scope check in AuthorizationListener
+            return true;
+        }
+        // Scopes are a union and each scope is evaluated on its own: the resource is visible when
+        // at least one granting scope admits it. Constraints are never merged across scopes --
+        // merging let category=A&clinicalStatus=active plus category=B&clinicalStatus=resolved
+        // admit an A+resolved Condition that neither scope grants, and let a sibling category
+        // scope narrow an unrestricted grant.
         foreach ($scopeEntities as $scopeEntity) {
-            if ($scopeEntity instanceof ScopeEntity && !$scopeEntity->hasConstraints()) {
+            if ($scopeEntity instanceof ScopeEntity && $this->scopeAdmitsResource($scopeEntity, $resource)) {
                 return true;
             }
         }
-        foreach ($scopeEntities as $scopeEntity) {
-            // Check if this scope entity matches or is contained by the given scope
-            // add any constraints to the endpoint scope
-            $endpointScope->addScopePermissions($scopeEntity);
-        }
-        $constraints = $endpointScope->getPermissions()->getConstraints();
-        if (!empty($constraints)) {
-            // the scope has constraints, so we need to add them to the request query parameters
-            // the scope constraint may be category=value1,value2,value3 etc and the query may request category=value2,value4
-            // we need to make sure that the final query only contains values that are allowed by the scope constraints
-            // Every constraint key must be satisfied (AND across keys, OR across values within a
-            // key). Matching any single key was a widening: a scope constrained by
-            // category=laboratory&status=final admitted every final Observation of any category.
-            foreach ($constraints as $key => $constraintValues) {
-                // TODO: @adunsulag we should fix the getConstraints to make this an array always
-                $constraintValues = is_array($constraintValues) ? $constraintValues : [$constraintValues];
-                $resourceValue = $this->getResourceValueForKey($resource, $key);
-                if (!$this->checkResourceValueWithConstraints($resource, $resourceValue, $constraintValues, $key)) {
-                    return false;
-                }
+        return false;
+    }
+
+    /**
+     * A scope admits a resource when it has no constraints, or when every one of its constraint
+     * keys is satisfied (AND across keys, OR across the values of one key).
+     */
+    private function scopeAdmitsResource(ScopeEntity $scope, FHIRDomainResource $resource): bool
+    {
+        foreach ($scope->getPermissions()->getConstraints() as $key => $constraintValues) {
+            // TODO: @adunsulag we should fix the getConstraints to make this an array always
+            $constraintValues = is_array($constraintValues) ? $constraintValues : [$constraintValues];
+            $resourceValue = $this->getResourceValueForKey($resource, $key);
+            if (!$this->checkResourceValueWithConstraints($resource, $resourceValue, $constraintValues, $key)) {
+                return false;
             }
-            return true;
         }
-        // no constraints, allow access
         return true;
     }
 

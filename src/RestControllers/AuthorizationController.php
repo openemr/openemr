@@ -1201,7 +1201,8 @@ class AuthorizationController implements LoggerAwareInterface
         $otherScopes = [];
         $hiddenScopes = [];
         // OpenID Connect identity scopes (profile, email, phone, ...) are presented in the
-        // "Identity Information Requested" column, not as scope checkboxes. That is unchanged.
+        // "Identity Information Requested" column rather than as scope checkboxes, and are
+        // posted back as hidden scopes so the grant matches what the user was shown.
         $requiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
         $identityClaimScopes = array_values(array_filter(
             $scopeRepository->getServerScopeList()->getOpenIDConnectScopes(),
@@ -1213,6 +1214,7 @@ class AuthorizationController implements LoggerAwareInterface
                 continue; // rendered as a resource card
             }
             if (in_array($scope, $identityClaimScopes, true)) {
+                $hiddenScopes[] = $scope;
                 continue;
             }
             if (!ScopeConsentResolver::hasSupportedConstraint($scope)) {
