@@ -164,6 +164,29 @@ class X125010837PZipTest extends TestCase
         ];
     }
 
+    #[DataProvider('unbilledClaimVersionProvider')]
+    public function testUnbilledClaimVersionReadsTheStoredVersion(mixed $row, ?int $version): void
+    {
+        $this->assertSame($version, BillingUtilities::unbilledClaimVersion($row));
+    }
+
+    /**
+     * @return array<string, array{mixed, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unbilledClaimVersionProvider(): array
+    {
+        return [
+            'missing row' => [false, null],
+            'version int' => [['version' => 4], 4],
+            'version string' => [['version' => '4'], 4],
+            'zero' => [['version' => 0], null],
+            'junk' => [['version' => '4abc'], null],
+            'empty' => [[], null],
+        ];
+    }
+
     /**
      * Hold on keeps the inserted version through the billed update and the filename.
      */
@@ -213,6 +236,52 @@ class X125010837PZipTest extends TestCase
                 [true, null],
                 [false, 4],
                 [false, 4],
+            ], $probe->writes);
+        });
+    }
+
+    /**
+     * A failed billed update leaves that version. The next run bills it.
+     */
+    public function testRetryBillsTheUnbilledVersion(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->billedUpdateResult = 0;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([
+                [true, null],
+                [false, 4],
+            ], $probe->writes);
+            $this->assertSame([], $probe->storedClaims());
+
+            $probe->writes = [];
+            $probe->billedUpdateResult = 1;
+            $probe->openUnbilled = 4;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([
+                [false, 4],
+                [false, 4],
+            ], $probe->writes);
+            $this->assertCount(1, $probe->storedClaims());
+        });
+    }
+
+    /**
+     * X12 Direct bills the unbilled version instead of inserting another.
+     */
+    public function testDirectBillsTheUnbilledVersion(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = new DirectVersionProbe('generate');
+            $probe->openUnbilled = 7;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([
+                [false, 7],
+                [false, 7],
             ], $probe->writes);
         });
     }
@@ -551,12 +620,26 @@ final class VersionHoldProbe extends GeneratorX12
     /** @var list<array{0: bool, 1: ?int}> */
     public array $writes = [];
 
+    public ?int $openUnbilled = null;
+
+    public int $billedUpdateResult = 1;
+
     /**
      * Point the probe at the batch the case built.
      */
     public function useBatch(BillingClaimBatch $batch): void
     {
         $this->batch = $batch;
+    }
+
+    /**
+     * Claims this run put in the batch.
+     *
+     * @return array<mixed>
+     */
+    public function storedClaims(): array
+    {
+        return $this->batch->getClaims();
     }
 
     /**
@@ -577,7 +660,15 @@ final class VersionHoldProbe extends GeneratorX12
     ): mixed {
         $this->writes[] = [(bool) $newversion, $claimVersion];
 
-        return $newversion ? 4 : 1;
+        return $newversion ? 4 : $this->billedUpdateResult;
+    }
+
+    /**
+     * The version case does not read claims. Null means this run inserts.
+     */
+    protected function openUnbilledVersion(BillingClaim $claim): ?int
+    {
+        return $this->openUnbilled;
     }
 
     /**
@@ -623,6 +714,8 @@ final class DirectVersionProbe extends GeneratorX12Direct
     /** @var list<array{0: bool, 1: ?int}> */
     public array $writes = [];
 
+    public ?int $openUnbilled = null;
+
     /**
      * Record each claim write. An insert returns version 4.
      */
@@ -642,6 +735,14 @@ final class DirectVersionProbe extends GeneratorX12Direct
         $this->writes[] = [(bool) $newversion, $claimVersion];
 
         return $newversion ? 4 : 1;
+    }
+
+    /**
+     * The version case does not read claims. Null means this run inserts.
+     */
+    protected function openUnbilledVersion(BillingClaim $claim): ?int
+    {
+        return $this->openUnbilled;
     }
 
     /**

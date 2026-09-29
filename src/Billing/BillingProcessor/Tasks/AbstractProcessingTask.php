@@ -66,6 +66,20 @@ abstract class AbstractProcessingTask
     }
 
     /**
+     * Unbilled version left when a billed update did not land.
+     *
+     * The next accepted run bills this row instead of inserting another.
+     */
+    protected function openUnbilledVersion(BillingClaim $claim): ?int
+    {
+        return BillingUtilities::newestUnbilledClaimVersion(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId()
+        );
+    }
+
+    /**
      * Insert or update the claims row for this run.
      *
      * An insert returns the version number that was stored. Pass that
