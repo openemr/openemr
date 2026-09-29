@@ -164,6 +164,9 @@ class X125010837PZipTest extends TestCase
         }
     }
 
+    /**
+     * Standard generator, batch, and claim for one hold case.
+     */
     private function generator(string $log): HoldZipFixture
     {
         $probe = new HoldZipGenerator('validate');
@@ -195,6 +198,9 @@ class X125010837PZipTest extends TestCase
         $this->assertStringNotContainsString('SE*', $only->getBatContent());
     }
 
+    /**
+     * Batch that already holds one claim, so a held last claim still closes SE.
+     */
     private function batchWithPriorClaim(): BillingClaimBatch
     {
         $batch = new BillingClaimBatch('.txt', [
@@ -213,6 +219,9 @@ class X125010837PZipTest extends TestCase
 
 final class HoldZipFixture
 {
+    /**
+     * Probe, batch, and claim for one hold case.
+     */
     public function __construct(
         public HoldZipGenerator $probe,
         public BillingClaimBatch $batch,
@@ -233,11 +242,17 @@ final class HoldZipGenerator extends GeneratorX12
 
     public ?BillingClaim $seen = null;
 
+    /**
+     * Screen lines the generator prints during the case.
+     */
     public function printToScreen(mixed $message): void
     {
         $this->screen[] = is_string($message) ? $message : '';
     }
 
+    /**
+     * Accept a log string. The parent records it.
+     */
     public function appendToLog(mixed $message): void
     {
         if (!is_string($message)) {
@@ -245,6 +260,9 @@ final class HoldZipGenerator extends GeneratorX12
         }
     }
 
+    /**
+     * Point the probe at the batch the case built.
+     */
     public function useBatch(BillingClaimBatch $batch): void
     {
         $this->batch = $batch;
@@ -260,18 +278,27 @@ final class HoldZipGenerator extends GeneratorX12
         return [$this->renderedLog, ['']];
     }
 
+    /**
+     * Record that the payer was stored and the claim left unbilled.
+     */
     protected function rememberPayer(BillingClaim $claim): void
     {
         $this->seen = $claim;
         $this->calls[] = 'remember';
     }
 
+    /**
+     * Record the billed row written before the 837.
+     */
     protected function markBilledNew(BillingClaim $claim): void
     {
         $this->seen = $claim;
         $this->calls[] = 'mark-new';
     }
 
+    /**
+     * Record the billed update of the row stored for this claim.
+     */
     protected function markBilledExisting(BillingClaim $claim): void
     {
         $this->seen = $claim;
@@ -281,6 +308,9 @@ final class HoldZipGenerator extends GeneratorX12
 
 final class DirectSeProbe extends GeneratorX12Direct
 {
+    /**
+     * Call the SE trailer helper with the segment count from the held claim.
+     */
     public function seal(BillingClaimBatch $batch, int $segmentCount): int
     {
         return $this->appendSeForHeldLastClaim($batch, $segmentCount);
