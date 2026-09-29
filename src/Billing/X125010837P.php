@@ -46,6 +46,16 @@ class X125010837P
         . 'The postal code is not 9 digits, so a claim that uses it can be rejected.';
 
     /**
+     * Save-dialog text when the facility row was not stored.
+     */
+    public const FACILITY_NOT_SAVED = 'This facility was not saved.';
+
+    /**
+     * Save-dialog text when the facility row was stored and the user-name sync was not.
+     */
+    public const FACILITY_SAVED_USERS_NOT_UPDATED = 'This facility was saved. Linked user names were not updated.';
+
+    /**
      * Text for the facility save dialog. Empty when the dialog should stay quiet.
      * The caller has already inserted or updated the row.
      * Nine digits, or five digits, a hyphen, and four digits, stay quiet.
@@ -73,6 +83,24 @@ class X125010837P
         }
 
         return self::FACILITY_SAVED_SERVICE_POSTAL;
+    }
+
+    /**
+     * Whether an insert id or an update statement means that write finished.
+     *
+     * An insert finishes only with a positive id. An update finishes when the
+     * driver returns its statement result. False, null, and zero do not.
+     */
+    public static function facilityWriteLanded(mixed $result): bool
+    {
+        if (is_int($result)) {
+            return $result > 0;
+        }
+        if (is_string($result) && preg_match('/^[1-9][0-9]*$/', $result) === 1) {
+            return true;
+        }
+
+        return is_object($result);
     }
 
     /*
