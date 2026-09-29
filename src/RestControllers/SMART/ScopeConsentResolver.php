@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OpenEMR\RestControllers\SMART;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 
 final class ScopeConsentResolver
 {
@@ -96,6 +97,39 @@ final class ScopeConsentResolver
         }
 
         return array_values(array_unique($granted));
+    }
+
+    /**
+     * Keep only the resource permission scopes the client is registered for. Fails closed: with
+     * no registration, no resource permission scope survives. Non-resource scopes (openid,
+     * launch/patient, api:*, offline_access, operations) and unparsable strings are passed
+     * through to the existing grant checks, which reject them on their own terms.
+     *
+     * @param list<string> $scopes
+     * @param list<string> $registeredScopes
+     * @return list<string>
+     */
+    public function filterToClientRegistration(array $scopes, array $registeredScopes): array
+    {
+        $validators = (new ScopeValidatorFactory())->buildScopeValidatorArray($registeredScopes);
+        $filtered = [];
+        foreach ($scopes as $scope) {
+            try {
+                $entity = ScopeEntity::createFromString($scope);
+            } catch (\InvalidArgumentException) {
+                $filtered[] = $scope;
+                continue;
+            }
+            if (!$entity->isResourcePermissionScope()) {
+                $filtered[] = $scope;
+                continue;
+            }
+            $key = $entity->getScopeLookupKey();
+            if (isset($validators[$key]) && $validators[$key]->grantsScope($entity)) {
+                $filtered[] = $scope;
+            }
+        }
+        return $filtered;
     }
 
     /**

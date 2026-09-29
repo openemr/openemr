@@ -1437,7 +1437,10 @@ class AuthorizationController implements LoggerAwareInterface
             static fn(ScopeEntityInterface $scope): string => $scope->getIdentifier(),
             $authRequest->getScopes()
         ));
-        $requested = $this->filterScopesToClientRegistration($requested, $authRequest->getClient());
+        // The client restored by deserializeUserSession() carries no registered scopes (they are
+        // not serialized), so filter against the registered client, exactly as the consent page did.
+        $registeredClient = $this->getClientRepository()->getClientEntity($authRequest->getClient()->getIdentifier());
+        $requested = $this->filterScopesToClientRegistration($requested, $registeredClient === false ? null : $registeredClient);
 
         return (new ScopeConsentResolver())->resolve(
             $requested,
@@ -1471,42 +1474,20 @@ class AuthorizationController implements LoggerAwareInterface
     }
 
     /**
-     * Drop resource permission scopes the client is not registered for. Everything else
-     * (openid, launch/patient, api:*, offline_access, operations) is left to the existing
-     * grant checks.
+     * Drop resource permission scopes the client is not registered for (fails closed when the
+     * client or its registration is missing). See ScopeConsentResolver::filterToClientRegistration().
      *
      * @param list<string> $scopes
      * @return list<string>
      */
-    private function filterScopesToClientRegistration(array $scopes, mixed $client): array
+    private function filterScopesToClientRegistration(array $scopes, ?ClientEntity $client): array
     {
-        if (!$client instanceof ClientEntity) {
-            return $scopes;
-        }
-        $registeredScopes = $client->getScopes();
+        $registeredScopes = $client?->getScopes();
         $registered = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
-        if ($registered === []) {
-            return $scopes;
-        }
-        $validators = $this->getScopeRepository($this->session)->buildScopeValidatorArray($registered);
-        $filtered = [];
-        foreach ($scopes as $scope) {
-            try {
-                $entity = ScopeEntity::createFromString($scope);
-            } catch (\InvalidArgumentException) {
-                $filtered[] = $scope; // leave malformed scopes to the existing validation paths
-                continue;
-            }
-            if (!$entity->isResourcePermissionScope()) {
-                $filtered[] = $scope;
-                continue;
-            }
-            $key = $entity->getScopeLookupKey();
-            if (isset($validators[$key]) && $validators[$key]->grantsScope($entity)) {
-                $filtered[] = $scope;
-            } else {
-                $this->logger->debug('Requested scope is not in the client registration and was not offered', ['scope' => $scope]);
-            }
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration($scopes, $registered);
+        $dropped = array_values(array_diff($scopes, $filtered));
+        if ($dropped !== []) {
+            $this->logger->debug('Requested scopes are not in the client registration and were not offered', ['scopes' => $dropped]);
         }
         return $filtered;
     }

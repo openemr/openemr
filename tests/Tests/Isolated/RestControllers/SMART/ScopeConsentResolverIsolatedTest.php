@@ -212,6 +212,28 @@ class ScopeConsentResolverIsolatedTest extends TestCase
         $this->assertSame($requested, $granted);
     }
 
+    public function testRegistrationFilterKeepsOnlyRegisteredResourceScopes(): void
+    {
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration(
+            ['openid', 'api:fhir', 'launch/patient', 'user/Patient.cruds', 'user/Goal.rs', 'patient/Observation.rs'],
+            ['openid', 'api:fhir', 'launch/patient', 'user/Patient.rs', 'user/Patient.cud', 'patient/Observation.rs?category=' . self::LAB]
+        );
+        $this->assertSame(['openid', 'api:fhir', 'launch/patient', 'user/Patient.cruds'], $filtered);
+    }
+
+    /**
+     * A client restored without its registration (as deserializeUserSession() produces) must
+     * not have its resource scopes waved through.
+     */
+    public function testRegistrationFilterFailsClosedWithoutRegisteredScopes(): void
+    {
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration(
+            ['openid', 'launch/patient', 'user/Patient.rs', 'patient/DocumentReference.$docref'],
+            []
+        );
+        $this->assertSame(['openid', 'launch/patient', 'patient/DocumentReference.$docref'], $filtered);
+    }
+
     public function testOperationAndNonResourceScopesFollowTheirOwnCheckbox(): void
     {
         $requested = ['openid', 'launch/patient', 'patient/DocumentReference.$docref', 'patient/DocumentReference.rs'];
