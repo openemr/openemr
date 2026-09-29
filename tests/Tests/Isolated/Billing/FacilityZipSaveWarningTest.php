@@ -90,4 +90,40 @@ class FacilityZipSaveWarningTest extends TestCase
         $this->assertStringNotContainsString('was saved', X125010837P::FACILITY_NOT_SAVED);
         $this->assertStringContainsString('was saved', X125010837P::FACILITY_SAVED_USERS_NOT_UPDATED);
     }
+
+    /**
+     * A missing row, or a row whose stored values differ, is not saved.
+     */
+    public function testEditStaysUnsavedUnlessTheStoredRowMatches(): void
+    {
+        $posted = [
+            'id' => '3',
+            'name' => 'Main Office',
+            'postal_code' => '12345',
+            'billing_location' => '',
+            'service_location' => '1',
+            'inactive' => '',
+        ];
+        $stored = [
+            'id' => 3,
+            'name' => 'Main Office',
+            'postal_code' => '12345',
+            'billing_location' => 0,
+            'service_location' => '1',
+            'inactive' => 0,
+        ];
+
+        $this->assertFalse(X125010837P::facilityEditStored($posted, null));
+        $this->assertFalse(X125010837P::facilityEditStored($posted, false));
+        $this->assertFalse(X125010837P::facilityEditStored($posted, []));
+        $this->assertFalse(X125010837P::facilityEditStored($posted, new \stdClass()));
+        $this->assertTrue(X125010837P::facilityEditStored($posted, $stored));
+
+        $stored['postal_code'] = '99999';
+        $this->assertFalse(X125010837P::facilityEditStored($posted, $stored));
+
+        $stored['postal_code'] = '12345';
+        $stored['id'] = '4';
+        $this->assertFalse(X125010837P::facilityEditStored($posted, $stored));
+    }
 }
