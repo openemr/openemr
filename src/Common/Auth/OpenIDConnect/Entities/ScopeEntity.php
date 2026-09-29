@@ -272,20 +272,29 @@ class ScopeEntity implements ScopeEntityInterface
      */
     public function hasSameConstraintsAs(ScopeEntity $otherScope): bool
     {
-        return self::normalizeConstraints($this->permissions->getConstraints())
-            === self::normalizeConstraints($otherScope->getPermissions()->getConstraints());
+        $mine = self::normalizeConstraints($this->permissions->getConstraints());
+        $theirs = self::normalizeConstraints($otherScope->getPermissions()->getConstraints());
+        // a constraint that is not a string or list of strings (e.g. category[a][]=x) is never
+        // equal to anything, so it cannot be matched against a registered constraint
+        return $mine !== null && $theirs !== null && $mine === $theirs;
     }
 
     /**
      * @param array<string, mixed> $constraints
-     * @return array<string, list<string>>
+     * @return array<string, list<string>>|null null when any value is not a string or a flat list of strings
      */
-    private static function normalizeConstraints(array $constraints): array
+    private static function normalizeConstraints(array $constraints): ?array
     {
         $normalized = [];
         foreach ($constraints as $key => $value) {
             $values = is_array($value) ? $value : [$value];
-            $strings = array_values(array_filter($values, is_string(...)));
+            $strings = [];
+            foreach ($values as $item) {
+                if (!is_string($item)) {
+                    return null;
+                }
+                $strings[] = $item;
+            }
             sort($strings);
             $normalized[$key] = $strings;
         }

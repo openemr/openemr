@@ -57737,11 +57737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ResourceConstraintFilterer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$resourceValue of method OpenEMR\\\\FHIR\\\\SMART\\\\ResourceConstraintFilterer\\:\\:checkResourceValueWithConstraints\\(\\) expects array\\|OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode\\|OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\|OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\|null, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ResourceConstraintFilterer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$appointmentUuid of method OpenEMR\\\\FHIR\\\\SMART\\\\SMARTLaunchToken\\:\\:setAppointmentUuid\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
@@ -70650,11 +70645,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function htmlspecialchars expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/PaginationUtilsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$resource of method OpenEMR\\\\FHIR\\\\SMART\\\\ResourceConstraintFilterer\\:\\:canAccessResource\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/SMART/ResourceConstraintFiltererTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',

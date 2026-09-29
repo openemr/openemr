@@ -1215,6 +1215,11 @@ class AuthorizationController implements LoggerAwareInterface
             if (in_array($scope, $identityClaimScopes, true)) {
                 continue;
             }
+            if (!ScopeConsentResolver::hasSupportedConstraint($scope)) {
+                // a constraint the user cannot see or toggle is not offered (and never granted)
+                $this->logger->debug('scopeAuthorizeConfirm() scope with unsupported constraint not offered', ['scope' => $scope]);
+                continue;
+            }
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
                 continue;

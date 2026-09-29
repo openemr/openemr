@@ -17,6 +17,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus;
 use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
 use OpenEMR\Services\FHIR\UtilsService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -160,6 +161,61 @@ class ResourceConstraintFiltererTest extends TestCase {
         );
     }
 
+    /**
+     * Constraint keys are ANDed. Matching any single key admitted every active Condition of any
+     * category for a scope constrained by category=encounter-diagnosis&clinicalStatus=active.
+     */
+    public function testEveryConstraintKeyMustMatch(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'user/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis'
+            . '&clinicalStatus=http://terminology.hl7.org/CodeSystem/condition-clinical|active',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Condition', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Condition.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $filterer = new ResourceConstraintFilterer();
+        $this->assertTrue($filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'active'), $httpRestRequest));
+        $this->assertFalse(
+            $filterer->canAccessResource($this->createConditionWithStatus('problem-list-item', 'active'), $httpRestRequest),
+            'clinicalStatus alone must not admit another category'
+        );
+        $this->assertFalse(
+            $filterer->canAccessResource($this->createConditionWithStatus('encounter-diagnosis', 'resolved'), $httpRestRequest),
+            'category alone must not admit another clinicalStatus'
+        );
+    }
+
+    /**
+     * A constraint on an element that is not coded (Observation.status) cannot be matched and
+     * is denied instead of raising a TypeError.
+     */
+    public function testConstraintOnNonCodedElementDeniesWithoutError(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray(['user/Observation.rs?status=final']);
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('user/Observation.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+
+        $observation = $this->createObservationWithCategories(['laboratory']);
+        $observation->setStatus(new FHIRObservationStatus(['value' => 'final']));
+        $this->assertFalse((new ResourceConstraintFilterer())->canAccessResource($observation, $httpRestRequest));
+    }
+
+    private function createConditionWithStatus(string $category, string $clinicalStatus): FHIRCondition
+    {
+        $condition = $this->createConditionWithCategory($category);
+        $condition->setClinicalStatus(UtilsService::createCodeableConcept([
+            $clinicalStatus => [
+                'system' => 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+                'code' => $clinicalStatus,
+                'description' => ucfirst($clinicalStatus),
+            ]
+        ]));
+        return $condition;
+    }
+
     private function createObservationWithCategories(array $array): FHIRObservation
     {
         $observation = new FHIRObservation();
@@ -176,7 +232,7 @@ class ResourceConstraintFiltererTest extends TestCase {
         return $observation;
     }
 
-    private function createConditionWithCategory(string $string)
+    private function createConditionWithCategory(string $string): FHIRCondition
     {
         $condition = new FHIRCondition();
         $category = UtilsService::createCodeableConcept([

@@ -63,6 +63,8 @@ class ResourceScopeEntityListGrantsScopeIsolatedTest extends TestCase
             'unrestricted grants category scope' => [['patient/Observation.rs'], 'patient/Observation.rs?' . self::VITALS, true],
             'same category grants' => [['patient/Observation.rs?' . self::VITALS], 'patient/Observation.rs?' . self::VITALS, true],
             'other category does not grant' => [['patient/Observation.rs?' . self::VITALS], 'patient/Observation.rs?' . self::LAB, false],
+            'extra constraint key is not the registered constraint' => [['patient/Observation.rs?' . self::VITALS], 'patient/Observation.rs?' . self::VITALS . '&status=final', false],
+            'nested array constraint never equals a registered one' => [['patient/Observation.rs?category[]='], 'patient/Observation.rs?category[a][]=x', false],
             'v1 unrestricted read grants category rs' => [['patient/Observation.read'], 'patient/Observation.rs?' . self::LAB, true],
             // operations and non-resource scopes keep exact containment
             'operation granted by same operation' => [['system/Patient.$export'], 'system/Patient.$export', true],

@@ -52,15 +52,18 @@ class ResourceConstraintFilterer {
             // the scope has constraints, so we need to add them to the request query parameters
             // the scope constraint may be category=value1,value2,value3 etc and the query may request category=value2,value4
             // we need to make sure that the final query only contains values that are allowed by the scope constraints
+            // Every constraint key must be satisfied (AND across keys, OR across values within a
+            // key). Matching any single key was a widening: a scope constrained by
+            // category=laboratory&status=final admitted every final Observation of any category.
             foreach ($constraints as $key => $constraintValues) {
                 // TODO: @adunsulag we should fix the getConstraints to make this an array always
                 $constraintValues = is_array($constraintValues) ? $constraintValues : [$constraintValues];
                 $resourceValue = $this->getResourceValueForKey($resource, $key);
-                if ($this->checkResourceValueWithConstraints($resource, $resourceValue, $constraintValues, $key)) {
-                    return true;
+                if (!$this->checkResourceValueWithConstraints($resource, $resourceValue, $constraintValues, $key)) {
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
         // no constraints, allow access
         return true;
@@ -78,7 +81,12 @@ class ResourceConstraintFilterer {
         return null;
     }
 
-    private function checkResourceValueWithConstraints(FHIRDomainResource $resource, array|FHIRCodeableConcept|FHIRCoding|FHIRCode|null $resourceValue
+    /**
+     * Only coded values (CodeableConcept, Coding, code) can be matched. Any other element type
+     * (a string, a status enum object, ...) cannot satisfy a constraint and is denied, rather
+     * than raising a TypeError and turning a narrowing scope into a 500.
+     */
+    private function checkResourceValueWithConstraints(FHIRDomainResource $resource, mixed $resourceValue
         , array $constraintValues, int|string $key): bool
     {
         if ($resourceValue === null) {

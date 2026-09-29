@@ -252,9 +252,12 @@ class ScopePermissionParser
             $restriction = null;
 
             if (!empty($matches[4])) {
-                // Parse restriction (e.g., category=http://...)
-                if (preg_match('/category=(.+)/', $matches[4], $restrictionMatches)) {
-                    $restriction = $restrictionMatches[1];
+                // Only a single category constraint can be shown and toggled on the consent
+                // screen. Any other constraint is not offered (and ScopeConsentResolver never
+                // grants it), rather than being shown under a misleading label.
+                $restriction = ScopeConsentResolver::categoryConstraint($matches[4]);
+                if ($restriction === null) {
+                    return null;
                 }
             }
 

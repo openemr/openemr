@@ -234,6 +234,65 @@ class ScopeConsentResolverIsolatedTest extends TestCase
         $this->assertSame(['openid', 'launch/patient', 'patient/DocumentReference.$docref'], $filtered);
     }
 
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unsupportedConstraintProvider(): array
+    {
+        return [
+            'category plus another key' => ['patient/Observation.rs?category=' . self::LAB . '&status=final'],
+            'non-category key only' => ['patient/Observation.rs?status=final'],
+            'array-form category' => ['patient/Observation.rs?category[]=' . self::LAB],
+            'repeated category key' => ['patient/Observation.rs?category=' . self::LAB . '&category=' . self::VITALS],
+            'empty category' => ['patient/Observation.rs?category='],
+        ];
+    }
+
+    /**
+     * A constraint the user cannot see or toggle on the consent screen must never be granted:
+     * not from the card, and not when posted back verbatim.
+     */
+    #[DataProvider('unsupportedConstraintProvider')]
+    public function testUnsupportedConstraintsAreNeverOfferedOrGranted(string $scope): void
+    {
+        $requested = ['openid', $scope];
+        $cards = $this->cards($requested);
+        $this->assertSame([], $cards, 'no consent card for an unsupported constraint');
+
+        $everything = ['patient-Observation' => ['actions' => ['c', 'r', 'u', 'd', 's'], 'categories' => [self::LAB, self::VITALS]]];
+        $this->assertSame(['openid'], $this->resolve($requested, $everything, ['openid', $scope]));
+    }
+
+    public function testUrlEncodedCategoryIsTheSameCategory(): void
+    {
+        $encoded = 'patient/Observation.rs?category=' . rawurlencode(self::LAB);
+        $cards = $this->cards([$encoded]);
+        $this->assertSame([], array_diff([self::LAB], $this->categoriesOffered($cards, 'patient-Observation')));
+
+        $this->assertSame([], $this->resolve([$encoded], ['patient-Observation' => ['actions' => ['r', 's'], 'categories' => []]]));
+        $this->assertSame([$encoded], $this->resolve([$encoded], ['patient-Observation' => ['actions' => ['r', 's'], 'categories' => [self::LAB]]]));
+    }
+
+    /**
+     * @param array<array-key, mixed> $cards
+     * @return list<string>
+     */
+    private function categoriesOffered(array $cards, string $key): array
+    {
+        $card = $cards[$key] ?? null;
+        $this->assertIsArray($card);
+        $this->assertIsArray($card['restrictions']);
+        $values = [];
+        foreach ($card['restrictions'] as $restriction) {
+            $this->assertIsArray($restriction);
+            $this->assertIsString($restriction['value']);
+            $values[] = $restriction['value'];
+        }
+        return $values;
+    }
+
     public function testOperationAndNonResourceScopesFollowTheirOwnCheckbox(): void
     {
         $requested = ['openid', 'launch/patient', 'patient/DocumentReference.$docref', 'patient/DocumentReference.rs'];

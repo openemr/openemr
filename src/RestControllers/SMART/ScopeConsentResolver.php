@@ -51,6 +51,9 @@ final class ScopeConsentResolver
 
         $granted = [];
         foreach ($requestedScopes as $requested) {
+            if (!self::hasSupportedConstraint($requested)) {
+                continue; // not offered on the consent screen, so never granted from it
+            }
             try {
                 $entity = ScopeEntity::createFromString($requested);
             } catch (\InvalidArgumentException) {
@@ -145,10 +148,11 @@ final class ScopeConsentResolver
         $query = self::queryOf($requested);
 
         if ($query !== null) {
-            // A constrained request. If its constraint is a category the form offered, the
-            // category checkbox decides; any other constraint cannot be toggled and passes.
-            $category = self::categoryOf($query);
-            if ($category !== null && in_array($category, $offeredCategories, true) && !in_array($category, $approvedCategories, true)) {
+            // A constrained request. Only a single category constraint is supported, and the
+            // category checkbox for it must be offered and left checked. Anything else fails
+            // closed: a constraint the user cannot see or toggle is never granted.
+            $category = self::categoryConstraint($query);
+            if ($category === null || !in_array($category, $offeredCategories, true) || !in_array($category, $approvedCategories, true)) {
                 return [];
             }
             return [$fullyApproved ? $requested : $base . '?' . $query];
@@ -206,11 +210,36 @@ final class ScopeConsentResolver
     }
 
     /**
-     * Mirrors ScopePermissionParser::parseScopeString() so the values match the checkbox values.
+     * The category value of a scope query, when the query is exactly one non-empty `category`
+     * parameter; null for anything else (extra keys such as `&status=final`, repeated or
+     * array-form `category[]=`, empty values). Parsed the same way the runtime parses scope
+     * constraints (parse_str), so the consent decision and the enforced constraint agree.
+     * ScopePermissionParser uses this for the checkbox values.
      */
-    private static function categoryOf(string $query): ?string
+    public static function categoryConstraint(string $query): ?string
     {
-        return preg_match('/category=(.+)/', $query, $matches) === 1 ? $matches[1] : null;
+        // A category value cannot contain a raw '&'. Rejecting it up front also rejects repeated
+        // keys (category=a&category=b), where parse_str would silently keep only the last one.
+        if (str_contains($query, '&')) {
+            return null;
+        }
+        $params = [];
+        parse_str($query, $params);
+        if (array_keys($params) !== ['category']) {
+            return null;
+        }
+        $category = $params['category'];
+        return is_string($category) && $category !== '' ? $category : null;
+    }
+
+    /**
+     * True when the scope has no query constraint, or exactly one supported category constraint.
+     * Scopes with any other constraint are not offered for consent and never granted from it.
+     */
+    public static function hasSupportedConstraint(string $scope): bool
+    {
+        $query = self::queryOf($scope);
+        return $query === null || self::categoryConstraint($query) !== null;
     }
 
     /**
