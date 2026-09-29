@@ -6,8 +6,10 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2011-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -1519,6 +1521,13 @@ class BillingUtilities
     // Currently on the billing page the user can select any of the patient's
     // payers.  That logic will tailor the payer choices to the encounter date.
     //
+    /**
+     * Insert a claim version, or update an open row.
+     *
+     * An insert returns the version it stored. An update returns 1, or 0
+     * when no open row matches. $claimVersion updates that row. With none,
+     * the newest open row for the encounter is updated.
+     */
     public static function updateClaim(
         $newversion,
         $patient_id,
@@ -1531,7 +1540,8 @@ class BillingUtilities
         $target = '',
         $partner_id = -1,
         $crossover = 0,
-        $submitted_claim = ''
+        $submitted_claim = '',
+        ?int $claimVersion = null
     ) {
 
         $sqlBindArray = [];
@@ -1544,7 +1554,12 @@ class BillingUtilities
                 $sqlBindArray[] = $payer_id;
             }
 
-            $sql .= "ORDER BY version DESC LIMIT 1";
+            [$versionSql, $versionBind] = self::existingClaimVersionSql($claimVersion);
+            $sql .= $versionSql;
+            foreach ($versionBind as $boundVersion) {
+                $sqlBindArray[] = $boundVersion;
+            }
+
             $row = sqlQuery($sql, $sqlBindArray);
             if (!$row) {
                 return 0;
@@ -1654,6 +1669,7 @@ class BillingUtilities
         $sqlBindClaimset[] = $submitted_claim;
         // If a new claim version is requested, insert its row.
         //
+        $storedVersion = 0;
         if ($newversion) {
             /****
              * $payer_id = ($payer_id < 0) ? $row['payer_id'] : $payer_id;
@@ -1674,14 +1690,25 @@ class BillingUtilities
              * "target = '$target', " .
              * "x12_partner_id = '$partner_id'";
              ****/
-            QueryUtils::inTransaction(function () use ($patient_id, $encounter_id, $crossover, $claimset, $sqlBindClaimset, $status): void {
+            $storedVersion = QueryUtils::inTransaction(function () use (
+                $patient_id,
+                $encounter_id,
+                $crossover,
+                $claimset,
+                $sqlBindClaimset,
+                $status
+            ): int {
                 $version = sqlQuery(
                     'SELECT IFNULL(MAX(version), 0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?',
                     [$patient_id, $encounter_id]
                 );
+                if (!is_array($version) || !array_key_exists('increment', $version)) {
+                    return 0;
+                }
 
                 $sqlBindArray = [];
                 array_push($sqlBindArray, $patient_id, $encounter_id);
+                $increment = $version['increment'];
                 if ($crossover <> 1) {
                     // heredoc (not nowdoc) because $claimset is a dynamic SQL fragment
                     $sql = <<<SQL
@@ -1692,7 +1719,7 @@ class BillingUtilities
                         version = ?
                     SQL;
                     $sqlBindArray = array_merge($sqlBindArray, $sqlBindClaimset);
-                    array_push($sqlBindArray, $version['increment']);
+                    array_push($sqlBindArray, $increment);
                 } else {//Claim automatic forward case.startTra
                     $sql = <<<'SQL'
                     INSERT INTO claims SET
@@ -1701,10 +1728,12 @@ class BillingUtilities
                         bill_time = NOW(), status = ? ,
                         version = ?
                     SQL;
-                    array_push($sqlBindArray, $status, $version['increment']);
+                    array_push($sqlBindArray, $status, $increment);
                 }
 
                 sqlStatement($sql, $sqlBindArray);
+
+                return self::insertedClaimVersion($increment);
             });
         } elseif ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
@@ -1725,7 +1754,48 @@ class BillingUtilities
             }
         }
 
+        if ($newversion) {
+            return $storedVersion;
+        }
+
         return 1;
+    }
+
+    /**
+     * SQL for the open claim row an update should change.
+     *
+     * The version this run inserted selects that row. Otherwise the newest
+     * open row for the encounter is selected.
+     *
+     * @return array{0: string, 1: list<int>}
+     */
+    public static function existingClaimVersionSql(?int $claimVersion): array
+    {
+        if ($claimVersion !== null && $claimVersion > 0) {
+            return ['AND version = ? ', [$claimVersion]];
+        }
+
+        return ['ORDER BY version DESC LIMIT 1', []];
+    }
+
+    /**
+     * Version number from the insert query's MAX(version)+1 value.
+     *
+     * The driver may return an int or a digit string. Any other value is 0.
+     */
+    public static function insertedClaimVersion(mixed $increment): int
+    {
+        if (is_int($increment) && $increment > 0) {
+            return $increment;
+        }
+
+        if (!is_string($increment) || preg_match('/^[1-9][0-9]*$/', $increment) !== 1) {
+            return 0;
+        }
+
+        $parsed = filter_var($increment, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        return is_int($parsed) ? $parsed : 0;
     }
 
     // Determine if the encounter is billed.  It is considered billed if it
