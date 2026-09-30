@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingUtilities;
@@ -41,6 +42,11 @@ abstract class AbstractProcessingTask
      * File name read from the unbilled row for this claim.
      */
     protected string $settledFileName = '';
+
+    /**
+     * Version on the same unbilled row as the file name.
+     */
+    protected ?int $settledVersion = null;
 
     /**
      * Accepted claims whose file name is stored and whose billed update waits for that file.
@@ -194,16 +200,12 @@ abstract class AbstractProcessingTask
      */
     protected function claimFileLanded(BillingClaimBatch $batch, string $filename): bool
     {
-        if ($filename === '' || str_contains($filename, '/') || str_contains($filename, '\\') || str_contains($filename, '..')) {
-            return false;
-        }
-
         $dir = $batch->getBatFiledir();
         if ($dir === '') {
             return false;
         }
 
-        return is_file($dir . DIRECTORY_SEPARATOR . $filename);
+        return BatchFilePublisher::isPublished($dir, $filename);
     }
 
     /**
@@ -223,21 +225,32 @@ abstract class AbstractProcessingTask
      */
     protected function previousFileDecision(BillingClaim $claim, BillingClaimBatch $batch): UnbilledFileDecision
     {
-        $this->settledFileName = $this->openUnbilledFile($claim);
-        $decision = UnbilledFileDecision::fromStoredFile(
-            $this->settledFileName,
-            $this->settledFileName !== '' && $this->claimFileLanded($batch, $this->settledFileName)
-        );
-        if ($decision !== UnbilledFileDecision::Missing) {
-            return $decision;
-        }
-
-        $version = $this->openUnbilledVersion($claim);
-        if ($version !== null) {
-            $this->clearClaimFile($claim, $version);
+        $assignment = $this->openUnbilledAssignment($claim);
+        $this->settledVersion = $assignment['version'] ?? null;
+        $this->settledFileName = $assignment['process_file'] ?? '';
+        $landed = $this->settledVersion !== null
+            && $this->settledFileName !== ''
+            && $this->claimFileLanded($batch, $this->settledFileName);
+        $decision = UnbilledFileDecision::fromStoredFile($this->settledFileName, $landed);
+        if ($decision === UnbilledFileDecision::Missing && $this->settledVersion !== null) {
+            $this->clearClaimFile($claim, $this->settledVersion);
         }
 
         return $decision;
+    }
+
+    /**
+     * Newest unbilled version and its file name, from one row.
+     *
+     * @return array{version: int, process_file: string}|null
+     */
+    protected function openUnbilledAssignment(BillingClaim $claim): ?array
+    {
+        return BillingUtilities::newestUnbilledClaimAssignment(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId()
+        );
     }
 
     /**
@@ -245,7 +258,7 @@ abstract class AbstractProcessingTask
      */
     protected function markStoredFileBilled(BillingClaim $claim): bool
     {
-        $version = $this->openUnbilledVersion($claim);
+        $version = $this->settledVersion;
         if ($version === null) {
             return false;
         }
