@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
@@ -154,12 +155,14 @@ class ScopeRepository implements ScopeRepositoryInterface
             $registeredScopes = $clientEntity->getScopes();
             $clientScopes = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
             $clientValidatorArray = $this->buildScopeValidatorArray($clientScopes);
+            $grantTypePolicy = new ClientGrantTypePolicy();
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
                 $lookupKey = $scope->getScopeLookupKey();
                 if (
                     isset($clientValidatorArray[$lookupKey])
                     && $clientValidatorArray[$lookupKey]->grantsScope($scope)
+                    && $grantTypePolicy->grantAllowsScope($grantType, $scope)
                 ) {
                     $finalizedScopes[] = $scope;
                     $finalizedScopeNames[] = $scope->getIdentifier();

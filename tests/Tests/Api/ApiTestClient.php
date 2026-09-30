@@ -334,8 +334,6 @@ class ApiTestClient
             "token_endpoint_auth_method" => "client_secret_post",
             "contacts" => ["me@example.org", "them@example.org"],
             "scope" => implode(' ', 'private' !== $client ? self::PUBLIC_CLIENT_SCOPES : self::ALL_SCOPES),
-            // the test client authenticates with the password grant (setAuthToken)
-            "grant_types" => ["authorization_code", "password", "refresh_token"],
         ];
         $clientResponse = $this->post($authURL . '/registration', $clientBody);
         if ($clientResponse->getStatusCode() >= 400) {
@@ -360,6 +358,8 @@ class ApiTestClient
         }
         // @codeCoverageIgnoreEnd
         $clientRepository->saveIsEnabled($clientEntity, true);
+        // setAuthToken uses the password grant, which only an administrator can allow for a client
+        $clientRepository->saveGrantTypes($clientEntity, ['authorization_code', 'password']);
     }
 
     /**

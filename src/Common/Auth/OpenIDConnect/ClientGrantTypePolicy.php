@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 
 final class ClientGrantTypePolicy
 {
@@ -41,6 +42,20 @@ final class ClientGrantTypePolicy
         self::CLIENT_CREDENTIALS,
         self::PASSWORD,
     ];
+
+    /**
+     * Grants only an administrator may give a client (Admin > System > API Clients). Registration
+     * is open to anyone, so a client cannot grant itself the password grant; a request for it is
+     * dropped and the registration response reports the grant types actually stored
+     * (RFC 7591 section 3.2.1).
+     */
+    private const ADMIN_ONLY = [self::PASSWORD];
+
+    /**
+     * Scope contexts that act for a signed-in user or patient. client_credentials tokens are
+     * issued without any user signing in, so they may carry only system/ scopes.
+     */
+    private const USER_CONTEXTS = ['user', 'patient'];
 
     /**
      * Grants that issue refresh tokens. A client registered for one of them may use the
@@ -85,6 +100,8 @@ final class ClientGrantTypePolicy
      * registers system/ scopes with a JWKS -- the shape of a backend-services (bulk export)
      * client, which the registration UI has never sent grant_types for.
      *
+     * Sent: validated, then admin-only grants (password) are dropped.
+     *
      * @param mixed $requested the raw grant_types value from the registration request, null when omitted
      * @return list<string>
      * @throws OAuthServerException invalid_client_metadata
@@ -111,14 +128,34 @@ final class ClientGrantTypePolicy
                 $grantTypes[] = $grantType;
             }
         }
-        if (in_array(self::CLIENT_CREDENTIALS, $grantTypes, true) && !($isConfidential && $hasJwks)) {
-            // client_credentials authenticates only with a private_key_jwt assertion
-            throw $this->invalidMetadata('client_credentials requires a confidential client with jwks or jwks_uri');
-        }
         if ($grantTypes === [self::REFRESH_TOKEN]) {
             throw $this->invalidMetadata('refresh_token requires a grant that issues refresh tokens');
         }
+        if (in_array(self::CLIENT_CREDENTIALS, $grantTypes, true) && !($isConfidential && $hasJwks && $hasSystemScopes)) {
+            // client_credentials authenticates only with a private_key_jwt assertion and acts
+            // for no user, so it is limited to backend-services clients
+            throw $this->invalidMetadata('client_credentials requires a confidential client with jwks or jwks_uri and system scopes');
+        }
+
+        $grantTypes = array_values(array_diff($grantTypes, self::ADMIN_ONLY));
+        if (array_diff($grantTypes, [self::REFRESH_TOKEN]) === []) {
+            // only admin-only grants were requested
+            return self::DEFAULT_GRANT_TYPES;
+        }
         return $grantTypes;
+    }
+
+    /**
+     * Whether a token issued through this grant may carry the scope. client_credentials tokens
+     * act as the system, never for a user or patient, so user/ and patient/ scopes are dropped
+     * even if the client registered them.
+     */
+    public function grantAllowsScope(string $grantType, ScopeEntity $scope): bool
+    {
+        if ($grantType !== self::CLIENT_CREDENTIALS) {
+            return true;
+        }
+        return !in_array($scope->getContext(), self::USER_CONTEXTS, true);
     }
 
     /**

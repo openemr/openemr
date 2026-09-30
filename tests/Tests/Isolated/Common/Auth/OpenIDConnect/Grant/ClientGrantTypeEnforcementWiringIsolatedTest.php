@@ -93,4 +93,18 @@ class ClientGrantTypeEnforcementWiringIsolatedTest extends TestCase
         $this->assertIsInt($insert);
         $this->assertLessThan($insert, $resolve, 'grant_types must be validated before the client is saved');
     }
+
+    public function testScopeFinalizationAppliesTheGrantScopeRule(): void
+    {
+        $source = self::source('src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php');
+        $start = strpos($source, 'public function finalizeScopes(');
+        $this->assertIsInt($start);
+        $end = strpos($source, "\n    }\n", $start);
+        $this->assertIsInt($end);
+        $this->assertStringContainsString(
+            '->grantAllowsScope(',
+            substr($source, $start, $end - $start),
+            'finalizeScopes must drop scopes the grant may not carry (user/patient scopes on client_credentials)'
+        );
+    }
 }

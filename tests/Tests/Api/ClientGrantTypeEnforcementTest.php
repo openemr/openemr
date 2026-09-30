@@ -20,8 +20,10 @@ namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -130,19 +132,92 @@ class ClientGrantTypeEnforcementTest extends TestCase
     }
 
     #[Test]
-    public function testRegistrationEchoesRequestedGrantTypes(): void
+    public function testRegistrationCannotGrantItselfThePasswordGrant(): void
     {
-        $registration = $this->register($this->buildClient(), ['grant_types' => ['authorization_code', 'password']]);
+        // Registration is open, so the password grant is allowed only by an administrator.
+        // RFC 7591 3.2.1: the response reports the grant types actually stored.
+        $http = $this->buildClient();
+        $registration = $this->register($http, ['grant_types' => ['authorization_code', 'password', 'refresh_token']]);
         $this->assertSame(200, $registration['status']);
-        $this->assertSame(['authorization_code', 'password'], $registration['body']['grant_types'] ?? null);
+        $this->assertSame(['authorization_code', 'refresh_token'], $registration['body']['grant_types'] ?? null);
+
+        $response = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'password',
+                'client_id' => $registration['client_id'],
+                'client_secret' => $registration['client_secret'],
+                'scope' => 'openid api:oemr',
+                'user_role' => 'users',
+                'username' => 'admin',
+                'password' => 'pass',
+            ],
+        ]);
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame('unauthorized_client', $body['error'] ?? null, 'Body: ' . (string) $response->getBody());
     }
 
     #[Test]
     public function testRegistrationRejectsClientCredentialsWithoutJwks(): void
     {
-        $registration = $this->register($this->buildClient(), ['grant_types' => ['client_credentials']]);
+        $registration = $this->register($this->buildClient(), ['grant_types' => ['client_credentials'], 'scope' => 'system/Patient.read']);
         $this->assertSame(400, $registration['status']);
         $this->assertSame('invalid_client_metadata', $registration['body']['error'] ?? null);
+    }
+
+    #[Test]
+    public function testRegistrationRejectsClientCredentialsWithoutSystemScopes(): void
+    {
+        $registration = $this->register($this->buildClient(), [
+            'grant_types' => ['client_credentials'],
+            'token_endpoint_auth_method' => 'private_key_jwt',
+            'scope' => 'openid user/Patient.read',
+            'jwks' => $this->testJwks(),
+        ]);
+        $this->assertSame(400, $registration['status']);
+        $this->assertSame('invalid_client_metadata', $registration['body']['error'] ?? null);
+    }
+
+    #[Test]
+    public function testClientCredentialsTokenCarriesOnlySystemScopes(): void
+    {
+        // client_credentials acts for no user, so user/ and patient/ scopes are dropped even
+        // when the client registered them for another grant.
+        $http = $this->buildClient();
+        $registration = $this->register($http, [
+            'grant_types' => ['authorization_code', 'client_credentials'],
+            'token_endpoint_auth_method' => 'private_key_jwt',
+            'scope' => 'system/Patient.read user/Patient.read patient/Patient.read',
+            'jwks' => $this->testJwks(),
+        ]);
+        $this->assertSame(200, $registration['status'], 'Body: ' . json_encode($registration['body']));
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `oauth_clients` SET `is_enabled` = 1 WHERE `client_id` = ?',
+            [$registration['client_id']]
+        );
+
+        $keyLocation = __DIR__ . '/../data/Unit/Common/Auth/Grant/';
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            InMemory::file($keyLocation . 'openemr-rsa384-private.key'),
+            InMemory::file($keyLocation . 'openemr-rsa384-public.pem'),
+            $this->baseUrl . '/oauth2/default/token',
+            $registration['client_id'],
+        );
+        $response = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $registration['client_id'],
+                'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                'client_assertion' => $assertion,
+                'scope' => 'system/Patient.read user/Patient.read patient/Patient.read',
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode(), 'Body: ' . (string) $response->getBody());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $accessToken = $body['access_token'] ?? null;
+        $this->assertIsString($accessToken);
+        $this->assertSame(['system/Patient.read'], $this->accessTokenScopes($accessToken));
     }
 
     #[Test]
@@ -180,6 +255,31 @@ class ClientGrantTypeEnforcementTest extends TestCase
             $this->clientIds[] = $clientId;
         }
         return ['status' => $response->getStatusCode(), 'body' => $body, 'client_id' => $clientId, 'client_secret' => $clientSecret];
+    }
+
+    private function testJwks(): mixed
+    {
+        $jwks = file_get_contents(__DIR__ . '/../data/Unit/Common/Auth/Grant/jwk-public-valid.json');
+        $this->assertIsString($jwks);
+        return json_decode($jwks);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function accessTokenScopes(string $accessToken): array
+    {
+        $parts = explode('.', $accessToken);
+        $this->assertCount(3, $parts, 'access token should be a JWT');
+        $payload = base64_decode(strtr($parts[1], '-_', '+/'), true);
+        $this->assertIsString($payload);
+        $claims = json_decode($payload, true);
+        $this->assertIsArray($claims);
+        $scopes = $claims['scopes'] ?? null;
+        $this->assertIsArray($scopes);
+        $list = array_values(array_filter($scopes, is_string(...)));
+        sort($list);
+        return $list;
     }
 
     private function persistPasswordGrantEnabled(): void

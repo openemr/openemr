@@ -233,7 +233,6 @@ class PasswordGrantMissingParametersTest extends TestCase
                 'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
                 'scope' => 'openid api:oemr api:port',
-                'grant_types' => ['password'],
             ],
         ]);
         $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
@@ -241,6 +240,11 @@ class PasswordGrantMissingParametersTest extends TestCase
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
         $this->assertIsString($data['client_secret']);
+        // Registration cannot grant the password grant; an administrator allows it per client.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `oauth_clients` SET `grant_types` = ? WHERE `client_id` = ?',
+            ['password', $data['client_id']]
+        );
         return [$data['client_id'], $data['client_secret']];
     }
 

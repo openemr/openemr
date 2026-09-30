@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\OpenIDConnect;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -68,7 +69,9 @@ class ClientGrantTypePolicyIsolatedTest extends TestCase
             'omitted: backend services client gets client_credentials' => [null, true, true, true, ['authorization_code', 'client_credentials']],
             'omitted: system scopes without jwks get no client_credentials' => [null, true, true, false, ['authorization_code']],
             'omitted: public app never gets client_credentials' => [null, false, true, true, ['authorization_code']],
-            'explicit password is kept' => [['password'], true, false, false, ['password']],
+            'registration cannot self-grant password' => [['authorization_code', 'password', 'refresh_token'], true, false, false, ['authorization_code', 'refresh_token']],
+            'password alone falls back to the default' => [['password'], true, false, false, ['authorization_code']],
+            'password with refresh falls back to the default' => [['password', 'refresh_token'], true, false, false, ['authorization_code']],
             'explicit list is de-duplicated in order' => [['authorization_code', 'refresh_token', 'authorization_code'], false, false, false, ['authorization_code', 'refresh_token']],
             'explicit client_credentials with jwks' => [['client_credentials'], true, true, true, ['client_credentials']],
         ];
@@ -87,28 +90,30 @@ class ClientGrantTypePolicyIsolatedTest extends TestCase
     }
 
     /**
-     * @return array<string, array{mixed, bool, bool}>
+     * @return array<string, array{mixed, bool, bool, bool}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function invalidRegistrationProvider(): array
     {
         return [
-            'not an array' => ['authorization_code', true, true],
-            'empty array' => [[], true, true],
-            'unsupported grant' => [['implicit'], true, true],
-            'non-string entry' => [[42], true, true],
-            'client_credentials without jwks' => [['client_credentials'], true, false],
-            'client_credentials for a public client' => [['client_credentials'], false, true],
-            'refresh_token alone' => [['refresh_token'], true, true],
+            'not an array' => ['authorization_code', true, true, true],
+            'empty array' => [[], true, true, true],
+            'unsupported grant' => [['implicit'], true, true, true],
+            'non-string entry' => [[42], true, true, true],
+            'client_credentials without jwks' => [['client_credentials'], true, true, false],
+            'client_credentials for a public client' => [['client_credentials'], false, true, true],
+            'client_credentials without system scopes' => [['client_credentials'], true, false, true],
+            'client_credentials with password and no system scopes' => [['client_credentials', 'password'], true, false, true],
+            'refresh_token alone' => [['refresh_token'], true, true, true],
         ];
     }
 
     #[DataProvider('invalidRegistrationProvider')]
-    public function testInvalidRegistrationIsRejected(mixed $requested, bool $isConfidential, bool $hasJwks): void
+    public function testInvalidRegistrationIsRejected(mixed $requested, bool $isConfidential, bool $hasSystemScopes, bool $hasJwks): void
     {
         try {
-            (new ClientGrantTypePolicy())->resolveRegistrationGrantTypes($requested, $isConfidential, true, $hasJwks);
+            (new ClientGrantTypePolicy())->resolveRegistrationGrantTypes($requested, $isConfidential, $hasSystemScopes, $hasJwks);
             $this->fail('expected invalid_client_metadata');
         } catch (OAuthServerException $exception) {
             $this->assertSame('invalid_client_metadata', $exception->getErrorType());
@@ -128,6 +133,34 @@ class ClientGrantTypePolicyIsolatedTest extends TestCase
         $this->assertSame(
             ['password', 'client_credentials'],
             (new ClientGrantTypePolicy())->effectiveGrantTypes(['implicit', 'password', 'client_credentials'])
+        );
+    }
+
+    /**
+     * @return array<string, array{string, string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function grantScopeProvider(): array
+    {
+        return [
+            'client_credentials keeps system scopes' => ['client_credentials', 'system/Patient.rs', true],
+            'client_credentials keeps system operations' => ['client_credentials', 'system/*.$export', true],
+            'client_credentials drops user scopes' => ['client_credentials', 'user/Patient.rs', false],
+            'client_credentials drops patient scopes' => ['client_credentials', 'patient/Observation.rs', false],
+            'client_credentials drops v1 user scopes' => ['client_credentials', 'user/Patient.read', false],
+            'client_credentials keeps non-resource scopes' => ['client_credentials', 'openid', true],
+            'authorization_code keeps user scopes' => ['authorization_code', 'user/Patient.rs', true],
+            'password keeps patient scopes' => ['password', 'patient/Observation.rs', true],
+        ];
+    }
+
+    #[DataProvider('grantScopeProvider')]
+    public function testGrantAllowsScope(string $grantType, string $scope, bool $expected): void
+    {
+        $this->assertSame(
+            $expected,
+            (new ClientGrantTypePolicy())->grantAllowsScope($grantType, ScopeEntity::createFromString($scope))
         );
     }
 }
