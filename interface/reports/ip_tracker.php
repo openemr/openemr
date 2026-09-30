@@ -121,13 +121,24 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
+            }).then(function (response) {
+                // Only paint "cleared" once the server confirmed success.
+                // The resetIpMfaCounter handler returns 403 on ACL denial
+                // (and network failures show up as response.ok=false too),
+                // so this keeps the row honest for both cases; the
+                // pre-existing resetCounterIp above still updates
+                // optimistically since it shares the whole-file legacy
+                // pattern.
+                if (!response.ok) {
+                    return;
+                }
+                let mfaFailCounterElement = document.getElementById('mfa-fail-counter-' + ipId);
+                mfaFailCounterElement.innerHTML = "0";
+                let mfaLastFailElement = document.getElementById('mfa-last-fail-' + ipId);
+                mfaLastFailElement.innerHTML = jsXlt("Not Applicable");
+                let mfaAutoblockElement = document.getElementById('mfa-autoblock-' + ipId);
+                mfaAutoblockElement.innerHTML = jsXlt("No");
             });
-            let mfaFailCounterElement = document.getElementById('mfa-fail-counter-' + ipId);
-            mfaFailCounterElement.innerHTML = "0";
-            let mfaLastFailElement = document.getElementById('mfa-last-fail-' + ipId);
-            mfaLastFailElement.innerHTML = jsXlt("Not Applicable");
-            let mfaAutoblockElement = document.getElementById('mfa-autoblock-' + ipId);
-            mfaAutoblockElement.innerHTML = jsXlt("No");
         }
 
     </script>
