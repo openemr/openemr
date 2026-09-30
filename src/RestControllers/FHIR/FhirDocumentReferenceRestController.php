@@ -256,13 +256,10 @@ class FhirDocumentReferenceRestController
      * Drops DocumentReferences the access token's scope constraints do not admit, e.g. a
      * patient/DocumentReference.rs?category=...|clinical-note grant sees clinical notes only.
      * The same check FhirGenericRestController applies to Observation and Condition.
-     *
-     * A request made with the in-EHR session (local API) carries no access token scopes, so
-     * there is nothing to narrow; its access was decided by the ACL check in the route.
      */
     private function filterByScopeConstraints(ProcessingResult $processingResult): ProcessingResult
     {
-        if ($this->request->isLocalApi() || !$processingResult->isValid() || !$processingResult->hasData()) {
+        if (!$processingResult->isValid() || !$processingResult->hasData()) {
             return $processingResult;
         }
         $resources = $processingResult->getData();

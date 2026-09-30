@@ -29,6 +29,12 @@ class ResourceConstraintFilterer {
     use SystemLoggerAwareTrait;
 
     public function canAccessResource(FHIRDomainResource $resource, HttpRestRequest $request): bool {
+        if (!$request->hasRequestRequiredScope()) {
+            // The in-EHR local API is authorized by the user's session and ACL, not by an access
+            // token, so there are no scope constraints to apply. Any other request without a
+            // recorded scope never passed the scope check and sees nothing.
+            return $request->isLocalApi();
+        }
         $endpointScope = $request->getRequestRequiredScope();
         // TODO: @adunsulag we could move this all into the HttpRestRequest class... but it seems heavy, is there a better
         // class with more cohesion to put this logic into?

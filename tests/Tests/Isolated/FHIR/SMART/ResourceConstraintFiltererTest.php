@@ -231,6 +231,24 @@ class ResourceConstraintFiltererTest extends TestCase {
     }
 
     /**
+     * The in-EHR local API skips the scope check, so no required scope is recorded. It used to
+     * throw reading the uninitialized scope, turning e.g. the clinical notes Observation search
+     * into a 500 whenever it matched anything.
+     */
+    public function testLocalApiRequestWithoutScopeIsAllowed(): void
+    {
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $httpRestRequest->setIsLocalApi(true);
+        $this->assertTrue((new ResourceConstraintFilterer())->canAccessResource($this->createObservationWithCategories(['laboratory']), $httpRestRequest));
+    }
+
+    public function testTokenRequestWithoutRecordedScopeIsDenied(): void
+    {
+        $httpRestRequest = HttpRestRequest::create('/fhir/Observation', 'GET');
+        $this->assertFalse((new ResourceConstraintFilterer())->canAccessResource($this->createObservationWithCategories(['laboratory']), $httpRestRequest));
+    }
+
+    /**
      * The clinical-note restriction on DocumentReference narrows to clinical notes only.
      */
     public function testDocumentReferenceClinicalNoteScope(): void

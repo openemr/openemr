@@ -303,6 +303,55 @@ class DisabledClientRejectionTest extends TestCase
         $this->assertSame('invalid_client', $body['error'] ?? null);
     }
 
+    #[Test]
+    public function testAccessTokenStopsWorkingWhenClientIsDisabled(): void
+    {
+        // Disabling a client does not revoke the access tokens it already holds, so the resource
+        // server must re-check the client on every request.
+        $globals = OEGlobalsBag::getInstance();
+        $globals->set('oauth_password_grant', 3);
+        $this->persistPasswordGrantEnabled();
+
+        $http = $this->buildClient();
+        [$clientId, $clientSecret] = $this->registerConfidentialClient($http, 'openid api:fhir user/Patient.rs');
+        $this->clientId = $clientId;
+        // user/ scopes need administrator approval before the client is enabled
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `oauth_clients` SET `is_enabled` = 1 WHERE `client_id` = ?',
+            [$clientId]
+        );
+
+        $tokenResp = $http->post($this->baseUrl . '/oauth2/default/token', [
+            'form_params' => [
+                'grant_type' => 'password',
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'scope' => 'openid api:fhir user/Patient.rs',
+                'user_role' => 'users',
+                'username' => 'admin',
+                'password' => 'pass',
+            ],
+        ]);
+        $this->assertSame(200, $tokenResp->getStatusCode(), 'Body: ' . (string) $tokenResp->getBody());
+        $tokens = json_decode((string) $tokenResp->getBody(), true);
+        $this->assertIsArray($tokens);
+        $accessToken = $tokens['access_token'] ?? null;
+        $this->assertIsString($accessToken);
+        $headers = ['Authorization' => 'Bearer ' . $accessToken, 'Accept' => 'application/fhir+json'];
+
+        $before = $http->get($this->baseUrl . '/apis/default/fhir/Patient', ['headers' => $headers]);
+        $this->assertSame(200, $before->getStatusCode(), 'Token should work while the client is enabled. Body: ' . (string) $before->getBody());
+
+        $this->disableClient($clientId);
+
+        $after = $http->get($this->baseUrl . '/apis/default/fhir/Patient', ['headers' => $headers]);
+        $this->assertSame(
+            401,
+            $after->getStatusCode(),
+            'An access token of a disabled client must be rejected. Body: ' . (string) $after->getBody()
+        );
+    }
+
     /**
      * @return array{string, string} [client_id, client_secret]
      */

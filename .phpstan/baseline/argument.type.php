@@ -3953,7 +3953,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 257,
+    'count' => 258,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$text of function attr expects string, string\\|null given\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -3994,6 +3999,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
     'count' => 348,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$text of function text expects string, string\\|null given\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -4398,7 +4408,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 343,
+    'count' => 342,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
@@ -59413,11 +59423,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$tokenId of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\RefreshTokenRepository\\:\\:isRefreshTokenRevoked\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
 ];
