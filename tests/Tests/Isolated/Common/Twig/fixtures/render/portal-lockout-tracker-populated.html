@@ -1,0 +1,150 @@
+<html>
+
+<head>
+    <title>Portal Lockout Tracker</title>
+
+    <!-- setupHeader stub -->
+
+    <script>
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+        });
+
+        function resetPortalCounter(portalLoginUsername) {
+            top.restoreSession();
+            request = new FormData;
+            request.append("function", "resetPortalAccountCounter");
+            request.append("portalLoginUsername", portalLoginUsername);
+            request.append("csrf_token_form", "test-counter-csrf-token");
+            fetch("\/library\/ajax\/login_counter_ip_tracker.php", {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            });
+            // getElementById takes a raw id, not a CSS selector, so the raw
+            // portal_login_username is concatenated as-is; CSS.escape() would
+            // add backslashes before dots/@ and break lookups for the common
+            // case of an email-address portal username.
+            let counterEl = document.getElementById('portal-fail-counter-' + portalLoginUsername);
+            if (counterEl) {
+                counterEl.innerHTML = "0";
+            }
+            let lastFailEl = document.getElementById('portal-last-fail-' + portalLoginUsername);
+            if (lastFailEl) {
+                lastFailEl.innerHTML = jsXlt("Not Applicable");
+            }
+            let autoBlockEl = document.getElementById('portal-autoblock-' + portalLoginUsername);
+            if (autoBlockEl) {
+                autoBlockEl.innerHTML = jsXlt("No");
+            }
+        }
+
+    </script>
+
+    <style>
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_results table {
+                margin-top: 0px;
+            }
+        }
+    </style>
+</head>
+
+<body class="body_top">
+
+<span class='title'>Portal Lockout Tracker</span>
+
+<form method='post' name='theform' id='theform' action='portal_lockout_tracker.php' onsubmit='return top.restoreSession()'>
+    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+
+    <div id="report_parameters">
+        <table>
+            <tr>
+                <td width='650px'>
+                    <div style='float: left'>
+                        <table class='text'>
+                            <tr>
+                                <td>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type='checkbox' id='showOnlyAutoBlocked' name='showOnlyAutoBlocked' checked> Show Only Auto Blocked
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td class='h-100' align='left' valign='middle'>
+                    <table class='w-100 h-100' style='border-left: 1px solid;'>
+                        <tr>
+                            <td>
+                                <div class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                                            Submit
+                                        </a>
+                                                                                    <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
+                                                Print
+                                            </a>
+                                                                            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- end of search parameters -->
+            <div id="report_results">
+            <table class='table'>
+                <thead class='thead-light'>
+                    <th>Portal Login Username</th>
+                    <th>Patient ID</th>
+                    <th>Failed Login Counter</th>
+                    <th>Last Failed Login</th>
+                    <th>Auto Blocked</th>
+                </thead>
+                <tbody>
+                                            <tr valign='top'>
+                            <td class="detail">locked.user@example.com</td>
+                            <td class="detail">42</td>
+                            <td class="detail" id="portal-fail-counter-locked.user@example.com">
+                                7
+                                                                    <button type="button" class="btn btn-sm btn-danger ml-2" onclick="resetPortalCounter(&quot;locked.user@example.com&quot;)">Reset Counter</button>
+                                                            </td>
+                            <td class="detail" id="portal-last-fail-locked.user@example.com">2026-01-05 09:00</td>
+                            <td class="detail" id="portal-autoblock-locked.user@example.com">
+                                                                    Yes
+                                                                            (Autoblock ends on 2026-01-05 10:00)
+                                                                                                </td>
+                        </tr>
+                                            <tr valign='top'>
+                            <td class="detail">someone</td>
+                            <td class="detail">43</td>
+                            <td class="detail" id="portal-fail-counter-someone">
+                                2
+                                                                    <button type="button" class="btn btn-sm btn-danger ml-2" onclick="resetPortalCounter(&quot;someone&quot;)">Reset Counter</button>
+                                                            </td>
+                            <td class="detail" id="portal-last-fail-someone">Not Applicable</td>
+                            <td class="detail" id="portal-autoblock-someone">
+                                                                    No
+                                                            </td>
+                        </tr>
+                                    </tbody>
+            </table>
+        </div>
+        <!-- end of search results -->
+        <input type='hidden' name='form_refresh' id='form_refresh' value='' />
+</form>
+
+</body>
+
+</html>
