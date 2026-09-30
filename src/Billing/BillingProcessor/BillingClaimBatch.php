@@ -20,6 +20,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Core\OEGlobalsBag;
 
 class BillingClaimBatch
@@ -153,16 +154,16 @@ class BillingClaimBatch
     public function write_batch_file()
     {
         $success = true;
-        // If a writable edi directory exists, log the batch to it.
-        // I guarantee you'll be glad we did this. :-)
-        if ($this->bat_filedir !== false) {
-            $fh = fopen($this->bat_filedir . DIRECTORY_SEPARATOR . $this->bat_filename, 'a');
-            if ($fh) {
-                fwrite($fh, (string) $this->bat_content);
-                fclose($fh);
-            } else {
-                $success = false;
-            }
+        // The batch name appears only after the full contents are synced.
+        // A short write does not replace the file and is not queued.
+        if (is_string($this->bat_filedir) && is_string($this->bat_filename)) {
+            $success = BatchFilePublisher::publish(
+                $this->bat_filedir,
+                $this->bat_filename,
+                (string) $this->bat_content
+            );
+        } elseif ($this->bat_filedir !== false) {
+            $success = false;
         }
 
         // If we are automatically uploading claims to X12 partners, do that here right after we
