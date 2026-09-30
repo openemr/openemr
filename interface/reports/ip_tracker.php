@@ -122,13 +122,13 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                 credentials: 'same-origin',
                 body: request
             }).then(function (response) {
-                // Only paint "cleared" once the server confirmed success.
-                // The resetIpMfaCounter handler returns 403 on ACL denial
-                // (and network failures show up as response.ok=false too),
-                // so this keeps the row honest for both cases; the
-                // pre-existing resetCounterIp above still updates
-                // optimistically since it shares the whole-file legacy
-                // pattern.
+                // Only paint "cleared" once the server confirmed success:
+                // the resetIpMfaCounter handler returns 403 on ACL denial.
+                // Network errors reject the promise and are handled by the
+                // .catch below; fetch does not resolve with
+                // response.ok=false in that case. The pre-existing
+                // resetCounterIp above still updates optimistically since
+                // it shares the whole-file legacy pattern.
                 if (!response.ok) {
                     return;
                 }
@@ -138,6 +138,8 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
                 mfaLastFailElement.innerHTML = jsXlt("Not Applicable");
                 let mfaAutoblockElement = document.getElementById('mfa-autoblock-' + ipId);
                 mfaAutoblockElement.innerHTML = jsXlt("No");
+            }).catch(function () {
+                // Leave the displayed values unchanged on network errors.
             });
         }
 
