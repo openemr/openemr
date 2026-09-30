@@ -22,14 +22,15 @@
                 credentials: 'same-origin',
                 body: request
             }).then(function (response) {
-                // Only paint "cleared" once the server confirmed success.
-                // The handler returns 403 on ACL denial and the browser
-                // reports network failures via response.ok=false too, so
-                // this keeps the row honest for both cases; getElementById
-                // takes a raw id, not a CSS selector, so the raw
-                // portal_login_username is concatenated as-is (CSS.escape()
-                // would add backslashes before dots/@ and break lookups
-                // for the common case of an email-address portal username).
+                // Only paint "cleared" once the server confirmed success:
+                // the handler returns 403 on ACL denial. Network errors
+                // reject the promise and are handled by the .catch below;
+                // fetch does not resolve with response.ok=false in that
+                // case. getElementById takes a raw id, not a CSS selector,
+                // so the raw portal_login_username is concatenated as-is
+                // (CSS.escape() would add backslashes before dots/@ and
+                // break lookups for the common case of an email-address
+                // portal username).
                 if (!response.ok) {
                     return;
                 }
@@ -45,6 +46,8 @@
                 if (autoBlockEl) {
                     autoBlockEl.innerHTML = jsXlt("No");
                 }
+            }).catch(function () {
+                // Leave the displayed values unchanged on network errors.
             });
         }
 
