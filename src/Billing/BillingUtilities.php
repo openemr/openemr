@@ -1812,11 +1812,9 @@ class BillingUtilities
      */
     public static function newestUnbilledClaimVersion(mixed $patientId, mixed $encounterId, mixed $payerId): ?int
     {
-        return self::unbilledClaimVersion(QueryUtils::querySingleRow(
-            "SELECT version FROM claims WHERE patient_id = ? AND encounter_id = ? "
-            . "AND payer_id = ? AND status = ? ORDER BY version DESC LIMIT 1",
-            [$patientId, $encounterId, $payerId, BillingClaim::STATUS_LEAVE_UNBILLED]
-        ));
+        $assignment = self::newestUnbilledClaimAssignment($patientId, $encounterId, $payerId);
+
+        return $assignment['version'] ?? null;
     }
 
     /**
@@ -1826,16 +1824,40 @@ class BillingUtilities
      */
     public static function newestUnbilledClaimFile(mixed $patientId, mixed $encounterId, mixed $payerId): string
     {
+        $assignment = self::newestUnbilledClaimAssignment($patientId, $encounterId, $payerId);
+
+        return $assignment['process_file'] ?? '';
+    }
+
+    /**
+     * Version and file name from the same unbilled row.
+     *
+     * Reading them together keeps a later version from being paired with
+     * an older file name.
+     *
+     * @return array{version: int, process_file: string}|null
+     */
+    public static function newestUnbilledClaimAssignment(mixed $patientId, mixed $encounterId, mixed $payerId): ?array
+    {
         $row = QueryUtils::querySingleRow(
-            "SELECT process_file FROM claims WHERE patient_id = ? AND encounter_id = ? "
+            "SELECT version, process_file FROM claims WHERE patient_id = ? AND encounter_id = ? "
             . "AND payer_id = ? AND status = ? ORDER BY version DESC LIMIT 1",
             [$patientId, $encounterId, $payerId, BillingClaim::STATUS_LEAVE_UNBILLED]
         );
-        if (!is_array($row) || !array_key_exists('process_file', $row) || !is_string($row['process_file'])) {
-            return '';
+        $version = self::unbilledClaimVersion($row);
+        if ($version === null) {
+            return null;
         }
 
-        return $row['process_file'];
+        $file = '';
+        if (is_array($row) && array_key_exists('process_file', $row) && is_string($row['process_file'])) {
+            $file = $row['process_file'];
+        }
+
+        return [
+            'version' => $version,
+            'process_file' => $file,
+        ];
     }
 
     /**
