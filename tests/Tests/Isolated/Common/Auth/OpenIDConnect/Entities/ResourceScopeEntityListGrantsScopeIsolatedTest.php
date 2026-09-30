@@ -26,6 +26,7 @@ class ResourceScopeEntityListGrantsScopeIsolatedTest extends TestCase
 {
     private const VITALS = 'category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs';
     private const LAB = 'category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory';
+    private const PROBLEM_LIST = 'category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item';
 
     /**
      * @param list<string> $held
@@ -66,6 +67,10 @@ class ResourceScopeEntityListGrantsScopeIsolatedTest extends TestCase
             'extra constraint key is not the registered constraint' => [['patient/Observation.rs?' . self::VITALS], 'patient/Observation.rs?' . self::VITALS . '&status=final', false],
             'nested array constraint never equals a registered one' => [['patient/Observation.rs?category[]='], 'patient/Observation.rs?category[a][]=x', false],
             'v1 unrestricted read grants category rs' => [['patient/Observation.read'], 'patient/Observation.rs?' . self::LAB, true],
+            'constrained create is never granted' => [['user/Condition.cruds'], 'user/Condition.c?' . self::PROBLEM_LIST, false],
+            'constrained cruds is never granted' => [['user/Condition.cruds'], 'user/Condition.cruds?' . self::PROBLEM_LIST, false],
+            'constrained delete is never granted even when held verbatim' => [['user/Condition.d?' . self::PROBLEM_LIST], 'user/Condition.d?' . self::PROBLEM_LIST, false],
+            'constrained read is still granted by cruds' => [['user/Condition.cruds'], 'user/Condition.rs?' . self::PROBLEM_LIST, true],
             // operations and non-resource scopes keep exact containment
             'operation granted by same operation' => [['system/Patient.$export'], 'system/Patient.$export', true],
             'operation not granted by read' => [['system/Patient.rs'], 'system/Patient.$export', false],

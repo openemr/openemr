@@ -5,6 +5,7 @@ namespace OpenEMR\RestControllers\FHIR\Operations;
 use OpenApi\Attributes as OA;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
@@ -592,7 +593,8 @@ class FhirOperationExportRestController
     private function isValidResource($resource, $exportType)
     {
         $scope = 'system/' . $resource . '.read';
-        if (!$this->request->requestHasScope($scope)) {
+        // export cannot filter by constraint, so a category-restricted scope does not qualify
+        if (!$this->request->requestHasUnconstrainedScopeEntity(ScopeEntity::createFromString($scope))) {
             throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
         }
         $resourceRegistry = $this->getExportServiceRegistry();
@@ -660,7 +662,8 @@ class FhirOperationExportRestController
     {
 
         $permission = 'system/' . $resource . '.read';
-        $hasAccess = $this->request->requestHasScope($permission);
+        // export cannot filter by constraint, so a category-restricted scope does not qualify
+        $hasAccess = $this->request->requestHasUnconstrainedScopeEntity(ScopeEntity::createFromString($permission));
         $this->logger->debug(
             "FhirExportRestController->hasAccessToResource() Checking resource access",
             ['permission' => $permission, 'hasAccess' => $hasAccess]

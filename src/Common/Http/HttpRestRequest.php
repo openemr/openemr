@@ -382,6 +382,21 @@ class HttpRestRequest extends Request implements Stringable
         return false;
     }
 
+    /**
+     * Like requestHasScopeEntity(), but only an access token scope with no constraints counts.
+     * For endpoints that cannot filter their output by constraint (bulk export), a scope such
+     * as system/Observation.rs?category=laboratory must not authorize every Observation.
+     */
+    public function requestHasUnconstrainedScopeEntity(ScopeEntity $scopeEntity): bool
+    {
+        foreach ($this->getAllContainedScopesForScopeEntity($scopeEntity) as $tokenScope) {
+            if ($tokenScope instanceof ScopeEntity && !$tokenScope->hasConstraints()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function getAllContainedScopesForScopeEntity(ScopeEntity $scopeEntity): array
     {
         // returns all scopes that are contained within the access token scopes for the given scope entity

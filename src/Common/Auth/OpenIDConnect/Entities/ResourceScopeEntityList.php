@@ -87,6 +87,11 @@ class ResourceScopeEntityList extends ArrayObject
      *    unconstrained items plus items with the identical constraint. A client registered
      *    for one Observation category can no longer be issued unrestricted Observation.
      *
+     * 3. Constraints apply to reads only. The resource server narrows read and search results
+     *    by constraint (ResourceConstraintFilterer) but does not check a written resource
+     *    against one, so a constrained scope that also creates, updates or deletes would
+     *    authorize writes outside its constraint. It is never granted.
+     *
      * Operation scopes ($export, ...) and non-resource scopes (openid, launch, api:fhir, ...)
      * carry no CRUDS permissions to union, so they keep exact containment.
      */
@@ -94,6 +99,11 @@ class ResourceScopeEntityList extends ArrayObject
     {
         if (!$candidate->isResourcePermissionScope()) {
             return $this->containsScope($candidate);
+        }
+
+        $wanted = $candidate->getPermissions();
+        if ($candidate->hasConstraints() && ($wanted->create || $wanted->update || $wanted->delete)) {
+            return false;
         }
 
         $create = $read = $update = $delete = $search = false;
@@ -118,7 +128,6 @@ class ResourceScopeEntityList extends ArrayObject
             $search = $search || $permissions->search;
         }
 
-        $wanted = $candidate->getPermissions();
         if (!($wanted->create || $wanted->read || $wanted->update || $wanted->delete || $wanted->search)) {
             // a resource scope with no permissions is not a grantable scope
             return false;

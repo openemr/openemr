@@ -15,6 +15,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus;
@@ -227,6 +228,39 @@ class ResourceConstraintFiltererTest extends TestCase {
         $observation = $this->createObservationWithCategories(['laboratory']);
         $observation->setStatus(new FHIRObservationStatus(['value' => 'final']));
         $this->assertFalse((new ResourceConstraintFilterer())->canAccessResource($observation, $httpRestRequest));
+    }
+
+    /**
+     * The clinical-note restriction on DocumentReference narrows to clinical notes only.
+     */
+    public function testDocumentReferenceClinicalNoteScope(): void
+    {
+        $scopeValidatorArray = (new ScopeValidatorFactory())->buildScopeValidatorArray([
+            'patient/DocumentReference.rs?category=http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note',
+        ]);
+        $httpRestRequest = HttpRestRequest::create('/fhir/DocumentReference', 'GET');
+        $httpRestRequest->setRequestRequiredScope(ScopeEntity::createFromString('patient/DocumentReference.s'));
+        $httpRestRequest->setAccessTokenScopeValidationArray($scopeValidatorArray);
+        $filterer = new ResourceConstraintFilterer();
+
+        $this->assertTrue($filterer->canAccessResource(
+            $this->createDocumentReferenceWithCategory('http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category', 'clinical-note'),
+            $httpRestRequest
+        ));
+        $this->assertFalse($filterer->canAccessResource(
+            $this->createDocumentReferenceWithCategory('http://loinc.org', '34133-9'),
+            $httpRestRequest
+        ), 'a non clinical-note document must not be visible under the clinical-note scope');
+        $this->assertFalse($filterer->canAccessResource(new FHIRDocumentReference(), $httpRestRequest), 'a document with no category must not be visible');
+    }
+
+    private function createDocumentReferenceWithCategory(string $system, string $code): FHIRDocumentReference
+    {
+        $documentReference = new FHIRDocumentReference();
+        $documentReference->addCategory(UtilsService::createCodeableConcept([
+            $code => ['system' => $system, 'code' => $code, 'description' => $code],
+        ]));
+        return $documentReference;
     }
 
     private function createConditionWithStatus(string $category, string $clinicalStatus): FHIRCondition
