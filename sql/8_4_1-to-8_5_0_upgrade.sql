@@ -145,22 +145,22 @@ ALTER TABLE `form_misc_billing_options` CHANGE `medicaid_resubmission_code` `res
 -- ICD-10-CM and ICD-10-PCS FY 2027 code sets, effective 2026-10-01.
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-10-01 load_filename 2027-code-descriptions-in-tabular-order.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-    ('ICD10', 'CMS', '2026-10-01', '2027-code-descriptions-in-tabular-order.zip', 'd71d4467481e3396991576a02e030213');
+('ICD10', 'CMS', '2026-10-01', '2027-code-descriptions-in-tabular-order.zip', 'd71d4467481e3396991576a02e030213');
 #EndIf
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-10-01 load_filename zip-file-3-2027-icd-10-pcs-codes-file.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-    ('ICD10', 'CMS', '2026-10-01', 'zip-file-3-2027-icd-10-pcs-codes-file.zip', 'ca7dd9e61622a3b9faf766ac6b1cd15d');
+('ICD10', 'CMS', '2026-10-01', 'zip-file-3-2027-icd-10-pcs-codes-file.zip', 'ca7dd9e61622a3b9faf766ac6b1cd15d');
 #EndIf
 
 -- ICD-10-CM and ICD-10-PCS April 1, 2026 mid-year updates. CMS reuses the October
 -- 2025 PCS file name, so the checksum tells the two releases apart.
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-04-01 load_filename april-1-2026-code-descriptions-in-tabular-order.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-    ('ICD10', 'CMS', '2026-04-01', 'april-1-2026-code-descriptions-in-tabular-order.zip', '22700f631c4e0194467b96d0c1f83e67');
+('ICD10', 'CMS', '2026-04-01', 'april-1-2026-code-descriptions-in-tabular-order.zip', '22700f631c4e0194467b96d0c1f83e67');
 #EndIf
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2026-04-01 load_filename zip-file-3-2026-icd-10-pcs-codes-file.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-    ('ICD10', 'CMS', '2026-04-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '3521b090d9ca58af9c8d73bbf2b3110a');
+('ICD10', 'CMS', '2026-04-01', 'zip-file-3-2026-icd-10-pcs-codes-file.zip', '3521b090d9ca58af9c8d73bbf2b3110a');
 #EndIf
 
 -- Add TOTP replay-protection column: records the RFC 6238 time slice
