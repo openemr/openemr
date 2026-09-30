@@ -51,6 +51,12 @@ if ($_POST['function'] == 'resetUsernameCounter') {
 
 if ($requestFunction === 'resetMfaFailCounter') {
     if (!AclMain::aclCheckCore('admin', 'users')) {
+        // Send an explicit 403 (vs the silent 200-with-empty-body that the
+        // pre-existing branches below use) so the caller's fetch().then()
+        // can distinguish an ACL denial from a successful reset and hold
+        // the DOM instead of falsely painting "cleared". Existing branches
+        // are left on the legacy pattern to keep this PR's scope bounded.
+        http_response_code(403);
         ServiceContainer::getLogger()->error('Failed ACL access to login_counter_ip_tracker.php script', ['function' => 'resetMfaFailCounter']);
         exit;
     }
@@ -60,6 +66,39 @@ if ($requestFunction === 'resetMfaFailCounter') {
         exit;
     }
     AuthUtils::resetMfaUserFailCounter($username);
+    exit;
+}
+
+// The two per-#14187 admin/super handlers are placed above the shared
+// admin/super gate so they can each return an explicit 403 on ACL denial
+// without changing the silent-200 behaviour of the pre-existing branches
+// (disableIp/enableIp/skipTiming/noSkipTiming/resetIpCounter). See the
+// resetMfaFailCounter branch above for the same rationale.
+if ($requestFunction === 'resetIpMfaCounter') {
+    if (!AclMain::aclCheckCore('admin', 'super')) {
+        http_response_code(403);
+        ServiceContainer::getLogger()->error('Failed ACL access to login_counter_ip_tracker.php script', ['function' => 'resetIpMfaCounter']);
+        exit;
+    }
+    $ipId = $request->request->getInt('ipId');
+    if ($ipId <= 0) {
+        exit;
+    }
+    AuthUtils::resetMfaIpCounter($ipId);
+    exit;
+}
+
+if ($requestFunction === 'resetPortalAccountCounter') {
+    if (!AclMain::aclCheckCore('admin', 'super')) {
+        http_response_code(403);
+        ServiceContainer::getLogger()->error('Failed ACL access to login_counter_ip_tracker.php script', ['function' => 'resetPortalAccountCounter']);
+        exit;
+    }
+    $portalLoginUsername = $request->request->getString('portalLoginUsername');
+    if ($portalLoginUsername === '') {
+        exit;
+    }
+    AuthUtils::resetPortalAccountFailedCounter($portalLoginUsername);
     exit;
 }
 
@@ -107,23 +146,5 @@ if ($_POST['function'] == 'resetIpCounter') {
         exit;
     }
     AuthUtils::resetIpCounter((int)$_POST['ipId']);
-    exit;
-}
-
-if ($requestFunction === 'resetIpMfaCounter') {
-    $ipId = $request->request->getInt('ipId');
-    if ($ipId <= 0) {
-        exit;
-    }
-    AuthUtils::resetMfaIpCounter($ipId);
-    exit;
-}
-
-if ($requestFunction === 'resetPortalAccountCounter') {
-    $portalLoginUsername = $request->request->getString('portalLoginUsername');
-    if ($portalLoginUsername === '') {
-        exit;
-    }
-    AuthUtils::resetPortalAccountFailedCounter($portalLoginUsername);
     exit;
 }

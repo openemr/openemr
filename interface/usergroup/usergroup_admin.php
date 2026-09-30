@@ -619,9 +619,19 @@ function resetMfaCounter(username) {
         method: 'POST',
         credentials: 'same-origin',
         body: request
+    }).then(function (response) {
+        // Only paint "cleared" once the server confirmed success. The
+        // resetMfaFailCounter handler returns 403 on ACL denial (and
+        // network failures show up as response.ok=false too), so this
+        // keeps the row honest for both cases; the pre-existing
+        // resetCounter above still updates optimistically since it
+        // shares the whole-file legacy pattern.
+        if (!response.ok) {
+            return;
+        }
+        let mfaCounterElement = document.getElementById('mfa-counter-' + username);
+        mfaCounterElement.innerHTML = "0";
     });
-    let mfaCounterElement = document.getElementById('mfa-counter-' + username);
-    mfaCounterElement.innerHTML = "0";
 }
 
 </script>
