@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Billing;
 
+use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Tasks\GeneratorX12;
@@ -599,6 +600,33 @@ class X125010837PZipTest extends TestCase
         $this->assertSame($decision, UnbilledFileDecision::fromStoredFile($storedFile, $fileExists));
     }
 
+
+/**
+     * A published batch matches its completion note. A short file does not.
+     */
+    public function testACompleteBatchIsTheOnlyFileThatCounts(): void
+    {
+        $directory = sys_get_temp_dir() . '/openemr-batch-' . bin2hex(random_bytes(4));
+        mkdir($directory);
+        try {
+            file_put_contents($directory . '/short.txt', 'ISA');
+            $this->assertFalse(BatchFilePublisher::isPublished($directory, 'short.txt'));
+            $this->assertTrue(BatchFilePublisher::publish($directory, 'batch.txt', 'ISA~GS~'));
+            $this->assertSame('ISA~GS~', file_get_contents($directory . '/batch.txt'));
+            $this->assertTrue(BatchFilePublisher::isPublished($directory, 'batch.txt'));
+            $this->assertFileDoesNotExist($directory . '/batch.txt.partial');
+            $this->assertTrue(BatchFilePublisher::publish($directory, 'batch.txt', 'GS~'));
+            $this->assertSame('GS~', file_get_contents($directory . '/batch.txt'));
+            $this->assertFalse(BatchFilePublisher::publish($directory, '../batch.txt', 'ISA~'));
+            $this->assertFalse(BatchFilePublisher::publish($directory, 'batch.txt', ''));
+        } finally {
+            foreach (glob($directory . '/*') ?: [] as $file) {
+                unlink($file);
+            }
+            rmdir($directory);
+        }
+    }
+
 }
 
 final class HoldZipFixture
@@ -685,6 +713,16 @@ final class HoldZipGenerator extends GeneratorX12
     protected function openUnbilledFile(BillingClaim $claim): string
     {
         return '';
+    }
+
+    /**
+     * The screen cases do not read an unbilled row.
+     *
+     * @return array{version: int, process_file: string}|null
+     */
+    protected function openUnbilledAssignment(BillingClaim $claim): ?array
+    {
+        return null;
     }
 
     /**
@@ -789,6 +827,23 @@ final class VersionHoldProbe extends GeneratorX12
     protected function openUnbilledFile(BillingClaim $claim): string
     {
         return $this->storedFile;
+    }
+
+    /**
+     * Version and file name from the same stand-in row.
+     *
+     * @return array{version: int, process_file: string}|null
+     */
+    protected function openUnbilledAssignment(BillingClaim $claim): ?array
+    {
+        if ($this->openUnbilled === null) {
+            return null;
+        }
+
+        return [
+            'version' => $this->openUnbilled,
+            'process_file' => $this->storedFile,
+        ];
     }
 
     /**
