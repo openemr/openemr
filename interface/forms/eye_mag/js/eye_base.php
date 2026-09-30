@@ -2005,11 +2005,16 @@ function update_DOCS() {
 function build_DOCS(DOCS) {
     if (DOCS['pcp']) {
         $("#pcp_name").text(DOCS['pcp']['name']);
-        $("#pcp_address").text(DOCS['pcp']['address']);
+        // Address is server-assembled with `<br />` separators; render them as
+        // line breaks without HTML-parsing the value (which would re-enable XSS).
+        var pcpAddress = (DOCS['pcp']['address'] || '').replace(/<br\s*\/?>/gi, '\n');
+        $("#pcp_address").text(pcpAddress).css('white-space', 'pre-line');
         $("#pcp_phone").text(DOCS['pcp']['phone']);
         $("#pcp_phonew2").text(DOCS['pcp']['phone2']);
         $("#pcp_fax").text(DOCS['pcp']['fax']);
-        $("#pcp_fax_info").text(DOCS['pcp']['fax_info']);
+        // fax_info is server-assembled trusted HTML (icons/links with `attr()`
+        // escaping applied on user-controlled parts); leave as `.html()`.
+        $("#pcp_fax_info").html(DOCS['pcp']['fax_info']);
     } else {
         $("#pcp_name").html('');
         $("#pcp_address").html('');
