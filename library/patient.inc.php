@@ -666,7 +666,8 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
             $where .= " or ";
         }
 
-        $where .= " " . add_escape_custom($row["field_id"]) . " like ? ";
+        $fieldId = is_string($row["field_id"] ?? null) ? $row["field_id"] : '';
+        $where .= " " . escape_sql_column_name($fieldId, ['patient_data']) . " like ? ";
         array_push($sqlBindArray, "%" . $searchTerm . "%");
     }
 

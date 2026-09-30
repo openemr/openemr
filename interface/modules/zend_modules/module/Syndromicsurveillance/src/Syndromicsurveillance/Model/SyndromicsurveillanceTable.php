@@ -109,7 +109,10 @@ class SyndromicsurveillanceTable
         $query_string[] = $toDate;
 
         if ($code_selected) {
-            $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND l.diagnosis LIKE 'ICD9:%'
@@ -123,7 +126,10 @@ class SyndromicsurveillanceTable
 					AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
 
         if ($code_selected) {
-            $query .= add_escape_custom(" AND c.id IN (" . implode(',', $code_selected) . ") ");
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND c.code = b.code
@@ -196,8 +202,10 @@ class SyndromicsurveillanceTable
         $query_string[] = $toDate;
 
         if ($code_selected) {
-            $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',', $code_selected);
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND l.diagnosis LIKE 'ICD9:%'
@@ -215,8 +223,10 @@ class SyndromicsurveillanceTable
 				AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
 
         if ($code_selected) {
-            $query .= " AND c.id IN (?) ";
-            $query_string[] = implode(',', $code_selected);
+            $codeIds = is_array($code_selected) ? array_map(static fn ($v): int => (int) $v, $code_selected) : [];
+            if ($codeIds !== []) {
+                $query .= " AND c.id IN (" . implode(',', $codeIds) . ") ";
+            }
         }
 
         $query .= " AND c.code = b.code
