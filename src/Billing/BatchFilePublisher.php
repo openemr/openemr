@@ -4,7 +4,8 @@
  * Publish one claim batch only after its full contents are on disk.
  *
  * The batch name appears after the bytes are written and synced. A
- * completion note is written second. A retry treats the batch as sent
+ * completion note is written second, and the directory entry is synced
+ * after the rename and after that note. A retry treats the batch as sent
  * only when that note matches the file's size.
  *
  * @package   OpenEMR
@@ -55,7 +56,47 @@ final class BatchFilePublisher
             return false;
         }
 
-        return self::writeCompletion($final, $size);
+        // The new name has to reach disk before the completion note does.
+        if (!self::syncDirectory($directory, $filename)) {
+            return false;
+        }
+
+        if (!self::writeCompletion($final, $size)) {
+            return false;
+        }
+
+        if (!self::syncDirectory($directory, $filename . '.complete')) {
+            self::remove($final . '.complete');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sync the directory entry for one file in the batch directory.
+     */
+    private static function syncDirectory(string $directory, string $entry): bool
+    {
+        if (!is_file($directory . DIRECTORY_SEPARATOR . $entry)) {
+            return false;
+        }
+
+        if (!function_exists('fsync')) {
+            return true;
+        }
+
+        $handle = fopen($directory, 'r');
+        if ($handle === false) {
+            // Windows has no directory stream. Elsewhere the entry was not synced.
+            return PHP_OS_FAMILY === 'Windows';
+        }
+
+        $synced = fsync($handle);
+        fclose($handle);
+
+        return $synced;
     }
 
     /**
