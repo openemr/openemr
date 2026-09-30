@@ -1229,9 +1229,9 @@ function build_DX_list(obj) {
         $.each(obj.Clinical, function(key, value) {
                diagnosis='';
                if (obj.Clinical[key][0].diagnosis > '') { //so we are just showing this first item of each Dx (Eg bilateral, x4 pterygium, only first shows up)
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.Clinical[key][0].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.Clinical[key][0].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li> ";
+               out += "<li class='ui-widget-content'><span name='DX_Clinical_"+jsAttr(key)+"' id='DX_Clinical_"+jsAttr(key)+"'>"+jsText(obj.Clinical[key][0].title)+"</span> "+diagnosis+"</li> ";
                });
     }
 
@@ -1239,25 +1239,25 @@ function build_DX_list(obj) {
         $.each(obj.PMSFH['POH'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POH'][key].diagnosis > '' ) {
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POH'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.PMSFH['POH'][key].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_POH_"+key+"' id='DX_POH_"+key+"'>"+obj.PMSFH['POH'][key].title+"</span> "+diagnosis+"</li>";
+               out += "<li class='ui-widget-content'><span name='DX_POH_"+jsAttr(key)+"' id='DX_POH_"+jsAttr(key)+"'>"+jsText(obj.PMSFH['POH'][key].title)+"</span> "+diagnosis+"</li>";
                });
         $.each(obj.PMSFH['POS'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POS'][key].diagnosis > '' ) {
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POS'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.PMSFH['POS'][key].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_POS_"+key+"' id='DX_POS_"+key+"'>"+obj.PMSFH['POS'][key].title+"</span> "+diagnosis+"</li>";
+               out += "<li class='ui-widget-content'><span name='DX_POS_"+jsAttr(key)+"' id='DX_POS_"+jsAttr(key)+"'>"+jsText(obj.PMSFH['POS'][key].title)+"</span> "+diagnosis+"</li>";
                });
     }
     if ($('#inc_PMH').is(':checked') && obj.PMSFH['PMH']) {
         $.each(obj.PMSFH['PMH'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['PMH'][key].diagnosis > '') {
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['PMH'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.PMSFH['PMH'][key].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_PMH_"+key+"' id='DX_PMH_"+key+"'>"+obj.PMSFH['PMH'][key].title+"</span>"+diagnosis+"</li> ";
+               out += "<li class='ui-widget-content'><span name='DX_PMH_"+jsAttr(key)+"' id='DX_PMH_"+jsAttr(key)+"'>"+jsText(obj.PMSFH['PMH'][key].title)+"</span>"+diagnosis+"</li> ";
                });
     }
         //add in inc_FIELDCODES culled from the datafields
@@ -1356,16 +1356,16 @@ function build_IMPPLAN(items,nodisplay) {
                     var TitleArr = value.codedesc.split("\r");//I don't see a second codedesc being adding in for this yet...
                     for (i=0;i < CodeArr.length;i++) {
                       if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r but second codedesc should have "\r" also
-                        $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
+                        $('#Coding_DX_Codes').append(count_dx +'. '+jsText(CodeArr[i])+': '+jsText(TitleArr[i])+'<br />');
 
-                        justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
+                        justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+jsAttr(value.codetype)+'|'+jsAttr(value.code)+'" title="'+jsAttr(value.codedesc)+'">'+count_dx+'</span>';
                         $('#visit_justification').append(justify_btn);
                         visit_justifier.push(value.codetype+'|'+value.code[i]);
                       } else {
                         //just look it up via ajax or tell them to code it manually on the feesheet ;).
-                        $('#Coding_DX_Codes').append(CodeArr[i]+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
+                        $('#Coding_DX_Codes').append(jsText(CodeArr[i])+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
 
-                        var justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
+                        var justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+jsAttr(value.codetype)+'|'+jsAttr(value.code)+'" title="'+jsAttr(value.codedesc)+'">'+count_dx+'</span>';
 
                         $('#visit_justification').append(justify_btn);
                         visit_justifier.push(value.codetype+'|'+value.code);
@@ -1382,8 +1382,8 @@ function build_IMPPLAN(items,nodisplay) {
 
                       if (obj.Clinical !== null) {
                         for (i=0; i < obj.Clinical[location].length; i++) {
-                            $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
-                            justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+obj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
+                            $('#Coding_DX_Codes').append(count_dx +'. '+jsText(obj.Clinical[location][i].code)+': '+jsText(obj.Clinical[location][i].codedesc)+'<br />');
+                            justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+jsAttr(obj.Clinical[location][i].codetype)+'|'+jsAttr(obj.Clinical[location][i].code)+'" title="'+jsAttr(obj.Clinical[location][i].codedesc)+'">'+count_dx+'</span>';
                             count_dx++;
                             $('#visit_justification').append(justify_btn);
 
@@ -1394,9 +1394,9 @@ function build_IMPPLAN(items,nodisplay) {
                   }
                 }
               } else { //all is good, one code only
-                $('#Coding_DX_Codes').append(count_dx +'. '+value.code+': '+value.codedesc+'<br />');
+                $('#Coding_DX_Codes').append(count_dx +'. '+jsText(value.code)+': '+jsText(value.codedesc)+'<br />');
 
-                justify_btn = ' <span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span> ';
+                justify_btn = ' <span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" data-justcode="'+jsAttr(value.codetype)+'|'+jsAttr(value.code)+'" title="'+jsAttr(value.codedesc)+'">'+count_dx+'</span> ';
                 $('#visit_justification').append(justify_btn);
                 //we assume the visit code will use this as a justification in billing so activate that link now.
                 visit_justifier.push(value.codetype+'|'+value.code);
@@ -1408,12 +1408,12 @@ function build_IMPPLAN(items,nodisplay) {
             }
                var title2 = value.title.replace(/(\')/g, '');
                contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
-               value.title +"</span>"+
-               " <span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
-               value.code + "</span>"+
+               jsText(value.title) +"</span>"+
+               " <span contenteditable class='float-right' onclick='sel_diagnosis("+index+","+jsAttr(JSON.stringify(title2))+");' title='"+jsAttr(value.codetext)+"' id='CODE_"+index+"'>"+
+               jsText(value.code) + "</span>"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
-               value.plan +"</textarea><br /></li>";
+               jsText(value.plan) +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
                                          '<i class="float-right fa fa-times" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
@@ -2004,12 +2004,12 @@ function update_DOCS() {
  */
 function build_DOCS(DOCS) {
     if (DOCS['pcp']) {
-        $("#pcp_name").html(DOCS['pcp']['name']);
-        $("#pcp_address").html(DOCS['pcp']['address']);
-        $("#pcp_phone").html(DOCS['pcp']['phone']);
-        $("#pcp_phonew2").html(DOCS['pcp']['phone2']);
-        $("#pcp_fax").html(DOCS['pcp']['fax']);
-        $("#pcp_fax_info").html(DOCS['pcp']['fax_info']);
+        $("#pcp_name").text(DOCS['pcp']['name']);
+        $("#pcp_address").text(DOCS['pcp']['address']);
+        $("#pcp_phone").text(DOCS['pcp']['phone']);
+        $("#pcp_phonew2").text(DOCS['pcp']['phone2']);
+        $("#pcp_fax").text(DOCS['pcp']['fax']);
+        $("#pcp_fax_info").text(DOCS['pcp']['fax_info']);
     } else {
         $("#pcp_name").html('');
         $("#pcp_address").html('');
