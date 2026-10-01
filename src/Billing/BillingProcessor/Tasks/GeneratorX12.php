@@ -71,9 +71,12 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
     {
         $this->claimHeld = false;
+        $hold = $this->holdClaimsThatWillDeny();
+        if ($hold && $billIfAccepted) {
+            $this->bindSelectedPayer($claim);
+        }
         [$log, $segs, $denial] = $this->renderedClaim($claim);
         $this->appendToLog($log);
-        $hold = $this->holdClaimsThatWillDeny();
         if ($hold && $billIfAccepted && !$denial->willDeny() && $this->billWhenTheFileLands) {
             $previous = $this->previousFileDecision($claim, $this->batch);
             if ($previous === UnbilledFileDecision::Present) {
@@ -358,6 +361,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     public function completeToScreen(array $context)
     {
         if ($this->batch->getClaims() === []) {
+            $this->printToScreen(xl('No claims were added to the batch.'));
             return;
         }
 

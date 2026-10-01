@@ -1861,14 +1861,138 @@ class BillingUtilities
     }
 
     /**
-     * Remove the file name from an unbilled row. A billed row is left alone.
+     * Point the billing row at the payer selected for this run.
+     *
+     * The 837 renderer reads that row. The claims version is stored later,
+     * and only when the claim is accepted.
      */
-    public static function clearUnbilledClaimFile(mixed $patientId, mixed $encounterId, int $version): void
+    public static function selectBillingPayer(mixed $patientId, mixed $encounterId, mixed $payerId): void
     {
+        if (!is_int($payerId) && !(is_string($payerId) && ctype_digit($payerId))) {
+            return;
+        }
+        if ((int) $payerId < 0) {
+            return;
+        }
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET payer_id = ? WHERE encounter = ? AND pid = ? AND activity = 1",
+            [$payerId, $encounterId, $patientId]
+        );
+    }
+
+    /**
+     * Store this file name only while the unbilled row has no other name.
+     *
+     * A different name means another run already owns the row.
+     */
+    public static function assignUnbilledClaimFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): bool {
+        if ($filename === '' || $version <= 0) {
+            return false;
+        }
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE claims SET process_file = ?, process_time = NOW() "
+            . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? "
+            . "AND (process_file = '' OR process_file IS NULL OR process_file = ?)",
+            [
+                $filename,
+                $patientId,
+                $encounterId,
+                $version,
+                BillingClaim::STATUS_LEAVE_UNBILLED,
+                $filename,
+            ]
+        );
+        $row = QueryUtils::querySingleRow(
+            "SELECT process_file, status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+            [$patientId, $encounterId, $version]
+        );
+        if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
+            return false;
+        }
+        $status = $row['status'] ?? null;
+        if ($status !== BillingClaim::STATUS_LEAVE_UNBILLED && $status !== '1') {
+            return false;
+        }
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET process_file = ?, process_date = NOW() WHERE encounter = ? AND pid = ? AND activity = 1",
+            [$filename, $encounterId, $patientId]
+        );
+
+        return true;
+    }
+
+    /**
+     * Mark the unbilled row billed only when it still names this file.
+     */
+    public static function billUnbilledClaimFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): bool {
+        if ($filename === '' || $version <= 0) {
+            return false;
+        }
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE claims SET status = ?, bill_process = ?, process_file = ?, process_time = NOW() "
+            . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? AND process_file = ?",
+            [
+                BillingClaim::STATUS_MARK_AS_BILLED,
+                BillingClaim::BILL_PROCESS_BILLED,
+                $filename,
+                $patientId,
+                $encounterId,
+                $version,
+                BillingClaim::STATUS_LEAVE_UNBILLED,
+                $filename,
+            ]
+        );
+        $row = QueryUtils::querySingleRow(
+            "SELECT process_file, status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+            [$patientId, $encounterId, $version]
+        );
+        if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
+            return false;
+        }
+        if (!self::billedUpdateStored($row)) {
+            return false;
+        }
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET billed = 1, bill_date = NOW(), bill_process = ?, process_file = ?, process_date = NOW() "
+            . "WHERE encounter = ? AND pid = ? AND activity = 1",
+            [BillingClaim::BILL_PROCESS_BILLED, $filename, $encounterId, $patientId]
+        );
+
+        return true;
+    }
+
+    /**
+     * Remove this file name from an unbilled row. A billed row, or another file, is left alone.
+     */
+    public static function clearUnbilledClaimFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): void {
+        if ($filename === '') {
+            return;
+        }
+
         QueryUtils::sqlStatementThrowException(
             "UPDATE claims SET process_file = '' WHERE patient_id = ? AND encounter_id = ? "
-            . "AND version = ? AND status = ?",
-            [$patientId, $encounterId, $version, BillingClaim::STATUS_LEAVE_UNBILLED]
+            . "AND version = ? AND status = ? AND process_file = ?",
+            [$patientId, $encounterId, $version, BillingClaim::STATUS_LEAVE_UNBILLED, $filename]
         );
     }
 
