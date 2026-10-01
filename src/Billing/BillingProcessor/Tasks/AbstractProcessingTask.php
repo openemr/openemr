@@ -211,12 +211,51 @@ abstract class AbstractProcessingTask
     /**
      * Drop the file name on an unbilled row so the next run can write a new file.
      */
-    protected function clearClaimFile(BillingClaim $claim, int $version): void
+    protected function clearClaimFile(BillingClaim $claim, int $version, string $filename = ''): void
     {
         BillingUtilities::clearUnbilledClaimFile(
             $claim->getPid(),
             $claim->getEncounter(),
-            $version
+            $version,
+            $filename
+        );
+    }
+
+    /**
+     * Store the selected payer before the 837 is rendered.
+     */
+    protected function bindSelectedPayer(BillingClaim $claim): void
+    {
+        BillingUtilities::selectBillingPayer(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId()
+        );
+    }
+
+    /**
+     * Claim this run's file name. False means another run already named the row.
+     */
+    protected function stampClaimFile(BillingClaim $claim, int $version, string $filename): bool
+    {
+        return BillingUtilities::assignUnbilledClaimFile(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $version,
+            $filename
+        );
+    }
+
+    /**
+     * Bill the row only while it still names this file.
+     */
+    protected function settleClaimFile(BillingClaim $claim, int $version, string $filename): bool
+    {
+        return BillingUtilities::billUnbilledClaimFile(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $version,
+            $filename
         );
     }
 
@@ -233,7 +272,7 @@ abstract class AbstractProcessingTask
             && $this->claimFileLanded($batch, $this->settledFileName);
         $decision = UnbilledFileDecision::fromStoredFile($this->settledFileName, $landed);
         if ($decision === UnbilledFileDecision::Missing && $this->settledVersion !== null) {
-            $this->clearClaimFile($claim, $this->settledVersion);
+            $this->clearClaimFile($claim, $this->settledVersion, $this->settledFileName);
         }
 
         return $decision;
@@ -265,19 +304,7 @@ abstract class AbstractProcessingTask
 
         $this->insertedClaimVersion = $version;
 
-        return $this->landedClaimWrite($this->writeClaimRow(
-            false,
-            $claim->getPid(),
-            $claim->getEncounter(),
-            -1,
-            -1,
-            BillingClaim::STATUS_MARK_AS_BILLED,
-            BillingClaim::BILL_PROCESS_BILLED,
-            $this->settledFileName,
-            '',
-            -1,
-            $version
-        )) !== null;
+        return $this->settleClaimFile($claim, $version, $this->settledFileName);
     }
 
     /**
@@ -291,20 +318,7 @@ abstract class AbstractProcessingTask
             return false;
         }
 
-        $landed = $this->landedClaimWrite($this->writeClaimRow(
-            false,
-            $claim->getPid(),
-            $claim->getEncounter(),
-            $claim->getPayorId(),
-            $claim->getPayorType(),
-            BillingClaim::STATUS_LEAVE_UNBILLED,
-            BillingClaim::BILL_PROCESS_IN_PROGRESS,
-            $filename,
-            $claim->getTarget(),
-            $claim->getPartner(),
-            $version
-        ));
-        if ($landed === null) {
+        if (!$this->stampClaimFile($claim, $version, $filename)) {
             return false;
         }
 
@@ -330,20 +344,7 @@ abstract class AbstractProcessingTask
             }
 
             $claim = $pending['claim'];
-            $landed = $this->landedClaimWrite($this->writeClaimRow(
-                false,
-                $claim->getPid(),
-                $claim->getEncounter(),
-                -1,
-                -1,
-                BillingClaim::STATUS_MARK_AS_BILLED,
-                BillingClaim::BILL_PROCESS_BILLED,
-                $filename,
-                '',
-                -1,
-                $pending['version']
-            ));
-            if ($landed === null) {
+            if (!$this->settleClaimFile($claim, $pending['version'], $filename)) {
                 $stillWaiting[] = $pending;
             }
         }

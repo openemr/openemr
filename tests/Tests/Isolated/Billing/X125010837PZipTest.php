@@ -88,7 +88,7 @@ class X125010837PZipTest extends TestCase
             $checked->probe->validateAndClear($checked->claim);
             $screen = implode("\n", $checked->probe->screen);
 
-            $this->assertSame([], $checked->probe->calls);
+            $this->assertSame(['bind'], $checked->probe->calls);
             $this->assertSame([], $checked->batch->getClaims());
             $this->assertStringContainsString('MA114', $screen);
             $this->assertStringNotContainsString('Successfully', $screen);
@@ -100,10 +100,11 @@ class X125010837PZipTest extends TestCase
 
             $generated = $this->generator(X125010837P::BILLING_ZIP_LOG);
             $generated->probe->generate($generated->claim);
-            $this->assertSame([], $generated->probe->calls);
+            $this->assertSame(['bind'], $generated->probe->calls);
             $generated->probe->completeToScreen([]);
             $generated->probe->completeToFile([]);
             $this->assertSame([], $generated->batch->getClaims());
+            $this->assertContains('No claims were added to the batch.', $generated->probe->screen);
             $this->assertContains('No claim file was written.', $generated->probe->screen);
         });
     }
@@ -117,7 +118,7 @@ class X125010837PZipTest extends TestCase
             $gen = $this->generator('X12 validate patient on 2026-09-29.');
             $gen->probe->validateAndClear($gen->claim);
 
-            $this->assertSame(['remember', 'mark-existing'], $gen->probe->calls);
+            $this->assertSame(['bind', 'remember', 'mark-existing'], $gen->probe->calls);
             $this->assertCount(1, $gen->batch->getClaims());
             $this->assertStringContainsString('Successfully marked claim', implode("\n", $gen->probe->screen));
         });
@@ -318,7 +319,7 @@ class X125010837PZipTest extends TestCase
             );
             $gen->probe->validateAndClear($gen->claim);
 
-            $this->assertSame(['remember', 'mark-existing'], $gen->probe->calls);
+            $this->assertSame(['bind', 'remember', 'mark-existing'], $gen->probe->calls);
             $this->assertCount(1, $gen->batch->getClaims());
             $this->assertStringContainsString('Successfully marked claim', implode("\n", $gen->probe->screen));
         });
@@ -335,7 +336,7 @@ class X125010837PZipTest extends TestCase
             $gen->probe->validateAndClear($gen->claim);
             $screen = implode("\n", $gen->probe->screen);
 
-            $this->assertSame(['remember', 'mark-existing'], $gen->probe->calls);
+            $this->assertSame(['bind', 'remember', 'mark-existing'], $gen->probe->calls);
             $this->assertSame([], $gen->batch->getClaims());
             $this->assertStringContainsString(FacilityZipDenial::LEFT_OUT_NOT_BILLED, $screen);
             $this->assertStringNotContainsString('Successfully', $screen);
@@ -352,7 +353,7 @@ class X125010837PZipTest extends TestCase
             $gen->probe->payerStored = false;
             $gen->probe->generate($gen->claim);
 
-            $this->assertSame(['remember'], $gen->probe->calls);
+            $this->assertSame(['bind', 'remember'], $gen->probe->calls);
             $this->assertSame([], $gen->batch->getClaims());
             $this->assertContains(FacilityZipDenial::LEFT_OUT_NOT_SAVED, $gen->probe->screen);
         });
@@ -368,7 +369,7 @@ class X125010837PZipTest extends TestCase
             $gen->probe->generate($gen->claim);
             $gen->probe->generate($gen->claim);
 
-            $this->assertSame([], $gen->probe->calls);
+            $this->assertSame(['bind', 'bind'], $gen->probe->calls);
             $this->assertSame([], $gen->batch->getClaims());
         });
     }
@@ -611,12 +612,17 @@ class X125010837PZipTest extends TestCase
         try {
             file_put_contents($directory . '/short.txt', 'ISA');
             $this->assertFalse(BatchFilePublisher::isPublished($directory, 'short.txt'));
-            $this->assertTrue(BatchFilePublisher::publish($directory, 'batch.txt', 'ISA~GS~'));
-            $this->assertSame('ISA~GS~', file_get_contents($directory . '/batch.txt'));
-            $this->assertTrue(BatchFilePublisher::isPublished($directory, 'batch.txt'));
-            $this->assertFileDoesNotExist($directory . '/batch.txt.partial');
+            file_put_contents($directory . '/batch.txt', 'OLD');
             $this->assertTrue(BatchFilePublisher::publish($directory, 'batch.txt', 'GS~'));
             $this->assertSame('GS~', file_get_contents($directory . '/batch.txt'));
+            $this->assertTrue(BatchFilePublisher::isPublished($directory, 'batch.txt'));
+            $this->assertFileDoesNotExist($directory . '/batch.txt.partial');
+            $this->assertFalse(BatchFilePublisher::publish($directory, 'batch.txt', 'ISA~GS~'));
+            $this->assertSame('GS~', file_get_contents($directory . '/batch.txt'));
+            $link = $directory . '/link.txt';
+            if (symlink($directory . '/batch.txt', $link)) {
+                $this->assertFalse(BatchFilePublisher::publish($directory, 'link.txt', 'ISA~'));
+            }
             $this->assertFalse(BatchFilePublisher::publish($directory, '../batch.txt', 'ISA~'));
             $this->assertFalse(BatchFilePublisher::publish($directory, 'batch.txt', ''));
         } finally {
@@ -694,6 +700,14 @@ final class HoldZipGenerator extends GeneratorX12
         $this->seen = $claim;
 
         return [$this->renderedLog, [''], $this->denial];
+    }
+
+    /**
+     * Record the payer selected before the 837 is rendered.
+     */
+    protected function bindSelectedPayer(BillingClaim $claim): void
+    {
+        $this->calls[] = 'bind';
     }
 
     /**
@@ -857,9 +871,56 @@ final class VersionHoldProbe extends GeneratorX12
     /**
      * Record a cleared file name instead of updating claims.
      */
-    protected function clearClaimFile(BillingClaim $claim, int $version): void
+    protected function clearClaimFile(BillingClaim $claim, int $version, string $filename = ''): void
     {
         $this->cleared[] = $version;
+    }
+
+    /**
+     * The screen cases do not update the billing payer.
+     */
+    protected function bindSelectedPayer(BillingClaim $claim): void
+    {
+    }
+
+    /**
+     * Record the file name through the claim-write probe.
+     */
+    protected function stampClaimFile(BillingClaim $claim, int $version, string $filename): bool
+    {
+        return $this->landedClaimWrite($this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_LEAVE_UNBILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            $filename,
+            $claim->getTarget(),
+            $claim->getPartner(),
+            $version
+        )) !== null;
+    }
+
+    /**
+     * Record the billed update through the claim-write probe.
+     */
+    protected function settleClaimFile(BillingClaim $claim, int $version, string $filename): bool
+    {
+        return $this->landedClaimWrite($this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            -1,
+            -1,
+            BillingClaim::STATUS_MARK_AS_BILLED,
+            BillingClaim::BILL_PROCESS_BILLED,
+            $filename,
+            '',
+            -1,
+            $version
+        )) !== null;
     }
 
     /**
@@ -955,6 +1016,26 @@ final class DirectVersionProbe extends GeneratorX12Direct
     protected function openUnbilledVersion(BillingClaim $claim): ?int
     {
         return $this->openUnbilled;
+    }
+
+    /**
+     * Record the file name through the claim-write probe.
+     */
+    protected function stampClaimFile(BillingClaim $claim, int $version, string $filename): bool
+    {
+        return $this->landedClaimWrite($this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_LEAVE_UNBILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            $filename,
+            $claim->getTarget(),
+            $claim->getPartner(),
+            $version
+        )) !== null;
     }
 
     /**

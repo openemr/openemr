@@ -258,6 +258,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Off: add the claim before the 837 is built, which is the master order.
         // On: add it only after the ZIP is accepted, so a held claim is not in the batch.
         $hold = $this->holdClaimsThatWillDeny();
+        if ($hold && $billIfAccepted) {
+            $this->bindSelectedPayer($claim);
+        }
         if (!$hold) {
             $batch->addClaim($claim);
         }
@@ -503,12 +506,17 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 // This is the final, validated claim, write to the edi location for this x12 partner
                 $filename = $created_batch->getBatFilename();
                 $wrote = $this->storeBatchFile($created_batch);
+                $landed = $wrote && $this->claimFileLanded($created_batch, $filename);
                 if ($this->awaitingFile !== []) {
-                    if ($wrote && $this->claimFileLanded($created_batch, $filename)) {
+                    if ($landed) {
                         $this->billAwaitingFile($filename);
                     } else {
                         $this->releaseAwaitingFile($filename);
                     }
+                }
+                if (!$landed) {
+                    $this->printToScreen(xl('The claim file was not written.') . ' ' . $filename);
+                    continue;
                 }
                 $x12_partner_name = text($this->x12_partners[$x12_partner_id]['name']);
                 // For the modal, build a list of downloads
