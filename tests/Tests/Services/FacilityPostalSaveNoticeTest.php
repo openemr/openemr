@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Isolated tests for the facility-screen postal notice.
+ * Facility-screen postal notice.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -12,13 +12,13 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\Billing;
+namespace OpenEMR\Tests\Services;
 
-use OpenEMR\Services\FacilityPostalNotice;
+use OpenEMR\Services\FacilityService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class FacilityZipSaveWarningTest extends TestCase
+class FacilityPostalSaveNoticeTest extends TestCase
 {
     /**
      * @return array<string, array{string, bool, bool, string}>
@@ -28,15 +28,15 @@ class FacilityZipSaveWarningTest extends TestCase
     public static function noticeProvider(): array
     {
         return [
-            'billing five digits' => ['12345', true, false, FacilityPostalNotice::FACILITY_SAVED_BILLING_POSTAL],
-            'service five digits' => ['12345', false, true, FacilityPostalNotice::FACILITY_SAVED_SERVICE_POSTAL],
-            'both roles' => ['12345', true, true, FacilityPostalNotice::FACILITY_SAVED_BOTH_POSTAL],
-            'empty postal' => ['', true, false, FacilityPostalNotice::FACILITY_SAVED_BILLING_POSTAL],
+            'billing five digits' => ['12345', true, false, FacilityService::FACILITY_SAVED_BILLING_POSTAL],
+            'service five digits' => ['12345', false, true, FacilityService::FACILITY_SAVED_SERVICE_POSTAL],
+            'both roles' => ['12345', true, true, FacilityService::FACILITY_SAVED_BOTH_POSTAL],
+            'empty postal' => ['', true, false, FacilityService::FACILITY_SAVED_BILLING_POSTAL],
             'zip plus 4 is nine digits' => ['12345-6789', true, true, ''],
             'nine digits' => ['123456789', false, true, ''],
             'letters after nine digits' => ['123456789abc', true, false, ''],
             'digits with a space' => ['12345 6789', true, true, ''],
-            'foreign short still notices' => ['K1A 0B1', false, true, FacilityPostalNotice::FACILITY_SAVED_SERVICE_POSTAL],
+            'foreign short still notices' => ['K1A 0B1', false, true, FacilityService::FACILITY_SAVED_SERVICE_POSTAL],
             'foreign nine digits is quiet' => ['123456789', true, false, ''],
             'not a service or billing location' => ['12345', false, false, ''],
         ];
@@ -48,7 +48,7 @@ class FacilityZipSaveWarningTest extends TestCase
     #[DataProvider('noticeProvider')]
     public function testSaveNoticeFollowsTheFacilityRole(string $postal, bool $billing, bool $service, string $expected): void
     {
-        $notice = FacilityPostalNotice::forPostalCode($postal, $billing, $service);
+        $notice = FacilityService::facilityPostalSaveNotice($postal, $billing, $service);
         $this->assertSame($expected, $notice);
         if ($notice === '') {
             return;

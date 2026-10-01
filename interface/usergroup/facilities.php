@@ -23,7 +23,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\FacilityPostalNotice;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -60,10 +59,10 @@ $echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
 };
 
 $facilityPostalSentence = function (string $postal, bool $billing, bool $service): string {
-    return match (FacilityPostalNotice::forPostalCode($postal, $billing, $service)) {
-        FacilityPostalNotice::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityPostalNotice::FACILITY_SAVED_BILLING_POSTAL),
-        FacilityPostalNotice::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityPostalNotice::FACILITY_SAVED_SERVICE_POSTAL),
-        FacilityPostalNotice::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityPostalNotice::FACILITY_SAVED_BOTH_POSTAL),
+    return match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service)) {
+        FacilityService::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityService::FACILITY_SAVED_BILLING_POSTAL),
+        FacilityService::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityService::FACILITY_SAVED_SERVICE_POSTAL),
+        FacilityService::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityService::FACILITY_SAVED_BOTH_POSTAL),
         default => '',
     };
 };
