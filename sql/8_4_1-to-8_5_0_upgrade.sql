@@ -202,3 +202,15 @@ ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_fail_counter` bigint DEFA
 #IfMissingColumn patient_access_onsite portal_last_fail
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last portal login failure for this account. Used for time-based counter reset.';
 #EndIf
+
+#IfMissingColumn drugs billing_units
+ALTER TABLE `drugs` ADD COLUMN `billing_units` int(11) DEFAULT NULL COMMENT 'default units when the related HCPCS code is added to a fee sheet' AFTER `related_code`;
+#EndIf
+
+#IfMissingColumn drugs ndc_uom
+ALTER TABLE `drugs` ADD COLUMN `ndc_uom` varchar(2) NOT NULL DEFAULT '' COMMENT 'NDC unit of measure for the related HCPCS service line' AFTER `billing_units`;
+#EndIf
+
+#IfMissingColumn drugs ndc_quantity
+ALTER TABLE `drugs` ADD COLUMN `ndc_quantity` decimal(10,3) DEFAULT NULL COMMENT 'NDC quantity for the related HCPCS service line' AFTER `ndc_uom`;
+#EndIf
