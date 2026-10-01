@@ -62,7 +62,7 @@ class BillingClaimBatch
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
         $this->bat_icn = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '000000001' : BillingClaimBatchControlNumber::getIsa13();
-        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $this->ext;
+        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-" . bin2hex(random_bytes(3)) . "-batch" . $this->ext;
         $this->bat_filedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
         $this->bat_gs06 = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '2' : BillingClaimBatchControlNumber::getGs06();
     }
