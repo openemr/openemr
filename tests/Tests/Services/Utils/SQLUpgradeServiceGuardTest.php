@@ -22,8 +22,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * Runs upgrade scripts through the #If* guards, including guards that name
  * reserved words or quote-bearing values, which break the guard query unless
- * identifiers are quoted and values bound. Each script runs twice, the way a
- * repeated upgrade does.
+ * identifiers are quoted and values bound.
  */
 class SQLUpgradeServiceGuardTest extends TestCase
 {
@@ -61,19 +60,25 @@ class SQLUpgradeServiceGuardTest extends TestCase
         parent::tearDown();
     }
 
+    private function runScript(string $script): void
+    {
+        $this->filesystem->dumpFile($this->scriptDir . '/guard.sql', $script);
+        (new SQLUpgradeService())
+            ->setRenderOutputToScreen(false)
+            ->setThrowExceptionOnError(true)
+            ->upgradeFromSqlFile('guard.sql', $this->scriptDir);
+    }
+
     /**
+     * Runs the script twice, the way a repeated upgrade does.
+     *
      * @param list<array{name: string, function: ?string}> $expected
      */
     #[DataProvider('scriptProvider')]
     public function testGuardedScriptRunsTwice(string $script, array $expected): void
     {
-        $this->filesystem->dumpFile($this->scriptDir . '/guard.sql', $script);
-        $service = (new SQLUpgradeService())
-            ->setRenderOutputToScreen(false)
-            ->setThrowExceptionOnError(true);
-
-        $service->upgradeFromSqlFile('guard.sql', $this->scriptDir);
-        $service->upgradeFromSqlFile('guard.sql', $this->scriptDir);
+        $this->runScript($script);
+        $this->runScript($script);
 
         self::assertSame(
             $expected,
@@ -83,34 +88,25 @@ class SQLUpgradeServiceGuardTest extends TestCase
 
     public function testBacktickInColumnNameStaysInsideTheIdentifier(): void
     {
-        $this->filesystem->dumpFile($this->scriptDir . '/guard.sql', <<<'SQL'
+        // Wrapping the name without escaping would end the identifier at the first backtick.
+        $this->expectException(SqlQueryException::class);
+
+        $this->runScript(<<<'SQL'
             #IfNotRow sql_upgrade_guard_test name`=`name unknown
             INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('unknown');
             #EndIf
             SQL);
-        $service = (new SQLUpgradeService())
-            ->setRenderOutputToScreen(false)
-            ->setThrowExceptionOnError(true);
-
-        // Wrapping the name without escaping would end the identifier at the first backtick.
-        $this->expectException(SqlQueryException::class);
-
-        $service->upgradeFromSqlFile('guard.sql', $this->scriptDir);
     }
 
     public function testTableGuardMatchesCaseTheWayTheServerDoes(): void
     {
-        $this->filesystem->dumpFile($this->scriptDir . '/guard.sql', <<<'UPGRADE_SQL'
+        $namesAreCaseSensitive = QueryUtils::fetchRecords('SELECT 1 FROM DUAL WHERE @@lower_case_table_names = 0') !== [];
+
+        $this->runScript(<<<'UPGRADE_SQL'
             #IfTable SQL_UPGRADE_GUARD_TEST
             INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('upper-case table name matched');
             #EndIf
             UPGRADE_SQL);
-        $service = (new SQLUpgradeService())
-            ->setRenderOutputToScreen(false)
-            ->setThrowExceptionOnError(true);
-        $namesAreCaseSensitive = QueryUtils::fetchRecords('SELECT 1 FROM DUAL WHERE @@lower_case_table_names = 0') !== [];
-
-        $service->upgradeFromSqlFile('guard.sql', $this->scriptDir);
 
         self::assertCount(
             $namesAreCaseSensitive ? 0 : 1,
