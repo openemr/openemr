@@ -18,12 +18,12 @@
 
 require_once("../globals.php");
 
-use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityPostalNotice;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -57,6 +57,15 @@ $echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
     if (is_string($encoded)) {
         echo $encoded;
     }
+};
+
+$facilityPostalSentence = function (string $postal, bool $billing, bool $service): string {
+    return match (FacilityPostalNotice::forPostalCode($postal, $billing, $service)) {
+        FacilityPostalNotice::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityPostalNotice::FACILITY_SAVED_BILLING_POSTAL),
+        FacilityPostalNotice::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityPostalNotice::FACILITY_SAVED_SERVICE_POSTAL),
+        FacilityPostalNotice::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityPostalNotice::FACILITY_SAVED_BOTH_POSTAL),
+        default => '',
+    };
 };
 
 $columns = [
@@ -105,18 +114,13 @@ foreach ($columns as $c => $v) {
 
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
-    $insertId = $facilityService->insertFacility($values);
-    if (!X125010837P::facilityWriteLanded($insertId)) {
-        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
-        exit();
-    }
-    $postalNotice = X125010837P::facilityPostalSaveNotice(
+    $facilityService->insertFacility($values);
+    // The save dialog decodes this body and passes the sentence to alert().
+    $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
         ($values['billing_location'] ?? '') === '1',
         ($values['service_location'] ?? '') === '1'
     );
-    // The save dialog decodes this body and passes the sentence to alert().
-    $sentence = $postalNotice === '' ? '' : xl($postalNotice);
     $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
@@ -125,33 +129,17 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
 if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility") {
     // Since it's an edit, add in the facility ID
     $values["id"] = trim($_POST['fid'] ?? '');
-    $existing = $facilityService->getById($values['id']);
-    if (!is_array($existing)) {
-        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
-        exit();
-    }
     $facilityService->updateFacility($values);
-    $stored = $facilityService->getById($values['id']);
-    if (!X125010837P::facilityEditStored($values, $stored)) {
-        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_NOT_SAVED));
-        exit();
-    }
 
     // Update facility name for all users with this facility.
     // This is necessary because some provider based code uses facility name for lookups instead of facility id.
-    // The dialog stays open when that sync does not finish, so the save can be sent again.
-    $usersUpdated = $facilityService->updateUsersFacility($values['name'], $values['id']);
-    if (!X125010837P::facilityWriteLanded($usersUpdated)) {
-        $echoFacilitySaveDialogResult(false, xl(X125010837P::FACILITY_SAVED_USERS_NOT_UPDATED));
-        exit();
-    }
-    $postalNotice = X125010837P::facilityPostalSaveNotice(
+    $facilityService->updateUsersFacility($values['name'], $values['id']);
+    // The save dialog decodes this body and passes the sentence to alert().
+    $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
         ($values['billing_location'] ?? '') === '1',
         ($values['service_location'] ?? '') === '1'
     );
-    // The save dialog decodes this body and passes the sentence to alert().
-    $sentence = $postalNotice === '' ? '' : xl($postalNotice);
     $echoFacilitySaveDialogResult(true, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
