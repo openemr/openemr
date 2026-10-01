@@ -32,6 +32,11 @@ final class BatchFilePublisher
 
         $final = $directory . DIRECTORY_SEPARATOR . $filename;
         $temporary = $final . '.partial';
+        $note = $final . '.complete';
+        // A completed batch is left in place. A symlink is not a file this run wrote.
+        if (is_link($final) || is_link($temporary) || is_link($note) || self::isPublished($directory, $filename)) {
+            return false;
+        }
         $handle = fopen($temporary, 'wb');
         if ($handle === false) {
             return false;
