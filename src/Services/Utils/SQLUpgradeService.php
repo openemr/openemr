@@ -884,14 +884,15 @@ class SQLUpgradeService implements ISQLUpgradeService
     /**
      * Backtick-quote a table or column name taken from a directive, so a
      * reserved word (MySQL 8 reserves `function`, for one) still parses.
+     * A name the directive already quoted keeps working.
      */
     private function quoteIdentifier(string $name): string
     {
-        if (str_contains($name, '`')) {
-            throw new \InvalidArgumentException('SQL upgrade directive identifier contains a backtick: ' . $name);
+        if (strlen($name) > 2 && str_starts_with($name, '`') && str_ends_with($name, '`')) {
+            $name = substr($name, 1, -1);
         }
 
-        return '`' . $name . '`';
+        return '`' . str_replace('`', '``', $name) . '`';
     }
 
 
@@ -899,8 +900,15 @@ class SQLUpgradeService implements ISQLUpgradeService
     // information_schema or a SHOW ... WHERE clause instead.
     private function tableExists(string $tblname): bool
     {
-        $sql = 'SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE ? LIMIT 1';
-        return QueryUtils::fetchRecords($sql, [$tblname]) !== [];
+        // information_schema compares names case-insensitively on MariaDB, so
+        // also match the bytes where the server keeps table names case-sensitive.
+        $sql = <<<'SQL'
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = DATABASE() AND table_name LIKE ?
+            AND (@@lower_case_table_names <> 0 OR CAST(table_name AS BINARY) LIKE ?)
+            LIMIT 1
+            SQL;
+        return QueryUtils::fetchRecords($sql, [$tblname, $tblname]) !== [];
     }
 
 

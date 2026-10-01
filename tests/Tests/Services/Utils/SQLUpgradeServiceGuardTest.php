@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -77,6 +78,43 @@ class SQLUpgradeServiceGuardTest extends TestCase
         self::assertSame(
             $expected,
             QueryUtils::fetchRecords('SELECT `name`, `function` FROM `' . self::TABLE . '` ORDER BY `id`'),
+        );
+    }
+
+    public function testBacktickInColumnNameStaysInsideTheIdentifier(): void
+    {
+        $this->filesystem->dumpFile($this->scriptDir . '/guard.sql', <<<'SQL'
+            #IfNotRow sql_upgrade_guard_test name`=`name unknown
+            INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('unknown');
+            #EndIf
+            SQL);
+        $service = (new SQLUpgradeService())
+            ->setRenderOutputToScreen(false)
+            ->setThrowExceptionOnError(true);
+
+        // Wrapping the name without escaping would end the identifier at the first backtick.
+        $this->expectException(SqlQueryException::class);
+
+        $service->upgradeFromSqlFile('guard.sql', $this->scriptDir);
+    }
+
+    public function testTableGuardMatchesCaseTheWayTheServerDoes(): void
+    {
+        $this->filesystem->dumpFile($this->scriptDir . '/guard.sql', <<<'UPGRADE_SQL'
+            #IfTable SQL_UPGRADE_GUARD_TEST
+            INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('upper-case table name matched');
+            #EndIf
+            UPGRADE_SQL);
+        $service = (new SQLUpgradeService())
+            ->setRenderOutputToScreen(false)
+            ->setThrowExceptionOnError(true);
+        $namesAreCaseSensitive = QueryUtils::fetchRecords('SELECT 1 FROM DUAL WHERE @@lower_case_table_names = 0') !== [];
+
+        $service->upgradeFromSqlFile('guard.sql', $this->scriptDir);
+
+        self::assertCount(
+            $namesAreCaseSensitive ? 0 : 1,
+            QueryUtils::fetchRecords('SELECT `name` FROM `' . self::TABLE . '`'),
         );
     }
 
@@ -148,6 +186,14 @@ class SQLUpgradeServiceGuardTest extends TestCase
                     ['name' => 'column exists', 'function' => null],
                     ['name' => 'index exists', 'function' => null],
                 ],
+            ],
+            'column name the directive already quoted' => [
+                <<<'SQL'
+                #IfNotRow2D sql_upgrade_guard_test `name` quoted `function` yes
+                INSERT INTO `sql_upgrade_guard_test` (`name`, `function`) VALUES ('quoted', 'yes');
+                #EndIf
+                SQL,
+                [['name' => 'quoted', 'function' => 'yes']],
             ],
             'row guards on three and four columns' => [
                 <<<'SQL'
