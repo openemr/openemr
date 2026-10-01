@@ -884,12 +884,12 @@ class SQLUpgradeService implements ISQLUpgradeService
     /**
      * Backtick-quote a table or column name taken from a directive, so a
      * reserved word (MySQL 8 reserves `function`, for one) still parses.
-     * A name the directive already wrapped in backticks is not wrapped again.
+     * A name the directive already wrapped in backticks is used as written.
      */
     private function quoteIdentifier(string $name): string
     {
         if (strlen($name) > 2 && str_starts_with($name, '`') && str_ends_with($name, '`')) {
-            $name = substr($name, 1, -1);
+            return $name;
         }
 
         return '`' . str_replace('`', '``', $name) . '`';
