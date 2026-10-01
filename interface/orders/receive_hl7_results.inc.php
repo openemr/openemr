@@ -28,6 +28,7 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Orders\Hl7PlacerOrderId;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use phpseclib3\Net\SFTP;
@@ -68,9 +69,13 @@ function parseZPS($segment)
     return $r;
 }
 
+/** @return array<mixed> */
 function rhl7LogMsg($msg, $fatal = true)
 {
     global $rhl7_return;
+    if (!is_array($rhl7_return)) {
+        throw new \LogicException('HL7 return state is not initialized');
+    }
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
@@ -109,7 +114,7 @@ function rhl7InsertRow(&$arr, $tablename)
     }
 
     $arr = [];
-    return sqlInsert($query, $binds);
+    return QueryUtils::sqlInsert($query, $binds);
 }
 
 // Write all of the accumulated reports and their results.
@@ -544,7 +549,7 @@ function lookupTestCode($labid, $procedure_code)
         "(procedure_type LIKE 'ord' OR procedure_type LIKE 'pro') AND " .
         "activity = 1 AND procedure_code = ? " .
         "LIMIT 1";
-    $res = sqlQuery($query, [$labid, $procedure_code]);
+    $res = QueryUtils::querySingleRow($query, [$labid, $procedure_code]);
 
     return $res;
 }
@@ -701,20 +706,94 @@ function create_skeleton_patient($patient_data)
 /**
  * Parse and save.
  *
+ * Validate bidirectional ORU imports before saving all clinical database changes
+ * in one transaction. Audit logs use a separate connection. File/remote document
+ * storage is outside this database transaction.
+ *
  * @param string &$hl7        The input HL7 text
- * @param string &$matchreq   Array of shared patient matching requests
+ * @param array<mixed> &$matchreq Array of shared patient matching requests
  * @param int     $lab_id     Lab ID
- * @param char    $direction  B=Bidirectional, R=Results-only
+ * @param string  $direction  B=Bidirectional, R=Results-only
  * @param bool    $dryrun     True = do not update anything, just report errors
- * @param array   $matchresp  Array of responses to match requests; key is relative segment number,
+ * @param array|null $matchresp Array of responses to match requests; key is relative segment number,
  *                            value is an existing pid or 0 to specify creating a patient
- * @return array              Array of errors and match requests, if any
+ * @param bool $parseOnly Internal recursive call; skips transaction orchestration
+ * @return array<mixed> Array of errors and match requests, if any
  */
-function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $dryrun = false, $matchresp = null)
+function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $dryrun = false, $matchresp = null, bool $parseOnly = false)
 {
     global $rhl7_return;
     global $orphanLog;
     global $lab_npi;
+    if (!$parseOnly && $direction != 'R') {
+        $header = explode(substr($hl7, 3, 1) ?: '|', explode("\r", str_replace("\n", "\r", $hl7), 2)[0]);
+        if (str_contains($header[8] ?? '', 'ORU')) {
+            $rhl7_return = ['mssgs' => [], 'needmatch' => false];
+            $transactionStarted = false;
+            $connection = null;
+            $outputLevel = ob_get_level();
+            ob_start();
+            try {
+                if ($dryrun) {
+                    return receive_hl7_results($hl7, $matchreq, $lab_id, $direction, true, $matchresp, true);
+                }
+                $adodb = OEGlobalsBag::getInstance()->get('adodb');
+                $candidate = is_array($adodb) ? ($adodb['db'] ?? null) : null;
+                if (!$candidate instanceof ADODB_mysqli_log) {
+                    throw new \RuntimeException('The HL7 database connection is unavailable');
+                }
+                if (!is_int($candidate->transCnt) || !is_int($candidate->transOff)) {
+                    throw new \RuntimeException('The HL7 transaction state is invalid');
+                }
+                if ($candidate->transCnt > 0 || $candidate->transOff > 0) {
+                    return rhl7LogMsg('Cannot import HL7 results within an existing transaction', true);
+                }
+                $validation = receive_hl7_results($hl7, $matchreq, $lab_id, $direction, true, $matchresp, true);
+                if (($validation['fatal'] ?? false) === true || ($validation['needmatch'] ?? false) === true) {
+                    return $validation;
+                }
+                // ADODB BeginTrans/CommitTrans discard failed command return values.
+                // Execute transaction commands through the throwing API instead.
+                QueryUtils::sqlStatementThrowException('START TRANSACTION');
+                $transactionStarted = true;
+                // Prevent legacy nested BeginTrans/CommitTrans from committing us.
+                ++$candidate->transOff;
+                $connection = $candidate;
+                $result = receive_hl7_results($hl7, $matchreq, $lab_id, $direction, false, $matchresp, true);
+                if (($result['fatal'] ?? false) === true || ($result['needmatch'] ?? false) === true) {
+                    return $result;
+                }
+                QueryUtils::sqlStatementThrowException('COMMIT');
+                $transactionStarted = false;
+                return $result;
+            } catch (\RuntimeException $exception) {
+                ServiceContainer::getLogger()->error('Failed to save HL7 results', ['exception' => $exception]);
+                // xl() can query the failed main connection and recurse via HelpfulDie.
+                return rhl7LogMsg('HL7 results could not be saved; the import was rejected', true);
+            } finally {
+                try {
+                    // Also roll back before an uncaught Error leaves this function.
+                    if ($transactionStarted) {
+                        try {
+                            QueryUtils::sqlStatementThrowException('ROLLBACK');
+                        } catch (\RuntimeException $rollbackException) {
+                            ServiceContainer::getLogger()->error('Could not confirm HL7 rollback', ['exception' => $rollbackException]);
+                        }
+                    }
+                } finally {
+                    if ($connection !== null && is_int($connection->transOff)) {
+                        --$connection->transOff;
+                    }
+                    // ADODB may echo a failed statement even through its throwing API.
+                    while (ob_get_level() > $outputLevel) {
+                        if (!ob_end_clean()) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
     //$direction = 'R';
     // This will hold returned error messages and related variables.
     $rhl7_return = [];
@@ -753,6 +832,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     $in_lname = '';
     $in_fname = '';
     $in_orderid = 0;
+    $in_orc_orderid = 0;
     $in_procedure_code = '';
     $in_report_status = '';
     $in_encounter = 0;
@@ -785,7 +865,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     $d5 = substr($hl7, 7, 1); // typically &
 
     // We'll need the document category IDs for any embedded documents.
-    $catrow = sqlQuery(
+    $catrow = QueryUtils::querySingleRow(
         "SELECT id FROM categories WHERE name = ?",
         [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]
     );
@@ -795,13 +875,21 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     } else {
         $results_category_id = $catrow['id'];
         $mdm_category_id = $results_category_id;
-        $catrow = sqlQuery(
+        $catrow = QueryUtils::querySingleRow(
             "SELECT id FROM categories WHERE name = ?",
             [OEGlobalsBag::getInstance()->getString('gbl_mdm_category_name')]
         );
         if (!empty($catrow['id'])) {
             $mdm_category_id = $catrow['id'];
         }
+    }
+
+    // The compound format is defined by our sender configuration, not by HL7.
+    $sendFacilityId = '';
+    if ($direction != 'R' && $lab_id) {
+        $labConfig = QueryUtils::querySingleRow('SELECT send_fac_id FROM procedure_providers WHERE ppid = ?', [$lab_id]);
+        $facility = $labConfig['send_fac_id'] ?? '';
+        $sendFacilityId = is_scalar($facility) ? trim((string) $facility) : '';
     }
 
     $segs = explode($d0, $hl7);
@@ -878,6 +966,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $pcrow = false;
             $oprow = false;
             $in_orderid = 0;
+            $in_orc_orderid = 0;
             $in_ssn = preg_replace('/[^0-9]/', '', $a[4]);
             $in_dob = rhl7Date($a[7]);
             // foreign MRN
@@ -978,8 +1067,17 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $arep = [];
             $porow = false;
             $pcrow = false;
-            if ($direction != 'R' && $a[2]) {
-                $in_orderid = intval($a[2]);
+            // A new ORC group must not inherit the previous group's order.
+            $in_orc_orderid = 0;
+            if ($direction != 'R') {
+                $in_orderid = 0;
+                if (($a[2] ?? '') !== '') {
+                    $in_orderid = Hl7PlacerOrderId::parse($a[2], $d2, $sendFacilityId);
+                    if (!$in_orderid) {
+                        return rhl7LogMsg(xl('Invalid ORC placer order number for configured lab'), true);
+                    }
+                    $in_orc_orderid = $in_orderid;
+                }
             }
         } elseif ('TXA' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
@@ -990,8 +1088,16 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
         } elseif ('OBR' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = [];
-            if ($direction != 'R' && $a[2]) {
-                $in_orderid = intval($a[2]);
+            $obrOrderId = 0;
+            if ($direction != 'R' && ($a[2] ?? '') !== '') {
+                $obrOrderId = Hl7PlacerOrderId::parse($a[2], $d2, $sendFacilityId);
+                if (!$obrOrderId) {
+                    return rhl7LogMsg(xl('Invalid OBR placer order number for configured lab'), true);
+                }
+                if ($in_orc_orderid && $in_orc_orderid !== $obrOrderId) {
+                    return rhl7LogMsg(xl('ORC and OBR placer order numbers do not match'), true);
+                }
+                $in_orderid = $obrOrderId;
                 $porow = false;
                 $pcrow = false;
             }
@@ -1038,7 +1144,17 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 }
             }
 
-            if ($parent_arep) {
+            if (is_array($parent_arep)) {
+                if ($direction != 'R' && (
+                    ($obrOrderId && $obrOrderId != $parent_arep['procedure_order_id']) ||
+                    ($in_orc_orderid && $in_orc_orderid != $parent_arep['procedure_order_id'])
+                )) {
+                    return rhl7LogMsg(xl('Placer order number does not match parent order'), true);
+                }
+                if ($in_orderid != $parent_arep['procedure_order_id']) {
+                    $porow = false;
+                    $pcrow = false;
+                }
                 $in_orderid = $parent_arep['procedure_order_id'];
             }
 
@@ -1056,7 +1172,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $porow = false;
 
                 if (!$in_orderid && $external_order_id) {
-                    $porow = sqlQuery(
+                    $porow = QueryUtils::querySingleRow(
                         "SELECT * FROM procedure_order " .
                         "WHERE lab_id = ? AND control_id = ? " .
                         "ORDER BY procedure_order_id DESC LIMIT 1",
@@ -1076,7 +1192,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $provider_id = 0;
                     $external_id = rhl7Text($a[3]) ?? null;
                     // Look for the most recent encounter within 30 days of the report date.
-                    $encrow = sqlQuery(
+                    $encrow = QueryUtils::querySingleRow(
                         "SELECT encounter FROM form_encounter WHERE " .
                         "pid = ? AND date <= ? AND DATE_ADD(date, INTERVAL 30 DAY) > ? " .
                         "ORDER BY date DESC, encounter DESC LIMIT 1",
@@ -1107,7 +1223,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                             );
                         }
                         // Now create the procedure order.
-                        $in_orderid = sqlInsert(
+                        $in_orderid = QueryUtils::sqlInsert(
                             "INSERT INTO procedure_order SET " .
                                 "date_ordered   = ?, " .
                                 "provider_id    = ?, " .
@@ -1146,12 +1262,19 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 } // end no $porow
             } // end results-only
             if (empty($porow)) {
-                $porow = sqlQuery("SELECT * FROM procedure_order WHERE " .
+                $porow = QueryUtils::querySingleRow("SELECT * FROM procedure_order WHERE " .
                     "procedure_order_id = ?", [$in_orderid]);
                 // The order must already exist. Currently we do not handle electronic
                 // results returned for manual orders.
                 if (empty($porow) && !($dryrun && $direction == 'R')) {
                     return rhl7LogMsg(xl('Procedure order not found') . ": $in_orderid", true);
+                }
+
+                $porow = is_array($porow) ? $porow : [];
+
+                $orderLabId = $porow['lab_id'] ?? null;
+                if ($direction != 'R' && $lab_id && (!is_scalar($orderLabId) || (int) $orderLabId !== (int) $lab_id)) {
+                    return rhl7LogMsg(xl('Procedure order belongs to a different lab'), true);
                 }
 
                 if ($in_encounter) {
@@ -1171,8 +1294,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 // Save the lab's control ID if there is one.
                 $tmp = explode($d2, $a[3]);
                 $control_id = $tmp[0];
-                if ($control_id && empty($porow['control_id']) && $in_orderid) {
-                    sqlStatement("UPDATE procedure_order SET control_id = ? WHERE " .
+                if (!$dryrun && $control_id && empty($porow['control_id']) && $in_orderid) {
+                    QueryUtils::sqlStatementThrowException("UPDATE procedure_order SET control_id = ? WHERE " .
                         "procedure_order_id = ?", [$control_id, $in_orderid]);
                 }
 
@@ -1185,7 +1308,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 "WHERE pc.procedure_order_id = ? AND pc.procedure_code = ? " .
                 "ORDER BY (procedure_order_seq <= ?), procedure_order_seq LIMIT 1";
             $pcqueryargs = [$in_orderid, $in_procedure_code, $code_seq_array[$in_procedure_code]];
-            $pcrow = sqlQuery($pcquery, $pcqueryargs);
+            $pcrow = QueryUtils::querySingleRow($pcquery, $pcqueryargs);
             if (empty($pcrow)) {
                 // There is no matching procedure in the order, so it must have been
                 // added after the original order was sent, either as a manual request
@@ -1195,8 +1318,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $lkup = lookupTestCode($lab_id, $in_procedure_code);
                     $code_type = ($lkup['procedure_type'] ?? '') ? trim($lkup['procedure_type']) : '';
                     $code_transport = ($lkup['transport'] ?? '') ? trim($lkup['transport']) : '';
-                    $pcrow = QueryUtils::inTransaction(function () use ($in_orderid, $in_procedure_code, $in_procedure_name, $code_type, $code_transport, $pcquery, $pcqueryargs) {
-                        $procedure_order_seq = sqlQuery(
+                    $insertReflex = function () use ($in_orderid, $in_procedure_code, $in_procedure_name, $code_type, $code_transport, $pcquery, $pcqueryargs) {
+                        $procedure_order_seq = QueryUtils::querySingleRow(
                             <<<'SQL'
                             SELECT IFNULL(MAX(procedure_order_seq), 0) + 1 AS increment
                             FROM procedure_order_code
@@ -1204,7 +1327,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                             SQL,
                             [$in_orderid]
                         );
-                        sqlInsert(
+                        if ($procedure_order_seq === false) {
+                            throw new \RuntimeException('Could not allocate an HL7 reflex order sequence');
+                        }
+                        QueryUtils::sqlInsert(
                             <<<'SQL'
                             INSERT INTO procedure_order_code SET
                                 procedure_order_id = ?,
@@ -1224,8 +1350,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                                 $code_transport,
                             ]
                         );
-                        return sqlQuery($pcquery, $pcqueryargs);
-                    });
+                        return QueryUtils::querySingleRow($pcquery, $pcqueryargs);
+                    };
+                    // B imports already own the complete message transaction.
+                    $pcrow = $direction == 'R' ? QueryUtils::inTransaction($insertReflex) : $insertReflex();
                 } else {
                     // Dry run, make a dummy procedure_order_code row.
                     $pcrow = [
@@ -1233,6 +1361,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         'procedure_order_seq' => 0, // TBD?
                     ];
                 }
+            }
+            if (!is_array($pcrow)) {
+                return rhl7LogMsg(xl('Procedure order code not found'), true);
             }
             if (!empty($a[21])) {
                 $obrPerformingOrganization = getPerformingOrganizationDetails('', $a[21], '', $d2, $commentdelim);
@@ -1318,6 +1449,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         return rhl7LogMsg(xl('Invalid encapsulated data encoding type') . ': ' . $tmp[3]);
                     }
                     if (!$dryrun) {
+                        if (!is_array($porow)) {
+                            return rhl7LogMsg(xl('Procedure order not found'), true);
+                        }
                         $d = new Document();
                         $rc = $d->createDocument(
                             $porow['patient_id'],
@@ -1419,6 +1553,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             }
 
             if (!$dryrun) {
+                if (!is_array($porow)) {
+                    return rhl7LogMsg(xl('Procedure order not found'), true);
+                }
                 $d = new Document();
                 $rc = $d->createDocument(
                     $porow['patient_id'],
@@ -1517,7 +1654,7 @@ function poll_hl7_results(&$info, $labs = 0)
     $filecount = 0;
     $badcount = 0;
     $maxdl = $_REQUEST['form_max_results'] ?? 9999; // in case to prevent not running report.
-    if (!isset($info['match'])) {
+    if (!is_array($info['match'] ?? null)) {
         $info['match'] = []; // match requests
     }
 
@@ -1528,6 +1665,7 @@ function poll_hl7_results(&$info, $labs = 0)
     $ppres = sqlStatement("SELECT * FROM procedure_providers ORDER BY name");
 
     while ($pprow = sqlFetchArray($ppres)) {
+        $receiveDirection = is_string($pprow['direction'] ?? null) ? $pprow['direction'] : 'B';
         $ppid = (int)$pprow['ppid'];
         $protocol = $pprow['protocol'];
         $remote_host = $pprow['remote_host'];
@@ -1643,7 +1781,7 @@ function poll_hl7_results(&$info, $labs = 0)
                     break;
                 }
                 // Do a dry run of its contents and check for errors and match requests.
-                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
+                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $receiveDirection, true, $info['select']);
                 $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " .
                     $tmp['mssgs'] ? print_r($tmp['mssgs'], true) : "None" . "\n";
 
@@ -1655,7 +1793,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
                 $orphanLog = '';
                 // Now the money shot - not a dry run.
-                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
+                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $receiveDirection, false, $info['select']);
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 // $info["$lab_name/$ppid/$file"]['match'] = $tmp['match'];
                 if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
@@ -1768,7 +1906,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Do a dry run of its contents and check for errors and match requests.
-                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
+                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $receiveDirection, true, $info['select']);
                 if (!empty($tmp['mssgs'])) {
                     $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " .
                         $tmp['mssgs'] ? print_r($tmp['mssgs'][0], true) : "None" . "\n";
@@ -1782,7 +1920,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
                 $orphanLog = '';
                 // Now the money shot - not a dry run.
-                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
+                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $receiveDirection, false, $info['select']);
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 // $info["$lab_name/$ppid/$file"]['match'] = $tmp['match'];
                 if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
@@ -1892,7 +2030,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Do a dry run of its contents and check for errors and match requests.
-                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
+                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $receiveDirection, true, $info['select']);
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 // $info["$lab_name/$ppid/$file"]['match'] = $tmp['match'];
                 if (!empty($tmp['fatal']) || !empty($tmp['needmatch'])) {
@@ -1901,7 +2039,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
                 $orphanLog = '';
                 // Now the money shot - not a dry run.
-                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
+                $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $receiveDirection, false, $info['select']);
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
                     // It worked, archive and delete the file.
