@@ -1660,16 +1660,14 @@ class X125010837P
     }
 
     /**
-     * Billing-provider ZIP, loop 2010AA. Medicare's 277CA for this element is CSC 500.
-     * Remark MA114 is the service location, not this loop.
+     * Billing-provider ZIP, loop 2010AA. The 837P guide requires 9 digits for a US address.
      */
-    public const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
-        . 'The 837 does not send a country code, so Medicare can reject this ZIP on the 277CA with CSC 500.';
+    private const BILLING_ZIP_LOG = '*** Billing facility zip is not 9 digits. '
+        . '837P loop 2010AA requires a 9-digit ZIP for US addresses; payers may reject the claim.';
 
     /**
-     * Service-facility ZIP, loop 2310C. MA114 is the 835 remark for where the services were furnished.
+     * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
      */
-    public const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
-        . 'The 837 does not send a country code, so Medicare can reject this ZIP on the 277CA with CSC 500 '
-        . 'and deny the service location with MA114.';
+    private const SERVICE_ZIP_LOG = '*** Service facility zip is not 9 digits. '
+        . '837P loop 2310C requires a 9-digit ZIP for US addresses; payers may reject the claim.';
 }
