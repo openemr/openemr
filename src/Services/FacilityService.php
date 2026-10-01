@@ -12,6 +12,8 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -44,6 +46,49 @@ class FacilityService extends BaseService
         parent::__construct(self::FACILITY_TABLE);
         UuidRegistry::createMissingUuidsForTables([self::FACILITY_TABLE]);
         $this->facilityValidator = new FacilityValidator();
+    }
+
+
+    /**
+     * Save-dialog text for a billing facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_BILLING_POSTAL = 'This billing facility was saved. The postal code is not 9 digits, '
+        . 'so a claim billed from this facility can be rejected.';
+
+    /**
+     * Save-dialog text for a service facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_SERVICE_POSTAL = 'This service facility was saved. The postal code is not 9 digits, '
+        . 'so a claim that uses this service location can be rejected.';
+
+    /**
+     * Save-dialog text when the facility is both a billing and a service location.
+     */
+    public const FACILITY_SAVED_BOTH_POSTAL = 'This facility was saved as a billing and service location. '
+        . 'The postal code is not 9 digits, so a claim that uses it can be rejected.';
+
+    /**
+     * Postal notice for the facility screen. Empty when the dialog should stay quiet.
+     *
+     * Digits are kept by Claim::x12Zip(). Nine digits stay quiet.
+     */
+    public static function facilityPostalSaveNotice(string $postal, bool $billingLocation, bool $serviceLocation): string
+    {
+        if (!$billingLocation && !$serviceLocation) {
+            return '';
+        }
+        $digits = preg_replace('/[^0-9]/', '', $postal) ?? '';
+        if (strlen($digits) === 9) {
+            return '';
+        }
+        if ($billingLocation && $serviceLocation) {
+            return self::FACILITY_SAVED_BOTH_POSTAL;
+        }
+        if ($billingLocation) {
+            return self::FACILITY_SAVED_BILLING_POSTAL;
+        }
+
+        return self::FACILITY_SAVED_SERVICE_POSTAL;
     }
 
     public function getUuidFields(): array
