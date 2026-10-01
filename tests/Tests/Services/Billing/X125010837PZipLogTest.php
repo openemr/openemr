@@ -62,8 +62,8 @@ class X125010837PZipLogTest extends TestCase
     {
         [$claimText, $log] = $this->generateClaim('10101', '20202');
 
-        $this->assertStringContainsString(X125010837P::BILLING_ZIP_LOG, $log);
-        $this->assertStringContainsString(X125010837P::SERVICE_ZIP_LOG, $log);
+        $this->assertStringContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
+        $this->assertStringContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
         $this->assertStringNotContainsString('Rejecting claim', $log);
         $this->assertStringContainsString('*10101~', $claimText);
         $this->assertStringContainsString('*20202~', $claimText);
@@ -76,8 +76,8 @@ class X125010837PZipLogTest extends TestCase
     {
         [$claimText, $log] = $this->generateClaim('101010101', '202020202');
 
-        $this->assertStringNotContainsString(X125010837P::BILLING_ZIP_LOG, $log);
-        $this->assertStringNotContainsString(X125010837P::SERVICE_ZIP_LOG, $log);
+        $this->assertStringNotContainsString('837P loop 2010AA requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('837P loop 2310C requires a 9-digit ZIP', $log);
         $this->assertStringContainsString('*101010101~', $claimText);
         $this->assertStringContainsString('*202020202~', $claimText);
     }
