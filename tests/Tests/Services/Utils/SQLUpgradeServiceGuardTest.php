@@ -19,9 +19,10 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Runs upgrade scripts whose guards name reserved words or quote-bearing
- * values, which break the guard query unless identifiers are quoted and
- * values bound. Each script runs twice, the way a repeated upgrade does.
+ * Runs upgrade scripts through the #If* guards, including guards that name
+ * reserved words or quote-bearing values, which break the guard query unless
+ * identifiers are quoted and values bound. Each script runs twice, the way a
+ * repeated upgrade does.
  */
 class SQLUpgradeServiceGuardTest extends TestCase
 {
@@ -39,6 +40,8 @@ class SQLUpgradeServiceGuardTest extends TestCase
               `id` INT NOT NULL AUTO_INCREMENT,
               `name` VARCHAR(64) NOT NULL,
               `function` VARCHAR(64) NULL,
+              `label` VARCHAR(64) NOT NULL DEFAULT '',
+              `kind` VARCHAR(8) NOT NULL DEFAULT 'row',
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB
             SQL);
@@ -100,9 +103,13 @@ class SQLUpgradeServiceGuardTest extends TestCase
                 #EndIf
                 #IfRowIsNull sql_upgrade_guard_test function
                 UPDATE `sql_upgrade_guard_test` SET `function` = 'filled' WHERE `function` IS NULL;
+                INSERT INTO `sql_upgrade_guard_test` (`name`, `function`) VALUES ('null row found', 'once');
                 #EndIf
                 SQL,
-                [['name' => 'unset', 'function' => 'filled']],
+                [
+                    ['name' => 'unset', 'function' => 'filled'],
+                    ['name' => 'null row found', 'function' => 'once'],
+                ],
             ],
             'guard value containing a quote' => [
                 <<<'SQL'
@@ -128,12 +135,78 @@ class SQLUpgradeServiceGuardTest extends TestCase
                 #IfIndex keys name
                 INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('index exists');
                 #EndIf
+                #IfNotIndex keys name
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('index missing');
+                #EndIf
+                #IfIndex keys no_such_index
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('other index exists');
+                #EndIf
                 SQL,
                 [
                     ['name' => 'column exists', 'function' => null],
                     ['name' => 'index exists', 'function' => null],
                     ['name' => 'column exists', 'function' => null],
                     ['name' => 'index exists', 'function' => null],
+                ],
+            ],
+            'row guards on three and four columns' => [
+                <<<'SQL'
+                #IfNotRow3D sql_upgrade_guard_test name three function f label l
+                INSERT INTO `sql_upgrade_guard_test` (`name`, `function`, `label`) VALUES ('three', 'f', 'l');
+                #EndIf
+                #IfNotRow4D sql_upgrade_guard_test name four function f label l kind k
+                INSERT INTO `sql_upgrade_guard_test` (`name`, `function`, `label`, `kind`) VALUES ('four', 'f', 'l', 'k');
+                #EndIf
+                SQL,
+                [
+                    ['name' => 'three', 'function' => 'f'],
+                    ['name' => 'four', 'function' => 'f'],
+                ],
+            ],
+            'column type and default guards that match' => [
+                <<<'SQL'
+                #IfNotColumnTypeDefault sql_upgrade_guard_test function varchar(64) NULL
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('null default differs');
+                #EndIf
+                #IfNotColumnTypeDefault sql_upgrade_guard_test label varchar(64)
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('blank default differs');
+                #EndIf
+                #IfNotColumnTypeDefault sql_upgrade_guard_test kind varchar(8) row
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('value default differs');
+                #EndIf
+                #IfNotColumnTypeDefault sql_upgrade_guard_test missing varchar(8) row
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('missing column default differs');
+                #EndIf
+                #IfNotColumnType sql_upgrade_guard_test missing varchar(8)
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('missing column type differs');
+                #EndIf
+                SQL,
+                [],
+            ],
+            'column type and default guards that differ' => [
+                <<<'SQL'
+                #IfNotColumnTypeDefault sql_upgrade_guard_test function varchar(64)
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('default is not blank');
+                #EndIf
+                #IfNotColumnTypeDefault sql_upgrade_guard_test label varchar(64) NULL
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('default is not null');
+                #EndIf
+                #IfNotColumnTypeDefault sql_upgrade_guard_test kind varchar(8) other
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('default is not other');
+                #EndIf
+                #IfNotColumnTypeDefault sql_upgrade_guard_test kind varchar(9) row
+                INSERT INTO `sql_upgrade_guard_test` (`name`) VALUES ('type is not varchar(9)');
+                #EndIf
+                SQL,
+                [
+                    ['name' => 'default is not blank', 'function' => null],
+                    ['name' => 'default is not null', 'function' => null],
+                    ['name' => 'default is not other', 'function' => null],
+                    ['name' => 'type is not varchar(9)', 'function' => null],
+                    ['name' => 'default is not blank', 'function' => null],
+                    ['name' => 'default is not null', 'function' => null],
+                    ['name' => 'default is not other', 'function' => null],
+                    ['name' => 'type is not varchar(9)', 'function' => null],
                 ],
             ],
         ];
