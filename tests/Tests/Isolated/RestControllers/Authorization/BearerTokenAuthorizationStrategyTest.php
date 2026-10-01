@@ -21,6 +21,7 @@ use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
@@ -79,7 +80,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $accessToken = new AccessTokenEntity();
         $accessToken->setIdentifier($tokenId);
         $accessToken->setIssuer(self::ISSUER);
-        $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE));
+        // Git tracks only the executable bit, so the fixture cannot carry the 0600 mode the check wants.
+        $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE, keyPermissionsCheck: false));
         $accessToken->setClient($testClient);
         $accessToken->setExpiryDateTime(new \DateTimeImmutable('+1 hour'));
         $accessToken->setUserIdentifier($userUuid);
@@ -376,5 +378,40 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $strategy = $this->getBearerTokenAuthorizationStrategy($request);
         $uuidUserAccountClass = $strategy->getUuidUserAccountFactory()(1);
         $this->assertInstanceOf(UuidUserAccount::class, $uuidUserAccountClass, "Expected UuidUserAccount instance");
+    }
+
+    /**
+     * League's CryptKey raises E_USER_NOTICE for any key file that is world-readable. That check
+     * guards secrets; applied to the public key it only logs a notice on every API request.
+     */
+    public function testSetPublicKeyFromPathSkipsPermissionCheck(): void
+    {
+        $strategy = $this->getBearerTokenAuthorizationStrategy($this->createStub(HttpRestRequest::class));
+        $filesystem = new Filesystem();
+        $notices = [];
+
+        $keyPath = $filesystem->tempnam(sys_get_temp_dir(), 'oapublic');
+        try {
+            $filesystem->copy(self::KEY_PATH_PUBLIC, $keyPath, true);
+            $filesystem->chmod($keyPath, 0644);
+
+            set_error_handler(
+                static function (int $errno, string $errstr) use (&$notices): bool {
+                    $notices[] = $errstr;
+                    return true;
+                },
+                E_USER_NOTICE
+            );
+            try {
+                $strategy->setPublicKey($keyPath);
+            } finally {
+                restore_error_handler();
+            }
+        } finally {
+            $filesystem->remove($keyPath);
+        }
+
+        $this->assertSame([], $notices);
+        $this->assertSame('file://' . $keyPath, $strategy->getPublicKey()->getKeyPath());
     }
 }
