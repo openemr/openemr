@@ -544,6 +544,44 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
+     * With the hold off, a file already on disk is billed and is not written again.
+     */
+    public function testHoldOffSettlesAPublishedFile(): void
+    {
+        $this->withGlobals(false, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'old-batch.txt';
+            $probe->fileOnDisk = true;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([[false, 4]], $probe->writes);
+            $this->assertSame([2], $probe->writeStatus);
+            $this->assertSame([], $probe->storedClaims());
+            $this->assertContains(UnbilledFileDecision::ALREADY_WRITTEN, $probe->screen);
+        });
+    }
+
+    /**
+     * A published file that cannot be billed stays out of a second batch.
+     */
+    public function testHoldOffLeavesAPublishedFileOutWhenSettlementFails(): void
+    {
+        $this->withGlobals(false, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'old-batch.txt';
+            $probe->fileOnDisk = true;
+            $probe->billedUpdateResult = 0;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([[false, 4]], $probe->writes);
+            $this->assertSame([], $probe->storedClaims());
+            $this->assertContains(FacilityZipDenial::LEFT_OUT_NOT_BILLED, $probe->screen);
+        });
+    }
+
+    /**
      * A stored file name with no file is cleared, and the claim is generated again.
      */
     public function testMissingFileIsGeneratedAgain(): void
@@ -756,6 +794,36 @@ class X125010837PZipTest extends TestCase
             'not a list' => ['nope', 'batch.txt', false],
             'row is not an array' => [['row'], 'batch.txt', false],
         ];
+    }
+
+    /**
+     * @return array<string, array{mixed, string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function billingFileNamedProvider(): array
+    {
+        return [
+            'no billing rows' => [[], 'batch.txt', true],
+            'named with this file' => [[['process_file' => 'batch.txt']], 'batch.txt', true],
+            'other file' => [[['process_file' => 'other.txt']], 'batch.txt', false],
+            'one row left unnamed' => [[
+                ['process_file' => 'batch.txt'],
+                ['process_file' => ''],
+            ], 'batch.txt', false],
+            'not a list' => ['nope', 'batch.txt', false],
+            'row is not an array' => [['row'], 'batch.txt', false],
+            'blank name' => [[[]], '', false],
+        ];
+    }
+
+    /**
+     * Billing rows agree with the assigned file only when every active row names it.
+     */
+    #[DataProvider('billingFileNamedProvider')]
+    public function testBillingFileNamed(mixed $rows, string $filename, bool $named): void
+    {
+        $this->assertSame($named, BillingUtilities::billingFileNamed($rows, $filename));
     }
 
     /**

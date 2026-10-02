@@ -207,6 +207,24 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // and return the batch we updated
         $this->insideGenerate = true;
         $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
+        if (!$this->billWhenTheFileLands) {
+            $partnerId = $claim->getPartner();
+            $partnerBatch = null;
+            if (is_int($partnerId) || is_string($partnerId)) {
+                $partnerBatch = $this->x12_partner_batches[$partnerId] ?? null;
+            }
+            if ($partnerBatch instanceof BillingClaimBatch) {
+                $settled = $this->recoverPublishedFile($claim, $partnerBatch);
+                if ($settled !== null) {
+                    $this->printToScreen(xl($settled
+                        ? UnbilledFileDecision::ALREADY_WRITTEN
+                        : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+                    $this->insideGenerate = false;
+
+                    return;
+                }
+            }
+        }
         $batch = $this->validateAndClear($claim);
         $this->insideGenerate = false;
         if (!$batch instanceof BillingClaimBatch) {
