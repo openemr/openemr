@@ -121,6 +121,7 @@ class ApiTestClient
         'user/MedicationRequest.read',
         'user/MedicationRequest.write',
         'user/Observation.read',
+        'user/OperationDefinition.read',
         'user/Organization.read',
         'user/Organization.write',
         'user/Patient.read',
