@@ -295,6 +295,27 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testAPostDoesNotOverwriteAReadingTheRowAlreadyHolds(): void
+    {
+        $pulseUuid = $this->insertObservation('8867-4');
+
+        // Same vital, same encounter, same effectiveDateTime: coalescing would land on the
+        // row that already holds this pulse. POST must not replace it.
+        $payload = $this->observationPayload('8867-4');
+        $quantity = $this->arrayValue($payload['valueQuantity'] ?? null);
+        $quantity['value'] = 90;
+        $payload['valueQuantity'] = $quantity;
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $message = $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null);
+        $this->assertStringContainsString('PUT', $message);
+        $this->assertStringContainsString($pulseUuid, $message, 'the rejection should name the Observation to update');
+        $this->assertEqualsWithDelta(72, $this->currentPulse(), 0.001, 'the stored reading must be untouched');
+        $this->assertSame(1, $this->countVitalsRows());
+    }
+
+    #[Test]
     public function testAReadingAtADifferentTimeStartsItsOwnRow(): void
     {
         $this->insertObservation('8867-4', '2026-03-04T09:30:00-05:00');
@@ -424,6 +445,27 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
         $this->assertFalse($result->isValid());
         $this->assertArrayHasKey('encounter', $this->arrayValue($result->getValidationMessages()));
         $this->assertEqualsWithDelta($originalPulse, $this->currentPulse(), 0.001);
+    }
+
+    #[Test]
+    public function testInsertRejectsASoftDeletedEncounter(): void
+    {
+        // Deleting an encounter flags its newpatient forms row and leaves form_encounter in
+        // place; the write must treat it as gone rather than attach vitals to it.
+        $deletedEncounterUuid = $this->createEncounterFor($this->patientUuid);
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE forms SET deleted = 1 WHERE formdir = 'newpatient' AND encounter = "
+            . "(SELECT encounter FROM form_encounter WHERE uuid = ?)",
+            [UuidRegistry::uuidToBytes($deletedEncounterUuid)]
+        );
+
+        $payload = $this->observationPayload('8867-4');
+        $payload['encounter'] = ['reference' => 'Encounter/' . $deletedEncounterUuid];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('encounter', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
     }
 
     #[Test]

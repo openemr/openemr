@@ -429,6 +429,45 @@ class FhirObservationVitalsWriteTest extends TestCase
                 'category',
                 'must include "vital-signs"',
             ],
+            // 0 is form_vitals' "not recorded"; storing it, or anything below it, would read back
+            // as missing rather than as the value sent.
+            'a zero value is refused rather than read back as missing' => [
+                self::observation([
+                    'code' => self::loincCode('8867-4'),
+                    'valueQuantity' => ['value' => 0, 'code' => '/min'],
+                ]),
+                'valueQuantity',
+                'must be greater than zero',
+            ],
+            'a negative value is refused' => [
+                self::observation([
+                    'code' => self::loincCode('29463-7'),
+                    'valueQuantity' => ['value' => -5, 'code' => 'kg'],
+                ]),
+                'valueQuantity',
+                'must be greater than zero',
+            ],
+            'a temperature that converts to 0 degF or below is refused' => [
+                self::observation([
+                    'code' => self::loincCode('8310-5'),
+                    'valueQuantity' => ['value' => -20, 'code' => 'Cel'],
+                ]),
+                'valueQuantity',
+                'must be greater than zero',
+            ],
+            'a zero component is refused' => [
+                self::observation([
+                    'code' => self::loincCode('85354-9'),
+                    'component' => [
+                        [
+                            'code' => self::loincCode('8480-6'),
+                            'valueQuantity' => ['value' => 0, 'code' => 'mm[Hg]'],
+                        ],
+                    ],
+                ]),
+                'component',
+                'must be greater than zero',
+            ],
             'code is required' => [
                 self::observation([
                     'valueQuantity' => ['value' => 72, 'code' => '/min'],

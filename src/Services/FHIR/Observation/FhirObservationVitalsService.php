@@ -1106,6 +1106,18 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     ];
 
     /**
+     * Why a zero or negative vital sign is refused rather than stored.
+     *
+     * The numeric form_vitals columns default to 0 and the whole system reads 0 as "not
+     * recorded" -- the read path emits dataAbsentReason for anything not above zero. A stored
+     * zero or negative value would therefore come back as missing, which is a dropped write
+     * under another name. Temperature is no exception: it shares the same default, and no
+     * body temperature is at or below 0 degF.
+     */
+    private const NON_POSITIVE_VALUE_REASON =
+        'form_vitals records 0 as "not recorded", so a zero or negative value would read back as missing';
+
+    /**
      * Component code -> storage column, for the two panel codes that carry their values
      * in Observation.component rather than Observation.valueQuantity.
      *
@@ -1342,6 +1354,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                     . '" which cannot be converted to "' . $spec[$column]['unit'] . '"'
                 );
             }
+            if ($converted <= 0) {
+                return self::vitalsValidationError(
+                    'component',
+                    'Observation.component "' . $componentCode . '" must be greater than zero; '
+                    . self::NON_POSITIVE_VALUE_REASON
+                );
+            }
             $columns[$column] = $converted;
         }
 
@@ -1356,6 +1375,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                     'valueQuantity',
                     'Observation.valueQuantity has unit "' . $quantity['unit']
                     . '" which cannot be converted to "' . $spec[$column]['unit'] . '"'
+                );
+            }
+            if ($converted <= 0) {
+                return self::vitalsValidationError(
+                    'valueQuantity',
+                    'Observation.valueQuantity must be greater than zero; ' . self::NON_POSITIVE_VALUE_REASON
                 );
             }
             $columns[$column] = $converted;
@@ -1418,6 +1443,24 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $vitalsData['eid'] = $context['eid'];
             $vitalsData['authorized'] = 1;
             if ($existing !== null) {
+                // Coalescing exists so that *different* vital signs taken at one moment share
+                // a row. A POST for a vital the row already holds is not that: it would replace
+                // the stored reading and still answer 201 with the same id. POST creates; a
+                // change to an existing reading goes through PUT, with its patient, encounter
+                // and date checks. Checked inside the lock so a concurrent POST cannot slip in.
+                // Column names come from VITALS_WRITE_COLUMNS, never from the payload.
+                $submittedColumns = array_keys($columns);
+                $storedRow = QueryUtils::querySingleRow(
+                    'SELECT ' . implode(', ', array_map(static fn(string $column): string => '`' . $column . '`', $submittedColumns))
+                    . ' FROM `' . VitalsService::TABLE_VITALS . '` WHERE `id` = ?',
+                    [$existing['id']]
+                );
+                foreach ($submittedColumns as $submittedColumn) {
+                    $stored = is_array($storedRow) ? ($storedRow[$submittedColumn] ?? null) : null;
+                    if (self::storedVitalsValueIsRecorded($stored)) {
+                        return ['__conflict_row_uuid__' => $existing['uuid']];
+                    }
+                }
                 // A second vital sign for the same reading updates the row the first one
                 // created rather than starting another Vitals form on the encounter.
                 $vitalsData['id'] = $existing['id'];
@@ -1433,6 +1476,17 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
             return $this->service->saveVitalsArray($vitalsData);
         });
+        $conflictRowUuid = $saved['__conflict_row_uuid__'] ?? null;
+        if (is_string($conflictRowUuid)) {
+            $existingObservationUuid = $this->mappedObservationUuidForCode($conflictRowUuid, $code);
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'code' => 'A "' . $code . '" reading already exists for this encounter at this effectiveDateTime'
+                    . ($existingObservationUuid !== null ? ' (Observation/' . $existingObservationUuid . ')' : '')
+                    . '; POST does not overwrite a stored reading -- update that Observation with PUT',
+            ]);
+            return $result;
+        }
         $savedUuid = $saved['uuid'] ?? null;
         if (!is_string($savedUuid) || $savedUuid === '') {
             $result = new ProcessingResult();
@@ -1638,10 +1692,18 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             return $result;
         }
 
+        // An encounter is soft-deleted by flagging its 'newpatient' forms row, while the
+        // form_encounter row stays, so form_encounter alone would accept a deleted encounter
+        // and hang new vitals off it. Encounters with no newpatient row at all (older data)
+        // are still accepted; only an encounter whose newpatient row is flagged deleted is
+        // treated as gone. A deleted encounter answers the same as an unknown one.
         $euuid = $record['euuid'] ?? null;
         $encounter = is_string($euuid) && $euuid !== ''
             ? QueryUtils::querySingleRow(
-                'SELECT `encounter`, `pid` FROM `form_encounter` WHERE `uuid` = ?',
+                'SELECT fe.`encounter`, fe.`pid` FROM `form_encounter` fe'
+                . " LEFT JOIN `forms` f ON f.`encounter` = fe.`encounter` AND f.`pid` = fe.`pid` AND f.`formdir` = 'newpatient'"
+                . ' WHERE fe.`uuid` = ? AND (f.`id` IS NULL OR f.`deleted` = 0)'
+                . ' LIMIT 1',
                 [UuidRegistry::uuidToBytes($euuid)]
             )
             : null;
@@ -1666,6 +1728,24 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
 
         return ['pid' => (int) $pid, 'eid' => (int) $encounterId];
+    }
+
+    /**
+     * Whether a form_vitals column already holds a reading.
+     *
+     * NULL, '' and 0 all mean "not recorded": the numeric columns default to 0, the varchar
+     * blood-pressure columns to NULL.
+     */
+    private static function storedVitalsValueIsRecorded(mixed $stored): bool
+    {
+        if ($stored === null || $stored === '') {
+            return false;
+        }
+        if (is_numeric($stored)) {
+            return (float) $stored !== 0.0;
+        }
+
+        return true;
     }
 
     /**
