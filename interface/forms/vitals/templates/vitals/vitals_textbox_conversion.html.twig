@@ -38,6 +38,18 @@
             <td class='currentvalues p-2'>
         {% endif %}
 
+            {% if field.input == 'height' %}
+            <div id="height_input_usa_feet_inches" class="vitals-height-feet-inches" hidden>
+                <label class="sr-only" for="height_input_usa_feet">{{ "Feet"|xlt }}</label>
+                <input type="text" inputmode="numeric" class="form-control skip-template-editor" size="3"
+                       id="height_input_usa_feet" autocomplete="off" />
+                <span class="vitals-height-unit">{{ "ft"|xlt }}</span>
+                <label class="sr-only" for="height_input_usa_inches">{{ "Inches"|xlt }}</label>
+                <input type="text" inputmode="decimal" class="form-control skip-template-editor" size="4"
+                       id="height_input_usa_inches" autocomplete="off" />
+                <span class="vitals-height-unit">{{ "in"|xlt }}</span>
+            </div>
+            {% endif %}
             <input type="text" inputmode="decimal" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_usa'
                    value="{% if attribute(vitals, field.vitalsValue) is numeric %} {{ attribute(vitals, field.vitalsValue)|number_format(field.precision)|attr }}{% endif %}"
                    data-system="usa" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
