@@ -287,9 +287,7 @@ class FHIRTerminologyCapabilitiesExpansion extends FHIRBackboneElement implement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesExpansion xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesExpansion>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TerminologyCapabilitiesExpansion xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesExpansion>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->hierarchical)) {
             $this->hierarchical->xmlSerialize(true, $sxe->addChild('hierarchical'));

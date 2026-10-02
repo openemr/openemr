@@ -115,7 +115,7 @@ $templateService = new DocumentTemplateService();
     <script src="<?php echo $assets_static_relative; ?>/dropzone/dist/dropzone.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $webroot; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $webroot; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="<?php echo $webroot; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+    <script src="<?php echo $webroot; ?>/portal/patient/scripts/libs/LAB.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
         $LAB.setGlobalDefaults({
             BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"

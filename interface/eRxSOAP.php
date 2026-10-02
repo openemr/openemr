@@ -136,10 +136,8 @@ class eRxSOAP
      */
     public function getSiteId()
     {
-        if (null === $this->siteId) {
-            $this->siteId = $this->getStore()
-                ->selectFederalEin();
-        }
+        $this->siteId ??= $this->getStore()
+            ->selectFederalEin();
 
         return $this->siteId;
     }
@@ -150,10 +148,8 @@ class eRxSOAP
      */
     public function getAuthUserDetails()
     {
-        if (null === $this->authUserDetails) {
-            $this->authUserDetails = $this->getStore()
-                ->getUserById($this->getAuthUserId());
-        }
+        $this->authUserDetails ??= $this->getStore()
+            ->getUserById($this->getAuthUserId());
 
         return $this->authUserDetails;
     }

@@ -12,9 +12,9 @@
 
 namespace OpenEMR\OeUI;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
@@ -103,8 +103,7 @@ class OemrUI
 
         $kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->ed = $kernel->getEventDispatcher();
-        $twigContainer = new TwigContainer(null, $kernel);
-        $this->twig = $twigContainer->getTwig();
+        $this->twig = ServiceContainer::getTwig();
 
         if ($this->expandable) {
             $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, $this->expandIconListener(...));
@@ -339,7 +338,7 @@ class OemrUI
     /**
      * Output the help modal html along with the jQuery to make it work.
      *
-     * $param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
+     * @param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
      * will echo the entire html string of the help modal and the jQuery, needs to be used as the first line after the container div
      *
      * @return void
@@ -355,7 +354,7 @@ class OemrUI
         if ($help_file) {
             $help_file = attr($help_file);
             $help_file = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/Documentation/help_files/$help_file";
-            $modal_body = "<iframe src=\"$help_file\" id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
+            $modal_body = "<iframe src='' data-src='$help_file' id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
                                 allowtransparency='true'></iframe>";
         } else {
             $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br /><br />" . xlt("Then pass it's name as a value to the element" . " " . text("'help_file_name'") . " " . "in the associative array") . " " . text("\$arrOeUiSettings") . ".<br /><br />" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br />" . "</h3>";
@@ -388,6 +387,14 @@ class OemrUI
             $(".modal-dialog").addClass('drag-action');
             $(".modal-content").addClass('resize-action');
             var helpTitle = $('#help-href').prop('title');
+            // Load the help iframe on first open, not at page render.
+            // Delegated to document because #myModal is replaced after page load.
+            $(document).on('click', '#help-href', function () {
+                var iframe = $('#targetiframe');
+                if (!iframe.attr('src') && iframe.data('src')) {
+                    iframe.attr('src', iframe.data('src'));
+                }
+            });
             $('#myModal').on('hidden.bs.modal', function (e) {
                 $('#help-href').prop('title', '');
             });

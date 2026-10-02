@@ -21,7 +21,7 @@ class ReminderIntervalRange
     const Warning = "pre";
     const PastDue = "post";
 
-    function __construct(public string $code, public string $lbl)
+    public function __construct(public string $code, public string $lbl)
     {
     }
 

@@ -191,9 +191,7 @@ class FHIRStructureMapDependent extends FHIRBackboneElement implements \JsonSeri
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureMapDependent xmlns="http://hl7.org/fhir"></StructureMapDependent>');
-        }
+        $sxe ??= new \SimpleXMLElement('<StructureMapDependent xmlns="http://hl7.org/fhir"></StructureMapDependent>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

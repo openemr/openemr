@@ -223,9 +223,7 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConditionStage xmlns="http://hl7.org/fhir"></ConditionStage>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ConditionStage xmlns="http://hl7.org/fhir"></ConditionStage>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->summary)) {
             $this->summary->xmlSerialize(true, $sxe->addChild('summary'));

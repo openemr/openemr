@@ -24,7 +24,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirGroupService extends FhirServiceBase implements IFhirExportableResourceService
+class FhirGroupService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;

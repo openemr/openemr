@@ -160,10 +160,7 @@ class Savant3_Plugin_image extends Savant3_Plugin
             $html = '<img';
             $html .= ' src="' . htmlspecialchars($file) . '"';
 
-            // add the alt attribute
-            if (is_null($alt)) {
-                $alt = basename($file);
-            }
+            $alt ??= basename($file);
 
             $html .= ' alt="' . htmlspecialchars($alt) . '"';
 

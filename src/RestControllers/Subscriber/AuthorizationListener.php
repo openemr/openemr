@@ -9,7 +9,11 @@
  * We probably need to refactor this in the future to have a more robust policy decision point (PDP) and policy enforcement point (PEP) system.
  * This would allow for more flexibility in the authorization process and would allow for more complex authorization scenarios.
  *
- *
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\RestControllers\Subscriber;
@@ -59,10 +63,7 @@ class AuthorizationListener implements EventSubscriberInterface
 
     public function getGlobalsBag(): OEGlobalsBag
     {
-        // This method is intended to return the globals bag for the authorization listener.
-        if (!isset($this->globalsBag)) {
-            $this->globalsBag = new OEGlobalsBag();
-        }
+        $this->globalsBag ??= new OEGlobalsBag();
         return $this->globalsBag;
     }
 
@@ -74,12 +75,7 @@ class AuthorizationListener implements EventSubscriberInterface
     }
     public function getLogger(): LoggerInterface
     {
-        // This method is intended to return the logger for the authorization listener.
-        // Implementation details would depend on the specific requirements of the application.
-        if (!isset($this->logger)) {
-            // If the logger is not set, we can initialize it here.
-            $this->logger = ServiceContainer::getLogger();
-        }
+        $this->logger ??= ServiceContainer::getLogger();
         return $this->logger;
     }
 
@@ -209,10 +205,7 @@ class AuthorizationListener implements EventSubscriberInterface
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void
     {
-        if (!isset($this->authorizationStrategies)) {
-            // Initialize the authorization strategies if not already set.
-            $this->authorizationStrategies = [];
-        }
+        $this->authorizationStrategies ??= [];
         // This method is intended to add an authorization strategy.
         // Implementation details would depend on the specific requirements of the application.
         $this->authorizationStrategies[] = $strategy;

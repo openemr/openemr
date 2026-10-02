@@ -182,9 +182,7 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesParameter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesParameter>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TerminologyCapabilitiesParameter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesParameter>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

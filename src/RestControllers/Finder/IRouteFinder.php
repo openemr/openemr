@@ -11,5 +11,5 @@ interface IRouteFinder
      * @param HttpRestRequest $request
      * @return array
      */
-    function find(HttpRestRequest $request): array;
+    public function find(HttpRestRequest $request): array;
 }

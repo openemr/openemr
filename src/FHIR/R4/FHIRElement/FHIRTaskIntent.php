@@ -144,9 +144,7 @@ class FHIRTaskIntent extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TaskIntent xmlns="http://hl7.org/fhir"></TaskIntent>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TaskIntent xmlns="http://hl7.org/fhir"></TaskIntent>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

@@ -1,0 +1,87 @@
+{
+    "errorCount": 6,
+    "warningCount": 0,
+    "ignoredCount": 0,
+    "errors": [
+        {
+            "type": "error",
+            "test": "cda:recordTarget/cda:patientRole[count(cda:telecom) > 0]",
+            "simplifiedTest": null,
+            "description": "This patientRole SHALL contain at least one [1..*] telecom (CONF:1198-5280).",
+            "patternId": "p-urn-hl7ii-2.16.840.1.113883.10.20.22.1.1-2015-08-01-errors",
+            "ruleId": "r-urn-hl7ii-2.16.840.1.113883.10.20.22.1.1-2015-08-01-errors",
+            "assertionId": "a-1198-5280",
+            "context": "cda:ClinicalDocument[cda:templateId[@root='2.16.840.1.113883.10.20.22.1.1' and @extension='2015-08-01']]",
+            "line": 1,
+            "path": "/ClinicalDocument[1]",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\"><realmCode code=\"US\"/><typeId root=\"2.16.840..."
+        },
+        {
+            "type": "error",
+            "test": "not(cda:recordTarget/cda:patientRole/cda:providerOrganization) or cda:recordTarget/cda:patientRole/cda:providerOrganization[count(cda:telecom) > 0]",
+            "simplifiedTest": null,
+            "description": "The providerOrganization, if present, SHALL contain at least one [1..*] telecom (CONF:1198-5420).",
+            "patternId": "p-urn-hl7ii-2.16.840.1.113883.10.20.22.1.1-2015-08-01-errors",
+            "ruleId": "r-urn-hl7ii-2.16.840.1.113883.10.20.22.1.1-2015-08-01-errors",
+            "assertionId": "a-1198-5420",
+            "context": "cda:ClinicalDocument[cda:templateId[@root='2.16.840.1.113883.10.20.22.1.1' and @extension='2015-08-01']]",
+            "line": 1,
+            "path": "/ClinicalDocument[1]",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\"><realmCode code=\"US\"/><typeId root=\"2.16.840..."
+        },
+        {
+            "type": "error",
+            "test": "cda:author/cda:assignedAuthor[count(cda:telecom) > 0]",
+            "simplifiedTest": null,
+            "description": "This assignedAuthor SHALL contain at least one [1..*] telecom (CONF:1198-5428).",
+            "patternId": "p-urn-hl7ii-2.16.840.1.113883.10.20.22.1.1-2015-08-01-errors",
+            "ruleId": "r-urn-hl7ii-2.16.840.1.113883.10.20.22.1.1-2015-08-01-errors",
+            "assertionId": "a-1198-5428",
+            "context": "cda:ClinicalDocument[cda:templateId[@root='2.16.840.1.113883.10.20.22.1.1' and @extension='2015-08-01']]",
+            "line": 1,
+            "path": "/ClinicalDocument[1]",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\"><realmCode code=\"US\"/><typeId root=\"2.16.840..."
+        },
+        {
+            "type": "error",
+            "test": "cda:recordTarget/cda:patientRole[count(cda:telecom) > 0]",
+            "simplifiedTest": null,
+            "description": "This patientRole SHALL contain at least one [1..*] telecom (CONF:1198-5280).",
+            "patternId": "p-urn-hl7ii-2.16.840.1.113883.10.20.22.1.2-2015-08-01-errors",
+            "ruleId": "r-urn-hl7ii-2.16.840.1.113883.10.20.22.1.2-2015-08-01-errors",
+            "assertionId": "a-1198-5280",
+            "context": "cda:ClinicalDocument[cda:templateId[@root='2.16.840.1.113883.10.20.22.1.2' and @extension='2015-08-01']]",
+            "line": 1,
+            "path": "/ClinicalDocument[1]",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\"><realmCode code=\"US\"/><typeId root=\"2.16.840..."
+        },
+        {
+            "type": "error",
+            "test": "not(cda:recordTarget/cda:patientRole/cda:providerOrganization) or cda:recordTarget/cda:patientRole/cda:providerOrganization[count(cda:telecom) > 0]",
+            "simplifiedTest": null,
+            "description": "The providerOrganization, if present, SHALL contain at least one [1..*] telecom (CONF:1198-5420).",
+            "patternId": "p-urn-hl7ii-2.16.840.1.113883.10.20.22.1.2-2015-08-01-errors",
+            "ruleId": "r-urn-hl7ii-2.16.840.1.113883.10.20.22.1.2-2015-08-01-errors",
+            "assertionId": "a-1198-5420",
+            "context": "cda:ClinicalDocument[cda:templateId[@root='2.16.840.1.113883.10.20.22.1.2' and @extension='2015-08-01']]",
+            "line": 1,
+            "path": "/ClinicalDocument[1]",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\"><realmCode code=\"US\"/><typeId root=\"2.16.840..."
+        },
+        {
+            "type": "error",
+            "test": "cda:author/cda:assignedAuthor[count(cda:telecom) > 0]",
+            "simplifiedTest": null,
+            "description": "This assignedAuthor SHALL contain at least one [1..*] telecom (CONF:1198-5428).",
+            "patternId": "p-urn-hl7ii-2.16.840.1.113883.10.20.22.1.2-2015-08-01-errors",
+            "ruleId": "r-urn-hl7ii-2.16.840.1.113883.10.20.22.1.2-2015-08-01-errors",
+            "assertionId": "a-1198-5428",
+            "context": "cda:ClinicalDocument[cda:templateId[@root='2.16.840.1.113883.10.20.22.1.2' and @extension='2015-08-01']]",
+            "line": 1,
+            "path": "/ClinicalDocument[1]",
+            "xml": "<ClinicalDocument xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"urn:hl7-org:v3\" xmlns:voc=\"urn:hl7-org:v3/voc\" xmlns:sdtc=\"urn:hl7-org:sdtc\"><realmCode code=\"US\"/><typeId root=\"2.16.840..."
+        }
+    ],
+    "warnings": [],
+    "ignored": []
+}

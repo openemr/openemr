@@ -539,8 +539,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
         onClosed: false,
         allowExternal: false, // allow a dialog window to a URL that is external to the current url
-        callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
-        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and close which coincide with dialog events.
+        callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
     };
 
     if (!opts) {
@@ -548,6 +547,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
     opts = jQuery.extend({}, opts_defaults, opts);
     opts.type = opts.type ? opts.type.toLowerCase() : '';
+    // this may be useful. values are init, shown, show, confirm, alert and close which coincide with dialog events.
+    // Deliberately not in opts_defaults: jQuery.extend would then always supply a value here,
+    // and ?? only falls back on null/undefined, so the 'init' default would never be applied.
     opts.resolvePromiseOn = opts.resolvePromiseOn ?? 'init';
     var mHeight, mWidth, mSize, msSize, dlgContainer, fullURL, where; // a growing list...
 

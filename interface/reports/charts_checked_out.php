@@ -13,11 +13,19 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+// Chart-tracker output cross-references patient pubpid with the borrowing
+// clinician; gate on the appointment ACL used by the sibling scheduling
+// reports.
+if (!AclMain::aclCheckCore('patients', 'appt')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Charts Checked Out", xl("Charts Checked Out"));
+}
 
 ?>
 <html>

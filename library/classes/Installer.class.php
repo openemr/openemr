@@ -22,6 +22,7 @@ use OpenEMR\Common\Command\RootCliGuard;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Installer\InstallerInterface;
+use OpenEMR\Core\VersionFile;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
@@ -551,27 +552,15 @@ class Installer implements InstallerInterface
      */
     public function add_version_info(): bool
     {
-        include __DIR__ . "/../../version.php";
-        /**
-         * This annotation declares variables from the legacy include
-         * so PHPStan recognizes them.
-         *
-         * @var string $v_major
-         * @var string $v_minor
-         * @var string $v_patch
-         * @var string $v_realpatch
-         * @var string $v_tag
-         * @var string $v_database
-         * @var string $v_acl
-         */
+        $version = VersionFile::load(dirname(__DIR__, 2));
         $version_fields = array_map($this->escapeSql(...), [
-            'v_major' => $v_major,
-            'v_minor' => $v_minor,
-            'v_patch' => $v_patch,
-            'v_realpatch' => $v_realpatch,
-            'v_tag' => $v_tag,
-            'v_database' => $v_database,
-            'v_acl' => $v_acl
+            'v_major' => $version->major,
+            'v_minor' => $version->minor,
+            'v_patch' => $version->patch,
+            'v_realpatch' => $version->realpatch,
+            'v_tag' => $version->tag,
+            'v_database' => (string) $version->database,
+            'v_acl' => (string) $version->acl
         ]);
         $update_parts = array_map(fn($field): string => sprintf("%s = '%s'", $field, $version_fields[$field]), array_keys($version_fields));
 
@@ -927,6 +916,8 @@ $config = 1; /////////////
         // xl('Placeholder')
         $gacl->add_object_section('Nation Notes', 'nationnotes', 10, 0, 'ACO');
         // xl('Nation Notes')
+        $gacl->add_object_section('CAMOS', 'camos', 10, 0, 'ACO');
+        // xl('CAMOS')
         $gacl->add_object_section('Patient Portal', 'patientportal', 10, 0, 'ACO');
         // xl('Patient Portal')
         $gacl->add_object_section('Menus', 'menus', 10, 0, 'ACO');
@@ -1073,6 +1064,10 @@ $config = 1; /////////////
         $gacl->add_object('nationnotes', 'Nation Notes Configure', 'nn_configure', 10, 0, 'ACO');
         // xl('Nation Notes Configure')
 
+        // Create ACO for CAMOS template curation.
+        $gacl->add_object('camos', 'CAMOS Template Curator', 'administer', 10, 0, 'ACO');
+        // xl('CAMOS Template Curator')
+
         // Create ACOs for Inventory.
         $gacl->add_object('inventory', 'Lots', 'lots', 10, 0, 'ACO');
         // xl('Lots')
@@ -1134,6 +1129,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
                 'sensitivities' => ['normal', 'high'],
                 'nationnotes' => ['nn_configure'],
+                'camos' => ['administer'],
                 'patientportal' => ['portal'],
                 'menus' => ['modle'],
                 'groups' => ['gadd','gcalendar','glog','gdlog','gm']
@@ -1200,6 +1196,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
                     'disclosure', 'rx', 'amendment', 'lab'],
                 'sensitivities' => ['normal', 'high'],
+                'camos' => ['administer'],
                 'groups' => ['gcalendar','glog']
             ],
             null,
@@ -1246,7 +1243,8 @@ $config = 1; /////////////
         // xl('Things that clinicians can read and enter but not modify')
         $gacl->add_acl(
             [
-                'patients' => ['med']
+                'patients' => ['med'],
+                'camos' => ['administer']
             ],
             null,
             [$clin],
@@ -1421,6 +1419,7 @@ $config = 1; /////////////
                 'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
                 'sensitivities' => ['normal', 'high'],
                 'nationnotes' => ['nn_configure'],
+                'camos' => ['administer'],
                 'patientportal' => ['portal'],
                 'menus' => ['modle'],
                 'groups' => ['gadd','gcalendar','glog','gdlog','gm']

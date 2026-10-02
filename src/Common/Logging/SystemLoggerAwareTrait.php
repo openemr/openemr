@@ -28,9 +28,7 @@ trait SystemLoggerAwareTrait
      */
     public function getSystemLogger(?Level $defaultLoggingLevel = null): LoggerInterface
     {
-        if ($this->logger === null) {
-            $this->logger = new SystemLogger($defaultLoggingLevel);
-        }
+        $this->logger ??= new SystemLogger($defaultLoggingLevel);
 
         return $this->logger;
     }

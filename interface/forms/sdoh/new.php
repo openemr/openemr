@@ -31,8 +31,6 @@ require_once(__DIR__ . "/../../globals.php");
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
-require_once("$srcdir/api.inc.php");
-
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

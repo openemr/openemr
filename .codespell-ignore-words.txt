@@ -122,3 +122,6 @@ hightlight
 occurance
 seperator
 vlaue
+
+# Upstream CMS QRDA III schematron typo (in shipped .sch, not our source)
+asssertions

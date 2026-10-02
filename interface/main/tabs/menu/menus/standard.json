@@ -511,8 +511,14 @@
         ],
         "requirement": 0,
         "acl_req": [
-            "menus",
-            "modle"
+            [
+                "menus",
+                "modle"
+            ],
+            [
+                "admin",
+                "manage_modules"
+            ]
         ]
     },
     {
@@ -849,8 +855,8 @@
                         "children": [],
                         "requirement": 0,
                         "acl_req": [
-                            "admin",
-                            "super"
+                            "patients",
+                            "merge"
                         ]
                     },
                     {
@@ -861,8 +867,8 @@
                         "children": [],
                         "requirement": 0,
                         "acl_req": [
-                            "admin",
-                            "super"
+                            "patients",
+                            "merge"
                         ]
                     }
                 ],
@@ -871,6 +877,10 @@
                     [
                         "admin",
                         "super"
+                    ],
+                    [
+                        "patients",
+                        "merge"
                     ]
                 ]
             },
@@ -1696,6 +1706,18 @@
                         "menu_id": "rep0",
                         "target": "rep",
                         "url": "/interface/reports/payment_processing_report.php",
+                        "children": [],
+                        "requirement": 0,
+                        "acl_req": [
+                            "acct",
+                            "rep_a"
+                        ]
+                    },
+                    {
+                        "label": "Prepay Balances",
+                        "menu_id": "rep0",
+                        "target": "rep",
+                        "url": "/interface/reports/prepayment_balance_report.php",
                         "children": [],
                         "requirement": 0,
                         "acl_req": [

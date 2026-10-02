@@ -13,12 +13,19 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/dated_reminder_functions.php");
+// Dated reminders reference patient notes; gate on patients/notes before the
+// getPatName() call resolves a request-supplied PatientID or the sendReminder()
+// path enqueues a message.
+if (!AclMain::aclCheckCore('patients', 'notes')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/notes: Dated Reminders", xl("Dated Reminders"));
+}
 
 $dateRanges = [];
 // $dateranges = array ( number_period => text to display ) == period is always in the singular

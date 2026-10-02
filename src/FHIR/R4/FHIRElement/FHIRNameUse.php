@@ -144,9 +144,7 @@ class FHIRNameUse extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NameUse xmlns="http://hl7.org/fhir"></NameUse>');
-        }
+        $sxe ??= new \SimpleXMLElement('<NameUse xmlns="http://hl7.org/fhir"></NameUse>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

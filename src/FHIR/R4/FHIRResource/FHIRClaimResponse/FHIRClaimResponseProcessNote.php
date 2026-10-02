@@ -246,9 +246,7 @@ class FHIRClaimResponseProcessNote extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimResponseProcessNote xmlns="http://hl7.org/fhir"></ClaimResponseProcessNote>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ClaimResponseProcessNote xmlns="http://hl7.org/fhir"></ClaimResponseProcessNote>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->number)) {
             $this->number->xmlSerialize(true, $sxe->addChild('number'));

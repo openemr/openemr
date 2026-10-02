@@ -13,13 +13,13 @@ namespace OpenEMR\Services;
 
 use Exception;
 use InvalidArgumentException;
+use MyMailer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
-use PHPMailer\PHPMailer\PHPMailer;
 
 class DrugSalesService extends BaseService
 {
@@ -496,12 +496,9 @@ class DrugSalesService extends BaseService
             return;
         }
 
-        $mail = new PHPMailer();
+        $mail = new MyMailer();
         $mail->From = $recipient;
         $mail->FromName = 'In-House Pharmacy';
-        $mail->isMail();
-        $mail->Host = "localhost";
-        $mail->Mailer = "mail";
         $mail->Body = $body;
         $mail->Subject = $subject;
         $mail->AddAddress($recipient);

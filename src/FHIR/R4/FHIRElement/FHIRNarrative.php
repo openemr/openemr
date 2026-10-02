@@ -184,9 +184,7 @@ class FHIRNarrative extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Narrative xmlns="http://hl7.org/fhir"></Narrative>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Narrative xmlns="http://hl7.org/fhir"></Narrative>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));

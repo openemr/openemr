@@ -20,11 +20,11 @@
 
 require_once('../interface/globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'docs')) {
@@ -53,7 +53,7 @@ if ($web_path) {
     $state_url = OEGlobalsBag::getInstance()->getWebRoot() . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }
-$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
     'assets_static_relative' => OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative()
     ,'web_root' => OEGlobalsBag::getInstance()->getWebRoot()

@@ -32,9 +32,9 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/LBF_Validat
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/
 if ($use_validate_js) {
     ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() ?>/moment/moment.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_modified.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_extend.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() ?>/moment/moment.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_modified.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_extend.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
     <style type="text/css">
     .error-message {

@@ -15,7 +15,6 @@ $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActi
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;

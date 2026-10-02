@@ -42,6 +42,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'retrieve\' and \'show_PDF\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0 and 1 will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/login/login.php',
@@ -70,6 +75,11 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/amc_full_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \\*NEVER\\* and mixed will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0\\|int\\<4, max\\> and 2 will always evaluate to false\\.$#',
@@ -110,6 +120,21 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-falsy\\-string and \'\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \\*NEVER\\* and \'\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \\*NEVER\\* and \'argon2i\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \\*NEVER\\* and \'argon2id\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between int\\|null and \'NULL\' will always evaluate to false\\.$#',

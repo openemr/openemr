@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -16,6 +16,7 @@ namespace OpenEMR\Billing;
 
 use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
@@ -43,7 +44,8 @@ class Claim
     public $insurance_numbers; // row from insurance_numbers table for current payer
     public $supervisor_numbers;// row from insurance_numbers table for current payer
     public $patient_data;      // row from patient_data table
-    public $billing_options;   // row from form_misc_billing_options table
+    /** @var array<mixed> row from form_misc_billing_options table */
+    public array $billing_options = [];
     public $invoice;           // result from get_invoice_summary()
     public $payers = [];       // array of arrays, for all payers
     public $copay;             // total of copays from the ar_activity table
@@ -173,6 +175,10 @@ class Claim
         return sqlQuery($sql, [$payer_id, $provider_id]);
     }
 
+    /**
+     * @return array<mixed> empty when the encounter has no misc
+     *                      billing options form
+     */
     public function getMiscBillingOptions($pid, $encounter_id)
     {
         $sql = "SELECT fpa.* FROM forms JOIN form_misc_billing_options AS fpa " .
@@ -180,12 +186,17 @@ class Claim
             "WHERE forms.pid = ? AND forms.encounter = ? AND " .
             "forms.deleted = 0 AND forms.formdir = 'misc_billing_options' " .
             "ORDER BY forms.date";
-        return sqlQuery($sql, [$pid, $encounter_id]);
+        $row = sqlQuery($sql, [$pid, $encounter_id]);
+
+        return is_array($row) ? $row : [];
     }
 
     public function getReferrerId()
     {
-        if ($this->billing_options['provider_id'] ?? '') {
+        if (
+            ($this->billing_options['provider_id'] ?? '')
+            && in_array($this->box17Qualifier(), ['', 'DN'], true)
+        ) {
             $referrer_id = $this->billing_options['provider_id'];
         } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
             $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
@@ -197,15 +208,16 @@ class Claim
         return $referrer_id;
     }
 
-    public function getOrdererId(): string|int|null
+    public function getOrdererId(): string|int
     {
-        if ($this->billing_options['provider_id'] ?? '') {
-            $orderer_id = $this->billing_options['provider_id'];
-        } elseif ($this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id) ?? '') {
-            $orderer_id = $this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id);
+        $mboProviderId = $this->billing_options['provider_id'] ?? '';
+        if ($mboProviderId && $this->box17Qualifier() === 'DK') {
+            return is_int($mboProviderId) || is_string($mboProviderId) ? $mboProviderId : '';
         }
 
-        return $orderer_id ?? '';
+        $ordererId = $this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id);
+
+        return is_int($ordererId) || is_string($ordererId) ? $ordererId : '';
     }
 
     /**
@@ -577,11 +589,7 @@ class Claim
         $amount = 0;
         foreach ($this->invoice as $codeval) {
             foreach ($codeval['dtl'] as $value) {
-                // plv exists to indicate the payer level.
-
-                if (!isset($value['pmt'])) {
-                    $value['pmt'] = 0;
-                }
+                $value['pmt'] ??= 0;
 
                 if (empty($value['plv'])) { // 0 indicates patient
                     $amount += $value['pmt'];
@@ -1651,17 +1659,131 @@ class Claim
     /**
      * @return string
      */
+    /**
+     * HCFA box 22, the resubmission code of a claim this one replaces.  The
+     * 08/05 revision of the form labelled this box "Medicaid Resubmission";
+     * the 02/12 revision dropped the Medicaid prefix.
+     *
+     * @return string
+     */
+    public function resubmissionCode()
+    {
+        return $this->x12Clean(trim($this->billing_options['resubmission_code'] ?? ''));
+    }
+
+    /**
+     * @deprecated since 8.5.0, use resubmissionCode() instead.
+     * @return string
+     */
     public function medicaidResubmissionCode()
     {
-        return $this->x12Clean(trim($this->billing_options['medicaid_resubmission_code'] ?? ''));
+        return $this->resubmissionCode();
     }
 
     /**
      * @return string
      */
+    /**
+     * HCFA box 22a, the original reference number of a claim this one replaces.
+     * Not Medicaid-specific despite the old name.
+     *
+     * @return string
+     */
+    public function originalReferenceNumber()
+    {
+        return $this->x12Clean(trim($this->billing_options['original_reference_number'] ?? ''));
+    }
+
+    /**
+     * @deprecated since 8.5.0, use originalReferenceNumber() instead.
+     * @return string
+     */
     public function medicaidOriginalReference()
     {
-        return $this->x12Clean(trim($this->billing_options['medicaid_original_reference'] ?? ''));
+        return $this->originalReferenceNumber();
+    }
+
+    /**
+     * Map an index into $this->payers onto the payer level used by
+     * ar_activity.payer_type, where 1 = primary, 2 = secondary, 3 = tertiary.
+     *
+     * @param int $ins
+     * @return int 0 if the payer's sequence is unknown
+     */
+    public function payerLevel($ins = 0)
+    {
+        return match ($this->payerSequence($ins)) {
+            'P' => 1,
+            'S' => 2,
+            'T' => 3,
+            default => 0,
+        };
+    }
+
+    /**
+     * The claim control number (ICN/DCN) that a prior payer assigned to this
+     * claim, captured from CLP07 of their 835 and stored in ar_activity.
+     * Used for Loop 2330B REF*F8 on secondary and tertiary claims.
+     *
+     * Note this is the PRIOR payer's number, and is distinct from HCFA box 22a
+     * (originalReferenceNumber) and from icnResubmissionNumber(), both of which
+     * carry the DESTINATION payer's number on a replacement claim.
+     *
+     * @param int $ins index into $this->payers, where 0 is the destination payer
+     * @return string
+     */
+    public function otherPayerClaimControlNumber($ins = 1)
+    {
+        $level = $this->payerLevel($ins);
+        if ($level < 1) {
+            return '';
+        }
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT payer_claim_number FROM ar_activity WHERE " .
+            "pid = ? AND encounter = ? AND payer_type = ? AND " .
+            "payer_claim_number IS NOT NULL AND payer_claim_number != '' AND " .
+            "deleted IS NULL " .
+            "ORDER BY post_time DESC, sequence_no DESC LIMIT 1",
+            [$this->pid, $this->encounter_id, $level]
+        );
+
+        $icn = (is_array($row) && is_string($row['payer_claim_number'] ?? null))
+            ? $row['payer_claim_number']
+            : '';
+
+        return $this->x12Clean(trim($icn));
+    }
+
+    /**
+     * The date a prior payer adjudicated this claim, taken from the check date
+     * of the ERA session the payment was posted under.  Loop 2330B DTP*573.
+     *
+     * @param int $ins index into $this->payers, where 0 is the destination payer
+     * @return string CCYYMMDD, or an empty string if unknown
+     */
+    public function otherPayerAdjudicationDate($ins = 1)
+    {
+        $level = $this->payerLevel($ins);
+        if ($level < 1) {
+            return '';
+        }
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT IFNULL(s.check_date, a.post_date) AS adjudication_date " .
+            "FROM ar_activity AS a " .
+            "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
+            "a.pid = ? AND a.encounter = ? AND a.payer_type = ? AND " .
+            "a.pay_amount != 0 AND a.deleted IS NULL " .
+            "ORDER BY a.post_time DESC, a.sequence_no DESC LIMIT 1",
+            [$this->pid, $this->encounter_id, $level]
+        );
+
+        $adjudicationDate = (is_array($row) && is_string($row['adjudication_date'] ?? null))
+            ? $row['adjudication_date']
+            : '';
+
+        return $this->cleanDate($adjudicationDate);
     }
 
     public function frequencyTypeCode()
@@ -1735,12 +1857,30 @@ class Claim
             $this->billing_options['box_15_date_qual'];
     }
 
-    public function box17Qualifier()
+    /**
+     * CMS-1500 Box 17 qualifier: DN referring, DK ordering, DQ supervising.
+     *
+     * Box 17 holds a single provider whose role is declared by this qualifier.
+     * The 837 expresses role by loop placement instead, so the qualifier decides
+     * which loop the misc billing options provider feeds: DN (or empty) routes it
+     * to Loop 2310A as the referring provider, DK to Loop 2420E as the ordering
+     * provider. Empty is treated as DN to match the provider_qualifier_code list
+     * default and the pre-existing paper fallback in Hcfa1500.
+     *
+     * DQ is accepted for the paper claim but has no 837 equivalent here. The
+     * supervising provider is emitted at Loop 2310D from
+     * form_encounter.supervisor_id, independent of this qualifier; the line-level
+     * Loop 2420D is not generated. A DQ selection therefore feeds neither the
+     * referring nor the ordering loop.
+     *
+     * @return string One of DN, DK, DQ, or '' — values originate as
+     *                provider_qualifier_code option_ids, so callers can compare
+     *                with === against those literals.
+     */
+    public function box17Qualifier(): string
     {
-        //If no box qualifier specified use "DK" for ordering provider
-        //someday might make mbo form the place to set referring instead of demographics under choices
-        return empty($this->billing_options['provider_qualifier_code']) ? '' :
-            $this->billing_options['provider_qualifier_code'];
+        $qual = $this->billing_options['provider_qualifier_code'] ?? '';
+        return is_string($qual) ? $qual : '';
     }
 
   // Returns an array of unique diagnoses.  Periods are stripped by default

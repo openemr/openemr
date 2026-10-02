@@ -180,7 +180,7 @@ class EmailClient extends AppDispatch implements EmailChannelInterface
     /**
      * @return string|bool
      */
-    function fetchReminderCount(): string|bool
+    public function fetchReminderCount(): string|bool
     {
         return "0"; // Caller expects a string result, not HTML;
         // TODO: Implement fetchReminderCount() method.

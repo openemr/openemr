@@ -1,0 +1,3 @@
+procedure_order_id,provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,patient_instructions,activity,control_id,lab_id,specimen_type,specimen_location,clinical_hx,order_diagnosis,procedure_order_type,order_intent
+10001,10,1001,5001,,2026-01-15 09:45:00,routine,pending,Complete before next visit,1,DEMO-LAB-10001,1,blood,clinic,Hypertension medication monitoring,I10,laboratory,order
+10002,11,1002,5002,2026-02-03 14:20:00,2026-02-03 14:10:00,urgent,completed,,1,DEMO-LAB-10002,1,blood,clinic,Fever and fatigue,R50.9,laboratory,order

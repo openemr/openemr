@@ -142,9 +142,7 @@ class FHIROid extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<oid xmlns="http://hl7.org/fhir"></oid>');
-        }
+        $sxe ??= new \SimpleXMLElement('<oid xmlns="http://hl7.org/fhir"></oid>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

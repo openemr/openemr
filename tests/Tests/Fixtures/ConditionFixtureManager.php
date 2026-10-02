@@ -143,9 +143,7 @@ class ConditionFixtureManager
 
     public function getPatientIssuesService(): PatientIssuesService
     {
-        if (!isset($this->patientIssuesService)) {
-            $this->patientIssuesService = new PatientIssuesService();
-        }
+        $this->patientIssuesService ??= new PatientIssuesService();
         return $this->patientIssuesService;
     }
 

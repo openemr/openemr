@@ -45,7 +45,7 @@ class Note extends ORDataObject
      * Constructor sets all Note attributes to their default value
      * @param int $id optional existing id of a specific note, if omitted a "blank" note is created
      */
-    function __construct(public $id = "")
+    public function __construct(public $id = "")
     {
         //call the parent constructor so we have a _db to work with
         parent::__construct();
@@ -104,7 +104,7 @@ class Note extends ORDataObject
     /**
      * Convenience function to generate string debug data about the object
      */
-    function toString($html = false)
+    public function toString($html = false)
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"
@@ -120,50 +120,50 @@ class Note extends ORDataObject
     *   Getter/Setter methods used by reflection to affect object in persist/poulate operations
     *   @param mixed new value for given attribute
     */
-    function set_id($id)
+    public function set_id($id)
     {
         $this->id = $id;
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
-    function set_foreign_id($fid)
+    public function set_foreign_id($fid)
     {
         $this->foreign_id = $fid;
     }
-    function get_foreign_id()
+    public function get_foreign_id()
     {
         return $this->foreign_id;
     }
-    function set_note(string $note): void
+    public function set_note(string $note): void
     {
         $this->note = $note;
     }
-    function get_note(): string
+    public function get_note(): string
     {
         return $this->note;
     }
-    function set_date($date)
+    public function set_date($date)
     {
         $this->date = $date;
     }
-    function get_date()
+    public function get_date()
     {
         return $this->date;
     }
-    function set_owner($owner)
+    public function set_owner($owner)
     {
         $this->owner = $owner;
     }
-    function get_owner()
+    public function get_owner()
     {
         return $this->owner;
     }
     /*
     *   No getter for revision because it is updated automatically by the DB.
     */
-    function set_revision($revision)
+    public function set_revision($revision)
     {
         $this->revision = $revision;
     }
@@ -176,7 +176,7 @@ class Note extends ORDataObject
     *   @param int $fid foreign id that should be used so that this note can be related (joined) on it later
     */
 
-    function persist($fid = ""): mixed
+    public function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;

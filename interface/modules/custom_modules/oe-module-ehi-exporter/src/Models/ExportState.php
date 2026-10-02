@@ -134,10 +134,7 @@ class ExportState
 
     public function addTableDefinition(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition)
     {
-        // should exist already, but double check
-        if (!isset($this->tableDefinitionsMap[$tableDefinition->table])) {
-            $this->tableDefinitionsMap[$tableDefinition->table] = $tableDefinition;
-        }
+        $this->tableDefinitionsMap[$tableDefinition->table] ??= $tableDefinition;
         if (!isset($this->inQueueList[$tableDefinition->table])) {
             $this->queue->enqueue($tableDefinition);
             $this->inQueueList[$tableDefinition->table] = $tableDefinition;

@@ -22,5 +22,5 @@ interface IDocumentDownloader
      * @param \Document $document The document object that is to be downloaded.
      * @return ResponseInterface
      */
-    function downloadDocument(\Document $document): ResponseInterface;
+    public function downloadDocument(\Document $document): ResponseInterface;
 }

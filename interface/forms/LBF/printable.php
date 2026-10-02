@@ -18,8 +18,6 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/encounter.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;

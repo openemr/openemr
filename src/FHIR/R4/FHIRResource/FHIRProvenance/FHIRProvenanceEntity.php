@@ -223,9 +223,7 @@ class FHIRProvenanceEntity extends FHIRBackboneElement implements \JsonSerializa
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProvenanceEntity xmlns="http://hl7.org/fhir"></ProvenanceEntity>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ProvenanceEntity xmlns="http://hl7.org/fhir"></ProvenanceEntity>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->role)) {
             $this->role->xmlSerialize(true, $sxe->addChild('role'));

@@ -319,9 +319,7 @@ class FHIRGraphDefinitionLink extends FHIRBackboneElement implements \JsonSerial
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GraphDefinitionLink xmlns="http://hl7.org/fhir"></GraphDefinitionLink>');
-        }
+        $sxe ??= new \SimpleXMLElement('<GraphDefinitionLink xmlns="http://hl7.org/fhir"></GraphDefinitionLink>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->path)) {
             $this->path->xmlSerialize(true, $sxe->addChild('path'));

@@ -18,7 +18,7 @@ while [[ $# -gt 0 ]]; do
     -o) output_file="$2"; shift 2 ;;
     -w) shift 2 ;;
     --connect-timeout|--max-time|--retry|--retry-delay) shift 2 ;;
-    --retry-connrefused|-sS|-s|-S) shift ;;
+    --retry-all-errors|-sS|-s|-S) shift ;;
     http://*|https://*) url="$1"; shift ;;
     *) shift ;;
   esac

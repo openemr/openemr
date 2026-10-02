@@ -42,7 +42,7 @@
 
 
 class eFPDF extends FPDF{
-    function TextWithRotation($x, $y, $txt, $txt_angle, $font_angle=0)
+    public function TextWithRotation($x, $y, $txt, $txt_angle, $font_angle=0)
     {
         $font_angle+=90+$txt_angle;
         $txt_angle*=M_PI/180;
@@ -91,7 +91,7 @@ class PDF_Label extends FPDF {
     ];
 
     // Constructor
-    function __construct($format, $unit='mm', $posX=1, $posY=1) {
+    public function __construct($format, $unit='mm', $posX=1, $posY=1) {
         if (is_array($format)) {
             // Custom format
             $Tformat = $format;
@@ -112,7 +112,7 @@ class PDF_Label extends FPDF {
         $this->_COUNTY = $posY-1;
     }
 
-    function _Set_Format($format) {
+    public function _Set_Format($format) {
         $this->_Margin_Left = $this->_Convert_Metric($format['marginLeft'], $format['metric']);
         $this->_Margin_Top  = $this->_Convert_Metric($format['marginTop'], $format['metric']);
         $this->_X_Space     = $this->_Convert_Metric($format['SpaceX'], $format['metric']);
@@ -127,7 +127,7 @@ class PDF_Label extends FPDF {
 
     // convert units (in to mm, mm to in)
     // $src must be 'in' or 'mm'
-    function _Convert_Metric($value, $src) {
+    public function _Convert_Metric($value, $src) {
         $dest = $this->_Metric_Doc;
         if ($src != $dest) {
             $a['in'] = 39.37008;
@@ -139,7 +139,7 @@ class PDF_Label extends FPDF {
     }
 
     // Give the line height for a given font size
-    function _Get_Height_Chars($pt) {
+    public function _Get_Height_Chars($pt) {
         $a = [6=>2, 7=>2.5, 8=>3, 9=>4, 10=>5, 11=>6, 12=>7, 13=>8, 14=>9, 15=>10];
         if (!isset($a[$pt]))
             $this->Error('Invalid font size: '.$pt);
@@ -148,13 +148,13 @@ class PDF_Label extends FPDF {
 
     // Set the character size
     // This changes the line height too
-    function Set_Font_Size($pt) {
+    public function Set_Font_Size($pt) {
         $this->_Line_Height = $this->_Get_Height_Chars($pt);
         $this->SetFontSize($pt);
     }
 
     // Print a label
-    function Add_Label($text) {
+    public function Add_Label($text) {
         $this->_COUNTX++;
         if ($this->_COUNTX == $this->_X_Number) {
             // Row full, we start a new one
@@ -173,7 +173,7 @@ class PDF_Label extends FPDF {
         $this->MultiCell($this->_Width - $this->_Padding, $this->_Line_Height, $text, 0, 'L');
     }
 
-    function _putcatalog()
+    public function _putcatalog()
     {
         parent::_putcatalog();
         // Disable the page scaling option in the printing dialog

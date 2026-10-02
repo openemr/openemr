@@ -246,9 +246,7 @@ class FHIRRiskEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement imp
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisPrecisionEstimate xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisPrecisionEstimate>');
-        }
+        $sxe ??= new \SimpleXMLElement('<RiskEvidenceSynthesisPrecisionEstimate xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisPrecisionEstimate>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

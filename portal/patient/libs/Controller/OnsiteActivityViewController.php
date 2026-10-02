@@ -10,13 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-
-/**
- * import supporting libraries
- */
-require_once("AppBasePortalController.php");
-require_once("Model/OnsiteActivityView.php");
 
 /**
  * OnsiteActivityViewController is the controller class for the OnsiteActivityView object.
@@ -39,7 +35,12 @@ class OnsiteActivityViewController extends AppBasePortalController
     {
         parent::Init();
 
-        // $this->RequirePermission(User::$PERMISSION_USER,'SecureApp.LoginForm');
+        if (
+            !AclMain::aclCheckCore('patientportal', 'portal') ||
+            !AclMain::aclCheckCore('patients', 'demo')
+        ) {
+            AccessDeniedHelper::deny('Unauthorized access to onsite activity review');
+        }
     }
 
     /**
@@ -76,18 +77,9 @@ class OnsiteActivityViewController extends AppBasePortalController
                 $criteria->AddFilter(new CriteriaFilter('Id,Date,PatientId,Activity,RequireAudit,PendingAction,ActionTaken,Status,Narrative,TableAction,TableArgs,ActionUser,ActionTakenTime,Checksum,Title,Fname,Lname,Mname,Dob,Ss,Street,PostalCode,City,State,Referrerid,Providerid,RefProviderid,Pubpid,CareTeam,Username,Authorized,Ufname,Umname,Ulname,Facility,Active,Utitle,PhysicianType', '%' . $filter . '%'));
             }
 
-            // TODO: this is generic query filtering based only on criteria properties
-            foreach (array_keys($_REQUEST) as $prop) {
-                $prop_normal = ucfirst((string) $prop);
-                $prop_equals = $prop_normal . '_Equals';
-
-                if (property_exists($criteria, $prop_normal)) {
-                    $criteria->$prop_normal = RequestUtil::Get($prop);
-                } elseif (property_exists($criteria, $prop_equals)) {
-                    // this is a convenience so that the _Equals suffix is not needed
-                    $criteria->$prop_equals = RequestUtil::Get($prop);
-                }
-            }
+            // generic query filtering: request input may only drive equality
+            // (_Equals) filters, never arbitrary criteria properties (CWE-915)
+            $this->ApplyRequestEqualsFilters($criteria);
 
             $output = new stdClass();
 

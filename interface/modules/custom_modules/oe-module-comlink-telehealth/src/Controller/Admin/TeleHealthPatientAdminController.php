@@ -52,7 +52,7 @@ class TeleHealthPatientAdminController
         if (empty($user)) {
             // no credentials exist
             $this->remoteRegistrationService->createPatientRegistration($patient);
-        } else if ($this->shouldUpdateRegistrationCodeForUser($user)) {
+        } elseif ($this->shouldUpdateRegistrationCodeForUser($user)) {
             $user->setRegistrationCode($this->registrationCodeService->generateRegistrationCode());
             $request = $this->remoteRegistrationService->populateRequestFromUser($user);
             // setup our first name and last name pieces here
@@ -80,7 +80,7 @@ class TeleHealthPatientAdminController
         // if matches message.html.twig, message.text.twig
         if (str_starts_with((string) $event->getTemplateName(), 'emails/patient/portal_login/message')) {
             $data['comlink_registration_code'] = $registrationCode;
-        } else if ($event->getTemplateName() == 'patient/portal_login/print.html.twig') {
+        } elseif ($event->getTemplateName() == 'patient/portal_login/print.html.twig') {
             // inject the data needed for the user edit field
             $extFormField = $data['extensionsFormFields'] ?? [];
             $extFormField['registration-code'] = [

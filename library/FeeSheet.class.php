@@ -31,9 +31,9 @@ require_once(__DIR__ . "/../custom/code_types.inc.php");
 require_once(__DIR__ . "/../interface/drugs/drugs.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/appointment_status.inc.php");
-require_once(__DIR__ . "/forms.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -63,13 +63,7 @@ class FeeSheet
     public $payer_id;
 
   // Possible units of measure for NDC drug quantities.
-    public $ndc_uom_choices = [
-    'ML' => 'ML',
-    'GR' => 'Grams',
-    'ME' => 'Milligrams',
-    'F2' => 'I.U.',
-    'UN' => 'Units'
-    ];
+    public $ndc_uom_choices = HcpcsDrugDefaults::NDC_UOM_CHOICES;
 
   // Set by checkRelatedForContraception():
     public $line_contra_code     = '';
@@ -96,7 +90,7 @@ class FeeSheet
 
     public $ALLOW_COPAYS = false;
 
-    function __construct($pid = 0, $encounter = 0)
+    public function __construct($pid = 0, $encounter = 0)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (empty($pid)) {
@@ -457,6 +451,7 @@ class FeeSheet
         $justify     = $args['justify'] ?? '';
         $notecodes   = $args['notecodes'] ?? '';
         $fee         = isset($args['fee']) ? (0 + $args['fee']) : 0;
+        $fee_is_unit_price = false;
         // Price level should be unset only if adding a new line item.
         $pricelevel  = $args['pricelevel'] ?? $this->patient_pricelevel;
         $del         = !empty($args['del']);
@@ -501,6 +496,7 @@ class FeeSheet
 
             if (!isset($args['fee'])) {
                 // Fees come from the prices table now.
+                $fee_is_unit_price = true;
                 $query = "SELECT pr_price, lo.option_id AS pr_level, lo.notes FROM list_options lo " .
                     " LEFT OUTER JOIN prices p ON lo.option_id=p.pr_level AND pr_id = ? AND pr_selector = '' " .
                     " WHERE lo.list_id='pricelevel' " .
@@ -540,6 +536,10 @@ class FeeSheet
 
         if (!$units) {
             $units = 1;
+        }
+        // The prices table holds a unit price; a line's fee is the total for its units.
+        if ($fee_is_unit_price && is_numeric($fee)) {
+            $fee *= $units;
         }
         $fee = sprintf('%01.2f', $fee);
 

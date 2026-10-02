@@ -36,7 +36,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <head>
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('U2F Registration'); ?></title>
-<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script>
 
 function doregister() {

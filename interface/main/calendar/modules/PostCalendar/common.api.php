@@ -30,6 +30,7 @@
 //  define constants used to make the code more readable
 //=================================================================
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 define('_IS_SUNDAY', 0);
 define('_IS_MONDAY', 1);
@@ -197,17 +198,11 @@ function postcalendar_getDate($format = 'Ymd')
             $lastcaldate = $session->get('lastcaldate');
             $time = !empty($lastcaldate) ? strtotime((string) $lastcaldate) : time();
 
-            if (!isset($jumpday)) {
-                $jumpday   = date('d', $time);
-            }
+            $jumpday ??= date('d', $time);
 
-            if (!isset($jumpmonth)) {
-                $jumpmonth = date('m', $time);
-            }
+            $jumpmonth ??= date('m', $time);
 
-            if (!isset($jumpyear)) {
-                $jumpyear  = date('Y', $time);
-            }
+            $jumpyear ??= date('Y', $time);
         }
 
         // create the correct date string
@@ -324,6 +319,7 @@ function postcalendar_userapi_loadPopups()
     unset($modinfo);
     $capicon = '';
     $close = _PC_OL_CLOSE;
+    $assetVersion = attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes'));
 
     $output = <<<EOF
 
@@ -362,7 +358,7 @@ ol_hauto = 1;
 ol_vauto = 1;
 </script>
 <div id="overDiv" style="position:absolute; top:0px; left:0px; visibility:hidden; z-index:1000;"></div>
-<script src="modules/$pcDir/pnincludes/overlib_mini.js">
+<script src="modules/$pcDir/pnincludes/overlib_mini.js?v=$assetVersion">
 <!-- overLIB (c) Erik Bosrup -->
 </script>
 
@@ -400,15 +396,11 @@ function postcalendar_userapi_buildMonthSelect($args)
 {
     extract($args);
     unset($args);
-    if (!isset($pc_month)) {
-        $pc_month = Date_Calc::getMonth();
-    }
+    $pc_month ??= Date_Calc::getMonth();
 
     // create the return object to be inserted into the form
     $output = [];
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = 1; $i <= 12; $i++,$c++) {
         if ($selected) {
@@ -434,15 +426,11 @@ function postcalendar_userapi_buildDaySelect($args)
 {
     extract($args);
     unset($args);
-    if (!isset($pc_day)) {
-        $pc_day = Date_Calc::getDay();
-    }
+    $pc_day ??= Date_Calc::getDay();
 
     // create the return object to be inserted into the form
     $output = [];
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = 1; $i <= 31; $i++,$c++) {
         if ($selected) {
@@ -468,9 +456,7 @@ function postcalendar_userapi_buildYearSelect($args)
 {
     extract($args);
     unset($args);
-    if (!isset($pc_year)) {
-        $pc_year = date('Y');
-    }
+    $pc_year ??= date('Y');
 
     // create the return object to be inserted into the form
     $output = [];
@@ -478,9 +464,7 @@ function postcalendar_userapi_buildYearSelect($args)
     // maybe this will eventually become a user defined value
     $pc_start_year = date('Y') - 1;
     $pc_end_year = date('Y') + 30;
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = $pc_start_year; $i <= $pc_end_year; $i++,$c++) {
         if ($selected) {

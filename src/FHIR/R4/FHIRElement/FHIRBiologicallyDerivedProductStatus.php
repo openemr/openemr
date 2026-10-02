@@ -144,9 +144,7 @@ class FHIRBiologicallyDerivedProductStatus extends FHIRElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductStatus xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductStatus>');
-        }
+        $sxe ??= new \SimpleXMLElement('<BiologicallyDerivedProductStatus xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductStatus>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

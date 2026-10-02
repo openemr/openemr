@@ -14,19 +14,18 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class C_Hl7 extends Controller
 {
-    function __construct($template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action(): string
+    public function default_action(): string
     {
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "hl7/" . $this->template_mod . "_parse.html");
     }
 
-    function default_action_process()
+    public function default_action_process()
     {
         $msg = '';
         if ($_POST['process'] == "true") {

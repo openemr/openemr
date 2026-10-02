@@ -15,12 +15,21 @@
 require_once("../../globals.php");
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+// This script renders per-patient graphable form data (e.g. vitals) and must
+// require the same medical-data ACL that the sibling report/patient_report.php
+// gate already applies.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Trend Form", xl("Trend Form"));
+}
 
 $formname = $_GET["formname"];
 $is_lbf = str_starts_with((string) $formname, 'LBF');

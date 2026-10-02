@@ -30,19 +30,17 @@ class ControllerEdit extends BaseController
         parent::__construct();
     }
 
-    function _action_summary()
+    public function _action_summary()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        if (is_null($rule)) {
-            $rule = $this->getRuleManager()->newRule();
-        }
+        $rule ??= $this->getRuleManager()->newRule();
 
         $this->viewBean->rule = $rule;
         $this->set_view("summary.php");
     }
 
-    function _action_submit_summary()
+    public function _action_submit_summary()
     {
         $ruleId = Common::post('id');
         $values = [
@@ -64,9 +62,7 @@ class ControllerEdit extends BaseController
             ,'patient_sodh_usage'
         ];
         $rule = $this->getRuleManager()->getRule($ruleId);
-        if (is_null($rule)) {
-            $rule = $this->getRuleManager()->newRule();
-        }
+        $rule ??= $this->getRuleManager()->newRule();
             $ruleTypes = Common::post('fld_ruleTypes') ?? [];
         if (!is_array($ruleTypes)) {
             $ruleTypes = [$ruleTypes];
@@ -86,7 +82,7 @@ class ControllerEdit extends BaseController
         $this->redirect("index.php?action=edit!intervals&id=" . urlencode((string) $ruleId));
     }
 
-    function _action_intervals()
+    public function _action_intervals()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -95,7 +91,7 @@ class ControllerEdit extends BaseController
         $this->set_view("intervals.php");
     }
 
-    function _action_submit_intervals()
+    public function _action_submit_intervals()
     {
         // parse results from response
         $ruleId = Common::post('id');
@@ -127,7 +123,7 @@ class ControllerEdit extends BaseController
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
-    function _action_filter()
+    public function _action_filter()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -143,7 +139,7 @@ class ControllerEdit extends BaseController
         $this->set_view($criteria->getView(), "criteria.php");
     }
 
-    function _action_delete_filter()
+    public function _action_delete_filter()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -152,7 +148,7 @@ class ControllerEdit extends BaseController
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
-    function _action_target()
+    public function _action_target()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -168,7 +164,7 @@ class ControllerEdit extends BaseController
         $this->set_view($criteria->getView(), "criteria.php");
     }
 
-    function _action_delete_target()
+    public function _action_delete_target()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -177,7 +173,7 @@ class ControllerEdit extends BaseController
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
-    function _action_codes()
+    public function _action_codes()
     {
         $search = Common::get('q');
         $codes = $this->getCodeManager()->search($search);
@@ -186,7 +182,7 @@ class ControllerEdit extends BaseController
         }
     }
 
-    function _action_categories()
+    public function _action_categories()
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
@@ -196,7 +192,7 @@ class ControllerEdit extends BaseController
         $this->emit_json($columns);
     }
 
-    function _action_items()
+    public function _action_items()
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
@@ -206,7 +202,7 @@ class ControllerEdit extends BaseController
         $this->emit_json($columns);
     }
 
-    function _action_columns()
+    public function _action_columns()
     {
         $columns = [];
         $table = Common::get('table');
@@ -218,7 +214,7 @@ class ControllerEdit extends BaseController
         $this->emit_json($columns);
     }
 
-    function _action_submit_criteria()
+    public function _action_submit_criteria()
     {
         // parse results from response
         $ruleId = Common::post('id');
@@ -253,7 +249,7 @@ class ControllerEdit extends BaseController
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
-    function _action_action()
+    public function _action_action()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -265,7 +261,7 @@ class ControllerEdit extends BaseController
         $this->set_view("action.php");
     }
 
-    function _action_delete_action()
+    public function _action_delete_action()
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -274,7 +270,7 @@ class ControllerEdit extends BaseController
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
-    function _action_add_action()
+    public function _action_add_action()
     {
         $ruleId = Common::get('id');
         $groupId = Common::get('group_id');
@@ -288,7 +284,7 @@ class ControllerEdit extends BaseController
         $this->set_view("action.php");
     }
 
-    function _action_submit_action()
+    public function _action_submit_action()
     {
         $ruleId = Common::post('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
@@ -325,7 +321,7 @@ class ControllerEdit extends BaseController
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
-    function _action_add_criteria()
+    public function _action_add_criteria()
     {
         $type = Common::get("criteriaType");
         $id = Common::get("id");
@@ -347,7 +343,7 @@ class ControllerEdit extends BaseController
         $this->set_view("add_criteria.php");
     }
 
-    function _action_choose_criteria()
+    public function _action_choose_criteria()
     {
         $type = Common::get("type");
         $id = Common::get("id");

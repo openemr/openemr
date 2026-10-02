@@ -2,12 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-/**
- * import supporting libraries
- */
-require_once('IRouter.php');
-require_once('verysimple/HTTP/RequestUtil.php');
-
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
@@ -86,10 +80,23 @@ class GenericRouter implements IRouter
             // expects mapped values to be in the form: Controller.Model
             [$controller, $method] = explode(".", (string) $this->routeMap [$uri] ["route"]);
 
-            if (!empty($globalsBag->get('bootstrap_pid'))) {
-                // p_acl check
-                if ($this->routeMap[$uri]["p_acl"] != 'p_all') {
+            $bootstrapPid = $globalsBag->get('bootstrap_pid');
+            $pAcl = $this->routeMap[$uri]["p_acl"] ?? 'p_none';
+            if (!empty($bootstrapPid)) {
+                // Patient-portal session: only p_all routes are open;
+                // p_limited literals aren't expressible without wildcards,
+                // and p_none is denied outright.
+                if ($pAcl != 'p_all') {
                     // failed p_acl check
+                    $error = 'Unauthorized';
+                    throw new Exception($error);
+                }
+            } else {
+                // Core-user fallback (patient-portal session absent): allow
+                // routes explicitly marked for all users or staff. The
+                // bootstrap requires the patientportal/portal ACL before
+                // dispatch reaches this point.
+                if ($pAcl != 'p_all' && $pAcl != 'p_staff') {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }
@@ -127,14 +134,24 @@ class GenericRouter implements IRouter
 
             // check for RegEx match
             if (preg_match('#^' . $key . '$#', (string) $uri, $match)) {
-                if (!empty($globalsBag->get('bootstrap_pid'))) {
-                    // p_acl check
-                    $p_acl = $this->routeMap[$unalteredKey]["p_acl"];
+                $bootstrapPid = $globalsBag->get('bootstrap_pid');
+                $p_acl = $this->routeMap[$unalteredKey]["p_acl"] ?? 'p_none';
+                if (!empty($bootstrapPid)) {
+                    // p_acl check for patient-portal sessions
                     if (
                         ($p_acl == 'p_none') ||
+                        ($p_acl == 'p_staff') ||
                         (($p_acl == 'p_limited') && ($globalsBag->get('bootstrap_uri_id') != $match[1]))
                     ) {
                         // failed p_acl check
+                        $error = 'Unauthorized';
+                        throw new Exception($error);
+                    }
+                } else {
+                    // Core-user fallback (no patient session): allow routes
+                    // explicitly marked for all users or staff. Continue to
+                    // deny patient-scoped p_limited and p_none routes.
+                    if ($p_acl != 'p_all' && $p_acl != 'p_staff') {
                         $error = 'Unauthorized';
                         throw new Exception($error);
                     }

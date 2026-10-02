@@ -4,27 +4,27 @@
     <title>{{ "Dicom Viewer"|xlt  }}</title>
 
     {{ setupHeader(['dwv', 'i18next', 'i18next-xhr-backend', 'i18next-browser-languagedetector', 'jszip', 'magic-wand', 'konva']) }}
-    <script type="text/javascript" src="{{ assets_static_relative }}/flot/dist/es5/jquery.flot.js"></script>
+    <script type="text/javascript" src="{{ assets_static_relative }}/flot/dist/es5/jquery.flot.js?v={{ assetVersion|attr_url }}"></script>
     <!-- Local (dwv) -->
-    <script src="{{web_root}}/library/js/dwv/gui/browser.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/colourMap.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/custom.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/dropboxLoader.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/filter.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/generic.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/undo.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/help.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/html.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/infoController.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/infoOverlay.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/loader.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/tools.js"></script>
-    <script src="{{web_root}}/library/js/dwv/gui/plot.js"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/browser.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/colourMap.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/custom.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/dropboxLoader.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/filter.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/generic.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/undo.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/help.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/html.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/infoController.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/infoOverlay.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/loader.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/tools.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/gui/plot.js?v={{ assetVersion|attr_url }}"></script>
     <!-- i18n dwv wrapper -->
-    <script src="{{web_root}}/library/js/dwv/dwv_i18n.js"></script>
+    <script src="{{web_root}}/library/js/dwv/dwv_i18n.js?v={{ assetVersion|attr_url }}"></script>
     <!-- Launch the app -->
-    <script src="{{web_root}}/library/js/dwv/dicom_gui.js"></script>
-    <script src="{{web_root}}/library/js/dwv/dicom_launcher.js"></script>
+    <script src="{{web_root}}/library/js/dwv/dicom_gui.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/dicom_launcher.js?v={{ assetVersion|attr_url }}"></script>
 </head>
 <style type="text/css">
     body {

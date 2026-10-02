@@ -16,8 +16,6 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Http\CurrentRequest;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -33,13 +31,13 @@ try {
 } catch (NotFoundHttpException $e) {
     // Log the exception
     ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
-    $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/404.html.twig');
+    $contents = ServiceContainer::getTwig()->render('error/404.html.twig');
     // Send the error response
     $response = new Response($contents, 404);
 } catch (\Throwable $e) {
     // Log the exception
     ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
-    $contents =  (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/general_http_error.html.twig');
+    $contents =  ServiceContainer::getTwig()->render('error/general_http_error.html.twig');
     // Send the error response
     $response = new Response($contents, 500);
 }

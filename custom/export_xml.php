@@ -13,7 +13,6 @@
 */
 
  require_once("../interface/globals.php");
- require_once("../library/patient.inc.php");
 
  use OpenEMR\Common\Acl\AccessDeniedHelper;
  use OpenEMR\Common\Acl\AclMain;
@@ -36,7 +35,7 @@ function custom_xml_Add($tag, $text): void
             $out .= "\t";
         }
 
-        $out .= "<$tag>$text</$tag>\n";
+        $out .= "<$tag>" . xmlEscape($text) . "</$tag>\n";
     }
 }
 

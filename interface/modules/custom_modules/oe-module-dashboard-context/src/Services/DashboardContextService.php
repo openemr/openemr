@@ -296,9 +296,7 @@ class DashboardContextService
      */
     public function getContextWidgets(int $userId, ?string $context = null): array
     {
-        if ($context === null) {
-            $context = $this->getActiveContext($userId);
-        }
+        $context ??= $this->getActiveContext($userId);
 
         // First check for user-customized settings for THIS SPECIFIC context
         // This is stored in a separate table keyed by user_id AND context_key

@@ -598,9 +598,7 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MolecularSequenceQuality xmlns="http://hl7.org/fhir"></MolecularSequenceQuality>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MolecularSequenceQuality xmlns="http://hl7.org/fhir"></MolecularSequenceQuality>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
