@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tests that ScopePermissionParser groups by context AND resource.
+ * Tests that ScopePermissionParser groups by context, resource and version.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -80,8 +80,8 @@ class ScopePermissionParserIsolatedTest extends TestCase
 
         $this->assertCount(2, $structured, 'Patient in two contexts must not collapse into one entry');
 
-        $patientCard = $this->entry($structured, 'patient-Patient');
-        $userCard = $this->entry($structured, 'user-Patient');
+        $patientCard = $this->entry($structured, 'patient-Patient-v1');
+        $userCard = $this->entry($structured, 'user-Patient-v1');
         $this->assertSame('Patient', $this->field($patientCard, 'name'));
         $this->assertSame('Patient', $this->field($userCard, 'name'));
         $this->assertSame('patient', $this->field($patientCard, 'context'));
@@ -104,7 +104,7 @@ class ScopePermissionParserIsolatedTest extends TestCase
     {
         $structured = $this->parser()->parseScopes(['patient/Encounter.read', 'user/Encounter.write']);
 
-        $this->assertSame(['patient-Encounter', 'user-Encounter'], array_keys($structured));
+        $this->assertSame(['patient-Encounter-v1', 'user-Encounter-v1'], array_keys($structured));
         foreach (array_keys($structured) as $key) {
             $this->assertDoesNotMatchRegularExpression('~[/\s]~', $key);
         }
@@ -118,22 +118,36 @@ class ScopePermissionParserIsolatedTest extends TestCase
         $structured = $this->parser()->parseScopes(['user/Goal.read', 'user/Goal.write']);
 
         $this->assertCount(1, $structured);
-        $entry = $this->entry($structured, 'user-Goal');
+        $entry = $this->entry($structured, 'user-Goal-v1');
         $this->assertSame('v1', $this->field($entry, 'version'));
         $this->assertTrue($this->actionEnabled($entry, 'r'));
         $this->assertTrue($this->actionEnabled($entry, 'c'));
     }
 
     /**
-     * v2 (`.rs`) and v1 (`.read`/`.write`) forms of the same resource in the same context still
-     * share a card, and the version is whichever arrived first -- unchanged behaviour, asserted
-     * so the context fix is not mistaken for a version fix.
+     * The consent form rebuilds each card's scopes in the card's own version, and only the v1
+     * path can emit `.write`. If user/Condition.rs and user/Condition.write share a card, the
+     * card is v2, the write is rebuilt as user/Condition.cruds, and the requested write is lost.
+     * Each version must keep its own card with only its own actions.
      */
-    public function testVersionStillComesFromTheFirstScopeSeenWithinAContext(): void
+    public function testMixedVersionsForOneResourceStayTwoEntries(): void
     {
-        $structured = $this->parser()->parseScopes(['user/Observation.rs', 'user/Observation.read']);
+        $structured = $this->parser()->parseScopes(['user/Condition.rs', 'user/Condition.write']);
 
-        $this->assertCount(1, $structured);
-        $this->assertSame('v2', $this->field($this->entry($structured, 'user-Observation'), 'version'));
+        $this->assertCount(2, $structured, 'v1 and v2 forms of one resource must not collapse into one entry');
+
+        $v2Card = $this->entry($structured, 'user-Condition-v2');
+        $v1Card = $this->entry($structured, 'user-Condition-v1');
+        $this->assertSame('v2', $this->field($v2Card, 'version'));
+        $this->assertSame('v1', $this->field($v1Card, 'version'));
+
+        $this->assertTrue($this->actionEnabled($v2Card, 'r'));
+        $this->assertTrue($this->actionEnabled($v2Card, 's'));
+        $this->assertFalse($this->actionEnabled($v2Card, 'c'));
+
+        $this->assertTrue($this->actionEnabled($v1Card, 'c'));
+        $this->assertTrue($this->actionEnabled($v1Card, 'u'));
+        $this->assertTrue($this->actionEnabled($v1Card, 'd'));
+        $this->assertFalse($this->actionEnabled($v1Card, 'r'));
     }
 }
