@@ -844,12 +844,29 @@ if (!empty($_POST['form_action'])) {
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
     }
-    echo " if (opener && !opener.closed && opener.refreshme) {\n " .
-      "  opener.refreshme();\n " . // This is for standard calendar page refresh
-      " } else {\n " .
-      " if(window.opener.pattrk){" .
-     "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh}
-      " }};\n";
+    // Wrap the opener-refresh chain in a try/catch so a null
+    // window.opener (which is the case whenever add_edit_event.php
+    // is loaded inside a dlgopen()'d modal iframe rather than a
+    // window.open()'d popup -- iframes don't get an opener) cannot
+    // throw and prevent the dlgclose() call below.
+    //
+    // Prior symptom: successful save via the nested find_appt_popup
+    // "provider not available, use anyway?" confirm flow left the
+    // modal white and persistent. Server-side save committed cleanly,
+    // but the echoed JS threw TypeError at `window.opener.pattrk`
+    // (else branch) because opener was null in the iframe context.
+    // dlgclose() never fired -> modal stayed open showing the empty
+    // (script-only) response body. Guard + always-close pattern fixes
+    // the hang. Also caught by acceptance harness:
+    // AppointmentPersistenceAcceptanceTest hits this path when
+    // form_hour falls outside normal availability.
+    echo " try {\n" .
+      "  if (opener && !opener.closed && opener.refreshme) {\n" .
+      "   opener.refreshme();\n" . // Standard calendar page refresh
+      "  } else if (window.opener && window.opener.pattrk) {\n" .
+      "   window.opener.pattrk.submit();\n" . // Patient flow board page refresh
+      "  }\n" .
+      " } catch (e) {}\n"; // opener-refresh is best-effort; never block dlgclose
     echo " dlgclose();\n";
     echo "</script>\n</body>\n</html>\n";
 
@@ -1138,6 +1155,7 @@ $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEv
         $cid     = filter_input(INPUT_GET, 'catid', FILTER_VALIDATE_INT) ?: 0;
 
         $tabParams = array_filter([
+            'eid'        => $eid,
             'startampm'  => $startm,
             'starttimeh' => $starth,
             'userid'     => $uid,

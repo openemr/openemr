@@ -6,21 +6,23 @@
 #
 # PHP version strategy:
 # - Pull requests and pushes: supported, released PHP versions only.
-# - Scheduled nightly run and workflow_dispatch: supported versions plus the
-#   unreleased pre-release (8.6), which tracks a nightly php-src build.
-# - Pull requests that opt in via a commit trailer: supported versions plus 8.6.
+# - Scheduled nightly run and workflow_dispatch: supported versions plus every
+#   unreleased pre-release (8.6, 8.7), each tracking upstream (8.6 via
+#   shivammathur/setup-php's RC build, 8.7 via its nightly master build).
+# - Pull requests that opt in via a commit trailer: supported versions plus
+#   whichever pre-release(s) the trailer names.
 #
-# 8.6 is built from php-src nightlies and regresses from time to time for
-# reasons that have nothing to do with the PR under test, so it does not run
-# on PRs by default. To check a change against it -- e.g. when the change is
-# about 8.6 compatibility -- add either of these trailers to any commit in the
-# PR:
+# Pre-release PHPs regress from time to time for reasons unrelated to the PR
+# under test, so they do not run on PRs by default. To check a change against
+# one -- e.g. when the change is about 8.6 or 8.7 compatibility -- add either
+# trailer to any commit in the PR:
 #
-#   Test-PHP: 8.6
-#   Test-Mode: full
+#   Test-PHP: 8.6         # opts into just 8.6
+#   Test-PHP: 8.6, 8.7    # opts into both
+#   Test-Mode: full       # opts into every pre-release
 #
-# When opted in, the 8.6 job reports honestly and a failure blocks the PR:
-# asking for the version means wanting its answer.
+# When opted in, the pre-release job reports honestly and a failure blocks the
+# PR: asking for the version means wanting its answer.
 
 name: Isolated Tests
 
@@ -64,16 +66,17 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
         BASE_REF: ${{ github.event.pull_request.base.ref }}
       ##
-      # Supported versions always run. The unreleased pre-release runs on the
-      # nightly schedule, on manual dispatch, and on PRs that ask for it by
-      # commit trailer.
+      # Supported versions always run. Unreleased pre-releases run on the
+      # nightly schedule, on manual dispatch, and on PRs that ask for one by
+      # commit trailer -- checked per-version so `Test-PHP: 8.6` opts into 8.6
+      # alone while `Test-Mode: full` opts into every pre-release.
       run: |
         supported=( '8.3' '8.4' '8.5' )
-        prerelease='8.6'
+        prerelease=( '8.6' '8.7' )
 
         case "${EVENT_NAME}" in
         schedule | workflow_dispatch)
-          supported+=( "${prerelease}" )
+          supported+=( "${prerelease[@]}" )
           ;;
         pull_request)
           # The checkout with fetch-depth=0 already has full history
@@ -81,14 +84,17 @@ jobs:
             echo "::debug::Checking commits ${merge_base}..HEAD for opt-in trailers"
             # Test-PHP takes a comma- or space-separated list of versions;
             # Test-Mode: full opts into everything, as it does in test-all.yml.
-            opt_in=$(git log --extended-regexp --regexp-ignore-case --format='%h' \
-                             --grep="^Test-PHP:([[:space:],]|.*[[:space:],])${prerelease//./\\.}([[:space:],]|\$)" \
-                             --grep='^Test-Mode:[[:space:]]*full[[:space:]]*$' \
-                             "${merge_base}..HEAD")
-            if [[ -n "${opt_in}" ]]; then
-              supported+=( "${prerelease}" )
-              echo "::notice::PHP ${prerelease} requested by commit ${opt_in//$'\n'/, }"
-            fi
+            # Check each pre-release independently so partial opt-in works.
+            for pre in "${prerelease[@]}"; do
+              opt_in=$(git log --extended-regexp --regexp-ignore-case --format='%h' \
+                               --grep="^Test-PHP:([[:space:],]|.*[[:space:],])${pre//./\\.}([[:space:],]|\$)" \
+                               --grep='^Test-Mode:[[:space:]]*full[[:space:]]*$' \
+                               "${merge_base}..HEAD")
+              if [[ -n "${opt_in}" ]]; then
+                supported+=( "${pre}" )
+                echo "::notice::PHP ${pre} requested by commit ${opt_in//$'\n'/, }"
+              fi
+            done
           else
             echo "::warning::Could not find merge base, skipping trailer check"
           fi

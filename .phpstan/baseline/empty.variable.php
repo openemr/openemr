@@ -267,11 +267,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$client in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomPasswordGrant.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$clients in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
@@ -315,11 +310,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$func_name in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$form_id in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$code in empty\\(\\) always exists and is not falsy\\.$#',

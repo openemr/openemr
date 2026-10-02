@@ -2634,6 +2634,7 @@ class InstallerTest extends TestCase
             ['Sensitivities', 'sensitivities'],
             ['Placeholder', 'placeholder'],
             ['Nation Notes', 'nationnotes'],
+            ['CAMOS', 'camos'],
             ['Patient Portal', 'patientportal'],
             ['Menus', 'menus'],
             ['Groups', 'groups'],
@@ -2727,6 +2728,7 @@ class InstallerTest extends TestCase
             'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
             'sensitivities' => ['normal', 'high'],
             'nationnotes' => ['nn_configure'],
+            'camos' => ['administer'],
             'patientportal' => ['portal'],
             'menus' => ['modle'],
             'groups' => ['gadd','gcalendar','glog','gdlog','gm']
