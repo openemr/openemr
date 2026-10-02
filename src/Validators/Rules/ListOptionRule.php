@@ -21,7 +21,8 @@ class ListOptionRule extends Rule
     const INVALID_LIST_OPTION = 'ListOptionRule::INVALID_LIST_OPTION';
 
     protected $messageTemplates = [
-        self::INVALID_LIST_OPTION => '{{ listId }} does not have an option_id of "{{ name }}"',
+        // {{ name }} is the field's label, not the submitted value.
+        self::INVALID_LIST_OPTION => '{{ name }} is not an option of the {{ listId }} list',
     ];
 
     /**

@@ -82,6 +82,62 @@ class FhirCoverageServiceCrudTest extends TestCase
         $this->assertIsString($dataResult['uuid']);
     }
 
+    /**
+     * A self-subscribed Coverage copies the subscriber's demographics from the patient. A patient
+     * country that is not an option of the country list (the list ships with 'USA' only; charts
+     * hold 'US', 'United States', ...) must not fail the write: FHIR Coverage does not carry a
+     * subscriber country, so the client can neither see nor correct it.
+     */
+    #[Test]
+    public function testInsertSucceedsWhenThePatientCountryIsNotACountryListOption(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `patient_data` SET `country_code` = ? WHERE `uuid` = ?',
+            ['United States', UuidRegistry::uuidToBytes($this->patientUuid)]
+        );
+
+        $this->fhirCoverageFixture->setId(new FHIRId());
+        $processingResult = $this->fhirCoverageService->insert($this->fhirCoverageFixture);
+
+        $this->assertTrue(
+            $processingResult->isValid(),
+            "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
+        );
+        $uuid = $this->firstDataRow($processingResult)['uuid'];
+        $this->assertIsString($uuid);
+        $stored = QueryUtils::querySingleRow(
+            'SELECT `subscriber_country` FROM `insurance_data` WHERE `uuid` = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertIsArray($stored);
+        $this->assertContains($stored['subscriber_country'], [null, ''], 'an unlisted country is not copied to the subscriber');
+    }
+
+    #[Test]
+    public function testInsertCopiesAPatientCountryThatIsACountryListOption(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `patient_data` SET `country_code` = ? WHERE `uuid` = ?',
+            ['USA', UuidRegistry::uuidToBytes($this->patientUuid)]
+        );
+
+        $this->fhirCoverageFixture->setId(new FHIRId());
+        $processingResult = $this->fhirCoverageService->insert($this->fhirCoverageFixture);
+
+        $this->assertTrue(
+            $processingResult->isValid(),
+            "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
+        );
+        $uuid = $this->firstDataRow($processingResult)['uuid'];
+        $this->assertIsString($uuid);
+        $stored = QueryUtils::querySingleRow(
+            'SELECT `subscriber_country` FROM `insurance_data` WHERE `uuid` = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertIsArray($stored);
+        $this->assertSame('USA', $stored['subscriber_country']);
+    }
+
     #[Test]
     public function testInsertWithUnresolvableBeneficiary(): void
     {
