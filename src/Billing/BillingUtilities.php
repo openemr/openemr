@@ -1793,6 +1793,27 @@ class BillingUtilities
     }
 
     /**
+     * Payer level stored on the encounter when a claim is marked billed.
+     *
+     * A missing or non-positive type leaves the encounter level alone.
+     * updateClaim() skips those same types.
+     */
+    public static function billedEncounterLevel(mixed $payerType): ?int
+    {
+        if (is_int($payerType)) {
+            return $payerType > 0 ? $payerType : null;
+        }
+
+        if (!is_string($payerType) || !ctype_digit($payerType)) {
+            return null;
+        }
+
+        $level = (int) $payerType;
+
+        return $level > 0 ? $level : null;
+    }
+
+    /**
      * Version on an unbilled claims row, when the row has one.
      */
     public static function unbilledClaimVersion(mixed $row): ?int
@@ -1936,7 +1957,8 @@ class BillingUtilities
      *
      * The claim row and the encounter's active billing rows commit together.
      * A miss on the billing rows rolls the claim status back, so the next
-     * run can still find the unbilled version.
+     * run can still find the unbilled version. The encounter's billed level
+     * is written from the claim's payer type in that same transaction.
      */
     public static function billUnbilledClaimFile(
         mixed $patientId,
@@ -1965,11 +1987,21 @@ class BillingUtilities
                     ]
                 );
                 $row = QueryUtils::querySingleRow(
-                    "SELECT process_file, status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                    "SELECT process_file, status, payer_type FROM claims"
+                    . " WHERE patient_id = ? AND encounter_id = ? AND version = ?",
                     [$patientId, $encounterId, $version]
                 );
                 if (!is_array($row) || ($row['process_file'] ?? null) !== $filename || !self::billedUpdateStored($row)) {
                     return false;
+                }
+
+                $level = self::billedEncounterLevel($row['payer_type'] ?? null);
+                if ($level !== null) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE form_encounter SET last_level_billed = ?"
+                        . " WHERE pid = ? AND encounter = ?",
+                        [$level, $patientId, $encounterId]
+                    );
                 }
 
                 QueryUtils::sqlStatementThrowException(
