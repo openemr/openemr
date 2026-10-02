@@ -532,7 +532,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             }
         } catch (RuntimeException $e) {
             $logger = ServiceContainer::getLogger();
-            $logger->logError($e->getMessage());
+            $logger->error('Appointments report spreadsheet export failed', ['exception' => $e]);
+            http_response_code(500);
         }
     } else {
         $pid_list = [];  // Initialize list of PIDs for Superbill option
