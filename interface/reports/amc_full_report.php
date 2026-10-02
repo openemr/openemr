@@ -14,6 +14,15 @@ require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+
+// AMC report contents are per-patient clinical data indexed by a sequential
+// report_id; the medical ACL must clear before any collectReportDatabase()
+// lookup runs on a request-supplied id.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: AMC Full Report", xl("AMC Full Report"));
+}
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {

@@ -26,8 +26,6 @@ use OpenEMR\Core\OEGlobalsBag;
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
-require_once("$srcdir/api.inc.php");
-
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 formHeader("Form: note");

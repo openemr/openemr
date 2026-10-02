@@ -38,7 +38,6 @@ $srcdir = $globalsBag->getString('srcdir');
 $web_root = $globalsBag->getString('web_root');
 
 require_once('verify_session.php');
-require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
@@ -377,6 +376,7 @@ try {
         'patientID' => $pid,
         'patientName' => $session->get('ptName', null),
         'csrfUtils' => CsrfUtils::collectCsrfToken(session: $session),
+        'csrfPostUtils' => CsrfUtils::collectCsrfToken(session: $session, subject: 'portal-payment'),
         'isEasyPro' => $isEasyPro,
         'appointments' => $appointments,
         'pastAppointments' => $past_appointments,

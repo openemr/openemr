@@ -102,16 +102,27 @@ class ScopePermissionParser
 
             $resource = $parsed['resource'];
             $context = $parsed['context'];
-            $version = $parsed['version'] ?? 'v2';
+            $version = $parsed['version'];
 
             // Skip non-resource scopes (handled elsewhere)
             if (empty($resource) || in_array($scopeString, ['openid', 'fhirUser', 'online_access', 'offline_access', 'launch', 'launch/patient', 'api:oemr', 'api:fhir', 'api:port'])) {
                 continue;
             }
 
+            // Group by context AND resource, never by resource alone. A client may legitimately
+            // request the same resource in two contexts -- patient/Patient.read alongside
+            // user/Patient.read and user/Patient.write is an ordinary SMART request. Keyed on the
+            // resource alone those collapse into one entry whose context is whichever scope was
+            // seen first, and the consent form then reconstructs every action under that one
+            // context: the user/ scopes are never emitted and a patient/Patient.write that was
+            // never requested is, which the server drops. The client ends up holding neither.
+            // The key doubles as an HTML id and a CSS selector fragment, so it is joined with a
+            // dash rather than the scope's own slash.
+            $key = $context . '-' . $resource;
+
             // Initialize resource structure if not exists
-            if (!isset($structuredScopes[$resource])) {
-                $structuredScopes[$resource] = [
+            if (!isset($structuredScopes[$key])) {
+                $structuredScopes[$key] = [
                     'name' => $resource,
                     'description' => $serverScopeList->lookupDescriptionForResourceScope($resource, $context),
                     'context' => $context,
@@ -128,69 +139,71 @@ class ScopePermissionParser
                     'isUnrestricted' => true,
                     'requestedRestrictions' => [], // Track which restrictions were in original request
                 ];
-                $requestedRestrictions[$resource] = [];
+                $requestedRestrictions[$key] = [];
             }
 
             // Parse actions - mark them as enabled
             foreach ($parsed['actions'] as $action) {
-                if (isset($structuredScopes[$resource]['actions'][$action])) {
-                    $structuredScopes[$resource]['actions'][$action]['enabled'] = true;
+                if (isset($structuredScopes[$key]['actions'][$action])) {
+                    $structuredScopes[$key]['actions'][$action]['enabled'] = true;
                 }
             }
 
             // Handle restrictions
             if (!empty($parsed['restriction'])) {
                 // Specific restriction requested
-                $structuredScopes[$resource]['isUnrestricted'] = false;
-                $structuredScopes[$resource]['hasRestrictions'] = true;
+                $structuredScopes[$key]['isUnrestricted'] = false;
+                $structuredScopes[$key]['hasRestrictions'] = true;
                 $restrictionKey = $parsed['restriction'];
                 $restrictionLabel = self::RESTRICTION_LABELS[$restrictionKey] ?? $restrictionKey;
 
                 // Track that this restriction was in the original request
-                if (!in_array($restrictionKey, $requestedRestrictions[$resource])) {
-                    $requestedRestrictions[$resource][] = $restrictionKey;
+                if (!in_array($restrictionKey, $requestedRestrictions[$key])) {
+                    $requestedRestrictions[$key][] = $restrictionKey;
                 }
 
-                $structuredScopes[$resource]['restrictions'][$restrictionKey] ??= [
+                $structuredScopes[$key]['restrictions'][$restrictionKey] ??= [
                     'label' => $restrictionLabel,
                     'value' => $restrictionKey,
                     'selected' => true,
                     'actions' => $parsed['actions'],
                 ];
             } else {
-                $unrestrictedResources[$resource] ??= true;
+                $unrestrictedResources[$key] ??= $resource;
             }
         }
 
         // ONC Compliance: For unrestricted Condition/Observation scopes,
         // populate ALL required sub-resource categories
-        foreach ($unrestrictedResources as $resource => $true) {
-            if (isset(self::ONC_REQUIRED_RESTRICTIONS[$resource])) {
-                $structuredScopes[$resource]['hasRestrictions'] = true;
+        foreach ($unrestrictedResources as $key => $resourceName) {
+            if (!isset(self::ONC_REQUIRED_RESTRICTIONS[$resourceName])) {
+                continue;
+            }
+            $structuredScopes[$key]['hasRestrictions'] = true;
+            $enabledActions = array_keys(array_filter(
+                $structuredScopes[$key]['actions'] ?? [],
+                static fn(array $action): bool => $action['enabled']
+            ));
 
-                // Add all ONC required restrictions for this resource
-                foreach (self::ONC_REQUIRED_RESTRICTIONS[$resource] as $restrictionUri) {
-                    if (!isset($structuredScopes[$resource]['restrictions'][$restrictionUri])) {
-                        $restrictionLabel = self::RESTRICTION_LABELS[$restrictionUri] ?? $restrictionUri;
+            // Add all ONC required restrictions for this resource
+            foreach (self::ONC_REQUIRED_RESTRICTIONS[$resourceName] as $restrictionUri) {
+                if (!isset($structuredScopes[$key]['restrictions'][$restrictionUri])) {
+                    $restrictionLabel = self::RESTRICTION_LABELS[$restrictionUri] ?? $restrictionUri;
 
-                        $structuredScopes[$resource]['restrictions'][$restrictionUri] = [
-                            'label' => $restrictionLabel,
-                            'value' => $restrictionUri,
-                            'selected' => true, // All selected by default for ONC compliance
-                            'actions' => array_keys(array_filter(
-                                $structuredScopes[$resource]['actions'],
-                                static fn($action): bool => $action['enabled']
-                            )),
-                        ];
-                    }
+                    $structuredScopes[$key]['restrictions'][$restrictionUri] = [
+                        'label' => $restrictionLabel,
+                        'value' => $restrictionUri,
+                        'selected' => true, // All selected by default for ONC compliance
+                        'actions' => $enabledActions,
+                    ];
                 }
             }
         }
 
         // Store the requested restrictions for each resource
-        foreach ($requestedRestrictions as $resource => $restrictions) {
-            if (isset($structuredScopes[$resource])) {
-                $structuredScopes[$resource]['requestedRestrictions'] = $restrictions;
+        foreach ($requestedRestrictions as $key => $restrictions) {
+            if (isset($structuredScopes[$key])) {
+                $structuredScopes[$key]['requestedRestrictions'] = $restrictions;
             }
         }
 
@@ -204,7 +217,8 @@ class ScopePermissionParser
      * Parse a single scope string into components
      *
      * @param string $scopeString The scope string to parse
-     * @return array|null Parsed scope components or null if invalid
+     * @return array{context: string, resource: string, actions: list<string>, restriction: string|null, version: string, originalFormat?: string, operation?: string}|null
+     *     Parsed scope components or null if invalid
      */
     private function parseScopeString(string $scopeString): ?array
     {

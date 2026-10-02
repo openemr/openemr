@@ -430,8 +430,7 @@ class TokenIntrospectionRestController {
             if (isset($result['exp']) && $result['exp'] instanceof \DateTimeImmutable) {
                 $result['exp'] = $result['exp']->getTimestamp();
             }
-        }
-        catch (\Throwable $exception) {
+        } catch (\Throwable $exception) {
             // something else went wrong
             $this->getSystemLogger()->error($exception->getMessage(), ['exception' => $exception, 'client_id' => $clientId]);
             // something else went wrong

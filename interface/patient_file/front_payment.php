@@ -22,8 +22,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
-require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/encounter_events.inc.php");
@@ -335,6 +333,13 @@ if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receip
         $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     }
 
+    $patName = trim(
+        (is_string($patdata['fname'] ?? null) ? $patdata['fname'] : '') . ' ' .
+        (is_string($patdata['mname'] ?? null) ? $patdata['mname'] : '') . ' ' .
+        (is_string($patdata['lname'] ?? null) ? $patdata['lname'] : '')
+    );
+    $patPubPid = is_string($patdata['pubpid'] ?? null) ? $patdata['pubpid'] : '';
+
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
 
@@ -524,6 +529,13 @@ function toencounter(enc, datestr, topframe) {
                             <?php echo text("[Phone]" . $frow['phone']) ?><br />
                             <?php echo text("[Email] " . $frow['email']) ?><br />
 
+                            <br />
+                            <?php echo xlt('Patient'); ?>:
+                            <?php echo text($patName); ?>
+
+                            <br />
+                            <?php echo xlt('Patient ID'); ?>:
+                            <?php echo text($patPubPid); ?>
 
                             <br />
                             <?php echo xlt('How Paid'); ?>:
@@ -694,7 +706,7 @@ function toencounter(enc, datestr, topframe) {
 
     <?php echo Header::setupAssets(['topdialog']); ?>
 
-<script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;

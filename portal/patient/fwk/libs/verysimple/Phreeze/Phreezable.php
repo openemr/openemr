@@ -2,7 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-require_once("SerializableTrait.php");
 
 /**
  * Phreezable Class

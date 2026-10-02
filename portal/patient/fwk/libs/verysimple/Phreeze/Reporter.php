@@ -2,7 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-require_once("SerializableTrait.php");
 
 /**
  * Reporter allows creating dynamic objects that do not necessarily reflect

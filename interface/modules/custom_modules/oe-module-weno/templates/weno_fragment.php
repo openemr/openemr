@@ -139,7 +139,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
 
 ?>
 <script
-    src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+    src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <style>
     .dialog-alert {
         font-size: 14px;

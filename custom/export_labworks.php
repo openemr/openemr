@@ -14,9 +14,16 @@
  /////////////////////////////////////////////////////////////////////
 
  require_once("../interface/globals.php");
- require_once("../library/patient.inc.php");
 
+ use OpenEMR\Common\Acl\AccessDeniedHelper;
+ use OpenEMR\Common\Acl\AclMain;
+ use OpenEMR\Common\Csrf\CsrfUtils;
  use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Export Patient Demographics LabWorks", xl("Export Patient Demographics LabWorks"));
+}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
  // FTP parameters that you must customize.  If you are not sending
  // then set $FTP_SERVER to an empty string.

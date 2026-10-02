@@ -24,8 +24,7 @@ class login_sasl_client_class
 
     public Function Start(&$client, &$message, &$interactions)
     {
-        if($this->state!=SASL_LOGIN_STATE_START)
-        {
+        if ($this->state!=SASL_LOGIN_STATE_START) {
             $client->error="LOGIN authentication state is not at the start";
             return(SASL_FAIL);
         }
@@ -38,7 +37,7 @@ class login_sasl_client_class
             "realm"=>""
         ];
         $status=$client->GetCredentials($this->credentials,$defaults,$interactions);
-        if($status==SASL_CONTINUE)
+        if ($status==SASL_CONTINUE)
             $this->state=SASL_LOGIN_STATE_IDENTIFY_USER;
         Unset($message);
         return($status);
@@ -46,8 +45,7 @@ class login_sasl_client_class
 
     public Function Step(&$client, $response, &$message, &$interactions)
     {
-        switch($this->state)
-        {
+        switch ($this->state) {
             case SASL_LOGIN_STATE_IDENTIFY_USER:
                 $message=$this->credentials["user"].(strlen((string) $this->credentials["realm"]) ? "@".$this->credentials["realm"] : "");
                 $this->state=SASL_LOGIN_STATE_IDENTIFY_PASSWORD;

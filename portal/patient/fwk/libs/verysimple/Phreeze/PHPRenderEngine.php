@@ -2,7 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-require_once("IRenderEngine.php");
 
 /**
  * PHPRenderEngine is an implementation of IRenderEngine

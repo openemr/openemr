@@ -38,6 +38,10 @@ docker compose up --detach --wait
 - **Login:** `admin` / `pass`
 - **phpMyAdmin:** http://localhost:8310/
 
+## AI agent environments
+
+If you use an AI coding agent (Claude Code, Codex, etc.) against this repo, sandbox configurations for running the agent without giving it your host filesystem or host Docker daemon are documented in [CONTRIBUTING.md's AI Agent Development Environment section](CONTRIBUTING.md#ai-agent-development-environment). Any environment that satisfies the rules below works; the list there is a starting point, not a requirement.
+
 ## Working in a git worktree
 
 OpenEMR supports concurrent development across branches via git worktrees
@@ -85,6 +89,12 @@ deletions of everything new on master" — a stray `git commit` after that
 wipes recent work. Use `git pull` or plain `git fetch` (then read via
 tracking ref) instead.
 
+**Agents don't create or push new commits directly to `master`/`main`.**
+Feature work lives on a feature branch created via `openemr-cmd worktree
+add <branch> -b`. Syncing your fork's `master` to upstream (fetch upstream
+→ fast-forward local master → push origin master) is fine — that's
+mirroring an authoritative ref, not new work.
+
 If `openemr-cmd worktree list` shows entries with status `missing` or
 `invalid` (and a footer `(N stale state entries — run "openemr-cmd worktree
 prune" to clean up; directories on disk are left intact)`), a worktree's
@@ -109,6 +119,27 @@ Any standard `openemr-cmd` command works through `exec` — `ut`, `at`, `et`,
 For short pauses, prefer `worktree stop` / `worktree start` over
 `worktree down` / `worktree up`. `stop`/`start` pause and resume existing
 containers (data preserved, much faster); `down`/`up` recreates them.
+
+`worktree add` accepts an `--env` flag selecting which docker environment
+comes up: `easy` (default: full dev stack with Selenium, CouchDB, Mailpit),
+`easy-light` (drops Selenium/CouchDB/Mailpit for faster boot; suits
+lint/refactor passes with no DB needs), or `easy-redis` (adds
+Redis/Sentinel for session or cache work). When in doubt, `easy`.
+
+Each worktree gets an integer port offset assigned at `worktree add` time
+(shown by `openemr-cmd worktree list`). Service ports derive from that
+offset:
+
+| Service    | Formula       | Offset 1 example |
+|------------|---------------|------------------|
+| HTTPS      | 9300 + offset | 9301             |
+| HTTP       | 8300 + offset | 8301             |
+| phpMyAdmin | 8310 + offset | 8311             |
+| MySQL      | 8320 + offset | 8321             |
+| Mailpit UI | 8025 + offset | 8026             |
+| CouchDB    | 5984 + offset | 5985             |
+| Selenium   | 4444 + offset | 4445             |
+| Redis      | 6379 + offset | 6380             |
 
 ## Testing
 
@@ -648,6 +679,45 @@ class ExampleService extends BaseService
     }
 }
 ```
+
+## Module/Core Boundaries
+
+Dependencies point one way: a module reaches core by subscribing to an event,
+and core reaches a module by dispatching one.
+
+- **Core must not name a class from a module's namespace.** A module namespace
+  (`OpenEMR\Modules\...`, or a vendor-prefixed variant such as
+  `Acme\OpenEMR\Modules\...`) must not appear in a `use` statement, a type
+  declaration, or a static call under `src/`, `library/`, `templates/`, or
+  `interface/` outside `interface/modules/`. Some modules ship in-tree under
+  `interface/modules/custom_modules/` and others arrive through Composer, so a
+  name that resolves in a development checkout is not guaranteed to resolve in
+  a given deployment — and a bundled module can still be removed or disabled.
+  Wrapping the reference in an "is this module installed" check does not fix
+  it: core's source still names a symbol it does not own, which is what static
+  analysis, `composer-require-checker`, and the test suite see. A probe that
+  assembles the class name as a string and passes it to `class_exists()` is
+  the exception, because no analyzer resolves a string as a dependency.
+- **Core robustness fixes must not be gated on a module being present.** If
+  core has a bug (null handling, escaping, error paths), fix it
+  unconditionally — the fix must hold whether or not any module is installed.
+- **Module-specific UI belongs in the module,** emitted via events
+  (`MenuEvent`, `RenderEvent`, `EncounterMenuEvent`) or module controllers,
+  not hardcoded into a core template behind a module check.
+
+When core needs a value only a module can supply, dispatch an event that
+carries the inputs, let listeners contribute, and use whatever came back.
+`OpenEMR\Events\Core\StyleFilterEvent` is the shape: core constructs the event
+with its inputs, listeners fill an accumulator, core uses the result. With no
+listener subscribed the accumulator is empty and core behaves exactly as it
+does without the module, which is also how to verify the seam — exercise it
+both ways and diff. Give the event a slot per insertion point rather than one
+trailing slot; code with early-exit paths cannot express "contribute before
+the first return" with a single append.
+
+`library/dated_reminder_functions.php` predates this rule and imports
+`OpenEMR\Modules\FaxSMS\Controller\AppDispatch` directly. Treat it as
+something to migrate to an event, not as precedent.
 
 ## File Headers
 

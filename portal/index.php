@@ -106,7 +106,38 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
         $token = $_GET['service_auth'];
-        $ot = $oneTime->decodePortalOneTime($token, logUpdate: false);
+        try {
+            // Decoding now enforces the token's consumption policy (expiry,
+            // one-time use, max access count), so an already-consumed or expired
+            // token is refused here instead of rendering the autologin form.
+            $ot = $oneTime->decodePortalOneTime($token, logUpdate: false);
+        } catch (OneTimeAuthExpiredException $exception) {
+            // '&oe' is read below (see the $_GET['oe'] handler) to alert the
+            // patient that the one-time link has expired.
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oe');
+            exit();
+        } catch (OneTimeAuthException $exception) {
+            // '&oi' is read below (see the $_GET['oi'] handler) to alert the
+            // patient that the one-time link is invalid or already consumed.
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oi');
+            exit();
+        }
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey($session);
         echo ServiceContainer::getTwig()->render('portal/login/autologin.html.twig', [

@@ -100,7 +100,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
 
                 $service = $this->getServiceForCategory($categorySearchField, 'clinical-notes');
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-            } else if (isset($fhirSearchParameters['type'])) {
+            } elseif (isset($fhirSearchParameters['type'])) {
                 $service = $this->getServiceForCode(new TokenSearchField('type', $fhirSearchParameters['type']), '');
                 // if we have a service let's search on that
                 if (isset($service)) {

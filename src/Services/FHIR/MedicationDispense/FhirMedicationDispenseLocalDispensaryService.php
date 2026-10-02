@@ -460,7 +460,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $fhirTiming = new OpenEMRFHIRTiming();
             $fhirTiming->setCode($intervalConcept);
             $dosage->setTiming($fhirTiming);
-        } else if (!empty($dataRecord['interval_notes'])) {
+        } elseif (!empty($dataRecord['interval_notes'])) {
             // if we have notes but no corresponding code, just set the text
             $intervalConcept = new FHIRCodeableConcept();
             $intervalConcept->setText($dataRecord['interval_notes']);

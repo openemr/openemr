@@ -15,6 +15,7 @@ namespace OpenEMR\Tests\Isolated\PostCalendar\ViewModel;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -459,6 +460,169 @@ final class CalendarRenderDataBuilderTest extends TestCase
         self::assertTrue($twoFacilities['showFacilitySelect']);
     }
 
+    /**
+     * @return array<string, array{ViewType}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function screenViewProvider(): array
+    {
+        return [
+            'day' => [ViewType::Day],
+            'week' => [ViewType::Week],
+            'month' => [ViewType::Month],
+        ];
+    }
+
+    /**
+     * Inactive facilities stay out of the facility picker and its color legend (#13312),
+     * whether the database hands `inactive` back as an int or a string.
+     */
+    #[DataProvider('screenViewProvider')]
+    public function testScreenOffersOnlyActiveFacilities(ViewType $view): void
+    {
+        $result = $this->buildScreenWithFacilities($view, self::mixedFacilities(), 0);
+
+        self::assertSame([1, 3, 5], array_column($this->arrayAt($result, 'facilities'), 'id'));
+        self::assertTrue($result['showFacilitySelect']);
+    }
+
+    /**
+     * The facility the calendar is filtered on stays in the picker after it is deactivated.
+     */
+    public function testScreenKeepsTheSelectedFacilityEvenIfInactive(): void
+    {
+        $result = $this->buildScreenWithFacilities(ViewType::Day, self::mixedFacilities(), 4);
+
+        self::assertSame([1, 3, 4, 5], array_column($this->arrayAt($result, 'facilities'), 'id'));
+    }
+
+    /**
+     * With one active facility left, there is nothing to pick.
+     */
+    public function testFacilitySelectIsHiddenWhenOnlyOneFacilityIsActive(): void
+    {
+        $result = $this->buildScreenWithFacilities(
+            ViewType::Day,
+            [['id' => 1, 'name' => 'Main', 'inactive' => 0], ['id' => 2, 'name' => 'Closed', 'inactive' => 1]],
+            0
+        );
+
+        self::assertSame([1], array_column($this->arrayAt($result, 'facilities'), 'id'));
+        self::assertFalse($result['showFacilitySelect']);
+    }
+
+    /**
+     * A deactivated selection that is the only facility left keeps the picker, so "All Facilities"
+     * can clear it; without that option there is nothing to pick.
+     */
+    #[DataProvider('screenViewProvider')]
+    public function testPickerStaysForAnInactiveSelectionWhenAllFacilitiesIsOffered(ViewType $view): void
+    {
+        $facilities = [['id' => 1, 'name' => 'Closed A', 'inactive' => '1'], ['id' => 2, 'name' => 'Closed B', 'inactive' => 1]];
+
+        $withAll = $this->buildScreenWithFacilities($view, $facilities, 2, true);
+        $withoutAll = $this->buildScreenWithFacilities($view, $facilities, 2, false);
+
+        self::assertSame([2], array_column($this->arrayAt($withAll, 'facilities'), 'id'));
+        self::assertTrue($withAll['showFacilitySelect']);
+        self::assertFalse($withoutAll['showFacilitySelect']);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private static function mixedFacilities(): array
+    {
+        return [
+            ['id' => 1, 'name' => 'Main', 'inactive' => 0],
+            ['id' => 2, 'name' => 'Closed (int)', 'inactive' => 1],
+            ['id' => 3, 'name' => 'Annex', 'inactive' => '0'],
+            ['id' => 4, 'name' => 'Closed (string)', 'inactive' => '1'],
+            ['id' => 5, 'name' => 'No flag'],
+        ];
+    }
+
+    /**
+     * @param  list<array<string, mixed>> $facilities
+     * @return array<string, mixed>
+     */
+    private function buildScreenWithFacilities(
+        ViewType $view,
+        array $facilities,
+        int $pcFacility,
+        bool $showAllFacilitiesOption = true
+    ): array {
+        $builder = $this->builder($view);
+        $providers = [$this->makeProvider()];
+
+        return match ($view) {
+            ViewType::Month => $builder->buildMonthScreenRenderData(
+                ['2026-03-15' => []],
+                $providers,
+                $providers,
+                $facilities,
+                '20260315',
+                $this->shortDayNames(),
+                $pcFacility,
+                0,
+                '/img',
+                '/openemr',
+                '?prev',
+                '?next',
+                'fa-chevron-left',
+                'fa-chevron-right',
+                '',
+                $showAllFacilitiesOption,
+                'March 2026'
+            ),
+            ViewType::Week => $builder->buildWeekScreenRenderData(
+                ['2026-03-15' => []],
+                $providers,
+                $providers,
+                $facilities,
+                $this->makeTimes(),
+                30,
+                '20260315',
+                $this->shortDayNames(),
+                $pcFacility,
+                0,
+                '/img',
+                '/openemr',
+                '?prev',
+                '?next',
+                'fa-chevron-left',
+                'fa-chevron-right',
+                '',
+                $showAllFacilitiesOption,
+                'Mar 15 - Mar 21 2026',
+                true
+            ),
+            default => $builder->buildDayScreenRenderData(
+                ['2026-03-15' => []],
+                $providers,
+                $providers,
+                $facilities,
+                $this->makeTimes(),
+                30,
+                '20260315',
+                $this->shortDayNames(),
+                $pcFacility,
+                0,
+                '/img',
+                '/openemr',
+                '?prev',
+                '?next',
+                'fa-chevron-left',
+                'fa-chevron-right',
+                '',
+                $showAllFacilitiesOption,
+                'Sunday, March 15, 2026',
+                true
+            ),
+        };
+    }
+
     public function testBuildWeekScreenRenderDataReturnsExpectedTopLevelKeys(): void
     {
         // See note on the month-screen test re: empty events.
@@ -522,5 +686,192 @@ final class CalendarRenderDataBuilderTest extends TestCase
         );
 
         self::assertSame([], $result['providers']);
+    }
+
+    /**
+     * Holiday/closed markers (catid 6/7) must surface as isHolidayDay so the
+     * time gutter can refuse newEvt / direct-select create. Use aid that does
+     * not match the provider so decorate* skips the event (avoids DB-backed
+     * dateformat() in addI18nDateDecoration) while dayHasHolidayOrClosed still
+     * sees the category on the day's event list.
+     *
+     * @param  list<array<string, mixed>> $dayEvents
+     * @return array<string, mixed>
+     */
+    private function buildDayScreenWithEvents(array $dayEvents): array
+    {
+        $builder = $this->builder(ViewType::Day);
+
+        /** @var array<string, list<array<string, mixed>>> $aEvents */
+        $aEvents = ['2026-03-15' => $dayEvents];
+
+        return $builder->buildDayScreenRenderData(
+            $aEvents,
+            [$this->makeProvider()],
+            [$this->makeProvider()],
+            [['id' => 1, 'name' => 'Main']],
+            $this->makeTimes(),
+            30,
+            '20260315',
+            $this->shortDayNames(),
+            1,
+            0,
+            '/img',
+            '/openemr',
+            '?prev',
+            '?next',
+            'fa-chevron-left',
+            'fa-chevron-right',
+            '<select id="monthPicker"></select>',
+            true,
+            'Sunday, March 15, 2026',
+            true
+        );
+    }
+
+    /**
+     * @param  array<string, list<array<string, mixed>>> $events
+     * @return array<string, mixed>
+     */
+    private function buildWeekScreenWithEvents(array $events, string $dateYmd = '20260315'): array
+    {
+        $builder = $this->builder(ViewType::Week);
+
+        return $builder->buildWeekScreenRenderData(
+            $events,
+            [$this->makeProvider()],
+            [$this->makeProvider()],
+            [['id' => 1, 'name' => 'Main']],
+            $this->makeTimes(),
+            30,
+            $dateYmd,
+            $this->shortDayNames(),
+            1,
+            0,
+            '/img',
+            '/openemr',
+            '?prev',
+            '?next',
+            'fa-chevron-left',
+            'fa-chevron-right',
+            '',
+            true,
+            'Mar 15 - Mar 16 2026',
+            true
+        );
+    }
+
+    /**
+     * @param  array<int|string, mixed> $dayColumns
+     * @return array<int|string, mixed>
+     */
+    private function dayColumnAt(array $dayColumns, int $index): array
+    {
+        self::assertArrayHasKey($index, $dayColumns);
+        $column = $dayColumns[$index];
+        self::assertIsArray($column);
+
+        return $column;
+    }
+
+    public function testBuildDayScreenIsHolidayDayFalseWithoutHolidayOrClosed(): void
+    {
+        $result = $this->buildDayScreenWithEvents([
+            $this->makeEvent(catid: 5, eid: 1, aid: 999),
+        ]);
+
+        self::assertFalse($result['isHolidayDay']);
+        self::assertSame(20, $result['timeslotHeightVal']);
+    }
+
+    public function testBuildDayScreenIsHolidayDayTrueForHolidayCatid6(): void
+    {
+        $result = $this->buildDayScreenWithEvents([
+            $this->makeEvent(catid: 6, eid: 60, aid: 999),
+            $this->makeEvent(catid: 5, eid: 61, aid: 999),
+        ]);
+
+        self::assertTrue($result['isHolidayDay']);
+    }
+
+    public function testBuildDayScreenIsHolidayDayTrueForClosedCatid7(): void
+    {
+        $result = $this->buildDayScreenWithEvents([
+            $this->makeEvent(catid: 7, eid: 70, aid: 999),
+        ]);
+
+        self::assertTrue($result['isHolidayDay']);
+    }
+
+    public function testBuildDayScreenIsHolidayDayTrueWhenCatidIsStringSix(): void
+    {
+        // Production event rows often carry string catids from SQL.
+        $holiday = $this->makeEvent(catid: 6, eid: 66, aid: 999);
+        $holiday['catid'] = '6';
+
+        $result = $this->buildDayScreenWithEvents([$holiday]);
+
+        self::assertTrue($result['isHolidayDay']);
+    }
+
+    public function testBuildDayScreenIsHolidayDayFalseForEmptyDay(): void
+    {
+        $result = $this->buildDayScreenWithEvents([]);
+
+        self::assertFalse($result['isHolidayDay']);
+    }
+
+    public function testBuildWeekScreenIsHolidayDayTrueWhenFocusDateIsHoliday(): void
+    {
+        $result = $this->buildWeekScreenWithEvents([
+            '2026-03-15' => [$this->makeEvent(catid: 6, eid: 1, aid: 999)],
+            '2026-03-16' => [$this->makeEvent(catid: 5, eid: 2, aid: 999)],
+        ], '20260315');
+
+        self::assertTrue($result['isHolidayDay']);
+        self::assertSame(20, $result['timeslotHeightVal']);
+
+        $providers = $this->arrayAt($result, 'providers');
+        self::assertIsArray($providers[0]);
+        $dayColumns = $providers[0]['dayColumns'];
+        self::assertIsArray($dayColumns);
+        self::assertCount(2, $dayColumns);
+
+        $firstColumn = $this->dayColumnAt($dayColumns, 0);
+        $secondColumn = $this->dayColumnAt($dayColumns, 1);
+        self::assertTrue($firstColumn['isHolidayDay']);
+        self::assertFalse($secondColumn['isHolidayDay']);
+    }
+
+    public function testBuildWeekScreenIsHolidayDayFalseWhenFocusDateIsOpen(): void
+    {
+        $result = $this->buildWeekScreenWithEvents([
+            '2026-03-15' => [$this->makeEvent(catid: 5, eid: 1, aid: 999)],
+            '2026-03-16' => [$this->makeEvent(catid: 7, eid: 2, aid: 999)],
+        ], '20260315');
+
+        // Top-level flag follows the focused Date column only.
+        self::assertFalse($result['isHolidayDay']);
+
+        $providers = $this->arrayAt($result, 'providers');
+        self::assertIsArray($providers[0]);
+        $dayColumns = $providers[0]['dayColumns'];
+        self::assertIsArray($dayColumns);
+
+        $firstColumn = $this->dayColumnAt($dayColumns, 0);
+        $secondColumn = $this->dayColumnAt($dayColumns, 1);
+        self::assertFalse($firstColumn['isHolidayDay']);
+        self::assertTrue($secondColumn['isHolidayDay']);
+    }
+
+    public function testBuildWeekScreenIsHolidayDayFalseWhenFocusDateNotInEvents(): void
+    {
+        // Focus Date has no matching column key → gutter stays open.
+        $result = $this->buildWeekScreenWithEvents([
+            '2026-03-16' => [$this->makeEvent(catid: 6, eid: 1, aid: 999)],
+            '2026-03-17' => [],
+        ], '20260315');
+
+        self::assertFalse($result['isHolidayDay']);
     }
 }

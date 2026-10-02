@@ -463,7 +463,6 @@ class CarecoordinationTable
      */
     public function insert_patient($audit_master_id, $document_id)
     {
-        require_once(__DIR__ . "/../../../../../../../../library/patient.inc.php");
         $pid = 0;
         $a = 1;
         $b = 1;

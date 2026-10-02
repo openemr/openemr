@@ -12,12 +12,18 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
+
+if (!AclMain::aclCheckCore('patients', 'notes', '', ['write', 'addonly'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/notes write/addonly: Trusted Messages", xl("Trusted Messages"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $message = '';
@@ -70,7 +76,7 @@ $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail
 
     echo "<title>" .  xlt('Messages, Reminders, Recalls') . "</title>";
     ?>
-    <script src="js/trusted-messages.js" type="text/javascript"></script>
+    <script src="js/trusted-messages.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/javascript"></script>
 </head>
 <body class='body_top'>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">

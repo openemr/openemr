@@ -687,11 +687,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getById\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/qrda_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method GetRows\\(\\) on ADORecordSet\\|bool\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',
@@ -773,7 +768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 92,
+    'count' => 91,
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
@@ -804,11 +799,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method createTextNode\\(\\) on mixed\\.$#',
     'count' => 86,
-    'path' => __DIR__ . '/../../interface/eRx_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPrimaryBusinessEntity\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
@@ -880,31 +870,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method writeHTML\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getById\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPrimaryBillingLocation\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPrimaryBillingLocation\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getById\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPrimaryBillingLocation\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method genPriceLevelSelect\\(\\) on mixed\\.$#',
@@ -2347,11 +2312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getById\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getPrimaryBusinessEntity\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
@@ -2575,11 +2535,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method oeBelowContainerDiv\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/manage_site_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getGroupEvents\\(\\) on mixed\\.$#',
@@ -2939,11 +2894,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method MoveNext\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTimestamp\\(\\) on DateTime\\|false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -3327,41 +3277,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getAllBillingLocations\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAllFacility\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getById\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAllFacility\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getById\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getFacilityForUser\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPrimaryBillingLocation\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method SetFetchMode\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -3740,11 +3655,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method GetWhere\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTraceAsString\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method GetDataPage\\(\\) on mixed\\.$#',
@@ -6577,11 +6487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getReference\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRReference\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getUrl\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
@@ -6615,11 +6520,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method validate\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method validateId\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method insert\\(\\) on mixed\\.$#',

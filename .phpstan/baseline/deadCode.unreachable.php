@@ -286,10 +286,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Qrda/QrdaReportServiceTest.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

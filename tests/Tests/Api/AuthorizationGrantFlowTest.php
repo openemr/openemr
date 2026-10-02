@@ -477,7 +477,7 @@ class AuthorizationGrantFlowTest extends TestCase
         $url = getenv("OPENEMR_BASE_URL_API", true);
         if (is_array($url)) {
             return (string)$url[0];
-        } else if (is_string($url)) {
+        } elseif (is_string($url)) {
             return $url;
         } else {
             return "https://localhost:9300";

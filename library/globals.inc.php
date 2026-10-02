@@ -84,6 +84,7 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
@@ -2216,6 +2217,20 @@ $GLOBALS_METADATA = [
             xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ],
 
+        'clear_ip_counter_on_auth_success' => [
+            xl('Clear IP Failed-Login Counter on Successful Authentication'),
+            'bool',                           // data type
+            '1',                              // default ON — preserves pre-8.5.0 behaviour
+            xl('When enabled (default), a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. This matches the pre-8.5.0 behaviour and is convenient in shared-NAT environments where legitimate users would otherwise accumulate strikes across a day. When disabled, the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP — recommended for higher-security deployments. If disabled AND the reset window is also 0 (never auto-reset), the ip_tracking.ip_login_fail_counter can be cleared by an administrator via the IP Tracker report; the ip_tracking.mfa_login_fail_counter has no admin UI yet and requires direct SQL to clear (see the follow-up admin-unblock issue tracked separately).')
+        ],
+
+        'portal_onetime_max_pin_attempts' => [
+            xl('Portal One-Time Token Maximum PIN Attempts'),
+            'num',                            // data type
+            '5',                              // default
+            xl('Maximum PIN attempts allowed for a patient portal one-time (e.g. invoice) token before it is refused. 0 or blank uses the built-in default.')
+        ],
+
         'gbl_fac_warehouse_restrictions' => [
             xl('Enable Facility/Warehouse Permissions'),
             'bool',                           // data type
@@ -2922,6 +2937,13 @@ $GLOBALS_METADATA = [
     //
     'Miscellaneous' => [
 
+        'duplicate_patient_rescore_on_load' => [
+            xl('Recompute Duplicate Scores On Every Report Load'),
+            'bool',                           // data type
+            '1',                              // default = true, matching long-standing behavior
+            xl('The Duplicate Patient Management report rescores every patient each time it loads. That keeps it accurate after a bulk import, but is slow on large installs. Turn this off where scores are already kept current when demographics change; the Recalculate Scores button still runs a full pass on demand.')
+        ],
+
         'enable_database_connection_pooling' => [
             xl('Enable Database Connection Pooling'),
             'bool',                           // data type
@@ -3452,6 +3474,14 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',
             xl('Enable MedEx Communication Service')
+        ],
+
+        'medex_cancelled_apptstatus' => [
+            xl('MedEx Cancelled Appointment Statuses'),
+            GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR,
+            '%;x',
+            xl('Appointment statuses that mean the appointment is cancelled or rescheduled. MedEx sends no reminders for these appointments and withdraws messages already queued. Add any custom statuses your practice uses for this.'),
+            [GlobalSetting::DATA_TYPE_OPTION_LIST_ID => 'apptstat'],
         ],
 
         'erx_enable' => [

@@ -1,4 +1,4 @@
-# BATS: release devtoolsLibrary.source — functional tests (source and call prepareVariables)
+# BATS: release devtoolsLibrary.source — functional tests (source and call prepareVariables, run_vendor_hook)
 
 load '../helpers'
 
@@ -72,4 +72,70 @@ exit 0' > "${stub_dir}/mariadb"
     run bash -c "export MYSQL_ROOT_PASS=root; source '$LIB'; prepareVariables; setGlobalSettings 2>&1"
     [[ $status -eq 0 ]]
     [[ $output != *"Set "*" to "* ]] || [[ -z $output ]]
+}
+
+@test "run_vendor_hooks: no directory present" {
+    test_root="${BATS_TEST_TMPDIR}"
+    run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
+    [[ $status -eq 0 ]]
+}
+
+@test "run_vendor_hooks: script failure" {
+    test_root="${BATS_TEST_TMPDIR}"
+    test_dir="${test_root}"/testing
+    mkdir -p "${test_dir}"
+    echo '#!/bin/sh
+exit 1' > "${test_dir}/01test"
+    chmod +x "${test_dir}/01test"
+
+    bats::on_failure() {
+        echo "status = ${status}"
+        echo "output = ${output}"
+    }
+
+    run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
+    [[ $status -eq 1 ]]
+    [[ $output = *"${test_dir}/01test"* ]]
+}
+
+@test "run_vendor_hooks: execution order" {
+    test_root="${BATS_TEST_TMPDIR}"
+    test_dir="${test_root}"/testing
+    mkdir -p "${test_dir}"
+    echo '#!/bin/sh
+echo 01 OK
+exit 0' > "${test_dir}/01test"
+    echo '#!/bin/sh
+echo 02 OK
+exit 0' > "${test_dir}/02test"
+    chmod +x "${test_dir}/01test" "${test_dir}/02test"
+
+    bats::on_failure() {
+        echo "status = ${status}"
+        echo "output = ${output}"
+    }
+
+    run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
+    (( status == 0 ))
+    [[ $output = *"01 OK"*"02 OK"* ]]
+    [[ $output = *"testing hook OK"* ]]
+}
+
+@test "run_vendor_hooks: missing executable permission" {
+    test_root="${BATS_TEST_TMPDIR}"
+    test_dir="${test_root}"/testing
+    mkdir -p "${test_dir}"
+    echo '#!/bin/sh
+echo 01 OK
+exit 0' > "${test_dir}/01test"
+
+    bats::on_failure() {
+        echo "status = ${status}"
+        echo "output = ${output}"
+    }
+
+    run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
+    (( status == 0 ))
+    [[ $output = *"WARNING: "${test_dir}"/01test has a shebang but is not executable; run-parts will skip it"* ]]
+    [[ $output = *"testing hook: run-parts can't find executable scripts, expected?"* ]]
 }

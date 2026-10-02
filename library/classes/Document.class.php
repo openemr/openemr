@@ -327,7 +327,23 @@ class Document extends ORDataObject
     {
         if (!empty($this->date_expires)) {
             $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $this->date_expires);
-            return $dateTime->getTimestamp() >= time();
+            if ($dateTime === false) {
+                // An unparsable expiration timestamp cannot establish that
+                // the document is still within its retention window; treat
+                // the document as expired so callers deny + clean up rather
+                // than serving stale content indefinitely.
+                return true;
+            }
+            // createFromFormat can return a valid DateTime for inputs that
+            // technically parse but overflow (e.g. "2024-02-30 12:00:00"
+            // rolls into March) or carry trailing data. Any warning or
+            // error means the retention window claim is not trustworthy;
+            // fail closed and treat the document as expired.
+            $parseErrors = DateTime::getLastErrors();
+            if ($parseErrors !== false && ($parseErrors['warning_count'] > 0 || $parseErrors['error_count'] > 0)) {
+                return true;
+            }
+            return $dateTime->getTimestamp() <= time();
         }
         return false;
     }
@@ -629,6 +645,19 @@ class Document extends ORDataObject
     public function get_date_expires(): ?string
     {
         return $this->date_expires;
+    }
+
+    /**
+     * ORDataObject::populate_array() only assigns fields whose set_<field>
+     * method is callable; without this setter, date_expires was silently
+     * dropped on every `new Document($id)` load, leaving has_expired()
+     * always returning false regardless of the stored value.
+     *
+     * @param string|null $date_expires The datetime that the document expires at
+     */
+    public function set_date_expires(?string $date_expires): void
+    {
+        $this->date_expires = $date_expires;
     }
     public function set_hash($hash): void
     {

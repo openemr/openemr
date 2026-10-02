@@ -21,7 +21,8 @@ use OpenEMR\Services\BaseService;
  * Finds pre-payment sessions whose received amount has not been fully applied.
  *
  * "Unapplied" is ar_session.pay_total minus the sum of live
- * (deleted IS NULL) ar_activity.pay_amount rows for the session, and
+ * (deleted IS NULL) ar_activity.pay_amount rows for the session -- all of them,
+ * regardless of which patient each was distributed to -- and
  * deliberately does not subtract ar_session.global_amount. Money swept to the
  * Global Account has not satisfied a charge, so it remains an unapplied credit;
  * it is reported separately as inGlobal so parked credit stays visible.
@@ -53,8 +54,13 @@ class PrepaymentBalanceService extends BaseService
         ?int $patientId = null,
         bool $parkedOnly = false,
     ): array {
-        // Applied money is pre-aggregated per (session, pid) so that a session
-        // with several distributions does not fan out and multiply pay_total.
+        // Applied money is pre-aggregated per session so that a session with
+        // several distributions does not fan out and multiply pay_total.
+        //
+        // Aggregation is by session_id alone, not by (session_id, pid):
+        // edit_payment.php takes the pid from each distribution row, so one
+        // prepayment can be applied across a family. Every such distribution
+        // reduces what is unapplied, whoever it was posted against.
         //
         // The unapplied threshold is applied in WHERE rather than HAVING: the
         // outer query has no GROUP BY, so a bare HAVING would depend on a MySQL
@@ -67,12 +73,12 @@ class PrepaymentBalanceService extends BaseService
                        p.lname, p.fname, p.mname
                   FROM ar_session AS s
                   LEFT JOIN (
-                       SELECT session_id, pid, SUM(pay_amount) AS applied
+                       SELECT session_id, SUM(pay_amount) AS applied
                          FROM ar_activity
                         WHERE deleted IS NULL
-                        GROUP BY session_id, pid
+                        GROUP BY session_id
                        ) AS act
-                    ON act.session_id = s.session_id AND act.pid = s.patient_id
+                    ON act.session_id = s.session_id
                   LEFT JOIN patient_data AS p ON p.pid = s.patient_id
                  WHERE s.adjustment_code = 'pre_payment'
                    AND s.closed = 0

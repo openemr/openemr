@@ -3,13 +3,6 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * import supporting libraries
- */
-require_once("IObservable.php");
-require_once("ConnectionSetting.php");
-require_once("verysimple/DB/DataDriver/IDataDriver.php");
-
-/**
  * DataAdapter abstracts and provides access to the data store
  *
  * @package verysimple::Phreeze
@@ -97,7 +90,6 @@ class DataAdapter implements IObservable
             switch ($this->ConnectionSetting->Type) {
                 case "mysqli":
                 case "MySQLi":
-                    include_once("verysimple/DB/DataDriver/MySQLi.php");
                     $this->_driver = new DataDriverMySQLi();
                     break;
                 default:

@@ -71,7 +71,7 @@ class DecisionSupportInterventionService extends BaseService
             if (!$isSummary) {
                 $attributes = $this->getPredictiveDSIAttributes($clientEntity->getIdentifier());
             }
-        } else if ($clientEntity->hasEvidenceDSI()) {
+        } elseif ($clientEntity->hasEvidenceDSI()) {
             $service = new EvidenceBasedDSIServiceEntity($clientEntity);
             if (!$isSummary) {
                 $attributes = $this->getEvidenceDSIAttributes($clientEntity->getIdentifier());

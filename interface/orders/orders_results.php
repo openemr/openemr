@@ -14,7 +14,6 @@
 
 require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/lab.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -45,7 +44,6 @@ if ($form_review and !$reviewauth and !$thisauth) {
 // Set pid for pending review.
 $pid = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
 if (!empty($_GET['set_pid']) && $form_review) {
-    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
     setpid($_GET['set_pid']);
     $pid = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
 

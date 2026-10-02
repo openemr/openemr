@@ -19,6 +19,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
@@ -29,7 +30,6 @@ $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 $pid = PatientSessionUtil::getPid();
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
 
 if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once("$srcdir/group.inc.php");
@@ -41,7 +41,7 @@ try {
     /**
      * @global $rootdir
      */
-    $controller = new C_EncounterVisitForm(__DIR__, OEGlobalsBag::getInstance()->getKernel(), OEGlobalsBag::getInstance()->get('ISSUE_TYPES'), $rootdir, 'newpatient/common.php');
+    $controller = new C_EncounterVisitForm(__DIR__, OEGlobalsBag::getInstance()->getKernel(), IssueTypeRegistry::issueTypes(), $rootdir, 'newpatient/common.php');
     /**
      * @global $pid
      */

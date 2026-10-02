@@ -20,7 +20,9 @@ require_once "../vendor/autoload.php";
 use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\RestControllers\ApiApplication;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 // create the Request object
@@ -39,13 +41,20 @@ try {
     // we manually handle it as we don't know if something failed in the symfony component or in our code
     error_log($e->getMessage());
     error_log($e->getTraceAsString());
-    // should never get here, but if we do, we can return a generic error response
+    // Only answer when nothing has gone out yet. Once headers are sent the response
+    // body is already being read by the client, so emitting an error document here
+    // appends a second JSON object to the first and every client fails to parse
+    // what was otherwise a complete, correct payload. A post-send failure -- a
+    // kernel.terminate listener, a broken output filter -- is a log-only event.
     if (!headers_sent()) {
-        header('Content-Type: application/json');
-        http_response_code(Response::HTTP_INTERNAL_SERVER_ERROR);
+        // The message stays out of the body. Exception text here is whatever
+        // failed deepest in the stack -- openemr#13905 put a SQLSTATE naming a
+        // missing column into this field, readable by any anonymous caller of
+        // /apis/default/fhir/metadata. It is already in the error log above,
+        // where it is useful and not disclosed.
+        (new RequestTerminator())->respond(new JsonResponse(
+            ['error' => 'An error occurred while processing the request.'],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        ));
     }
-    die(json_encode([
-        'error' => 'An error occurred while processing the request.',
-        'message' => $e->getMessage(),
-    ]));
 }

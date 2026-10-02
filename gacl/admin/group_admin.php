@@ -22,7 +22,7 @@ require_once('gacl_admin.inc.php');
 //GET takes precedence.
 $group_type = $_GET['group_type'] != '' ? $_GET['group_type'] : $_POST['group_type'];
 
-switch(strtolower(trim((string) $group_type))) {
+switch (strtolower(trim((string) $group_type))) {
     case 'axo':
         $group_type = 'axo';
         $group_table = $gacl_api->_db_table_prefix . 'axo_groups';
@@ -54,8 +54,8 @@ switch ($postAction) {
 
         $group_data = [];
 
-        if(is_object($rs)) {
-            while($row = $rs->FetchRow()) {
+        if (is_object($rs)) {
+            while ($row = $rs->FetchRow()) {
                 $group_data[$row[0]] = [
                     'name' => $row[1],
                     'value' => $row[2],
@@ -66,7 +66,7 @@ switch ($postAction) {
 
         $groups = [];
 
-        foreach($formatted_groups as $id => $name) {
+        foreach ($formatted_groups as $id => $name) {
             $groups[] = [
                 'id' => $id,
                 // 'parent_id' => $parent_id,

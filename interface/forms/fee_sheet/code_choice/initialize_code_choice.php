@@ -18,5 +18,5 @@ require_once("templates/code_choices.php");
 $web_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot();
 ?>
 
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/code_choice/js/view_model.js"></script>
-<link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/code_choice/css/code_choices.css">
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/code_choice/js/view_model.js?v=<?php echo attr_url(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+<link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/code_choice/css/code_choices.css?v=<?php echo attr_url(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">

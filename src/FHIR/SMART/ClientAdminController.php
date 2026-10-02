@@ -137,7 +137,7 @@ class ClientAdminController
 
         if ($action === '' || $action === 'list/') {
             return $this->listAction();
-        } else if ($this->getExternalCDRController()->supportsRequest($request)) {
+        } elseif ($this->getExternalCDRController()->supportsRequest($request)) {
             /** @var Response */
             return $this->getExternalCDRController()->dispatch($request);
         }

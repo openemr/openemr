@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -297,7 +299,7 @@ class AllergyIntoleranceService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function update($uuid, $data)
+    public function update($uuid, $data, ?int $expectedPatientId = null)
     {
         if (empty($data)) {
             $processingResult = new ProcessingResult();
@@ -314,14 +316,44 @@ class AllergyIntoleranceService extends BaseService
             return $processingResult;
         }
 
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+
+        // The owning patient is resolved before anything is written. buildUpdateColumns() drops
+        // `puuid` -- it is a read alias, not a `lists` column -- and the predicate matched only
+        // uuid and type, so a leaked allergy uuid was enough to mutate a record in someone
+        // else's chart without the caller ever naming whose chart it is.
+        $rowPidRaw = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM lists WHERE uuid = ? AND type = 'allergy'",
+            'pid',
+            [$uuidBinary]
+        );
+        // A fresh result rather than the validator's: its return type is untyped, so reusing it
+        // here would widen these returns to mixed.
+        if (!is_numeric($rowPidRaw)) {
+            $notFound = new ProcessingResult();
+            $notFound->setValidationMessages(['uuid' => 'Allergy not found']);
+            return $notFound;
+        }
+        $rowPid = (int) $rowPidRaw;
+
+        if ($expectedPatientId !== null && $rowPid !== $expectedPatientId) {
+            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
+            // existence of another patient's allergy.
+            $notFound = new ProcessingResult();
+            $notFound->setValidationMessages(['uuid' => 'Allergy not found']);
+            return $notFound;
+        }
+
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE lists SET ";
         $sql .= $query['set'];
         $sql .= " WHERE `uuid` = ?";
         $sql .= "       AND `type` = 'allergy'";
+        // pid is in the WHERE for belt-and-braces protection if $expectedPatientId was not
+        // supplied, and to close the window between the lookup above and this statement.
+        $sql .= "       AND `pid` = ?";
 
-        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        array_push($query['bind'], $uuidBinary);
+        array_push($query['bind'], $uuidBinary, $rowPid);
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {

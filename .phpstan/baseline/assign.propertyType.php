@@ -577,11 +577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$PatientId \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$PendingAction \\(string\\) does not accept mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
@@ -1775,11 +1770,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\FhirLocationService\\:\\:\\$patientUuid \\(string\\) does not accept string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\FhirMedicationService\\:\\:\\$medicationService \\(OpenEMR\\\\Services\\\\FHIR\\\\MedicationService\\) does not accept OpenEMR\\\\Services\\\\DrugService\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\FhirPatientService\\:\\:\\$cachedListOptions \\(array\\<string, array\\>\\) does not accept array\\<array\\>\\.$#',

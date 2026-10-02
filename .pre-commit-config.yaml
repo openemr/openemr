@@ -66,7 +66,10 @@ repos:
   rev: v6.0.0
   hooks:
   - id: trailing-whitespace
+    # Preserve upstream CCDA/QRDA schematron files (HL7 IG deliverables) verbatim.
+    exclude: ^src/Services/Cda/Schematron/schemas/.*\.sch$
   - id: end-of-file-fixer
+    exclude: ^src/Services/Cda/Schematron/schemas/.*\.sch$
   - id: check-yaml
     # Strict YAML validation for everything except the two docker-compose
     # files that use the non-standard !override tag. PyYAML rejects
@@ -82,6 +85,12 @@ repos:
     args:
     - --unsafe
   - id: check-added-large-files
+    # Upstream CCDA/QRDA schematron files (HL7 IG deliverables). Consolidation.sch
+    # is ~1MB; the QRDA I sch is ~574KB. Shipped verbatim so we don't need a
+    # runtime Node service to fetch them.
+    # CMS ICD-10 code set zips (~0.7-2.2MB), replaced each fiscal year and
+    # shipped verbatim so External Data Loads can install them offline.
+    exclude: ^(src/Services/Cda/Schematron/schemas/.*\.sch|contrib/icd10/.*\.zip)$
   - id: check-merge-conflict
   - id: check-json
   # Two pretty-format-json instances split by ecosystem -- the same pattern
@@ -159,6 +168,22 @@ repos:
   rev: v1.7.10
   hooks:
   - id: actionlint-docker
+
+# Local lint: workflow jobs that call .github/scripts/ must have
+# actions/checkout in the same job. Guards against the openemr/openemr#13972
+# class of bug where a workflow refactor extracts logic into a shared
+# script but forgets to add a checkout step -- actionlint doesn't cross-
+# reference script existence against checkout presence, so this bug type
+# stays latent until the workflow is first exercised end-to-end.
+- repo: local
+  hooks:
+  - id: lint-workflow-checkout-needed
+    name: Workflows calling .github/scripts/ must have actions/checkout
+    entry: .github/scripts/lint-workflow-checkout-needed.py
+    language: python
+    additional_dependencies: [PyYAML]
+    files: ^\.github/workflows/.*\.ya?ml$
+    pass_filenames: false
 
 # shellcheck
 - repo: https://github.com/shellcheck-py/shellcheck-py

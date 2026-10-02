@@ -226,11 +226,11 @@ class Gacl {
             return false;
         }
 
-        foreach($aro_array as $aro_section_value => $aro_value_array) {
+        foreach ($aro_array as $aro_section_value => $aro_value_array) {
             foreach ($aro_value_array as $aro_value) {
                 $this->debug_text("acl_query_array(): ARO Section Value: $aro_section_value ARO VALUE: $aro_value");
 
-                if( $this->acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value) ) {
+                if ( $this->acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value) ) {
                     $this->debug_text("acl_query_array(): ACL_CHECK True");
                     $retarr[$aro_section_value][] = $aro_value;
                 } else {
@@ -421,8 +421,7 @@ class Gacl {
             while ($arr = $rs->FetchRow()) {
                             $row[] = $arr;
             }
-        }
-        else {
+        } else {
                 $row = $rs->FetchRow();
         }
 
@@ -446,8 +445,7 @@ class Gacl {
                         $retarr[] = ['acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow];
                     }
                 }
-            }
-            else {
+            } else {
                 $allow = FALSE;
                 if ( isset($row[1]) AND $row[1] == 1 ) {
                     $allow = TRUE;
@@ -458,8 +456,7 @@ class Gacl {
             if ($return_all) {
                         // Permission denied.
                         $retarr = [['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE]];
-            }
-            else {
+            } else {
                     // Permission denied.
                     $retarr = ['acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE];
             }
@@ -472,12 +469,9 @@ class Gacl {
             $retarr['query'] = &$query;
         }
 
-        if ($return_all)
-        {
+        if ($return_all) {
             $this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: OMITTED due to return_all");
-        }
-        else
-        {
+        } else {
             $this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
         }
 
@@ -493,7 +487,7 @@ class Gacl {
     */
     public function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
-        switch(strtolower(is_scalar($group_type) ? (string) $group_type : '')) {
+        switch (strtolower(is_scalar($group_type) ? (string) $group_type : '')) {
             case 'axo':
                 $group_type = 'axo';
                 $object_table = $this->_db_table_prefix .'axo';

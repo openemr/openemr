@@ -15,6 +15,7 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Controllers\Portal\PortalPatientReportController;
 use OpenEMR\Core\OEGlobalsBag;
@@ -44,9 +45,6 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
 
 // get various authorization levels
 $auth_notes_a = true; //AclMain::aclCheckCore('encounters', 'notes_a');
@@ -67,7 +65,7 @@ $data = [];
 try {
     $data['phone_country_code'] = $globalsBag->getInt('phone_country_code');
     $data['returnurl'] = (!empty($returnurl)) ? "$rootdir/patient_file/encounter/$returnurl" : '';
-    $data['issues'] = $portalPatientReportController->getIssues($ISSUE_TYPES, $pid);
+    $data['issues'] = $portalPatientReportController->getIssues(IssueTypeRegistry::issueTypes(), $pid);
     $data['encounters'] = $portalPatientReportController->getEncounters($pid);
     $data['procedureOrders'] = $portalPatientReportController->getProcedureOrders($pid);
     $data['phimail_enable'] = $globalsBag->getBoolean('phimail_enable');

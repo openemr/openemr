@@ -18,14 +18,36 @@ require_once(__DIR__ . "/../../interface/globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/maviq_phone_api.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/reminders.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Read path (viewing a previously-computed report) is linked from
+// report_results.php, which enforces patients/med on that list. Mirror that
+// gate here so the individual-report page requires no more.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient Reminder Batch Job", xl("Patient Reminder Batch Job"));
+}
 
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
 
 // If report_id, then just going to show the report log
 $report_id = $_GET['report_id'] ?: "";
+
+// Write path (empty report_id) triggers update_reminders_batch_method() and
+// send_reminders(); require the same admin/batchcom the sibling batchcom.php
+// uses, and CSRF-check the GET so a top-level cross-origin navigation cannot
+// fire the batch. Matches the CSRF discipline execute_pat_reminder.php
+// applies to the equivalent AJAX write path.
+if ($report_id === "") {
+    if (!AclMain::aclCheckCore('admin', 'batchcom')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/batchcom: Patient Reminder Batch Job", xl("Patient Reminder Batch Job"));
+    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+}
 
 // Set the "nice" level of the process for this script when. When the "nice" level
 // is increased, this cpu intensive script will have less affect on the performance

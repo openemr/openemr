@@ -580,11 +580,13 @@ class C_Prescription extends Controller
         echo ('<span class="large">' . $facilityAddr . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
-        echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>' . '<br />');
+        $providerName = $p->provider->get_name_display();
+        echo ('<b><span class="large">' . text(is_string($providerName) ? $providerName : '') . '</span></b>' . '<br />');
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
-                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br />');
+                $providerDea = $p->provider->federal_drug_id ?? null;
+                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . text(is_string($providerDea) ? $providerDea : '') . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br />' );
             }
@@ -592,7 +594,8 @@ class C_Prescription extends Controller
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
-                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br />');
+                $providerNpi = $p->provider->npi ?? null;
+                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . text(is_string($providerNpi) ? $providerNpi : '') . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br />');
             }
@@ -600,7 +603,8 @@ class C_Prescription extends Controller
 
         if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
             if (OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
-                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br />');
+                $providerSln = $p->provider->state_license_number ?? null;
+                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . text(is_string($providerSln) ? $providerSln : '') . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br />');
             }
@@ -630,13 +634,14 @@ class C_Prescription extends Controller
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br />');
-        echo ($p->patient->date_of_birth );
+        $patientDob = $p->patient->date_of_birth ?? null;
+        echo (text(is_string($patientDob) ? $patientDob : ''));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br />');
-        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo text(str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
@@ -883,7 +888,7 @@ class C_Prescription extends Controller
             $parts[] = $res['street'];
             if (!empty($res['city'])) {
                 $parts[] = $res['city'] ?? '' . ', ' . $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
-            } else if (!empty($res['state']) && !empty($res['postal_code'])) {
+            } elseif (!empty($res['state']) && !empty($res['postal_code'])) {
                 $parts[] = $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
             }
             if (!empty($res['phone'])) {
@@ -939,7 +944,7 @@ class C_Prescription extends Controller
             $parts[] = $res['street'];
             if (!empty($res['city'])) {
                 $parts[] = $res['city'] ?? '' . ', ' . $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
-            } else if (!empty($res['state']) && !empty($res['postal_code'])) {
+            } elseif (!empty($res['state']) && !empty($res['postal_code'])) {
                 $parts[] = $res['state'] ?? '' . ' ' . $res['postal_code'] ?? '';
             }
 

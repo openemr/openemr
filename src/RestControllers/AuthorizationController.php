@@ -58,6 +58,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Http\SsrfSafeUrlValidator;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -322,17 +323,20 @@ class AuthorizationController implements LoggerAwareInterface
                 $params['client_secret'] = $client_secret;
                 $params['client_role'] = 'user';
 
-                // don't allow system scopes without a jwk or jwks_uri value
+                // don't allow system scopes without a jwk or jwks_uri value.
+                // Compare on the parsed SMART context so alternate spellings of the
+                // delimiter (e.g. "system:Patient.read") cannot bypass this check.
                 if (
-                    str_contains($scope, 'system/')
+                    ScopeEntity::scopeListHasContext($scope, 'system')
                     && !$data->has('jwks') && !$data->has('jwks_uri')
                 ) {
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
-                // don't allow user, system scopes, and offline_access for public apps
+                // don't allow user, system scopes, and offline_access for public apps.
+                // Parse-and-compare on context so colon-form scopes cannot bypass this gate.
             } elseif (
-                str_contains($scope, 'system/')
-                || str_contains($scope, 'user/')
+                ScopeEntity::scopeListHasContext($scope, 'system')
+                || ScopeEntity::scopeListHasContext($scope, 'user')
             ) {
                 throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
@@ -342,7 +346,7 @@ class AuthorizationController implements LoggerAwareInterface
                 if ($data->has($key)) {
                     if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
-                    } else if (in_array($key, ['dsi_source_attributes'])) {
+                    } elseif (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
                         $payload = $data->all();
@@ -379,6 +383,43 @@ class AuthorizationController implements LoggerAwareInterface
                             }
                         }
                         $params[$key] = json_encode($jwks, JSON_THROW_ON_ERROR);
+                    } elseif ($key === 'jwks_uri') {
+                        // Reject jwks_uri values that point at loopback /
+                        // private / cloud-metadata endpoints. The value is
+                        // fetched later by JWTClientAuthenticationService
+                        // during introspect and token-endpoint flows, so it
+                        // MUST be validated before it is persisted.
+                        $rawJwksUri = $data->get($key);
+                        if (!is_string($rawJwksUri)) {
+                            throw new OAuthServerException(
+                                'jwks_uri must be a string',
+                                0,
+                                'invalid_client_metadata'
+                            );
+                        }
+                        // Https-only allowlist for jwks_uri; matches the
+                        // fetch-path validator (JWTClientAuthenticationService::getJwksUriValidator).
+                        $rejectionReason = (new SsrfSafeUrlValidator(['https']))->validate($rawJwksUri);
+                        if ($rejectionReason !== null) {
+                            // Audit-log the rejection with the specific reason
+                            // (host, scheme, DNS) so an operator can spot
+                            // registration-time probes. The client-facing
+                            // error stays deliberately generic to avoid
+                            // exposing internal network topology.
+                            EventAuditLogger::getInstance()->newEvent(
+                                'oauth-jwks-uri-rejected',
+                                '',
+                                '',
+                                0,
+                                'jwks_uri rejected at client registration: ' . $rejectionReason
+                            );
+                            throw new OAuthServerException(
+                                'jwks_uri is not an acceptable URL',
+                                0,
+                                'invalid_client_metadata'
+                            );
+                        }
+                        $params[$key] = $rawJwksUri;
                     } else {
                         $params[$key] = $data->get($key);
                     }
@@ -948,11 +989,33 @@ class AuthorizationController implements LoggerAwareInterface
                         }
                     }
                     EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
+                    // MfaUtils::checkTOTP / checkU2F both bump the
+                    // mfa_fail_counter / mfa_login_fail_counter and
+                    // enforce the block gate on the wrong-code path.
+                    // But !$mfaToken (validateToken rejected a
+                    // malformed submission) short-circuits the ||
+                    // before check ever runs — attribute that
+                    // failure explicitly so malformed spam can't
+                    // sidestep the throttle.
+                    if (!$mfaToken) {
+                        (new AuthUtils())->recordFailedMfaChallenge(is_string($mfaUsername) ? $mfaUsername : null);
+                    }
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
                     return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
                 }
+                // Full auth (password + MFA) succeeded — zero the
+                // MFA-specific counters so this user / IP starts
+                // fresh for the next authentication session.
+                $userService = new UserService();
+                $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
+                $mfaUsername = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : null;
+                $ip = collectIpAddresses();
+                AuthUtils::resetMfaChallengeCounters(
+                    is_string($mfaUsername) ? $mfaUsername : null,
+                    $ip['ip_string']
+                );
             }
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
@@ -1139,7 +1202,7 @@ class AuthorizationController implements LoggerAwareInterface
             // Hidden scopes
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
-            } else if (in_array($scope, $fhirRequiredSmartScopes)) {
+            } elseif (in_array($scope, $fhirRequiredSmartScopes)) {
                 $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }
         }
@@ -1357,8 +1420,7 @@ class AuthorizationController implements LoggerAwareInterface
                 ) {
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->logger->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
@@ -1482,9 +1544,21 @@ class AuthorizationController implements LoggerAwareInterface
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
             $this->session->invalidate();
+            // Never surface $exception->getMessage() to the caller —
+            // it can carry SQL fragments, file paths, or other
+            // internal detail that a token-endpoint client (potentially
+            // unauthenticated) should not see. The message is already
+            // logged for admin diagnosis; return the OAuth2-shaped
+            // generic error instead.
             $body = $response->getBody();
-            $body->write($exception->getMessage());
-            return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
+            $body->write((string) json_encode([
+                'error' => 'server_error',
+                'error_description' => 'An unexpected server error occurred processing the request.',
+            ]));
+            return $response
+                ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($body);
         }
     }
 

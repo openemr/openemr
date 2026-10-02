@@ -2,9 +2,6 @@
 
 /** @package    verysimple::Phreeze */
 
-/**
- * import supporting libraries
- */
 define("FM_TYPE_UNKNOWN", 0);
 define("FM_TYPE_DECIMAL", 1);
 define("FM_TYPE_INT", 2);

@@ -31,7 +31,7 @@ if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
     $object_type = $_POST['object_type'];
 }
 
-switch(strtolower(trim((string) $object_type))) {
+switch (strtolower(trim((string) $object_type))) {
     case 'aco':
         $object_type = 'aco';
         $object_sections_table = $gacl_api->_db_table_prefix . 'aco_sections';
@@ -59,7 +59,7 @@ switch ($postAction) {
     case 'Delete':
 
         if (count($_POST['delete_sections']) > 0) {
-            foreach($_POST['delete_sections'] as $id) {
+            foreach ($_POST['delete_sections'] as $id) {
                 $gacl_api->del_object_section($id, $object_type, TRUE);
             }
         }
@@ -116,7 +116,7 @@ switch ($postAction) {
 
         $new_sections = [];
 
-        for($i=0; $i < 5; $i++) {
+        for ($i=0; $i < 5; $i++) {
                 $new_sections[] = [
                                                 'id' => $i,
                                                 'value' => NULL,

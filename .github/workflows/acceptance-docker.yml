@@ -13,9 +13,9 @@
 # All three scenarios exercise the same test classes in tests/Acceptance/
 # with different artifact endpoints + PHPUnit `--group` filters:
 #
-#   fresh-install of X   -> boot X, run --group=fresh-install (InstallTest)
+#   fresh-install of X   -> boot X, run --group=post-install (InstallTest)
 #   upgrade from_tag ->
-#     to_tag             -> boot from_tag, run --group=fresh-install,
+#     to_tag             -> boot from_tag, run --group=post-install,
 #                           down --preserve-volumes, boot to_tag (auto-upgrade
 #                           fires), run --group=post-upgrade
 #                           (UpgradeIntegrityTest)
@@ -68,6 +68,10 @@ on:
         description: 'Build target image from the PR docker/release/Dockerfile instead of pulling to_tag from Docker Hub (Phase 2.5 PR-image validation)'
         type: boolean
         default: false
+      require_upgrade_cell:
+        description: 'Fail the workflow if the upgrade-cell skip logic fires (used by release-prep/ship-time callers -- silently skipping the upgrade cell during release mode would publish an artifact whose auto-upgrade path was never validated).'
+        type: boolean
+        default: false
   # Phase 7c-docker-latest-gate: called by docker-build-release.yml as
   # a pre-publish gate. Caller has already pushed the release image to
   # Docker Hub under a candidate tag (e.g., openemr/openemr:release-
@@ -93,6 +97,11 @@ on:
         required: false
         type: string
         default: 'next'
+      require_upgrade_cell:
+        description: 'Fail the workflow if the upgrade-cell skip logic fires. Callers wired for release mode (release-prep-time dispatch, ship-time acceptance gate) pass true so a silent skip -- which would publish an artifact whose auto-upgrade path was never validated -- becomes a loud failure instead. Direct dispatches / scheduled runs leave it false and keep the tolerant skip behavior.'
+        required: false
+        type: boolean
+        default: false
   push:
     # Skip pushes to release-mechanism bot branches (branch-cut/,
     # patch-prep/, release-prep/, release-finalize/). peter-evans/
@@ -143,14 +152,39 @@ permissions:
   contents: read
 
 concurrency:
-  # Split the concurrency group by trigger type: a scheduled run on
-  # master shouldn't share a group with push/PR runs on master, or a
-  # push landing during the scheduled run would cancel it (the
-  # push's cancel-in-progress=true wins over the schedule's
-  # cancel-in-progress=false when they share a group). Separate keys
-  # mean push/PR still cancels its own in-flight runs, but never
-  # kills a schedule run.
-  group: acceptance-docker-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
+  # Two shape dimensions:
+  #
+  # 1. Trigger type: a scheduled run on master shouldn't share a group
+  #    with push/PR runs on master, or a push landing during the
+  #    scheduled run would cancel it (the push's cancel-in-progress=true
+  #    wins over the schedule's cancel-in-progress=false when they
+  #    share a group). Separate keys mean push/PR still cancels its
+  #    own in-flight runs, but never kills a schedule run.
+  #
+  # 2. G46 (openemr/openemr#TBD, 2026-09-20): when called via
+  #    workflow_call from docker-build-release.yml (fanned out by
+  #    docker-release-orchestrator.yml on a Finalize-merge push),
+  #    every per-row call inherits github.ref=master +
+  #    github.event_name=push. Pre-G46 that collapsed 6 parallel
+  #    row calls into one 'acceptance-docker-<ref>-ondemand' group
+  #    with cancel-in-progress=true -- coin-flip race where whichever
+  #    row's acceptance-gate window overlapped a competitor's arrival
+  #    got cancelled after ~17s and its publish-and-cleanup job
+  #    skipped. Bit the 8.4.1 ship (2026-09-20): rel-840's 8.4.1,latest
+  #    row cancelled while other rows sailed through, docker image
+  #    never promoted from candidate to final tags. Recovered via
+  #    docker-acceptance-only.yml -- the recovery workflow exists
+  #    for exactly this class of preserved-candidate failure.
+  #
+  #    Fix: differentiate the group by inputs.to_tag when set (unique
+  #    per-row candidate suffix on the workflow_call path -- either
+  #    from docker-build-release for original ship, or from
+  #    docker-acceptance-only for recovery). Direct PR/push/schedule
+  #    triggers leave inputs empty and fall back to the pre-G46
+  #    bucket, preserving their existing behavior (PR runs still
+  #    cancel their own older commits, schedule runs still queue
+  #    serially).
+  group: acceptance-docker-${{ github.ref }}-${{ inputs.to_tag || (github.event_name == 'schedule' && 'schedule' || 'ondemand') }}
   cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 jobs:
@@ -386,18 +420,18 @@ jobs:
         - scenario: fresh-install-from
           description: 'Fresh install of from_tag'
           image_tag: ${{ inputs.from_tag || 'latest' }}
-          test_group: fresh-install
+          test_group: post-install
         - scenario: fresh-install-to
           description: 'Fresh install of to_tag'
           image_tag: ${{ inputs.to_tag || 'next' }}
-          test_group: fresh-install
+          test_group: post-install
         - scenario: upgrade
           description: 'Upgrade from_tag -> to_tag'
           image_tag: ${{ inputs.from_tag || 'latest' }}
-          # test_group runs first against from_tag, then repeats
-          # against to_tag with the post-upgrade group after the
-          # image swap.
-          test_group: fresh-install
+          # test_group runs first against from_tag (seeds any
+          # persistence fixtures), then post-upgrade group runs
+          # against to_tag after the image swap.
+          test_group: post-install
     env:
       FROM_TAG: ${{ inputs.from_tag || 'latest' }}
       TO_TAG: ${{ inputs.to_tag || 'next' }}
@@ -541,7 +575,97 @@ jobs:
       # Cache-friendly via composer.lock hash.
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
+    # Decide whether the upgrade scenario cell can produce meaningful
+    # signal in this run's specific from/to image pairing. Skip criteria
+    # + full rationale live in .github/scripts/detect-upgrade-cell-skip.sh.
+    # Non-upgrade scenarios (fresh-install-from, fresh-install-to) never
+    # gate on this step -- `matrix.scenario == 'upgrade'` short-circuits
+    # the whole detection.
+    - name: Detect upgrade-cell skip criteria (from/to OCI revision + master's next-tag placement)
+      id: detect_upgrade_skip
+      if: matrix.scenario == 'upgrade'
+      env:
+        FROM_TAG: ${{ steps.tags.outputs.boot_tag }}
+        TO_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
+      run: |
+        set -eo pipefail
+        # Ensure both images are locally available so docker inspect can
+        # read Config.Labels. Try local inspect first; only pull from
+        # Docker Hub if the image isn't already loaded. Critical for
+        # openemr/openemr:pr-built which is docker-load'd from the
+        # build-image artifact and does NOT exist on Docker Hub --
+        # unconditional pull would fail with tag-not-found.
+        for TAG in "${FROM_TAG}" "${TO_TAG}"; do
+          if ! docker image inspect "openemr/openemr:${TAG}" >/dev/null 2>&1; then
+            docker pull "openemr/openemr:${TAG}" 2>&1 | tail -1
+          fi
+        done
+
+        # release-targets.yml is master-authoritative -- rel-branch copies
+        # are frozen snapshots from cut time that drift as master mutates
+        # (see release-targets.yml's own header comment). This workflow
+        # byte-identical-syncs to rel branches and can fire from push/PR
+        # events there, so the local checkout's release-targets.yml would
+        # be the stale snapshot. Fetch master's live copy and pass its
+        # path to the script instead. On master-side runs origin/master
+        # matches the local copy exactly; on rel-branch runs we pick up
+        # any post-cut master mutations (e.g. `next` tag placement moves
+        # between cycles). Fetch is depth=1 -- we only need the tree at
+        # HEAD of master, no history.
+        git fetch --depth=1 origin master
+        MASTER_RELEASE_TARGETS="${RUNNER_TEMP}/release-targets-from-master.yml"
+        git show origin/master:.github/release-targets.yml > "${MASTER_RELEASE_TARGETS}"
+
+        # docker inspect needs the Docker daemon so stays in the workflow;
+        # the pure decision logic lives in detect-upgrade-cell-skip.sh
+        # (BATS-tested by tests/bats/ci-scripts/detect-upgrade-cell-skip/).
+        FROM_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${FROM_TAG}" 2>/dev/null || echo "")
+        TO_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${TO_TAG}" 2>/dev/null || echo "")
+        export FROM_REV TO_REV
+        RELEASE_TARGETS_PATH="${MASTER_RELEASE_TARGETS}" bash .github/scripts/detect-upgrade-cell-skip.sh
+
+    - name: Enforce upgrade-cell required (release-mode guardrail)
+      # Big-picture invariant: any caller in "release mode" (release-prep
+      # dispatch from release-prep.yml, or ship-time acceptance-gate from
+      # build-release.yml) passes require_upgrade_cell=true. If the skip
+      # logic then fires, we'd be publishing an artifact whose auto-
+      # upgrade path was never validated -- which defeats the whole
+      # gate. Fail loudly instead of silently skipping downstream steps.
+      # Direct dispatches / scheduled runs leave require_upgrade_cell
+      # false (default) and keep the tolerant skip behavior.
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true' && inputs.require_upgrade_cell
+      env:
+        SKIP_REASON: ${{ steps.detect_upgrade_skip.outputs.skip_reason }}
+      run: |
+        {
+          echo "::error::Upgrade cell would skip but require_upgrade_cell=true. This caller is in release mode -- silently skipping the upgrade validation is not acceptable."
+          echo "::error::Skip reason from detect-upgrade-cell-skip.sh:"
+          printf '%s\n' "${SKIP_REASON}" | sed 's/^/::error::  /'
+          echo "::error::Diagnose: (a) if the ship setup is wrong (from_tag/to_tag pointing at an image whose OCI revision is master when it shouldn't be, or between-cycles state active during release-mode), fix the setup. (b) if the skip criteria are genuinely wrong for a legitimate release-mode case, revisit .github/scripts/detect-upgrade-cell-skip.sh."
+        }
+        exit 1
+
+    - name: Skip upgrade scenario (early notice)
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true'
+      env:
+        # Pass through env, NOT direct ${{ }} interpolation into run:
+        # -- skip_reason contains literal backticks around `next` for
+        # readability. Direct interpolation places them in Bash source
+        # where they'd trigger command substitution (Bash tries to
+        # execute `next` as a command). Env pass-through preserves
+        # backticks as literal characters.
+        SKIP_REASON: ${{ steps.detect_upgrade_skip.outputs.skip_reason }}
+      run: |
+        echo "::warning::Upgrade scenario cell skipping downstream steps."
+        printf '%s\n' "${SKIP_REASON}"
+        echo ""
+        echo "==> Real signal preserved: fresh-install-from + fresh-install-to cells still exercise both images independently."
+        echo "==> This cell will show all downstream steps as skipped via if: conditions."
+
     - name: Boot artifact (${{ steps.tags.outputs.boot_tag }})
+      # Skip when upgrade scenario is being skipped (see detect_upgrade_skip).
+      # Non-upgrade scenarios have empty skip output -> condition passes -> boot runs.
+      if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
       env:
         # boot_tag holds the effective image ref: either the matrix's
         # Docker Hub default OR openemr/openemr:pr-built when
@@ -554,33 +678,86 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 900
 
-    - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
-      run: composer acceptance -- --group=${{ matrix.test_group }}
+    # Resolve the running artifact's version so ACCEPTANCE_EXPECTED_VERSION
+    # can be set for docker context. Two-tier resolution -- OCI label
+    # first, version.php fallback -- see .github/scripts/parse-artifact-
+    # version.sh for the full rationale (independent cross-check on
+    # shipped tags; weakened-signal fallback for pr-built).
+    - name: Resolve running artifact version (OCI label, fallback version.php)
+      id: boot-version
+      if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
+      env:
+        OPENEMR_TAG: ${{ steps.tags.outputs.boot_tag }}
+      run: |
+        set -eo pipefail
+        # docker inspect + docker compose exec need the Docker daemon so
+        # stay in the workflow; the parse/validate/fallback decision
+        # logic lives in parse-artifact-version.sh (BATS-tested by
+        # tests/bats/ci-scripts/parse-artifact-version/) and the
+        # version.php read logic lives in read-version-php.php (PHPUnit-
+        # isolated by tests/Tests/Isolated/Common/Command/Ci/
+        # ReadVersionPhpTest.php).
+        OCI_VERSION_LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
+        FALLBACK_VERSION=""
+        # Trigger the fallback whenever the OCI label doesn't carry a
+        # valid X.Y.Z prefix. Empty label = pr-built case (build-image
+        # skips --build-arg IMAGE_VERSION). Non-empty but malformed
+        # label = misconfigured build baked garbage in; the fallback's
+        # version.php read still gives a useful expected_version in that
+        # case, so match parse-artifact-version.sh's documented "OCI-
+        # first, fallback whenever OCI unusable" contract rather than
+        # short-circuiting on the empty-only shape. Regex matches the
+        # same prefix parse-artifact-version.sh applies.
+        if [[ ! "${OCI_VERSION_LABEL}" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+          # docker cp the reader into the container -- the openemr
+          # container has no host bind-mount so .github/scripts isn't
+          # visible inside without an explicit copy.
+          docker compose \
+            -f docker/production/docker-compose.yml \
+            -f .github/docker/acceptance-docker-compose.yml \
+            cp .github/scripts/read-version-php.php openemr:/tmp/read-version-php.php
+          FALLBACK_VERSION=$(
+            docker compose \
+              -f docker/production/docker-compose.yml \
+              -f .github/docker/acceptance-docker-compose.yml \
+              exec -T openemr php /tmp/read-version-php.php
+          )
+        fi
+        export OCI_VERSION_LABEL FALLBACK_VERSION
+        bash .github/scripts/parse-artifact-version.sh
 
-    # api-enable bootstrap fires AFTER the fresh-install group only
+    - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
+      if: matrix.scenario != 'upgrade' || steps.detect_upgrade_skip.outputs.skip != 'true'
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: ${{ matrix.test_group }}
+        expected_version: ${{ steps.boot-version.outputs.resolved }}
+
+    # api-enable bootstrap fires AFTER the post-install group only
     # (not the plain upgrade scenario — the target of upgrade is api-
     # enabled downstream by its own path). The docker workflow uses
     # `fresh-install-from` and `fresh-install-to` as its two fresh-
     # install matrix values (the `-from` / `-to` distinction lets the
     # single fresh-install scenario stand in for both sides of a
     # future upgrade-target artifact test). Order matters:
-    # OAuth2SmokeTest's fresh-install-tagged assertions verify the
+    # OAuth2SmokeTest's post-install-tagged assertions verify the
     # API-disabled 404 gate that ships by default; the bootstrap
-    # flips those globals so the api-enabled group asserts the
-    # opposite behavior (endpoints return 200).
+    # flips those globals so the api-enabled-post-install group
+    # asserts the opposite behavior (endpoints return 200).
     - name: Bootstrap API via admin panel
       if: startsWith(matrix.scenario, 'fresh-install')
-      env:
-        OPENEMR_ENABLE_API_BOOTSTRAP: '1'
-      run: php tests/Acceptance/bin/api-enable.php
+      uses: ./.github/actions/api-enable-artifact
 
-    - name: Run acceptance suite (--group=api-enabled) against ${{ steps.tags.outputs.boot_tag }}
+    - name: Run acceptance suite (--group=api-enabled-post-install) against ${{ steps.tags.outputs.boot_tag }}
       if: startsWith(matrix.scenario, 'fresh-install')
-      run: composer acceptance -- --group=api-enabled
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: api-enabled-post-install
+        expected_version: ${{ steps.boot-version.outputs.resolved }}
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
     - name: Stop containers (preserve named volumes)
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       run: |
         # `down` without --volumes preserves databasevolume + sitevolume
         # + logvolume01 -- the target artifact needs to see the existing
@@ -592,7 +769,7 @@ jobs:
           down
 
     - name: Confirm volumes persist post-down
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       run: |
         docker volume ls | grep "${COMPOSE_PROJECT_NAME}" || {
           echo "::error::Named volumes were unexpectedly removed by docker compose down"
@@ -600,7 +777,7 @@ jobs:
         }
 
     - name: Boot target artifact (${{ steps.tags.outputs.upgrade_target_tag }}) -- auto-upgrade path runs
-      if: matrix.scenario == 'upgrade'
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
       env:
         # upgrade_target_tag = TO_TAG in the default path, or
         # openemr/openemr:pr-built when build-image ran
@@ -618,9 +795,63 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 1200
 
+    # Re-resolve running artifact version after the upgrade-target
+    # boot -- the swap-and-reboot brings up a different image (usually
+    # from_tag -> to_tag, e.g. `latest` -> `next`, upgraded DB now
+    # reports the to-tag's version). Same OCI-label-first pattern as
+    # the pre-upgrade resolve above -- see that step for the two-tier
+    # rationale.
+    - name: Resolve running artifact version after upgrade (OCI label, fallback version.php)
+      id: upgrade-target-version
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
+      env:
+        OPENEMR_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
+      run: |
+        set -eo pipefail
+        # Same OCI-first + version.php-fallback pattern as the pre-
+        # upgrade boot-version step -- see there for the extracted-
+        # scripts test-coverage pointers.
+        OCI_VERSION_LABEL=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}' "openemr/openemr:${OPENEMR_TAG}" 2>/dev/null || echo "")
+        FALLBACK_VERSION=""
+        if [[ ! "${OCI_VERSION_LABEL}" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+          docker compose \
+            -f docker/production/docker-compose.yml \
+            -f .github/docker/acceptance-docker-compose.yml \
+            cp .github/scripts/read-version-php.php openemr:/tmp/read-version-php.php
+          FALLBACK_VERSION=$(
+            docker compose \
+              -f docker/production/docker-compose.yml \
+              -f .github/docker/acceptance-docker-compose.yml \
+              exec -T openemr php /tmp/read-version-php.php
+          )
+        fi
+        export OCI_VERSION_LABEL FALLBACK_VERSION
+        bash .github/scripts/parse-artifact-version.sh
+
     - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
-      if: matrix.scenario == 'upgrade'
-      run: composer acceptance -- --group=post-upgrade
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: post-upgrade
+        expected_version: ${{ steps.upgrade-target-version.outputs.resolved }}
+
+    # api-enable + api-enabled-post-upgrade group closes Item 3's friction
+    # point #3 (documented in docs/artifact-acceptance-testing-plan.md):
+    # acceptance-package.yml already runs an api-enable + api-enabled-
+    # post-upgrade cycle after its upgrade scenario, but acceptance-
+    # docker.yml historically didn't -- a regression to /api/facility
+    # / OIDC discovery / DCR on the upgrade path would go uncaught here.
+    # Item 3's composite extraction made adding this a one-liner.
+    - name: Bootstrap API via admin panel (post-upgrade)
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
+      uses: ./.github/actions/api-enable-artifact
+
+    - name: Run api-enabled-post-upgrade suite against ${{ steps.tags.outputs.upgrade_target_tag }}
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip != 'true'
+      uses: ./.github/actions/run-acceptance-group
+      with:
+        group: api-enabled-post-upgrade
+        expected_version: ${{ steps.upgrade-target-version.outputs.resolved }}
 
     # ==== Debug capture on failure (all scenarios) ====
     - name: Capture container state (on failure)

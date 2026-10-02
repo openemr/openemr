@@ -62,7 +62,6 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/group.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));

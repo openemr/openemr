@@ -16,7 +16,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if (!defined('CAMOS_CONTENT_PARSER_SKIP_INCLUDES')) {
-    require_once(__DIR__ . "/../../../library/api.inc.php");
     require_once(__DIR__ . "/../../forms/vitals/C_FormVitals.class.php");
 }
 

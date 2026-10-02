@@ -195,6 +195,7 @@ updates:
   - ci/nginx_84/
   - ci/nginx_85/
   - ci/nginx_86/
+  - ci/nginx_87/
   # Artifact-acceptance workflow compose files (Phase 2 + Phase 3). Same
   # image classes as the ci/ dirs above (mariadb + openemr flex), so the
   # existing ignore rules and groups apply unchanged. The

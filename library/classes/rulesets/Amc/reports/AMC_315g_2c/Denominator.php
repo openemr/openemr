@@ -103,7 +103,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         $type = $details['type'] ?? '';
         if ($type == self::ACTION_DETAILS_KEY_SEEN) {
             $newDetails = xl("Encounters during period") . ':' . $details['enc'];
-        } else if ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
+        } elseif ($type == self::ACTION_DETAILS_KEY_NOT_SEEN) {
             $newDetails = xl("Not seen");
         }
         return $newDetails;

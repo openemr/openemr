@@ -35,8 +35,6 @@ $sessionAllowWrite = CurrentRequest::get()->query->has('set_encounter');
 
 require_once(__DIR__ . '/../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/encounter.inc.php");
-require_once($srcdir . "/forms.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);

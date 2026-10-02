@@ -259,8 +259,21 @@
             });
 
             {% if portal_two_payments %}
-            $("#payment").load("./portal_payment.php", {}, function () {
-            });
+            $("#payment").load(
+                "./portal_payment.php",
+                {
+                    csrf_token_form: {{ csrfPostUtils | js_escape }}
+                },
+                function (response, status, xhr) {
+                    if (status === "error") {
+                        console.error(
+                            "Unable to load payment page:",
+                            xhr.status,
+                            xhr.statusText
+                        );
+                    }
+                }
+            );
             {% endif %}
 
             {% if isEasyPro %}

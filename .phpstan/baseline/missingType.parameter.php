@@ -9167,11 +9167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\CommonPlugin\\:\\:escapeLimit\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Plugin\\\\CommonPlugin\\:\\:escape\\(\\) has parameter \\$string with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
@@ -12025,21 +12020,6 @@ $ignoreErrors[] = [
     'message' => '#^Function v\\(\\) has parameter \\$info with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function resolveDuplicateEncounters\\(\\) has parameter \\$targets with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function resolveTargets\\(\\) has parameter \\$source_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function resolveTargets\\(\\) has parameter \\$target_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function generate_layout_display_field\\(\\) has parameter \\$currvalue with no type specified\\.$#',
@@ -17027,6 +17007,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/QRDAXml.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Totp\\:\\:validateCodeAndGetSlice\\(\\) has parameter \\$totp with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/Totp.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Totp\\:\\:validateCode\\(\\) has parameter \\$totp with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Totp.class.php',
@@ -21292,41 +21277,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function GetDueReminderCount\\(\\) has parameter \\$days_to_show with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function GetDueReminderCount\\(\\) has parameter \\$today with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function GetDueReminderCount\\(\\) has parameter \\$userID with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function RemindersArray\\(\\) has parameter \\$alerts_to_show with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function RemindersArray\\(\\) has parameter \\$days_to_show with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function RemindersArray\\(\\) has parameter \\$today with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function RemindersArray\\(\\) has parameter \\$userID with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getPatName\\(\\) has parameter \\$patientID with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
@@ -23762,11 +23712,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function updateDupScore\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function updateEmployerData\\(\\) has parameter \\$create with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
@@ -25795,11 +25740,6 @@ $ignoreErrors[] = [
     'message' => '#^Method MemCacheProxy\\:\\:Get\\(\\) has parameter \\$flags with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/MemCacheProxy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AppBasePortalController\\:\\:RenderErrorJSON\\(\\) has parameter \\$exception with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PatientController\\:\\:CloseAudit\\(\\) has parameter \\$p with no type specified\\.$#',
@@ -29367,11 +29307,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ScopeRepository\\:\\:scopeArrayHasString\\(\\) has parameter \\$str with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\UserRepository\\:\\:__construct\\(\\) has parameter \\$fhirBaseUrl with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/UserRepository.php',
@@ -31857,16 +31792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\Authorization\\\\BearerTokenAuthorizationStrategy\\:\\:checkUserHasAccessToPatient\\(\\) has parameter \\$patientUuid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\Authorization\\\\BearerTokenAuthorizationStrategy\\:\\:checkUserHasAccessToPatient\\(\\) has parameter \\$userId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\Authorization\\\\BearerTokenAuthorizationStrategy\\:\\:is_api_request\\(\\) has parameter \\$resource with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
@@ -33102,32 +33027,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:addRequestMethods\\(\\) has parameter \\$items with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:createProcessingResultResponse\\(\\) has parameter \\$isMultipleResultResponse with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:createProcessingResultResponse\\(\\) has parameter \\$successStatusCode with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:getCapabilityRESTObject\\(\\) has parameter \\$routes with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:getCapabilityRESTObject\\(\\) has parameter \\$serviceClassNameSpace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:getCapabilityRESTObject\\(\\) has parameter \\$structureDefinition with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
 ];
@@ -34212,32 +34117,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:schematronValidateDocument\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:schematronValidateDocument\\(\\) has parameter \\$xml with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateDocument\\(\\) has parameter \\$document with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateDocument\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateSchematron\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateSchematron\\(\\) has parameter \\$xml with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
@@ -35767,11 +35652,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirAllergyIntoleranceService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirAppointmentService\\:\\:__construct\\(\\) has parameter \\$fhirApiURL with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
@@ -35782,17 +35662,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirAppointmentService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirCarePlanService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirCarePlanService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCarePlanService.php',
 ];
@@ -35822,11 +35692,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCareTeamService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirCareTeamService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCareTeamService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirConditionService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
@@ -35843,11 +35708,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirConditionService\\:\\:getServiceForCode\\(\\) has parameter \\$defaultCode with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirConditionService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
@@ -35887,17 +35747,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];
@@ -36072,11 +35922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirEncounterService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirExportJobService\\:\\:getJobForUuid\\(\\) has parameter \\$clientId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirExportJobService.php',
@@ -36098,11 +35943,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirGoalService\\:\\:getGoalTextFromDetails\\(\\) has parameter \\$details with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirGoalService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirGoalService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirGoalService.php',
 ];
@@ -36158,11 +35998,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirImmunizationService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirImmunizationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirImmunizationService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirImmunizationService.php',
 ];
@@ -36285,16 +36120,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirMedicationRequestService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirMedicationRequestService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirMedicationService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirObservationService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
@@ -36552,11 +36377,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirPractitionerRoleService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirPractitionerService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerService.php',
@@ -36652,11 +36472,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirQuestionnaireResponseService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirQuestionnaireResponseService\\:\\:searchAllServicesWithSupportedFields\\(\\) has parameter \\$fhirSearchParams with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireResponseService.php',
@@ -36702,11 +36517,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirQuestionnaireService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirQuestionnaireService\\:\\:searchAllServicesWithSupportedFields\\(\\) has parameter \\$fhirSearchParams with no type specified\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
@@ -36738,11 +36548,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirRelatedPersonService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirRelatedPersonService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirRelatedPersonService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirRelatedPersonService.php',
 ];
@@ -36872,11 +36677,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirSpecimenService\\:\\:__construct\\(\\) has parameter \\$fhirApiURL with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
@@ -36900,26 +36700,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirUrlResolver\\:\\:getRelativeUrl\\(\\) has parameter \\$url with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirUrlResolver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirValidationService\\:\\:operationOutcomeResourceService\\(\\) has parameter \\$code_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValidationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirValidationService\\:\\:operationOutcomeResourceService\\(\\) has parameter \\$details_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValidationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirValidationService\\:\\:operationOutcomeResourceService\\(\\) has parameter \\$severity_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValidationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirValidationService\\:\\:validate\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirValidationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirValueSetService\\:\\:export\\(\\) has parameter \\$lastResourceIdExported with no type specified\\.$#',
@@ -37562,11 +37342,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Questionnaire/FhirQuestionnaireFormService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Questionnaire\\\\FhirQuestionnaireFormService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Questionnaire/FhirQuestionnaireFormService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Questionnaire\\\\FhirQuestionnaireFormService\\:\\:supportsCode\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Questionnaire/FhirQuestionnaireFormService.php',
@@ -38128,16 +37903,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:getOne\\(\\) has parameter \\$uuid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:insert\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:update\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
 ];

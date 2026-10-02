@@ -207,11 +207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$PMFSH on left side of \\?\\? is never defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$RX_TYPE on left side of \\?\\? is never defined\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -497,16 +492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/letter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$source on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$target on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$from_date on left side of \\?\\? is never defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
@@ -555,11 +540,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$filter_context on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/custom_template/personalize.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$sendDMTo on left side of \\?\\? is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$body_text on left side of \\?\\? always exists and is not nullable\\.$#',
