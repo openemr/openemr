@@ -768,6 +768,35 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
+     * @return array<string, array{mixed, int|null}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function billedEncounterLevelProvider(): array
+    {
+        return [
+            'primary' => [1, 1],
+            'secondary' => [2, 2],
+            'primary string' => ['1', 1],
+            'zero' => [0, null],
+            'zero string' => ['0', null],
+            'negative' => [-1, null],
+            'blank' => ['', null],
+            'not digits' => ['1a', null],
+            'missing' => [null, null],
+        ];
+    }
+
+    /**
+     * A billed claim stores a positive payer level and leaves the others alone.
+     */
+    #[DataProvider('billedEncounterLevelProvider')]
+    public function testBilledEncounterLevel(mixed $payerType, ?int $level): void
+    {
+        $this->assertSame($level, BillingUtilities::billedEncounterLevel($payerType));
+    }
+
+    /**
      * Batch whose content is ready to publish into a temporary directory.
      */
     private function ownedBatch(string $directory): BillingClaimBatch
