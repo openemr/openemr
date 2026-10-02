@@ -60,4 +60,32 @@ class FacilityPostalSaveNoticeTest extends TestCase
         $this->assertStringNotContainsString('MA114', $notice);
         $this->assertStringNotContainsString('277', $notice);
     }
+
+    /**
+     * The dialog body names saved or not saved, and stays JSON when the sentence cannot be encoded.
+     */
+    public function testSaveDialogBodyNamesTheStatus(): void
+    {
+        $saved = json_decode(FacilityService::facilitySaveDialogBody(true, 'Notice'), true);
+        $open = json_decode(FacilityService::facilitySaveDialogBody(false, ''), true);
+        $this->assertIsArray($saved);
+        $this->assertIsArray($open);
+
+        $this->assertSame('saved', $saved['status']);
+        $this->assertSame('Notice', $saved['message']);
+        $this->assertSame('not_saved', $open['status']);
+        $this->assertSame('', $open['message']);
+    }
+
+    /**
+     * A sentence that is not valid text still returns a not-saved JSON body.
+     */
+    public function testSaveDialogBodyStaysJsonWhenTheSentenceCannotBeEncoded(): void
+    {
+        $decoded = json_decode(FacilityService::facilitySaveDialogBody(true, "\xB1\x31"), true);
+        $this->assertIsArray($decoded);
+
+        $this->assertSame('not_saved', $decoded['status']);
+        $this->assertSame('', $decoded['message']);
+    }
 }
