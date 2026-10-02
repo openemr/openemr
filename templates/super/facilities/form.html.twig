@@ -70,7 +70,6 @@ function submitform() {
             try {
                 payload = JSON.parse(r);
             } catch (e) {
-                message = r;
                 payload = null;
             }
         }
@@ -82,12 +81,17 @@ function submitform() {
                 message = payload.message;
             }
         }
+        if (status !== 'saved' && message === '') {
+            message = {{ 'The facility save did not finish.'|xlj }};
+        }
         if (message) {
             alert(message);
         }
         if (status === 'saved') {
             dlgclose('refreshme', false);
         }
+    }).fail(function () {
+        alert({{ 'The facility save did not finish.'|xlj }});
     });
     return false;
 }
