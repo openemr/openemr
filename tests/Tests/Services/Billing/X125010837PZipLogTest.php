@@ -38,6 +38,8 @@ class X125010837PZipLogTest extends TestCase
 
     private int $providerId = 0;
 
+    private int $billingId = 0;
+
     /**
      * No rows are created here, and nothing is deleted.
      */
@@ -95,7 +97,7 @@ class X125010837PZipLogTest extends TestCase
         $this->billingFacilityId = $this->insertFacility('zip-log-billing-' . $suffix, $billingZip);
         $this->serviceFacilityId = $this->insertFacility('zip-log-service-' . $suffix, $serviceZip);
         $this->insertPatientEncounterAndPartner();
-        QueryUtils::sqlStatementThrowException(
+        $this->billingId = $this->insertId(
             'INSERT INTO billing (pid, encounter, code, code_type, code_text, units, fee,'
             . ' provider_id, payer_id, activity)'
             . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
@@ -124,16 +126,14 @@ class X125010837PZipLogTest extends TestCase
     }
 
     /**
-     * Insert the patient, encounter, and X12 partner under one lock.
+     * Insert the patient, encounter, and X12 partner while those tables are locked.
      * Each id is stored only after its insert succeeds.
      */
     private function insertPatientEncounterAndPartner(): void
     {
-        $row = QueryUtils::querySingleRow('SELECT GET_LOCK(?, 5) AS locked', ['openemr_zip_log_fixture']);
-        $locked = is_array($row) ? ($row['locked'] ?? null) : null;
-        if ($locked !== 1 && $locked !== '1') {
-            $this->fail('Could not reserve fixture ids');
-        }
+        QueryUtils::sqlStatementThrowException(
+            'LOCK TABLES patient_data WRITE, form_encounter WRITE, x12_partners WRITE'
+        );
 
         try {
             $pid = $this->allocatePositiveId(
@@ -175,7 +175,7 @@ class X125010837PZipLogTest extends TestCase
             );
             $this->partnerId = $partnerId;
         } finally {
-            QueryUtils::sqlStatementThrowException('SELECT RELEASE_LOCK(?)', ['openemr_zip_log_fixture']);
+            QueryUtils::sqlStatementThrowException('UNLOCK TABLES');
         }
     }
 
@@ -228,11 +228,13 @@ class X125010837PZipLogTest extends TestCase
      */
     private function removeCreatedRows(): void
     {
-        if ($this->pid > 0 && $this->encounter > 0) {
+        if ($this->billingId > 0) {
             QueryUtils::sqlStatementThrowException(
-                'DELETE FROM billing WHERE pid = ? AND encounter = ?',
-                [$this->pid, $this->encounter]
+                'DELETE FROM billing WHERE id = ?',
+                [$this->billingId]
             );
+        }
+        if ($this->pid > 0 && $this->encounter > 0) {
             QueryUtils::sqlStatementThrowException(
                 'DELETE FROM form_encounter WHERE pid = ? AND encounter = ?',
                 [$this->pid, $this->encounter]
