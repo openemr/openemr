@@ -420,6 +420,31 @@ abstract class AbstractProcessingTask
     }
 
     /**
+     * Bill a published file when the hold is off.
+     *
+     * True means the file was billed. False means it is on disk and the
+     * billed update missed. Null means this run should write the claim.
+     */
+    protected function recoverPublishedFile(BillingClaim $claim, BillingClaimBatch $batch): ?bool
+    {
+        $assignment = $this->openUnbilledAssignment($claim);
+        if ($assignment === null) {
+            return null;
+        }
+
+        $version = $assignment['version'];
+        $filename = $assignment['process_file'];
+        if ($version <= 0 || $filename === '' || !$this->claimFileLanded($batch, $filename)) {
+            return null;
+        }
+
+        $this->settledVersion = $version;
+        $this->settledFileName = $filename;
+
+        return $this->markStoredFileBilled($claim);
+    }
+
+    /**
      * Mark the unbilled row billed now that its file is already on disk.
      */
     protected function markStoredFileBilled(BillingClaim $claim): bool
