@@ -1,0 +1,11 @@
+{# Generate / Rules tabs. #}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link {% if activeTab == 'generate' %}active{% endif %}" href="index.php">{{ "Generate"|xlt }}</a>
+    </li>
+    {% if canAdmin %}
+    <li class="nav-item">
+        <a class="nav-link {% if activeTab == 'rules' %}active{% endif %}" href="admin.php">{{ "Rules"|xlt }}</a>
+    </li>
+    {% endif %}
+</ul>
