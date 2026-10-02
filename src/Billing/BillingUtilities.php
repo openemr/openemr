@@ -16,8 +16,10 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class BillingUtilities
@@ -1931,6 +1933,10 @@ class BillingUtilities
 
     /**
      * Mark the unbilled row billed only when it still names this file.
+     *
+     * The claim row and the encounter's active billing rows commit together.
+     * A miss on the billing rows rolls the claim status back, so the next
+     * run can still find the unbilled version.
      */
     public static function billUnbilledClaimFile(
         mixed $patientId,
@@ -1942,20 +1948,98 @@ class BillingUtilities
             return false;
         }
 
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE claims SET status = ?, bill_process = ?, process_file = ?, process_time = NOW() "
-            . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? AND process_file = ?",
-            [
-                BillingClaim::STATUS_MARK_AS_BILLED,
-                BillingClaim::BILL_PROCESS_BILLED,
-                $filename,
-                $patientId,
-                $encounterId,
-                $version,
-                BillingClaim::STATUS_LEAVE_UNBILLED,
-                $filename,
-            ]
-        );
+        try {
+            $settled = QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename): bool {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE claims SET status = ?, bill_process = ?, process_file = ?, process_time = NOW() "
+                    . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? AND process_file = ?",
+                    [
+                        BillingClaim::STATUS_MARK_AS_BILLED,
+                        BillingClaim::BILL_PROCESS_BILLED,
+                        $filename,
+                        $patientId,
+                        $encounterId,
+                        $version,
+                        BillingClaim::STATUS_LEAVE_UNBILLED,
+                        $filename,
+                    ]
+                );
+                $row = QueryUtils::querySingleRow(
+                    "SELECT process_file, status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                    [$patientId, $encounterId, $version]
+                );
+                if (!is_array($row) || ($row['process_file'] ?? null) !== $filename || !self::billedUpdateStored($row)) {
+                    return false;
+                }
+
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE billing SET billed = 1, bill_date = NOW(), bill_process = ?, process_file = ?, process_date = NOW() "
+                    . "WHERE encounter = ? AND pid = ? AND activity = 1",
+                    [BillingClaim::BILL_PROCESS_BILLED, $filename, $encounterId, $patientId]
+                );
+                $billingRows = QueryUtils::fetchRecords(
+                    "SELECT billed, process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
+                    [$patientId, $encounterId]
+                );
+                if (!self::billingSettlementLanded($billingRows, $filename)) {
+                    throw new \RuntimeException('Billing rows were not marked billed with the claim file');
+                }
+
+                return true;
+            });
+        } catch (\RuntimeException $exception) {
+            ServiceContainer::getLogger()->error('Held claim settlement did not finish', [
+                'exception' => $exception,
+            ]);
+
+            return false;
+        }
+
+        return $settled === true;
+    }
+
+    /**
+     * The active billing rows are billed and name this file.
+     *
+     * No active rows is agreement. One open row is not.
+     *
+     * @param mixed $rows
+     */
+    public static function billingSettlementLanded(mixed $rows, string $filename): bool
+    {
+        if (!is_array($rows) || $filename === '') {
+            return false;
+        }
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                return false;
+            }
+            $billed = $row['billed'] ?? null;
+            if ($billed !== 1 && $billed !== '1') {
+                return false;
+            }
+            if (($row['process_file'] ?? null) !== $filename) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Whether this unbilled version still names the file.
+     */
+    public static function unbilledRowNamesFile(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        string $filename
+    ): bool {
+        if ($filename === '' || $version <= 0) {
+            return false;
+        }
+
         $row = QueryUtils::querySingleRow(
             "SELECT process_file, status FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = ?",
             [$patientId, $encounterId, $version]
@@ -1963,17 +2047,52 @@ class BillingUtilities
         if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
             return false;
         }
-        if (!self::billedUpdateStored($row)) {
+        $status = $row['status'] ?? null;
+
+        return $status === BillingClaim::STATUS_LEAVE_UNBILLED || $status === '1';
+    }
+
+    /**
+     * Take the named generation fence. False means another run holds it.
+     *
+     * GET_LOCK waits zero seconds. The lock releases when this connection closes.
+     */
+    public static function acquireGenerationFence(string $name): bool
+    {
+        if ($name === '' || strlen($name) > 64) {
             return false;
         }
 
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE billing SET billed = 1, bill_date = NOW(), bill_process = ?, process_file = ?, process_date = NOW() "
-            . "WHERE encounter = ? AND pid = ? AND activity = 1",
-            [BillingClaim::BILL_PROCESS_BILLED, $filename, $encounterId, $patientId]
+        $row = QueryUtils::querySingleRow(
+            'SELECT GET_LOCK(?, 0) AS got',
+            [$name],
+            false
         );
+        if (!is_array($row)) {
+            return false;
+        }
+        $got = $row['got'] ?? null;
 
-        return true;
+        return $got === 1 || $got === '1';
+    }
+
+    /**
+     * Release a generation fence. A closed connection releases it as well.
+     */
+    public static function releaseGenerationFence(string $name): void
+    {
+        if ($name === '' || strlen($name) > 64) {
+            return;
+        }
+
+        try {
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT RELEASE_LOCK(?) AS released',
+                [$name]
+            );
+        } catch (SqlQueryException) {
+            // The lock releases when the database session closes.
+        }
     }
 
     /**
