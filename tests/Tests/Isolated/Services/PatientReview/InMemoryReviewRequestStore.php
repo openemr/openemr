@@ -85,6 +85,12 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return isset($this->requests[$id]) ? $this->mapper->toRequest($this->requests[$id]) : null;
     }
 
+    public function findForUpdate(int $id): ?ReviewRequest
+    {
+        // Nothing runs concurrently in memory, so there is no row to hold.
+        return $this->find($id);
+    }
+
     public function findOpen(int $pid, ReviewType $type): array
     {
         $open = [];

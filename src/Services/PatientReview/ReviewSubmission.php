@@ -17,7 +17,8 @@ namespace OpenEMR\Services\PatientReview;
 final readonly class ReviewSubmission
 {
     /**
-     * @param array<array-key, mixed> $payload the submitted data; stored as JSON
+     * @param array<array-key, mixed> $payload the submitted data; stored as readable JSON, so a
+     *                                         payment payload carrying card details is refused
      * @param ?string $clientId oauth_clients.client_id, required when the source is an API app
      * @param ?string $targetTable the table the request applies to, when known
      * @param ?string $targetId the row or uuid in that table
@@ -40,6 +41,11 @@ final readonly class ReviewSubmission
         }
         if ($source === ReviewSource::Portal && $clientId !== null) {
             throw new \DomainException('A portal submission has no client');
+        }
+        if ($type === ReviewType::Payment && (new PaymentCardDetector())->containsCardData($payload)) {
+            // The payload is stored as readable JSON. Card details go through
+            // ReviewQueueService::attachSecret(), which encrypts them and deletes them on close.
+            throw new \DomainException('Payment card details must be attached as a secret, not submitted in the payload');
         }
     }
 }

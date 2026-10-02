@@ -27,11 +27,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview;
 
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
 
 final class ReviewQueueService
@@ -63,6 +65,7 @@ final class ReviewQueueService
         private readonly ClockInterface $clock,
         private readonly UuidFactoryInterface $uuidFactory,
         private readonly CryptoInterface $crypto,
+        private readonly LoggerInterface $logger,
         iterable $handlers = [],
     ) {
         foreach ($handlers as $handler) {
@@ -190,14 +193,20 @@ final class ReviewQueueService
      * states.
      *
      * @throws \DomainException when the request is not open
+     * @throws ReviewRequestNotFoundException
      */
     public function attachSecret(int $id, string $kind, string $plaintext): void
     {
-        $request = $this->get($id);
-        if (!$request->status->isOpen()) {
-            throw new \DomainException('Review request ' . $id . ' is not open; it cannot hold a secret');
-        }
-        $this->store->putSecret($id, $kind, $this->crypto->encryptForDatabase($plaintext), $this->clock->now());
+        // The status check and the write share one transaction and hold the request row, so a
+        // concurrent close (which deletes secrets) cannot slip between them and leave a secret
+        // on a closed request.
+        $this->store->transactional(function () use ($id, $kind, $plaintext): void {
+            $request = $this->store->findForUpdate($id) ?? throw ReviewRequestNotFoundException::forId($id);
+            if (!$request->status->isOpen()) {
+                throw new \DomainException('Review request ' . $id . ' is not open; it cannot hold a secret');
+            }
+            $this->store->putSecret($id, $kind, $this->crypto->encryptForDatabase($plaintext), $this->clock->now());
+        });
     }
 
     /**
@@ -242,10 +251,32 @@ final class ReviewQueueService
             $entries = $this->drainAudit();
         }
         foreach ($entries as $entry) {
-            $this->auditTrail->record($entry['request'], $entry['from'], $entry['actor'], $entry['note']);
+            $this->audit($entry['request'], $entry['from'], $entry['actor'], $entry['note']);
         }
 
         return $result;
+    }
+
+    /**
+     * Writes one audit log entry for a change that has already committed.
+     *
+     * A failure here must not surface as a failed operation: the request did change, and a
+     * caller told otherwise would retry and submit a duplicate. The change is not lost to the
+     * record either, because its patient_review_event row was written in the same transaction
+     * as the change. So the failure is logged for the operator and the operation succeeds.
+     */
+    private function audit(ReviewRequest $request, ?ReviewStatus $from, ReviewActor $actor, ?string $note): void
+    {
+        try {
+            $this->auditTrail->record($request, $from, $actor, $note);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->logger->error('Review queue change committed but its audit log entry could not be written', [
+                'request_id' => $request->id,
+                'from' => $from?->value,
+                'to' => $request->status->value,
+                'exception' => $e,
+            ]);
+        }
     }
 
     /**

@@ -253,6 +253,7 @@ class ReviewQueueDatabaseTest extends TestCase
             ServiceContainer::getClock(),
             ServiceContainer::getUuidFactory(),
             $crypto,
+            ServiceContainer::getLogger(),
         );
         $payment = $service->submit(
             new ReviewSubmission(self::PID, ReviewType::Payment, 'Authorize online payment.', ['amount' => '10.00']),
@@ -273,6 +274,20 @@ class ReviewQueueDatabaseTest extends TestCase
 
         $this->assertSame(0, $this->countRows('patient_review_secret', $payment->id));
         $this->assertNull($service->readSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD));
+    }
+
+    public function testFindForUpdateReadsTheRequestInsideATransaction(): void
+    {
+        $service = ReviewQueueFactory::create();
+        $repository = new ReviewRequestRepository(new ReviewRequestMapper());
+        $request = $service->submit($this->profile(), $this->patient());
+
+        $locked = $repository->transactional(fn(): ?ReviewRequest => $repository->findForUpdate($request->id));
+
+        $this->assertNotNull($locked);
+        $this->assertSame($request->id, $locked->id);
+        $this->assertSame(ReviewStatus::Pending, $locked->status);
+        $this->assertNull($repository->transactional(fn(): ?ReviewRequest => $repository->findForUpdate(0)));
     }
 
     public function testFindPendingIsOldestFirstAndScopedByType(): void

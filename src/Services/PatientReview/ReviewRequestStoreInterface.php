@@ -39,6 +39,13 @@ interface ReviewRequestStoreInterface
     public function find(int $id): ?ReviewRequest;
 
     /**
+     * Reads the request and holds its row until the surrounding transaction ends, so a decision
+     * made on what was read cannot be overtaken by a concurrent state change. Call inside
+     * transactional().
+     */
+    public function findForUpdate(int $id): ?ReviewRequest;
+
+    /**
      * Open requests for one patient and type, newest first.
      *
      * @return list<ReviewRequest>

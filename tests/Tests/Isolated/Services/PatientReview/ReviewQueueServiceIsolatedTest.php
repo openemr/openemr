@@ -28,8 +28,11 @@ use OpenEMR\Services\PatientReview\ReviewSource;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewSubmission;
 use OpenEMR\Services\PatientReview\ReviewType;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\UuidFactory;
 
 class ReviewQueueServiceIsolatedTest extends TestCase
@@ -38,11 +41,13 @@ class ReviewQueueServiceIsolatedTest extends TestCase
 
     private InMemoryReviewRequestStore $store;
     private RecordingReviewAuditTrail $trail;
+    private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
     {
         $this->store = new InMemoryReviewRequestStore();
         $this->trail = new RecordingReviewAuditTrail();
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     /**
@@ -60,7 +65,7 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $crypto->method('encryptForDatabase')->willReturnCallback(static fn(?string $value): string => 'enc(' . $value . ')');
         $crypto->method('decryptFromDatabase')->willReturnCallback(static fn(?string $value): string => substr((string) $value, 4, -1));
 
-        return new ReviewQueueService($this->store, $this->trail, $clock, new UuidFactory(), $crypto, $handlers);
+        return new ReviewQueueService($this->store, $this->trail, $clock, new UuidFactory(), $crypto, $this->logger, $handlers);
     }
 
     /**
@@ -328,6 +333,79 @@ class ReviewQueueServiceIsolatedTest extends TestCase
             ['id' => $request->id, 'from' => ReviewStatus::Pending, 'to' => ReviewStatus::Denied, 'actor' => 'drsmith', 'note' => 'wrong patient'],
             $this->trail->entries[1]
         );
+    }
+
+    /**
+     * The audit log is written after the change commits. If it cannot be written the change still
+     * happened, so the caller must not be told it failed: a retry would submit a duplicate.
+     */
+    public function testAnAuditLogFailureDoesNotFailTheCommittedChange(): void
+    {
+        $this->trail->failure = new \RuntimeException('audit database unavailable');
+        $this->logger->expects($this->once())->method('error')->with(
+            $this->stringContains('audit log entry could not be written'),
+            $this->callback(static fn(array $context): bool => ($context['to'] ?? null) === 'pending' && ($context['exception'] ?? null) instanceof \RuntimeException)
+        );
+
+        $request = $this->service()->submit($this->profile(), $this->patient());
+
+        $this->assertSame(ReviewStatus::Pending, $request->status);
+        $this->assertCount(1, $this->service()->history($request->id), 'the change is still on record in its history');
+        $this->assertSame(1, $this->service()->countPending());
+    }
+
+    public function testAttachSecretToAnUnknownRequest(): void
+    {
+        $this->expectException(ReviewRequestNotFoundException::class);
+        $this->service()->attachSecret(999, ReviewQueueService::SECRET_PAYMENT_CARD, 'x');
+    }
+
+    /**
+     * @return array<string, array{array<array-key, mixed>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function cardBearingPayloadProvider(): array
+    {
+        return [
+            'card number' => [['amount' => '10.00', 'account' => '4111111111111111']],
+            'formatted card number' => [['note' => '4111 1111 1111 1111']],
+            'nested card number' => [['payment' => ['details' => ['5555-5555-5555-4444']]]],
+            'integer card number' => [['n' => 4111111111111111]],
+            'card field' => [['card_number' => 'tok_abc']],
+            'security code field' => [['amount' => '10.00', 'cvv' => '123']],
+            'cc field' => [['cc' => ['anything']]],
+        ];
+    }
+
+    /**
+     * @param array<array-key, mixed> $payload
+     */
+    #[DataProvider('cardBearingPayloadProvider')]
+    public function testAPaymentPayloadCarryingCardDataIsRefused(array $payload): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('attached as a secret');
+        new ReviewSubmission(self::PID, ReviewType::Payment, 'Authorize online payment.', $payload);
+    }
+
+    public function testOrdinaryPaymentAndNonPaymentPayloadsAreAccepted(): void
+    {
+        $payment = new ReviewSubmission(self::PID, ReviewType::Payment, 'Authorize online payment.', [
+            'amount' => '125.00',
+            'invoices' => [1024, 1025],
+            'card_type' => 'visa',
+            'last4' => '1111',
+            'cvv' => '',
+            'reference' => '1234567890123456',
+        ]);
+        // A long number in a profile change (an insurance policy number, say) is not card data.
+        $profile = new ReviewSubmission(self::PID, ReviewType::Profile, 'Patient request changes to demographics.', [
+            'policy_number' => '4111111111111111',
+        ]);
+
+        $this->assertSame('1111', $payment->payload['last4']);
+        $this->assertSame('4111111111111111', $profile->payload['policy_number']);
     }
 
     public function testSubmissionAndActorGuards(): void

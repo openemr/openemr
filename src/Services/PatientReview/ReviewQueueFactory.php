@@ -37,6 +37,7 @@ final class ReviewQueueFactory
             ServiceContainer::getClock(),
             ServiceContainer::getUuidFactory(),
             ServiceContainer::getCrypto(),
+            ServiceContainer::getLogger(),
             $handlers,
         );
     }

@@ -61,6 +61,12 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
     }
 
+    public function findForUpdate(int $id): ?ReviewRequest
+    {
+        $row = QueryUtils::querySingleRow('SELECT * FROM `patient_review_request` WHERE `id` = ? FOR UPDATE', [$id]);
+        return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
+    }
+
     public function findOpen(int $pid, ReviewType $type): array
     {
         $rows = QueryUtils::fetchRecords(

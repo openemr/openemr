@@ -1,7 +1,7 @@
 <?php
 
 /**
- * A ReviewAuditTrailInterface that keeps what it was asked to record, for assertions.
+ * A ReviewAuditTrailInterface that keeps what it was asked to record, or fails on demand.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -24,8 +24,14 @@ final class RecordingReviewAuditTrail implements ReviewAuditTrailInterface
     /** @var list<array{id: int, from: ?ReviewStatus, to: ReviewStatus, actor: string, note: ?string}> */
     public array $entries = [];
 
+    /** When set, record() throws it, standing in for an audit log that cannot be written. */
+    public ?\RuntimeException $failure = null;
+
     public function record(ReviewRequest $request, ?ReviewStatus $from, ReviewActor $actor, ?string $note): void
     {
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
         $this->entries[] = ['id' => $request->id, 'from' => $from, 'to' => $request->status, 'actor' => $actor->name, 'note' => $note];
     }
 }
