@@ -80,8 +80,10 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     public function setPublicKey(CryptKey|string $publicKey): void
     {
         if (is_string($publicKey)) {
-            // If the public key is a string, we can convert it to a CryptKey instance.
-            $publicKey = new CryptKey($publicKey);
+            // Convert a key path to a CryptKey. Skip League's file permission check: it guards
+            // secrets, and a public key is not one. Left on, it logs a notice on every API request
+            // wherever the key is world-readable, which is also all some filesystems can report.
+            $publicKey = new CryptKey($publicKey, keyPermissionsCheck: false);
         }
         $this->publicKey = $publicKey;
     }
