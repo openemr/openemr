@@ -21,6 +21,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -46,16 +47,7 @@ $alertmsg = '';
  */
 $echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
     header('Content-Type: application/json; charset=utf-8');
-    $encoded = json_encode(
-        [
-            'status' => $saved ? 'saved' : 'not_saved',
-            'message' => $sentence,
-        ],
-        JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
-    );
-    if (is_string($encoded)) {
-        echo $encoded;
-    }
+    echo FacilityService::facilitySaveDialogBody($saved, $sentence);
 };
 
 $facilityPostalSentence = fn (string $postal, bool $billing, bool $service): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service)) {
@@ -111,7 +103,9 @@ foreach ($columns as $c => $v) {
 
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
-    $facilityService->insertFacility($values);
+    QueryUtils::inTransaction(function () use ($facilityService, $values): void {
+        $facilityService->insertFacility($values);
+    });
     // The save dialog decodes this body and passes the sentence to alert().
     $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
@@ -126,11 +120,11 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
 if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility") {
     // Since it's an edit, add in the facility ID
     $values["id"] = trim($_POST['fid'] ?? '');
-    $facilityService->updateFacility($values);
-
-    // Update facility name for all users with this facility.
-    // This is necessary because some provider based code uses facility name for lookups instead of facility id.
-    $facilityService->updateUsersFacility($values['name'], $values['id']);
+    // The facility row and the linked user names commit together.
+    QueryUtils::inTransaction(function () use ($facilityService, $values): void {
+        $facilityService->updateFacility($values);
+        $facilityService->updateUsersFacility($values['name'], $values['id']);
+    });
     // The save dialog decodes this body and passes the sentence to alert().
     $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
