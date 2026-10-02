@@ -20,6 +20,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -266,6 +267,25 @@ class FacilityService extends BaseService
             "limit" => 1
         ]);
         return $record;
+    }
+
+    /**
+     * Whether this facility id is stored.
+     *
+     * The row stays locked until the surrounding transaction ends.
+     */
+    public function facilityIdStored(string $id): bool
+    {
+        if ($id === '' || !ctype_digit($id) || $id === '0') {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT id FROM facility WHERE id = ? FOR UPDATE",
+            [$id]
+        );
+
+        return is_array($row);
     }
 
     public function updateFacility($data)
