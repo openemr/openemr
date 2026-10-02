@@ -26,6 +26,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -42,6 +43,8 @@ $encounterid = filter_input(INPUT_GET, 'encounterid', FILTER_VALIDATE_INT) ?: 0;
 $formid      = filter_input(INPUT_GET, 'formid', FILTER_VALIDATE_INT) ?: 0;
 $issue       = filter_input(INPUT_GET, 'issue') ?: '';
 $document    = filter_input(INPUT_GET, 'document', FILTER_VALIDATE_INT) ?: 0;
+// Patient the document is filed under. Not `patient`: that parameter deletes the patient.
+$documentPid = CurrentRequest::get()->query->getInt('document_pid');
 $payment     = filter_input(INPUT_GET, 'payment') ?: '';
 $billing     = filter_input(INPUT_GET, 'billing') ?: '';
 $transaction = filter_input(INPUT_GET, 'transaction', FILTER_VALIDATE_INT) ?: 0;
@@ -296,15 +299,16 @@ function popup_close() {
                 }
 
                 // Scope the delete to the submitted patient context — the
-                // document's foreign_id must match. Mirrors the read/download
-                // path pattern so a mutation stays inside the caller's current
-                // patient rather than running against an arbitrary document id.
+                // document's foreign_id must match document_pid. Mirrors the
+                // read/download path pattern so a mutation stays inside the
+                // caller's current patient rather than running against an
+                // arbitrary document id.
                 $documentRow = QueryUtils::querySingleRow(
                     "SELECT foreign_id FROM documents WHERE id = ?",
                     [$document]
                 );
                 $documentForeignId = is_array($documentRow) ? ($documentRow['foreign_id'] ?? null) : null;
-                if (!is_numeric($documentForeignId) || (int) $documentForeignId !== $patient) {
+                if (!is_numeric($documentForeignId) || (int) $documentForeignId !== $documentPid) {
                     AccessDeniedHelper::deny('Unauthorized document deletion attempt - patient context mismatch');
                 }
 
@@ -477,7 +481,7 @@ function popup_close() {
         }
         ?>
 
-        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo $document ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo $transaction; ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>'>
+        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo $document ?>&document_pid=<?php echo $documentPid ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo $transaction; ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>'>
             <input type="hidden" name="csrf_token_form"
                 value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <p>

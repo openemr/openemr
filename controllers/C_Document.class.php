@@ -464,6 +464,9 @@ class C_Document extends Controller
 
         $notes = $d->get_notes();
 
+        // The delete link sends this as document_pid; deleter.php refuses a document filed under another patient.
+        $documentPid = $patient_id === null ? 0 : (int) $patient_id;
+        $this->assign("document_pid", $documentPid);
         $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken(session: $session));
 
         $this->assign("file", $d);
@@ -476,7 +479,9 @@ class C_Document extends Controller
 
         // Added by Rod to support document delete:
         $delete_string = '';
-        if (AclMain::aclCheckCore('patients', 'docs_rm')) {
+        // Without the document's own patient as context deleter.php refuses the delete, so offer no link.
+        $deleteAllowed = is_numeric($doc_pid) && (int) $doc_pid === $documentPid;
+        if ($deleteAllowed && AclMain::aclCheckCore('patients', 'docs_rm')) {
             $delete_string = "<a href='' class='btn btn-danger' onclick='return deleteme(" . attr_js($d->get_id()) .
                 ")'>" . xlt('Delete') . "</a>";
         }
