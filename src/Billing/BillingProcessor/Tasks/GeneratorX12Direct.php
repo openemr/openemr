@@ -550,6 +550,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             // Get the format_bat string from the finish method
             $format_bat = $context['format_bat'];
             if (is_string($format_bat) && $format_bat === '') {
+                $this->printToScreen(xl('No claims were added to the batch.'));
                 return;
             }
 

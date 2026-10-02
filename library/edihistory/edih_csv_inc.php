@@ -884,7 +884,7 @@ function csv_dirfile_list($type)
                     continue;
                 } elseif ($tp == 'f837' && ($file == 'history' || $file == 'README.txt')) {
                     continue;
-                } elseif (is_file($search_dir . DS . $file)) {
+                } elseif (is_file($search_dir . DS . $file) && is_string($ext_re) && $ext_re !== '' && preg_match($ext_re, $file) === 1) {
                     $dirfiles[] = $file;
                 } else {
                     if ($tp == 'f837' && $file == 'history') {
