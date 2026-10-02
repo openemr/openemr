@@ -758,11 +758,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];

@@ -1,66 +1,75 @@
 <?php
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
+/**
+ * Thin delegators kept for the existing call sites of library/transactions.inc.php.
+ * The bodies live in PatientTransactionService; see the migration tracker, openemr/openemr#11674.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Marcello Costagliola <marcello.costagliola1@gmail.com>
+ * @copyright Copyright (c) 2026 Marcello Costagliola <marcello.costagliola1@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\PatientTransactionService;
+
+/**
+ * Transaction row plus its lbt_data fields, by id; null when $id is not int|string or unmatched.
+ */
 function getTransById($id, $cols = "*")
 {
-    $row = sqlQuery("SELECT " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " FROM transactions WHERE id = ?", [$id]);
-    $fres = sqlStatement("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?", [$id]);
-    while ($frow = sqlFetchArray($fres)) {
-        $row[$frow['field_id']] = $frow['field_value'];
+    if (!is_int($id) && !is_string($id)) {
+        return null;
     }
+    $cols = is_scalar($cols) ? (string) $cols : '*';
 
-    return $row;
+    return PatientTransactionService::getTransById($id, $cols);
 }
 
+/**
+ * Transactions for a patient plus their lbt_data fields; empty array when $pid is not int|string.
+ */
 function getTransByPid($pid, $cols = "*")
 {
-    $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['transactions']) . " from transactions where pid = ? " .
-    "order by date DESC", [$pid]);
-
-    $all = [];
-
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $fres = sqlStatement(
-            "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
-            [$row['id']]
-        );
-        while ($frow = sqlFetchArray($fres)) {
-              $row[$frow['field_id']] = $frow['field_value'];
-        }
-
-        $all[$iter] = $row;
+    if (!is_int($pid) && !is_string($pid)) {
+        return [];
     }
+    $cols = is_scalar($cols) ? (string) $cols : '*';
 
-    return $all;
+    return PatientTransactionService::getTransByPid($pid, $cols);
 }
 
-function newTransaction(
-    $pid,
-    $body,
-    $title,
-    $authorized = "0",
-    $status = "1",
-    $assigned_to = "*"
-) {
+/**
+ * Creates a transaction using the current session's user/groupname; $status and $assigned_to
+ * are accepted for backward compatibility but were already unused by the original function.
+ * Returns 0 without touching the database when $pid or $authorized is not int|string.
+ */
+function newTransaction($pid, $body, $title, $authorized = "0", $status = "1", $assigned_to = "*"): int
+{
+    if ((!is_int($pid) && !is_string($pid)) || (!is_int($authorized) && !is_string($authorized))) {
+        return 0;
+    }
+    $body = is_scalar($body) ? (string) $body : '';
+    $title = is_scalar($title) ? (string) $title : '';
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $body = add_escape_custom($body);
-    $id = sqlInsert("insert into transactions ( " .
-    "date, title, pid, user, groupname, authorized " .
-    ") values ( " .
-    "NOW(), '$title', '$pid', '" . $session->get('authUser') .
-    "', '" . $session->get('authProvider') . "', '$authorized' " .
-    ")");
-    sqlStatement(
-        "INSERT INTO lbt_data (form_id, field_id, field_value) VALUES (?, ?, ?)",
-        [$id, 'body', $body]
-    );
-    return $id;
+    $user = $session->get('authUser');
+    $user = is_string($user) ? $user : '';
+    $groupname = $session->get('authProvider');
+    $groupname = is_string($groupname) ? $groupname : '';
+
+    return PatientTransactionService::newTransaction($pid, $body, $title, $user, $groupname, $authorized);
 }
 
+/**
+ * Sets a transaction's authorized flag; does nothing when $id or $authorized is not int|string.
+ */
 function authorizeTransaction($id, $authorized = "1"): void
 {
-    sqlQuery("update transactions set authorized = ? where " .
-    "id = ?", [$authorized, $id]);
+    if ((!is_int($id) && !is_string($id)) || (!is_int($authorized) && !is_string($authorized))) {
+        return;
+    }
+
+    PatientTransactionService::authorizeTransaction($id, $authorized);
 }
