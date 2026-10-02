@@ -7,7 +7,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Marcello Costagliola <marcello.costagliola1@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,7 +35,7 @@ if ($portalRegistrationAuthorization !== true) {
 
 $session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->getString('google_recaptcha_site_key')) || empty($globalsBag->getString('google_recaptcha_secret_key'))) {
+if (!$globalsBag->getBoolean('portal_onsite_two_register') || $globalsBag->getString('google_recaptcha_site_key') === '' || $globalsBag->getString('google_recaptcha_secret_key') === '') {
     ServiceContainer::getLogger()->debug("Attempted to use register.php despite register feature being turned off, so failed");
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
@@ -47,12 +49,11 @@ SessionUtil::setSession('pid', true);
 SessionUtil::setSession('register', true);
 SessionUtil::setSession('register_silo_ajax', true);
 
-$landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
-
-// Prepare data for the template
+// Prepare data for the template. Pass only what the template reads: the globals
+// snapshot ($globalsBag->all()) also carries superglobals and $sqlconf with the
+// database credentials, and the template needs a single string from it.
 $data = [
-'global' => $globalsBag->all(),
-'session' => $session->all(),
+'webRoot' => $globalsBag->getString('web_root'),
 'languageRegistration' => $languageRegistration ?? '',
 'fnameRegistration' => $fnameRegistration ?? '',
 'mnameRegistration' => $mnameRegistration ?? '',
@@ -69,7 +70,6 @@ try {
     ServiceContainer::getLogger()->error($e->getMessage());
     echo text($e->getMessage());
     header('HTTP/1.1 500 Internal Server Error');
-    die();
 }
 
 exit();

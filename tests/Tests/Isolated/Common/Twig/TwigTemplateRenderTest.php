@@ -759,6 +759,23 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/care-plan-card-populated.html',
         ];
+
+        // Portal registration wizard: register.php passes only webRoot (a string) plus
+        // the prefilled fields, not the globals snapshot (#13716). The fixture pins that
+        // the template reads webRoot directly.
+        yield 'portal/registration/portal_register prefilled' => [
+            'portal/registration/portal_register.html.twig',
+            [
+                'webRoot'              => '/openemr',
+                'languageRegistration' => 'English (Standard)',
+                'fnameRegistration'    => 'Test',
+                'mnameRegistration'    => '',
+                'lnameRegistration'    => 'Patient',
+                'dobRegistration'      => '1990-01-15',
+                'emailRegistration'    => 'test.patient@example.com',
+            ],
+            $fixtureDir . '/portal-register-prefilled.html',
+        ];
     }
 
     /**
@@ -849,6 +866,15 @@ class TwigTemplateRenderTest extends TestCase
         $twig->addFunction(new TwigFunction(
             'setupHeader',
             fn (): string => '<!-- setupHeader stub -->',
+            ['is_safe' => ['html']]
+        ));
+
+        // jqueryDateTimePicker() requires library/js/xl/jquery-datetimepicker-*.js.php
+        // through the kernel's src dir (or the srcdir global), neither of which exists
+        // here. The stub keeps the call site visible in the fixture as a JS comment.
+        $twig->addFunction(new TwigFunction(
+            'jqueryDateTimePicker',
+            fn (string $domSelector): string => '/* jqueryDateTimePicker stub: ' . $domSelector . ' */',
             ['is_safe' => ['html']]
         ));
 
