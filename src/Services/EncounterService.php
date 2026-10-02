@@ -56,6 +56,42 @@ class EncounterService extends BaseService
     const DEFAULT_CLASS_CODE = 'AMB';
 
     /**
+     * Resolves an encounter uuid to its encounter number and patient, treating a soft-deleted
+     * encounter as absent.
+     *
+     * Deleting an encounter flags its 'newpatient' forms row and leaves the form_encounter row
+     * in place, so a lookup against form_encounter alone still finds a deleted encounter and
+     * lets a write attach new data to it. Encounters with no newpatient row at all are still
+     * returned, since older data may lack one; only an encounter whose newpatient row is
+     * flagged deleted is treated as gone.
+     *
+     * @return array{encounter: int, pid: int}|null Null when the uuid is malformed, unknown or deleted.
+     */
+    public static function getActiveEncounterByUuid(string $uuid): ?array
+    {
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            return null;
+        }
+        $row = QueryUtils::querySingleRow(
+            'SELECT fe.`encounter`, fe.`pid` FROM `form_encounter` fe'
+            . " LEFT JOIN `forms` f ON f.`encounter` = fe.`encounter` AND f.`pid` = fe.`pid` AND f.`formdir` = 'newpatient'"
+            . ' WHERE fe.`uuid` = ? AND (f.`id` IS NULL OR f.`deleted` = 0)'
+            . ' LIMIT 1',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        if (!is_array($row)) {
+            return null;
+        }
+        $encounter = $row['encounter'] ?? null;
+        $pid = $row['pid'] ?? null;
+        if (!is_numeric($encounter) || !is_numeric($pid)) {
+            return null;
+        }
+
+        return ['encounter' => (int) $encounter, 'pid' => (int) $pid];
+    }
+
+    /**
      * Default constructor.
      */
     public function __construct()

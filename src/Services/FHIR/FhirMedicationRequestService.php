@@ -30,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage\FHIRDosageDoseAndRate;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationRequest\FHIRMedicationRequestDispenseRequest;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationIntentEnum;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationStatusEnum;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -522,14 +523,10 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $euuid = $record['euuid'] ?? null;
         if (is_string($euuid) && $euuid !== '') {
-            $euuidBytes = UuidRegistry::uuidToBytes($euuid);
-            $encounterId = QueryUtils::fetchSingleValue(
-                "SELECT encounter FROM form_encounter WHERE uuid = ?",
-                'encounter',
-                [$euuidBytes]
-            );
-            if (is_numeric($encounterId)) {
-                $record['encounter'] = (int) $encounterId;
+            // A soft-deleted encounter resolves to null, like an unknown one.
+            $encounter = EncounterService::getActiveEncounterByUuid($euuid);
+            if ($encounter !== null) {
+                $record['encounter'] = $encounter['encounter'];
             }
             unset($record['euuid']);
         }

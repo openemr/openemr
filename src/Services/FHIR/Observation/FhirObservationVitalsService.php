@@ -30,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirDateTimeParser;
 use OpenEMR\Services\FHIR\FhirPayloadReader;
@@ -1692,24 +1693,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             return $result;
         }
 
-        // An encounter is soft-deleted by flagging its 'newpatient' forms row, while the
-        // form_encounter row stays, so form_encounter alone would accept a deleted encounter
-        // and hang new vitals off it. Encounters with no newpatient row at all (older data)
-        // are still accepted; only an encounter whose newpatient row is flagged deleted is
-        // treated as gone. A deleted encounter answers the same as an unknown one.
+        // A soft-deleted encounter resolves to null and answers the same as an unknown one.
         $euuid = $record['euuid'] ?? null;
         $encounter = is_string($euuid) && $euuid !== ''
-            ? QueryUtils::querySingleRow(
-                'SELECT fe.`encounter`, fe.`pid` FROM `form_encounter` fe'
-                . " LEFT JOIN `forms` f ON f.`encounter` = fe.`encounter` AND f.`pid` = fe.`pid` AND f.`formdir` = 'newpatient'"
-                . ' WHERE fe.`uuid` = ? AND (f.`id` IS NULL OR f.`deleted` = 0)'
-                . ' LIMIT 1',
-                [UuidRegistry::uuidToBytes($euuid)]
-            )
+            ? EncounterService::getActiveEncounterByUuid($euuid)
             : null;
-        $encounterId = is_array($encounter) ? ($encounter['encounter'] ?? null) : null;
-        $encounterPid = is_array($encounter) ? ($encounter['pid'] ?? null) : null;
-        if (!is_numeric($encounterId)) {
+        if ($encounter === null) {
             $result = new ProcessingResult();
             $result->setValidationMessages([
                 'encounter' => 'Encounter reference could not be resolved: ' . (is_string($euuid) ? $euuid : ''),
@@ -1719,7 +1708,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
         // An encounter belonging to another patient would hang the vitals form off the
         // wrong chart, so the two references have to agree.
-        if (!is_numeric($encounterPid) || (int) $encounterPid !== (int) $pid) {
+        if ($encounter['pid'] !== (int) $pid) {
             $result = new ProcessingResult();
             $result->setValidationMessages([
                 'encounter' => 'Encounter does not belong to the patient named in Observation.subject',
@@ -1727,7 +1716,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             return $result;
         }
 
-        return ['pid' => (int) $pid, 'eid' => (int) $encounterId];
+        return ['pid' => (int) $pid, 'eid' => $encounter['encounter']];
     }
 
     /**
