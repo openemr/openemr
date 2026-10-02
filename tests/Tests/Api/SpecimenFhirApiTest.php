@@ -28,8 +28,10 @@ use Symfony\Component\HttpFoundation\Response;
  *   GET /fhir/Specimen/:uuid  (read one -> returns a single Specimen)
  *
  * There is no POST/PUT route. FhirSpecimenService reads `procedure_specimen` rows joined to
- * their `procedure_order` and patient. `deleted = 1` maps to status "entered-in-error", and a
- * search without `status` only returns specimens that are not deleted.
+ * their `procedure_order` and patient. `deleted = 1` maps to status "entered-in-error". A
+ * search without `status` only returns specimens that are not deleted, unless it names them by
+ * `_id`: whatever a search can return must also be readable by id, and the read goes through
+ * `_id`.
  *
  * Each test that needs data seeds one order (through ProcedureOrderFixtureManager, which also
  * brings the patient, encounter, lab and ordering practitioner) with two specimens, one
@@ -37,7 +39,6 @@ use Symfony\Component\HttpFoundation\Response;
  * tearDown removes them.
  *
  * OpenEMR vs FHIR conventions (tests pin current server behavior, not the spec):
- * - A deleted specimen is not readable by id (404), although `status=entered-in-error` finds it.
  * - Search bundles use type "collection" (FhirResourcesService::createBundle()), not FHIR's
  *   "searchset".
  * - Read-one errors return validationErrors (400) for a malformed uuid or an empty JSON array
@@ -197,6 +198,25 @@ class SpecimenFhirApiTest extends TestCase
         $this->assertSame([$seed['available']], $ids);
     }
 
+    /**
+     * Searching by the _id of a deleted specimen returns it, while an explicit `status` still
+     * filters: naming a specimen is not the default "not deleted" search.
+     */
+    public function testSearchByIdReturnsDeletedSpecimen(): void
+    {
+        $seed = $this->seedSpecimens();
+
+        $result = $this->testClient->get(self::ENDPOINT, ['_id' => $seed['deleted']]);
+        $this->assertSame(Response::HTTP_OK, $result->getStatusCode());
+        $ids = $this->resourceIds($this->assertSpecimenBundle($this->decodeJsonArray($result)));
+        $this->assertSame([$seed['deleted']], $ids);
+
+        $result = $this->testClient->get(self::ENDPOINT, ['_id' => $seed['deleted'], 'status' => 'available']);
+        $this->assertSame(Response::HTTP_OK, $result->getStatusCode());
+        $ids = $this->resourceIds($this->assertSpecimenBundle($this->decodeJsonArray($result)));
+        $this->assertSame([], $ids);
+    }
+
     // ---------------------------------------------------------------------
     // Read one
     // ---------------------------------------------------------------------
@@ -260,15 +280,20 @@ class SpecimenFhirApiTest extends TestCase
     }
 
     /**
-     * Reading a deleted specimen by its uuid returns 404: the read goes through the same search,
-     * which leaves deleted specimens out unless `status` asks for them.
+     * Reading a deleted specimen by its uuid returns it as entered-in-error, the same resource
+     * `status=entered-in-error` finds in a search.
      */
-    public function testGetOneDeletedSpecimen(): void
+    public function testGetOneDeletedSpecimenIsEnteredInError(): void
     {
         $seed = $this->seedSpecimens();
 
         $result = $this->testClient->getOne(self::ENDPOINT, $seed['deleted']);
-        $this->assertSame(Response::HTTP_NOT_FOUND, $result->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $result->getStatusCode());
+
+        $resource = $this->decodeJsonArray($result);
+        $this->assertSame("Specimen", $resource['resourceType'] ?? null);
+        $this->assertSame($seed['deleted'], $resource['id'] ?? null);
+        $this->assertSame("entered-in-error", $resource['status'] ?? null);
     }
 
     /**

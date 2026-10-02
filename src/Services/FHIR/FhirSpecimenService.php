@@ -89,9 +89,10 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                 $openEMRSearchParameters['deleted'] = $this->translateStatusToDeleted(
                     $openEMRSearchParameters['deleted']
                 );
-            } else {
-                // Default: exclude deleted specimens (only show 'available' status)
-                // Create a TokenSearchField for deleted = '0'
+            } elseif (!isset($openEMRSearchParameters['ps.uuid'])) {
+                // Default: exclude deleted specimens (only show 'available' status).
+                // Not when the search names specimens by _id: whatever a search can return must
+                // be readable by id, and the read (getOne()) goes through _id.
                 $openEMRSearchParameters['deleted'] = new TokenSearchField('deleted', ['0']);
             }
 
