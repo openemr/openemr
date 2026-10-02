@@ -103,10 +103,12 @@ final class ScopeConsentResolver
     }
 
     /**
-     * Keep only the resource permission scopes the client is registered for. Fails closed: with
-     * no registration, no resource permission scope survives. Non-resource scopes (openid,
-     * launch/patient, api:*, offline_access, operations) and unparsable strings are passed
-     * through to the existing grant checks, which reject them on their own terms.
+     * Keep only the scopes the client is registered for, by the same rule finalizeScopes() applies
+     * when the token is issued, so the consent screen never offers a scope that would be dropped
+     * afterwards. Resource scopes are matched by permission union (grantsScope); non-resource
+     * scopes (openid, launch/patient, api:*, offline_access, operations) must be registered as
+     * written. Fails closed: with no registration nothing survives, and a string that does not
+     * parse as a scope is dropped.
      *
      * @param list<string> $scopes
      * @param list<string> $registeredScopes
@@ -120,11 +122,6 @@ final class ScopeConsentResolver
             try {
                 $entity = ScopeEntity::createFromString($scope);
             } catch (\InvalidArgumentException) {
-                $filtered[] = $scope;
-                continue;
-            }
-            if (!$entity->isResourcePermissionScope()) {
-                $filtered[] = $scope;
                 continue;
             }
             $key = $entity->getScopeLookupKey();

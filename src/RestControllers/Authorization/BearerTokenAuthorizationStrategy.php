@@ -48,7 +48,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private TrustedUserService $trustedUserService;
 
-    private ClientRepository $clientRepository;
+    private ?ClientRepository $clientRepository = null;
 
     /**
      * @var callable|null

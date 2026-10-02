@@ -21,14 +21,30 @@ use PHPUnit\Framework\TestCase;
 
 class ScopePermissionParserIsolatedTest extends TestCase
 {
+    private bool $translationWasSet = false;
+    private bool $translationWas = false;
 
     protected function setUp(): void
     {
         // parseScopes() translates resource descriptions, and xl() reaches for the translation
         // tables unless this is set. Declared here rather than inherited from whichever class
         // happened to run first.
-        OEGlobalsBag::getInstance()->set('disable_translation', true);
+        $globals = OEGlobalsBag::getInstance();
+        $this->translationWasSet = $globals->has('disable_translation');
+        $this->translationWas = $globals->getBoolean('disable_translation');
+        $globals->set('disable_translation', true);
     }
+
+    protected function tearDown(): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+        if ($this->translationWasSet) {
+            $globals->set('disable_translation', $this->translationWas);
+        } else {
+            $globals->remove('disable_translation');
+        }
+    }
+
     private function parser(): ScopePermissionParser
     {
         return new ScopePermissionParser($this->createMock(ScopeRepository::class));

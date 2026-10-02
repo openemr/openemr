@@ -30,12 +30,28 @@ class ScopeConsentResolverIsolatedTest extends TestCase
     private const LAB = 'http://terminology.hl7.org/CodeSystem/observation-category|laboratory';
     private const VITALS = 'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs';
 
+    private bool $translationWasSet = false;
+    private bool $translationWas = false;
+
     protected function setUp(): void
     {
         // parseScopes() translates resource descriptions, and xl() reaches for the translation
         // tables unless this is set. Declared here rather than inherited from whichever class
         // happened to run first.
-        OEGlobalsBag::getInstance()->set('disable_translation', true);
+        $globals = OEGlobalsBag::getInstance();
+        $this->translationWasSet = $globals->has('disable_translation');
+        $this->translationWas = $globals->getBoolean('disable_translation');
+        $globals->set('disable_translation', true);
+    }
+
+    protected function tearDown(): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+        if ($this->translationWasSet) {
+            $globals->set('disable_translation', $this->translationWas);
+        } else {
+            $globals->remove('disable_translation');
+        }
     }
 
     /**
@@ -212,7 +228,7 @@ class ScopeConsentResolverIsolatedTest extends TestCase
         $this->assertSame($requested, $granted);
     }
 
-    public function testRegistrationFilterKeepsOnlyRegisteredResourceScopes(): void
+    public function testRegistrationFilterKeepsOnlyRegisteredScopes(): void
     {
         $filtered = (new ScopeConsentResolver())->filterToClientRegistration(
             ['openid', 'api:fhir', 'launch/patient', 'user/Patient.cruds', 'user/Goal.rs', 'patient/Observation.rs'],
@@ -222,8 +238,30 @@ class ScopeConsentResolverIsolatedTest extends TestCase
     }
 
     /**
-     * A client restored without its registration (as deserializeUserSession() produces) must
-     * not have its resource scopes waved through.
+     * Non-resource scopes are held to the registration too, so the consent screen cannot show
+     * one the client never registered (finalizeScopes() would drop it after approval).
+     */
+    public function testRegistrationFilterDropsUnregisteredNonResourceScopes(): void
+    {
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration(
+            ['openid', 'fhirUser', 'offline_access', 'api:fhir', 'api:oemr', 'launch', 'launch/patient', 'patient/DocumentReference.$docref', 'user/Patient.rs'],
+            ['openid', 'api:fhir', 'launch/patient', 'user/Patient.rs']
+        );
+        $this->assertSame(['openid', 'api:fhir', 'launch/patient', 'user/Patient.rs'], $filtered);
+    }
+
+    public function testRegistrationFilterKeepsARegisteredOperationScope(): void
+    {
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration(
+            ['patient/DocumentReference.$docref', 'system/Patient.$export'],
+            ['patient/DocumentReference.$docref']
+        );
+        $this->assertSame(['patient/DocumentReference.$docref'], $filtered);
+    }
+
+    /**
+     * A client restored without its registration (as deserializeUserSession() produces), or one
+     * deleted mid-flow, must not have any scope waved through.
      */
     public function testRegistrationFilterFailsClosedWithoutRegisteredScopes(): void
     {
@@ -231,7 +269,16 @@ class ScopeConsentResolverIsolatedTest extends TestCase
             ['openid', 'launch/patient', 'user/Patient.rs', 'patient/DocumentReference.$docref'],
             []
         );
-        $this->assertSame(['openid', 'launch/patient', 'patient/DocumentReference.$docref'], $filtered);
+        $this->assertSame([], $filtered);
+    }
+
+    public function testRegistrationFilterDropsAStringThatIsNotAScope(): void
+    {
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration(
+            ['openid', 'not a scope!', ''],
+            ['openid']
+        );
+        $this->assertSame(['openid'], $filtered);
     }
 
     /**

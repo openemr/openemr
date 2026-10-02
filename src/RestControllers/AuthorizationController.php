@@ -1367,10 +1367,27 @@ class AuthorizationController implements LoggerAwareInterface
     {
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
+        // The client restored by deserializeUserSession() carries no registration, so look it up.
+        // It can have been deleted or disabled since the consent page was shown; say so plainly
+        // rather than issuing a code no token request could redeem.
+        $clientId = $authRequest->getClient()->getIdentifier();
+        $registeredClient = $this->getClientRepository()->getClientEntity($clientId);
+        if ($registeredClient === false || !$registeredClient->isEnabled()) {
+            $this->logger->error(
+                'authorizeUser() client is no longer registered or enabled',
+                ['client_id' => $clientId]
+            );
+            $this->session->invalidate();
+            return $this->renderTwigPage(
+                'oauth2/authorize/scopes-authorize',
+                'error/general_http_error.html.twig',
+                ['statusCode' => Response::HTTP_BAD_REQUEST]
+            );
+        }
         try {
             $authRequest = $this->updateAuthRequestWithUserApprovedScopes(
                 $authRequest,
-                $this->resolveUserApprovedScopes($authRequest, $request)
+                $this->resolveUserApprovedScopes($authRequest, $request, $registeredClient)
             );
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
             $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
@@ -1448,16 +1465,15 @@ class AuthorizationController implements LoggerAwareInterface
      *
      * @return list<string>
      */
-    private function resolveUserApprovedScopes(AuthorizationRequest $authRequest, HttpRestRequest $request): array
+    private function resolveUserApprovedScopes(AuthorizationRequest $authRequest, HttpRestRequest $request, ClientEntity $registeredClient): array
     {
         $requested = array_values(array_map(
             static fn(ScopeEntityInterface $scope): string => $scope->getIdentifier(),
             $authRequest->getScopes()
         ));
-        // The client restored by deserializeUserSession() carries no registered scopes (they are
-        // not serialized), so filter against the registered client, exactly as the consent page did.
-        $registeredClient = $this->getClientRepository()->getClientEntity($authRequest->getClient()->getIdentifier());
-        $requested = $this->filterScopesToClientRegistration($requested, $registeredClient === false ? null : $registeredClient);
+        // Filter against the registered client, exactly as the consent page did; the client on
+        // the restored auth request carries no registered scopes (they are not serialized).
+        $requested = $this->filterScopesToClientRegistration($requested, $registeredClient);
 
         return (new ScopeConsentResolver())->resolve(
             $requested,
