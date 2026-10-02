@@ -201,6 +201,54 @@ class FhirObservationVitalsWriteTest extends TestCase
                 ]),
                 ['weight' => 1102.311311],
             ],
+            // FHIR gives coding order no meaning; the LOINC coding is found wherever it sits.
+            'LOINC coding after a SNOMED one is used' => [
+                self::observation([
+                    'code' => ['coding' => [
+                        ['system' => 'http://snomed.info/sct', 'code' => '364075005'],
+                        ['system' => 'http://loinc.org', 'code' => '8867-4'],
+                    ]],
+                    'valueQuantity' => ['value' => 72, 'code' => '/min'],
+                ]),
+                ['pulse' => 72],
+            ],
+            'component LOINC coding after a SNOMED one is used' => [
+                self::observation([
+                    'code' => self::loincCode('85354-9'),
+                    'component' => [
+                        [
+                            'code' => ['coding' => [
+                                ['system' => 'http://snomed.info/sct', 'code' => '271649006'],
+                                ['system' => 'http://loinc.org', 'code' => '8480-6'],
+                            ]],
+                            'valueQuantity' => ['value' => 118, 'code' => 'mm[Hg]'],
+                        ],
+                        [
+                            'code' => self::loincCode('8462-4'),
+                            'valueQuantity' => ['value' => 76, 'code' => 'mm[Hg]'],
+                        ],
+                    ],
+                ]),
+                ['bps' => 118, 'bpd' => 76],
+            ],
+            // FHIR allows several categories; vital-signs only has to be one of them.
+            'vital-signs alongside another category is accepted' => [
+                self::observation([
+                    'category' => [
+                        ['coding' => [[
+                            'system' => 'http://terminology.hl7.org/CodeSystem/observation-category',
+                            'code' => 'laboratory',
+                        ]]],
+                        ['coding' => [[
+                            'system' => 'http://terminology.hl7.org/CodeSystem/observation-category',
+                            'code' => 'vital-signs',
+                        ]]],
+                    ],
+                    'code' => self::loincCode('8867-4'),
+                    'valueQuantity' => ['value' => 72, 'code' => '/min'],
+                ]),
+                ['pulse' => 72],
+            ],
             'weight already in pounds is stored as sent' => [
                 self::observation([
                     'code' => self::loincCode('29463-7'),
@@ -351,6 +399,35 @@ class FhirObservationVitalsWriteTest extends TestCase
                 ]),
                 'component',
                 'cannot be converted to "mm[Hg]"',
+            ],
+            'a vitals code string under a non-LOINC system is not that vital sign' => [
+                self::observation([
+                    'code' => ['coding' => [['system' => 'http://snomed.info/sct', 'code' => '8867-4']]],
+                    'valueQuantity' => ['value' => 72, 'code' => '/min'],
+                ]),
+                'code',
+                'has no coding from http://loinc.org',
+            ],
+            'the service re-checks category rather than trusting the router' => [
+                self::observation([
+                    'category' => [['coding' => [[
+                        'system' => 'http://terminology.hl7.org/CodeSystem/observation-category',
+                        'code' => 'laboratory',
+                    ]]]],
+                    'code' => self::loincCode('8867-4'),
+                    'valueQuantity' => ['value' => 72, 'code' => '/min'],
+                ]),
+                'category',
+                'must include "vital-signs"',
+            ],
+            'vital-signs under the wrong category system is not accepted' => [
+                self::observation([
+                    'category' => [['coding' => [['system' => 'http://example.org/categories', 'code' => 'vital-signs']]]],
+                    'code' => self::loincCode('8867-4'),
+                    'valueQuantity' => ['value' => 72, 'code' => '/min'],
+                ]),
+                'category',
+                'must include "vital-signs"',
             ],
             'code is required' => [
                 self::observation([

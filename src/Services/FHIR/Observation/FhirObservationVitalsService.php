@@ -1219,11 +1219,46 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $data['uuid'] = $resourceId;
         }
 
-        $code = FhirPayloadReader::firstCodingCode($json['code'] ?? null);
-        if ($code === '') {
+        if (FhirPayloadReader::codingCodes($json['code'] ?? null) === []) {
             return self::vitalsValidationError('code', 'Observation.code is required (FHIR R4 1..1)');
         }
+        // Vital signs are identified by LOINC, so only LOINC codings are considered, from any
+        // position in the list. A coding from another system whose code string happens to
+        // equal a vitals LOINC code is not that vital sign.
+        $loincCodes = FhirPayloadReader::codingCodes($json['code'] ?? null, FhirCodeSystemConstants::LOINC);
+        if ($loincCodes === []) {
+            return self::vitalsValidationError(
+                'code',
+                'Observation.code has no coding from ' . FhirCodeSystemConstants::LOINC
+                . '; vital signs are identified by their LOINC code'
+            );
+        }
+        $code = $loincCodes[0];
+        foreach ($loincCodes as $loincCode) {
+            if (isset(self::VITALS_WRITE_COLUMNS[$loincCode]) || isset(self::VITALS_UNWRITABLE_CODES[$loincCode])) {
+                $code = $loincCode;
+                break;
+            }
+        }
         $data['code'] = $code;
+
+        // The router chose this service from the category, but the service does not take that
+        // on trust: anything written here reads back as category vital-signs, so the payload
+        // has to say so itself. Other categories alongside it are allowed -- FHIR lets an
+        // Observation carry several -- as long as vital-signs is one of them.
+        $categoryCodes = [];
+        foreach (FhirPayloadReader::rows($json['category'] ?? null) as $concept) {
+            foreach (FhirPayloadReader::codingCodes($concept, FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY) as $categoryCode) {
+                $categoryCodes[] = $categoryCode;
+            }
+        }
+        if (!in_array(self::CATEGORY, $categoryCodes, true)) {
+            return self::vitalsValidationError(
+                'category',
+                'Observation.category must include "' . self::CATEGORY . '" from '
+                . FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY . ' to be written as a vital sign'
+            );
+        }
 
         if (isset(self::VITALS_UNWRITABLE_CODES[$code])) {
             return self::vitalsValidationError(
@@ -1283,8 +1318,15 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         // Panel codes (blood pressure, pulse oximetry) carry their numbers in component[];
         // the single-value codes carry one valueQuantity.
         foreach (FhirPayloadReader::rows($json['component'] ?? null) as $component) {
-            $componentCode = FhirPayloadReader::firstCodingCode($component['code'] ?? null);
-            $column = self::VITALS_COMPONENT_COLUMNS[$componentCode] ?? null;
+            $componentCode = '';
+            $column = null;
+            foreach (FhirPayloadReader::codingCodes($component['code'] ?? null, FhirCodeSystemConstants::LOINC) as $loincCode) {
+                if (isset(self::VITALS_COMPONENT_COLUMNS[$loincCode])) {
+                    $componentCode = $loincCode;
+                    $column = self::VITALS_COMPONENT_COLUMNS[$loincCode];
+                    break;
+                }
+            }
             if ($column === null || !isset($spec[$column])) {
                 continue;
             }

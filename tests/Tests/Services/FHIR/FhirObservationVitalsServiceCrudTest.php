@@ -509,6 +509,25 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testAVitalSignWhoseLoincCodingIsNotFirstIsRoutedAndWritten(): void
+    {
+        // The router considers every coding and the vitals service picks the LOINC one, so a
+        // payload that lists SNOMED first is still a heart rate, not an unknown code.
+        $payload = $this->observationPayload('8867-4');
+        $payload['code'] = [
+            'coding' => [
+                ['system' => 'http://snomed.info/sct', 'code' => '364075005'],
+                ['system' => 'http://loinc.org', 'code' => '8867-4'],
+            ],
+        ];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertTrue($result->isValid(), json_encode($result->getValidationMessages()) ?: '');
+        $this->assertSame(1, $this->countVitalsRows());
+        $this->assertEqualsWithDelta(72, $this->currentPulse(), 0.001);
+    }
+
+    #[Test]
     public function testAWriteWithoutACategoryIsRejected(): void
     {
         $payload = $this->observationPayload('8867-4');

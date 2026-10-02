@@ -352,12 +352,17 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         }
 
         $json = $fhirResource->jsonSerialize();
-        $code = FhirPayloadReader::firstCodingCode($json['code'] ?? null);
-        if ($code === '') {
+        // Every coding is a candidate, not only the first: FHIR gives coding order no meaning,
+        // and a vital sign sent as [SNOMED, LOINC] is as valid as [LOINC, SNOMED]. Which coding
+        // the store actually uses -- and whether its system is one it accepts -- is the
+        // routed service's decision, made again in its own parseFhirResource().
+        $codes = FhirPayloadReader::codingCodes($json['code'] ?? null);
+        if ($codes === []) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['code' => 'Observation.code is required (FHIR R4 1..1)']);
             return $result;
         }
+        $code = implode('", "', $codes);
 
         // Category is half of the route. Codes alone overlap between stores -- 2708-6 is a
         // vital sign here and a routine arterial blood gas result in a laboratory panel -- and
@@ -391,7 +396,12 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             }
         }
         $matched = null;
-        $codeServices = $this->getServiceListForCode(new TokenSearchField('code', [$code]));
+        // With more than one category, the first store in the read path's own order that
+        // accepts both a category and a code wins, so the choice is deterministic and matches
+        // how the same resource would be found on read. The chosen service then re-checks the
+        // category it requires, so a mixed list cannot carry a resource into a store whose
+        // category it does not actually claim.
+        $codeServices = $this->getServiceListForCode(new TokenSearchField('code', $codes));
         foreach (is_array($codeServices) ? $codeServices : [] as $service) {
             if ($service instanceof FhirServiceBase && isset($acceptsCategory[$service::class])) {
                 $matched = $service;
