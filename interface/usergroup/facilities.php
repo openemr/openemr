@@ -58,13 +58,11 @@ $echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
     }
 };
 
-$facilityPostalSentence = function (string $postal, bool $billing, bool $service): string {
-    return match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service)) {
-        FacilityService::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityService::FACILITY_SAVED_BILLING_POSTAL),
-        FacilityService::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityService::FACILITY_SAVED_SERVICE_POSTAL),
-        FacilityService::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityService::FACILITY_SAVED_BOTH_POSTAL),
-        default => '',
-    };
+$facilityPostalSentence = fn (string $postal, bool $billing, bool $service): string => match (FacilityService::facilityPostalSaveNotice($postal, $billing, $service)) {
+    FacilityService::FACILITY_SAVED_BILLING_POSTAL => xl(FacilityService::FACILITY_SAVED_BILLING_POSTAL),
+    FacilityService::FACILITY_SAVED_SERVICE_POSTAL => xl(FacilityService::FACILITY_SAVED_SERVICE_POSTAL),
+    FacilityService::FACILITY_SAVED_BOTH_POSTAL => xl(FacilityService::FACILITY_SAVED_BOTH_POSTAL),
+    default => '',
 };
 
 $columns = [
