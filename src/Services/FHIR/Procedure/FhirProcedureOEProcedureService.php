@@ -26,6 +26,7 @@ use OpenEMR\Services\FHIR\Enum\EventStatusEnum;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
@@ -43,7 +44,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirProcedureOEProcedureService extends FhirServiceBase
+class FhirProcedureOEProcedureService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;

@@ -389,9 +389,7 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductContraindication xmlns="http://hl7.org/fhir"></MedicinalProductContraindication>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductContraindication xmlns="http://hl7.org/fhir"></MedicinalProductContraindication>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->subject)) {
             foreach ($this->subject as $subject) {

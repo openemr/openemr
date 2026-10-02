@@ -49,7 +49,7 @@ abstract class BaseController
     /**
      * By default, controllers have no default action
      */
-    function _action_default()
+    public function _action_default()
     {
         $this->_action_error();
     }

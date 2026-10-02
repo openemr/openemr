@@ -15,6 +15,7 @@
  */
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -48,7 +49,7 @@ function GetServiceOtherCounts(): array
 /**
  * Get Portal Alerts function
  *
- * @returns array of alerts count
+ * @return array<string, mixed> alert counts
  */
 function GetPortalAlertCounts(): array
 {
@@ -62,9 +63,9 @@ function GetPortalAlertCounts(): array
     $counts['mailCnt'] = $qrtn['count_mail'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_audits FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status LIKE ?";
-    $qrtn = sqlQueryNoLog($query, ['%waiting%']);
-    $counts['auditCnt'] = $qrtn['count_audits'] ?: "0";
+        "WHERE `m`.status = ? AND `m`.require_audit = ?";
+    $qrtn = QueryUtils::querySingleRow($query, ['waiting', 1], false);
+    $counts['auditCnt'] = $qrtn['count_audits'] ?? "0";
 
     $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
         "WHERE `m`.recip_id LIKE ? AND `m`.date > (CURRENT_DATE()-2) AND `m`.date < (CURRENT_DATE()+1)";
@@ -72,11 +73,12 @@ function GetPortalAlertCounts(): array
     $counts['chatCnt'] = $qrtn['count_chats'] ?: "0";
 
     $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
-        "WHERE `m`.status LIKE ? AND `m`.activity = ?";
-    $qrtn = sqlQueryNoLog($query, ['%waiting%', 'payment']);
-    $counts['paymentCnt'] = $qrtn['count_payments'] ?: "0";
+        "WHERE `m`.status = ? AND `m`.require_audit = ? AND `m`.activity = ?";
+    $qrtn = QueryUtils::querySingleRow($query, ['waiting', 1, 'payment'], false);
+    $counts['paymentCnt'] = $qrtn['count_payments'] ?? "0";
 
-    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'] + $counts['paymentCnt'];
+    // Payments are already included in auditCnt, so do not add them twice.
+    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'];
 
     return $counts;
 }
@@ -84,13 +86,16 @@ function GetPortalAlertCounts(): array
 /**
  * RemindersArray function
  *
- * @returns array reminders for specified user, defaults to current user if none specified
+ * @param int      $today  Unix timestamp for the start of today.
+ * @param int|null $userID Defaults to the authenticated user when null.
+ * @return array<int, array<string, mixed>> reminders for specified user
  */
-function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
+function RemindersArray(int $days_to_show, int $today, int $alerts_to_show, ?int $userID = null): array
 {
     if (!$userID) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $userID = $session->get('authUserID');
+        $sessionUserID = $session->get('authUserID');
+        $userID = is_numeric($sessionUserID) ? (int) $sessionUserID : null;
     }
 
     global $hasAlerts;
@@ -103,8 +108,8 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
             JOIN `users` u ON dr.dr_from_ID = u.id
             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
             WHERE drl.to_id = ? AND dr.`message_processed` = 0
-            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY)
-            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0," . escape_limit($alerts_to_show), [$userID]);
+            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . $days_to_show . " DAY)
+            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT ?", [$userID, $alerts_to_show]);
 
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
@@ -147,16 +152,16 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
  * This function is used to get a count of the number of reminders due for a specified
  * user.
  *
- * @param $days_to_show
- * @param $today
- * @param $userID
- * @returns int with number of due reminders for specified user
+ * @param int      $today  Unix timestamp for the start of today. Unused, kept for call compatibility.
+ * @param int|null $userID Defaults to the authenticated user when null.
+ * @return int number of due reminders for specified user
  */
-function GetDueReminderCount($days_to_show, $today, $userID = false)
+function GetDueReminderCount(int $days_to_show, int $today, ?int $userID = null): int
 {
     if (!$userID) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $userID = $session->get('authUserID');
+        $sessionUserID = $session->get('authUserID');
+        $userID = is_numeric($sessionUserID) ? (int) $sessionUserID : null;
     }
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
@@ -167,12 +172,16 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
                             WHERE drl.to_id = ?
                             AND dr.`message_processed` = 0
-                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY)",
+                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . $days_to_show . " DAY)",
         [$userID]
     );
 
     $drRow = sqlFetchArray($drSQL);
-    return $drRow['c'];
+    if (!is_array($drRow) || !is_numeric($drRow['c'] ?? null)) {
+        return 0;
+    }
+
+    return (int) $drRow['c'];
 }
 
 // ------------------------------------------------
@@ -376,8 +385,26 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
         is_numeric($patID)
     ) {
 // ------- check for valid recipient
-        $cRow = sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?', [$sendDMTo ?? '']));
-        if ($cRow == 0) {
+        // Normalize $sendTo to a list of scalar recipient IDs; callers pass
+        // arrays from the multi-select sendTo[] form field, and
+        // dated_reminders_add.php wraps single IDs as [$st] before dispatch.
+        $rawRecipients = is_array($sendTo) ? $sendTo : [$sendTo];
+        $recipientIds = array_values(array_filter($rawRecipients, is_numeric(...)));
+        // Reject the whole batch on any non-numeric entry — otherwise a mixed
+        // request like [validId, 'bad-id'] would insert only the valid recipient
+        // and return true, giving the caller silent partial fulfillment.
+        if ($recipientIds === [] || count($recipientIds) !== count($rawRecipients)) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($recipientIds), '?'));
+        $cRow = QueryUtils::querySingleRow(
+            "SELECT COUNT(id) AS cnt FROM `users` WHERE `id` IN ($placeholders)",
+            $recipientIds
+        );
+        $matchedCount = is_array($cRow) && is_numeric($cRow['cnt'] ?? null) ? (int) $cRow['cnt'] : 0;
+        // Any missing recipient rejects the whole batch — same fail-closed
+        // intent as the original single-id check, now actually enforced.
+        if ($matchedCount !== count($recipientIds)) {
             return false;
         }
 
@@ -390,7 +417,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority): 
             [$fromID, $message, $dueDate, $patID, $priority]
         );
 
-        foreach ($sendTo as $st) {
+        foreach ($recipientIds as $st) {
             sqlStatement(
                 "INSERT INTO `dated_reminders_link`
                             (`dr_id` ,`to_id`)
@@ -445,7 +472,7 @@ function logRemindersArray(): array
 
 //------------------------------------------
 // ----- HANDLE SENT TO FILTER
-    if (!empty($sentTo)) {
+    if (is_array($sentTo) && $sentTo !== []) {
         $where = ($where == '' ? '' : $where . ' AND ');
         $stCount = 0;
         foreach ($sentTo as $st) {
@@ -505,8 +532,10 @@ function logRemindersArray(): array
         $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
         $pRow = sqlFetchArray($pSQL);
 
-        $prSQL = sqlStatement("SELECT u.fname pfname, u.mname pmname, u.lname plname FROM `users` u WHERE u.id = ?", [$drRow['dr_processed_by']]);
-        $prRow = sqlFetchArray($prSQL);
+        $prRow = QueryUtils::querySingleRow(
+            "SELECT u.fname pfname, u.mname pmname, u.lname plname FROM `users` u WHERE u.id = ?",
+            [$drRow['dr_processed_by']]
+        );
 
 // --------- fill the $reminders array
         $reminders[$i]['messageID'] = $drRow['dr_id'];

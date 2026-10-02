@@ -64,8 +64,14 @@ class TreatmentPreferenceViewCard extends CardModel
                 'title' => xl('Treatment Intervention Preferences'),
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
-                'btnLink' => "javascript:toggleEditMode(true);",
-                'linkMethod' => 'html',
+                // card_base emits this as an inline `onclick`; a `javascript:`
+                // href would be stripped by |safe_href. The click itself is
+                // handled by the delegated `.js-card-toggle-edit` listener in
+                // the card template, which already calls preventDefault() —
+                // this only keeps the `#` href from jumping the page if that
+                // listener stops running.
+                'btnLink' => 'event.preventDefault();',
+                'linkMethod' => 'javascript',
                 'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]

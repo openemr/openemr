@@ -47,7 +47,7 @@ class GaclAdminApi extends GaclApi {
      * Sends the user back to a passed URL
      * @param string $url URL to return to.
      */
-    function return_page($url=""): never {
+    public function return_page($url=""): never {
         $return_page = basename((string) $url);
         header('Location: ' . OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/gacl/admin/" . $return_page);
         exit;
@@ -60,7 +60,7 @@ class GaclAdminApi extends GaclApi {
      *
      * @param mixed $rs ADODB recordset.
      */
-    function get_paging_data($rs) {
+    public function get_paging_data($rs) {
                 return [
                                 'prevpage' => $rs->absolutepage() - 1,
                                 'currentpage' => $rs->absolutepage(),

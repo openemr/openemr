@@ -200,9 +200,7 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ChargeItemDefinitionPropertyGroup xmlns="http://hl7.org/fhir"></ChargeItemDefinitionPropertyGroup>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ChargeItemDefinitionPropertyGroup xmlns="http://hl7.org/fhir"></ChargeItemDefinitionPropertyGroup>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->applicability)) {
             foreach ($this->applicability as $applicability) {

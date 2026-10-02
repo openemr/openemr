@@ -28,7 +28,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
+class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, INonPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
@@ -149,7 +149,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
     }

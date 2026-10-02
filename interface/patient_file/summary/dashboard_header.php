@@ -16,12 +16,11 @@
 
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/display_help_icon_inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 
-$twigContainer = new TwigContainer();
-$t = $twigContainer->getTwig();
+$t = ServiceContainer::getTwig();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // This file is included by other patient_file pages that set $oemr_ui and $pid

@@ -12,8 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . '/api.inc.php');
-require_once(__DIR__ . '/forms.inc.php');
 require_once(__DIR__ . '/../interface/forms/fee_sheet/codes.php');
 
 use OpenEMR\Common\Forms\FormActionBarSettings;

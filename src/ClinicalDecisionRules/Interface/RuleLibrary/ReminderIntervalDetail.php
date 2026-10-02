@@ -27,11 +27,11 @@ class ReminderIntervalDetail
      * @param int $amount
      * @param TimeUnit $timeUnit
      */
-    function __construct(public $intervalType, public $intervalRange, public $amount, public $timeUnit)
+    public function __construct(public $intervalType, public $intervalRange, public $amount, public $timeUnit)
     {
     }
 
-    function display()
+    public function display()
     {
         $display = $this->intervalRange->lbl . ": "
             . $this->amount . " " . $this->timeUnit->lbl;

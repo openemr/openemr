@@ -69,9 +69,7 @@ while ($file = sqlFetchArray($fres)) {
 
     // Store documents under their categories
     $category = $displayPath;
-    if (!isset($documents[$category])) {
-        $documents[$category] = [];
-    }
+    $documents[$category] ??= [];
     $documents[$category][] = [
         'id' => $file['id'],
         'name' => $file['name'],

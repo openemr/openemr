@@ -72,7 +72,7 @@ class InsuranceNumbers extends ORDataObject
          * Constructor sets all Insurance attributes to their default value
          */
 
-        function __construct(public $id = "")
+        public function __construct(public $id = "")
         {
             $this->_table = "insurance_numbers";
             if ($this->id != "") {
@@ -80,7 +80,7 @@ class InsuranceNumbers extends ORDataObject
             }
         }
 
-        function populate()
+        public function populate()
         {
             parent::populate();
             $ic = new InsuranceCompany($this->insurance_company_id);
@@ -88,7 +88,7 @@ class InsuranceNumbers extends ORDataObject
             $ic = null;
         }
 
-        function insurance_numbers_factory($provider_id)
+        public function insurance_numbers_factory($provider_id)
         {
             $ins = [];
             $sql = "SELECT id FROM "  . escape_table_name($this->_table) .
@@ -102,39 +102,39 @@ class InsuranceNumbers extends ORDataObject
             return $ins;
         }
 
-        function get_id()
+        public function get_id()
         {
             return $this->id;
         }
 
-        function set_id($id)
+        public function set_id($id)
         {
             if (is_numeric($id)) {
                 $this->id = $id;
             }
         }
 
-        function get_provider_id()
+        public function get_provider_id()
         {
             return $this->provider_id;
         }
 
-        function set_provider_id($num)
+        public function set_provider_id($num)
         {
             $this->provider_id = $num;
         }
 
-        function get_insurance_company_id()
+        public function get_insurance_company_id()
         {
             return $this->insurance_company_id;
         }
 
-        function set_insurance_company_id($num)
+        public function set_insurance_company_id($num)
         {
             $this->insurance_company_id = $num;
         }
 
-        function get_insurance_company_name()
+        public function get_insurance_company_name()
         {
             if (empty($this->insurance_company_name)) {
                 return "Default";
@@ -143,52 +143,52 @@ class InsuranceNumbers extends ORDataObject
             return $this->insurance_company_name;
         }
 
-        function get_provider_number()
+        public function get_provider_number()
         {
             return $this->provider_number;
         }
 
-        function set_provider_number($num)
+        public function set_provider_number($num)
         {
             $this->provider_number = $num;
         }
 
-        function get_rendering_provider_number()
+        public function get_rendering_provider_number()
         {
             return $this->rendering_provider_number;
         }
 
-        function set_rendering_provider_number($num)
+        public function set_rendering_provider_number($num)
         {
             $this->rendering_provider_number = $num;
         }
 
-        function get_group_number()
+        public function get_group_number()
         {
             return $this->group_number;
         }
 
-        function set_group_number($num)
+        public function set_group_number($num)
         {
             $this->group_number = $num;
         }
 
-        function get_provider_number_type()
+        public function get_provider_number_type()
         {
             return $this->provider_number_type;
         }
 
-        function set_provider_number_type($string)
+        public function set_provider_number_type($string)
         {
             $this->provider_number_type = $string;
         }
 
-        function get_rendering_provider_number_type()
+        public function get_rendering_provider_number_type()
         {
             return $this->rendering_provider_number_type;
         }
 
-        function set_rendering_provider_number_type($string)
+        public function set_rendering_provider_number_type($string)
         {
             $this->rendering_provider_number_type = $string;
         }

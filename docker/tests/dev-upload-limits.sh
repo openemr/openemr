@@ -8,12 +8,13 @@ checked=0
 maximum_post_bytes=0
 
 # Keep these version ranges deliberately narrow. They cover current flex
-# (8.3-8.5), current dev-FPM and dev-FPM-redis pairs (8.1-8.6), and the stock
-# development-easy-redis config. Historical dev-FPM 5.x-8.0 and production
+# (8.3-8.5), current dev-FPM images (8.2-8.6) with their paired plain +
+# redis-flavored php.ini files under php-ini/{,redis/}, and the stock
+# development-easy-redis config. Historical dev-FPM 5.x-8.1 and production
 # binary/release configs are intentionally excluded, as are unrelated generic
 # prebuild data/php.ini files.
 flex_versions="8.3 8.4 8.5"
-dev_fpm_versions="8-1 8-2 8-3 8-4 8-5 8-6"
+dev_fpm_versions="8-2 8-3 8-4 8-5 8-6"
 
 ini_bytes() {
     awk -v setting="$1" '
@@ -80,8 +81,8 @@ for version in ${flex_versions}; do
 done
 
 for version in ${dev_fpm_versions}; do
-    normal="docker/library/dockers/dev-php-fpm-${version}/php.ini"
-    redis="docker/library/dockers/dev-php-fpm-${version}-redis/php.ini"
+    normal="docker/library/dockers/dev-php-fpm-${version}/php-ini/php.ini"
+    redis="docker/library/dockers/dev-php-fpm-${version}/php-ini/redis/php.ini"
     if [ ! -f "${repo_root}/${normal}" ] || [ ! -f "${repo_root}/${redis}" ]; then
         echo "Missing normal/redis development PHP config pair for ${version}" >&2
         exit 1

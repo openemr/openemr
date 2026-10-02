@@ -17,11 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../_rest_routes.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Smarty\\:\\:\\$template_dir \\(array\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property C_Prescription\\:\\:\\$prescriptions \\(array\\<Prescription\\>\\) does not accept array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
@@ -75,16 +70,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Forms\\\\NewPatient\\\\C_EncounterVisitForm\\:\\:\\$mode \\(string\\) does not accept string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property C_FormPriorAuth\\:\\:\\$template_dir \\(array\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/prior_auth/C_FormPriorAuth.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property C_FormROS\\:\\:\\$template_dir \\(array\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/ros/C_FormROS.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property C_FormVitals\\:\\:\\$interpretationsList \\(array\\) does not accept mixed\\.$#',
@@ -589,11 +574,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Narrative \\(string\\) does not accept mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$PatientId \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
@@ -1792,11 +1772,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\FhirMedicationService\\:\\:\\$medicationService \\(OpenEMR\\\\Services\\\\FHIR\\\\MedicationService\\) does not accept OpenEMR\\\\Services\\\\DrugService\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\FHIR\\\\FhirPatientService\\:\\:\\$cachedListOptions \\(array\\<string, array\\>\\) does not accept array\\<array\\>\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
@@ -1822,7 +1797,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept array\\<string, array\\<string, string\\>\\>\\.$#',
+    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept array\\<array\\<string, string\\>\\|string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',
 ];

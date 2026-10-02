@@ -26,6 +26,7 @@ phase that owns the affected area.
 - [Proposed model](#proposed-model)
 - [Test surfaces after the migration](#test-surfaces-after-the-migration)
 - [What lives where (concrete)](#what-lives-where-concrete)
+- [Invocation contexts reference](#invocation-contexts-reference)
 - [What stays unchanged](#what-stays-unchanged)
 - [Phased plan](#phased-plan)
 - [Test-coverage philosophy](#test-coverage-philosophy)
@@ -182,8 +183,15 @@ Deleted:
 
 ### `tests/Acceptance/`
 
-New PSR-4 namespace, likely `OpenEMR\Tests\Acceptance\`. Directory
-sketch:
+New PSR-4 namespace, `OpenEMR\Tests\Acceptance\`.
+
+**Historical sketch** — the Phase-1 aspirational directory shape below
+predates the phased shipping. Some names (`ArtifactClient`,
+`ArtifactDatabase`, `DataSeed/`, `Assertions/`) never materialized;
+the flat test-file layout was reorganized into six subdirs in Item 6.
+See the [Invocation contexts reference](#invocation-contexts-reference)
+below for the actual current state (shipped tests, groups, and how
+they map to workflow scenarios).
 
 ```
 tests/Acceptance/
@@ -248,14 +256,14 @@ steps:
   - checkout
   - install composer deps for acceptance harness on the runner
   - boot docker/production/docker-compose.yml with the scenario's tag
-  - run acceptance harness --group=fresh-install (against the tag)
+  - run acceptance harness --group=post-install (against the tag)
 
 # --- scenario: upgrade (from_tag -> to_tag) ---
 steps:
   - checkout
   - install composer deps for acceptance harness on the runner
   - boot docker/production/docker-compose.yml with FROM_TAG
-  - run acceptance harness --group=fresh-install (against from_tag)
+  - run acceptance harness --group=post-install (against from_tag)
   - seed reference data via harness
   - docker compose down (preserve volumes)
   - swap image to to_tag
@@ -277,7 +285,7 @@ steps:
   - install composer deps for acceptance harness on the runner
   - download or build from-tarball, extract to /tmp/openemr-from
   - boot generic stack (mariadb + php-apache) with mount pointing at /tmp/openemr-from
-  - run acceptance harness --group=fresh-install
+  - run acceptance harness --group=post-install
   - seed reference data
   - stop app container (keep DB + sites/ volume)
   - download or build to-tarball, extract to /tmp/openemr-to
@@ -311,6 +319,173 @@ Shared harness compose files under `.github/docker/`:
   - MariaDB service (matching production-supported version)
   - php:${VER}-apache image with required extensions installed
   - Volume mounts driven by env vars
+
+## Invocation contexts reference
+
+Authoritative mapping between "how the workflow got invoked" and "what
+runs against what." Skim this to answer the recurring contributor
+question: *if I add a test tagged `#[Group('post-upgrade')]`, when and
+where will it fire, and what expected-version signal will it see?* The
+plan sections above document how the surface grew; this section
+documents the surface as it stands today.
+
+Every fact in this section is grounded in a specific file — no
+speculation. When it drifts (e.g. a new scenario, a new group, a new
+env var), update this section in the same PR.
+
+_As-of: 2026-09-23 (post-Item-6)._
+
+### Trigger contexts
+
+Both workflows fire from five trigger shapes. The trigger determines
+the artifact source and the expected-version signal. Package source-
+side changes (`tools/release/**` / `build.xml` / `.gitattributes`) can
+expand the scenario matrix from its default (fresh-install + wizard-
+install) up to the full four scenarios. Docker source-side changes
+(`docker/release/**`) keep the default three-scenario matrix (fresh-
+install-from + fresh-install-to + upgrade) and add a `build-image`
+job that produces the `pr-built` image the matrix cells then load.
+
+**`acceptance-package.yml`** (tarball / zip artifacts):
+
+| # | Trigger | Artifact source | Expected-version source | Matrix |
+|---|---------|-----------------|-------------------------|--------|
+| 1 | `schedule` (10:00 UTC daily) | GitHub Releases tarball at `to_version` | `detect-acceptance-mode.sh` emits `EXPECTED_VERSION` from shipped-version manifest | Default (fresh-install + wizard-install; no upgrade) |
+| 2 | `push` (see paths + branch exclusions below) | Same as (1) unless `tools/release/**` / `build.xml` / `.gitattributes` diff triggers `build_locally=true` → PR-built via `PackageAssembler` | Shipped tag OR synthetic `99.99.99` on build_locally | Default → Expanded when build_locally |
+| 3 | `pull_request` (same paths as push) | Same detection as (2) | Same | Same |
+| 4 | `workflow_dispatch` | Shipped OR build_locally per operator input | Operator `to_version` input, else defaults per (1)/(2) | Expanded (all 4 scenarios) |
+| 5 | `workflow_call` (from `build-release.yml` Phase 7c gate + `acceptance-only.yml` recovery) | Caller-supplied tarball artifact (`caller_tarball_artifact` input) | Caller `to_version` input | Expanded |
+
+*Push/PR paths filter:* `.github/workflows/acceptance-package.yml`, `.github/docker/acceptance-package-compose.yml`, `tests/Acceptance/**`, `composer.json`, `composer.lock`, `tools/release/**`, `build.xml`, `.gitattributes`.
+
+*Push branch exclusions:* `branch-cut/**`, `patch-prep/**`, `release-prep/**`, `release-finalize/**`, `dependabot/**`. peter-evans and dependabot both push+PR in one motion, so the push run would duplicate the PR run against a stale artifact source; the exclusion keeps the pull_request run only.
+
+**`acceptance-docker.yml`** (Docker Hub images):
+
+| # | Trigger | Artifact source | Expected-version source | Matrix |
+|---|---------|-----------------|-------------------------|--------|
+| 1 | `schedule` (09:00 UTC daily) | Docker Hub `openemr/openemr:latest` (from) + `:next` (to) | OCI label `org.opencontainers.image.version` on the running image (X.Y.Z prefix); `version.php` fallback | Default (fresh-install-from + fresh-install-to + upgrade) |
+| 2 | `push` (see paths + branch exclusions below) | Same as (1) unless `docker/release/**` diff triggers `build_locally=true` → `pr-built` image via `build-image` job | Same OCI-first path (OCI label may be empty on `pr-built` → `version.php` fallback fires) | Default → adds `build-image` when build_locally |
+| 3 | `pull_request` (same paths as push) | Same detection as (2) | Same | Same |
+| 4 | `workflow_dispatch` | Docker Hub OR `pr-built` per operator input | Same OCI-first path | Default (operator picks tags) |
+| 5 | `workflow_call` (from `docker-build-release.yml` Phase 7c-docker gate + `docker-acceptance-only.yml` recovery) | Caller-supplied `pr-built` image (docker-load'd from build-image artifact) | Same | Default |
+
+*Push/PR paths filter:* `.github/workflows/acceptance-docker.yml`, `.github/docker/acceptance-docker-compose.yml`, `tests/Acceptance/**`, `composer.json`, `composer.lock`, `docker/release/**`.
+
+*Push branch exclusions:* same set as package (`branch-cut/**`, `patch-prep/**`, `release-prep/**`, `release-finalize/**`, `dependabot/**`), same rationale.
+
+**Key differences between the two workflows:**
+
+- Package resolves expected version at the workflow level (env
+  `EXPECTED_VERSION` set once by `detect-mode` job, passed through the
+  `run-acceptance-group` action). Docker resolves per-cell after boot
+  (OCI label read via `docker inspect`; `version.php` fallback only
+  when OCI is missing or malformed) — the image being tested may not
+  match the workflow's checkout, so cell-time resolution is needed.
+- Package treats `wizard-install` and `wizard-upgrade` as first-class
+  scenarios in the expanded matrix. Docker doesn't yet (friction point
+  #7 in the refactor plan).
+- Docker's `upgrade` scenario has an [auto-skip
+  path](../.github/scripts/detect-upgrade-cell-skip.sh) for
+  between-cycles master state (Item 4); package has no equivalent
+  because tarball upgrades resolve `from_version` from
+  `sql/*-to-*_upgrade.sql`, which always includes a valid ancestor.
+- Docker's `require_upgrade_cell` input (Item 4 followup) flips the
+  auto-skip from silent to loud when the caller is in *release mode*
+  — set true by `release-prep.yml`'s dispatch, `docker-build-
+  release.yml`'s acceptance-gate, and `docker-acceptance-only.yml`'s
+  recovery reusable. Any of those callers hitting a skip criterion
+  fails the workflow with a descriptive error instead of publishing
+  an artifact whose auto-upgrade path was never validated. Scheduled
+  runs and push/PR triggers can't override the default false. Operator
+  `workflow_dispatch` runs default to false but can be set true from
+  the Actions UI when the operator wants the same guardrail for a
+  manual re-run (e.g. investigating whether a specific tag pairing
+  legitimately triggers a skip vs. represents a broken setup).
+  Package has no equivalent because its skip mode is already loud
+  (matrix-level cells missing from the run count) rather than silent.
+
+### Scenario → step sequence
+
+For each `matrix.scenario` value, the step sequence a cell walks. All
+scenarios use the shared [`run-acceptance-group`
+composite](../.github/actions/run-acceptance-group/action.yml) to
+invoke a group (sets `ACCEPTANCE_EXPECTED_VERSION` from the caller,
+runs `composer acceptance -- --group=<group>`).
+
+**Package workflow (`acceptance-package.yml`):**
+
+| Scenario | Steps |
+|----------|-------|
+| `fresh-install` | boot `to_version` artifact → `--group=post-install` → [`api-enable-artifact`](../.github/actions/api-enable-artifact/action.yml) → `--group=api-enabled-post-install` |
+| `wizard-install` | boot `to_version` artifact → **first invocation:** `--group=wizard-completed-post-install` (Panther drives wizard, PHPUnit exits) → **second invocation, fresh PHPUnit process:** `--group=post-install` (HTTP-only business tests). Two-invocation split (Item 2.5) works around Panther leaving server-side state that breaks subsequent HTTP tests in the same process. |
+| `upgrade` | boot `from_version` artifact → `--group=post-install` (seeds persistence fixtures) → seed post-install data → down + boot `to_version` (auto-upgrade runs) → `--group=post-upgrade` → `api-enable-artifact` → `--group=api-enabled-post-upgrade` |
+| `wizard-upgrade` | boot `from_version` → wizard install → seed → boot `to_version` (auto-upgrade) → `--group=wizard-completed-post-upgrade` → `--group=post-upgrade` |
+
+**Docker workflow (`acceptance-docker.yml`):**
+
+| Scenario | Steps |
+|----------|-------|
+| `fresh-install-from` | boot `from_tag` image → resolve version (OCI/`version.php`) → `--group=post-install` → `api-enable-artifact` → `--group=api-enabled-post-install` |
+| `fresh-install-to` | boot `to_tag` image → same downstream as `fresh-install-from` |
+| `upgrade` | [detect skip](../.github/scripts/detect-upgrade-cell-skip.sh) → if skip=true, all downstream steps show `skipped`; else: boot `from_tag` → resolve version → `--group=post-install` → down + boot `to_tag` (auto-upgrade runs) → re-resolve version against `to_tag` → `--group=post-upgrade` → `api-enable-artifact` → `--group=api-enabled-post-upgrade` |
+
+Only the `upgrade` scenario gates on the skip check — the two
+`fresh-install-*` scenarios still exercise both images independently
+when `upgrade` is skipped, so image-side signal is preserved.
+
+### Group → tests → scenario cells
+
+PHPUnit `--group` filters drive which tests run in each cell. Tests
+declare their groups via `#[Group('<name>')]` attributes on the class
+or method.
+
+| Group | Tests | Fired by |
+|-------|-------|----------|
+| `post-install` | 14 classes covering fresh installer output: `Aa`, `Appointment`, `Bb`, `Dd`, `Document`, `E2e`, `Ff`, `Fhir`, `FrontPayment`, `Gg`, `Install`, `Kk`, `OAuth2Smoke`, `VersionDisplay` | package `fresh-install` + `upgrade`(from-side) + `wizard-install`(second invocation); docker `fresh-install-*` + `upgrade`(from-side) |
+| `post-upgrade` | 14 classes: same as `post-install` minus `Install`, plus `UpgradeIntegrity` | package `upgrade`(to-side) + `wizard-upgrade`(to-side); docker `upgrade`(to-side) |
+| `wizard-completed-post-install` | `InstallWizardUiTest` | package `wizard-install`(first invocation) |
+| `wizard-completed-post-upgrade` | `UpgradeWizardUiTest` | package `wizard-upgrade`(after upgrade) |
+| `api-enabled-post-install` | `ApiSmokeTest`, `OAuth2ApiEnabledTest`, `VersionApiAcceptanceTest` | package `fresh-install` after `api-enable`; docker `fresh-install-*` after `api-enable` |
+| `api-enabled-post-upgrade` | Same 3 tests, post-upgrade context | package `upgrade` after `api-enable`; docker `upgrade` after `api-enable` |
+
+Two-tag pattern: tests that should run in both a fresh-install and an
+upgrade scenario declare both `#[Group('post-install')]` and
+`#[Group('post-upgrade')]` (PHPUnit's `--group` is OR-semantics, so
+one method declaration lands in both groups). Persistence tests split
+their fresh-vs-post assertions into separate methods with per-scenario
+tags — Item 2 established this pattern to close the silent-upgrade-
+data-loss masking hole.
+
+### AcceptanceContext env contract
+
+Tests read runtime context via [`AcceptanceContext`
+](../tests/Acceptance/Support/AcceptanceContext.php) — a static
+resolver over three distinct `ACCEPTANCE_*` env vars (four accessors;
+`expectedVersion()` and `hasExpectedVersion()` both read the same
+env). Fails fast on missing or malformed input so a plumbing bug
+(workflow forgot to set the env) surfaces as a clear diagnostic, not
+a business-assertion failure with a misleading error.
+
+| Env var | Accessor | Set by | Behavior on unset |
+|---------|----------|--------|-------------------|
+| `ACCEPTANCE_EXPECTED_VERSION` | `expectedVersion(): string` — asserts `X.Y.Z` shape | `run-acceptance-group` composite `expected_version` input, driven by package's `EXPECTED_VERSION` workflow env OR docker's per-cell resolve step | `RuntimeException` "must set this so the test knows which version to assert against" |
+| `ACCEPTANCE_EXPECTED_VERSION` | `hasExpectedVersion(): bool` — soft probe | (same) | Returns `false` |
+| `ACCEPTANCE_ARTIFACT_URL` | `artifactUrl(): string` — trailing slash stripped | Package workflow env sets the compose port for the tarball harness; docker uses the accessor default | Default `http://localhost:8580` |
+| `ACCEPTANCE_TRUST_SELF_SIGNED` | `trustSelfSigned(): bool` — allowlist strings only | Not currently set in CI; hook for HTTPS harnesses | Returns `false` |
+
+Tests **must not** call `getenv('ACCEPTANCE_*')` directly. The
+accessor's fail-fast + normalization contract only holds if every
+consumer routes through the resolver.
+
+### Reading this section
+
+To answer "will my new test run in context X?": look up the test's
+group tag in the **Group → tests** table, then the scenario cell in
+the **Scenario → step sequence** table, then the trigger in the
+**Trigger contexts** table. If none of the trigger contexts match your
+target, that context isn't wired — file a plan-doc friction point (or
+add the wiring in a targeted PR).
 
 ## What stays unchanged
 
@@ -350,8 +525,8 @@ insertions:
 [openemr/openemr#13149](https://github.com/openemr/openemr/pull/13149).
 Delivered:
 - Planning doc landed for community discussion (this doc, draft PR #12811)
-- `tests/Acceptance/InstallTest.php` + `Support/ArtifactBrowser.php`
-  + `phpunit.acceptance.xml` + `bootstrap.php`
+- `tests/Acceptance/Install/InstallTest.php` + `Support/ArtifactBrowser.php`
+  + `phpunit.acceptance.xml` + `bootstrap.php` (Install/ subdir added in Item 6)
 - `.github/docker/acceptance-docker-compose.yml` compose override
 - `tests/Acceptance/bin/boot-docker.sh` + `down-docker.sh` laptop helpers
 - Symfony BrowserKit (`HttpBrowser`) — no Selenium needed for the
@@ -370,7 +545,7 @@ Delivered:
   matrix (fail-fast disabled): `fresh-install-from` (default
   `latest`), `fresh-install-to` (default `next`), `upgrade`
   (`from_tag` → `to_tag` with volume-preserving swap).
-- `tests/Acceptance/UpgradeIntegrityTest.php` — post-upgrade admin
+- `tests/Acceptance/Upgrade/UpgradeIntegrityTest.php` — post-upgrade admin
   login validation (session storage survived, users table intact,
   `token_main` machinery functional).
 - `tests/Acceptance/Support/ResponseHeaders.php` — shared BrowserKit
@@ -561,6 +736,82 @@ packaged codebase — the shipped self-reported version comes from
 from the checked-out ref. Using the workflow's `to_version` value
 keeps the artifact filename aligned with what `boot-package.sh`'s
 `<version>` arg + scratch-dir naming expects downstream.
+
+**`TO_VERSION` (label) vs `EXPECTED_VERSION` (actual) split**
+(openemr/openemr#13753): downstream of the label-is-cosmetic
+principle above, the version-display / version-api acceptance
+groups compare the running artifact's self-reported version
+against `ACCEPTANCE_EXPECTED_VERSION`. That env var is populated
+from `detect-mode.outputs.expected_version` (not `to_version`)
+precisely because on `build_locally=true` the two diverge — label
+stays `99.99.99` (cosmetic; drives filenames) while
+`expected_version` reads the checkout's `version.php` (what
+`sql_upgrade.php` actually writes to the DB `version` table). On
+the shipped-tarball path the two are equal (label = actual) because
+the release process bumps `version.php` in the checkout tree to the
+release version BEFORE packaging — so the tarball ships with
+`version.php` already equal to its download-URL label. The equality
+comes from the release-prep flow, NOT from `PackageAssembler` baking
+`--release-version` into anything (see the paragraph above; the
+assembler ships `version.php` as-is from the checked-out ref). On
+build_locally there is no release-prep pass, so `version.php` stays
+at whatever the checkout has (e.g. `8.4.0`) while the label defaults
+to the synthetic `99.99.99` — hence the divergence. Coupling the
+assertion to `TO_VERSION` — the pattern that #13635 originally
+shipped, and #13753 later corrected — made the acceptance groups
+un-passable on `build_locally=true`. Do not re-couple.
+
+**Follow-up fix (openemr/openemr#13786)**: #13761 covered the six
+workflow-level `ACCEPTANCE_EXPECTED_VERSION` sites (the PHPUnit
+version-display / version-api groups) but missed the two identical
+shell-level DB assertions in `boot-package.sh` and `upgrade-package.sh`,
+which compared `DB_VERSION` against their positional `VERSION` /
+`TO_VERSION` args (i.e. the cosmetic label). Same divergence, same
+symptom (`post-install DB version '8.4.0' does not match expected
+'99.99.99'`), same failure mode as before the label-vs-actual split
+was recognized. Follow-up makes both shell guards read
+`ACCEPTANCE_EXPECTED_VERSION` env if set (falling back to the
+positional arg for dev-time standalone runs), and promotes
+`ACCEPTANCE_EXPECTED_VERSION` from per-step assignments to a job-level
+env so both the PHPUnit consumers and the shell scripts see the same
+value automatically. Discovered by a `workflow_dispatch -f
+build_locally=true` smoke test against master post-#13761 merge —
+that PR's own CI hadn't exercised the build_locally path because
+#13761 didn't touch `tools/release/**`.
+
+**Second follow-up (openemr/openemr#13790)** discovered by re-running
+the same smoke test after #13786 landed: the About page displays
+`SoftwareVersion::__toString()` which returns
+`"{base}[{tag}][.{realpatch}]"`, so on master (with `$v_tag='-dev'`)
+it renders `8.4.0-dev` while the DB `version` table only holds `8.4.0`
+(schema has no v_tag column). `ACCEPTANCE_EXPECTED_VERSION` intentionally
+stays at X.Y.Z shape (uniform with the DB + `/api/version` assertions,
+both of which return X.Y.Z), and `VersionDisplayAcceptanceTest` was
+updated to compare against the X.Y.Z prefix of the About page's
+displayed value — dropping the mid-cycle suffix. On shipped tarballs
+release-prep sets `$v_tag=''` + `$v_realpatch=0`, so the strip is a
+no-op there; the divergence only shows up on `build_locally=true`
+against a dev-tagged checkout.
+
+**Third follow-up (openemr/openemr#13791)** cleaned up a related
+ergonomic bug in the same code path: the workflow's `to_version`
+`workflow_dispatch` input had been `required: true` with
+`default: '8.2.0'`. On a manual dispatch with `-f build_locally=true`
+but no `-f to_version=`, the input default (`8.2.0`) still overrode
+`emit_to_version`'s build_locally branch (which would otherwise
+resolve to `99.99.99`, matching the auto-fire path). The stale
+default also drove downgrade failures when the derived `from_version`
+was >= `8.2.0` (e.g., `8.3.0` on master → 4 of 8 acceptance jobs
+tripped `upgrade-package.sh`'s ordering guard for reasons unrelated
+to what the operator was actually testing). The `workflow_call`
+variant of the same input already had the correct shape
+(`required: false`, `default: ''`); the two triggers had diverged
+and `workflow_dispatch` never got updated. Matched `workflow_call`'s
+shape — `emit_to_version`'s `[[ -n "${DISPATCH_TO_VERSION}" ]]`
+guard already handled empty, so no shell script or downstream
+changes needed. Explicit `-f to_version=X.Y.Z` still wins over the
+empty default. Answer to "why isn't `to_version` required?" for
+future readers.
 
 Exit criterion (met): end-to-end `build_locally=true` demo on a
 real runner produced 6/6 green — `detect-mode`, `build-tarball`
@@ -2579,6 +2830,24 @@ openemr/openemr#13635 (three signals: DB via shell, About page via
 Panther, `/apis/default/api/version` via Panther) required workarounds
 whose shape teaches the wrong pattern for future contributors.
 
+**Update 2026-09-13 — priority signal from the 8.4.0 ship:** The 8.4.0
+ship-day cascade (see [`release-mechanism-gaps.md` G35](release-mechanism-gaps.md#g35--first-ship-of-840-surfaced-3-latent-acceptance-recovery-bugs-in-cascade--discovered-2026-09-13-all-shipped-2026-09-13))
+exposed a related failure mode adjacent to the group-tag / workflow-isolation
+coupling this refactor is designed to eliminate. The chain: the
+`version-display` group was introduced (in openemr/openemr#13635) precisely
+because `acceptance-docker.yml` cannot resolve floating tags to `X.Y.Z`
+at runtime, forcing a workaround-based plumbing of
+`ACCEPTANCE_EXPECTED_VERSION` through `detect-acceptance-mode.sh`; a
+later refactor of that plumbing (openemr/openemr#13761) introduced the
+workflow_call gate bug that made every acceptance-gate cell fail on
+8.4.0's ship. Root cause of G35 was specifically the plumbing refactor
+(fixed by openemr/openemr#13974), not the coupling itself — but the
+workaround plumbing existed only because the coupling forced it. So the
+refactor below wouldn't have prevented G35 directly, but it removes the
+class of workaround that turned into G35's regression surface. Bumps this
+from "when there's time" to "cost of NOT doing this compounds with every
+release cycle" as more workarounds accumulate in the same shape.
+
 ### Motivating problem
 
 Group tags on acceptance tests do three unrelated jobs at once:
@@ -2607,50 +2876,12 @@ surfaced during #13635's design:
 
 ### Current-state snapshot
 
-**Invocation contexts (`acceptance-package.yml`):**
-
-| # | Trigger | Artifact source | Version signal | Matrix |
-|---|---------|-----------------|----------------|--------|
-| 1 | schedule (daily) | GitHub Releases tarball | `TO_VERSION` default | Default (install-only) |
-| 2 | push (paths filter) | GitHub Releases tarball | Same | Default |
-| 3 | pull_request (paths filter) | GitHub Releases tarball | Same | Default |
-| 4 | push/PR touching `tools/release/**` | PR-built via PackageAssembler | Synthetic `99.99.99` | Expanded |
-| 5 | `release-prep/*` branch | PR-built | Parsed from PR title | Expanded |
-| 6 | workflow_dispatch | GitHub OR PR-built | Operator input | Expanded |
-| 7 | workflow_call (build-release.yml Phase 7c) | Caller artifact | Caller `to_version` | Expanded |
-| 8 | workflow_call (acceptance-only.yml Phase 9) | Same replayed | Same | Expanded |
-
-Plus per-branch `FROM_VERSION` derivation from `sql/*-to-*_upgrade.sql`
-× shipped-versions manifest (#13630).
-
-**Invocation contexts (`acceptance-docker.yml`):**
-
-| # | Trigger | Artifact source | Version signal | Matrix |
-|---|---------|-----------------|----------------|--------|
-| 1 | schedule (daily) | Docker Hub `:latest` + `:next` | Floating tag — no `X.Y.Z` resolution | Default |
-| 2 | push/PR (paths filter) | Docker Hub tags | Same | Default |
-| 3 | workflow_dispatch | Docker Hub OR PR-built image | Operator tag input | Expanded |
-| 4 | workflow_call (docker-build-release.yml) | PR-built image | Caller `to_tag` | Expanded |
-| 5 | workflow_call (docker-acceptance-only.yml) | Same | Same | Expanded |
-
-**Group → tests (as of 2026-08-20):**
-
-| Group | Tests |
-|-------|-------|
-| `fresh-install` | Aa, Appointment, Bb, Dd, Document, E2e, Ff, Fhir, FrontPayment, Gg, Install, Kk, OAuth2Smoke |
-| `post-upgrade` | Same 13 minus `InstallTest`, plus `UpgradeIntegrity` |
-| `wizard-install` | `InstallWizardUiTest` |
-| `wizard-upgrade` | `UpgradeWizardUiTest` |
-| `api-enabled` | `ApiSmokeTest`, `OAuth2ApiEnabledTest` |
-| `version-display` (workaround, #13635) | `VersionDisplayAcceptanceTest` |
-| `version-api` (workaround, #13635) | `VersionApiAcceptanceTest` |
-
-**Group invocation per scenario (package workflow):**
-
-- `fresh-install` scenario → `--group=fresh-install` → `api-enable.php` → `--group=api-enabled` → (post-#13635) `--group=version-display` + `--group=version-api`
-- `wizard-install` scenario → `--group=wizard-install` → (post-#13635) `--group=version-display`
-- `upgrade` scenario → `--group=fresh-install` (against from) → upgrade → `--group=post-upgrade` → (post-#13635) `--group=version-display` + `api-enable.php` + `--group=api-enabled` + `--group=version-api`
-- `wizard-upgrade` scenario → `--group=wizard-upgrade` → (post-#13635) `--group=version-display`
+For the authoritative "what runs where" mapping (triggers, scenarios,
+groups, env contract) as of the latest Item, see the
+[Invocation contexts reference](#invocation-contexts-reference)
+section above. This subsection historically held pre-refactor
+snapshots that captured the friction below; the reference section now
+supersedes them.
 
 ### Friction points captured
 
@@ -2659,17 +2890,19 @@ Plus per-branch `FROM_VERSION` derivation from `sql/*-to-*_upgrade.sql`
 3. `api-enabled` post-upgrade coverage gap (partially closed in #13635 for package workflow; docker workflow still has the gap).
 4. Group tags overloaded across three concerns (scenario timeline, runtime state, workflow isolation).
 5. Workflow YAML duplication — both workflows walk the same boot→group→api-enable→group shape independently, with drift risk (e.g., #13635 added post-upgrade api-enable to package only).
-6. No mapping-doc reference table for "what runs where" — contributors have to grep both workflows to understand a test's blast radius.
+6. No mapping-doc reference table for "what runs where" — contributors have to grep both workflows to understand a test's blast radius. **(Closed by Item 5, see [Invocation contexts reference](#invocation-contexts-reference) above.)**
 7. Docker workflow's default matrix excludes wizard-* — a wizard-flow regression on `:latest` wouldn't fire outside dispatch.
 
 ### Refactor items (proposed, in priority order)
 
-**Item 1: `AcceptanceContext` support class** *(highest leverage, smallest surface)*
+**Item 1: `AcceptanceContext` support class** *(highest leverage, smallest surface)* — **SHIPPED (openemr/openemr#TBD, 2026-09-21)**
 Central resolver for "what am I running against?" — expected version, base URL, feature-flag state, scenario name — read from a common `ACCEPTANCE_*` env contract. Tests call `AcceptanceContext::expectedVersion()` instead of `getenv('ACCEPTANCE_EXPECTED_VERSION')`. Fail-fast diagnostic if the context isn't ready (rather than tests failing at their business assertions).
+
+As-shipped scope: three existing `ACCEPTANCE_*` env reads consolidated (`ACCEPTANCE_EXPECTED_VERSION` with X.Y.Z shape check + fail-fast; `ACCEPTANCE_ARTIFACT_URL` with default + trailing-slash strip; `ACCEPTANCE_TRUST_SELF_SIGNED` opt-in). `VersionApiAcceptanceTest` + `VersionDisplayAcceptanceTest` migrated as first direct consumers; `ArtifactBrowser` migrated internally (its `baseUrl()` + client-construction API unchanged for the ~15 other consumers). 19 isolated tests pin the resolver behavior (env-set / unset / empty / malformed / dev-suffix leak / trailing-slash strip / trust-string allowlist). Feature-flag / scenario-name / workflow-context accessors deferred to Items 2/3 as originally scoped.
 
 Migration path: introduce class, migrate `VersionDisplayAcceptanceTest` + `VersionApiAcceptanceTest` as the first consumers (they're already env-aware), then adopt in future tests. Existing tests can migrate opportunistically.
 
-**Item 2: Split scenario-timeline from runtime-state group tags**
+**Item 2: Split scenario-timeline from runtime-state group tags** — **SHIPPED (openemr/openemr#TBD, 2026-09-21)**
 Rename group tags into two dimensions:
 - Scenario timeline: `post-install`, `post-upgrade`, `wizard-completed`
 - Runtime state: `api-enabled`, `demo-data-seeded`
@@ -2678,19 +2911,84 @@ Tests declare BOTH tags. Workflow steps advance state, then invoke tests via `--
 
 Once this lands, `version-display` and `version-api` collapse into `#[Group('post-install')] #[Group('post-upgrade')]` (plus `#[Group('api-enabled')]` for the api variant) — the isolation workaround becomes unnecessary.
 
-**Item 3: Shared boot-orchestration composite action**
+**As-shipped scope**: Path B (name-combined groups: `api-enabled-post-install`, `api-enabled-post-upgrade`, `wizard-completed-post-install`, `wizard-completed-post-upgrade`) chosen as the AND-semantic mechanism -- 6 combined tags for the current 2-dimension scope, no custom PHPUnit extension needed, cleaner test reports at native filter layer. Path A (custom extension) preserved as future upgrade if more dimensions accumulate.
+
+Tag rename mapping applied across 15 test files: `fresh-install` -> `post-install` (13 files), `wizard-install` -> `wizard-completed-post-install`, `wizard-upgrade` -> `wizard-completed-post-upgrade`, `api-enabled` -> `api-enabled-post-install` + `api-enabled-post-upgrade` (2 files each get both). Workaround groups `version-api` + `version-display` retired -- `VersionApiAcceptanceTest` re-tagged into the api-enabled combos, `VersionDisplayAcceptanceTest` into `post-install` + `post-upgrade`. Both tests gained an `AcceptanceContext::hasExpectedVersion()` skip guard so the `acceptance-docker.yml` floating-tag path (which does not set the env yet -- Item 4) skips cleanly instead of hard-failing.
+
+Workflow invocations updated: `acceptance-package.yml` retired the 4 workaround steps (version-display + version-api x pre/post) by folding them into the scenario group runs, added `ACCEPTANCE_EXPECTED_VERSION` env at every step so version-check tests get the right expectation. `acceptance-docker.yml` matrix retagged `test_group` from `fresh-install` -> `post-install` and the api-enable step now invokes `api-enabled-post-install`.
+
+**Item 2.5: wizard-install post-install-tests coverage gap** — **in flight 2026-09-21**
+
+Original Item 2 attempted to OR-sum wizard-install with `post-install` business tests (`--group=wizard-completed-post-install --group=post-install`) so wizard-installed artifacts would also exercise the full business assertion set. 17 business tests failed in the wizard-install cell (all at `PantherAcceptanceTestCase::performLoginAsAdmin` line 184 with `actual: ''` empty title, i.e. HTTP 500 on the login page). Reverted the OR-sum; wizard steps went back to only running the wizard-specific group.
+
+Initial hypothesis was fixture disparity (wizard doesn't seed facilities/providers/sample patients the way install-helper.php does). Local reproduction 2026-09-21 REFUTED this — driving the wizard via curl (same params `InstallWizardUiTest` sends: `admin`/`pass`, `loginhost=%`, DB creds) produces an artifact whose login URL returns HTTP 200 with correct title, root URL redirects to login correctly, body bytes identical to install-helper.php path. **Wizard install is NOT broken for real users** — the Installer class produces equivalent post-install state via both entry paths (setup.php state 3 handler and install-helper.php CLI both call `Installer::quick_install()`).
+
+The 17 CI failures are triggered by something specific to Panther/ChromeDriver driving the wizard that leaves persistent server-side state breaking subsequent HTTP tests running immediately after in the same PHPUnit process. Most likely candidates: transient session file, half-committed DB transaction, PHP-FPM/apache lock, or Chrome cookie/state artifact that PHP-FPM later reads.
+
+**Why this matters:** acceptance tests are release-critical (they're the gate that proves the installer works before ship). Current coverage tests only the wizard flow itself, not the resulting artifact's functionality. A ship-day regression in wizard-installed-artifact post-install functionality would slip past every acceptance run today. Item 2.5 closes that coverage gap without depending on identifying the exact Panther-side artifact.
+
+**Fix approach (in flight):** two-invocation split for wizard-install and wizard-upgrade steps. First `composer acceptance` invocation runs only the Panther-driven wizard-specific group (`--group=wizard-completed-post-install`). PHPUnit process exit tears down all Panther/Chrome resources. Second `composer acceptance` invocation runs the HTTP-only business tests (`--group=post-install`) in a fresh PHPUnit process. If this doesn't clear the failures (i.e. server-side state persists across PHPUnit invocations rather than tearing down with the Chrome client), fallback is a container restart between invocations.
+
+**Reproduction assets** (for future debugging): local repro workflow is `tests/Acceptance/bin/boot-package.sh --skip-install-helper <version>` + a curl-driven wizard driver (create ad-hoc — GET /setup.php → extract `csrf_token_form` → POST states 0→1 → 1→2 with `inst=1` → 2→3 with form-defaults merged from state-2 response + `loginhost=%` + admin/pass creds). Not committed as a permanent test script (Panther is the shipping path); recreate on-demand for future investigations.
+
+**Persistence-test structural fix (collateral)**: `DocumentPersistenceAcceptanceTest` + `AppointmentPersistenceAcceptanceTest` split from single dual-tagged idempotent-seed methods into per-scenario method pairs. The old pattern silently masked upgrade data-loss regressions (seed-if-missing would just re-create anything the upgrade dropped, and the viewer assertion would pass with the freshly-created data). New shape: `testSeedsAndVerifies*InPostInstall()` (tagged post-install, seeds + verifies immediately) + `testStill*AfterUpgrade()` (tagged post-upgrade, verifies WITHOUT seed helpers). Missing-fixture is now a structural assertion failure. Two new `UiSeedingTrait` helpers (`assertPersistPatientExists`, `assertPersistDocumentExists`) provide strict-assert companions to the seed helpers.
+
+**Item 3: Shared boot-orchestration composite action** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**
 Both workflows repeat the boot→group→api-enable→group→teardown shape. Extract to a composite action at `.github/actions/run-acceptance-scenario/` (or a shared shell library at `tests/Acceptance/bin/lib/`). Workflows declare "here's the artifact, here's the expected version, run scenario X." Cuts YAML duplication; makes drift impossible (e.g., item #3 friction, and the `api-enabled` post-upgrade gap in docker workflow).
 
-**Item 4: Docker workflow tag→version resolution**
+**As-shipped scope**: two smaller composite actions instead of one big scenario wrapper. Boot mechanism stays in the workflow (differs enough between `boot-package.sh` and `docker compose up` that a unifying composite would need too many conditionals for too little payoff).
+
+- **`.github/actions/run-acceptance-group/`** — wraps `env: ACCEPTANCE_EXPECTED_VERSION` + `run: composer acceptance -- --group=<X>`. Replaces ~11 identical step blocks across both workflows. Callers pass `group` + `expected_version` (empty string in docker context until Item 4 lands; version tests skip cleanly via `AcceptanceContext::hasExpectedVersion()` when unset).
+- **`.github/actions/api-enable-artifact/`** — wraps `OPENEMR_ENABLE_API_BOOTSTRAP=1 php tests/Acceptance/bin/api-enable.php`. Replaces 3 identical step blocks. No inputs.
+
+**Collateral fix — closes friction point #3**: `acceptance-docker.yml`'s `upgrade` scenario now also runs api-enable + `--group=api-enabled-post-upgrade` after the upgrade completes, matching what `acceptance-package.yml` already does. The pre-Item-3 gap (docker upgrade path never exercised api-enable so a regression to /api/facility / OIDC discovery / DCR on upgrade would slip past) is closed by two new composite invocations in the docker workflow's upgrade branch.
+
+**Explicitly deferred (not in this PR)**: `AcceptanceContext::scenarioName()` / feature-flag / workflow-context accessors were called out as Item 3 scope originally, but no test currently needs them (persistence tests were split per-scenario in Item 2 rather than scenario-branching). Scaffolding-without-a-caller — drops in cleanly whenever a first concrete caller appears (e.g., an Item 4 docker path that needs to gate on scenario, or a future test wanting scenario-aware diagnostics).
+
+**Item 4: Docker workflow tag→version resolution** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**
 So `ACCEPTANCE_EXPECTED_VERSION` can be set in docker context too and the `version-display` / `version-api` isolation isn't needed. Options: query Docker Hub API for the tag→digest→config manifest, OR pull the image and read `version.php`, OR require the caller to pass the version explicitly (already the case for workflow_call gates). Simplest is the last one — scheduled/floating-tag runs can skip version-check by not setting the env.
 
-**Item 5 (hygiene): "Invocation contexts" reference section in this doc**
-Table of ~6 contexts × what each provides. Not covered elsewhere. Cheap; prevents future confusion. (The table above is a starting point.)
+**As-shipped scope**: two-tier resolution — OCI label first, `version.php` fallback for pr-built. Two new steps in `acceptance-docker.yml`:
 
-**Item 6 (hygiene): Directory structure by concern as suite grows**
-`tests/Acceptance/Version/`, `Upgrade/`, `OAuth/`, `Ui/`. Currently all flat under `tests/Acceptance/`. PHPUnit `<directory>` config handles it naturally.
+- `Resolve running artifact version (OCI label, fallback version.php)` runs after the initial boot; tries `docker inspect --format='{{index .Config.Labels "org.opencontainers.image.version"}}'` first, extracts X.Y.Z prefix (regex `^\d+\.\d+\.\d+`) so `8.5.0-dev` → `8.5.0`. When the OCI label lacks a valid X.Y.Z prefix (empty on pr-built images built without `--build-arg IMAGE_VERSION`, or non-empty but malformed), falls back to `docker compose cp` (production + acceptance-docker compose files) that stages [`.github/scripts/read-version-php.php`](../.github/scripts/read-version-php.php) into the container, then `docker compose exec -T openemr php /tmp/read-version-php.php` reads `$v_major.$v_minor.$v_patch` from `version.php`. The parse/validate/emit + fallback decision live in [`.github/scripts/parse-artifact-version.sh`](../.github/scripts/parse-artifact-version.sh) (Item 4 followup extracted the inline logic for BATS + PHPUnit-isolated coverage). Asserts final X.Y.Z shape, emits as `boot-version.resolved`.
+- `Resolve running artifact version after upgrade (OCI label, fallback version.php)` runs after the upgrade-target boot (upgrade scenario only); same two-tier logic against the new image, emits as `upgrade-target-version.resolved`. Needed because the swap-and-reboot brings up a different image reporting a different (upgraded) version.
+
+**Why OCI-label first, version.php fallback**: OCI label is set at docker-BUILD time from `--build-arg IMAGE_VERSION` baked into the release pipeline. It's an INDEPENDENT source from both `version.php` (in the image's code tree) and the DB `version` table (populated by `sql_upgrade.php`). Using the OCI label as `ACCEPTANCE_EXPECTED_VERSION` gives a genuine three-source cross-check when the version-display + version-api tests run: OCI label vs `version.php` (via About page render pipeline) vs DB (via `/api/version`). That catches the "mislabeled image" bug class (label says `8.4.1`, image code says `8.4.0`). A version.php-only approach can't catch that — it would be asserting `version.php == version.php` via the render pipeline, which weakens the signal to just "the render pipeline works." Reserved for the pr-built case where the OCI label is empty and no independent source exists (the PR IS the version source of truth, may contain `version.php` changes itself).
+
+All 5 `run-acceptance-group` invocations in `acceptance-docker.yml` now pass the resolved version instead of empty string. `docker-acceptance-only.yml` recovery workflow calls `acceptance-docker.yml` as a reusable and inherits the resolution transparently.
+
+**Version-check tests converted from skip to fail-hard**: `VersionApiAcceptanceTest` and `VersionDisplayAcceptanceTest` no longer gate their execution on `AcceptanceContext::hasExpectedVersion()`. They just call `expectedVersion()` and let its existing throw-on-unset fire. Rationale: post-Item-4, every CI path sets the env (tarball via `detect-acceptance-mode.sh`, docker via the two-tier resolver). A missing env value now means a workflow-side bug (a caller forgot to set it), and silently skipping would hide the regression. Local dev must set `ACCEPTANCE_EXPECTED_VERSION` explicitly — the fail message tells them exactly which env to set.
+
+**`AcceptanceContext::hasExpectedVersion()` kept**: the predicate is still a clean "was env provided?" check for hypothetical future callers who genuinely want to gate on env presence (not shape-validate). Not used by tests today but harmless to keep; drop later if it accumulates zero callers by Item 6-plus cleanup.
+
+**Upgrade cell skip logic (added post-review)**: the docker upgrade scenario is only meaningful when both from_tag and to_tag are shipped/rel-branch builds AND the target has upgrade infrastructure wired for the source. When it's not, the cell produces false-red signals: post-upgrade DB stays at the from version while code advances to to's version, and every downstream assertion (version-check, business, api-enabled) becomes unreliable. Even the boot's login-page healthcheck can fail because login requires sql_upgrade to have run.
+
+Skip criteria (evaluated per-cell after tag resolution, before boot):
+
+1. **`from_tag`'s OCI `revision` == `master`** — from IS master's build, no higher shipped version exists to upgrade TO. Same-or-lower target is either a no-op or an unsupported downgrade.
+2. **`to_tag`'s OCI `revision` == `master` AND master carries the `next` docker tag in `release-targets.yml`** — between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current `version.php` in this window. When `next` is on a rel-XXX branch instead (that branch's active dev cycle), the release-cut / patch-prep mutators cross-propagate fsupgrade + docker-version bumps to BOTH the rel branch AND master, so master's dev docker DOES have upgrade infra in that window and the cell WILL run.
+
+When either criterion fires, all upgrade-scenario steps (from boot, from-tag test group, stop containers, boot target, resolve upgrade-target version, run post-upgrade, api-enable post-upgrade, run api-enabled-post-upgrade) skip via `if:` condition. Cell shows all upgrade steps skipped; no red failures, no wasted runtime. Skip-notice step emits an annotation explaining the specific reason.
+
+Real signal preserved: `fresh-install-from` + `fresh-install-to` cells still exercise both images independently.
+
+**Item 4 followup: BATS + PHPUnit-isolated coverage** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. Inline shell/php-r logic in `acceptance-docker.yml`'s three post-Item-4 steps (detect-upgrade-cell-skip, boot-version, upgrade-target-version) was extracted to three standalone scripts:
+
+- `.github/scripts/detect-upgrade-cell-skip.sh` — pure-shell skip decision logic (BATS: `tests/bats/ci-scripts/detect-upgrade-cell-skip/`, 17 cases).
+- `.github/scripts/parse-artifact-version.sh` — OCI-first + version.php-fallback parse/validate/emit (BATS: `tests/bats/ci-scripts/parse-artifact-version/`, 15 cases).
+- `.github/scripts/read-version-php.php` — `$v_major.$v_minor.$v_patch` reader with is_int-or-ctype_digit validation (PHPUnit-isolated: `tests/Tests/Isolated/Common/Command/Ci/ReadVersionPhpTest.php`, 14 cases).
+
+The workflow steps now compose `docker inspect` / `docker compose exec` (both need the Docker daemon so stay inline) with `bash <script>` invocations that own the pure logic. All three scripts added to `.github/byte-identical.yml` with `exclude-branches: [rel-800]` per G45/G47 pattern (script referenced by synced workflow must itself sync).
+
+**Item 4 followup: release-mode guardrail** — **SHIPPED (openemr/openemr#14215, 2026-09-23)**. The Item 4 upgrade-cell skip logic is silent by design (correct for tolerant paths — daily schedule, arbitrary workflow_dispatch — where the skip is a legitimate "no meaningful signal to produce" answer during between-cycles). In *release mode* the same silent skip is a red flag: we're about to publish an artifact whose auto-upgrade path was never validated. Guardrail: new `require_upgrade_cell` boolean input on `acceptance-docker.yml` (default false, backward-compatible) on both `workflow_dispatch` and `workflow_call`. When true, a step immediately after `detect_upgrade_skip` fails the job with a descriptive error naming which skip criterion fired. Callers who set it: `release-prep.yml`'s `gh workflow run acceptance-docker.yml` dispatch (release-prep-time), `docker-build-release.yml`'s acceptance-gate `workflow_call` (ship-time), `docker-acceptance-only.yml`'s recovery `workflow_call` (recovery-time). Scheduled runs and push/PR triggers can't override the default false and keep tolerant skip behavior; operator `workflow_dispatch` runs default to false but can be flipped from the Actions UI if the operator wants the same guardrail for a manual re-run. Package side needs no equivalent because `acceptance-package.yml` has no runtime skip mechanism — its "conditional coverage" is matrix-level and caller-driven, and release-time callers unconditionally trigger the expanded matrix that includes upgrade + wizard-upgrade cells.
+
+**Item 5 (hygiene): "Invocation contexts" reference section in this doc** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. New [Invocation contexts reference](#invocation-contexts-reference) section added above between "What lives where (concrete)" and "What stays unchanged". Four subsections: trigger contexts (per-workflow trigger × artifact × version × matrix), scenario → step sequence, group → tests → scenario cells, `AcceptanceContext` env contract. Also closes Friction point #6 (no mapping-doc reference table). The pre-Item-1..4 "Current-state snapshot" tables under this section were superseded and trimmed to a pointer.
+
+**Item 6 (hygiene): Directory structure by concern as suite grows** — **SHIPPED (openemr/openemr#TBD, 2026-09-23)**. Six subdirs under `tests/Acceptance/`: `Install/` (2 files), `Upgrade/` (2), `Version/` (2), `OAuth/` (2), `Api/` (2), `Ui/` (10). Each moved file's namespace bumped from `OpenEMR\Tests\Acceptance` to `OpenEMR\Tests\Acceptance\<Subdir>`. `Support/` and `bin/` unchanged (already subdirs). PHPUnit's `<directory>.</directory>` recursively discovers the new layout; composer autoload PSR-4 rule `OpenEMR\Tests\Acceptance\ => tests/Acceptance` handles the deeper paths automatically. Byte-identical manifest's `tests/Acceptance/**` glob (recursive via `**` → `.*` in the glob-expand regex) picks up the subdir contents, and the sync script's rename-sweep deletes the old flat paths from rel branches on next propagation. Item 6 needed no test-file cross-reference updates (each test only imports from `Support/*`, which stays put).
 
 ### Sequencing recommendation
+
+_Historical — retained for design record. The full plan (Items 1-6 + Item 4 followup) shipped 2026-09-20 through 2026-09-23 in the order below._
 
 Item 1 first (small standalone refactor PR, highest leverage). Item 2 second (mechanical rename + workflow-invocation update). Item 3 third (biggest structural change; benefits from semantics being settled first). Items 4-6 opportunistic.
 

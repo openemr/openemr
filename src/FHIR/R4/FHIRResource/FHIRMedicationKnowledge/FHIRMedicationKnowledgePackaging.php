@@ -182,9 +182,7 @@ class FHIRMedicationKnowledgePackaging extends FHIRBackboneElement implements \J
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgePackaging xmlns="http://hl7.org/fhir"></MedicationKnowledgePackaging>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgePackaging xmlns="http://hl7.org/fhir"></MedicationKnowledgePackaging>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

@@ -116,9 +116,7 @@ final class LegacyKeychainLoader
 
         // Drive key (encrypted)
         if (!$keychain->hasKey(Key::v7Drive->getId())) {
-            if (!isset($dbCipher)) {
-                $dbCipher = $keychain->getCipher(Key::v7Db->getId());
-            }
+            $dbCipher ??= $keychain->getCipher(Key::v7Db->getId());
             $driveCipher = KeyV7Generator::generateEncryptedDiskKey(
                 dbCipher: $dbCipher,
                 storageDir: $storageDir,

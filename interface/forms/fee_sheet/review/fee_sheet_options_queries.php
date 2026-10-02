@@ -18,7 +18,7 @@
  */
 class fee_sheet_option
 {
-    function __construct(public $code, public $code_type, public $description, public $price, public $category)
+    public function __construct(public $code, public $code_type, public $description, public $price, public $category)
     {
         if ($this->price == null) {
             $this->price = xl("Not Specified");

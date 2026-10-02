@@ -24,7 +24,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaDatabaseCustom extends RuleCriteria
 {
-    function __construct(
+    public function __construct(
         public string $table,
         public string $column,
         public string $valueComparator,
@@ -34,7 +34,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     ) {
     }
 
-    function getRequirements()
+    public function getRequirements()
     {
         $requirements = "";
         if ($this->value) {
@@ -49,17 +49,17 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return $requirements;
     }
 
-    function getTitle()
+    public function getTitle()
     {
         return $this->table . "." . $this->column;
     }
 
-    function getView()
+    public function getView()
     {
         return "custom.php";
     }
 
-    function getTableNameOptions()
+    public function getTableNameOptions()
     {
         $options = [];
         $stmts = sqlStatement("SHOW TABLES");
@@ -72,7 +72,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return $options;
     }
 
-    function getDbView()
+    public function getDbView()
     {
         $dbView = parent::getDbView();
 
@@ -86,7 +86,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
         parent::updateFromRequest();
 

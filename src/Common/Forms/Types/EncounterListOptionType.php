@@ -29,9 +29,7 @@ class EncounterListOptionType implements IOptionFormType
      */
     public function getEncounterService(): EncounterService
     {
-        if (!isset($this->encounterService)) {
-            $this->encounterService = new EncounterService();
-        }
+        $this->encounterService ??= new EncounterService();
         return $this->encounterService;
     }
 

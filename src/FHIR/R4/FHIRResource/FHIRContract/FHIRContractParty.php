@@ -191,9 +191,7 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractParty xmlns="http://hl7.org/fhir"></ContractParty>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContractParty xmlns="http://hl7.org/fhir"></ContractParty>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->reference)) {
             foreach ($this->reference as $reference) {

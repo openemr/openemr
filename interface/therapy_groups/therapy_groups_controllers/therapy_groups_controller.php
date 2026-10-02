@@ -408,7 +408,7 @@ class TherapyGroupsController extends BaseController
         return $groupData['group_id'];
     }
 
-    static function setSession($groupId)
+    public static function setSession($groupId)
     {
 
         setpid(0);

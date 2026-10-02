@@ -20,7 +20,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractMedicationService extends AbstractQdmService implements QdmServiceInterface
 {
-    abstract function getModelClass();
+    abstract public function getModelClass();
 
     public function getSqlStatement()
     {

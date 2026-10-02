@@ -89,5 +89,5 @@ if ($telemetryService->isTelemetryEnabled()) {
 }
 
 if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled') && !($_GET['formname'] == 'fee_sheet')) { ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/CustomTemplateLoader.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/CustomTemplateLoader.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <?php } ?>

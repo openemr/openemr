@@ -116,7 +116,7 @@ class EhiExportJobTask
             $data['hash'] = $this->document->get_hash();
             $data['downloadLink'] = $this->exportedResult->downloadLink;
             $data['downloadName'] = $this->document->get_name();
-        } else if ($this->status == 'failed') {
+        } elseif ($this->status == 'failed') {
             $data['errorMessage'] = $this->error_message;
         }
         return $data;

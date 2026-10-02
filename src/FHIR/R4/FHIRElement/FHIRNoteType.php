@@ -144,9 +144,7 @@ class FHIRNoteType extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NoteType xmlns="http://hl7.org/fhir"></NoteType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<NoteType xmlns="http://hl7.org/fhir"></NoteType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

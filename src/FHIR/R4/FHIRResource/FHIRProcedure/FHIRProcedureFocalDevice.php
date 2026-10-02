@@ -182,9 +182,7 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProcedureFocalDevice xmlns="http://hl7.org/fhir"></ProcedureFocalDevice>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ProcedureFocalDevice xmlns="http://hl7.org/fhir"></ProcedureFocalDevice>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->action)) {
             $this->action->xmlSerialize(true, $sxe->addChild('action'));

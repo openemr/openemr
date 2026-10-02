@@ -661,21 +661,26 @@ return [
 
         return $return;
     },
+    // Prescription routes are gated on `patients/rx` (not `patients/med`) so a
+    // caller with only Medical Records / History read scope cannot reach these
+    // endpoints. Write operations (POST, DELETE) additionally require the
+    // `write` (or `addonly` on POST) permission bit, so a caller with only
+    // `patients/rx` view access cannot create or deactivate prescriptions.
     "GET /api/prescription" => function (HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "rx");
         return (new PrescriptionRestController())->getAll($request);
     },
     "GET /api/prescription/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "rx");
         return (new PrescriptionRestController())->getOne($uuid, $request);
     },
     "POST /api/prescription" => function (HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "rx", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         return (new PrescriptionRestController())->post($data, $request);
     },
     "DELETE /api/prescription/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "rx", ['write']);
         return (new PrescriptionRestController())->delete($uuid, $request);
     },
     "GET /api/background_service" => function (HttpRestRequest $request) {

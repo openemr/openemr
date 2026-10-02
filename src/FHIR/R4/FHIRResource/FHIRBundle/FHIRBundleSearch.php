@@ -182,9 +182,7 @@ class FHIRBundleSearch extends FHIRBackboneElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BundleSearch xmlns="http://hl7.org/fhir"></BundleSearch>');
-        }
+        $sxe ??= new \SimpleXMLElement('<BundleSearch xmlns="http://hl7.org/fhir"></BundleSearch>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->mode)) {
             $this->mode->xmlSerialize(true, $sxe->addChild('mode'));

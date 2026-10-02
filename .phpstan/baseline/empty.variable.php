@@ -57,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$where in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$reply_to in empty\\(\\) always exists and is always falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
@@ -100,11 +95,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$tz in empty\\(\\) is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$id in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$line in empty\\(\\) always exists and is not falsy\\.$#',
@@ -192,16 +182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$resp in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/manage_site_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$responseErrorAsString in empty\\(\\) always exists and is always falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/manage_site_files.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$form_patient_id in empty\\(\\) is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
@@ -215,11 +195,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$setting_selectors in empty\\(\\) is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$provider in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$new_conflicts in empty\\(\\) always exists and is always falsy\\.$#',
@@ -287,11 +262,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$client in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomPasswordGrant.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$clients in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
@@ -337,19 +307,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$form_id in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$code in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$parsed_reference in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$kernel in empty\\(\\) always exists and is not falsy\\.$#',

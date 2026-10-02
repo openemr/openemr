@@ -44,7 +44,7 @@ class FormPriorAuth extends ORDataObject implements \Stringable
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id = "")
+    public function __construct($id = "")
     {
         parent::__construct();
 
@@ -68,85 +68,85 @@ class FormPriorAuth extends ORDataObject implements \Stringable
         }
     }
 
-    function __toString(): string
+    public function __toString(): string
     {
         return "ID: " . $this->id . "\n";
     }
 
-    function set_id($id)
+    public function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
-    function set_pid($pid)
+    public function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
-    function get_pid()
+    public function get_pid()
     {
         return $this->pid;
     }
-    function set_activity($tf)
+    public function set_activity($tf)
     {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
         }
     }
-    function get_activity()
+    public function get_activity()
     {
         return $this->activity;
     }
 
 
-    function set_comments($string)
+    public function set_comments($string)
     {
         $this->comments = $string;
     }
 
-    function get_comments()
+    public function get_comments()
     {
         return $this->comments;
     }
 
-    function set_prior_auth_number($string)
+    public function set_prior_auth_number($string)
     {
         $this->prior_auth_number = $string;
     }
 
-    function get_prior_auth_number()
+    public function get_prior_auth_number()
     {
         return $this->prior_auth_number;
     }
 
 
-    function get_date()
+    public function get_date()
     {
         return $this->date;
     }
 
-    function get_date_from()
+    public function get_date_from()
     {
         return $this->date_from;
     }
 
-    function set_date_from($dt)
+    public function set_date_from($dt)
     {
         $this->date_from = $dt;
     }
 
-    function get_date_to()
+    public function get_date_to()
     {
         return $this->date_to;
     }
 
-    function set_date_to($dt)
+    public function set_date_to($dt)
     {
         $this->date_to = $dt;
     }

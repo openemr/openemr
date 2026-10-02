@@ -21,6 +21,7 @@ use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirProcedureService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
@@ -32,7 +33,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\SurgeryService;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirProcedureSurgeryService extends FhirServiceBase
+class FhirProcedureSurgeryService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;

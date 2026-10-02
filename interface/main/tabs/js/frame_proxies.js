@@ -24,7 +24,7 @@ var left_nav = {
 
 };
 
-left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
+left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob, hasPicture)
 {
     if((app_view_model.application_data.patient()!==null) && (pid===app_view_model.application_data.patient().pid()))
     {
@@ -34,7 +34,7 @@ left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
 
         return;
     }
-    var new_patient=new patient_data_view_model(pname,pid,pubpid,str_dob);
+    var new_patient=new patient_data_view_model(pname,pid,pubpid,str_dob,hasPicture);
     app_view_model.application_data.patient(new_patient);
     app_view_model.application_data.therapy_group(null);
 

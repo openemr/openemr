@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -165,4 +167,37 @@ class FhirAppointmentRestController
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }
+
+    /**
+     * Creates a new FHIR Appointment resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    // @codeCoverageIgnoreStart
+    #[OA\Post(
+        path: '/fhir/Appointment',
+        description: 'Creates a new Appointment resource.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'Appointment resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::post()
+    }
+    // @codeCoverageIgnoreEnd
 }

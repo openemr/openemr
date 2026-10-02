@@ -373,7 +373,7 @@ function checkBackgroundServices(): void
     $serverConfig = new ServerConfig();
     $apiUrl = $serverConfig->getInternalBaseApiUrl();
     ?>
-    <script src="edit_globals.js" type="text/javascript"></script>
+    <script src="edit_globals.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/javascript"></script>
     <script>
         window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>);
     </script>

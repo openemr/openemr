@@ -3,7 +3,6 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Acl\AclExtended;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 
@@ -14,7 +13,7 @@ class C_DocumentCategory extends Controller
     public $link;
     public $_last_node;
 
-    function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->document_categories = [];
@@ -29,12 +28,12 @@ class C_DocumentCategory extends Controller
         $this->tree = $t;
     }
 
-    function default_action(): string
+    public function default_action(): string
     {
         return $this->list_action();
     }
 
-    function list_action(): string
+    public function list_action(): string
     {
         //$this->tree->rebuild_tree(1,1);
 
@@ -50,11 +49,10 @@ class C_DocumentCategory extends Controller
         $this->assign('add_node', (($this->getTemplateVars('add_node') ?? false) == true));
         $this->assign('edit_node', (($this->getTemplateVars('edit_node') ?? false) == true));
 
-        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-        return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
+        return $this->twig->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
     }
 
-    function add_node_action($parent_is)
+    public function add_node_action($parent_is)
     {
         //echo $parent_is ."<br />";
         //echo $this->tree->get_node_name($parent_is);
@@ -71,7 +69,7 @@ class C_DocumentCategory extends Controller
         return $this->list_action();
     }
 
-    function add_node_action_process()
+    public function add_node_action_process()
     {
         if ($_POST['process'] != "true") {
             return;
@@ -87,7 +85,7 @@ class C_DocumentCategory extends Controller
         return $this->list_action();
     }
 
-    function edit_node_action($parent_is)
+    public function edit_node_action($parent_is)
     {
         $info = $this->tree->get_node_info($parent_is);
         $this->assign("parent_is", $parent_is);
@@ -108,7 +106,7 @@ class C_DocumentCategory extends Controller
         return $this->list_action();
     }
 
-    function edit_node_action_process()
+    public function edit_node_action_process()
     {
         if ($_POST['process'] != "true") {
             return;
@@ -122,7 +120,7 @@ class C_DocumentCategory extends Controller
         return $this->list_action();
     }
 
-    function delete_node_action_process($id)
+    public function delete_node_action_process($id)
     {
         if ($_POST['process'] != "true") {
             return;
@@ -151,7 +149,7 @@ class C_DocumentCategory extends Controller
         return $this->list_action();
     }
 
-    function &_array_recurse($array)
+    public function &_array_recurse($array)
     {
         if (!is_array($array)) {
             $array = [];

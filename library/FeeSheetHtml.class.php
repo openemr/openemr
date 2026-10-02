@@ -14,7 +14,6 @@
  */
 
 require_once(__DIR__ . "/FeeSheet.class.php");
-require_once(__DIR__ . "/api.inc.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -24,7 +23,7 @@ class FeeSheetHtml extends FeeSheet
   // Dynamically generated JavaScript to maintain justification codes.
     public $justinit = "var f = document.forms[0];\n";
 
-    function __construct($pid = 0, $encounter = 0)
+    public function __construct($pid = 0, $encounter = 0)
     {
         parent::__construct($pid, $encounter);
     }

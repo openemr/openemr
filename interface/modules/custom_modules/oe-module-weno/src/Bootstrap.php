@@ -65,6 +65,7 @@ class Bootstrap
      */
     public mixed $isWenoUser;
     public bool $isAuthorized;
+    public bool $isConfigured = false;
 
     /**
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
@@ -91,13 +92,18 @@ class Bootstrap
         $modService = new ModuleService();
         // let Admin configure Weno if module is not configured.
         $this->addGlobalSettings();
-        if (!$modService->isWenoConfigured()) {
+        $this->isConfigured = $modService->isWenoConfigured();
+
+        // Always register demographics pharmacy hooks so the UI can render diagnostics
+        // explaining which gate is failing instead of silently hiding the selector.
+        $this->demographicsSelectorEvents();
+        $this->demographicsDisplaySelectedEvents();
+
+        if (!$this->isConfigured) {
             return;
         }
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
-        $this->demographicsSelectorEvents();
-        $this->demographicsDisplaySelectedEvents();
         $this->patientSaveEvents();
         $this->patientUpdateEvents();
         $modService::setModuleState('oe-module-weno', '1', '0');
@@ -332,11 +338,13 @@ class Bootstrap
      */
     public function renderWenoPharmacySelector(): void
     {
-        if (!$this->isWenoUser) {
-            return;
-        }
+        $wenoDiagnostics = [
+            'configured' => $this->isConfigured,
+            'user' => !empty($this->isWenoUser),
+            'acl' => $this->isAuthorized,
+        ];
 
-        include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
+        include_once $this->modulePath . '/templates/pharmacy_list_form.php';
     }
 
     /**
@@ -353,7 +361,7 @@ class Bootstrap
     public function renderSelectedWenoPharmacies(): void
     {
         echo "<br>";
-        include_once($this->modulePath) . "/templates/pharmacy_list_display.php";
+        include_once $this->modulePath . '/templates/pharmacy_list_display.php';
     }
 
     /**
@@ -394,10 +402,8 @@ class Bootstrap
 
     public function isWenoUser()
     {
-        if (empty($id)) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $id = $session->get('authUserID') ?? '';
-        }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $id = $session->get('authUserID') ?? '';
         // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
 

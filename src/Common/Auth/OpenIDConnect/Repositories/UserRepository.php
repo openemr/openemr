@@ -104,32 +104,82 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                 }
                 $user->setIdentifier(UuidRegistry::uuidToString($uuid));
 
-                // If an mfa_token was provided, then will force TOTP MFA (U2F impossible to support via password grant)
-                //  (note that this is only forced if mfa_token is provided)
+                // Password grant can only satisfy TOTP as a second factor;
+                // other factors (e.g. U2F) require an interactive browser
+                // exchange. When any MFA is enrolled we must engage; falling
+                // through would issue a token on the password alone.
                 $mfa = new MfaUtils($id);
                 $mfaToken = $mfa->tokenFromRequest(MfaUtils::TOTP);
-                if (!is_null($mfaToken)) {
-                    if (!$mfa->isMfaRequired() || !in_array(MfaUtils::TOTP, $mfa->getType())) {
-                        // A mfa_token was provided, however the user is not configured for totp
+
+                if ($mfa->isMfaRequired()) {
+                    if (!in_array(MfaUtils::TOTP, $mfa->getType(), true)) {
+                        // MFA required but TOTP is not one of the enrolled
+                        // factors — password grant cannot complete for this
+                        // user. Deny rather than silently skip the second
+                        // factor.
                         throw new OAuthServerException(
-                            'MFA not supported.',
-                            11,
+                            'MFA required but not supported for this user via password grant.',
+                            14,
                             'mfa_not_supported',
                             403
                         );
-                    } else {
-                        //Check the validity of the totp token, if applicable
-                        if (!empty($mfaToken) && $mfa->check($mfaToken, MfaUtils::TOTP)) {
-                            return true;
-                        } else {
-                            throw new OAuthServerException(
-                                $mfa->errorMessage(),
-                                12,
-                                'mfa_token_invalid',
-                                401
-                            );
-                        }
                     }
+                    if (empty($mfaToken)) {
+                        // Distinguish the two shapes empty() catches:
+                        //   - null  = client hasn't submitted a token yet
+                        //             (legit; standard "please provide" flow)
+                        //   - false = client sent a malformed token that
+                        //             tokenFromRequest's validateToken
+                        //             rejected. That is an attempt; count
+                        //             it so malformed spam can't sidestep
+                        //             the MFA throttle. Preserve the
+                        //             mfa_token_required response shape
+                        //             either way — the block gate reads
+                        //             the same counter on the next call.
+                        if ($mfaToken === false) {
+                            (new AuthUtils())->recordFailedMfaChallenge(is_string($username) ? $username : null);
+                        }
+                        throw new OAuthServerException(
+                            'MFA token required.',
+                            13,
+                            'mfa_token_required',
+                            401
+                        );
+                    }
+                    if (!$mfa->check($mfaToken, MfaUtils::TOTP)) {
+                        // MfaUtils::checkTOTP itself bumps the
+                        // mfa_fail_counter / mfa_login_fail_counter
+                        // (kept independent of the password lockout
+                        // counters so the confirmPassword-success
+                        // reset does not wipe them on every attempt).
+                        throw new OAuthServerException(
+                            $mfa->errorMessage(),
+                            12,
+                            'mfa_token_invalid',
+                            401
+                        );
+                    }
+                    // Full auth (password + MFA) succeeded — zero the
+                    // MFA-specific counters so this user / IP starts
+                    // fresh for the next authentication session.
+                    $ip = collectIpAddresses();
+                    AuthUtils::resetMfaChallengeCounters(
+                        is_string($username) ? $username : null,
+                        $ip['ip_string']
+                    );
+                    return true;
+                }
+
+                // No MFA enrolled. Reject an unexpected mfa_token — it
+                // signals a client error (user is not configured for MFA)
+                // rather than silently accepting the token.
+                if (!is_null($mfaToken)) {
+                    throw new OAuthServerException(
+                        'MFA not supported.',
+                        11,
+                        'mfa_not_supported',
+                        403
+                    );
                 }
 
                 return true;

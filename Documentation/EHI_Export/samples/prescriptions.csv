@@ -1,0 +1,3 @@
+id,patient_id,date_added,date_modified,provider_id,encounter,start_date,end_date,drug,rxnorm_drugcode,form,dosage,quantity,unit,route,interval,refills,medication,note,active,indication,prn,request_intent,request_intent_title,diagnosis
+9001,1001,2026-01-15,2026-01-15,10,5001,2026-01-15,,Lisinopril,29046,tablet,10 mg,30,tablet,oral,daily,2,1,Synthetic medication order,1,Hypertension,0,order,Order,I10
+9002,1002,2026-02-03,2026-02-03,11,5002,2026-02-03,2026-02-10,Acetaminophen,161,tablet,500 mg,14,tablet,oral,every 6 hours as needed,0,1,Do not exceed labeled maximum,1,Fever,1,order,Order,R50.9

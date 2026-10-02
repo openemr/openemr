@@ -24,11 +24,11 @@ require_once(__DIR__ . '/../../globals.php');
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php';
 
 use ESign\Api;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
@@ -92,7 +92,7 @@ if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 
 ?>
 <!DOCTYPE html>
@@ -446,13 +446,26 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
                 credentials: 'same-origin',
                 body: request
             }).then((response) => {
+                if (response.status === 400) {
+                    // globals.php answers 400 when the session holds no site ID,
+                    // meaning the session itself is gone (logged out elsewhere, or
+                    // expired and garbage collected). Nothing this window sends can
+                    // succeed any more, so go to the login screen as the timeout
+                    // check below does; logging in loads a fresh main.php, which
+                    // starts polling again. Do not treat 403 the same way: a stale
+                    // CSRF token is also what an old window sends after someone has
+                    // logged in again elsewhere, and logging out would end that new
+                    // session.
+                    timeoutLogout();
+                    return;
+                }
                 if (response.status !== 200) {
                     console.log('Reminders start failed. Status Code: ' + response.status);
                     return;
                 }
                 return response.json();
             }).then((data) => {
-                if (!data) {
+                if (data === undefined) {
                     return;
                 }
                 if (data.timeoutMessage && (data.timeoutMessage == 'timeout')) {

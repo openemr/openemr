@@ -339,9 +339,7 @@ class FHIRImmunizationProtocolApplied extends FHIRBackboneElement implements \Js
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationProtocolApplied xmlns="http://hl7.org/fhir"></ImmunizationProtocolApplied>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImmunizationProtocolApplied xmlns="http://hl7.org/fhir"></ImmunizationProtocolApplied>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->series)) {
             $this->series->xmlSerialize(true, $sxe->addChild('series'));

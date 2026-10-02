@@ -220,7 +220,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $filename Sql upgrade/patch filename
      */
-    function upgradeFromSqlFile($filename, $path = '')
+    public function upgradeFromSqlFile($filename, $path = '')
     {
         global $webserver_root;
 
@@ -321,7 +321,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
                 // This allows capturing a default setting that is blank
                 if ($this->tableExists($matches[1])) {
-                    $skipping = $this->columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
+                    $skipping = $this->columnHasTypeDefault($matches[1], $matches[2], $matches[3], '');
                 } else {
                     // If no such table then the column type is deemed not "missing".
                     $skipping = true;
@@ -882,198 +882,143 @@ class SQLUpgradeService implements ISQLUpgradeService
 
 
     /**
-     * Check if a Sql table exists.
-     *
-     * @param string $tblname Sql Table Name
-     * @return bool returns true if the sql table exists
+     * Backtick-quote a table or column name taken from a directive, so a
+     * reserved word (MySQL 8 reserves `function`, for one) still parses.
+     * A name the directive already wrapped in backticks is used as written.
      */
-    private function tableExists($tblname): bool
+    private function quoteIdentifier(string $name): string
     {
-        $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
-        if (empty($row)) {
-            return false;
+        if (strlen($name) > 2 && str_starts_with($name, '`') && str_ends_with($name, '`')) {
+            return $name;
         }
 
-        return true;
+        return '`' . str_replace('`', '``', $name) . '`';
+    }
+
+
+    // SHOW ... LIKE takes only a literal pattern, so these checks bind through
+    // information_schema or a SHOW ... WHERE clause instead.
+    private function tableExists(string $tblname): bool
+    {
+        // information_schema compares names case-insensitively on MariaDB, so
+        // also match the bytes where the server keeps table names case-sensitive.
+        $sql = <<<'SQL'
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = DATABASE() AND table_name LIKE ?
+            AND (@@lower_case_table_names <> 0 OR CAST(table_name AS BINARY) LIKE ?)
+            LIMIT 1
+            SQL;
+        return QueryUtils::fetchRecords($sql, [$tblname, $tblname]) !== [];
+    }
+
+
+    private function columnExists(string $tblname, string $colname): bool
+    {
+        return QueryUtils::fetchRecords('SHOW COLUMNS FROM ' . $this->quoteIdentifier($tblname) . ' WHERE `Field` LIKE ?', [$colname]) !== [];
     }
 
 
     /**
-     * Check if a Sql column exists in a selected table.
-     *
-     * @param string $tblname Sql Table Name
-     * @param string $colname Sql Column Name
-     * @return bool returns true if the sql column exists
+     * Check if a Sql column has a certain type. A missing column counts as a match.
      */
-    private function columnExists($tblname, $colname): bool
+    private function columnHasType(string $tblname, string $colname, string $coltype): bool
     {
-        $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
-        if (empty($row)) {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Check if a Sql column has a certain type.
-     *
-     * @param string $tblname Sql Table Name
-     * @param string $colname Sql Column Name
-     * @param string $coltype Sql Column Type
-     * @return bool returns true if the sql column is of the specified type
-     */
-    private function columnHasType($tblname, $colname, $coltype)
-    {
-        $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
-        if (empty($row)) {
+        $rows = QueryUtils::fetchRecords('SHOW COLUMNS FROM ' . $this->quoteIdentifier($tblname) . ' WHERE `Field` LIKE ?', [$colname]);
+        if ($rows === []) {
             return true;
         }
 
-        return (strcasecmp((string)$row['Type'], $coltype) == 0);
+        $type = $rows[0]['Type'] ?? null;
+        return is_string($type) && strcasecmp($type, $coltype) === 0;
     }
 
 
     /**
-     * Check if a Sql column has a certain type and a certain default value.
+     * Check if a Sql column has a certain type and default. A missing column counts as a match.
      *
-     * @param string $tblname    Sql Table Name
-     * @param string $colname    Sql Column Name
-     * @param string $coltype    Sql Column Type
-     * @param string $coldefault Sql Column Default
-     * @return bool returns true if the sql column is of the specified type and default
+     * @param string $coldefault `NULL` for a NULL default, '' for a blank one
      */
-    private function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
+    private function columnHasTypeDefault(string $tblname, string $colname, string $coltype, string $coldefault): bool
     {
-        $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ?", [$colname]);
-        if (empty($row)) {
+        $showColumn = 'SHOW COLUMNS FROM ' . $this->quoteIdentifier($tblname) . ' WHERE `Field` = ?';
+        $rows = QueryUtils::fetchRecords($showColumn, [$colname]);
+        if ($rows === []) {
             return true;
         }
 
-        // Check if the type matches
-        if (strcasecmp((string)$row['Type'], $coltype) != 0) {
+        $type = $rows[0]['Type'] ?? null;
+        if (!is_string($type) || strcasecmp($type, $coltype) !== 0) {
             return false;
         }
 
-        // Now for the more difficult check for if the default matches
-        if ($coldefault == "NULL") {
-            // Special case when checking if default is NULL
-            $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NULL", [$colname]);
-            return (!empty($row));
-        } elseif ($coldefault == "") {
-            // Special case when checking if default is ""(blank)
-            $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NOT NULL AND `Default` = ''", [$colname]);
-            return (!empty($row));
-        } else {
-            // Standard case when checking if default is neither NULL or ""(blank)
-            return (strcasecmp((string)$row['Default'], $coldefault) == 0);
+        if ($coldefault === 'NULL') {
+            return QueryUtils::fetchRecords($showColumn . ' AND `Default` IS NULL', [$colname]) !== [];
         }
+
+        if ($coldefault === '') {
+            return QueryUtils::fetchRecords($showColumn . ' AND `Default` = ?', [$colname, '']) !== [];
+        }
+
+        $default = $rows[0]['Default'] ?? null;
+        return is_string($default) && strcasecmp($default, $coldefault) === 0;
+    }
+
+
+    private function tableHasRowNull(string $tblname, string $colname): bool
+    {
+        $sql = 'SELECT 1 FROM ' . $this->quoteIdentifier($tblname)
+            . ' WHERE ' . $this->quoteIdentifier($colname) . ' IS NULL LIMIT 1';
+        return QueryUtils::fetchRecords($sql) !== [];
+    }
+
+
+    private function tableHasRow(string $tblname, string $colname, string $value): bool
+    {
+        return $this->tableHasRowLike($tblname, [[$colname, $value]]);
+    }
+
+
+    private function tableHasRow2D(string $tblname, string $colname, string $value, string $colname2, string $value2): bool
+    {
+        return $this->tableHasRowLike($tblname, [[$colname, $value], [$colname2, $value2]]);
+    }
+
+
+    private function tableHasRow3D(string $tblname, string $colname, string $value, string $colname2, string $value2, string $colname3, string $value3): bool
+    {
+        return $this->tableHasRowLike($tblname, [[$colname, $value], [$colname2, $value2], [$colname3, $value3]]);
+    }
+
+
+    private function tableHasRow4D(string $tblname, string $colname, string $value, string $colname2, string $value2, string $colname3, string $value3, string $colname4, string $value4): bool
+    {
+        return $this->tableHasRowLike($tblname, [[$colname, $value], [$colname2, $value2], [$colname3, $value3], [$colname4, $value4]]);
     }
 
 
     /**
-     * Check if a Sql row exists (with one null value)
+     * Check for a row in which every column matches its LIKE pattern.
      *
-     * @param string $tblname Sql Table Name
-     * @param string $colname Sql Column Name
-     * @return bool returns true if the sql row does exist
+     * @param non-empty-list<array{string, string}> $conditions column name and LIKE pattern pairs
      */
-    private function tableHasRowNull($tblname, $colname)
+    private function tableHasRowLike(string $tblname, array $conditions): bool
     {
-        $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-            "$colname IS NULL");
-        return (bool) $row['count'];
+        $where = [];
+        $binds = [];
+        foreach ($conditions as [$colname, $pattern]) {
+            $where[] = $this->quoteIdentifier($colname) . ' LIKE ?';
+            $binds[] = $pattern;
+        }
+
+        $sql = 'SELECT 1 FROM ' . $this->quoteIdentifier($tblname)
+            . ' WHERE ' . implode(' AND ', $where) . ' LIMIT 1';
+        return QueryUtils::fetchRecords($sql, $binds) !== [];
     }
 
 
-    /**
-     * Check if a Sql row exists. (with one value)
-     *
-     * @param string $tblname Sql Table Name
-     * @param string $colname Sql Column Name
-     * @param string $value   Sql value
-     * @return bool returns true if the sql row does exist
-     */
-    private function tableHasRow($tblname, $colname, $value)
+    private function tableHasIndex(string $tblname, string $indexName): bool
     {
-        $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-            "$colname LIKE '$value'");
-        return (bool) $row['count'];
-    }
-
-
-    /**
-     * Check if a Sql row exists. (with two values)
-     *
-     * @param string $tblname  Sql Table Name
-     * @param string $colname  Sql Column Name 1
-     * @param string $value    Sql value 1
-     * @param string $colname2 Sql Column Name 2
-     * @param string $value2   Sql value 2
-     * @return bool returns true if the sql row does exist
-     */
-    private function tableHasRow2D($tblname, $colname, $value, $colname2, $value2)
-    {
-        $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-            "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
-        return (bool) $row['count'];
-    }
-
-
-    /**
-     * Check if a Sql row exists. (with three values)
-     *
-     * @param string $tblname  Sql Table Name
-     * @param string $colname  Sql Column Name 1
-     * @param string $value    Sql value 1
-     * @param string $colname2 Sql Column Name 2
-     * @param string $value2   Sql value 2
-     * @param string $colname3 Sql Column Name 3
-     * @param string $value3   Sql value 3
-     * @return bool returns true if the sql row does exist
-     */
-    private function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3)
-    {
-        $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-            "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
-        return (bool) $row['count'];
-    }
-
-
-    /**
-     * Check if a Sql row exists. (with four values)
-     *
-     * @param string $tblname  Sql Table Name
-     * @param string $colname  Sql Column Name 1
-     * @param string $value    Sql value 1
-     * @param string $colname2 Sql Column Name 2
-     * @param string $value2   Sql value 2
-     * @param string $colname3 Sql Column Name 3
-     * @param string $value3   Sql value 3
-     * @param string $colname4 Sql Column Name 4
-     * @param string $value4   Sql value 4
-     * @return bool returns true if the sql row does exist
-     */
-    private function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4)
-    {
-        $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
-            "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
-        return (bool) $row['count'];
-    }
-
-
-    /**
-     * Check if a Sql table has a certain index/key.
-     *
-     * @param string $tblname Sql Table Name
-     * @param string $colname Sql Index/Key
-     * @return bool returns true if the sql tables has the specified index/key
-     */
-    private function tableHasIndex($tblname, $colname)
-    {
-        $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
-        return !empty($row);
+        return QueryUtils::fetchRecords('SHOW INDEX FROM ' . $this->quoteIdentifier($tblname) . ' WHERE `Key_name` = ?', [$indexName]) !== [];
     }
 
     /**
@@ -1542,8 +1487,8 @@ class SQLUpgradeService implements ISQLUpgradeService
             if ($this->isThrowExceptionOnError()) {
                 throw $exception;
             }
-        } // we let errors percolate up
-        finally {
+        } finally {
+            // we let errors percolate up
             if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }

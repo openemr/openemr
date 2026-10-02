@@ -19,6 +19,7 @@ require_once('../../globals.php');
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -172,7 +173,7 @@ if (filter_input(INPUT_POST, 'print_pdf') || filter_input(INPUT_POST, 'print_htm
 <title>
         <?php echo xlt('CAMOS'); ?>
 </title>
-<link rel="stylesheet" href="./rx.css" />
+<link rel="stylesheet" href="./rx.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" />
 </head>
 <body onload='init()'>
 <img src='./hline.jpg' id='hline'>
@@ -492,7 +493,7 @@ return count_turnoff;
 }
 
 </script>
-<link rel="stylesheet" href="./rx.css" />
+<link rel="stylesheet" href="./rx.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" />
 </head>
 <h1><?php echo xlt('Select CAMOS Entries for Printing'); ?></h1>
 <form method=POST name='pick_items' target=_new>

@@ -77,9 +77,7 @@ class TeleHealthCalendarController
 
     public function getAppointmentService()
     {
-        if (!isset($this->apptService)) {
-            $this->apptService = new AppointmentService();
-        }
+        $this->apptService ??= new AppointmentService();
         return $this->apptService;
     }
 
@@ -111,7 +109,7 @@ class TeleHealthCalendarController
 
                     if ($apptService->isCheckOutStatus($eventsByDay[$key][$i]['apptstatus'])) {
                         $eventViewClasses[] = "event_telehealth_completed";
-                    } else if ($dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)) {
+                    } elseif ($dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)) {
                         // if a provider is not enrolled we want to show that status instead of letting them launch the appt.
                         if (!$canProviderStartTelehealth) {
                             $eventViewClasses[] = "event_telehealth_unenrolled";
@@ -119,7 +117,7 @@ class TeleHealthCalendarController
                             $this->logger->debug("calendarEvent filter  Time is ", ['time' => $dateTime]);
                             $eventViewClasses[] = "event_telehealth_active";
                         }
-                    } else if ($dateTime == false) {
+                    } elseif ($dateTime == false) {
                         $this->logger->error("TeleHealthCalendarController: Failed to create DateTime object for calendar event pc_eid={pc_eid}", ['pc_eid' => $eventsByDay[$key][$i]['eid']]);
                     }
                     $eventsByDay[$key][$i]['eventViewClass'] = implode(" ", $eventViewClasses);
@@ -180,7 +178,7 @@ class TeleHealthCalendarController
             // asset
             $scripts[] = $this->getAssetPath() . "js/telehealth-calendar.js";
             $event->setScripts($scripts);
-        } else if ($this->isAppointmentPageInclude($pageName, $scriptPath)) {
+        } elseif ($this->isAppointmentPageInclude($pageName, $scriptPath)) {
             // note the cache buster is already being populated in Header.php since this script isn't a registered
             // asset
             $scripts = $event->getScripts();

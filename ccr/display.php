@@ -18,9 +18,10 @@
 require_once(__DIR__ . "/../interface/globals.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
+use Symfony\Component\HttpFoundation\Response;
 
 $type = $_GET['type'];
 $document_id = $_GET['doc_id'];
@@ -28,20 +29,26 @@ $d = new Document($document_id);
 
 
 try {
-    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
+    $twig = ServiceContainer::getTwig();
     // can_access will check session if no params are passed.
     if (!$d->can_access()) {
-        echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']),
+            Response::HTTP_UNAUTHORIZED,
+        ));
     } elseif ($d->is_deleted()) {
-        echo $twig->getTwig()->render("templates/error/404.html.twig");
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render("templates/error/404.html.twig"),
+            Response::HTTP_NOT_FOUND,
+        ));
     }
 
     $xml = $d->get_data();
     if (empty($xml)) {
-        echo $twig->getTwig()->render("templates/error/404.html.twig");
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render("templates/error/404.html.twig"),
+            Response::HTTP_NOT_FOUND,
+        ));
     }
 
     $viewCCDAEvent = new PatientDocumentViewCCDAEvent();
@@ -59,8 +66,10 @@ try {
     $content = $updatedViewCCDAEvent->getContent();
     if (empty($content)) {
         // TODO: @adunsulag log the security error as someone is trying to do a remote file inclusion
-        echo $twig->getTwig()->render("templates/error/general_http_error.html.twig", ['statusCode' => 500, 'errorMessage' => 'System error occurred in processing content']);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render("templates/error/general_http_error.html.twig", ['statusCode' => 500, 'errorMessage' => 'System error occurred in processing content']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+        ));
     }
     echo $updatedViewCCDAEvent->getContent();
 } catch (\Throwable $exception) {

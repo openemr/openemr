@@ -182,9 +182,7 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<InvoiceParticipant xmlns="http://hl7.org/fhir"></InvoiceParticipant>');
-        }
+        $sxe ??= new \SimpleXMLElement('<InvoiceParticipant xmlns="http://hl7.org/fhir"></InvoiceParticipant>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->role)) {
             $this->role->xmlSerialize(true, $sxe->addChild('role'));

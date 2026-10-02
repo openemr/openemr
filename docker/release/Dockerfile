@@ -153,13 +153,16 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # Use git clone instead of GitHub archive because OpenEMR's .gitattributes
 # marks tests/, phpunit*.xml, and other dev files as export-ignore, which
 # excludes them from archives but not from clones.
-# Supports branches or tags via OPENEMR_VERSION build argument.
+# Supports branches or tags via OPENEMR_VERSION build argument, and building
+# from a fork or mirror via OPENEMR_GIT (must be clonable without credentials).
 # Examples:
 #   - Branch: --build-arg OPENEMR_VERSION=master
 #   - Tag:    --build-arg OPENEMR_VERSION=v7.0.5
+#   - Fork:   --build-arg OPENEMR_GIT=https://github.com/<you>/openemr.git --build-arg OPENEMR_VERSION=<branch>
 ARG OPENEMR_VERSION=master
 FROM base AS openemr-source
-RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}" --depth 1 \
+ARG OPENEMR_GIT=https://github.com/openemr/openemr.git
+RUN git clone "${OPENEMR_GIT}" --branch "${OPENEMR_VERSION}" --depth 1 openemr \
     && rm -rf openemr/.git
 
 # Stage 2: Install PHP dependencies (Composer)
@@ -167,10 +170,29 @@ RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION
 FROM base AS openemr-composer
 COPY --from=openemr-source /openemr /openemr
 WORKDIR /openemr
+# GitHub zipball 504s are common when Composer pulls many dist files in
+# parallel. Retry both per-file (COMPOSER_MAX_RETRIES) and the whole
+# install; the cache mount keeps successful downloads so retries are cheap.
+ENV COMPOSER_MAX_RETRIES=8
 # Use Docker buildkit cache mount for Composer cache (requires DOCKER_BUILDKIT=1)
-RUN --mount=type=cache,target=/root/.composer/cache \
-    composer install --no-dev --optimize-autoloader \
-    && composer dump-autoload --optimize --apcu
+# POSIX test, not (( )): this RUN executes under Alpine's busybox ash, which
+# parses (( )) as nested subshells rather than arithmetic.
+RUN --mount=type=cache,target=/root/.composer/cache <<EOF
+set -e
+attempt=1
+max_attempts=5
+until composer install --no-dev --optimize-autoloader; do
+    if [ "${attempt}" -ge "${max_attempts}" ]; then
+        printf 'ERROR: composer install failed after %s attempts\n' "${attempt}" >&2
+        exit 1
+    fi
+    printf 'WARNING: composer install failed (attempt %s/%s), retrying in 15s...\n' \
+        "${attempt}" "${max_attempts}" >&2
+    attempt=$((attempt + 1))
+    sleep 15
+done
+composer dump-autoload --optimize --apcu
+EOF
 
 # Stage 3: Build frontend assets (npm)
 # Separate stage allows Docker to cache npm dependencies independently
@@ -180,10 +202,10 @@ WORKDIR /openemr
 RUN apk add --no-cache build-base nodejs npm
 # Use Docker buildkit cache mount for npm cache (requires DOCKER_BUILDKIT=1)
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --unsafe-perm \
+    npm install \
     && npm run build \
     && cd ccdaservice \
-    && npm install --unsafe-perm \
+    && npm install --allow-git=all \
     && cd .. \
     && rm -fr node_modules \
     && apk del --no-cache build-base
@@ -291,6 +313,8 @@ COPY upgrade/docker-version \
      upgrade/fsupgrade-11.sh \
      upgrade/fsupgrade-12.sh \
      upgrade/fsupgrade-13.sh \
+     upgrade/fsupgrade-14.sh \
+     upgrade/fsupgrade-15.sh \
      /root/
 
 # Set upgrade scripts as executable (read and execute for owner only)
@@ -307,7 +331,9 @@ RUN chmod 500 \
     /root/fsupgrade-10.sh \
     /root/fsupgrade-11.sh \
     /root/fsupgrade-12.sh \
-    /root/fsupgrade-13.sh
+    /root/fsupgrade-13.sh \
+    /root/fsupgrade-14.sh \
+    /root/fsupgrade-15.sh
 
 # ============================================================================
 # APACHE RUNTIME DIRECTORY

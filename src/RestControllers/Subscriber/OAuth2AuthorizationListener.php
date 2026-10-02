@@ -48,9 +48,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
      */
     public function getLogger(): LoggerInterface
     {
-        if (!isset($this->logger)) {
-            $this->logger = ServiceContainer::getLogger();
-        }
+        $this->logger ??= ServiceContainer::getLogger();
         return $this->logger;
     }
 

@@ -30,16 +30,16 @@ class RuleAction
     public $groupId;
     public $targetCriteria;
 
-    function __construct()
+    public function __construct()
     {
     }
 
-    function getTitle()
+    public function getTitle()
     {
         return RuleTemplateExtension::getLabel($this->category, 'rule_action_category') . " - " . RuleTemplateExtension::getLabel($this->item, 'rule_action');
     }
 
-    function getCategoryLabel()
+    public function getCategoryLabel()
     {
         if (!$this->categoryLbl) {
             $this->categoryLbl = RuleTemplateExtension::getLabel($this->category, 'rule_action_category');
@@ -48,7 +48,7 @@ class RuleAction
         return $this->categoryLbl;
     }
 
-    function getItemLabel()
+    public function getItemLabel()
     {
         if (!$this->itemLbl) {
             $this->itemLbl = RuleTemplateExtension::getLabel($this->item, 'rule_action');

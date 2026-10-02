@@ -27,10 +27,12 @@ use Psr\Log\{
 };
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\Manager;
 use OpenEMR\Services\Storage\ManagerInterface;
+use Twig\Environment as TwigEnvironment;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
 use Psr\Clock\ClockInterface;
@@ -238,6 +240,15 @@ class ServiceContainer
                 }
                 return $manager;
             },
+        );
+    }
+
+    public static function getTwig(): TwigEnvironment
+    {
+        return self::resolveOrCreate(
+            TwigEnvironment::class,
+            static fn(): TwigEnvironment => (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+                ->getTwig(),
         );
     }
 

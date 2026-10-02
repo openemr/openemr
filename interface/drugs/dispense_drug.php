@@ -17,7 +17,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
-use PHPMailer\PHPMailer\PHPMailer;
 
 $facilityService = new FacilityService();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -29,12 +28,9 @@ function send_email($subject, $body): void
         return;
     }
 
-    $mail = new PHPMailer();
+    $mail = new MyMailer();
     $mail->From = $recipient;
     $mail->FromName = 'In-House Pharmacy';
-    $mail->isMail();
-    $mail->Host = "localhost";
-    $mail->Mailer = "mail";
     $mail->Body = $body;
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
@@ -203,7 +199,7 @@ sprintf("\n%s %s %s %s\n%s %s %s", xl('Lot'), $row['lot_number'], xl('Exp'), $ro
 
 ?>
 <html>
-    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <head>
 <style>
 body {

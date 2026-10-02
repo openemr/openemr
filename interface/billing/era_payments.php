@@ -30,7 +30,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
@@ -111,10 +110,8 @@ if ($confirm_overwrite === 'yes' && $validEraName) {
         unlink($realTempFile);
     }
     $alertmsg .= xl("Upload cancelled.") . ' ';
-}
-//===============================================================================
-  // Handle X12 835 file upload.
-elseif (!empty($_FILES['form_erafile']['size'])) {
+} elseif (!empty($_FILES['form_erafile']['size'])) {
+    // Handle X12 835 file upload.
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
@@ -432,7 +429,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         </div>
     </div><!-- End of Container Div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-    <script src = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/js/oeUI/oeFileUploads.js'></script>
+    <script src = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/js/oeUI/oeFileUploads.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>'></script>
 
     <!-- Overwrite Confirmation Modal -->
     <div class="modal fade" id="overwriteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="overwriteConfirmModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">

@@ -30,13 +30,14 @@ function get_patients_list($req): void
 {
     $term = "%" . $req['term'] . "%";
     $clear = "- " . xl("Reset to no patient") . " -";
+    $sqlLimit = is_array($req) ? ($req['sql_limit'] ?? null) : null;
     $response = sqlStatement(
         "SELECT CONCAT(fname, ' ',lname,IF(IFNULL(deceased_date,0)=0,'','*')) as label, pid as value
             FROM patient_data
             HAVING label LIKE ?
             ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
-            LIMIT " . escape_limit($req['sql_limit']),
-        [$term]
+            LIMIT ?",
+        [$term, is_numeric($sqlLimit) ? (int) $sqlLimit : 0]
     );
     while ($row = sqlFetchArray($response)) {
         if (OEGlobalsBag::getInstance()->get('pid') == $row['value']) {

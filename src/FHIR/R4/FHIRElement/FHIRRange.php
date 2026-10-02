@@ -183,9 +183,7 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Range xmlns="http://hl7.org/fhir"></Range>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Range xmlns="http://hl7.org/fhir"></Range>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->low)) {
             $this->low->xmlSerialize(true, $sxe->addChild('low'));

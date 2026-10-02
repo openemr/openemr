@@ -12,11 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\OEGlobalsBag;
-
 require_once("../../globals.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-
 function clinic_note_report($pid, $encounter, $cols, $id): void
 {
     $cols = 1; // force always 1 column

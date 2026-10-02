@@ -26,42 +26,42 @@ class CdrResults
 {
     public $rule;
 
-    function __construct(public $id = "", public $active_flag = "", public $passive_flag = "", public $reminder_flag = "", public $access_control = "")
+    public function __construct(public $id = "", public $active_flag = "", public $passive_flag = "", public $reminder_flag = "", public $access_control = "")
     {
         $this->rule = RuleTemplateExtension::getLabel($this->id, 'clinical_rules');
     }
 
-    function active_alert_flag()
+    public function active_alert_flag()
     {
         return $this->active_flag;
     }
 
-    function passive_alert_flag()
+    public function passive_alert_flag()
     {
         return $this->passive_flag;
     }
 
-    function get_rule()
+    public function get_rule()
     {
         return $this->rule;
     }
 
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
-    function patient_reminder_flag()
+    public function patient_reminder_flag()
     {
         return $this->reminder_flag;
     }
 
-    function access_control()
+    public function access_control()
     {
         return $this->access_control;
     }
 
-    function update_table()
+    public function update_table()
     {
 
         // Set the settings that only apply to the main rule (pid = 0)

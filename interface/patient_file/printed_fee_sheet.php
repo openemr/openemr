@@ -23,7 +23,6 @@ $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActi
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/appointments.inc.php");
-require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -468,7 +467,12 @@ foreach ($pid_list as $pid) {
 
             // Note: You would think that pc_comments would have the Appt. comments,
             // but it is actually stored in pc_hometext in DB table (openemr_postcalendar_events).
-            $html .= $appointment['pc_hometext'] ?? '';
+            // Output-escape — the FHIR Appointment write path persists
+            // Appointment.comment into this column verbatim, so without
+            // escaping any API client with patients/appt could store HTML
+            // (including <script>) that would execute when staff print a
+            // fee sheet (CWE-79 stored XSS).
+            $html .= text($appointment['pc_hometext'] ?? '');
 
             $html .= "</td>
 </tr>
@@ -504,9 +508,10 @@ foreach ($pid_list as $pid) {
                 $html .= xlt('Visit date');
                 $html .= ":<br />\n";
                 if (!empty($encdata)) {
-                    $html .= text(substr((string) $encdata['date'], 0, 10));
+                    $html .= text(substr((string) ($encdata['date'] ?? ''), 0, 10));
                 } else {
-                    $html .= text(oeFormatShortDate(date('Y-m-d'))) . "\n";
+                    $today = oeFormatShortDate(date('Y-m-d'));
+                    $html .= text(is_string($today) ? $today : '') . "\n";
                 }
             }
 

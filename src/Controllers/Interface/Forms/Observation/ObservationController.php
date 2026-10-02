@@ -14,12 +14,12 @@
 namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
 use InvalidArgumentException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -51,7 +51,7 @@ class ObservationController
         ?Environment $twig = null,
         private ?PatientService $patientService = new PatientService()
     ) {
-        $this->twig = $twig ?? (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+        $this->twig = $twig ?? ServiceContainer::getTwig();
         $this->codeTypeService = new CodeTypesService();
     }
 
@@ -205,11 +205,11 @@ class ObservationController
                 $templateData['statusMessage'] = xl('Observation saved successfully.');
                 $templateData['statusType'] = 'success';
                 $templateData['refreshParent'] = true;
-            } else if ($request->query->get('status') === 'delete_success') {
+            } elseif ($request->query->get('status') === 'delete_success') {
                 $templateData['statusMessage'] = xl('Observation deleted successfully.');
                 $templateData['statusType'] = 'success';
                 $templateData['refreshParent'] = true;
-            } else if ($request->query->get('status') === 'delete_failed') {
+            } elseif ($request->query->get('status') === 'delete_failed') {
                 $templateData['statusMessage'] = xl('Failed to delete observation. Please try again.');
                 $templateData['statusType'] = 'danger';
             }
@@ -306,9 +306,29 @@ class ObservationController
             // grab any ids before postData can overwrite them
             $originalIds = array_filter(array_map(fn($sub) => $sub['id'] ?? 0, $observation['sub_observations'] ?? []));
 
+            // Merge only the clinical fields the enhanced observation form
+            // legitimately edits. Server-controlled identity + provenance
+            // fields (id, pid, encounter, form_id, user, groupname, authorized,
+            // uuid, parent_observation_id, questionnaire_response_id) are set
+            // above and must not be overridden by request input.
+            $allowedPostFields = [
+                'code',
+                'description',
+                'ob_value',
+                'ob_unit',
+                'ob_status',
+                'date',
+                'date_end',
+                'code_type',
+                'table_code',
+                'ob_type',
+                'observation',
+                'ob_reason_code',
+                'ob_reason_status',
+                'ob_reason_text',
+            ];
             foreach ($postData as $fieldName => $value) {
-                // update only fields that exist in the observation
-                if (!in_array($fieldName, ['form_id', 'pid', 'encounter', 'userauthorized', 'groupname', 'user'])) {
+                if (in_array($fieldName, $allowedPostFields, true)) {
                     $observation[$fieldName] = $value;
                 }
             }
@@ -685,7 +705,7 @@ class ObservationController
             // no id provided and no form_id provided
             // show new / edit view
             return false;
-        } else if ($request->query->getInt('form_id') <= 0) {
+        } elseif ($request->query->getInt('form_id') <= 0) {
             // if we only have an id(form_id) provided we show the list view as data exists for this form
             return true;
         } else {

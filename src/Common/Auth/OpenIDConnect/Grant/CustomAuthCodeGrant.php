@@ -17,7 +17,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
-use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -92,7 +91,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
                 $this->getSystemLogger()->error("CustomAuthCodeGrant::validateAuthorizationRequest: Aud parameter {audience} did not match authorized server in non-launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
                 throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
             }
-        } else if (empty($audience) && empty($launch)) {
+        } elseif (empty($audience) && empty($launch)) {
             $this->getSystemLogger()->debug("CustomAuthCodeGrant::validateAuthorizationRequest: Aud parameter not provided (and non-launch scenario), so not validating aud (audience)");
         }
 
@@ -200,12 +199,6 @@ class CustomAuthCodeGrant extends AuthCodeGrant
                 // Validate the JWT assertion
                 $this->jwtAuthService->validateJWTClientAssertion($request, $client);
 
-                // Validate client is authorized for this grant type
-                if (!$this->clientRepository->validateClient($clientId, null, $this->getIdentifier())) {
-                    $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-                    throw OAuthServerException::invalidClient($request);
-                }
-
                 // Validate redirect URI if provided
                 $redirectUri = $this->getRequestParameter('redirect_uri', $request);
                 if ($redirectUri !== null) {
@@ -227,7 +220,13 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             $logger->debug('CustomAuthCodeGrant::validateClient: Using traditional client secret authentication');
             $client = parent::validateClient($request);
             if (!($client instanceof ClientEntity)) {
-                $logger->error("CustomAuthCodeGrant::validateClient: Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
+                // $client may be false / null / a non-ClientEntity, so
+                // don't dereference it here. Log the client_id from the
+                // request if we can get it.
+                $logger->error(
+                    "CustomAuthCodeGrant::validateClient: Client returned was not a valid ClientEntity",
+                    ['client' => $this->getRequestParameter('client_id', $request, null)]
+                );
                 throw OAuthServerException::invalidClient($request);
             }
         }

@@ -18,7 +18,7 @@ class ControllerAdd extends BaseController
         parent::__construct();
     }
 
-    function _action_add()
+    public function _action_add()
     {
         $this->viewBean->_view = "add.php";
     }

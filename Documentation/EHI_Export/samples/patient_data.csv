@@ -1,0 +1,3 @@
+pid,pubpid,fname,mname,lname,DOB,sex,street,city,state,postal_code,country_code,phone_cell,email,status,language,race,ethnicity,preferred_name,deceased_date
+1001,DEMO-1001,Amira,,Rahman,1984-03-12,Female,101 Example Avenue,Testville,MA,02110,US,555-0101,amira.rahman@example.invalid,married,English,asian,not_hispanic_or_latino,Amira,
+1002,DEMO-1002,Daniel,J,Okafor,1971-11-28,Male,202 Sample Street,Mock City,GA,30303,US,555-0102,,single,English,black_or_african_american,not_hispanic_or_latino,Dan,

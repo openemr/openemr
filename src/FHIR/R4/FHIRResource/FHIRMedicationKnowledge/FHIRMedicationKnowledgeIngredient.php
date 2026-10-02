@@ -240,9 +240,7 @@ class FHIRMedicationKnowledgeIngredient extends FHIRBackboneElement implements \
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgeIngredient xmlns="http://hl7.org/fhir"></MedicationKnowledgeIngredient>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgeIngredient xmlns="http://hl7.org/fhir"></MedicationKnowledgeIngredient>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->itemCodeableConcept)) {
             $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));

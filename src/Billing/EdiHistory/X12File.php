@@ -100,7 +100,7 @@ class X12File
     private $constructing = false;
     private $gstype_ar = ['HB' => '271', 'HS' => '270', 'HR' => '276', 'HN' => '277',
                             'HI' => '278', 'HP' => '835', 'FA' => '999', 'HC' => '837'];
-    function __construct($file_path = '', $mk_segs = true, $text = false)
+    public function __construct($file_path = '', $mk_segs = true, $text = false)
     {
         if ($file_path === '') {
             return;
@@ -1313,7 +1313,7 @@ class X12File
      * @param array $arg_array note: all element values except 'keys' are strings
      * @return array
      */
-    function edih_x12_slice($arg_array, $file_text = '')
+    public function edih_x12_slice($arg_array, $file_text = '')
     {
         $ret_ar = [];
         $f_str = '';

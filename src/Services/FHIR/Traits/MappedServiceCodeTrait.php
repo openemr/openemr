@@ -52,7 +52,7 @@ trait MappedServiceCodeTrait
     public function getServiceForCode(TokenSearchField $field, $defaultCode)
     {
         // shouldn't ever hit the default but we have it there just in case.
-        $values = $field->getValues() ?? [new TokenSearchValue($defaultCode)];
+        $values = $field->getValues() ?: [new TokenSearchValue($defaultCode)];
         $searchCode = $values[0]->getCode();
 
         // we only grab the first one as we assume each service only supports a single LOINC observation code
@@ -79,7 +79,7 @@ trait MappedServiceCodeTrait
     public function getServiceForCategory(TokenSearchField $category, $defaultCategory): FhirServiceBase
     {
         // let the field parse our category
-        $values = $category->getValues() ?? [new TokenSearchValue($defaultCategory)];
+        $values = $category->getValues() ?: [new TokenSearchValue($defaultCategory)];
         foreach ($values as $value) {
             // we only search the first one
             $parsedCategory = $value->getCode();
