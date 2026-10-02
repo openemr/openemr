@@ -1015,11 +1015,18 @@ class FhirServiceRequestService extends FhirServiceBase implements
         // Optional encounter resolution
         $euuid = $openEmrRecord['euuid'] ?? null;
         if (is_string($euuid) && $euuid !== '') {
+            // The encounter is optional, but one the client names has to exist: dropping an
+            // unresolvable reference would save the order unlinked and answer success.
             // A soft-deleted encounter resolves to null, like an unknown one.
             $encounter = EncounterService::getActiveEncounterByUuid($euuid);
-            if ($encounter !== null) {
-                $header['encounter_id'] = $encounter['encounter'];
+            if ($encounter === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'encounter' => 'Encounter reference could not be resolved: ' . $euuid,
+                ]);
+                return $result;
             }
+            $header['encounter_id'] = $encounter['encounter'];
         }
 
         // Optional requester resolution. procedure_order.provider_id is the ordering provider of

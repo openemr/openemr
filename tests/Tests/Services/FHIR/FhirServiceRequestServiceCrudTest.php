@@ -66,6 +66,24 @@ class FhirServiceRequestServiceCrudTest extends TestCase
     }
 
     #[Test]
+    public function testInsertWithUnresolvableEncounterIsRejected(): void
+    {
+        // The encounter is optional, but one the client names has to exist; dropping it would
+        // save the order unlinked and still answer success. An unregistered uuid leaves no
+        // uuid_registry row behind for teardown to miss.
+        $bogusEncounterUuid = $this->fixtureManager->getUnregisteredUuid();
+        $this->fhirServiceRequestFixture->setId(new FHIRId());
+        $payload = $this->fhirServiceRequestFixture->jsonSerialize();
+        $payload['encounter'] = ['reference' => 'Encounter/' . $bogusEncounterUuid];
+
+        $result = $this->fhirServiceRequestService->insert(new FHIRServiceRequest($payload));
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('encounter', $messages);
+    }
+
+    #[Test]
     public function testInsertCreatesOrderAndCodes(): void
     {
         $this->fhirServiceRequestFixture->setId(new FHIRId());

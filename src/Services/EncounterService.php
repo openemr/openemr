@@ -62,8 +62,8 @@ class EncounterService extends BaseService
      * Deleting an encounter flags its 'newpatient' forms row and leaves the form_encounter row
      * in place, so a lookup against form_encounter alone still finds a deleted encounter and
      * lets a write attach new data to it. Encounters with no newpatient row at all are still
-     * returned, since older data may lack one; only an encounter whose newpatient row is
-     * flagged deleted is treated as gone.
+     * returned, since older data may lack one; an encounter with any newpatient row flagged
+     * deleted is treated as gone.
      *
      * @return array{encounter: int, pid: int}|null Null when the uuid is malformed, unknown or deleted.
      */
@@ -74,8 +74,11 @@ class EncounterService extends BaseService
         }
         $row = QueryUtils::querySingleRow(
             'SELECT fe.`encounter`, fe.`pid` FROM `form_encounter` fe'
-            . " LEFT JOIN `forms` f ON f.`encounter` = fe.`encounter` AND f.`pid` = fe.`pid` AND f.`formdir` = 'newpatient'"
-            . ' WHERE fe.`uuid` = ? AND (f.`id` IS NULL OR f.`deleted` = 0)'
+            . ' WHERE fe.`uuid` = ?'
+            // NOT EXISTS rather than a LEFT JOIN filter: forms allows more than one newpatient
+            // row per encounter, and a join would let a surviving row outvote a deleted one.
+            . " AND NOT EXISTS (SELECT 1 FROM `forms` f WHERE f.`encounter` = fe.`encounter`"
+            . " AND f.`pid` = fe.`pid` AND f.`formdir` = 'newpatient' AND f.`deleted` <> 0)"
             . ' LIMIT 1',
             [UuidRegistry::uuidToBytes($uuid)]
         );

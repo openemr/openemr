@@ -523,11 +523,18 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $euuid = $record['euuid'] ?? null;
         if (is_string($euuid) && $euuid !== '') {
+            // The encounter is optional, but one the client names has to exist: dropping an
+            // unresolvable reference would save the prescription unlinked and answer success.
             // A soft-deleted encounter resolves to null, like an unknown one.
             $encounter = EncounterService::getActiveEncounterByUuid($euuid);
-            if ($encounter !== null) {
-                $record['encounter'] = $encounter['encounter'];
+            if ($encounter === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'encounter' => 'Encounter reference could not be resolved: ' . $euuid,
+                ]);
+                return $result;
             }
+            $record['encounter'] = $encounter['encounter'];
             unset($record['euuid']);
         }
 
