@@ -190,7 +190,13 @@ class DocumentTemplateRender
                 $form_id = $matches[4];
                 $form_name = $matches[2];
                 $this->keyLength = strlen($matches[0]);
-                $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
+                $src = './../questionnaire_template.php?' . \OpenEMR\Common\Http\QueryString::build([
+                    'isPortal' => '1',
+                    'type' => 'loinc_form',
+                    'name' => $form_name,
+                    'url' => $q_url,
+                    'form_code' => $form_id,
+                ]);
                 $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($form_name) . "</script>";
                 $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);

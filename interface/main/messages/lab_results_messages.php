@@ -50,8 +50,7 @@ function lab_results_messages($set_pid, $rid, $provider_id = ""): void
             if ($thisauth) {
                 // Send lab result message to the ordering provider when there is a new lab report.
                 $pname = getPatientName($set_pid);
-                $link = "<a href='../../orders/orders_results.php?review=1&set_pid=" . attr_url($set_pid) . "'" .
-                " onclick='return top.restoreSession()'>here</a>";
+                $link = "<a href='../../orders/orders_results.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['review' => '1', 'set_pid' => $set_pid]) . "' onclick='return top.restoreSession()'>here</a>";
                 $note = "Patient $pname's lab results have arrived. Please click $link to review them.<br/>";
                 $note_type = "Lab Results";
                 $message_status = "New";

@@ -104,7 +104,7 @@ class WenoPharmaciesJson
         $wenoLog = new WenoLogService();
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
-        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode((string) $this->providerEmail()) . "&data=" . urlencode($this->encrypted);
+        $url = $this->wenoPharmacyDirectoryLink() . "?" . \OpenEMR\Common\Http\QueryString::build(['useremail' => (string) $this->providerEmail(), 'data' => $this->encrypted]);
         // Log the endpoint only. The query string carries the admin email and the
         // encrypted credential payload, and weno_download_log.data_in_context is
         // readable from the download log viewer.

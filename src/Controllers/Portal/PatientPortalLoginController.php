@@ -72,7 +72,7 @@ class PatientPortalLoginController
         PortalSessionAccessor $session,
         OEGlobalsBag $globalsBag
     ): PatientPortalLoginResult {
-        $landingpage = 'index.php?site=' . urlencode($siteIdHint);
+        $landingpage = 'index.php?' . \OpenEMR\Common\Http\QueryString::build(['site' => $siteIdHint]);
         $redirectParam = $this->stringOrNull($request['redirect'] ?? null);
         if ($redirectParam !== null) {
             $landingpage .= '&redirect=' . urlencode($redirectParam);

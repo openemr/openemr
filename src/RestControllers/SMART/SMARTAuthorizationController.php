@@ -235,7 +235,7 @@ class SMARTAuthorizationController
             // error occurred, no patients found just display the screen with an error message
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
             $errorMessage = "There was a server error in loading patients.  Contact your system administrator for assistance";
-            $url = $this->authBaseFullURL . self::PATIENT_SELECT_PATH . "?error=" . urlencode($errorMessage);
+            $url = $this->authBaseFullURL . self::PATIENT_SELECT_PATH . "?" . \OpenEMR\Common\Http\QueryString::build(['error' => $errorMessage]);
             return (new Psr17Factory())->createResponse()->withStatus(Response::HTTP_TEMPORARY_REDIRECT) // 307 Temporary Redirect
             ->withHeader('Location', $url);
         }

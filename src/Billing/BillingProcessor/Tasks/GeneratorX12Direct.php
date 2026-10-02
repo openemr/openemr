@@ -295,10 +295,11 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $x12_partner_name = text($this->x12_partners[$x12_partner_id]['name']);
                 // For the modal, build a list of downloads
                 $file = $created_batch->getBatFilename();
-                $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
-                    'key=' . urlencode($file) .
-                    '&partner=' . urlencode($x12_partner_id) .
-                    '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session));
+                $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'key' => $file,
+                    'partner' => $x12_partner_id,
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]);
                 $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
                         <a href='" . attr($url) . "'>" . text($file) . "</a>

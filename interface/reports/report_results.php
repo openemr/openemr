@@ -183,63 +183,63 @@ while ($row = sqlFetchArray($res)) {
         }
 
         $type_title = xl('Clinical Quality Measures (CQM)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"], 'back' => 'list']);
     } elseif ($row['type'] == "cqm_2011") {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('2011 Clinical Quality Measures (CQM)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"], 'back' => 'list']);
     } elseif ($row['type'] == "cqm_2014") {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('2014 Clinical Quality Measures (CQM)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"], 'back' => 'list']);
     } elseif (CertificationReportTypes::isAMCReportType($row['type'])) {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_amc')) {
             continue;
         }
         $record = $amc_report_types[$row['type']];
         $type_title = $record['ruleset_title'];
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"], 'back' => 'list']);
     } elseif ($row['type'] == "process_reminders") {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Processing Patient Reminders');
-        $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
+        $link = "../batchcom/batch_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"]]);
     } elseif ($row['type'] == "process_send_reminders") {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Processing and Sending Patient Reminders');
-        $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
+        $link = "../batchcom/batch_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"]]);
     } elseif ($row['type'] == "passive_alert") {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Passive Alerts)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"], 'back' => 'list']);
     } elseif ($row['type'] == "active_alert") {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Active Alerts)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"], 'back' => 'list']);
     } elseif ($row['type'] == "patient_reminder") {
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Patient Reminders)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['report_id' => $row["report_id"], 'back' => 'list']);
     } else {
         // Not identified, so give an unknown title
         $type_title = xl('Unknown') . "-" . $row['type'];

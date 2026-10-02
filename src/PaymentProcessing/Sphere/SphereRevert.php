@@ -123,7 +123,13 @@ class SphereRevert
                 'aggregator1' => Sphere::AGGREGATOR_ID,
                 'custid' => $this->custid,
                 'password' => $this->custpass,
-                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode(CsrfUtils::collectCsrfToken($session, 'sphere_revert')),
+                'returnurl' => $this->returnUrl . "?" . \OpenEMR\Common\Http\QueryString::build([
+                    'action' => $action,
+                    'front' => $this->front,
+                    'uuid_tx' => $uuidTx,
+                    'revert' => '1',
+                    'csrf_token' => CsrfUtils::collectCsrfToken($session, 'sphere_revert'),
+                ]),
                 'action' => $action,
                 'transid' => $transid
             ]

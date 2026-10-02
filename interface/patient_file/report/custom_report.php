@@ -562,9 +562,7 @@ function getContent()
                                     $tmp_files_remove[] = $from_file_tmp_web_name;
                                     echo " /><br /><br />";
                                 } else {
-                                    echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() .
-                                        "/controller.php?document&retrieve&patient_id=&document_id=" .
-                                        attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br /><br />";
+                                    echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => '', 'document_id' => $document_id, 'as_file' => 'false', 'original_file' => 'true', 'disable_exit' => 'false', 'show_original' => 'true']) . "'><br /><br />";
                                 }
                             } else {
                                 // Most clinic documents are expected to be PDFs, and in that happy case
@@ -633,7 +631,7 @@ function getContent()
                                         if ($extension === '.pdf' || $extension === '.zip') {
                                             echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) . "</em><br />";
                                         } else {
-                                            echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                            echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => '', 'document_id' => $document_id, 'as_file' => 'false', 'original_file' => 'false']) . "'><br /><br />";
                                         }
                                     }
                                 }

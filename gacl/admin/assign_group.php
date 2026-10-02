@@ -6,6 +6,7 @@ require_once("../../interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -69,7 +70,7 @@ switch ($postAction) {
         }
 
         //Return page.
-        $gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode((string) $_POST['group_type']) .'&group_id='. urlencode((string) $_POST['group_id']));
+        $gacl_api->return_page(CurrentRequest::get()->server->getString('PHP_SELF') . '?' . \OpenEMR\Common\Http\QueryString::build(['group_type' => (string) $_POST['group_type'], 'group_id' => (string) $_POST['group_id']]));
 
         break;
     case 'Submit':
@@ -93,7 +94,7 @@ switch ($postAction) {
             }
         }
 
-        $gacl_api->return_page($_SERVER['PHP_SELF'] .'?group_type='. urlencode((string) $_POST['group_type']) .'&group_id='. urlencode((string) $_POST['group_id']));
+        $gacl_api->return_page(CurrentRequest::get()->server->getString('PHP_SELF') . '?' . \OpenEMR\Common\Http\QueryString::build(['group_type' => (string) $_POST['group_type'], 'group_id' => (string) $_POST['group_id']]));
 
         break;
     default:

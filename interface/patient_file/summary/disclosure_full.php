@@ -176,18 +176,14 @@ $active = $_GET['active'] ?? '';
                             <td>
                             <?php
                             if ($offset > ($N - 1) && $n != 0) {
-                                echo "   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-                                    "&offset=" . attr_url((string) ($offset - $N)) . "' onclick='top.restoreSession()'>[" .
-                                    xlt('Previous') . "]</a>\n";
+                                echo "   <a class='link' href='disclosure_full.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['active' => $active, 'offset' => (string) ($offset - $N)]) . "' onclick='top.restoreSession()'>[" . xlt('Previous') . "]</a>\n";
                             }
                             ?>
 
                             <?php
 
                             if ($n >= $N && $noOfRecordsLeft != $N) {
-                                echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-                                    "&offset=" . attr_url((string) ($offset + $N))  . "&leftrecords=" . attr_url((string) $noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
-                                    xlt('Next') . "]</a>\n";
+                                echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['active' => $active, 'offset' => (string) ($offset + $N), 'leftrecords' => (string) $noOfRecordsLeft]) . "' onclick='top.restoreSession()'>[" . xlt('Next') . "]</a>\n";
                             }
                             ?>
                             </td>

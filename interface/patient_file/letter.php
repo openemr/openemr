@@ -211,7 +211,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/patient_file/letter.php?' . \OpenEMR\Common\Http\QueryString::build(['template' => 'autosaved', 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();

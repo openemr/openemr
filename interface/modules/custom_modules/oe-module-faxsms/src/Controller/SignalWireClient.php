@@ -372,9 +372,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
             }
 
             $base = rtrim((string)$this->serverUrl, '/');
-            $mediaUrl = $base . '/interface/modules/custom_modules/oe-module-faxsms/library/faxMedia.php'
-                . '?site=' . urlencode((string)$siteId)
-                . '&t=' . urlencode($token);
+            $mediaUrl = $base . '/interface/modules/custom_modules/oe-module-faxsms/library/faxMedia.php?' . \OpenEMR\Common\Http\QueryString::build(['site' => (string)$siteId, 't' => $token]);
 
             if ($this::debugLogging) {
                 error_log("SignalWireClient.uploadFileForFax(): DEBUG - staged {$path}");

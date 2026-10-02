@@ -102,7 +102,7 @@ if (isset($_POST['mode'])) {
         $created_time
     ];
     sqlStatement($query, $sqlBindArray);
-    header("Location:add_edit_amendments.php?id=" . urlencode((string) $amendment_id));
+    header("Location:add_edit_amendments.php?" . \OpenEMR\Common\Http\QueryString::build(['id' => (string) $amendment_id]));
     exit;
 }
 

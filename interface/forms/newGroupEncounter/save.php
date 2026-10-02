@@ -150,7 +150,7 @@ if ($mode == 'new') {
     die("Unknown mode '" . text($mode) . "'");
 }
 
-$normalurl = "patient_file/encounter/encounter_top.php?set_encounter=" . urlencode((string) $encounter);
+$normalurl = "patient_file/encounter/encounter_top.php?" . \OpenEMR\Common\Http\QueryString::build(['set_encounter' => (string) $encounter]);
 
 $nexturl = $normalurl;
 

@@ -7,7 +7,7 @@ use Twig\Environment;
 
 class ParticipantListService
 {
-    public function __construct(private readonly Environment $twig, private readonly TeleHealthProvisioningService $provisioningService, private $publicPathFQDN)
+    public function __construct(private readonly Environment $twig, private readonly TeleHealthProvisioningService $provisioningService, private readonly string $publicPathFQDN)
     {
     }
 
@@ -37,8 +37,7 @@ class ParticipantListService
     private function getJoinLink($session)
     {
         // the index-portal will redirect the person to login before completing the action
-        return $this->publicPathFQDN . "index-portal.php?action=launch_patient_session&pc_eid="
-            . intval($session['pc_eid']);
+        return $this->publicPathFQDN . "index-portal.php?" . \OpenEMR\Common\Http\QueryString::build(['action' => 'launch_patient_session', 'pc_eid' => intval($session['pc_eid'])]);
     }
 
     public function getSparseParticipantListFromSession($session)

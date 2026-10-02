@@ -142,7 +142,7 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
     }
     if ($mode == "FinishPayments") {
         // @todo This is not useful. Gonna let fall through to form init.
-        header("Location: edit_payment.php?payment_id=" . $payment_id . "&ParentPage=new_payment");
+        header("Location: edit_payment.php?" . \OpenEMR\Common\Http\QueryString::build(['payment_id' => $payment_id, 'ParentPage' => 'new_payment']));
         die();
     }
     $mode = "search";

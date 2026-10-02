@@ -139,19 +139,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
                 $sortlink = [];
                 for ($i = 0; $i < count($sort); $i++) {
-                    $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
-                    "<i class='fa fa-sort-desc fa-lg'></i></a>";
+                    $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $patient_id, 'mode' => $mode, 'sortby' => $sort[$i], 'sortorder' => 'asc']) . "\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'><i class='fa fa-sort-desc fa-lg'></i></a>";
                 }
                 for ($i = 0; $i < count($sort); $i++) {
                     if ($sortby == $sort[$i]) {
                         switch ($sortorder) {
                             case "asc":
-                                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
-                                          "<i class='fa fa-sort-asc fa-lg'></i></a>";
+                                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $patient_id, 'mode' => $mode, 'sortby' => $sortby, 'sortorder' => 'desc']) . "\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'><i class='fa fa-sort-asc fa-lg'></i></a>";
                                 break;
                             case "desc":
-                                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Down') . "'>" .
-                                          "<i class='fa fa-sort-desc fa-lg'></i></a>";
+                                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $patient_id, 'mode' => $mode, 'sortby' => $sortby, 'sortorder' => 'asc']) . "\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Down') . "'><i class='fa fa-sort-desc fa-lg'></i></a>";
                                 break;
                         } break;
                     }
@@ -188,13 +185,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
 
                 if ($prev >= 0) {
-                    $prevlink = "<a href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($prev) . "\" onclick=\"top.restoreSession()\"><<</a>";
+                    $prevlink = "<a href=\"patient_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $patient_id, 'mode' => $mode, 'sortby' => $sortby, 'sortorder' => $sortorder, 'begin' => $prev]) . "\" onclick=\"top.restoreSession()\"><<</a>";
                 } else {
                     $prevlink = "<<";
                 }
 
                 if ($next < $total) {
-                    $nextlink = "<a href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($next) . "\" onclick=\"top.restoreSession()\">>></a>";
+                    $nextlink = "<a href=\"patient_reminders.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $patient_id, 'mode' => $mode, 'sortby' => $sortby, 'sortorder' => $sortorder, 'begin' => $next]) . "\" onclick=\"top.restoreSession()\">>></a>";
                 } else {
                     $nextlink = ">>";
                 }

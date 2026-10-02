@@ -265,7 +265,7 @@ $responseForJs = json_encode(
     $questionnaireResponse,
     JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 );
-$formAction = $rootdir . '/forms/questionnaire_assessments/save.php?form_id=' . urlencode((string) $formid);
+$formAction = $rootdir . '/forms/questionnaire_assessments/save.php?' . \OpenEMR\Common\Http\QueryString::build(['form_id' => (string) $formid]);
 if ($isPortal) {
     $formAction .= '&isPortal=1';
 }

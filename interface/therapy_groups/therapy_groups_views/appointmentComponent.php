@@ -69,7 +69,7 @@ use OpenEMR\Core\OEGlobalsBag;
                 ?>
                 <div class="event_details">
                         <?php if ($edit) { ?>
-                            <a onclick="goToEvent(<?php echo attr_js(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode((string) $groupId) . "&date=" . urlencode((string) $date_for_url) . "&eid=" . urlencode((string) $event['pc_eid'])); ?>)">
+                            <a onclick="goToEvent(<?php echo attr_js(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/main/calendar/add_edit_event.php?" . \OpenEMR\Common\Http\QueryString::build(['group' => 'true', 'groupid' => (string) $groupId, 'date' => (string) $date_for_url, 'eid' => (string) $event['pc_eid']])); ?>)">
                         <?php } ?>
                         <span class="font-weight-bold"><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></span>
                         <br />

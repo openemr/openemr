@@ -168,7 +168,7 @@ class TelemetryService
             ];
         }
 
-        $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
+        $endpoint = "https://reg.open-emr.org/api/usage?" . \OpenEMR\Common\Http\QueryString::build(['SiteID' => $site_uuid]);
         $interval = date("Ym", strtotime("-33 Days"));
 
         $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
