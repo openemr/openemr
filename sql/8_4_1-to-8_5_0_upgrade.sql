@@ -214,3 +214,10 @@ ALTER TABLE `drugs` ADD COLUMN `ndc_uom` varchar(2) NOT NULL DEFAULT '' COMMENT 
 #IfMissingColumn drugs ndc_quantity
 ALTER TABLE `drugs` ADD COLUMN `ndc_quantity` decimal(10,3) DEFAULT NULL COMMENT 'NDC quantity for the related HCPCS service line' AFTER `ndc_uom`;
 #EndIf
+
+-- 6.0.0-to-6.1.0 seeded a WenoExchange background service pointing at /library/weno_log_sync.php
+-- and start_weno(), neither of which exists in core. The Weno module registers its own
+-- WenoExchange row (scripts/weno_log_sync.php, downloadWenoPrescriptionLog) when it is installed.
+#IfRow2D background_services name WenoExchange require_once /library/weno_log_sync.php
+DELETE FROM `background_services` WHERE `name` = 'WenoExchange' AND `require_once` = '/library/weno_log_sync.php';
+#EndIf
