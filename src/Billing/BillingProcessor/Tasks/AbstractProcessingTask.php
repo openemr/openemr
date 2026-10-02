@@ -55,6 +55,13 @@ abstract class AbstractProcessingTask
      */
     protected array $awaitingFile = [];
 
+    /**
+     * Generation fences this run holds, one name per claim.
+     *
+     * @var list<string>
+     */
+    protected array $generationFences = [];
+
     public function __construct(protected $action)
     {
     }
@@ -260,7 +267,9 @@ abstract class AbstractProcessingTask
     }
 
     /**
-     * Read the stored file name and clear it when that file is not on disk.
+     * Read the stored file name. Clear it only while this run holds the claim.
+     *
+     * A missing file is not abandoned while another run may still be writing it.
      */
     protected function previousFileDecision(BillingClaim $claim, BillingClaimBatch $batch): UnbilledFileDecision
     {
@@ -272,10 +281,128 @@ abstract class AbstractProcessingTask
             && $this->claimFileLanded($batch, $this->settledFileName);
         $decision = UnbilledFileDecision::fromStoredFile($this->settledFileName, $landed);
         if ($decision === UnbilledFileDecision::Missing && $this->settledVersion !== null) {
+            if (!$this->generationFenceHeld($claim)) {
+                return UnbilledFileDecision::Busy;
+            }
             $this->clearClaimFile($claim, $this->settledVersion, $this->settledFileName);
         }
 
         return $decision;
+    }
+
+    /**
+     * Hold this claim's generation fence. False means another run still owns it.
+     */
+    protected function holdGeneration(BillingClaim $claim): bool
+    {
+        $name = $this->generationFenceName($claim);
+        if ($name === null) {
+            return false;
+        }
+        if (in_array($name, $this->generationFences, true)) {
+            return true;
+        }
+        if (!$this->acquireGenerationFence($name)) {
+            return false;
+        }
+        $this->generationFences[] = $name;
+
+        return true;
+    }
+
+    /**
+     * This run holds the fence for the claim.
+     */
+    protected function generationFenceHeld(BillingClaim $claim): bool
+    {
+        $name = $this->generationFenceName($claim);
+
+        return is_string($name) && in_array($name, $this->generationFences, true);
+    }
+
+    /**
+     * Lock name for one claim. Null when the ids are not a safe lock name.
+     */
+    protected function generationFenceName(BillingClaim $claim): ?string
+    {
+        $patient = $claim->getPid();
+        $encounter = $claim->getEncounter();
+        $payer = $claim->getPayorId();
+        if (preg_match('/^[1-9][0-9]*$/', $patient) !== 1 || preg_match('/^[1-9][0-9]*$/', $encounter) !== 1) {
+            return null;
+        }
+        if (!is_string($payer) || preg_match('/^[0-9]+$/', $payer) !== 1) {
+            return null;
+        }
+        $name = 'openemr_x12_' . $patient . '_' . $encounter . '_' . $payer;
+        if (strlen($name) > 64) {
+            return null;
+        }
+
+        return $name;
+    }
+
+    /**
+     * Take the database fence. Tests replace this so they do not lock a claim.
+     */
+    protected function acquireGenerationFence(string $name): bool
+    {
+        return BillingUtilities::acquireGenerationFence($name);
+    }
+
+    /**
+     * Release every fence this run took.
+     */
+    protected function releaseGenerationFences(): void
+    {
+        foreach ($this->generationFences as $name) {
+            $this->releaseGenerationFence($name);
+        }
+        $this->generationFences = [];
+    }
+
+    /**
+     * Release one fence. Tests replace this so they do not touch the database.
+     */
+    protected function releaseGenerationFence(string $name): void
+    {
+        BillingUtilities::releaseGenerationFence($name);
+    }
+
+    /**
+     * Every claim waiting on this file still names it.
+     *
+     * No waiting claim means this batch is not holding a deferred file.
+     */
+    protected function awaitingFileStillOwned(string $filename): bool
+    {
+        if ($filename === '') {
+            return false;
+        }
+
+        foreach ($this->awaitingFile as $pending) {
+            if ($pending['filename'] !== $filename) {
+                continue;
+            }
+            if (!$this->unbilledRowNamesFile($pending['claim'], $pending['version'], $filename)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * The unbilled row still names this file. Tests replace the database read.
+     */
+    protected function unbilledRowNamesFile(BillingClaim $claim, int $version, string $filename): bool
+    {
+        return BillingUtilities::unbilledRowNamesFile(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $version,
+            $filename
+        );
     }
 
     /**
