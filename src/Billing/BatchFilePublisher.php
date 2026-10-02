@@ -105,6 +105,21 @@ final class BatchFilePublisher
     }
 
     /**
+     * Remove a batch this run published after the claim stopped naming it.
+     */
+    public static function discard(string $directory, string $filename): void
+    {
+        if (!self::nameIsSafe($filename) || $directory === '') {
+            return;
+        }
+
+        $final = $directory . DIRECTORY_SEPARATOR . $filename;
+        self::remove($final);
+        self::remove($final . '.partial');
+        self::remove($final . '.complete');
+    }
+
+    /**
      * True when the batch name is present and its completion note matches its size.
      */
     public static function isPublished(string $directory, string $filename): bool

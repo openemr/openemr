@@ -78,12 +78,24 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         [$log, $segs, $denial] = $this->renderedClaim($claim);
         $this->appendToLog($log);
         if ($hold && $billIfAccepted && !$denial->willDeny() && $this->billWhenTheFileLands) {
+            if (!$this->holdGeneration($claim)) {
+                $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+                $this->claimHeld = true;
+
+                return;
+            }
             $previous = $this->previousFileDecision($claim, $this->batch);
             if ($previous === UnbilledFileDecision::Present) {
                 $sentence = $this->markStoredFileBilled($claim)
                     ? UnbilledFileDecision::ALREADY_WRITTEN
                     : FacilityZipDenial::LEFT_OUT_NOT_BILLED;
                 $this->printToScreen(xl($sentence));
+                $this->claimHeld = true;
+
+                return;
+            }
+            if ($previous === UnbilledFileDecision::Busy) {
+                $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
                 $this->claimHeld = true;
 
                 return;
@@ -383,6 +395,18 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function completeToFile(array $context)
     {
+        try {
+            $this->completeHeldBatchToFile();
+        } finally {
+            $this->releaseGenerationFences();
+        }
+    }
+
+    /**
+     * Write the batch after the claims still name its file.
+     */
+    private function completeHeldBatchToFile(): void
+    {
         if ($this->batch->getClaims() === []) {
             $this->printToScreen(xl('No claim file was written.'));
             return;
@@ -390,6 +414,9 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
 
         $this->batch->append_claim_close();
         $filename = $this->batch->getBatFilename();
+        $this->batch->requireGenerationOwner(
+            fn (string $phase): bool => $phase !== '' && $this->awaitingFileStillOwned($filename)
+        );
         $success = $this->storeBatchFile($this->batch);
         if ($this->awaitingFile !== []) {
             if ($success && $this->claimFileLanded($this->batch, $filename)) {
