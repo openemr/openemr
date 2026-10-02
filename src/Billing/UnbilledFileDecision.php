@@ -29,9 +29,19 @@ enum UnbilledFileDecision
      */
     public const FILE_WAS_MISSING = 'The previous claim file was not written. This claim was generated again.';
 
+    /**
+     * Screen text when another run still owns the file name.
+     */
+    public const STILL_BEING_WRITTEN = 'This claim is already being written to a file.';
+
     case None;
     case Missing;
     case Present;
+
+    /**
+     * Another run still owns the file name. This run must not clear it.
+     */
+    case Busy;
 
     /**
      * An empty name has not been assigned. A name whose file is present was written.

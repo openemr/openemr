@@ -47,6 +47,11 @@ class BillingClaimBatch
      */
     protected $claims = [];
 
+    /**
+     * True while the claims in this batch still name its file.
+     */
+    private ?\Closure $generationOwner = null;
+
     public function __construct(
         protected string $ext = '.txt',
         private array $context = []
@@ -151,17 +156,49 @@ class BillingClaimBatch
      * billing manager, we handle the array case.
      *
      */
+    /**
+     * Publish and queue only while this callback says the claims still name the file.
+     */
+    public function requireGenerationOwner(\Closure $owner): void
+    {
+        $this->generationOwner = $owner;
+    }
+
+    /**
+     * The claims still name this file, or this batch is not holding a deferred claim.
+     */
+    private function generationStillOwnsBatch(string $phase): bool
+    {
+        if ($phase === '') {
+            return false;
+        }
+        $owner = $this->generationOwner;
+        if (!$owner instanceof \Closure) {
+            return true;
+        }
+
+        return $owner($phase) === true;
+    }
+
     public function write_batch_file()
     {
         $success = true;
         // The batch name appears only after the full contents are synced.
         // A short write does not replace the file and is not queued.
         if (is_string($this->bat_filedir) && is_string($this->bat_filename)) {
+            if (!$this->generationStillOwnsBatch('before-publish')) {
+                return false;
+            }
             $success = BatchFilePublisher::publish(
                 $this->bat_filedir,
                 $this->bat_filename,
                 (string) $this->bat_content
             );
+            if ($success && !$this->generationStillOwnsBatch('after-publish')) {
+                BatchFilePublisher::discard($this->bat_filedir, $this->bat_filename);
+
+                return false;
+            }
         } elseif ($this->bat_filedir !== false) {
             $success = false;
         }
@@ -172,6 +209,9 @@ class BillingClaimBatch
             true === $success &&
             OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
         ) {
+            if (!$this->generationStillOwnsBatch('before-queue')) {
+                return false;
+            }
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
             if (is_array($unique_x12_partners)) {
                 // If this is an array, queue the batchfile to send to all x-12 partners
