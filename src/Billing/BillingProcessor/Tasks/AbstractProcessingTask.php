@@ -364,7 +364,7 @@ abstract class AbstractProcessingTask
                 continue;
             }
 
-            $this->clearClaimFile($pending['claim'], $pending['version']);
+            $this->clearClaimFile($pending['claim'], $pending['version'], $filename);
         }
 
         $this->awaitingFile = $stillWaiting;
