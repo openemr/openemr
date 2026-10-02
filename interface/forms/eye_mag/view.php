@@ -2430,9 +2430,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                             echo "checked='checked'";
                                                                                                                                       } ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
-                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 1%" <?php if ($TROPICAMIDE == 'Tropicamide 1%') {
+                                  <td><?php $tropLegacy = ($TROPICAMIDE == 'Tropicamide 2.5%'); ?><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="<?php echo attr($tropLegacy ? 'Tropicamide 2.5%' : 'Tropicamide 1%'); ?>" <?php if ($TROPICAMIDE == 'Tropicamide 1%' || $tropLegacy) {
                                             echo "checked='checked'";
-                                                                                                                                         } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 1%'); ?></label>
+                                      } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo $tropLegacy ? xlt('Tropic 2.5%') : xlt('Tropic 1%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
@@ -3978,7 +3978,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                                 $label = text(substr((string) $row['title'], 0, 30));
                                                                 echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
                                                                 echo $label . "</label>";
-                                                                echo '<div id="TEST_' . $counter . '_justmods" class="' . $class2 . ' indent20" style="margin-bottom: 5px;">' . xlt('Modifier(s)') . ': <input type="text" style="width:100px;" id="TEST_' . $counter . '_modifier" value="' . ($row['modifier'] ?? '') . '">';
+                                                                echo '<div id="TEST_' . $counter . '_justmods" class="' . $class2 . ' indent20" style="margin-bottom: 5px;">' . xlt('Modifier(s)') . ': <input type="text" style="width:100px;" id="TEST_' . $counter . '_modifier" value="' . attr($row['modifier'] ?? '') . '">';
                                                                 /*
                                                                 OK we are going to attach this test to a specific ICD10 code listed above.
                                                                 The codes are listed by number.
@@ -4129,7 +4129,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                       <tr>
                                           <td colspan="3" style="padding-left:20px;padding-top:4px;">
                                 <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if (($found ?? null) < (empty($PLAN_arr) ? 0 : count($PLAN_arr))) {
-                                    echo $PLAN_arr[count($PLAN_arr) - 1]['ORDER_DETAILS']; } ?></textarea>
+                                    $orderDetails = $PLAN_arr[count($PLAN_arr) - 1]['ORDER_DETAILS'] ?? null;
+                                    echo text(is_string($orderDetails) ? $orderDetails : '');
+                                                  } ?></textarea>
                                           </td>
                                       </tr>
                                   </table>

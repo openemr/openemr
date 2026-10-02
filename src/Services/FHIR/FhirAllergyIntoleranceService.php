@@ -2,17 +2,23 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\AllergyIntoleranceService;
-use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\BaseService;
+use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\PractitionerAttributionPolicy;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -28,7 +34,9 @@ use OpenEMR\Validators\ProcessingResult;
  *
  * @package   OpenEMR
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -166,13 +174,17 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         // cardinality is 0..*
         // however in OpenEMR we currently only track a single reaction, we will populate it if we have it.
         // if a reaction is unassigned, it has no codes and so we will skip over this as it has no meaning in FHIR.
-        if (!empty($dataRecord['reaction']) && $dataRecord['reaction'] !== 'unassigned') {
+        // AllergyIntoleranceService only expands `reaction` into a coding array when the row
+        // carries reaction_codes; without them it stays the raw list_options string, which
+        // has no FHIR meaning and must not be iterated.
+        $reactionCodings = $dataRecord['reaction'] ?? null;
+        if (is_array($reactionCodings) && $reactionCodings !== []) {
             $reaction = new FHIRAllergyIntoleranceReaction();
             $reactionConcept = new FHIRCodeableConcept();
             $conceptText = $dataRecord['reaction_title'] ?? "";
             $reactionConcept->setText($conceptText);
 
-            foreach ($dataRecord['reaction'] as $code => $codeValues) {
+            foreach ($reactionCodings as $code => $codeValues) {
                 $reactionCoding = new FHIRCoding();
                 // some of our codes are parsed as numbers on the underlying service.. and we need to force them as
                 // strings
@@ -180,7 +192,9 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                     $code = "$code";
                 }
 
-                $reactionCoding->setCode($code);
+                // setCode() is declared as taking a FHIRCode; FHIRCode::jsonSerialize() returns
+                // the raw value, so the emitted resource is unchanged.
+                $reactionCoding->setCode(new FHIRCode($code));
                 $display = !empty($display) ? $codeValues['description'] : $dataRecord['reaction_title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $reactionCoding->setDisplay(trim((string) $display));
@@ -241,6 +255,243 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         } else {
             return $allergyIntoleranceResource;
         }
+    }
+
+    /**
+     * Parses a FHIR AllergyIntolerance resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRAllergyIntolerance)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRAllergyIntolerance resource, got ' . $fhirResource::class
+            );
+        }
+
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // Patient reference -> puuid (required in US Core)
+        $patientRef = FhirPayloadReader::reference($json['patient'] ?? null);
+        if ($patientRef !== null) {
+            $parsedUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
+            if (
+                is_string($parsedUuid) && $parsedUuid !== ''
+                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsedUuid)
+            ) {
+                $data['puuid'] = $parsedUuid;
+            }
+        }
+
+        // Code -> title and diagnosis
+        $code = $json['code'] ?? null;
+        $codeCodings = FhirPayloadReader::codings($code);
+        if ($codeCodings !== []) {
+            $codeTypesService = new CodeTypesService();
+            $diagnosisParts = [];
+            foreach ($codeCodings as $coding) {
+                $systemValue = $coding['system'] ?? null;
+                $system = is_string($systemValue) ? $systemValue : '';
+                $codeValue = $coding['code'] ?? null;
+                if (is_scalar($codeValue) && $codeValue !== '' && $codeValue !== false) {
+                    $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
+                }
+                $display = $coding['display'] ?? null;
+                if (is_string($display) && $display !== '' && !isset($data['title'])) {
+                    $data['title'] = $display;
+                }
+            }
+            if ($diagnosisParts !== []) {
+                $data['diagnosis'] = implode(';', $diagnosisParts);
+            }
+        }
+        $codeText = is_array($code) ? ($code['text'] ?? null) : null;
+        if (!isset($data['title']) && is_string($codeText) && $codeText !== '') {
+            $data['title'] = $codeText;
+        }
+
+        // ClinicalStatus -> outcome
+        $clinicalStatus = FhirPayloadReader::firstCodingCode($json['clinicalStatus'] ?? null);
+        if ($clinicalStatus !== '') {
+            $data['outcome'] = ($clinicalStatus === 'resolved') ? '1' : '0';
+            // enddate carries the other half of the status. parseOpenEMRRecord() reads 'active'
+            // whenever enddate is unset and needs it set (with outcome '1') to read 'resolved',
+            // so writing outcome alone meant every non-active status read back as active.
+            if ($clinicalStatus !== 'active') {
+                // Date, not datetime: AllergyIntoleranceValidator declares
+                // optional('enddate')->datetime('Y-m-d'), so a value carrying a time component
+                // fails validation and the whole write comes back 422. The column is a datetime
+                // and stores the midnight that results, which is what the read side compares.
+                $data['enddate'] = date('Y-m-d');
+            } else {
+                // Cleared when returning to active. The read reports 'active' only while enddate
+                // is unset, so an allergy written resolved and then updated back to active kept
+                // its enddate and still read as inactive -- the status the caller just replaced.
+                // buildUpdateColumns() binds a null on a key containing 'date' as SQL NULL.
+                $data['enddate'] = null;
+            }
+        }
+
+        // Criticality -> severity_al
+        $criticality = $json['criticality'] ?? null;
+        if (is_string($criticality) && $criticality !== '') {
+            $data['severity_al'] = match ($criticality) {
+                'low' => 'mild',
+                'high' => 'severe',
+                'unable-to-assess' => 'unassigned',
+                default => 'unassigned',
+            };
+        }
+
+        // VerificationStatus -> verification
+        $verification = FhirPayloadReader::firstCodingCode($json['verificationStatus'] ?? null);
+        if ($verification !== '') {
+            $data['verification'] = $verification;
+        }
+
+        // Recorder -> lists.user. The read side joins the practitioner on
+        // `users.username = lists.user` (see AllergyIntoleranceService::getAll), and
+        // `practitioner_uuid` is only a read alias -- not a `lists` column -- so storing the
+        // uuid under that key would be silently dropped by the BaseService column builders
+        // and the recorder would be lost. Resolve it to the username here instead.
+        //
+        // The reference goes through PractitionerAttributionPolicy first, the same as
+        // Immunization.performer and MedicationRequest.requester: recorder is an attribution
+        // claim, so without it any caller holding AllergyIntolerance.write could file an allergy
+        // under another clinician's name. The policy resolves the uuid to a users.id and rejects
+        // anyone but the authenticated user unless the caller holds admin/users.
+        $recorderRef = FhirPayloadReader::reference($json['recorder'] ?? null);
+        if ($recorderRef !== null) {
+            $recorderUuid = UtilsService::parseReferenceString($recorderRef, 'Practitioner')['uuid'] ?? null;
+            if (is_string($recorderUuid) && $recorderUuid !== '') {
+                $recorderId = (new PractitionerAttributionPolicy($this->getSession()))
+                    ->resolveAndAssert(
+                        $recorderUuid,
+                        'AllergyIntolerance.recorder',
+                        static fn(string $bytes) => BaseService::getIdByUuid($bytes, 'users', 'id')
+                    );
+                $username = QueryUtils::fetchSingleValue(
+                    'SELECT username FROM users WHERE id = ?',
+                    'username',
+                    [$recorderId]
+                );
+                if (is_string($username) && $username !== '') {
+                    $data['user'] = $username;
+                }
+            }
+        }
+
+        // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s). Partial
+        // precision is rejected rather than widened, matching the policy
+        // FhirConditionService applies to the same lists.begdate column: a
+        // year-only onset cannot be stored faithfully, so the caller gets a 400
+        // instead of a fabricated day.
+        $begdate = FhirDateTimeParser::toDbDateTime(
+            $json['onsetDateTime'] ?? null,
+            'AllergyIntolerance.onsetDateTime'
+        );
+        if ($begdate !== null) {
+            $data['begdate'] = $begdate;
+        }
+
+        // Note -> comments
+        $note = $json['note'] ?? null;
+        $firstNote = is_array($note) ? ($note[0] ?? null) : null;
+        $noteText = is_array($firstNote) ? ($firstNote['text'] ?? null) : null;
+        if (is_string($noteText) && $noteText !== '') {
+            $data['comments'] = $noteText;
+        }
+
+        // Reaction -> reaction code
+        $reaction = $json['reaction'] ?? null;
+        $firstReaction = is_array($reaction) ? ($reaction[0] ?? null) : null;
+        $manifestation = is_array($firstReaction) ? ($firstReaction['manifestation'] ?? null) : null;
+        $firstManifestation = is_array($manifestation) ? ($manifestation[0] ?? null) : null;
+        $reactionCodings = FhirPayloadReader::codings($firstManifestation);
+        if ($reactionCodings !== []) {
+            $codeTypesService = new CodeTypesService();
+            $reactionParts = [];
+            foreach ($reactionCodings as $coding) {
+                $codeValue = $coding['code'] ?? null;
+                if (is_scalar($codeValue) && $codeValue !== '' && $codeValue !== false) {
+                    $systemValue = $coding['system'] ?? null;
+                    $system = is_string($systemValue) ? $systemValue : '';
+                    $reactionParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
+                }
+            }
+            if ($reactionParts !== []) {
+                $data['reaction'] = implode(';', $reactionParts);
+            }
+        }
+
+        // Final title fallback from narrative text
+        $text = $json['text'] ?? null;
+        $narrative = is_array($text) ? ($text['div'] ?? null) : null;
+        if (!isset($data['title']) && is_string($narrative) && $narrative !== '') {
+            $data['title'] = strip_tags($narrative);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR AllergyIntolerance record array');
+        }
+
+        return $this->allergyIntoleranceService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        // The patient the caller asserts has to be the allergy's actual owner. parseFhirResource()
+        // sets puuid only when AllergyIntolerance.patient resolves, and without it update() has
+        // nothing to compare the stored row against. AllergyIntolerance.patient is 1..1 in R4, so
+        // rejecting the omission is also what the spec asks for, and it matches how
+        // MedicationRequest and ServiceRequest already handle their subject on this path.
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'AllergyIntolerance.patient is required and must reference a known patient',
+            ]);
+            return $result;
+        }
+
+        $pid = BaseService::getIdByUuid(UuidRegistry::uuidToBytes($puuid), 'patient_data', 'pid');
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'Patient reference could not be resolved: ' . $puuid,
+            ]);
+            return $result;
+        }
+
+        return $this->allergyIntoleranceService->update($fhirResourceId, $updatedOpenEMRRecord, (int) $pid);
     }
 
     /**

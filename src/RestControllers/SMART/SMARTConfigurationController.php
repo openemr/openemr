@@ -16,21 +16,29 @@ namespace OpenEMR\RestControllers\SMART;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\Capability;
 
 class SMARTConfigurationController
 {
     /**
-     * @var ServerConfig
+     * @param OEGlobalsBag $globalsBag source of the oauth_password_grant setting
+     * @param ScopeRepository $scopeRepository source of the scopes the server supports
+     * @param ServerConfig $serverConfig source of the endpoint URLs
      */
-    private readonly ServerConfig $serverConfig;
-
-    public function __construct()
-    {
-        $this->serverConfig = new ServerConfig();
+    public function __construct(
+        private readonly OEGlobalsBag $globalsBag,
+        private readonly ScopeRepository $scopeRepository,
+        private readonly ServerConfig $serverConfig
+    ) {
     }
 
+    /**
+     * Builds the SMART on FHIR configuration document.
+     *
+     * @return array<string, mixed>
+     */
     #[OA\Get(
         path: '/fhir/.well-known/smart-configuration',
         description: 'Returns smart configuration of the fhir server.',
@@ -46,8 +54,13 @@ class SMARTConfigurationController
     {
         // combine all possible supported scopes(OIDC & SMART on FHIR)
         // and reduce to only scopes supported by existing FHIR api resources.
-        $scopeRepository = new ScopeRepository();
-        $scopesSupported = $scopeRepository->getCurrentSmartScopes();
+        $scopesSupported = $this->scopeRepository->getCurrentSmartScopes();
+
+        // the same setting the token endpoint and the OpenID discovery document read
+        $grantTypesSupported = ['client_credentials', 'authorization_code'];
+        if ($this->globalsBag->getInt('oauth_password_grant') > 0) {
+            $grantTypesSupported[] = 'password';
+        }
 
         /**
          * US Core Version 3.1.0 / SMART ON FHIR 1.0.0 @see https://hl7.org/fhir/smart-app-launch/1.0.0/conformance/index.html#using-well-known
@@ -71,20 +84,19 @@ class SMARTConfigurationController
             "issuer" => $this->serverConfig->getFhirUrl(),
              "jwks_uri" => $this->serverConfig->getJsonWebKeySetUrl(),
             "authorization_endpoint" => $this->serverConfig->getAuthorizeUrl(),
-            "grant_types_supported" => ['client_credentials', 'authorization_code'],
+            "grant_types_supported" => $grantTypesSupported,
             "token_endpoint" => $this->serverConfig->getTokenUrl(),
             "capabilities" => Capability::SUPPORTED_CAPABILITIES,
             // added for PKCE support.
             "code_challenge_methods_supported" => ['S256'],
-            "scopes_supported" => [
-                $scopesSupported
-            ],
+            "scopes_supported" => $scopesSupported,
             "introspection_endpoint" => $this->serverConfig->getIntrospectionUrl(),
             // end required fields for SMART v2
 
 
             "token_endpoint_auth_methods_supported" => [
                 "client_secret_basic",
+                "client_secret_post",
                 "private_key_jwt"
             ],
             "response_types_supported" => [

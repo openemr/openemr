@@ -15,7 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FhirPractitionerRestControllerTest extends TestCase
@@ -64,6 +66,19 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $actualResult->getStatusCode());
         $contents = $this->getJsonContents($actualResult);
         $this->assertGreaterThan(0, count($contents['validationErrors']));
+    }
+
+    public function testPostMissingResourceType(): void
+    {
+        // Drives the controller-level FhirValidationService::validate() failure
+        // branch (structural FHIR check), distinct from testInvalidPost above
+        // whose 400 comes from the service-layer insert.
+        unset($this->fhirFixture['resourceType']);
+
+        $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $actualResult->getStatusCode());
+        $contents = $this->getJsonContents($actualResult);
+        $this->assertEquals('OperationOutcome', $contents['resourceType']);
     }
 
     public function testPatch(): void

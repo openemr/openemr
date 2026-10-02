@@ -68,6 +68,10 @@ on:
         description: 'Build target image from the PR docker/release/Dockerfile instead of pulling to_tag from Docker Hub (Phase 2.5 PR-image validation)'
         type: boolean
         default: false
+      require_upgrade_cell:
+        description: 'Fail the workflow if the upgrade-cell skip logic fires (used by release-prep/ship-time callers -- silently skipping the upgrade cell during release mode would publish an artifact whose auto-upgrade path was never validated).'
+        type: boolean
+        default: false
   # Phase 7c-docker-latest-gate: called by docker-build-release.yml as
   # a pre-publish gate. Caller has already pushed the release image to
   # Docker Hub under a candidate tag (e.g., openemr/openemr:release-
@@ -93,6 +97,11 @@ on:
         required: false
         type: string
         default: 'next'
+      require_upgrade_cell:
+        description: 'Fail the workflow if the upgrade-cell skip logic fires. Callers wired for release mode (release-prep-time dispatch, ship-time acceptance gate) pass true so a silent skip -- which would publish an artifact whose auto-upgrade path was never validated -- becomes a loud failure instead. Direct dispatches / scheduled runs leave it false and keep the tolerant skip behavior.'
+        required: false
+        type: boolean
+        default: false
   push:
     # Skip pushes to release-mechanism bot branches (branch-cut/,
     # patch-prep/, release-prep/, release-finalize/). peter-evans/
@@ -614,6 +623,27 @@ jobs:
         TO_REV=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "openemr/openemr:${TO_TAG}" 2>/dev/null || echo "")
         export FROM_REV TO_REV
         RELEASE_TARGETS_PATH="${MASTER_RELEASE_TARGETS}" bash .github/scripts/detect-upgrade-cell-skip.sh
+
+    - name: Enforce upgrade-cell required (release-mode guardrail)
+      # Big-picture invariant: any caller in "release mode" (release-prep
+      # dispatch from release-prep.yml, or ship-time acceptance-gate from
+      # build-release.yml) passes require_upgrade_cell=true. If the skip
+      # logic then fires, we'd be publishing an artifact whose auto-
+      # upgrade path was never validated -- which defeats the whole
+      # gate. Fail loudly instead of silently skipping downstream steps.
+      # Direct dispatches / scheduled runs leave require_upgrade_cell
+      # false (default) and keep the tolerant skip behavior.
+      if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true' && inputs.require_upgrade_cell
+      env:
+        SKIP_REASON: ${{ steps.detect_upgrade_skip.outputs.skip_reason }}
+      run: |
+        {
+          echo "::error::Upgrade cell would skip but require_upgrade_cell=true. This caller is in release mode -- silently skipping the upgrade validation is not acceptable."
+          echo "::error::Skip reason from detect-upgrade-cell-skip.sh:"
+          printf '%s\n' "${SKIP_REASON}" | sed 's/^/::error::  /'
+          echo "::error::Diagnose: (a) if the ship setup is wrong (from_tag/to_tag pointing at an image whose OCI revision is master when it shouldn't be, or between-cycles state active during release-mode), fix the setup. (b) if the skip criteria are genuinely wrong for a legitimate release-mode case, revisit .github/scripts/detect-upgrade-cell-skip.sh."
+        }
+        exit 1
 
     - name: Skip upgrade scenario (early notice)
       if: matrix.scenario == 'upgrade' && steps.detect_upgrade_skip.outputs.skip == 'true'

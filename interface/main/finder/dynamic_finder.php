@@ -10,9 +10,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -401,22 +403,9 @@ function rp()
     }
     $patientService = new PatientService();
     $rp = $patientService->getRecentPatientList();
-    // Get a list of the columns in patient_data that are either date or datetime:
-    $sql_dtCols = "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = DATABASE() AND TABLE_NAME = 'patient_data' AND (data_type = 'datetime' OR data_type = 'date')";
-    $res_dtCols = sqlStatement($sql_dtCols);
-    $pd_dtCols = [];
-    while ($row = sqlFetchArray($res_dtCols)) {
-        $pd_dtCols[] = $row;
-    }
-    $date_cols = [];
-    $datetime_cols = [];
-    foreach ($pd_dtCols as $v) {
-        if ($v['data_type'] == "datetime") {
-            $datetime_cols[] = $v['column_name'];
-        } elseif ($v['data_type'] == "date") {
-            $date_cols[] = $v['column_name'];
-        }
-    }
+    $dateColumns = $patientService->getDateColumns();
+    $date_cols = $dateColumns['date'];
+    $datetime_cols = $dateColumns['datetime'];
     // Build SQL statement to pull desired columns from patient_data table...
     $pd_sql = "SELECT pid";
     foreach ($headers as $v) {

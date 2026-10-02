@@ -1023,11 +1023,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/ScopePermissionParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
 ];

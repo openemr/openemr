@@ -566,6 +566,13 @@ jobs:
       # trigger. The former test_arm64 opt-in input was retired in
       # favor of always-on since ubuntu-24.04-arm runners are free
       # for public repos.)
+      # Ship-time release-mode guardrail: fail the gate if acceptance-
+      # docker's upgrade-cell skip logic fires. We're about to publish
+      # this candidate, so a silent skip of upgrade validation would
+      # ship an artifact whose auto-upgrade path was never exercised.
+      # See acceptance-docker.yml's require_upgrade_cell input for the
+      # design rationale.
+      require_upgrade_cell: true
     # acceptance-docker doesn't currently use org secrets, but forward
     # for future-proofing (matches build-release.yml -> acceptance-package
     # workflow_call shape).

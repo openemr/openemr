@@ -7,11 +7,15 @@
  * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\Ensora\PatientContact;
+use OpenEMR\Rx\Ensora\PatientDiagnosisList;
 use OpenEMR\Services\VersionService;
 
 class eRxXMLBuilder
@@ -605,9 +609,16 @@ class eRxXMLBuilder
     public function getPatientContact($patient)
     {
         $element = $this->getDocument()->createElement('PatientContact');
-        if ($patient['phone_home']) {
-            $element->appendChild($this->createElementText('homeTelephone', preg_replace('/-/', '', (string) $patient['phone_home'])));
+        $contact = PatientContact::fromPatientRow($patient);
+        // ContactType is an xs:sequence: homeTelephone must precede cellularTelephone.
+        $children = [];
+        if ($contact->homeTelephone !== null) {
+            $children[] = $this->createElementText('homeTelephone', $contact->homeTelephone);
         }
+        if ($contact->cellularTelephone !== null) {
+            $children[] = $this->createElementText('cellularTelephone', $contact->cellularTelephone);
+        }
+        $this->appendChildren($element, $children);
 
         return $element;
     }
@@ -708,44 +719,26 @@ class eRxXMLBuilder
         $diagnosisData = $this->getStore()
             ->getPatientDiagnosisByPatientId($patientId);
 
+        $rows = [];
+        while ($row = sqlFetchArray($diagnosisData)) {
+            $rows[] = $row;
+        }
+
         $elements = [];
-        while ($diagnosis = sqlFetchArray($diagnosisData)) {
-            if ($diagnosis['diagnosis']) {
-                // For issues that have multiple diagnosis coded, they are semicolon-separated
-                // explode() will return an array containing the individual diagnosis if there is no semicolon
-                $multiple = explode(";", (string) $diagnosis['diagnosis']);
-                foreach ($multiple as $individual) {
-                    $res = explode(":", $individual); //split diagnosis type and code
-                    $codeType = $res[0];
-                    $diagnosisId = $res[1];
-                    // NewCrop only accepts ICD10 codes, so only add XML elements for diagnosis with ICD10 code types
-                    if (
-                        $codeType == 'ICD10' &&
-                        !empty($diagnosisId) &&
-                        empty($diagnosis['enddate'])
-                    ) {
-                        $element = $this->getDocument()->createElement('PatientDiagnosis');
-                        $element->appendChild($this->createElementText('diagnosisID', $diagnosisId));
-                        $element->appendChild($this->createElementText('diagnosisType', $codeType));
-
-                        if ($diagnosis['begdate']) {
-                            $onsetDate = new DateTime($diagnosis['begdate']);
-                            $element->appendChild($this->createElementText('onsetDate', date_format($onsetDate, 'Ymd')));
-                        }
-
-                        if ($diagnosis['title']) {
-                            $element->appendChild($this->createElementText('diagnosisName', $diagnosis['title']));
-                        }
-
-                        if ($diagnosis['date']) {
-                            $date = new DateTime($diagnosis['date']);
-                            $element->appendChild($this->createElementText('recordedDate', date_format($date, 'Ymd')));
-                        }
-
-                        $elements[] = $element;
-                    }
-                }
+        foreach (PatientDiagnosisList::fromProblemRows($rows) as $diagnosis) {
+            $element = $this->getDocument()->createElement('PatientDiagnosis');
+            $element->appendChild($this->createElementText('diagnosisID', $diagnosis->code));
+            $element->appendChild($this->createElementText('diagnosisType', 'ICD10'));
+            if ($diagnosis->onsetDate !== null) {
+                $element->appendChild($this->createElementText('onsetDate', $diagnosis->onsetDate));
             }
+            if ($diagnosis->name !== null) {
+                $element->appendChild($this->createElementText('diagnosisName', $diagnosis->name));
+            }
+            if ($diagnosis->recordedDate !== null) {
+                $element->appendChild($this->createElementText('recordedDate', $diagnosis->recordedDate));
+            }
+            $elements[] = $element;
         }
 
         return $elements;
