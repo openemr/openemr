@@ -91,6 +91,27 @@ class FacilityService extends BaseService
         return self::FACILITY_SAVED_SERVICE_POSTAL;
     }
 
+    /**
+     * JSON body for the facility save dialog.
+     *
+     * A body that cannot be encoded is an explicit not-saved response.
+     */
+    public static function facilitySaveDialogBody(bool $saved, string $sentence): string
+    {
+        $encoded = json_encode(
+            [
+                'status' => $saved ? 'saved' : 'not_saved',
+                'message' => $sentence,
+            ],
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
+        );
+        if (!is_string($encoded)) {
+            return '{"status":"not_saved","message":""}';
+        }
+
+        return $encoded;
+    }
+
     public function getUuidFields(): array
     {
         return ['uuid'];
