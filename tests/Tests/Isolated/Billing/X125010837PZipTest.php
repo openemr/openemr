@@ -650,6 +650,153 @@ class X125010837PZipTest extends TestCase
         });
     }
 
+    /**
+     * A missing file stays assigned when this run does not hold the claim.
+     */
+    public function testMissingFileIsLeftAloneWithoutTheFence(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'missing-batch.txt';
+            $probe->fileOnDisk = false;
+            $batch = (new \ReflectionProperty(GeneratorX12::class, 'batch'))->getValue($probe);
+            $decision = (new \ReflectionMethod(VersionHoldProbe::class, 'previousFileDecision'))
+                ->invoke($probe, $this->versionClaim(), $batch);
+
+            $this->assertSame(UnbilledFileDecision::Busy, $decision);
+            $this->assertSame([], $probe->cleared);
+        });
+    }
+
+    /**
+     * Another run does not clear a file name it does not own, and does not generate again.
+     */
+    public function testAnotherRunDoesNotTakeAFileStillBeingWritten(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->generationAllowed = false;
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'missing-batch.txt';
+            $probe->fileOnDisk = false;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([], $probe->cleared);
+            $this->assertSame([], $probe->writes);
+            $this->assertSame([], $probe->storedClaims());
+            $this->assertContains(UnbilledFileDecision::STILL_BEING_WRITTEN, $probe->screen);
+        });
+    }
+
+    /**
+     * The batch is not published when the claim no longer names the file.
+     */
+    public function testBatchIsNotPublishedWhenTheClaimIsNoLongerOwned(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $directory = sys_get_temp_dir() . '/openemr-own-' . bin2hex(random_bytes(4));
+            mkdir($directory);
+            try {
+                $batch = $this->ownedBatch($directory);
+                $batch->requireGenerationOwner(fn (string $phase): bool => $phase === 'allow');
+
+                $this->assertFalse($batch->write_batch_file());
+                $this->assertFileDoesNotExist($directory . '/owned-batch.txt');
+            } finally {
+                $this->removeDirectory($directory);
+            }
+        });
+    }
+
+    /**
+     * A file published after ownership was lost is removed and is not left to send.
+     */
+    public function testPublishedBatchIsDroppedWhenOwnershipIsLost(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $directory = sys_get_temp_dir() . '/openemr-own-' . bin2hex(random_bytes(4));
+            mkdir($directory);
+            try {
+                $batch = $this->ownedBatch($directory);
+                $calls = 0;
+                $batch->requireGenerationOwner(function (string $phase) use (&$calls): bool {
+                    $calls++;
+
+                    return $calls === 1 && $phase !== '';
+                });
+
+                $this->assertFalse($batch->write_batch_file());
+                $this->assertSame(2, $calls);
+                $this->assertFileDoesNotExist($directory . '/owned-batch.txt');
+                $this->assertFileDoesNotExist($directory . '/owned-batch.txt.complete');
+            } finally {
+                $this->removeDirectory($directory);
+            }
+        });
+    }
+
+    /**
+     * @return array<string, array{mixed, string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function billingSettlementLandedProvider(): array
+    {
+        return [
+            'no billing rows' => [[], 'batch.txt', true],
+            'billed with this file' => [[['billed' => 1, 'process_file' => 'batch.txt']], 'batch.txt', true],
+            'billed string' => [[['billed' => '1', 'process_file' => 'batch.txt']], 'batch.txt', true],
+            'still unbilled' => [[['billed' => 0, 'process_file' => 'batch.txt']], 'batch.txt', false],
+            'other file' => [[['billed' => 1, 'process_file' => 'other.txt']], 'batch.txt', false],
+            'one row left open' => [[
+                ['billed' => 1, 'process_file' => 'batch.txt'],
+                ['billed' => 0, 'process_file' => 'batch.txt'],
+            ], 'batch.txt', false],
+            'not a list' => ['nope', 'batch.txt', false],
+            'row is not an array' => [['row'], 'batch.txt', false],
+        ];
+    }
+
+    /**
+     * Billing rows agree with the claim file only when every active row is billed to it.
+     */
+    #[DataProvider('billingSettlementLandedProvider')]
+    public function testBillingSettlementLanded(mixed $rows, string $filename, bool $landed): void
+    {
+        $this->assertSame($landed, BillingUtilities::billingSettlementLanded($rows, $filename));
+    }
+
+    /**
+     * Batch whose content is ready to publish into a temporary directory.
+     */
+    private function ownedBatch(string $directory): BillingClaimBatch
+    {
+        $batch = new BillingClaimBatch('.txt', [
+            'claims' => [(object) ['action' => 'validate']],
+        ]);
+        $batch->setBatFiledir($directory);
+        $batch->setBatFilename('owned-batch.txt');
+        (new \ReflectionProperty(BillingClaimBatch::class, 'bat_content'))->setValue($batch, 'ISA~');
+
+        return $batch;
+    }
+
+    /**
+     * Remove a temporary batch directory.
+     */
+    private function removeDirectory(string $directory): void
+    {
+        foreach (glob($directory . '/*') ?: [] as $file) {
+            if (is_file($file) || is_link($file)) {
+                unlink($file);
+            }
+        }
+        if (is_dir($directory)) {
+            rmdir($directory);
+        }
+    }
+
 }
 
 final class HoldZipFixture
@@ -788,6 +935,21 @@ final class HoldZipGenerator extends GeneratorX12
 
         return $this->billedUpdateLands;
     }
+
+    /**
+     * Screen cases do not take a database fence.
+     */
+    protected function holdGeneration(BillingClaim $claim): bool
+    {
+        return true;
+    }
+
+    /**
+     * Screen cases do not release a database fence.
+     */
+    protected function releaseGenerationFences(): void
+    {
+    }
 }
 
 final class DirectSeProbe extends GeneratorX12Direct
@@ -813,6 +975,8 @@ final class VersionHoldProbe extends GeneratorX12
     public bool $fileOnDisk = false;
 
     public bool $fileStored = true;
+
+    public bool $generationAllowed = true;
 
     /** @var list<int> */
     public array $writeStatus = [];
@@ -994,6 +1158,33 @@ final class VersionHoldProbe extends GeneratorX12
     protected function renderedClaim(BillingClaim $claim): array
     {
         return ['X12 generate patient on file.', [''], new FacilityZipDenial()];
+    }
+
+    /**
+     * Record the fence without taking a database lock.
+     */
+    protected function holdGeneration(BillingClaim $claim): bool
+    {
+        if (!$this->generationAllowed) {
+            return false;
+        }
+        $name = $this->generationFenceName($claim);
+        if ($name === null) {
+            return false;
+        }
+        if (!in_array($name, $this->generationFences, true)) {
+            $this->generationFences[] = $name;
+        }
+
+        return true;
+    }
+
+    /**
+     * Drop recorded fences without a database call.
+     */
+    protected function releaseGenerationFences(): void
+    {
+        $this->generationFences = [];
     }
 }
 
