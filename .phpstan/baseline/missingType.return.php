@@ -13962,11 +13962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/group.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function addList\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lists.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getListById\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lists.inc.php',
