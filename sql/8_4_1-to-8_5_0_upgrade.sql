@@ -214,3 +214,61 @@ ALTER TABLE `drugs` ADD COLUMN `ndc_uom` varchar(2) NOT NULL DEFAULT '' COMMENT 
 #IfMissingColumn drugs ndc_quantity
 ALTER TABLE `drugs` ADD COLUMN `ndc_quantity` decimal(10,3) DEFAULT NULL COMMENT 'NDC quantity for the related HCPCS service line' AFTER `ndc_uom`;
 #EndIf
+
+-- Patient review queue: patient-submitted data (portal profile changes, online payments,
+-- documents) held for staff review. One row per submission, a single status column, an
+-- append-only history, and sensitive data kept apart from the payload. Replaces the
+-- onsite_portal_activity workflow, which is migrated onto these tables separately.
+#IfNotTable patient_review_request
+CREATE TABLE `patient_review_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL,
+  `pid` bigint(20) NOT NULL COMMENT 'pid from patient_data table',
+  `type` varchar(32) NOT NULL COMMENT 'profile, payment, document, invoice',
+  `source` varchar(16) NOT NULL DEFAULT 'portal' COMMENT 'portal or api',
+  `client_id` varchar(80) DEFAULT NULL COMMENT 'oauth_clients.client_id when source is api',
+  `status` varchar(24) NOT NULL DEFAULT 'pending' COMMENT 'pending, awaiting_payment, approved, denied, cancelled, completed',
+  `summary` varchar(255) NOT NULL DEFAULT '' COMMENT 'Staff-facing description of the request',
+  `payload` longtext COMMENT 'The submitted data',
+  `payload_format` varchar(16) NOT NULL DEFAULT 'json' COMMENT 'json; php-serialized or text only for rows migrated from onsite_portal_activity',
+  `target_table` varchar(64) DEFAULT NULL COMMENT 'Table the request applies to, when known',
+  `target_id` varchar(64) DEFAULT NULL COMMENT 'Row id or uuid in target_table',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `reviewed_by` bigint(20) DEFAULT NULL COMMENT 'users.id of the staff user who decided the request',
+  `reviewed_at` datetime DEFAULT NULL,
+  `review_note` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `status_type` (`status`,`type`),
+  KEY `pid_type_status` (`pid`,`type`,`status`),
+  KEY `created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Patient-submitted data awaiting staff review; one row per submission';
+#EndIf
+
+#IfNotTable patient_review_event
+CREATE TABLE `patient_review_event` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `request_id` bigint(20) NOT NULL COMMENT 'patient_review_request.id',
+  `from_status` varchar(24) DEFAULT NULL COMMENT 'NULL for the event that created the request',
+  `to_status` varchar(24) NOT NULL,
+  `actor_type` varchar(16) NOT NULL COMMENT 'patient, user or system',
+  `actor_id` bigint(20) DEFAULT NULL COMMENT 'pid for a patient, users.id for a user',
+  `created_at` datetime NOT NULL,
+  `note` text,
+  PRIMARY KEY (`id`),
+  KEY `request_id` (`request_id`)
+) ENGINE=InnoDB COMMENT='Append-only history of patient_review_request state changes';
+#EndIf
+
+#IfNotTable patient_review_secret
+CREATE TABLE `patient_review_secret` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `request_id` bigint(20) NOT NULL COMMENT 'patient_review_request.id',
+  `kind` varchar(32) NOT NULL COMMENT 'payment-card',
+  `ciphertext` longtext NOT NULL COMMENT 'Encrypted per the database_encryption setting; deleted when the request is no longer open',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `request_kind` (`request_id`,`kind`)
+) ENGINE=InnoDB COMMENT='Sensitive data held only while a patient_review_request is open';
+#EndIf
