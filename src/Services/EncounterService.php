@@ -20,6 +20,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\{
@@ -795,5 +796,33 @@ class EncounterService extends BaseService
         $sql = "SELECT pos_code FROM facility WHERE id = ?";
         $result = sqlQuery($sql, [$facility_id]);
         return $result['pos_code'];
+    }
+
+    /**
+     * Calendar category (pc_catid) of an encounter, read from the encounter table of the current
+     * attendant type: form_encounter for a patient, form_groups_encounter for a therapy group.
+     *
+     * Moved from library/encounter.inc.php (fetchCategoryIdByEncounter); null when the encounter
+     * is unknown.
+     */
+    public static function fetchCategoryIdByEncounter(int|string $encounter): ?int
+    {
+        $table = OEGlobalsBag::getInstance()->getString('attendant_type') === 'pid' ? 'form_encounter' : 'form_groups_encounter';
+        $row = QueryUtils::querySingleRow("SELECT `pc_catid` FROM `" . $table . "` WHERE `encounter` = ? LIMIT 1", [$encounter]);
+        $categoryId = is_array($row) ? ($row['pc_catid'] ?? null) : null;
+        return is_numeric($categoryId) ? (int) $categoryId : null;
+    }
+
+    /**
+     * Date of service of an encounter as YYYY-MM-DD, without the time part; empty string when the
+     * encounter is unknown.
+     *
+     * Moved from library/encounter.inc.php (fetchDateService).
+     */
+    public static function fetchDateService(int|string $encounter): string
+    {
+        $row = QueryUtils::querySingleRow("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]);
+        $date = is_array($row) && is_string($row['date'] ?? null) ? $row['date'] : '';
+        return explode(' ', $date)[0];
     }
 }
