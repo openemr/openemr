@@ -556,6 +556,7 @@ class X125010837PZipTest extends TestCase
             $probe->generate($this->versionClaim());
 
             $this->assertSame([4], $probe->cleared);
+            $this->assertSame(['missing-batch.txt'], $probe->clearedNames);
             $this->assertSame([[false, 4]], $probe->writes);
             $this->assertSame([1], $probe->writeStatus);
             $this->assertCount(1, $probe->storedClaims());
@@ -576,6 +577,8 @@ class X125010837PZipTest extends TestCase
             $probe->completeToFile([]);
 
             $this->assertSame([4], $probe->cleared);
+            $this->assertCount(1, $probe->clearedNames);
+            $this->assertStringContainsString('-batch', $probe->clearedNames[0]);
             $this->assertSame([1, 1], $probe->writeStatus);
             $this->assertContains('Error Generating Batch File', $probe->screen);
         });
@@ -633,6 +636,20 @@ class X125010837PZipTest extends TestCase
         }
     }
 
+
+    /**
+     * Direct validation says when every claim was held out of the batch.
+     */
+    public function testDirectValidationSaysWhenNoClaimsWereAdded(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = new DirectEmptyScreenProbe('validate');
+            $probe->completeToScreen([]);
+
+            $this->assertContains('No claims were added to the batch.', $probe->screen);
+        });
+    }
+
 }
 
 final class HoldZipFixture
@@ -646,6 +663,19 @@ final class HoldZipFixture
         public BillingClaim $claim,
     ) {
     }
+
+}
+
+final class DirectEmptyScreenProbe extends GeneratorX12Direct
+{
+    /** @var list<string> */
+    public array $screen = [];
+
+    public function printToScreen(mixed $message): void
+    {
+        $this->screen[] = is_string($message) ? $message : '';
+    }
+
 }
 
 final class HoldZipGenerator extends GeneratorX12
@@ -791,6 +821,9 @@ final class VersionHoldProbe extends GeneratorX12
     public array $cleared = [];
 
     /** @var list<string> */
+    public array $clearedNames = [];
+
+    /** @var list<string> */
     public array $screen = [];
 
     public int $billedUpdateResult = 1;
@@ -874,6 +907,7 @@ final class VersionHoldProbe extends GeneratorX12
     protected function clearClaimFile(BillingClaim $claim, int $version, string $filename = ''): void
     {
         $this->cleared[] = $version;
+        $this->clearedNames[] = $filename;
     }
 
     /**
