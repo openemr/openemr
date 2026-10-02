@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 #[Group('isolated')]
 #[Group('core')]
@@ -133,6 +134,132 @@ class OEGlobalsBagIsolatedTest extends TestCase
         $this->assertSame('user_php_debug', $record['context']['global'] ?? null);
         $this->assertSame('off', $record['context']['stored'] ?? null);
         $this->assertSame(0, $record['context']['default'] ?? null);
+    }
+
+    /**
+     * A stored array comes back as-is.
+     */
+    public function testGetArrayReturnsStoredArray(): void
+    {
+        $bag = new OEGlobalsBag(['code_types' => ['ICD10' => ['id' => 2]]]);
+
+        $this->assertSame(['ICD10' => ['id' => 2]], $bag->getArray('code_types'));
+    }
+
+    /**
+     * An absent key yields the default, like the other typed getters.
+     */
+    public function testGetArrayReturnsDefaultWhenAbsent(): void
+    {
+        // A non-singleton bag still falls back to $GLOBALS in get(), so the key must be absent there too.
+        $key = 'oeglobalsbag_isolated_test_absent_get_array';
+        $this->assertArrayNotHasKey($key, $GLOBALS);
+        $bag = new OEGlobalsBag([]);
+
+        $this->assertSame([], $bag->getArray($key));
+        $this->assertSame(['x' => 1], $bag->getArray($key, ['x' => 1]));
+    }
+
+    /**
+     * A non-array value is narrowed away rather than cast, and the substitution is reported like
+     * the other typed getters do.
+     */
+    public function testGetArrayFallsBackAndReportsOnANonArrayValue(): void
+    {
+        $logger = new class extends AbstractLogger {
+            /** @var list<array{level: mixed, message: string|\Stringable, context: array<mixed>}> */
+            public array $records = [];
+
+            /** @param array<mixed> $context */
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = ['level' => $level, 'message' => $message, 'context' => $context];
+            }
+        };
+        ServiceContainer::override(LoggerInterface::class, $logger);
+
+        $bag = new OEGlobalsBag(['code_types' => 'ICD10']);
+
+        $this->assertSame(['fallback'], $bag->getArray('code_types', ['fallback']));
+        $this->assertCount(1, $logger->records);
+        $record = $logger->records[0];
+        $this->assertSame(LogLevel::WARNING, $record['level']);
+        $this->assertSame('code_types', $record['context']['global'] ?? null);
+        $this->assertSame('ICD10', $record['context']['stored'] ?? null);
+        $this->assertSame('array', $record['context']['default'] ?? null);
+    }
+
+    /**
+     * Regression test for the stale-snapshot trap: the singleton is constructed from $GLOBALS at
+     * first getInstance(), so ParameterBag::all($key) only ever saw that snapshot. A global that
+     * legacy code populates later (code_types is built at runtime by custom/code_types.inc.php)
+     * must be visible through all($key).
+     */
+    public function testSingletonAllWithKeySeesGlobalWrittenAfterConstruction(): void
+    {
+        $key = 'oeglobalsbag_isolated_test_late_all';
+        $this->assertArrayNotHasKey($key, $GLOBALS);
+
+        $bag = OEGlobalsBag::getInstance();
+        $this->assertSame([], $bag->all($key));
+
+        try {
+            $GLOBALS[$key] = ['late' => true];
+
+            $this->assertSame(['late' => true], $bag->all($key));
+        } finally {
+            unset($GLOBALS[$key]);
+        }
+    }
+
+    /**
+     * Same stale-snapshot case through the typed getter.
+     */
+    public function testSingletonGetArraySeesGlobalWrittenAfterConstruction(): void
+    {
+        $key = 'oeglobalsbag_isolated_test_late_get_array';
+        $this->assertArrayNotHasKey($key, $GLOBALS);
+
+        $bag = OEGlobalsBag::getInstance();
+        $this->assertSame([], $bag->getArray($key));
+
+        try {
+            $GLOBALS[$key] = ['late' => true];
+
+            $this->assertSame(['late' => true], $bag->getArray($key));
+        } finally {
+            unset($GLOBALS[$key]);
+        }
+    }
+
+    /**
+     * all($key) keeps the parent's contract: a non-array value throws.
+     */
+    public function testAllWithKeyKeepsThrowingOnANonArrayValue(): void
+    {
+        $bag = new OEGlobalsBag(['code_types' => 'ICD10']);
+
+        $this->expectException(BadRequestException::class);
+        $bag->all('code_types');
+    }
+
+    /**
+     * all() without a key is untouched: it still returns the construction-time snapshot, and a
+     * global written to $GLOBALS afterwards does not leak into it.
+     */
+    public function testAllWithoutKeyReturnsTheWholeSnapshot(): void
+    {
+        $key = 'oeglobalsbag_isolated_test_late_unkeyed_all';
+        $this->assertArrayNotHasKey($key, $GLOBALS);
+        $bag = new OEGlobalsBag(['a' => 1, 'b' => [2]]);
+
+        try {
+            $GLOBALS[$key] = ['late' => true];
+
+            $this->assertSame(['a' => 1, 'b' => [2]], $bag->all());
+        } finally {
+            unset($GLOBALS[$key]);
+        }
     }
 
     public function testGlobalsBagInit(): void
