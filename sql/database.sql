@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 546
+-- v_database: 547
 --
 
 --
@@ -1613,6 +1613,9 @@ CREATE TABLE `drugs` (
   `route` varchar(31) NOT NULL default '0',
   `substitute` int(11) NOT NULL default '0',
   `related_code` varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
+  `billing_units` int(11) DEFAULT NULL COMMENT 'default units when the related HCPCS code is added to a fee sheet',
+  `ndc_uom` varchar(2) NOT NULL DEFAULT '' COMMENT 'NDC unit of measure for the related HCPCS service line',
+  `ndc_quantity` decimal(10,3) DEFAULT NULL COMMENT 'NDC quantity for the related HCPCS service line',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
   `allow_combining` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = allow filling an order from multiple lots',
