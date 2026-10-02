@@ -66,6 +66,23 @@ class HeldClaimSettlementTest extends TestCase
     }
 
     /**
+     * The claim file name and the billing rows are stored and cleared together.
+     */
+    public function testAssignmentNamesAndClearsTheBillingRows(): void
+    {
+        $filename = $this->insertOpenClaim(1, 0);
+
+        $this->assertTrue(BillingUtilities::assignUnbilledClaimFile($this->pid, $this->encounter, 1, $filename));
+        $this->assertSame($filename, $this->storedClaimFile());
+        $this->assertSame($filename, $this->storedBillingFile());
+
+        BillingUtilities::clearUnbilledClaimFile($this->pid, $this->encounter, 1, $filename);
+        $this->assertSame('', $this->storedClaimFile());
+        $this->assertSame('', $this->storedBillingFile());
+        $this->assertSame(BillingClaim::STATUS_LEAVE_UNBILLED, $this->storedClaimStatus());
+    }
+
+    /**
      * Another file name does not bill the claim or change the encounter level.
      */
     public function testSettlementDoesNotBillADifferentFile(): void
@@ -182,15 +199,34 @@ class HeldClaimSettlementTest extends TestCase
         );
     }
 
+    private function storedClaimFile(): string
+    {
+        return $this->storedFile(
+            'SELECT process_file FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = 1',
+            [$this->pid, $this->encounter]
+        );
+    }
+
     private function storedBillingFile(): string
     {
-        $row = QueryUtils::querySingleRow(
+        return $this->storedFile(
             'SELECT process_file FROM billing WHERE id = ?',
             [$this->billingId]
         );
+    }
+
+    /**
+     * @param list<int|string> $params
+     */
+    private function storedFile(string $sql, array $params): string
+    {
+        $row = QueryUtils::querySingleRow($sql, $params);
         $file = is_array($row) ? ($row['process_file'] ?? null) : null;
+        if ($file === null) {
+            return '';
+        }
         if (!is_string($file)) {
-            $this->fail('Billing file was not stored');
+            $this->fail('Stored file was not a string');
         }
 
         return $file;
