@@ -330,6 +330,16 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     {
         $this->insertedClaimVersion = null;
         $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
+        if (!$this->billWhenTheFileLands) {
+            $settled = $this->recoverPublishedFile($claim, $this->batch);
+            if ($settled !== null) {
+                $this->printToScreen(xl($settled
+                    ? UnbilledFileDecision::ALREADY_WRITTEN
+                    : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+
+                return;
+            }
+        }
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
             $billIfAccepted = true;
