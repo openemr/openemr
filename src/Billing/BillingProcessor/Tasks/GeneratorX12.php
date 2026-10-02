@@ -403,6 +403,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
             $this->printToScreen(xl('X-12 Generated Successfully'));
         } else {
             $this->printToScreen(xl('Error Generating Batch File'));
+            return;
         }
 
         // Tell the billing_process.php script to initiate a download of this file
