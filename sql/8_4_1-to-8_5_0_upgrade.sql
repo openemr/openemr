@@ -203,17 +203,14 @@ ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_fail_counter` bigint DEFA
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_last_fail` datetime DEFAULT NULL COMMENT 'Timestamp of the last portal login failure for this account. Used for time-based counter reset.';
 #EndIf
 
--- OAuth2 clients may now use only the grant types they registered for
--- (oauth_clients.grant_types was stored but never enforced). Backfill it so
--- existing clients keep working after the upgrade:
---   * no recorded grant types: the RFC 7591 default, authorization_code
---   * confidential backend-services clients (system/ scopes plus a JWKS):
---     client_credentials, which the registration UI never recorded
---   * clients that have already used the password grant, per
---     oauth_trusted_user.grant_type: password
--- Each statement is idempotent.
-#IfColumn oauth_clients grant_types
-UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_types` IS NULL OR `grant_types` = '';
-UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
-UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
+#IfMissingColumn drugs billing_units
+ALTER TABLE `drugs` ADD COLUMN `billing_units` int(11) DEFAULT NULL COMMENT 'default units when the related HCPCS code is added to a fee sheet' AFTER `related_code`;
+#EndIf
+
+#IfMissingColumn drugs ndc_uom
+ALTER TABLE `drugs` ADD COLUMN `ndc_uom` varchar(2) NOT NULL DEFAULT '' COMMENT 'NDC unit of measure for the related HCPCS service line' AFTER `billing_units`;
+#EndIf
+
+#IfMissingColumn drugs ndc_quantity
+ALTER TABLE `drugs` ADD COLUMN `ndc_quantity` decimal(10,3) DEFAULT NULL COMMENT 'NDC quantity for the related HCPCS service line' AFTER `ndc_uom`;
 #EndIf

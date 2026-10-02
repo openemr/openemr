@@ -511,8 +511,14 @@
         ],
         "requirement": 0,
         "acl_req": [
-            "menus",
-            "modle"
+            [
+                "menus",
+                "modle"
+            ],
+            [
+                "admin",
+                "manage_modules"
+            ]
         ]
     },
     {
