@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class CustomClientCredentialsGrant extends ClientCredentialsGrant
 {
     use SystemLoggerAwareTrait;
+    use ClientGrantTypeGuardTrait;
 
     /**
      * @var TrustedUserService
@@ -231,6 +232,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         if ($redirectUri !== null) {
             $this->validateRedirectUri($redirectUri, $client, $request);
         }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $this->logger);
 
         return $client;
     }
