@@ -235,13 +235,16 @@ COPY php.ini /usr/local/etc/php/php.ini
 # - auto_configure.php: Automated OpenEMR installation script
 COPY openemr.sh ssl.sh auto_configure.php /var/www/localhost/htdocs/openemr/
 
-# Copy admin unlock utilities (for password recovery)
-COPY utilities/unlock_admin.php utilities/unlock_admin.sh /root/
+# Copy admin unlock utilities (for password recovery) and the entrypoint query
+# CLI, which openemr.sh runs from /root before the application tree is usable.
+COPY utilities/unlock_admin.php utilities/unlock_admin.sh \
+     utilities/entrypoint_query.php utilities/EntrypointQuery.php /root/
 
 # Set script permissions:
 # - Executable scripts: 500 (read and execute for owner only)
 # - PHP scripts: 000 (no access) - prevents accidental execution until enabled
-RUN chmod 500 openemr.sh ssl.sh /root/unlock_admin.sh \
+RUN chmod 500 openemr.sh ssl.sh /root/unlock_admin.sh /root/entrypoint_query.php \
+    && chmod 400 /root/EntrypointQuery.php \
     && chmod 000 auto_configure.php /root/unlock_admin.php
 
 # ============================================================================
