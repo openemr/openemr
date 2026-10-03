@@ -17,11 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter &\\$matchreq by\\-ref type of function receive_hl7_results\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter &\\$aTotals by\\-ref type of function ippfReceiptDetailLine\\(\\) expects string, mixed given\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',

@@ -6557,11 +6557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function rhl7LogMsg\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function rhl7ReportStatus\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',

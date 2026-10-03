@@ -37,11 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/qoe.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#4 \\$direction \\(string\\) of function receive_hl7_results\\(\\) is incompatible with type char\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$foreign_id \\(string\\) of method Document\\:\\:documents_factory\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',

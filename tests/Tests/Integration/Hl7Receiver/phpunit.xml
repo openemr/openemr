@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+    bootstrap="bootstrap.php"
+    backupGlobals="false"
+    failOnDeprecation="true"
+    failOnPhpunitDeprecation="true"
+    failOnPhpunitWarning="true"
+    failOnRisky="true">
+  <extensions>
+    <bootstrap class="OpenEMR\PHPUnit\Extension" />
+  </extensions>
+  <php>
+    <env name="ENV" value="test" />
+    <ini name="error_reporting" value="-1" />
+  </php>
+  <testsuites>
+    <testsuite name="disposable-hl7-receiver">
+      <file>ReceiveHl7ResultsIntegrationTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>

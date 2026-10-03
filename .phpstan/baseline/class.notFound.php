@@ -97,11 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\$direction of function receive_hl7_results\\(\\) has invalid type char\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Instantiated class MedExApi\\\\DateTime not found\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',

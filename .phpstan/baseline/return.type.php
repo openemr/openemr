@@ -1147,11 +1147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/Syndromicsurveillance.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function receive_hl7_results\\(\\) should return array but returns mixed\\.$#',
-    'count' => 15,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function rhl7DecodeData\\(\\) should return string but returns false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',

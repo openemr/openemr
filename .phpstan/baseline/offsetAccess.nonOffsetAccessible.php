@@ -18157,20 +18157,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'encounter_id\' on array\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'facility\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fatal\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
+
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fid\' on mixed\\.$#',
     'count' => 1,
@@ -18187,27 +18178,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'increment\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'mssgs\' on mixed\\.$#',
-    'count' => 8,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'obxkey\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'patient_id\' on array\\|false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
@@ -18218,11 +18199,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'procedure_order_id\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'procedure_order_seq\' on array\\|false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
@@ -18341,11 +18317,7 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset non\\-empty\\-string on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
-];
+
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'abnormal\' on mixed\\.$#',
     'count' => 1,
