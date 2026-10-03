@@ -29812,6 +29812,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\PortalLockoutTrackerTest\\:\\:\\$crawler has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/PortalLockoutTrackerTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\SvcCodeFinancialReportTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
