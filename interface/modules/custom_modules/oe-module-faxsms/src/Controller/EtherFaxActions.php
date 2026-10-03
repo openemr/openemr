@@ -137,7 +137,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     public function sendFax(): string
     {
         if (!$this->authenticate()) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
@@ -422,7 +422,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     public function getPending()
     {
         if (!$this->authenticate()) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
 
         $this->pollAndInsertAllPendingFax();
@@ -573,7 +573,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     public function viewFax(): string
     {
         if ($this->authenticate() !== 1) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
 
         $docId = $this->getRequest('docid');
