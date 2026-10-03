@@ -516,11 +516,15 @@ sub createDefinitions() {
   $charset = "latin1";
  }
 
- # create table input
+ # create table input using batched multi-value INSERTs
  my $tempReturn;
  my $tempCounter;
  my @numberRow = split($de,$page[$languageNumRow]);
  my $counter = 1;
+ my $batchSize = 1000;
+ my $batchCount = 0;
+ my $inBatch = 0;
+
  for (my $i = $constantColumn + 1; $i < @numberRow; $i++) {
   for (my $j = $constantRow; $j < @page; $j++) {
    my @tempRow = split($de,$page[$j]);
@@ -528,15 +532,40 @@ sub createDefinitions() {
    my $tempDefinition = $tempRow[$i];
    my $tempLangNumber = $numberRow[$i];
    if ($tempDefinition !~ /^\s*$/) {
-    $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."');\n";
+    # Start a new batch if needed
+    if ($batchCount == 0) {
+     $tempReturn .= "INSERT INTO `lang_definitions` VALUES\n";
+     $inBatch = 1;
+    }
+
+    # Add comma separator if not first row in batch
+    if ($batchCount > 0) {
+     $tempReturn .= ",\n";
+    }
+
+    $tempReturn .= "(".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."')";
     $tempCounter = $counter;
     $counter += 1;
+    $batchCount += 1;
+
+    # Close batch if we've reached batchSize
+    if ($batchCount >= $batchSize) {
+     $tempReturn .= ";\n";
+     $batchCount = 0;
+     $inBatch = 0;
+    }
 
     # set up for statistics
     $numberConstantsLanguages[($tempLangNumber - 1)] += 1;
    }
   }
  }
+
+ # Close any remaining batch
+ if ($inBatch) {
+  $tempReturn .= ";\n";
+ }
+
  $tempCounter += 1;
 
  # create header
