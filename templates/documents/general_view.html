@@ -15,10 +15,70 @@
  {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
 
  function popoutcontent(othis) {
-    let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
+    if (typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
+
+    const el = othis || null;
+    const btn = el ? $(el) : $();
+
+    // Prefer per-button data attributes so nested/replaced document views always
+    // use the currently selected document URL (not a stale global).
+    let popsrc = (btn.attr('data-doc-url') || '').trim();
+    let docMime = (btn.attr('data-doc-mime') || (typeof mime === 'string' ? mime : '') || '').trim();
+    let root = (btn.attr('data-webroot') || (typeof webroot === 'string' ? webroot : '') || (typeof top.webroot_url === 'string' ? top.webroot_url : '') || '').replace(/\/$/, '');
+
+    if (!popsrc && typeof docWebPath === 'string') {
+        popsrc = docWebPath.trim();
+    }
+
+    // Fall back to whatever media element is currently rendering the document.
+    // Include <img> because TIFF is often rendered that way (Firefox has no TIFF iframe support).
+    if (!popsrc) {
+        let $scope = btn.closest('table');
+        let $viewer = $scope.find('#DocContents iframe, #DocContents embed, #DocContents audio, #DocContents img').first();
+        if (!$viewer.length) {
+            $viewer = $('#DocContents iframe, #DocContents embed, #DocContents audio, #DocContents img').first();
+        }
+        popsrc = ($viewer.attr('src') || '').trim();
+    }
+
+    if (!popsrc) {
+        alert({xlj t='Unable to open document viewer. Please try Download instead.'});
+        return false;
+    }
+
+    if (popsrc.indexOf('as_file=') === -1 && popsrc.indexOf('dicom_frame.php') === -1) {
+        popsrc += (popsrc.endsWith('&') || popsrc.endsWith('?')) ? 'as_file=false' : (popsrc.indexOf('?') === -1 ? '?as_file=false' : '&as_file=false');
+    }
+
+    if ((docMime === 'application/dicom' || docMime === 'application/dicom+zip') && popsrc.indexOf('dicom_frame.php') === -1) {
+        let patientId = (btn.attr('data-patient-id') || (typeof top.pid !== 'undefined' ? String(top.pid) : '') || '').trim();
+        let documentId = (btn.attr('data-document-id') || (typeof docid !== 'undefined' ? String(docid) : '') || '').trim();
+        let qs = 'web_path=' + encodeURIComponent(popsrc);
+        if (patientId !== '') {
+            qs += '&patient_id=' + encodeURIComponent(patientId);
+        }
+        if (documentId !== '') {
+            qs += '&document_id=' + encodeURIComponent(documentId);
+        }
+        popsrc = root + '/library/dicom_frame.php?' + qs;
+    }
+
+    // Resolve relative controller paths against the current frame location so the
+    // popup never inherits about:blank as its base URL.
+    try {
+        popsrc = new URL(popsrc, window.location.href).toString();
+    } catch (e) {
+        // Keep original popsrc if URL() is unavailable/invalid.
+    }
+
     let wname = '_' + Math.random().toString(36).substr(2, 6);
-    let opt = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
-    window.open(popsrc,wname, opt);
+    let opt = 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no';
+    let win = window.open(popsrc, wname, opt);
+    if (!win) {
+        alert({xlj t='Pop-out window was blocked. Please allow pop-ups for this site and try again.'});
+    }
 
     return false;
 }
@@ -108,9 +168,23 @@ function tagProcedure() {
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span class="float-right">
-            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};var docid = {$file->get_id()|js_escape};</script>
+            <script>
+                var file = {$file->get_url()|js_escape};
+                var mime = {$file->get_mimetype()|js_escape};
+                var docid = {$file->get_id()|js_escape};
+                var docWebPath = {$web_path|js_escape};
+                var webroot = {$webroot|js_escape};
+            </script>
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
-            <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
+<a class="btn btn-primary"
+               href="#"
+               data-doc-url="{$web_path|attr}as_file=false"
+               data-doc-mime="{$file->get_mimetype()|attr}"
+               data-webroot="{$webroot|attr}"
+               data-document-id="{$file->get_id()|attr}"
+               data-patient-id="{$file->get_foreign_id()|attr}"
+               onclick="return popoutcontent(this);"
+               title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
             <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
             <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
             {$delete_string}
@@ -233,16 +307,19 @@ function tagProcedure() {
 	</tr>
 	<tr id="DocContents" class="h-100">
 		<td>
-      {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
-			<embed  style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
+      {if $file->get_mimetype() eq "image/tiff"}
+            {* Firefox cannot render TIFF in iframe/embed; use img like core 8.2. *}
+            <img style="max-width:100%; height:auto; max-height:84vh; border:0" alt="{$file->get_name()|attr}" src="{$web_path|attr}as_file=false" />
+{elseif $file->get_mimetype() eq "text/plain"}
+			<embed  style="height:84vh; border: 0px" type="text/plain" src="{$web_path|attr}as_file=false">
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
 			 $file->get_mimetype() eq "image/jpeg" or
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
 			<iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
-      {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?csrf_token_form={$csrf_token_form|attr_url}&web_path={$web_path|attr}as_file=false"></iframe>
+{elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
+      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?csrf_token_form={$csrf_token_form|attr_url}&web_path={$web_path|attr}as_file=false&patient_id={$file->get_foreign_id()|attr_url}&document_id={$file->get_id()|attr_url}"></iframe>
       {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
       <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
       {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
