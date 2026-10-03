@@ -756,8 +756,9 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * Build reason codes from diagnosis string
      * Format in OpenEMR: "ICD10:E11.9;ICD10:I10" or similar
      * Can be from order_diagnosis (procedure_order) or diagnoses (procedure_order_code)
+     * @return FHIRCodeableConcept[]
      */
-    private function buildReasonCodes($diagnosisString)
+    private function buildReasonCodes($diagnosisString): array
     {
         $reasonCodes = [];
         $codesService = new CodeTypesService();

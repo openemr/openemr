@@ -474,7 +474,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return null;
     }
 
-    private function filterSupportedSearchParams(array $fhirSearchParameters)
+    private function filterSupportedSearchParams(array $fhirSearchParameters): array
     {
         $supportedParams = [];
         if (isset($fhirSearchParameters['_lastUpdated'])) {

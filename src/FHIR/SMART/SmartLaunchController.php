@@ -190,7 +190,7 @@ class SmartLaunchController
      * Retrieves the registered ClientEntities that are SMART only clients.
      * @return \OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity[]
      */
-    private function getSMARTClients()
+    private function getSMARTClients(): array
     {
         $clientRepository = new ClientRepository();
         $clientEntities = $clientRepository->listClientEntities();

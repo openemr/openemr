@@ -86,7 +86,7 @@ class TeleHealthParticipantInvitationMailerService
         );
     }
 
-    private function getInvitationData($patient, $session, $thirdPartyLaunchAction)
+    private function getInvitationData($patient, $session, $thirdPartyLaunchAction): array
     {
         $logoService = new LogoService();
         $logoPath = $this->config->getQualifiedSiteAddress() . $logoService->getLogo('core/login/primary');

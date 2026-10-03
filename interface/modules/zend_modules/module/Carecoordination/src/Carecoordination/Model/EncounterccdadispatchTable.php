@@ -4772,9 +4772,8 @@ class EncounterccdadispatchTable
 
     /**
      * @param $pid
-     * @return array
      */
-    private function getReferralRecords($pid)
+    private function getReferralRecords($pid): array
     {
         $wherCon = '';
         $sqlBindArray = [$pid];
@@ -4871,9 +4870,8 @@ class EncounterccdadispatchTable
     /**
      * @param $pid
      * @param $encounter
-     * @return array
      */
-    private function getEncounterListForDateRange($pid, $encounter)
+    private function getEncounterListForDateRange($pid, $encounter): array
     {
         $encounter = '';
         $boundParams = [$pid];

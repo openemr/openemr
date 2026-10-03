@@ -98,7 +98,7 @@ class IndexController extends AbstractActionController
     /**
      * @return array<string, mixed>
      */
-    private function listAutoSuggest($post, $limit)
+    private function listAutoSuggest($post, $limit): array
     {
         $limitEnd = is_numeric($limit) ? (int) $limit : 0;
 
