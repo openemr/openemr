@@ -598,7 +598,9 @@ class AppointmentService extends BaseService
             $appt = $appt[0];
         }
 
-        $sql = "UPDATE " . self::TABLE_NAME . " SET pc_apptstatus = ? WHERE pc_eid = ? ";
+        // pc_time is the record's last modified timestamp and is surfaced as meta.lastUpdated
+        // by FhirAppointmentService, so it must move whenever the appointment changes.
+        $sql = "UPDATE " . self::TABLE_NAME . " SET pc_apptstatus = ?, pc_time = NOW() WHERE pc_eid = ? ";
         $binds = [$status, $eid];
 
         if (!empty($appt['pid'])) {
