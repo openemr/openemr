@@ -535,11 +535,12 @@ class EventAuditLogger implements AuditLoggerInterface
                 $eventCategory = $eventCategoryMatch;
                 $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
                 break;
-            } elseif (str_contains($truncated_sql, "form_")) {
-                $eventCategory = EventCategory::PatientRecord;
-                $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
-                break;
             }
+        }
+
+        if ($eventCategory === EventCategory::Other && str_contains($truncated_sql, "form_")) {
+            $eventCategory = EventCategory::PatientRecord;
+            $category = $this->eventCategoryFinder($comments, $eventCategory->value, "form_");
         }
 
         // Now that we know _what_ to log, check _if_ it should be logged
