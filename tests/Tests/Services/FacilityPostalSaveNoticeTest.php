@@ -78,14 +78,18 @@ class FacilityPostalSaveNoticeTest extends TestCase
     }
 
     /**
-     * A sentence that is not valid text still returns a not-saved JSON body.
+     * A sentence that is not valid text drops the notice and keeps the status.
      */
-    public function testSaveDialogBodyStaysJsonWhenTheSentenceCannotBeEncoded(): void
+    public function testSaveDialogBodyKeepsTheStatusWhenTheSentenceCannotBeEncoded(): void
     {
-        $decoded = json_decode(FacilityService::facilitySaveDialogBody(true, "\xB1\x31"), true);
-        $this->assertIsArray($decoded);
+        $saved = json_decode(FacilityService::facilitySaveDialogBody(true, "\xB1\x31"), true);
+        $open = json_decode(FacilityService::facilitySaveDialogBody(false, "\xB1\x31"), true);
+        $this->assertIsArray($saved);
+        $this->assertIsArray($open);
 
-        $this->assertSame('not_saved', $decoded['status']);
-        $this->assertSame('', $decoded['message']);
+        $this->assertSame('saved', $saved['status']);
+        $this->assertSame('', $saved['message']);
+        $this->assertSame('not_saved', $open['status']);
+        $this->assertSame('', $open['message']);
     }
 }
