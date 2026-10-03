@@ -121,17 +121,26 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     // Since it's an edit, add in the facility ID
     $values["id"] = trim($_POST['fid'] ?? '');
     // The facility row and the linked user names commit together.
-    QueryUtils::inTransaction(function () use ($facilityService, $values): void {
+    // A missing id is not saved. An unchanged row can still exist.
+    $saved = QueryUtils::inTransaction(function () use ($facilityService, $values): bool {
+        if (!$facilityService->facilityIdStored($values["id"])) {
+            return false;
+        }
         $facilityService->updateFacility($values);
         $facilityService->updateUsersFacility($values['name'], $values['id']);
+
+        return true;
     });
     // The save dialog decodes this body and passes the sentence to alert().
-    $sentence = $facilityPostalSentence(
-        $values['postal_code'] ?? '',
-        ($values['billing_location'] ?? '') === '1',
-        ($values['service_location'] ?? '') === '1'
-    );
-    $echoFacilitySaveDialogResult(true, $sentence);
+    $sentence = '';
+    if ($saved) {
+        $sentence = $facilityPostalSentence(
+            $values['postal_code'] ?? '',
+            ($values['billing_location'] ?? '') === '1',
+            ($values['service_location'] ?? '') === '1'
+        );
+    }
+    $echoFacilitySaveDialogResult($saved, $sentence);
     exit(); // sjp 12/20/17 for ajax save
 }
 
