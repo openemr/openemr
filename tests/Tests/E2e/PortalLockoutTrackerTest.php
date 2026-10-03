@@ -43,8 +43,6 @@ class PortalLockoutTrackerTest extends PantherTestCase
 
     private const REPORT_IFRAME = "//*[@id='framesDisplay']//iframe[@name='rep']";
 
-    private $crawler;
-
     private ?PortalPatientFixtureManager $portalFixtures = null;
 
     protected function tearDown(): void
