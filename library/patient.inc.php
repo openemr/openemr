@@ -677,7 +677,7 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
         $whereClauses[] = " $col like ? ";
         $sqlBindArray[] = "%" . $searchTerm . "%";
     }
-    $where = implode(" or ", $whereClauses);
+    $where = $whereClauses === [] ? "1 = 0" : implode(" or ", $whereClauses);
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     // Snapshot the WHERE binds; the count query has no pagination placeholders.
