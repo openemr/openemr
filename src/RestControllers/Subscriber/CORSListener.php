@@ -17,7 +17,11 @@ class CORSListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::REQUEST => [['onKernelRequest', 25]],
+            // Run before Symfony's RouterListener (default REQUEST priority 32)
+            // so OPTIONS preflights for routes that only declare GET/POST are
+            // short-circuited cleanly here, instead of being rejected by the
+            // router with 404/405 before this listener can produce a 200 reply.
+            KernelEvents::REQUEST => [['onKernelRequest', 256]],
             KernelEvents::RESPONSE => [['onKernelResponse', 0]]
         ];
     }
