@@ -1640,7 +1640,7 @@ class Date_Calc
      * language specific month names.
      * XXX cache values to some global array to avoid preformace hits when called more than once.
      *
-     * @returns array An array of month names
+     * @return array<int, string> An array of month names
      */
     public static function getMonthNames(): array
     {
@@ -1659,7 +1659,7 @@ class Date_Calc
      * return language specific week days
      * XXX cache values to some global array to avoid preformace hits when called more than once.
      *
-     * @returns array An array of week day names
+     * @return array<int, string> An array of week day names
      */
     public static function getWeekDays(): array
     {
