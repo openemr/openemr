@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -582,6 +584,35 @@ class AppointmentService extends BaseService
     }
 
     /**
+     * Write an appointment status change and advance pc_time (FHIR lastUpdated).
+     *
+     * Status-only calendar writers must use this instead of updating
+     * pc_apptstatus directly so last-modified time cannot drift.
+     *
+     * @param mixed  $eid    Calendar event id (pc_eid)
+     * @param mixed  $status list_options.option_id from apptstat
+     * @param string|null $room Optional room update, persisted atomically with the status
+     * @return mixed
+     */
+    public static function persistAppointmentStatus(mixed $eid, mixed $status, ?string $room = null)
+    {
+        // Legacy callers and database drivers can supply numeric IDs as strings.
+        if ((!is_int($eid) && !(is_string($eid) && ctype_digit($eid))) || !is_string($status)) {
+            throw new \InvalidArgumentException('Appointment id must be an integer and status must be a string');
+        }
+        if ($room !== null) {
+            return QueryUtils::sqlStatementThrowException(
+                'UPDATE `' . self::TABLE_NAME . '` SET `pc_apptstatus` = ?, `pc_time` = NOW(), `pc_room` = ? WHERE `pc_eid` = ?',
+                [$status, $room, $eid]
+            );
+        }
+        return QueryUtils::sqlStatementThrowException(
+            'UPDATE `' . self::TABLE_NAME . '` SET `pc_apptstatus` = ?, `pc_time` = NOW() WHERE `pc_eid` = ?',
+            [$status, $eid]
+        );
+    }
+
+    /**
      * Updates the status for an appointment.  TODO: should be refactored at some point to update the entire record
      * @param $eid number The id of the appointment event
      * @param $status string The status the appointment event should be set to.
@@ -598,8 +629,7 @@ class AppointmentService extends BaseService
             $appt = $appt[0];
         }
 
-        $sql = "UPDATE " . self::TABLE_NAME . " SET pc_apptstatus = ? WHERE pc_eid = ? ";
-        $binds = [$status, $eid];
+        $result = self::persistAppointmentStatus($eid, $status);
 
         if (!empty($appt['pid'])) {
             $trackerService = new PatientTrackerService();
@@ -608,7 +638,7 @@ class AppointmentService extends BaseService
             $this->getLogger()->error("AppointmentService->updateAppointmentStatus() failed to update manage_tracker_status"
             . " as patient pid was empty", ['pc_eid' => $eid, 'status' => $status, 'user' => $user, 'encounter' => $encounter]);
         }
-        return QueryUtils::sqlStatementThrowException($sql, $binds);
+        return $result;
     }
 
     /**

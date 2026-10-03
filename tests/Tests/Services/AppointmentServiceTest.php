@@ -10,12 +10,15 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Craig Allen <craigrallen@gmail.com>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2026 Craig Allen <craigrallen@gmail.com>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Tests\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Tests\Fixtures\AppointmentFixtureManager;
 use Particle\Validator\ValidationResult;
@@ -238,6 +241,135 @@ class AppointmentServiceTest extends TestCase
         // Verify it's gone
         $appointment = $this->appointmentService->getAppointment($insertId);
         $this->assertEmpty($appointment, "Appointment should be deleted");
+    }
+
+    #[Test]
+    public function testUpdateAppointmentStatusUpdatesLastModifiedTime(): void
+    {
+        $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
+        $this->assertGreaterThan(0, $insertId);
+
+        $backdated = '2020-01-01 00:00:00';
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE openemr_postcalendar_events SET pc_time = ? WHERE pc_eid = ?",
+            [$backdated, $insertId]
+        );
+
+        $this->appointmentService->updateAppointmentStatus($insertId, '@', 1);
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT pc_apptstatus, pc_time FROM openemr_postcalendar_events WHERE pc_eid = ?",
+            [$insertId]
+        );
+
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM patient_tracker_element WHERE pt_tracker_id IN "
+            . "(SELECT id FROM patient_tracker WHERE eid = ?)",
+            [$insertId]
+        );
+        QueryUtils::sqlStatementThrowException("DELETE FROM patient_tracker WHERE eid = ?", [$insertId]);
+
+        $this->assertIsArray($row);
+        $this->assertEquals('@', $row['pc_apptstatus']);
+        $this->assertGreaterThan(
+            $backdated,
+            $row['pc_time']
+        );
+    }
+
+    #[Test]
+    public function testPersistAppointmentStatusUpdatesLastModifiedTime(): void
+    {
+        $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
+        $this->assertGreaterThan(0, $insertId);
+
+        $backdated = '2020-01-01 00:00:00';
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE openemr_postcalendar_events SET pc_time = ? WHERE pc_eid = ?",
+            [$backdated, $insertId]
+        );
+
+        AppointmentService::persistAppointmentStatus($insertId, '@');
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT pc_apptstatus, pc_time FROM openemr_postcalendar_events WHERE pc_eid = ?",
+            [$insertId]
+        );
+
+        $this->assertIsArray($row);
+        $this->assertEquals('@', $row['pc_apptstatus']);
+        $this->assertGreaterThan($backdated, $row['pc_time']);
+    }
+
+    #[Test]
+    public function testStatusPersistencePreservesOtherEventsAndOptionallyUpdatesRoom(): void
+    {
+        $first = $this->appointmentService->insert($this->testPid, $this->appointmentData);
+        $second = $this->appointmentService->insert($this->testPid, $this->appointmentData);
+        $backdated = '2020-01-01 00:00:00';
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE openemr_postcalendar_events SET pc_time = ?, pc_room = ? WHERE pc_eid IN (?, ?)",
+            [$backdated, 'Exam 1', $first, $second]
+        );
+        AppointmentService::persistAppointmentStatus($first, '@');
+        $row = QueryUtils::querySingleRow('SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?', [$first]);
+        self::assertIsArray($row);
+        self::assertSame('Exam 1', $row['pc_room']);
+        self::assertSame('@', $row['pc_apptstatus']);
+        self::assertGreaterThan($backdated, $row['pc_time']);
+
+        AppointmentService::persistAppointmentStatus($first, '>', '');
+        $row = QueryUtils::querySingleRow('SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?', [$first]);
+        self::assertIsArray($row);
+        self::assertSame('', $row['pc_room']);
+        self::assertSame('>', $row['pc_apptstatus']);
+        self::assertSame($this->appointmentData['pc_title'], $row['pc_title']);
+
+        $untouched = QueryUtils::querySingleRow('SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?', [$second]);
+        self::assertIsArray($untouched);
+        self::assertSame('-', $untouched['pc_apptstatus']);
+        self::assertSame('Exam 1', $untouched['pc_room']);
+        self::assertSame($backdated, $untouched['pc_time']);
+    }
+
+    #[Test]
+    public function testStatusChangeAppearsInFhirLastUpdatedSearch(): void
+    {
+        $eid = $this->appointmentService->insert($this->testPid, $this->appointmentData);
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_time = ? WHERE pc_eid = ?',
+            ['2020-01-01 00:00:00', $eid]
+        );
+        $records = $this->appointmentService->getAppointment($eid);
+        self::assertIsArray($records);
+        self::assertCount(1, $records);
+        $record = $records[0];
+        self::assertIsArray($record);
+        self::assertIsString($record['pc_uuid']);
+        $fhirService = new \OpenEMR\Services\FHIR\FhirAppointmentService();
+        $search = ['_id' => $record['pc_uuid'], '_lastUpdated' => 'gt2021-01-01T00:00:00Z'];
+        $before = $fhirService->getAll($search);
+        self::assertTrue($before->isValid());
+        $beforeData = $before->getData();
+        self::assertIsArray($beforeData);
+        self::assertCount(0, $beforeData);
+
+        AppointmentService::persistAppointmentStatus($eid, '@');
+        $after = $fhirService->getAll($search);
+        self::assertTrue($after->isValid());
+        $afterData = $after->getData();
+        self::assertIsArray($afterData);
+        self::assertCount(1, $afterData);
+        $resource = $afterData[0];
+        self::assertInstanceOf(\OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment::class, $resource);
+        $meta = $resource->getMeta();
+        self::assertSame('arrived', (string) $resource->getStatus());
+        self::assertGreaterThan('2021-01-01', (string) $meta->getLastUpdated());
+        $older = $fhirService->getAll(['_id' => $record['pc_uuid'], '_lastUpdated' => 'lt2021-01-01T00:00:00Z']);
+        self::assertTrue($older->isValid());
+        $olderData = $older->getData();
+        self::assertIsArray($olderData);
+        self::assertCount(0, $olderData);
     }
 
     #[Test]

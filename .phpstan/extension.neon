@@ -83,3 +83,6 @@ services:
 - class: OpenEMR\PHPStan\Rules\Sql\SqlReservedWordRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\Sql\AppointmentStatusTimestampRule
+  tags:
+  - phpstan.rules.rule
