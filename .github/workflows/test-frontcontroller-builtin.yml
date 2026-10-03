@@ -1,0 +1,153 @@
+name: Test Front Controller (php -S)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.suite }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          # These do not need webserver
+          # - common
+          # - controllers
+          # - fixtures
+          # - validators
+          # - unit
+          # Inferno tests, leave it alone
+          # - certification
+          - api
+          - e2e
+          # Needs Mailpit
+          # - email
+          # These seem to be doing something with node
+          # - services
+          # - ECQM
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: ci
+          MYSQL_PASSWORD: topsecret
+          MYSQL_DATABASE: openemr_test
+        ports:
+          - 3306:3306
+
+      selenium:
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
+        options: --shm-size=2gb --add-host=host.docker.internal:host-gateway
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: xdebug
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress
+        working-directory: .
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Build front-end assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install OpenEMR
+        env:
+          OPENEMR_ENABLE_INSTALLER_AUTO: "1"
+        run: php -f contrib/util/installScripts/InstallerAuto.php
+              rootpass=root
+              server=127.0.0.1
+              loginhost=%
+              login=ci
+              pass=topsecret
+              dbname=openemr_test
+
+      - name: Configure globals for API
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot openemr_test -e "
+            INSERT INTO product_registration (opt_out) VALUES (1);
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_fhir_api';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_portal_api';
+            UPDATE globals SET gl_value = 3 WHERE gl_name = 'oauth_password_grant';
+            UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_system_scopes_api';
+          "
+
+      - name: Start server (bg)
+        env:
+          ENVIRONMENT: ci
+          PHP_CLI_SERVER_WORKERS: "8"
+        run: |
+          php -S 0.0.0.0:8080 -t . public/index.php \
+            > "${RUNNER_TEMP}/php-server.out.log" \
+            2> "${RUNNER_TEMP}/php-server.err.log" &
+
+      - name: Wait for webserver
+        run: |
+          curl --retry-connrefused --retry 30 --retry-delay 1 \
+               --fail --silent --show-error \
+               -o /dev/null http://127.0.0.1:8080/
+
+      - name: Probe FC from inside selenium container
+        run: |
+          container=$(docker ps --filter ancestor=selenium/standalone-chrome:latest --format '{{.ID}}' | head -n1)
+          if [ -z "$container" ]; then
+            echo "::error::selenium container not found"
+            docker ps
+            exit 1
+          fi
+          echo "Probing host.docker.internal:8080 from container $container"
+          docker exec "$container" curl -sv --max-time 10 \
+            --fail --show-error \
+            -o /dev/null http://host.docker.internal:8080/
+
+      - name: Run ${{ matrix.suite }} tests
+        working-directory: .
+        env:
+          OPENEMR_BASE_URL_API: http://localhost:8080
+          # INFERNO_BASE_URL: http://localhost:8080
+          SELENIUM_BASE_URL: http://host.docker.internal:8080
+          SELENIUM_HOST: localhost
+          SELENIUM_USE_GRID: "true"
+        run: vendor/bin/phpunit --testsuite ${{ matrix.suite }} --log-junit junit-${{ matrix.suite }}.xml
+
+      - name: Show server stdout
+        if: always()
+        run: cat "${RUNNER_TEMP}/php-server.out.log" || true
+
+      - name: Show server stderr
+        if: always()
+        run: cat "${RUNNER_TEMP}/php-server.err.log" || true
+
+      # - name: Upload test results
+      #   if: always()
+      #   uses: actions/upload-artifact@v7
+      #   with:
+      #     name: junit-${{ matrix.webserver }}-${{ matrix.suite }}
+      #     path: junit-*.xml
+      #     if-no-files-found: ignore
+
+      # - name: Show logs on failure
+      #   if: failure()
+      #   run: docker compose logs
