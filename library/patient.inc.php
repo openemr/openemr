@@ -20,6 +20,7 @@
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -660,15 +661,23 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
     );
 
     $sqlBindArray = [];
-    $where = "";
-    for ($iter = 0; $row = sqlFetchArray($layoutCols); $iter++) {
-        if ($iter > 0) {
-            $where .= " or ";
+    // Silently skip DEM layout entries whose field_id is not a real patient_data
+    // column (e.g. legacy virtual/compound fields left in layout_options by pre-6.0
+    // upgrades, or admin-added external-system stubs). Those rows must not splice
+    // into the SQL identifier position; a strict die() on such rows would break
+    // the search UI on any environment carrying the drift.
+    $whereClauses = [];
+    while ($row = sqlFetchArray($layoutCols)) {
+        $fieldId = is_string($row["field_id"] ?? null) ? $row["field_id"] : '';
+        try {
+            $col = escape_sql_column_name($fieldId, ['patient_data'], false, true);
+        } catch (SqlQueryException) {
+            continue;
         }
-
-        $where .= " " . add_escape_custom($row["field_id"]) . " like ? ";
-        array_push($sqlBindArray, "%" . $searchTerm . "%");
+        $whereClauses[] = " $col like ? ";
+        $sqlBindArray[] = "%" . $searchTerm . "%";
     }
+    $where = $whereClauses === [] ? "1 = 0" : implode(" or ", $whereClauses);
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     // Snapshot the WHERE binds; the count query has no pagination placeholders.
