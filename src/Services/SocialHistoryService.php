@@ -6,7 +6,9 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Tamir Suliman <279790+allamiro@users.noreply.github.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -166,6 +168,19 @@ class SocialHistoryService extends BaseService
             throw new \InvalidArgumentException("argument must be a valid array");
         }
         return $this->insertRecord($record);
+    }
+
+    /**
+     * Layout defaults configured on the HIS form for newly created history rows.
+     *
+     * @return list<array<mixed>>
+     */
+    public function fetchHistoryLayoutDefaults(): array
+    {
+        return QueryUtils::fetchRecords(
+            'SELECT `field_id`, `default_value` FROM `layout_options` WHERE `form_id` = ? AND `uor` > 0 AND `default_value` IS NOT NULL AND `default_value` != ?',
+            ['HIS', ''],
+        );
     }
 
     private function insertRecord($record)
