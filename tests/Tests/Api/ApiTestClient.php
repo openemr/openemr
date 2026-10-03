@@ -140,6 +140,7 @@ class ApiTestClient
         'user/RelatedPerson.write',
         'user/ServiceRequest.read',
         'user/ServiceRequest.write',
+        'user/ValueSet.read',
 
         'user/allergy.read',
         'user/allergy.write',

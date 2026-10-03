@@ -88,6 +88,13 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/StructureDefinition/shareablevalueset';
     const APPOINTMENT_TYPE = 'appointment-type';
 
+    /**
+     * Column the FHIR _id search maps to: a ValueSet id is the option_id of its list in
+     * list_options (list_id "lists"). createOpenEMRSearchParameters() keys the parsed _id by
+     * this name, so the appointment-type branch looks it up under the same key.
+     */
+    private const ID_SEARCH_FIELD = 'option_id';
+
     public function __construct()
     {
         parent::__construct();
@@ -102,7 +109,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     protected function loadSearchParameters()
     {
         return [
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('id', ServiceField::TYPE_STRING)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField(self::ID_SEARCH_FIELD, ServiceField::TYPE_STRING)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
     }
@@ -159,12 +166,12 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
         $this->getSearchFieldFactory()->setSearchFieldDefinition('_lastUpdated', $this->getLastModifiedSearchFieldForAppointmentCategories());
         $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
         if (
-            !isset($oeSearchParameters['_id'])
+            !isset($oeSearchParameters[self::ID_SEARCH_FIELD])
             // _id parameter can be array (AND) or comma-delimited (OR). Since a resource can only
             // have one ID, an array will have at most one element, so just check for our type.
-            || $oeSearchParameters['_id']->hasCodeValue(self::APPOINTMENT_TYPE)
+            || $oeSearchParameters[self::ID_SEARCH_FIELD]->hasCodeValue(self::APPOINTMENT_TYPE)
         ) {
-            if (!isset($oeSearchParameters['_id'])) {
+            if (!isset($oeSearchParameters[self::ID_SEARCH_FIELD])) {
                 // if we have any match on categories we want to return everything... hate the double db call
                 // but rather than mess with a complex query we will just do it this way
                 $processingResult = $this->appointmentService->searchCalendarCategories($oeSearchParameters);
