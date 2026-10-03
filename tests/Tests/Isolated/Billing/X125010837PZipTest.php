@@ -666,6 +666,11 @@ class X125010837PZipTest extends TestCase
             }
             $this->assertFalse(BatchFilePublisher::publish($directory, '../batch.txt', 'ISA~'));
             $this->assertFalse(BatchFilePublisher::publish($directory, 'batch.txt', ''));
+            $blocked = $directory . '/blocked.txt.complete';
+            mkdir($blocked);
+            $this->assertFalse(BatchFilePublisher::publish($directory, 'blocked.txt', 'GS~'));
+            $this->assertFileDoesNotExist($directory . '/blocked.txt');
+            rmdir($blocked);
         } finally {
             foreach (glob($directory . '/*') ?: [] as $file) {
                 unlink($file);
@@ -794,6 +799,30 @@ class X125010837PZipTest extends TestCase
             'not a list' => ['nope', 'batch.txt', false],
             'row is not an array' => [['row'], 'batch.txt', false],
         ];
+    }
+
+    /**
+     * A published file is removed when the claim is lost before it is queued.
+     */
+    public function testPublishedBatchIsDroppedBeforeItIsQueued(): void
+    {
+        $this->withGlobals(true, function (): void {
+            OEGlobalsBag::getInstance()->set('auto_sftp_claims_to_x12_partner', true);
+            $directory = sys_get_temp_dir() . '/openemr-own-' . bin2hex(random_bytes(4));
+            mkdir($directory);
+            try {
+                $batch = $this->ownedBatch($directory);
+                $batch->requireGenerationOwner(
+                    fn (string $phase): bool => $phase !== 'before-queue' && $phase !== ''
+                );
+
+                $this->assertFalse($batch->write_batch_file());
+                $this->assertFileDoesNotExist($directory . '/owned-batch.txt');
+                $this->assertFileDoesNotExist($directory . '/owned-batch.txt.complete');
+            } finally {
+                $this->removeDirectory($directory);
+            }
+        });
     }
 
     /**

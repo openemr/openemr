@@ -210,6 +210,10 @@ class BillingClaimBatch
             OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
         ) {
             if (!$this->generationStillOwnsBatch('before-queue')) {
+                if (is_string($this->bat_filedir) && is_string($this->bat_filename)) {
+                    BatchFilePublisher::discard($this->bat_filedir, $this->bat_filename);
+                }
+
                 return false;
             }
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
