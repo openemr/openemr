@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -1015,14 +1016,18 @@ class FhirServiceRequestService extends FhirServiceBase implements
         // Optional encounter resolution
         $euuid = $openEmrRecord['euuid'] ?? null;
         if (is_string($euuid) && $euuid !== '') {
-            $encounterId = QueryUtils::fetchSingleValue(
-                'SELECT encounter FROM form_encounter WHERE uuid = ?',
-                'encounter',
-                [UuidRegistry::uuidToBytes($euuid)]
-            );
-            if (is_numeric($encounterId)) {
-                $header['encounter_id'] = (int) $encounterId;
+            // The encounter is optional, but one the client names has to exist: dropping an
+            // unresolvable reference would save the order unlinked and answer success.
+            // A soft-deleted encounter resolves to null, like an unknown one.
+            $encounter = EncounterService::getActiveEncounterByUuid($euuid);
+            if ($encounter === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'encounter' => 'Encounter reference could not be resolved: ' . $euuid,
+                ]);
+                return $result;
             }
+            $header['encounter_id'] = $encounter['encounter'];
         }
 
         // Optional requester resolution. procedure_order.provider_id is the ordering provider of
