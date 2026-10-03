@@ -61,11 +61,8 @@ class DornGenHl7Order extends GenHl7OrderBase
         $orderDxs = ProcedureSqlStatements::getProcedureCode($orderid);
         $dxFlag = false;
         $pcrows = [];
-        $pdrows = [];
         foreach ($orderDxs as $dx) {
-            // same data but different loops.
             $pcrows[] = $dx;
-            $pdrows[] = $dx;
         }
 
         // why was this the exact same query? not sure but it was.
@@ -200,21 +197,19 @@ class DornGenHl7Order extends GenHl7OrderBase
                     }
                 }
             }
-            // now get Dx's from this ordered test.
-            foreach ($pdrows as $pdrow) {
-                if (!empty($pdrow['diagnoses'])) {
-                    $relcodes = explode(';', (string) $pdrow['diagnoses']);
-                    foreach ($relcodes as $codestring) {
-                        if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
-                            continue;
-                        }
-                        [$codetype, $code] = explode(':', $codestring);
-                        $desc = lookup_code_descriptions($codestring);
-                        $out .= $this->createDg1(++$cntDx, $code, $desc, $codetype);
-                        $hasDiagnosisSegment = true;
-                        if ($cntDx < 9) {
-                            $D[1] .= $code . '^';
-                        }
+            // now get Dx's from this ordered test only; each DG1 belongs under its own OBR.
+            if (!empty($pcrow['diagnoses'])) {
+                $relcodes = explode(';', (string) $pcrow['diagnoses']);
+                foreach ($relcodes as $codestring) {
+                    if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
+                        continue;
+                    }
+                    [$codetype, $code] = explode(':', $codestring);
+                    $desc = lookup_code_descriptions($codestring);
+                    $out .= $this->createDg1(++$cntDx, $code, $desc, $codetype);
+                    $hasDiagnosisSegment = true;
+                    if ($cntDx < 9) {
+                        $D[1] .= $code . '^';
                     }
                 }
             }
