@@ -1,0 +1,2953 @@
+<CCDA><serverRoot></serverRoot><document_location>C:/xampp/htdocs/openemr-ccda/sites/default</document_location><username></username><password></password><hie>MyHealth</hie><time_start>19700501000000-0400</time_start><time_end>20260923024445-0400</time_end><client_id></client_id><created_time>20260923024445</created_time><created_time_timezone>20260923024445-0400</created_time_timezone><timezone_local_offset>-0400</timezone_local_offset><send>0</send><doc_type></doc_type><assignedEntity>
+                <streetAddressLine></streetAddressLine>
+                <city></city>
+                <state></state>
+                <postalCode></postalCode>
+                <country></country>
+            </assignedEntity>
+            <telecom use='WP' value=''/>
+            <representedOrganization>
+                <name></name>
+                <telecom use='WP' value=''/>
+                <streetAddressLine></streetAddressLine>
+                <city></city>
+                <state></state>
+                <postalCode></postalCode>
+                <country></country>
+            </representedOrganization><referral_reason><text></text></referral_reason><patient>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <id>1</id>
+            <uuid>c3b453e2-9595-e28c-a10a-c3a74e2ac2bb</uuid>
+            <encounter></encounter>
+            <prefix>Mrs.</prefix>
+            <fname>Alice</fname>
+            <mname>Jones</mname>
+            <lname>Newman</lname>
+            <suffix></suffix>
+            <previous_names>
+            <prefix></prefix>
+            <fname>Alicia</fname>
+            <mname>Jones</mname>
+            <lname>Newman</lname>
+            <suffix></suffix>
+            <end_date></end_date>
+        </previous_names>
+            <birth_fname>Alicia</birth_fname>
+            <birth_mname>Jones</birth_mname>
+            <birth_lname>Newman</birth_lname>
+            <use>HP</use>
+            <street>1357, Amber Dr</street>
+            <street></street>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <country>USA</country>
+            <previous_addresses><address>
+            <use>work</use>
+            <street>Address Road</street>
+            <street></street>
+            <city>Brandon</city>
+            <state>FL</state>
+            <postalCode>97006</postalCode>
+            <country>USA</country>
+            <period_start>2025-09-08</period_start>
+            <period_end></period_end>
+        </address></previous_addresses>
+            <ssn></ssn>
+            <dob>19700501</dob>
+            <gender>Female</gender>
+            <gender_code>F</gender_code>
+            <sex_observation>Female</sex_observation>
+            <status>married</status>
+            <status_code>M</status_code>
+            <phone_home>+1(555)-723-1544</phone_home>
+            <phone_mobile>+1(555)-777-1234</phone_mobile>
+            <phone_work></phone_work>
+            <phone_emergency></phone_emergency>
+            <email>alice@gmail.com</email>
+            <religion></religion>
+            <religion_code></religion_code>
+            <race>White</race>
+            <race_code>2106-3</race_code>
+            <race_group>European</race_group>
+            <race_group_code>2108-9</race_group_code>
+            <ethnicity>Not Hispanic or Latino</ethnicity>
+            <ethnicity_code>2186-5</ethnicity_code>
+            <language>English</language>
+            <language_code>en</language_code>
+            <tribal_code>65</tribal_code>
+            <tribal_title>Coquille Indian Tribe</tribal_title>
+            <tribal>coquille</tribal>
+            <related_persons>
+<participant index="1">
+    <type>IND</type>
+    <organization_id>a22c2a54-0175-4e6a-9d59-669d4bf2e5d5</organization_id>
+    <organization_ext>1</organization_ext>
+    <class_code>PRS</class_code>
+    <fname>Rick</fname>
+    <lname>Holler</lname>
+    <code>GRPRN</code>
+    <sex>Male</sex>
+    <sex_code>M</sex_code>
+    <street>1357, Amber Dr NULL</street>
+    <city>Beaverton</city>
+    <state>OR</state>
+    <postalCode>97006</postalCode>
+    <country>USA</country>
+    <phone></phone>
+    <work_phone></work_phone>
+    <email></email>
+</participant>
+<participant index="2">
+    <type>IND</type>
+    <organization_id>a22c2bea-ace2-48f2-82c5-707b971b16a6</organization_id>
+    <organization_ext>2</organization_ext>
+    <class_code>PRS</class_code>
+    <fname>Matthew</fname>
+    <lname>Newman</lname>
+    <code>SPS</code>
+    <sex>Male</sex>
+    <sex_code>M</sex_code>
+    <street>1357, Amber Dr NULL</street>
+    <city>Beaverton</city>
+    <state>OR</state>
+    <postalCode>97006</postalCode>
+    <country>USA</country>
+    <phone></phone>
+    <work_phone></work_phone>
+    <email></email>
+</participant></related_persons>
+        </patient>
+        <guardian>
+            <fname>Alice</fname>
+            <lname>Newman</lname>
+            <code></code>
+            <relation></relation>
+            <display_name></display_name>
+            <street>1357 Amber Dr</street>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <country>USA</country>
+            <telecom>2398954555</telecom>
+        </guardian><sdoh_data><disability_code>LA29243-5</disability_code><disability>im_vulnerable</disability><disability_title>I&apos;m Vulnerable.</disability_title><pregnancy_code>60001007</pregnancy_code><pregnancy>not_pregnant</pregnancy><pregnancy_title>Not pregnant</pregnancy_title><disability_assessment><overall_status><code>89571-4</code><code_system>2.16.840.1.113883.6.1</code_system><code_system_name>LOINC</code_system_name><display>Overall disability status CUBS</display><answer_code>LA29243-5</answer_code><answer_display>I&apos;m Vulnerable.</answer_display></overall_status><disability_questions><question><code>69859-7</code><code_system>2.16.840.1.113883.6.1</code_system><code_system_name>LOINC</code_system_name><display>Difficulty walking or climbing stairs</display><answer_code>LA33-6</answer_code><answer_display>Yes</answer_display></question><question><code>69861-3</code><code_system>2.16.840.1.113883.6.1</code_system><code_system_name>LOINC</code_system_name><display>Difficulty seeing</display><answer_code>LA33-6</answer_code><answer_display>Yes</answer_display></question><question><code>69860-5</code><code_system>2.16.840.1.113883.6.1</code_system><code_system_name>LOINC</code_system_name><display>Difficulty hearing</display><answer_code>LA33-6</answer_code><answer_display>Yes</answer_display></question></disability_questions></disability_assessment></sdoh_data><occupation><start_date>20260819</start_date><industry_start_date>20260819</industry_start_date><occupation_code>37-2011.00.028742</occupation_code><occupation_title>Janitors and Cleaners</occupation_title><industry_code>561720.002294</industry_code><industry_title>Janitorial Services</industry_title></occupation><encounter_provider>
+                <facility_id>3</facility_id>
+                <facility_npi>987654321</facility_npi>
+                <facility_oid></facility_oid>
+                <facility_name>Neighborhood Physicians Practice</facility_name>
+                <facility_phone>555-555-1002</facility_phone>
+                <facility_fax>000-000-0000</facility_fax>
+                <facility_street>2472 Rocky Place</facility_street>
+                <facility_city>Beaverton</facility_city>
+                <facility_state>OR</facility_state>
+                <facility_postal_code>97006</facility_postal_code>
+                <facility_country_code></facility_country_code>
+            </encounter_provider>
+            
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <data_enterer>
+            <streetAddressLine>2472 Rocky place</streetAddressLine>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <country></country>
+            <telecom>+1 555-555-1002</telecom>
+            <fname>Albert</fname>
+            <lname>Davis</lname>
+        </data_enterer><informer>
+            <streetAddressLine>2472 Rocky place</streetAddressLine>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <country></country>
+            <telecom>+1 555-555-1002</telecom>
+            <fname>Albert</fname>
+            <lname>Davis</lname>
+            <personal_informant>asdsdad</personal_informant>
+        </informer><custodian>
+            <streetAddressLine>2472 Rocky Place</streetAddressLine>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <country></country>
+            <telecom>555-555-1002</telecom>
+            <name>Neighborhood Physicians Practice</name>
+            <organization>Neighborhood Physicians Practice</organization>
+        </custodian><information_recipient>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <organization>Neighborhood Physicians Practice</organization>
+        <street>2472 Rocky place</street>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <phonew1>+1 555-555-1002</phonew1>
+        </information_recipient><legal_authenticator>
+            <streetAddressLine>2472 Rocky place</streetAddressLine>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <country></country>
+            <telecom>+1 555-555-1002</telecom>
+            <fname>Albert</fname>
+            <lname>Davis</lname>
+        </legal_authenticator><document_participants><participant>
+            <date_time>2026-09-23 02:44:45-0400</date_time>
+            <fname>Albert</fname>
+            <lname>Davis</lname>
+            <organization></organization>
+            <organization_id>c3b45249-e295-a10b-c2aa-4b5bc3aa63c2</organization_id>
+            <organization_npi>987654321</organization_npi>
+            <organization_taxonomy></organization_taxonomy>
+            <organization_taxonomy_desc></organization_taxonomy_desc>
+            <street>2472 Rocky place</street>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <phonew1>+1 555-555-1002</phonew1>
+            <address_use>WP</address_use>
+            <type>REFB</type>
+        </participant><participant>
+            <date_time>2015-06-22 11:00:00-0400</date_time>
+            <fname>Albert</fname>
+            <lname>Davis</lname>
+            <organization></organization>
+            <organization_id>c3b45249-e295-a10b-c2aa-4b5bc3aa63c2</organization_id>
+            <organization_npi>987654321</organization_npi>
+            <organization_taxonomy></organization_taxonomy>
+            <organization_taxonomy_desc></organization_taxonomy_desc>
+            <street>2472 Rocky place</street>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <phonew1>+1 555-555-1002</phonew1>
+            <address_use>WP</address_use>
+            <type>CALLBCK</type>
+        </participant></document_participants><authenticator>
+            <streetAddressLine>1357, Amber Dr</streetAddressLine>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <postalCode>97006</postalCode>
+            <country></country>
+            <telecom>2398954555</telecom>
+            <fname>Tracy</fname>
+            <lname>Davis</lname>
+        </authenticator><primary_care_provider></primary_care_provider><care_team>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><is_active>active</is_active> <provider>
+                <prefix>Dr.</prefix>
+                <fname>Albert</fname>
+                <lname>Davis</lname>
+                <speciality></speciality>
+                <organization>Neighborhood Physicians Practice</organization>
+                <telecom>+1 555-555-1002</telecom>
+                <street>2472 Rocky place</street>
+                <city>Beaverton</city>
+                <state>OR</state>
+                <zip>97006</zip>
+                <table_id>provider-5</table_id>
+                <npi>123456789</npi>
+                <physician_type>General physician</physician_type>
+                <physician_type_code>59058001</physician_type_code>
+                <taxonomy>207Q00000X</taxonomy>
+                <taxonomy_description>Family Medicine</taxonomy_description>
+                <provider_since>2026-07-01</provider_since>
+                <role_code>primary_care_provider</role_code>
+                <role_display>Primary Care Provider</role_display>
+                <status>active</status>
+            </provider> <provider>
+                <prefix></prefix>
+                <fname>Tracy</fname>
+                <lname>Davis</lname>
+                <speciality></speciality>
+                <organization>Neighborhood Physicians Practice</organization>
+                <telecom>2398954555</telecom>
+                <street>1357, Amber Dr</street>
+                <city>Beaverton</city>
+                <state>OR</state>
+                <zip>97006</zip>
+                <table_id>provider-6</table_id>
+                <npi>123456789</npi>
+                <physician_type></physician_type>
+                <physician_type_code></physician_type_code>
+                <taxonomy>163W00000X</taxonomy>
+                <taxonomy_description>Registered Nurse</taxonomy_description>
+                <provider_since>2026-07-01</provider_since>
+                <role_code>nurse</role_code>
+                <role_display>Nurse</role_display>
+                <status>active</status>
+            </provider></care_team><encounter_list>
+        <encounter>
+        <extension>ZGVmYXVsdDI=</extension>
+        <sha_extension>0bb48e19-6a39-2764-843a-7b7b0eb0aa9c</sha_extension>
+        <encounter_id>2</encounter_id>
+        <code></code>
+        <code_type></code_type>
+        <code_description></code_description>
+        <visit_category>New Patient</visit_category>
+        <performer>Albert  Davis</performer>
+        <physician_type_code>59058001</physician_type_code>
+        <physician_type>General physician</physician_type>
+        <physician_code_type>SNOMED CT</physician_code_type>
+        <npi>123456789</npi>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <street>2472 Rocky place</street>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <location>Community Health and Hospitals</location>
+        <location_details>,1002 Healthcare Dr,Portland,OR 97266</location_details>
+        <date>2015-06-22 11:00:00-0400</date>
+        <date_formatted>20150622</date_formatted>
+        <facility_extension>ZGVmYXVsdDQ=</facility_extension>
+        <facility_sha_extension>b693393d-b84c-edd6-bf09-04e0dd24e968</facility_sha_extension>
+        <facility_npi>123456789</facility_npi>
+        <facility_oid></facility_oid>
+        <facility_name>Community Health and Hospitals</facility_name>
+        <facility_address>1002 Healthcare Dr</facility_address>
+        <facility_city>Portland</facility_city>
+        <facility_state>OR</facility_state>
+        <facility_country></facility_country>
+        <facility_zip>97266</facility_zip>
+        <facility_phone>555-555-1002</facility_phone>
+        <encounter_procedures>
+                <procedures>
+                <code>99201</code>
+                <code_type_name>CPT4</code_type_name>
+                <code_type>2.16.840.1.113883.6.12</code_type>
+                <text>New Patient (Brief)</text>
+                </procedures></encounter_procedures>
+        <encounter_problems>
+                    <problem>
+                    <extension>ZGVmYXVsdDg=</extension>
+                    <date>2015-06-22 00:00:00</date>
+                    <code>386661006</code>
+                    <code_type>SNOMED CT</code_type>
+                    <text>Fever Finding</text>
+                    <status>Completed</status>
+                    </problem>
+                    <problem>
+                    <extension>ZGVmYXVsdDk=</extension>
+                    <date>2006-12-31 00:00:00</date>
+                    <code>238131007</code>
+                    <code_type>SNOMED CT</code_type>
+                    <text>Overweight (finding)</text>
+                    <status>Completed</status>
+                    </problem></encounter_problems>
+        
+                        <encounter_diagnosis>
+                        <extension>ZGVmYXVsdDg=</extension>
+                        <code>386661006</code>
+                        <code_type>SNOMED CT</code_type>
+                        <text>Fever Finding</text>
+                        <status>Completed</status>
+                        </encounter_diagnosis>
+        <encounter_reason>Complains of nausea, loose stools and weakness.</encounter_reason>
+        </encounter></encounter_list>
+                        <primary_diagnosis>
+                        <root>0bb48e19-6a39-2764-843a-7b7b0eb0aa9c</root>
+                        <extension>ZGVmYXVsdDI=</extension>
+                        <encounter_date>2015-06-22 11:00:00-0400</encounter_date>
+                        <encounter_end_date>2015-06-22 11:30:00-0400</encounter_end_date>
+                        <code>386661006</code>
+                        <code_type>SNOMED CT</code_type>
+                        <text>Fever Finding</text>
+                        <status>Completed</status>
+                        </primary_diagnosis><allergies><allergy>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <id>ZGVmYXVsdDFSWENVSTo3OTgw</id>
+                <sha_id>36e3e930-7b14-11db-9fe1-0800200c9a66</sha_id>
+                <title>Penicillin G [RXCUI:7980]</title>
+                <diagnosis_code>0</diagnosis_code>
+                <diagnosis></diagnosis>
+                <rxnorm_code>7980</rxnorm_code>
+                <rxnorm_code_text>penicillin G</rxnorm_code_text>
+                <snomed_code>0</snomed_code>
+                <snomed_code_text></snomed_code_text>
+                <status_table>Active</status_table>
+                <status>completed</status>
+                <allergy_status>active</allergy_status>
+                <status_code>55561003</status_code>
+                <outcome>Moderate</outcome>
+                <outcome_code>6736007</outcome_code>
+                <startdate>19800510 00:00:00</startdate>
+                <enddate>00000000</enddate>
+                <reaction_text>Hives</reaction_text>
+                <reaction_code>247472004</reaction_code>
+                <reaction_code_type>SNOMED CT</reaction_code_type>
+                <RxNormCode>7980</RxNormCode>
+                <RxNormCode_text>penicillin G</RxNormCode_text>
+                </allergy><allergy>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <id>ZGVmYXVsdDEwUlhDVUk6NzMz</id>
+                <sha_id>36e3e930-7b14-11db-9fe1-0800200c9a66</sha_id>
+                <title>Ampicillin [RXCUI:733]</title>
+                <diagnosis_code>0</diagnosis_code>
+                <diagnosis></diagnosis>
+                <rxnorm_code>733</rxnorm_code>
+                <rxnorm_code_text>ampicillin</rxnorm_code_text>
+                <snomed_code>0</snomed_code>
+                <snomed_code_text></snomed_code_text>
+                <status_table>Active</status_table>
+                <status>completed</status>
+                <allergy_status>active</allergy_status>
+                <status_code>55561003</status_code>
+                <outcome>Moderate</outcome>
+                <outcome_code>6736007</outcome_code>
+                <startdate>19800510 00:00:00</startdate>
+                <enddate>00000000</enddate>
+                <reaction_text>Hives</reaction_text>
+                <reaction_code>247472004</reaction_code>
+                <reaction_code_type>SNOMED CT</reaction_code_type>
+                <RxNormCode>733</RxNormCode>
+                <RxNormCode_text>ampicillin</RxNormCode_text>
+                </allergy><allergy>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <id>ZGVmYXVsdDM3N1NOT01FRC1DVDoxMTEwODgwMDc=</id>
+                <sha_id>36e3e930-7b14-11db-9fe1-0800200c9a66</sha_id>
+                <title>Latex [SNOMED-CT:111088007]</title>
+                <diagnosis_code>0</diagnosis_code>
+                <diagnosis></diagnosis>
+                <rxnorm_code>0</rxnorm_code>
+                <rxnorm_code_text></rxnorm_code_text>
+                <snomed_code>111088007</snomed_code>
+                <snomed_code_text>Latex</snomed_code_text>
+                <status_table>Active</status_table>
+                <status>completed</status>
+                <allergy_status>active</allergy_status>
+                <status_code>55561003</status_code>
+                <outcome>Mild</outcome>
+                <outcome_code>255604002</outcome_code>
+                <startdate>20260701 15:24:00</startdate>
+                <enddate>00000000</enddate>
+                <reaction_text>Hives</reaction_text>
+                <reaction_code>247472004</reaction_code>
+                <reaction_code_type>SNOMED CT</reaction_code_type>
+                <RxNormCode></RxNormCode>
+                <RxNormCode_text>Latex</RxNormCode_text>
+                </allergy></allergies><medications><medication>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+    <id>4</id>
+    <extension>ZGVmYXVsdDQ=</extension>
+    <sha_extension>cdbd33f0-6cde-11db-9fe1-0800200c9a66</sha_extension>
+    <performer_name>Albert  Davis</performer_name>
+    <fname>Albert</fname>
+    <mname></mname>
+    <lname>Davis</lname>
+    <title>Dr.</title>
+    <npi>123456789</npi>
+    <address>2472 Rocky place</address>
+    <city>Beaverton</city>
+    <state>OR</state>
+    <zip>97006</zip>
+    <work_phone>+1 555-555-1002</work_phone>
+    <drug>1 ML darbepoetin alfa 0.5 MG/ML Prefilled Syringe [Aranesp]</drug>
+    <direction>1    1  h</direction>
+    <dosage>1</dosage>
+    <size>1</size>
+    <unit></unit>
+    <unit_code>0</unit_code>
+    <form></form>
+    <form_code></form_code>
+    <route_code></route_code>
+    <route></route>
+    <interval>h</interval>
+    <start_date>20210502</start_date>
+    <start_date_formatted>2021-05-02</start_date_formatted>
+    <end_date></end_date>
+    <status>active</status>
+    <indications></indications>
+    <indications_code>0</indications_code>
+    <instructions></instructions>
+    <rxnorm>731241</rxnorm>
+    <provider_id></provider_id>
+    <provider_name></provider_name>
+    </medication><medication>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+    <id>5</id>
+    <extension>ZGVmYXVsdDU=</extension>
+    <sha_extension>cdbd33f0-6cde-11db-9fe1-0800200c9a66</sha_extension>
+    <performer_name>Albert  Davis</performer_name>
+    <fname>Albert</fname>
+    <mname></mname>
+    <lname>Davis</lname>
+    <title>Dr.</title>
+    <npi>123456789</npi>
+    <address>2472 Rocky place</address>
+    <city>Beaverton</city>
+    <state>OR</state>
+    <zip>97006</zip>
+    <work_phone>+1 555-555-1002</work_phone>
+    <drug>Acetaminophen 500 MG Oral Tablet [Tylenol]</drug>
+    <direction>500 mg  Per Oris 1 tablet p.r.n.</direction>
+    <dosage>1</dosage>
+    <size>500</size>
+    <unit>mg</unit>
+    <unit_code>NCI-CONCEPT-ID:C28253</unit_code>
+    <form>tablet</form>
+    <form_code>C42998</form_code>
+    <route_code>C38288</route_code>
+    <route>Per Oris</route>
+    <interval>p.r.n.</interval>
+    <start_date>20210502</start_date>
+    <start_date_formatted>2021-05-02</start_date_formatted>
+    <end_date></end_date>
+    <status>active</status>
+    <indications></indications>
+    <indications_code>0</indications_code>
+    <instructions></instructions>
+    <rxnorm>209459</rxnorm>
+    <provider_id></provider_id>
+    <provider_name></provider_name>
+    </medication><medication>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+    <id>6</id>
+    <extension>ZGVmYXVsdDY=</extension>
+    <sha_extension>cdbd33f0-6cde-11db-9fe1-0800200c9a66</sha_extension>
+    <performer_name>Albert  Davis</performer_name>
+    <fname>Albert</fname>
+    <mname></mname>
+    <lname>Davis</lname>
+    <title>Dr.</title>
+    <npi>123456789</npi>
+    <address>2472 Rocky place</address>
+    <city>Beaverton</city>
+    <state>OR</state>
+    <zip>97006</zip>
+    <work_phone>+1 555-555-1002</work_phone>
+    <drug>ceftriaxone 100 MG/ML Injectable Solution</drug>
+    <direction>1    24  h</direction>
+    <dosage>24</dosage>
+    <size>1</size>
+    <unit></unit>
+    <unit_code>0</unit_code>
+    <form></form>
+    <form_code></form_code>
+    <route_code></route_code>
+    <route></route>
+    <interval>h</interval>
+    <start_date>20210502</start_date>
+    <start_date_formatted>2021-05-02</start_date_formatted>
+    <end_date></end_date>
+    <status>active</status>
+    <indications></indications>
+    <indications_code>0</indications_code>
+    <instructions></instructions>
+    <rxnorm>309090</rxnorm>
+    <provider_id></provider_id>
+    <provider_name></provider_name>
+    </medication></medications><problem_lists><problem>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <problem_id>5</problem_id>
+                <extension>ZGVmYXVsdDU=</extension>
+                <sha_extension>c3b4c39f-c391-e296-902a-cea948c2bac3</sha_extension>
+                <title>Essential hypertension (disorder)</title>
+                <code>59621000</code>
+                <code_type>SNOMED CT</code_type>
+                <code_text>Essential hypertension (disorder)</code_text>
+                <age>41</age>
+                <start_date_table>2011-05-10 00:00:00</start_date_table>
+                <start_date>20110510 00:00:00</start_date>
+                <end_date>0</end_date>
+                <status>active</status>
+                <status_table>Active</status_table>
+                <status_code>55561003</status_code>
+                <observation>Unassigned</observation>
+                <observation_code></observation_code>
+                <diagnosis>59621000</diagnosis>
+                </problem><problem>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <problem_id>6</problem_id>
+                <extension>ZGVmYXVsdDY=</extension>
+                <sha_extension>c3b4c39f-c391-190e-5c48-e289a4e29596</sha_extension>
+                <title>Severe hypothyroidism (disorder)</title>
+                <code>83986005</code>
+                <code_type>SNOMED CT</code_type>
+                <code_text>Severe hypothyroidism (disorder)</code_text>
+                <age>37</age>
+                <start_date_table>2006-12-31 00:00:00</start_date_table>
+                <start_date>20061231 00:00:00</start_date>
+                <end_date>0</end_date>
+                <status>active</status>
+                <status_table>Active</status_table>
+                <status_code>55561003</status_code>
+                <observation>Status quo</observation>
+                <observation_code></observation_code>
+                <diagnosis>83986005</diagnosis>
+                </problem><problem>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <problem_id>7</problem_id>
+                <extension>ZGVmYXVsdDc=</extension>
+                <sha_extension>c3b45408-1ae2-889e-e295-a34d7cc39ce2</sha_extension>
+                <title>Chronic rejection of renal transplant (disorder)</title>
+                <code>236578006</code>
+                <code_type>SNOMED CT</code_type>
+                <code_text>Chronic rejection of renal transplant (disorder)</code_text>
+                <age>42</age>
+                <start_date_table>2011-12-31 00:00:00</start_date_table>
+                <start_date>20111231 00:00:00</start_date>
+                <end_date>0</end_date>
+                <status>active</status>
+                <status_table>Active</status_table>
+                <status_code>55561003</status_code>
+                <observation>Unassigned</observation>
+                <observation_code></observation_code>
+                <diagnosis>236578006</diagnosis>
+                </problem><problem>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <problem_id>8</problem_id>
+                <extension>ZGVmYXVsdDg=</extension>
+                <sha_extension>c3b45408-1b03-6143-e295-99c3bae295aa</sha_extension>
+                <title>Fever Finding</title>
+                <code>386661006</code>
+                <code_type>SNOMED CT</code_type>
+                <code_text>Fever (finding)</code_text>
+                <age>45</age>
+                <start_date_table>2015-06-22 00:00:00</start_date_table>
+                <start_date>20150622 00:00:00</start_date>
+                <end_date>0</end_date>
+                <status>active</status>
+                <status_table>Active</status_table>
+                <status_code>55561003</status_code>
+                <observation>Unassigned</observation>
+                <observation_code></observation_code>
+                <diagnosis>386661006</diagnosis>
+                </problem><problem>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <problem_id>9</problem_id>
+                <extension>ZGVmYXVsdDk=</extension>
+                <sha_extension>c3b45408-1b19-2845-e295-a6c3b3e29599</sha_extension>
+                <title>Overweight (finding)</title>
+                <code>238131007</code>
+                <code_type>SNOMED CT</code_type>
+                <code_text>Overweight</code_text>
+                <age>37</age>
+                <start_date_table>2006-12-31 00:00:00</start_date_table>
+                <start_date>20061231 00:00:00</start_date>
+                <end_date>0</end_date>
+                <status>active</status>
+                <status_table>Active</status_table>
+                <status_code>55561003</status_code>
+                <observation>Improved</observation>
+                <observation_code></observation_code>
+                <diagnosis>238131007</diagnosis>
+                </problem></problem_lists><procedures><procedure>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description>New Patient (Brief)</description>
+            <code>99201</code>
+            <code_type>CPT4</code_type>
+            <date>2015-06-22</date>
+            <npi></npi>
+            <fname></fname>
+            <mname></mname>
+            <lname></lname>
+            <address></address>
+            <city></city>
+            <state></state>
+            <zip></zip>
+            <work_phone></work_phone>
+            <facility_extension>ZGVmYXVsdDQ=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Community Health and Hospitals</facility_name>
+            <facility_address>1002 Healthcare Dr</facility_address>
+            <facility_city>Portland</facility_city>
+            <facility_state>OR</facility_state>
+            <facility_country></facility_country>
+            <facility_zip>97266</facility_zip>
+            <facility_phone>555-555-1002</facility_phone>
+            <procedure_date>20210501</procedure_date>
+            </procedure><procedure>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description>Nebulizer therapy (procedure)</description>
+            <code>56251003</code>
+            <code_type>SNOMED CT</code_type>
+            <date>2015-06-22</date>
+            <npi></npi>
+            <fname></fname>
+            <mname></mname>
+            <lname></lname>
+            <address></address>
+            <city></city>
+            <state></state>
+            <zip></zip>
+            <work_phone></work_phone>
+            <facility_extension>ZGVmYXVsdDQ=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Community Health and Hospitals</facility_name>
+            <facility_address>1002 Healthcare Dr</facility_address>
+            <facility_city>Portland</facility_city>
+            <facility_state>OR</facility_state>
+            <facility_country></facility_country>
+            <facility_zip>97266</facility_zip>
+            <facility_phone>555-555-1002</facility_phone>
+            <procedure_date>20210501</procedure_date>
+            </procedure><procedure>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description>Introduction of cardiac pacemaker system via vein (procedure)</description>
+            <code>175135009</code>
+            <code_type>SNOMED CT</code_type>
+            <date>2015-06-22</date>
+            <npi></npi>
+            <fname></fname>
+            <mname></mname>
+            <lname></lname>
+            <address></address>
+            <city></city>
+            <state></state>
+            <zip></zip>
+            <work_phone></work_phone>
+            <facility_extension>ZGVmYXVsdDQ=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Community Health and Hospitals</facility_name>
+            <facility_address>1002 Healthcare Dr</facility_address>
+            <facility_city>Portland</facility_city>
+            <facility_state>OR</facility_state>
+            <facility_country></facility_country>
+            <facility_zip>97266</facility_zip>
+            <facility_phone>555-555-1002</facility_phone>
+            <procedure_date>20210501</procedure_date>
+            </procedure><procedure>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description>Pyrexia of unknown origin co-occurrent with human immunodeficiency virus infection (disorder)</description>
+            <code>713731001</code>
+            <code_type>SNOMED</code_type>
+            <date>2015-06-22</date>
+            <npi></npi>
+            <fname></fname>
+            <mname></mname>
+            <lname></lname>
+            <address></address>
+            <city></city>
+            <state></state>
+            <zip></zip>
+            <work_phone></work_phone>
+            <facility_extension>ZGVmYXVsdDQ=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Community Health and Hospitals</facility_name>
+            <facility_address>1002 Healthcare Dr</facility_address>
+            <facility_city>Portland</facility_city>
+            <facility_state>OR</facility_state>
+            <facility_country></facility_country>
+            <facility_zip>97266</facility_zip>
+            <facility_phone>555-555-1002</facility_phone>
+            <procedure_date>20210501</procedure_date>
+            </procedure><procedure>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description>Nebulizer Therapy</description>
+            <code>56251003</code>
+            <code_type>SNOMED-CT</code_type>
+            <date>2015-06-22</date>
+            <npi>123456789</npi>
+            <fname>Albert</fname>
+            <mname></mname>
+            <lname>Davis</lname>
+            <address>2472 Rocky place</address>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <zip>97006</zip>
+            <work_phone>+1 555-555-1002</work_phone>
+            <facility_extension>ZGVmYXVsdDQ=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Community Health and Hospitals</facility_name>
+            <facility_address>1002 Healthcare Dr</facility_address>
+            <facility_city>Portland</facility_city>
+            <facility_state>OR</facility_state>
+            <facility_country></facility_country>
+            <facility_zip>97266</facility_zip>
+            <facility_phone>555-555-1002</facility_phone>
+            <procedure_date></procedure_date>
+            </procedure><procedure>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description>xray, Chest</description>
+            <code>71045</code>
+            <code_type></code_type>
+            <date>2015-06-22</date>
+            <npi>123456789</npi>
+            <fname>Albert</fname>
+            <mname></mname>
+            <lname>Davis</lname>
+            <address>2472 Rocky place</address>
+            <city>Beaverton</city>
+            <state>OR</state>
+            <zip>97006</zip>
+            <work_phone>+1 555-555-1002</work_phone>
+            <facility_extension>ZGVmYXVsdDQ=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Community Health and Hospitals</facility_name>
+            <facility_address>1002 Healthcare Dr</facility_address>
+            <facility_city>Portland</facility_city>
+            <facility_state>OR</facility_state>
+            <facility_country></facility_country>
+            <facility_zip>97266</facility_zip>
+            <facility_phone>555-555-1002</facility_phone>
+            <procedure_date></procedure_date>
+            </procedure></procedures><results><result>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDE=</extension>
+        <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+        <date_ordered>20140606</date_ordered>
+        <date_ordered_table>2014-06-06 00:00:00</date_ordered_table>
+        <title>Color of Urine</title>
+        <test_code>SNOMED-CT:56251003</test_code>
+        <test_name>Nebulizer Therapy</test_name>
+        <order_status_table></order_status_table>
+        <order_status>completed</order_status>
+            <subtest>
+            <extension>ZGVmYXVsdDU3NzgtNg==</extension>
+            <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+            <range></range>
+            <low></low>
+            <high></high>
+            <unit></unit>
+            <result_code>5778-6</result_code>
+            <result_desc>Color of Urine</result_desc>
+            <result_value>YELLOW</result_value>
+            <result_time></result_time>
+            <abnormal_flag>no</abnormal_flag>
+            </subtest>
+        </result><result>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDI=</extension>
+        <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+        <date_ordered>20140606</date_ordered>
+        <date_ordered_table>2014-06-06 00:00:00</date_ordered_table>
+        <title>Appearance of Urine</title>
+        <test_code>SNOMED-CT:56251003</test_code>
+        <test_name>Nebulizer Therapy</test_name>
+        <order_status_table></order_status_table>
+        <order_status>completed</order_status>
+            <subtest>
+            <extension>ZGVmYXVsdDU3NjctOQ==</extension>
+            <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+            <range></range>
+            <low></low>
+            <high></high>
+            <unit></unit>
+            <result_code>5767-9</result_code>
+            <result_desc>Appearance of Urine</result_desc>
+            <result_value>CLEAR</result_value>
+            <result_time></result_time>
+            <abnormal_flag>no</abnormal_flag>
+            </subtest>
+        </result><result>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDM=</extension>
+        <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+        <date_ordered>20140606</date_ordered>
+        <date_ordered_table>2014-06-06 00:00:00</date_ordered_table>
+        <title>Specific gravity of Urine by Test strip</title>
+        <test_code>SNOMED-CT:56251003</test_code>
+        <test_name>Nebulizer Therapy</test_name>
+        <order_status_table></order_status_table>
+        <order_status>completed</order_status>
+            <subtest>
+            <extension>ZGVmYXVsdDU4MTEtNQ==</extension>
+            <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+            <range>1.005-1.030</range>
+            <low>1.005</low>
+            <high>1.030</high>
+            <unit></unit>
+            <result_code>5811-5</result_code>
+            <result_desc>Specific gravity of Urine by Test strip</result_desc>
+            <result_value>1.015</result_value>
+            <result_time></result_time>
+            <abnormal_flag>no</abnormal_flag>
+            </subtest>
+        </result><result>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDQ=</extension>
+        <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+        <date_ordered>20140606</date_ordered>
+        <date_ordered_table>2014-06-06 00:00:00</date_ordered_table>
+        <title>pH of Urine by Test strip</title>
+        <test_code>SNOMED-CT:56251003</test_code>
+        <test_name>Nebulizer Therapy</test_name>
+        <order_status_table></order_status_table>
+        <order_status>completed</order_status>
+            <subtest>
+            <extension>ZGVmYXVsdDU4MDMtMg==</extension>
+            <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+            <range>5.0-8.0</range>
+            <low>5.0</low>
+            <high>8.0</high>
+            <unit>[pH]</unit>
+            <result_code>5803-2</result_code>
+            <result_desc>pH of Urine by Test strip</result_desc>
+            <result_value>5.0</result_value>
+            <result_time></result_time>
+            <abnormal_flag>no</abnormal_flag>
+            </subtest>
+        </result><result>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDU=</extension>
+        <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+        <date_ordered>20140606</date_ordered>
+        <date_ordered_table>2014-06-06 00:00:00</date_ordered_table>
+        <title>Glucose [Mass/volume] in urine by test strip</title>
+        <test_code>SNOMED-CT:56251003</test_code>
+        <test_name>Nebulizer Therapy</test_name>
+        <order_status_table></order_status_table>
+        <order_status>completed</order_status>
+            <subtest>
+            <extension>ZGVmYXVsdDU3OTItNw==</extension>
+            <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+            <range>0-100</range>
+            <low>0</low>
+            <high>100</high>
+            <unit>mg/dL</unit>
+            <result_code>5792-7</result_code>
+            <result_desc>Glucose [Mass/volume] in urine by test strip</result_desc>
+            <result_value>50</result_value>
+            <result_time></result_time>
+            <abnormal_flag>yes</abnormal_flag>
+            </subtest>
+        </result><result>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDY=</extension>
+        <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+        <date_ordered>20140606</date_ordered>
+        <date_ordered_table>2014-06-06 00:00:00</date_ordered_table>
+        <title>Ketones [Mass/Volume] in urine by test strip</title>
+        <test_code>SNOMED-CT:56251003</test_code>
+        <test_name>Nebulizer Therapy</test_name>
+        <order_status_table></order_status_table>
+        <order_status>completed</order_status>
+            <subtest>
+            <extension>ZGVmYXVsdDU3OTctNg==</extension>
+            <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+            <range>Negative</range>
+            <low>Negative</low>
+            <high></high>
+            <unit></unit>
+            <result_code>5797-6</result_code>
+            <result_desc>Ketones [Mass/Volume] in urine by test strip</result_desc>
+            <result_value>Negative</result_value>
+            <result_time></result_time>
+            <abnormal_flag>no</abnormal_flag>
+            </subtest>
+        </result><result>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDc=</extension>
+        <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+        <date_ordered>20140606</date_ordered>
+        <date_ordered_table>2014-06-06 00:00:00</date_ordered_table>
+        <title>Protein[Mass/Volume] in urine by test strip</title>
+        <test_code>SNOMED-CT:56251003</test_code>
+        <test_name>Nebulizer Therapy</test_name>
+        <order_status_table></order_status_table>
+        <order_status>completed</order_status>
+            <subtest>
+            <extension>ZGVmYXVsdDU4MDQtMA==</extension>
+            <root>7d5a02b0-67a4-11db-bd13-0800200c9a66</root>
+            <range>negative</range>
+            <low>negative</low>
+            <high></high>
+            <unit>mg/dL</unit>
+            <result_code>5804-0</result_code>
+            <result_desc>Protein[Mass/Volume] in urine by test strip</result_desc>
+            <result_value>100</result_value>
+            <result_time></result_time>
+            <abnormal_flag>yes</abnormal_flag>
+            </subtest>
+        </result></results><immunizations>
+        <immunization>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDE=</extension>
+        <sha_extension>e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92</sha_extension>
+        <id>1</id>
+        <cvx_code>88</cvx_code>
+        <code_text>influenza virus vaccine, unspecified formulation</code_text>
+        <npi>123456789</npi>
+        <administered_by></administered_by>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <title>Dr.</title>
+        <address>2472 Rocky place</address>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <administered_on>2014-05-10</administered_on>
+        <administered_formatted>20140510</administered_formatted>
+        <note></note>
+        <route_of_administration></route_of_administration>
+        <route_code></route_code>
+        <status>completed</status>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <facility_phone>555-555-1002</facility_phone>
+        </immunization>
+        <immunization>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDE=</extension>
+        <sha_extension>e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92</sha_extension>
+        <id>1</id>
+        <cvx_code>88</cvx_code>
+        <code_text>Influenza virus vaccine</code_text>
+        <npi>123456789</npi>
+        <administered_by></administered_by>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <title>Dr.</title>
+        <address>2472 Rocky place</address>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <administered_on>2014-05-10</administered_on>
+        <administered_formatted>20140510</administered_formatted>
+        <note></note>
+        <route_of_administration></route_of_administration>
+        <route_code></route_code>
+        <status>completed</status>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <facility_phone>555-555-1002</facility_phone>
+        </immunization>
+        <immunization>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDQ=</extension>
+        <sha_extension>e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92</sha_extension>
+        <id>4</id>
+        <cvx_code>106</cvx_code>
+        <code_text>diphtheria, tetanus toxoids and acellular pertussis vaccine, 5 pertussis antigens</code_text>
+        <npi>123456789</npi>
+        <administered_by></administered_by>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <title>Dr.</title>
+        <address>2472 Rocky place</address>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <administered_on>2012-01-04</administered_on>
+        <administered_formatted>20120104</administered_formatted>
+        <note></note>
+        <route_of_administration></route_of_administration>
+        <route_code></route_code>
+        <status>completed</status>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <facility_phone>555-555-1002</facility_phone>
+        </immunization>
+        <immunization>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDQ=</extension>
+        <sha_extension>e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92</sha_extension>
+        <id>4</id>
+        <cvx_code>106</cvx_code>
+        <code_text>Tetanus and diphtheria toxoids</code_text>
+        <npi>123456789</npi>
+        <administered_by></administered_by>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <title>Dr.</title>
+        <address>2472 Rocky place</address>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <administered_on>2012-01-04</administered_on>
+        <administered_formatted>20120104</administered_formatted>
+        <note></note>
+        <route_of_administration></route_of_administration>
+        <route_code></route_code>
+        <status>completed</status>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <facility_phone>555-555-1002</facility_phone>
+        </immunization>
+        <immunization>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDQ=</extension>
+        <sha_extension>e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92</sha_extension>
+        <id>4</id>
+        <cvx_code>106</cvx_code>
+        <code_text>Tetanus and diphtheria toxoids - preservative free</code_text>
+        <npi>123456789</npi>
+        <administered_by></administered_by>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <title>Dr.</title>
+        <address>2472 Rocky place</address>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <administered_on>2012-01-04</administered_on>
+        <administered_formatted>20120104</administered_formatted>
+        <note></note>
+        <route_of_administration></route_of_administration>
+        <route_code></route_code>
+        <status>completed</status>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <facility_phone>555-555-1002</facility_phone>
+        </immunization>
+        <immunization>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDY=</extension>
+        <sha_extension>e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92</sha_extension>
+        <id>6</id>
+        <cvx_code>166</cvx_code>
+        <code_text>influenza, intradermal, quadrivalent, preservative free, injectable</code_text>
+        <npi>123456789</npi>
+        <administered_by></administered_by>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <title>Dr.</title>
+        <address>2472 Rocky place</address>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <administered_on>2021-05-08</administered_on>
+        <administered_formatted>20210508</administered_formatted>
+        <note></note>
+        <route_of_administration></route_of_administration>
+        <route_code></route_code>
+        <status>completed</status>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <facility_phone>555-555-1002</facility_phone>
+        </immunization>
+        <immunization>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+        <extension>ZGVmYXVsdDY=</extension>
+        <sha_extension>e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92</sha_extension>
+        <id>6</id>
+        <cvx_code>166</cvx_code>
+        <code_text>influenza, intradermal, quadrivalent, preservative free</code_text>
+        <npi>123456789</npi>
+        <administered_by></administered_by>
+        <fname>Albert</fname>
+        <mname></mname>
+        <lname>Davis</lname>
+        <title>Dr.</title>
+        <address>2472 Rocky place</address>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <work_phone>+1 555-555-1002</work_phone>
+        <administered_on>2021-05-08</administered_on>
+        <administered_formatted>20210508</administered_formatted>
+        <note></note>
+        <route_of_administration></route_of_administration>
+        <route_code></route_code>
+        <status>completed</status>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <facility_phone>555-555-1002</facility_phone>
+        </immunization></immunizations><planofcare><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b45249-e295-a1c2-aac6-924c59e29595</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Testing</fname>
+        <lname>Admin</lname>
+        <npi></npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>0ce70313-4e2f-6c73-006f-1fb76a51472d</sha_extension>
+                <care_plan_type>plan_of_care</care_plan_type>
+                <encounter>2</encounter>
+                <code>34534-8</code>
+                <code_text>Ekg 12 channel panel</code_text>
+                <description>Get a Chest X-ray done on 6/23/2015 showing the Lower Respiratory Tract Structure.
+Essential hypertension (disorder) [SNOMED:59621000] 
+Fever Finding [SNOMED-CT:386661006] 
+</description>
+                <date>2021-05-02 00:00:00</date>
+                <date_formatted>20210502 00:00:00</date_formatted>
+                <proposed_date></proposed_date>
+                <status>completed</status>
+                <status_entry>active</status_entry>
+                <code_type>LOINC</code_type>
+                <moodCode>INT</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>aa294f5e-16f8-313a-83ad-17bd20648326</sha_extension>
+                <care_plan_type>planned_procedure</care_plan_type>
+                <encounter>2</encounter>
+                <code>467771000124109</code>
+                <code_text>Assistance with application for food pantry program (procedure)</code_text>
+                <description>Assistance with application for food pantry program</description>
+                <date>2015-06-22 13:00:00</date>
+                <date_formatted>20150622 13:00:00</date_formatted>
+                <proposed_date></proposed_date>
+                <status>on-hold</status>
+                <status_entry>active</status_entry>
+                <code_type>SNOMED-CT</code_type>
+                <moodCode>RQO</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>dc5a5670-91ae-6251-98ac-b2ba9dcf3d13</sha_extension>
+                <care_plan_type>test_or_order</care_plan_type>
+                <encounter>2</encounter>
+                <code>24357-6</code>
+                <code_text>Urinalysis macro (dipstick) panel</code_text>
+                <description>Order a Urinanalysis macro (dipstick) panel</description>
+                <date>2015-06-29 00:00:00</date>
+                <date_formatted>20150629 00:00:00</date_formatted>
+                <proposed_date></proposed_date>
+                <status>on-hold</status>
+                <status_entry>active</status_entry>
+                <code_type>LOINC</code_type>
+                <moodCode>RQO</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>5519efc8-b902-ffee-264f-44d7f1404cd0</sha_extension>
+                <care_plan_type>plan_of_care</care_plan_type>
+                <encounter>2</encounter>
+                <code>5177007</code>
+                <code_text>Electrocardiogram axis finding (finding)</code_text>
+                <description>Get an EKG done on 6/23/2015
+Overweight (finding) [SNOMED-CT:238131007] 
+</description>
+                <date>2015-06-22 00:00:00</date>
+                <date_formatted>20150622 00:00:00</date_formatted>
+                <proposed_date></proposed_date>
+                <status>entered-in-error</status>
+                <status_entry>active</status_entry>
+                <code_type>SNOMED-CT</code_type>
+                <moodCode>INT</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>00755c00-562e-62f0-f721-5fe1d029f984</sha_extension>
+                <care_plan_type>plan_of_care</care_plan_type>
+                <encounter>2</encounter>
+                <code>284215</code>
+                <code_text>Clindamycin 300 mg oral capsule</code_text>
+                <description>Take Clindamycin 300mg three times a day as needed if pain does not subside.
+
+</description>
+                <date>2015-06-22 00:00:00</date>
+                <date_formatted>20150622 00:00:00</date_formatted>
+                <proposed_date></proposed_date>
+                <status>active</status>
+                <status_entry>active</status_entry>
+                <code_type>RXCUI</code_type>
+                <moodCode>INT</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>2d6c59fe-4efc-9723-058c-d3b69e4e7504</sha_extension>
+                <care_plan_type>appointments</care_plan_type>
+                <encounter>2</encounter>
+                <code>11429006</code>
+                <code_text>Consultation with healthcare provider</code_text>
+                <description>Schedule follow on visit with Neighborhood Physicians Practice on
+7/1/2015</description>
+                <date>2015-06-22 00:00:00</date>
+                <date_formatted>20150622 00:00:00</date_formatted>
+                <proposed_date></proposed_date>
+                <status>active</status>
+                <status_entry>active</status_entry>
+                <code_type>SNOMED-CT</code_type>
+                <moodCode>INT</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>49cc5332-415e-a72f-5e5e-cf2d08e8de9c</sha_extension>
+                <care_plan_type>intervention</care_plan_type>
+                <encounter>2</encounter>
+                <code>733423003</code>
+                <code_text>Food insecurity (finding)</code_text>
+                <description>Hungry</description>
+                <date>2021-05-01 00:00:00</date>
+                <date_formatted>20210501 00:00:00</date_formatted>
+                <proposed_date></proposed_date>
+                <status>entered-in-error</status>
+                <status_entry>active</status_entry>
+                <code_type>SNOMED-CT</code_type>
+                <moodCode>RQO</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                    <extension>ZGVmYXVsdDA=</extension>
+                    <sha_extension>cd990451-8952-ebca-87ad-a0e60b5866f8</sha_extension>
+                    <date>2025-09-17</date>
+                    <care_plan_type>test_or_order</care_plan_type>
+                    <encounter>0</encounter>
+                    <code></code>
+                    <code_text>Assistance with application for food pantry program</code_text>
+                    <description>Assistance with application for food pantry program</description>
+                    <date_formatted>20250917</date_formatted>
+                    <proposed_date></proposed_date>
+                    <status>active</status>
+                    <status_entry>active</status_entry>
+                    <code_type>SNOMED-CT</code_type>
+                    <moodCode>RQO</moodCode>
+                </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                    <extension>ZGVmYXVsdDA=</extension>
+                    <sha_extension>f517bd39-63cd-48e5-1781-ff45096aadb1</sha_extension>
+                    <date>2025-09-17</date>
+                    <care_plan_type>test_or_order</care_plan_type>
+                    <encounter>0</encounter>
+                    <code></code>
+                    <code_text>Referral to local housing assistance resources</code_text>
+                    <description>Referral to local housing assistance resources</description>
+                    <date_formatted>20250917</date_formatted>
+                    <proposed_date></proposed_date>
+                    <status>active</status>
+                    <status_entry>active</status_entry>
+                    <code_type>SNOMED-CT</code_type>
+                    <moodCode>RQO</moodCode>
+                </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                    <extension>ZGVmYXVsdDA=</extension>
+                    <sha_extension>9f346e41-89db-479e-0fa4-df6abc8a8980</sha_extension>
+                    <date>2025-09-17</date>
+                    <care_plan_type>test_or_order</care_plan_type>
+                    <encounter>0</encounter>
+                    <code></code>
+                    <code_text>[{&quot;resourceType&quot;:&quot;ServiceRequest&quot;,&quot;status&quot;:&quot;active&quot;,&quot;intent&quot;:&quot;order&quot;,&quot;priority&quot;:&quot;routine&quot;,&quot;category&quot;:[{&quot;coding&quot;:[{&quot;system&quot;:&quot;http:\/\/hl7.org\/fhir\/us\/sdoh-clinicalcare\/CodeSystem\/SDOHCC-CodeSystemTemporaryCodes&quot;,&quot;code&quot;:&quot;food-insecurity&quot;,&quot;display&quot;:&quot;Food Insecurity&quot;}],&quot;text&quot;:&quot;Food Insecurity&quot;}],&quot;code&quot;:{&quot;text&quot;:&quot;Assistance with application for food pantry program&quot;},&quot;reasonCode&quot;:[{&quot;text&quot;:&quot;Food insecurity risk&quot;}],&quot;subject&quot;:{&quot;reference&quot;:&quot;Patient\/1&quot;},&quot;authoredOn&quot;:&quot;2025-09-17&quot;},{&quot;resourceType&quot;:&quot;ServiceRequest&quot;,&quot;status&quot;:&quot;active&quot;,&quot;intent&quot;:&quot;order&quot;,&quot;priority&quot;:&quot;routine&quot;,&quot;category&quot;:[{&quot;coding&quot;:[{&quot;system&quot;:&quot;http:\/\/hl7.org\/fhir\/us\/sdoh-clinicalcare\/CodeSystem\/SDOHCC-CodeSystemTemporaryCodes&quot;,&quot;code&quot;:&quot;housing-instability&quot;,&quot;display&quot;:&quot;Housing Instability&quot;}],&quot;text&quot;:&quot;Housing Instability&quot;}],&quot;code&quot;:{&quot;text&quot;:&quot;Referral to local housing assistance resources&quot;},&quot;reasonCode&quot;:[{&quot;text&quot;:&quot;Housing instability risk&quot;}],&quot;subject&quot;:{&quot;reference&quot;:&quot;Patient\/1&quot;},&quot;authoredOn&quot;:&quot;2025-09-17&quot;}]</code_text>
+                    <description>[{&quot;resourceType&quot;:&quot;ServiceRequest&quot;,&quot;status&quot;:&quot;active&quot;,&quot;intent&quot;:&quot;order&quot;,&quot;priority&quot;:&quot;routine&quot;,&quot;category&quot;:[{&quot;coding&quot;:[{&quot;system&quot;:&quot;http:\/\/hl7.org\/fhir\/us\/sdoh-clinicalcare\/CodeSystem\/SDOHCC-CodeSystemTemporaryCodes&quot;,&quot;code&quot;:&quot;food-insecurity&quot;,&quot;display&quot;:&quot;Food Insecurity&quot;}],&quot;text&quot;:&quot;Food Insecurity&quot;}],&quot;code&quot;:{&quot;text&quot;:&quot;Assistance with application for food pantry program&quot;},&quot;reasonCode&quot;:[{&quot;text&quot;:&quot;Food insecurity risk&quot;}],&quot;subject&quot;:{&quot;reference&quot;:&quot;Patient\/1&quot;},&quot;authoredOn&quot;:&quot;2025-09-17&quot;},{&quot;resourceType&quot;:&quot;ServiceRequest&quot;,&quot;status&quot;:&quot;active&quot;,&quot;intent&quot;:&quot;order&quot;,&quot;priority&quot;:&quot;routine&quot;,&quot;category&quot;:[{&quot;coding&quot;:[{&quot;system&quot;:&quot;http:\/\/hl7.org\/fhir\/us\/sdoh-clinicalcare\/CodeSystem\/SDOHCC-CodeSystemTemporaryCodes&quot;,&quot;code&quot;:&quot;housing-instability&quot;,&quot;display&quot;:&quot;Housing Instability&quot;}],&quot;text&quot;:&quot;Housing Instability&quot;}],&quot;code&quot;:{&quot;text&quot;:&quot;Referral to local housing assistance resources&quot;},&quot;reasonCode&quot;:[{&quot;text&quot;:&quot;Housing instability risk&quot;}],&quot;subject&quot;:{&quot;reference&quot;:&quot;Patient\/1&quot;},&quot;authoredOn&quot;:&quot;2025-09-17&quot;}]</description>
+                    <date_formatted>20250917</date_formatted>
+                    <proposed_date></proposed_date>
+                    <status>active</status>
+                    <status_entry>active</status_entry>
+                    <code_type>SNOMED-CT</code_type>
+                    <moodCode>RQO</moodCode>
+                </item></planofcare><goals><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>8552478a-f117-d90f-daa8-8f278be7c358</sha_extension>
+                <care_plan_type>goal</care_plan_type>
+                <encounter>2</encounter>
+                <code>58144-7</code>
+                <code_text>Resident&apos;s overall goal established during assessment process</code_text>
+                <description>Get rid of intermittent fever that is occurring every few weeks. (Visual Inspection)</description>
+                <date>2021-05-14 00:00:00</date>
+                <date_formatted>20210514 00:00:00</date_formatted>
+                <status>completed</status>
+                <status_entry>active</status_entry>
+                <code_type>LOINC</code_type>
+                <value_type>ST</value_type>
+                <moodCode>GOL</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>003c24fd-e275-66e4-51f6-48648a3a144e</sha_extension>
+                <care_plan_type>goal</care_plan_type>
+                <encounter>2</encounter>
+                <code>58144-7</code>
+                <code_text>Resident&apos;s overall goal established during assessment process</code_text>
+                <description>Need to gain more energy to do regular activities</description>
+                <date>2021-05-26 00:00:00</date>
+                <date_formatted>20210526 00:00:00</date_formatted>
+                <status>entered-in-error</status>
+                <status_entry>active</status_entry>
+                <code_type>LOINC</code_type>
+                <value_type>ST</value_type>
+                <moodCode>GOL</moodCode>
+            </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                    <extension>ZGVmYXVsdDA=</extension>
+                    <sha_extension>70870fc5-b237-bebe-3413-119baa70b39c</sha_extension>
+                    <care_plan_type>goal</care_plan_type>
+                    <date>2025-09-17</date>
+                    <date_formatted>20250917</date_formatted>
+                    <encounter>0</encounter>
+                    <code>88124-3</code>
+                    <code_text>Food insecurity risk [HVS]</code_text>
+                    <code_type>LOINC</code_type>
+                    <description>Food security (finding)</description>
+                    <value_type>CD</value_type>
+                    <status>active</status>
+                    <status_entry>active</status_entry>
+                    <moodCode>GOL</moodCode>
+                    <sdoh_code>1078229009</sdoh_code>
+                    <sdoh_code_text>Food security (finding)</sdoh_code_text>
+                    <sdoh_code_type>SNOMED CT</sdoh_code_type>
+                    <sdoh_code_system>2.16.840.1.113883.6.96</sdoh_code_system>
+                </item><item>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                    <extension>ZGVmYXVsdDA=</extension>
+                    <sha_extension>12caf86c-cda7-1cad-7c67-c907d222e849</sha_extension>
+                    <care_plan_type>goal</care_plan_type>
+                    <date>2025-09-17</date>
+                    <date_formatted>20250917</date_formatted>
+                    <encounter>0</encounter>
+                    <code>8689-2</code>
+                    <code_text>Are you worried about losing your housing [PRAPARE]</code_text>
+                    <code_type>LOINC</code_type>
+                    <description>Housing adequate (finding)</description>
+                    <value_type>CD</value_type>
+                    <status>active</status>
+                    <status_entry>active</status_entry>
+                    <moodCode>GOL</moodCode>
+                    <sdoh_code>161036002</sdoh_code>
+                    <sdoh_code_text>Housing adequate (finding)</sdoh_code_text>
+                    <sdoh_code_type>SNOMED CT</sdoh_code_type>
+                    <sdoh_code_system>2.16.840.1.113883.6.96</sdoh_code_system>
+                </item></goals><health_concerns><concern>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><issues>
+</issues><encounter>2</encounter>
+                <extension>ZGVmYXVsdDI=</extension>
+                <sha_extension>39d71516-af81-0a20-252d-c2647f961284</sha_extension>
+                <text>2021-05-01 00:00:00 a. Chronic Sickness exhibited by patient
+b. HealthCare Concerns refer to underlying clinical facts
+i. Documented HyperTension problem
+ii. Documented HypoThyroidism problem
+iii. Watch Weight of patient</text>
+                <code>27624003</code>
+                <code_type>SNOMED-CT</code_type>
+                <code_text>Chronic disease (disorder)</code_text>
+                <date>2021-05-01 00:00:00</date>
+                <date_formatted>20210501 00:00:00</date_formatted>
+                <assessment>Encounter</assessment>
+             </concern><concern>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                        <issues></issues>
+                        <encounter>0</encounter>
+                        <extension>ZGVmYXVsdDA=</extension>
+                        <sha_extension>0812ad57-064e-925b-b334-a289c17fe047</sha_extension>
+                        <text>2025-09-17 Food insecurity</text>
+                        <code>733423003</code>
+                        <code_type>SNOMED CT</code_type>
+                        <code_text>Food insecurity</code_text>
+                        <date>2025-09-17</date>
+                        <date_formatted>20250917</date_formatted>
+                        <assessment>SDOH</assessment>
+                    </concern><concern>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                        <issues></issues>
+                        <encounter>0</encounter>
+                        <extension>ZGVmYXVsdDA=</extension>
+                        <sha_extension>077a92ab-14c3-b819-6b71-35678d7d1d1b</sha_extension>
+                        <text>2025-09-17 Homeless</text>
+                        <code>32911000</code>
+                        <code_type>SNOMED CT</code_type>
+                        <code_text>Homeless</code_text>
+                        <date>2025-09-17</date>
+                        <date_formatted>20250917</date_formatted>
+                        <assessment>SDOH</assessment>
+                    </concern></health_concerns><social_history_sdoh><hunger_vital_signs><assessment_date>20250917</assessment_date><score>2</score><risk_status><code>88124-3</code><code_system>2.16.840.1.113883.6.1</code_system><display>Food insecurity risk</display><answer_code>LA19952-3</answer_code><answer_display>At risk</answer_display></risk_status><question1><code>88122-7</code><code_system>2.16.840.1.113883.6.1</code_system><display>Within past 12 months we worried whether our food would run out before we got money to buy more</display><answer_code>LA28397-0</answer_code><answer_display>Often true</answer_display></question1><question2><code>88123-5</code><code_system>2.16.840.1.113883.6.1</code_system><display>Within past 12 months the food we bought just didn't last and we didn't have money to get more</display><answer_code>LA28397-0</answer_code><answer_display>Often true</answer_display></question2></hunger_vital_signs></social_history_sdoh><functional_status><item>
+    <cognitive>0</cognitive>
+    <code>105504002</code>
+    <code_text>Dependance on cane</code_text>
+    <description>2005-05-01 Uses a walking cane | </description>
+    <date>2005-05-01</date>
+    <date_formatted>20050501</date_formatted>
+    <status>completed</status>
+    <age>56</age>
+    </item><item>
+    <cognitive>0</cognitive>
+    <code>1407007</code>
+    <code_text>Application of long leg cast, brace type</code_text>
+    <description>2021-05-29 Application of long leg cast, brace type | </description>
+    <date>2021-05-29</date>
+    <date_formatted>20210529</date_formatted>
+    <status>completed</status>
+    <age>56</age>
+    </item></functional_status><mental_status><item>
+    <cognitive>1</cognitive>
+    <code>48167000</code>
+    <code_text>Amnesia</code_text>
+    <description>2005-05-01 Amnesia | </description>
+    <date>2005-05-01</date>
+    <date_formatted>20050501</date_formatted>
+    <status>completed</status>
+    <age>56</age>
+    </item></mental_status><clinical_instruction></clinical_instruction><medical_devices><device>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                <extension>ZGVmYXVsdDEx</extension>
+                <sha_extension>1cd0fbb6-6df6-7538-0894-0f38a967f2bd</sha_extension>
+                <title>Cardiac resynchronization therapy implantable defibrillator [SNOMED-CT:704708004]</title>
+                <code>704708004</code>
+                <code_type>SNOMED CT</code_type>
+                <code_text>Cardiac resynchronization therapy implantable pacemaker</code_text>
+                <udi>(01)00643169007222(17)160128(21)BLC200461H</udi>
+                <start_date_table>2011-10-05 00:00:00</start_date_table>
+                <start_date>20111005 00:00:00</start_date>
+                <end_date></end_date>
+                <status>active</status>
+                <status_table>Active</status_table>
+                <status_code>55561003</status_code>
+                <observation>Unassigned</observation>
+                <observation_code></observation_code>
+                <diagnosis>704708004</diagnosis>
+                </device></medical_devices><referral_reason><text>Ms Alice Newman is being referred to Community Health Hospitals Inpatient facility because of the high
+fever noticed and suspected Anemia</text>
+                           <date>2021-05-28</date>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author></referral_reason><payers>  <payer>
+    <identifiers>
+      <identifier>c3bb583c-c39f-c3ba-e281-bf4848c2acc3</identifier>
+    </identifiers>
+    <policy>
+      <identifiers>
+        <identifier>c3b453e2-9595-e28c-a10a-c3a74e2ac2bb</identifier>
+         <extension>GRP-1</extension>
+      </identifiers>
+      <code code="72" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" name="PPO" />
+      <plan_name>senior plus</plan_name>
+      <insurance>
+        <code code="PAYOR" code_system="2.16.840.1.113883.5.110" code_system_name="RoleCode" name="Invoice Payor" />
+        <performer>
+          <identifiers>
+            <identifier>2.16.840.1.113883.18</identifier>
+          </identifiers>
+          <address>
+            <street_lines>1502 E. FOWLER AVE</street_lines>
+            <street_lines2>NULL</street_lines2>
+            <city>TAMPA</city>
+            <state>FL</state>
+            <zip>33612</zip>
+            <country>USA</country>
+            <use>work place</use>
+          </address>
+          <phone>
+            <number>(000)000-0000</number>
+            <type>work place</type>
+          </phone>
+          <organization>
+            <name>QRDA Insurance Company Payer 349</name>
+            <address>
+              <street_lines>1502 E. FOWLER AVE NULL</street_lines>
+              <city>TAMPA</city>
+              <state>FL</state>
+              <zip>33612</zip>
+              <country>USA</country>
+              <use>work place</use>
+            </address>
+            <phone>
+              <number>(000)000-0000</number>
+              <type>work place</type>
+            </phone>
+          </organization>
+        </performer>
+      </insurance>
+    </policy>
+    <guarantor>
+      <code code="GUAR" code_system_name="HL7 Role" />
+      <identifiers><identifier>c3b453e2-9595-e28c-a10a-c3a74e2ac2bb</identifier></identifiers>
+      <name>
+        <prefix>Mr.</prefix>
+        <first>Alice</first>
+        <middle>Subscriber</middle>
+        <last>Newman</last>
+      </name>
+      <address>
+        <street_lines>1357, Amber Dr</street_lines>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <zip>97006</zip>
+        <country>US</country>
+        <use>primary home</use>
+      </address>
+      <phone>
+        <number>(000)000-0000</number>
+        <type>primary home</type>
+      </phone>
+    </guarantor>
+    <participant>
+      <time_low>2024-08-01</time_low>
+      <time_high>2026-08-01</time_high>
+      <code name="Self" code="SELF" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" />
+      <performer>
+        <identifiers>
+          <identifier>c3b453e2-9595-e28c-a10a-c3a74e2ac2bb</identifier>
+          <extension>POL-1234-1</extension>
+        </identifiers>
+        <address>
+          <street_lines>1357, Amber Dr</street_lines>
+          <city>Beaverton</city>
+          <state>OR</state>
+          <zip>97006</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+        <code>
+          <name>Self</name>
+          <code>SELF</code>
+          <code_system>"2.16.840.1.113883.3.221.5"</code_system>
+          <code_system_name>Insurance Type Code</code_system_name>
+        </code>
+      </performer>
+      <name>
+        <first>Alice</first>
+        <middle>Jones</middle>
+        <last>Newman</last>
+      </name>
+    </participant>
+    <policy_holder>
+      <performer>
+        <identifiers>
+          <identifier>2.16.840.1.113883.19</identifier>
+          <extension>POL-1234-1</extension>
+        </identifiers>
+        <address>
+          <street_lines>1357, Amber Dr</street_lines>
+          <city>Beaverton</city>
+          <state>OR</state>
+          <zip>97006</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+      </performer>
+    </policy_holder>
+    <authorization>
+        <authorization_code>72</authorization_code>
+        <identifiers><identifier>c3b453e2-9595-e28c-a10a-c3a74e2ac2bb</identifier></identifiers>
+    </authorization>
+  </payer>
+</payers><advance_directives></advance_directives><clinical_notes><progress_note>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><clinical_notes_type>progress_note</clinical_notes_type>
+            <encounter>2</encounter>
+            <author_title>Dr.</author_title>
+            <author_first>Albert</author_first>
+            <author_last>Davis</author_last>
+            <author_npi>123456789</author_npi>
+            <facility_name>Neighborhood Physicians Practice</facility_name>
+            <facility_npi>987654321</facility_npi>
+            <facility_oid></facility_oid>
+            <code>11506-3</code>
+            <code_text>Progress Note</code_text>
+            <description>Ms Alice Newman seems to be developing high fever and hence we recommend her to get admitted to a
+nearby hospital using the provided referral.</description>
+            <date>2015-06-22</date>
+            <date_formatted>20150622</date_formatted>
+            <code_type>LOINC</code_type>
+            </progress_note><procedure_note>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><clinical_notes_type>procedure_note</clinical_notes_type>
+            <encounter>2</encounter>
+            <author_title>Dr.</author_title>
+            <author_first>Albert</author_first>
+            <author_last>Davis</author_last>
+            <author_npi>123456789</author_npi>
+            <facility_name>Neighborhood Physicians Practice</facility_name>
+            <facility_npi>987654321</facility_npi>
+            <facility_oid></facility_oid>
+            <code>28570-0</code>
+            <code_text>Procedure Note</code_text>
+            <description>Dr Albert Davis examined Ms Alice Newman and found that the pacemaker is operating properly and the breathlessness is due to high fever and anxiety.Essential hypertension (disorder) [SNOMED:59621000] {|5|} Fever Finding [SNOMED-CT:386661006] {|8|}
+Overweight (finding) [SNOMED-CT:238131007] {|9|}</description>
+            <date>2015-06-22</date>
+            <date_formatted>20150622</date_formatted>
+            <code_type>LOINC</code_type>
+            </procedure_note><laboratory_report_narrative>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><clinical_notes_type>laboratory_report_narrative</clinical_notes_type>
+            <encounter>2</encounter>
+            <author_title>Dr.</author_title>
+            <author_first>Albert</author_first>
+            <author_last>Davis</author_last>
+            <author_npi>123456789</author_npi>
+            <facility_name>Neighborhood Physicians Practice</facility_name>
+            <facility_npi>987654321</facility_npi>
+            <facility_oid></facility_oid>
+            <code>11502-2</code>
+            <code_text>Laboratory Report Narrative</code_text>
+            <description>Ms Alice Newman was tested for the Urinanalysis macro panel and the results have been found to be 
+normal</description>
+            <date>2015-06-22</date>
+            <date_formatted>20150622</date_formatted>
+            <code_type>LOINC</code_type>
+            </laboratory_report_narrative><evaluation_note>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><clinical_notes_type>evaluation_note</clinical_notes_type>
+            <encounter>2</encounter>
+            <author_title>Dr.</author_title>
+            <author_first>Albert</author_first>
+            <author_last>Davis</author_last>
+            <author_npi>123456789</author_npi>
+            <facility_name>Neighborhood Physicians Practice</facility_name>
+            <facility_npi>987654321</facility_npi>
+            <facility_oid></facility_oid>
+            <code>51848-0</code>
+            <code_text>Evaluation note</code_text>
+            <description>The patient was found to have fever and Dr Davis is suspecting Anemia 
+based on the patient history. So Dr Davis asked the patient to closely 
+monitor the temperature and blood pressure and get admitted to 
+Community Health Hospitals if the fever does not subside within a day
+</description>
+            <date>2015-06-22</date>
+            <date_formatted>20150622</date_formatted>
+            <code_type>LOINC</code_type>
+            </evaluation_note><history_physical>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><clinical_notes_type>history_physical</clinical_notes_type>
+            <encounter>2</encounter>
+            <author_title>Dr.</author_title>
+            <author_first>Albert</author_first>
+            <author_last>Davis</author_last>
+            <author_npi>123456789</author_npi>
+            <facility_name>Neighborhood Physicians Practice</facility_name>
+            <facility_npi>987654321</facility_npi>
+            <facility_oid></facility_oid>
+            <code>34117-2</code>
+            <code_text>History &amp;amp; Physical</code_text>
+            <description>History evaluated</description>
+            <date>2025-08-18</date>
+            <date_formatted>20250818</date_formatted>
+            <code_type>LOINC</code_type>
+            </history_physical><discharge_summary>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author><clinical_notes_type>discharge_summary</clinical_notes_type>
+            <encounter>2</encounter>
+            <author_title>Dr.</author_title>
+            <author_first>Albert</author_first>
+            <author_last>Davis</author_last>
+            <author_npi>123456789</author_npi>
+            <facility_name>Neighborhood Physicians Practice</facility_name>
+            <facility_npi>987654321</facility_npi>
+            <facility_oid></facility_oid>
+            <code>18842-5</code>
+            <code_text>Discharge Summary Note</code_text>
+            <description>Return visit in 2 weeks</description>
+            <date>2025-08-18</date>
+            <date_formatted>20250818</date_formatted>
+            <code_type>LOINC</code_type>
+            </discharge_summary></clinical_notes><progressNotes></progressNotes><hospitalCourse><item></item></hospitalCourse><dischargediagnosis><item></item></dischargediagnosis><dischargemedication><item></item></dischargemedication><procedure_notes><complications><age>56</age><item></item></complications><procedure_diagnosis><age>56</age><item></item></procedure_diagnosis><procedure_description><item></item></procedure_description><procedure_indications><item></item></procedure_indications></procedure_notes><operative_notes><anesthesia><item></item></anesthesia><post_operative_diag><item></item></post_operative_diag><pre_operative_diag><item></item></pre_operative_diag><blood_loss><item></item></blood_loss><procedure_findings><item></item><age>56</age></procedure_findings><procedure_specimens><item></item></procedure_specimens></operative_notes><consultation_notes><hp><item></item></hp><physical_exam><item></item></physical_exam></consultation_notes><history_physical><chief_complaint><item></item></chief_complaint><general_status><item></item></general_status><history_past_illness><item></item></history_past_illness><review_of_systems><item></item></review_of_systems><vitals_list><vitals>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+            <extension>ZGVmYXVsdDI=</extension>
+            <sha_extension>c6f88321-67ad-11db-bd13-0800200c9a66</sha_extension>
+            <date>2021-05-01</date>
+            <effectivetime>2021-05-01 13:36:00</effectivetime>
+            <temperature>37.8</temperature>
+            <unit_temperature>Cel</unit_temperature>
+            <extension_temperature>ZGVmYXVsdDN0ZW1wZXJhdHVyZQ==</extension_temperature>
+            <bpd>88</bpd>
+            <extension_bpd>ZGVmYXVsdDNicGQ=</extension_bpd>
+            <bps>145</bps>
+            <extension_bps>ZGVmYXVsdDNicHM=</extension_bps>
+            <bp_avg>107</bp_avg>
+            <extension_bp_avg>ZGVmYXVsdDNicF9hdmc=</extension_bp_avg>
+            <avg_systolic>145</avg_systolic>
+            <extension_avg_systolic>ZGVmYXVsdDNhdmdfc3lzdG9saWM=</extension_avg_systolic>
+            <avg_diastolic>88</avg_diastolic>
+            <extension_avg_diastolic>ZGVmYXVsdDNhdmdfZGlhc3RvbGlj</extension_avg_diastolic>
+
+            <head_circ></head_circ>
+            <extension_head_circ>ZGVmYXVsdDNoZWFkX2NpcmM=</extension_head_circ>
+            <pulse>80</pulse>
+            <extension_pulse>ZGVmYXVsdDNwdWxzZQ==</extension_pulse>
+            <height>177.00</height>
+            <extension_height>ZGVmYXVsdDNoZWlnaHQ=</extension_height>
+            <unit_height>cm</unit_height>
+            <oxygen_saturation>95</oxygen_saturation>
+            <extension_oxygen_saturation>ZGVmYXVsdDNveHlnZW5fc2F0dXJhdGlvbg==</extension_oxygen_saturation>
+            <breath>18</breath>
+            <extension_breath>ZGVmYXVsdDNicmVhdGg=</extension_breath>
+            <weight>88.00</weight>
+            <extension_weight>ZGVmYXVsdDN3ZWlnaHQ=</extension_weight>
+            <unit_weight>kg</unit_weight>
+            <BMI>28.082677</BMI>
+            <extension_BMI>ZGVmYXVsdDNCTUk=</extension_BMI>
+            <BMI_status>Overweight</BMI_status>
+            <extension_oxygen_flow_rate>ZGVmYXVsdDNveHlnZW5fZmxvd19yYXRl</extension_oxygen_flow_rate>
+            <oxygen_flow_rate></oxygen_flow_rate>
+            <extension_ped_weight_height>ZGVmYXVsdDNwZWRfd2VpZ2h0X2hlaWdodA==</extension_ped_weight_height>
+            <ped_weight_height></ped_weight_height>
+            <extension_ped_bmi>ZGVmYXVsdDNwZWRfYm1p</extension_ped_bmi>
+            <ped_bmi></ped_bmi>
+            <extension_ped_head_circ>ZGVmYXVsdDNwZWRfaGVhZF9jaXJj</extension_ped_head_circ>
+            <ped_head_circ></ped_head_circ>
+            <extension_inhaled_oxygen_concentration>ZGVmYXVsdDNpbmhhbGVkX294eWdlbl9jb25jZW50cmF0aW9u</extension_inhaled_oxygen_concentration>
+            <inhaled_oxygen_concentration></inhaled_oxygen_concentration>
+            </vitals></vitals_list><social_history><history_element>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                                  <extension>c21va2luZ2RlZmF1bHQ0Ng==</extension>
+                                  <sha_extension>9b56c25d-9104-45ee-9fa4-e0f3afaa01c1</sha_extension>
+                                  <element>Smoking</element>
+                                  <description>Current every day smoker</description>
+                                  <status_code></status_code>
+                                  <status>completed</status>
+                                  <date>06/22/2015</date>
+                                  <date_formatted>20150622</date_formatted>
+                                  <code>449868002</code>
+                            </history_element><history_element>
+        <author>
+        <time>2015-06-22 11:00:00-0400</time>
+        <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine>2472 Rocky place</streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi>987654321</facility_npi>
+        <facility_name>Neighborhood Physicians Practice</facility_name>
+        <city>Beaverton</city>
+        <state>OR</state>
+        <postalCode>97006</postalCode>
+        <country></country>
+        <telecom>+1 555-555-1002</telecom>
+        <fname>Albert</fname>
+        <lname>Davis</lname>
+        <npi>123456789</npi>
+        </author>
+                                  <extension>YWxjb2hvbGRlZmF1bHQ0Ng==</extension>
+                                  <sha_extension>37f76c51-6411-4e1d-8a37-957fd49d2cef</sha_extension>
+                                  <element>Alcohol</element>
+                                  <description></description>
+                                  <status_code></status_code>
+                                  <status>completed</status>
+                                  <date></date>
+                                  <date_formatted></date_formatted>
+                                  <code>160573003</code>
+                            </history_element></social_history></history_physical><document></document></CCDA>

@@ -180,9 +180,8 @@ class InternalToCdaConverterTest extends TestCase
     {
         $input = <<<'XML'
             <CCDA>
-                <patient>
-                    <sdoh_data>
-                        <disability_assessment>
+                <sdoh_data>
+                    <disability_assessment>
                             <overall_status>
                                 <code>89571-4</code>
                                 <code_system>2.16.840.1.113883.6.1</code_system>
@@ -199,9 +198,8 @@ class InternalToCdaConverterTest extends TestCase
                                     <answer_display>No</answer_display>
                                 </question>
                             </disability_questions>
-                        </disability_assessment>
-                    </sdoh_data>
-                </patient>
+                    </disability_assessment>
+                </sdoh_data>
             </CCDA>
             XML;
 
