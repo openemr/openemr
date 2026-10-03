@@ -1,0 +1,17 @@
+{
+    "$schema-note": "License policy consumed by tools/ci/scancode-summary.py. Keys under 'deny' are ScanCode license keys (see https://scancode-licensedb.aboutcode.org/); values are the reason shown in the CI annotation. 'deny_categories' matches ScanCode's license category taxonomy and catches keys not listed individually.",
+    "policy_url": "https://github.com/openemr/openemr/blob/master/tools/ci/license-policy.json",
+    "deny_categories": [
+        "Commercial",
+        "Proprietary Free"
+    ],
+    "category_reasons": {
+        "Commercial": "Commercial licenses require a paid agreement and cannot be redistributed under OpenEMR's GPL-3.0 license.",
+        "Proprietary Free": "Proprietary terms restrict redistribution and modification, which is incompatible with OpenEMR's GPL-3.0 license."
+    },
+    "deny": {
+        "commercial-license": "Requires a paid commercial agreement, so the code cannot be redistributed as part of OpenEMR under GPL-3.0.",
+        "proprietary-license": "Proprietary terms forbid redistribution and modification, which OpenEMR's GPL-3.0 license requires."
+    },
+    "allow_note": "Everything not matched by 'deny' or 'deny_categories' is permitted. OpenEMR ships under GPL-3.0, so GPL-compatible permissive licenses (MIT, BSD, Apache-2.0, ISC) and GPL-family copyleft licenses are fine; the gate exists to catch commercial and proprietary text pasted into the tree."
+}
