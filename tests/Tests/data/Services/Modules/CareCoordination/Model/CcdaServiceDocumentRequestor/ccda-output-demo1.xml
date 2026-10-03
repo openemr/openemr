@@ -54,7 +54,7 @@
             <ethnicGroupCode displayName="Not Hispanic or Latino" code="2186-5" codeSystem="2.16.840.1.113883.6.238"
                              codeSystemName="Race and Ethnicity - CDC"/>
             <languageCommunication>
-                <languageCode code="en-US"/>
+                <languageCode code="en"/>
                 <modeCode displayName="Expressed spoken" code="ESP" codeSystem="2.16.840.1.113883.5.60"
                           codeSystemName="LanguageAbilityMode"/>
                 <proficiencyLevelCode code="G" displayName="Good" codeSystem="2.16.840.1.113883.5.61"
@@ -77,7 +77,7 @@
     </patientRole>
 </recordTarget>
 <author>
-    <time value="202606160036+0000"/>
+    <time value="201402010000+0000"/>
     <assignedAuthor>
         <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
         <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066"

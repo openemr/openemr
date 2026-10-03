@@ -187,7 +187,9 @@ class InternalToCdaConverterTest extends TestCase
             $name = $xpath->query("hl7:associatedPerson/hl7:name/hl7:family", $node);
             self::assertNotFalse($name, 'Name query must be valid');
             self::assertSame(1, $name->length, 'Related person carries a family name');
-            self::assertSame($family, $name->item(0)->textContent, 'Family name matches the input');
+            $familyNode = $name->item(0);
+            self::assertInstanceOf(\DOMElement::class, $familyNode, 'Family name must be an element');
+            self::assertSame($family, $familyNode->textContent, 'Family name matches the input');
         }
     }
 
@@ -432,7 +434,9 @@ class InternalToCdaConverterTest extends TestCase
             $node = $xpath->query($base . "/hl7:" . $part);
             self::assertNotFalse($node, $part . ' query must be valid');
             self::assertSame(1, $node->length, 'Patient name must carry a ' . $part);
-            self::assertSame($expected, $node->item(0)->textContent, $part . ' matches the input');
+            $partNode = $node->item(0);
+            self::assertInstanceOf(\DOMElement::class, $partNode, $part . ' must be an element');
+            self::assertSame($expected, $partNode->textContent, $part . ' matches the input');
         }
     }
 

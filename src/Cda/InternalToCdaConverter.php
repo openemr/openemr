@@ -4186,14 +4186,6 @@ class InternalToCdaConverter
 
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.503', '2023-05-01');
 
-        // id is SHALL 1..* on this template and on the supporting observations
-        // below. Node's fieldLevel.uniqueId omits the id entirely when the
-        // document has no root id, which leaves a conformance failure
-        // (CONF:16724); fall back to a bare generated root instead, as node's
-        // own fieldLevel.uniqueIdRoot does elsewhere.
-        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        $obs->appendChild($this->createUniqueId($facilityOid));
-
         $id = $this->createElement('id');
         $id->setAttribute('root', $this->generateUuid());
         $obs->appendChild($id);
@@ -4589,13 +4581,13 @@ class InternalToCdaConverter
         // form; a further appendTemplateId would duplicate the plain one.
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.505', '2023-05-01');
 
+        // id is SHALL 1..* on this template and on the supporting observations
+        // below. Node's fieldLevel.uniqueId omits the id entirely when the
+        // document has no root id, which leaves a conformance failure
+        // (CONF:16724); fall back to a bare generated root instead, as node's
+        // own fieldLevel.uniqueIdRoot does elsewhere.
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid !== '') {
-            $uniqueId = $this->createElement('id');
-            $uniqueId->setAttribute('root', $facilityOid);
-            $uniqueId->setAttribute('extension', $this->generateUuid());
-            $obs->appendChild($uniqueId);
-        }
+        $obs->appendChild($this->createUniqueId($facilityOid));
 
         // Node takes the code from overall_status.*; the IG example uses LOINC
         // 89571-4 "Disability Status [CUBS]". Fall back to that when the source
