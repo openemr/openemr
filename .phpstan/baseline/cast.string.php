@@ -3438,73 +3438,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 5,
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEditGlobalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/PortalLockoutTrackerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

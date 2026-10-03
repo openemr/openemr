@@ -4898,73 +4898,18 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 16,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 28,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FrontPaymentCssContrastTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 6,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 14,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 29,
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/KkEditGlobalsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/PortalLockoutTrackerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
