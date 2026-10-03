@@ -4472,11 +4472,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/Validation/UniqueID.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method containsScope\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method build\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/CcdaImport.php',
@@ -4915,11 +4910,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getUserRole\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method containsScope\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getClient\\(\\) on mixed\\.$#',

@@ -102,11 +102,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to static method NWeekdayOfMonth\\(\\) on an unknown class MedExApi\\\\Date_Calc\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Instantiated class MedExApi\\\\DateTime not found\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',

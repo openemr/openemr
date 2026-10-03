@@ -386,6 +386,14 @@ class InstallerController extends AbstractActionController
      */
     public function SaveHooksAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny(
+                'Installer SaveHooksAction: admin/manage_modules',
+                format: AccessDeniedResponseFormat::Json
+            );
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $postArr = $request->getPost();
         //DELETE OLD HOOKS OF A MODULE
@@ -411,6 +419,11 @@ class InstallerController extends AbstractActionController
      */
     public function configureAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            AccessDeniedHelper::deny('Installer configureAction: admin/manage_modules');
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
         $request = $this->getRequest();
         $modId = $request->getPost('mod_id');
 

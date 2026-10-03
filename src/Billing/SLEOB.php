@@ -37,7 +37,7 @@ class SLEOB
         } elseif ($partCount == 3) {
             $pid = $atmp[0];
             $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
-                "pid = '$pid' AND encounter = ? AND activity = 1", [$atmp[1]]);
+                "pid = ? AND encounter = ? AND activity = 1", [$pid, $atmp[1]]);
 
             $encounter = $brow['encounter'];
         } elseif ($partCount == 1) {

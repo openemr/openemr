@@ -35,7 +35,7 @@ declare(strict_types=1);
 
 return [
     'all' => [
-        'class.notFound.php' => 102,
+        'class.notFound.php' => 101,
         'classConstant.notFound.php' => 0,
         'constant.notFound.php' => 0,
         'function.notFound.php' => 0,
@@ -49,7 +49,7 @@ return [
         'return.missing.php' => 0,
         'staticMethod.notFound.php' => 0,
         'trait.notFound.php' => 0,
-        'variable.undefined.php' => 469,
+        'variable.undefined.php' => 467,
     ],
     'confidentNonObject' => [
         'classConstant.nonObject.php' => 0,

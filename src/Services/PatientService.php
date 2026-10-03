@@ -1036,6 +1036,37 @@ class PatientService extends BaseService
     }
 
     /**
+     * Names of the patient_data columns typed date or datetime.
+     *
+     * @return array{date: list<string>, datetime: list<string>}
+     */
+    public function getDateColumns(): array
+    {
+        // Alias the columns: MySQL 8 returns information_schema names in
+        // uppercase (COLUMN_NAME, DATA_TYPE) unless the query names them.
+        $rows = QueryUtils::fetchRecords(
+            <<<'SQL'
+                SELECT column_name AS column_name, data_type AS data_type
+                FROM information_schema.columns
+                WHERE table_schema = DATABASE() AND table_name = 'patient_data' AND data_type IN ('date', 'datetime')
+                SQL
+        );
+        $columns = ['date' => [], 'datetime' => []];
+        foreach ($rows as $row) {
+            $name = $row['column_name'];
+            if (!is_string($name)) {
+                continue;
+            }
+            match ($row['data_type']) {
+                'date' => $columns['date'][] = $name,
+                'datetime' => $columns['datetime'][] = $name,
+                default => null,
+            };
+        }
+        return $columns;
+    }
+
+    /**
      * Get an array of recent patients based for a given user
      *
      * Control the columns returned by modifying the

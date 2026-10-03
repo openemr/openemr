@@ -15,6 +15,11 @@
                             <a href="{{ enableSkipAuthorizationFlowLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Disable EHR Launch Authorization Flow"|xlt }}</a>
                         {% endif %}
                     {% endif %}
+                    {% if passwordGrantAllowed %}
+                        <a href="{{ denyPasswordGrantLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Deny Password Grant"|xlt }}</a>
+                    {% else %}
+                        <a href="{{ allowPasswordGrantLink|attr }}" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">{{ "Allow Password Grant"|xlt }}</a>
+                    {% endif %}
                     {% if isEnabled %}
                         <a href="{{ disableClientLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Disable Client"|xlt }}</a>
                     {% else %}

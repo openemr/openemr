@@ -485,7 +485,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <?php foreach ($scopes as $scope) : ?>
                         <label class="list-group-item m-0">
                             <input type="checkbox" class='app-scope' name="scope[<?php echo attr($scope); ?>]" value="<?php echo attr($scope); ?>" checked>
-                            <?php echo xlt($scope); ?>
+                            <?php echo text($scope); ?>
                         </label>
                     <?php endforeach; ?>
                     </div>

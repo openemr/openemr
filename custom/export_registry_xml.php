@@ -14,10 +14,16 @@ require_once("../interface/globals.php");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Export Registry XML", xl("Export Registry XML"));
+}
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);

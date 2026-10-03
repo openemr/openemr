@@ -1452,7 +1452,7 @@ if ($_POST['form_submit']) {
         array_push($sqlBindArray, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
 
         if ($form_facility) {
-            $query .= "AND fe.facility_id = '$form_facility' ";
+            $query .= "AND fe.facility_id = ? ";
             array_push($sqlBindArray, $form_facility);
         }
 

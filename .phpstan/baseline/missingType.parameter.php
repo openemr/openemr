@@ -17002,6 +17002,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/QRDAXml.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Totp\\:\\:validateCodeAndGetSlice\\(\\) has parameter \\$totp with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/Totp.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Totp\\:\\:validateCode\\(\\) has parameter \\$totp with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Totp.class.php',

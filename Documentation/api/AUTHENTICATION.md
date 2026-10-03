@@ -598,33 +598,47 @@ See [Bulk FHIR Exports](FHIR_API.md#bulk-fhir-exports) for complete workflow.
 - Requires user to share credentials with app
 - No refresh tokens for patient role
 - Disabled by default
-- Does not support MFA
+- MFA: TOTP is supported via `mfa_token` (see below); U2F is not — users
+  enrolled only in U2F cannot obtain a token via password grant
 - No consent screen
 
 #### Enable Password Grant
 
 **Administration → Config → Connectors → Enable OAuth2 Password Grant (Not considered secure)**
 
-#### Token Request (User Role)
+> **Behavior change in 8.5.0**: confidential clients on the password
+> grant now require `client_secret` (via body or HTTP Basic auth).
+> Prior versions silently accepted requests with the secret omitted;
+> those requests now return `401 invalid_client`. Public clients are
+> unaffected. Same applies to the refresh grant — see
+> [Refresh Request](#refresh-request).
+
+#### Token Request (User Role — Confidential Client)
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   https://localhost:9300/oauth2/default/token \
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
   --data-urlencode 'scope=openid offline_access api:oemr user/Patient.read' \
   --data-urlencode 'user_role=users' \
   --data-urlencode 'username=admin' \
   --data-urlencode 'password=pass'
 ```
 
-#### Token Request (Patient Role)
+Confidential clients using `client_secret_basic` may present the secret via
+the `Authorization: Basic BASE64(client_id:client_secret)` header instead of
+sending `client_secret` in the body. Public clients omit `client_secret`.
+
+#### Token Request (Patient Role — Confidential Client)
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   https://localhost:9300/oauth2/default/token \
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
   --data-urlencode 'scope=openid api:port patient/Patient.read' \
   --data-urlencode 'user_role=patient' \
   --data-urlencode 'username=patient123' \
@@ -632,12 +646,81 @@ curl -X POST -k \
   --data-urlencode 'email=patient@example.com'
 ```
 
+Same rules as the staff request: confidential clients registered with
+`client_secret_basic` may send the secret via HTTP Basic auth instead;
+public clients omit `client_secret`.
+
 **Parameters:**
 - `grant_type`: Must be `password`
+- `client_id`: Registered client identifier
+- `client_secret`: Required for confidential clients (may instead be sent via
+  HTTP Basic auth when the client is registered with `client_secret_basic`)
 - `user_role`: `users` or `patient`
 - `username`: OpenEMR username
 - `password`: User's password
 - `email`: Required for patient role
+- `mfa_token`: Six-digit TOTP code — required when the user (`user_role=users`)
+  has TOTP enrolled. Omitting it returns `401 mfa_token_required`. A wrong
+  code returns `401 mfa_token_invalid` and counts against dedicated
+  per-user (`users_secure.mfa_fail_counter`) and per-IP
+  (`ip_tracking.mfa_login_fail_counter`) MFA counters — independent of the
+  password counters so a valid password verify does not clear an in-progress
+  MFA brute force
+
+#### Rate Limiting
+
+Failed password grant attempts engage the standard lockout counters:
+
+- **Staff (`user_role=users`)**: bumps both the per-user
+  (`users_secure.login_fail_counter`) and per-IP
+  (`ip_tracking.ip_login_fail_counter`) counters. Wrong TOTP additionally
+  bumps the dedicated MFA counters
+  (`users_secure.mfa_fail_counter` + `ip_tracking.mfa_login_fail_counter`)
+  rather than the password counters, so a correct password + wrong TOTP
+  loop still accumulates blocks.
+- **Patient (`user_role=patient`)**: for a matching `portal_login_username`,
+  bumps both the per-portal-account
+  (`patient_access_onsite.portal_fail_counter`) and per-IP
+  (`ip_tracking.ip_login_fail_counter`) counters. Unknown usernames only
+  bump the per-IP counter because no `patient_access_onsite` row exists to
+  update. Successful portal authentication always clears the authenticated
+  account's per-account counter; the shared per-IP counter also clears by
+  default and is opt-in-preservable via the
+  `clear_ip_counter_on_auth_success` global described below.
+
+All counters share the same `password_max_failed_logins` /
+`ip_max_failed_logins` thresholds and reset-window globals as the web login
+gate. Once the applicable threshold is reached, further attempts are
+rejected until the admin unblocks the row (or the automatic reset window
+elapses, when configured).
+
+**Per-user/per-account counters** (`users_secure.login_fail_counter`,
+`users_secure.mfa_fail_counter`, `patient_access_onsite.portal_fail_counter`)
+always zero on a successful authentication for that specific account.
+
+The shared per-IP counters (`ip_tracking.ip_login_fail_counter`,
+`ip_tracking.mfa_login_fail_counter`) also zero on a successful login by
+default (`clear_ip_counter_on_auth_success` = 1), matching the pre-8.5.0
+behaviour. Deployments in higher-security postures can flip the global
+to 0 so the per-IP counter decays only via its configured
+`ip_time_reset_password_max_failed_logins` window — that closes the case
+where an attacker holding valid credentials for one account can clear the
+in-progress IP throttle against another account from the same IP by
+logging in cleanly.
+
+> **Recovery note when opting into strict mode**: if you set
+> `clear_ip_counter_on_auth_success` to 0 AND
+> `ip_time_reset_password_max_failed_logins` to 0 (no auto-reset), the
+> per-IP counter has no automatic clearing path. For
+> `ip_tracking.ip_login_fail_counter` an administrator can clear it via
+> the IP Tracker report. The new `ip_tracking.mfa_login_fail_counter`
+> is not yet exposed in that report — until the admin-unblock UI
+> follow-up ships, MFA IP-counter recovery requires direct SQL:
+> ```sql
+> UPDATE ip_tracking SET mfa_login_fail_counter = 0, mfa_last_login_fail = NULL WHERE ip_string = '...';
+> ```
+> Plan for one of the two globals to provide an automatic recovery path
+> for legitimate users behind shared NAT.
 
 > **CLI Testing Tip**: The examples above use single-quoted `--data-urlencode 'password=...'` arguments, which prevent bash from interpreting special characters like `!`, `$`, and `\`. If you modify these examples (e.g., switching to double quotes or using `-d` instead of `--data-urlencode`), you may encounter authentication failures due to shell interpretation.
 >
@@ -663,6 +746,8 @@ Obtain new access tokens without re-authentication.
 - Refresh token must not be expired (3 months for most grants)
 
 #### Refresh Request
+
+**Public client** (no client_secret registered):
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \
@@ -672,7 +757,19 @@ curl -X POST -k \
   --data-urlencode 'refresh_token=def5020017b484b0add020bf3491a8a537fa04eda12...'
 ```
 
-**For confidential clients**, include client authentication:
+**Confidential client** — must include client authentication or the
+token endpoint returns `401 invalid_client`. Either send the
+`client_secret` in the request body:
+```bash
+curl -X POST -k \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  https://localhost:9300/oauth2/default/token \
+  --data-urlencode 'grant_type=refresh_token' \
+  --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
+  --data-urlencode 'refresh_token=def5020017b484b0add020bf3491a8a537fa04eda12...'
+```
+Or use HTTP Basic authentication:
 ```bash
 curl -X POST -k \
   -H 'Content-Type: application/x-www-form-urlencoded' \

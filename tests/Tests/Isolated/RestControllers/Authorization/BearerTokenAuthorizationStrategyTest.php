@@ -6,10 +6,12 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use League\OAuth2\Server\CryptKey;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -19,6 +21,7 @@ use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
@@ -77,7 +80,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $accessToken = new AccessTokenEntity();
         $accessToken->setIdentifier($tokenId);
         $accessToken->setIssuer(self::ISSUER);
-        $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE));
+        // Git tracks only the executable bit, so the fixture cannot carry the 0600 mode the check wants.
+        $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE, keyPermissionsCheck: false));
         $accessToken->setClient($testClient);
         $accessToken->setExpiryDateTime(new \DateTimeImmutable('+1 hour'));
         $accessToken->setUserIdentifier($userUuid);
@@ -136,7 +140,23 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $auditLogger = $this->createMock(EventAuditLogger::class);
         $mockLogger = $this->createMock(LoggerInterface::class);
         $strategy = new BearerTokenAuthorizationStrategy(new OEGlobalsBag(), $auditLogger, $mockLogger);
+        $strategy->setClientRepository($this->clientRepositoryReturning($this->enabledClient(true)));
         return $strategy;
+    }
+
+    private function enabledClient(bool $enabled): ClientEntity
+    {
+        $client = new ClientEntity();
+        $client->setIdentifier(self::TEST_CLIENT_ID);
+        $client->setIsEnabled($enabled);
+        return $client;
+    }
+
+    private function clientRepositoryReturning(ClientEntity|false $client): ClientRepository
+    {
+        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository->method('getClientEntity')->willReturn($client);
+        return $clientRepository;
     }
 
     /**
@@ -188,7 +208,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     /**
      * @param list<string> $scopes
      */
-    private function authorizeTokenIssuedAt(\DateTimeImmutable $issuedAt, array $scopes = ['api:oemr']): bool
+    private function authorizeTokenIssuedAt(\DateTimeImmutable $issuedAt, array $scopes = ['api:oemr'], ?ClientRepository $clientRepository = null): bool
     {
         $userUuid = '123e4567-e89b-12d3-a456-426614174000';
         $tokenId = 'clock-skew-token-id';
@@ -197,6 +217,9 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $jwt = $this->mintTokenIssuedAt($issuedAt, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
         $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
         $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+        if ($clientRepository !== null) {
+            $strategy->setClientRepository($clientRepository);
+        }
 
         $accessTokenRepository = $this->createMock(AccessTokenRepository::class);
         $accessTokenRepository->method('getTokenExpiration')->willReturn(date('Y-m-d H:i:s', strtotime('+1 hour')));
@@ -249,6 +272,22 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     public function testTokenIssuedInThePastIsAccepted(): void
     {
         $this->assertTrue($this->authorizeTokenIssuedAt(new \DateTimeImmutable('-5 seconds')));
+    }
+
+    /**
+     * Disabling a client does not revoke the tokens it already holds, so every request re-checks
+     * that the client is still enabled.
+     */
+    public function testTokenOfDisabledClientIsRejected(): void
+    {
+        $this->expectException(OAuthServerException::class);
+        $this->authorizeTokenIssuedAt(new \DateTimeImmutable('-5 seconds'), ['api:oemr'], $this->clientRepositoryReturning($this->enabledClient(false)));
+    }
+
+    public function testTokenOfDeletedClientIsRejected(): void
+    {
+        $this->expectException(OAuthServerException::class);
+        $this->authorizeTokenIssuedAt(new \DateTimeImmutable('-5 seconds'), ['api:oemr'], $this->clientRepositoryReturning(false));
     }
 
     public function testAuthorizeRequest(): void
@@ -339,5 +378,40 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $strategy = $this->getBearerTokenAuthorizationStrategy($request);
         $uuidUserAccountClass = $strategy->getUuidUserAccountFactory()(1);
         $this->assertInstanceOf(UuidUserAccount::class, $uuidUserAccountClass, "Expected UuidUserAccount instance");
+    }
+
+    /**
+     * League's CryptKey raises E_USER_NOTICE for any key file that is world-readable. That check
+     * guards secrets; applied to the public key it only logs a notice on every API request.
+     */
+    public function testSetPublicKeyFromPathSkipsPermissionCheck(): void
+    {
+        $strategy = $this->getBearerTokenAuthorizationStrategy($this->createStub(HttpRestRequest::class));
+        $filesystem = new Filesystem();
+        $notices = [];
+
+        $keyPath = $filesystem->tempnam(sys_get_temp_dir(), 'oapublic');
+        try {
+            $filesystem->copy(self::KEY_PATH_PUBLIC, $keyPath, true);
+            $filesystem->chmod($keyPath, 0644);
+
+            set_error_handler(
+                static function (int $errno, string $errstr) use (&$notices): bool {
+                    $notices[] = $errstr;
+                    return true;
+                },
+                E_USER_NOTICE
+            );
+            try {
+                $strategy->setPublicKey($keyPath);
+            } finally {
+                restore_error_handler();
+            }
+        } finally {
+            $filesystem->remove($keyPath);
+        }
+
+        $this->assertSame([], $notices);
+        $this->assertSame('file://' . $keyPath, $strategy->getPublicKey()->getKeyPath());
     }
 }

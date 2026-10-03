@@ -3953,12 +3953,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 258,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr expects string, string\\|null given\\.$#',
-    'count' => 2,
+    'count' => 257,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -3999,11 +3994,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
     'count' => 348,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, string\\|null given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -4408,7 +4398,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 342,
+    'count' => 343,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
@@ -7323,11 +7313,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$requests of method u2flib_server\\\\U2F\\:\\:doAuthenticate\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$secret of class Totp constructor expects bool, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
@@ -11880,11 +11865,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$table of class Syndromicsurveillance\\\\Controller\\\\SyndromicsurveillanceController constructor expects Syndromicsurveillance\\\\Model\\\\SyndromicsurveillanceTable, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/config/module.config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$subject of function str_replace expects array\\<string\\>\\|string, mixed given\\.$#',
@@ -17897,13 +17877,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/unique_seen_patients_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key of function xlt expects literal\\-string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/smart/register-app.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 10,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/smart/register-app.php',
 ];
 $ignoreErrors[] = [
@@ -20258,12 +20233,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$secret of method RobThree\\\\Auth\\\\TwoFactorAuth\\:\\:verifyCode\\(\\) expects string, string\\|true given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Totp.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$code of method RobThree\\\\Auth\\\\TwoFactorAuth\\:\\:verifyCode\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Totp.class.php',
 ];
 $ignoreErrors[] = [
@@ -26342,13 +26317,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$remote_file of method phpseclib3\\\\Net\\\\SFTP\\:\\:put\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
 ];
 $ignoreErrors[] = [
@@ -27327,11 +27297,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$patient_id of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects int\\|null, mixed given\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$appId of class u2flib_server\\\\U2F constructor expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
@@ -27482,11 +27447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrant.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$clientIdentifier of method League\\\\OAuth2\\\\Server\\\\Repositories\\\\ClientRepositoryInterface\\:\\:validateClient\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrant.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$scopes of method League\\\\OAuth2\\\\Server\\\\Grant\\\\AbstractGrant\\:\\:issueAccessToken\\(\\) expects array\\<League\\\\OAuth2\\\\Server\\\\Entities\\\\ScopeEntityInterface\\>, array given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrant.php',
@@ -27498,11 +27458,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$client of method OpenEMR\\\\Services\\\\JWTClientAuthenticationService\\:\\:validateJWTClientAssertion\\(\\) expects OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity, League\\\\OAuth2\\\\Server\\\\Entities\\\\ClientEntityInterface given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
 ];
@@ -27633,16 +27588,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$areSystemScopesEnabled of method OpenEMR\\\\Events\\\\RestApiExtend\\\\RestApiScopeEvent\\:\\:setSystemScopesEnabled\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$currentServerScopes of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ScopeRepository\\:\\:buildScopeValidatorArray\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$currentServerScopes of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Validators\\\\ScopeValidatorFactory\\:\\:buildScopeValidatorArray\\(\\) expects array\\<OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopeEntity\\|string\\>, array given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
 ];
@@ -57767,16 +57712,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$otherScope of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopeEntity\\:\\:addScopePermissions\\(\\) expects OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopeEntity, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ResourceConstraintFilterer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$resourceValue of method OpenEMR\\\\FHIR\\\\SMART\\\\ResourceConstraintFilterer\\:\\:checkResourceValueWithConstraints\\(\\) expects array\\|OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode\\|OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\|OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\|null, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ResourceConstraintFilterer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$appointmentUuid of method OpenEMR\\\\FHIR\\\\SMART\\\\SMARTLaunchToken\\:\\:setAppointmentUuid\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
@@ -59468,11 +59403,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$tokenId of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\RefreshTokenRepository\\:\\:isRefreshTokenRevoked\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
 ];
@@ -69627,11 +69557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$coldefault of method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:columnHasTypeDefault\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$languageId of static method OpenEMR\\\\Services\\\\Utils\\\\TranslationService\\:\\:getLanguageDefinitionsForLanguage\\(\\) expects int, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/TranslationService.php',
@@ -70687,11 +70612,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/PaginationUtilsTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$resource of method OpenEMR\\\\FHIR\\\\SMART\\\\ResourceConstraintFilterer\\:\\:canAccessResource\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/SMART/ResourceConstraintFiltererTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/SMART/ResourceConstraintFiltererTest.php',
@@ -71597,17 +71517,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrantTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_diff expects an array of values castable to string, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$arrays of function array_diff expects an array of values castable to string, list given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php',
 ];

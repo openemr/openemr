@@ -182,43 +182,67 @@ class ClientRepository implements ClientRepositoryInterface
             "ClientRepository->validateClient() checking client validation",
             ["client" => $clientIdentifier, "grantType" => $grantType]
         );
-        if ($grantType == 'authorization_code') {
-            $client = sqlQueryNoLog("SELECT `client_secret`, `is_confidential` FROM `oauth_clients` WHERE `client_id` = ?", [$clientIdentifier]);
+        // All shared-secret grants (authorization_code, password,
+        // refresh_token, ...) route through the same confidential-
+        // client check. Public clients pass; confidential clients
+        // must present a matching client_secret. Grant paths that
+        // authenticate via private_key_jwt bypass this method — see
+        // CustomAuthCodeGrant::validateClient() and
+        // CustomRefreshTokenGrant::validateClient().
+        $grantTypeStr = is_string($grantType) ? $grantType : '';
+        return $this->validateConfidentialClientSecret($clientIdentifier, $clientSecret, $grantTypeStr);
+    }
 
-            // Check if client is registered
-            if ($client === false) {
-                $this->getSystemLogger()->error(
-                    "ClientRepository->validateClient() no client found for identifier ",
-                    ["client" => $clientIdentifier]
-                );
-                return false;
-            }
+    /**
+     * @param mixed $clientIdentifier
+     * @param mixed $clientSecret
+     */
+    private function validateConfidentialClientSecret($clientIdentifier, $clientSecret, string $grantType): bool
+    {
+        $client = sqlQueryNoLog("SELECT `client_secret`, `is_confidential` FROM `oauth_clients` WHERE `client_id` = ?", [$clientIdentifier]);
 
-            // Validate client if is_confidential
-            if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                try {
-                    $secret = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
-                } catch (CryptoGenException) {
-                    return false;
-                }
-                if (empty($secret)) {
-                    return false;
-                }
-                $secretMatches = hash_equals($clientSecret, $secret);
-                if (!$secretMatches) {
-                    $this->getSystemLogger()->error(
-                        "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
-                        ["client" => $clientIdentifier, "grantType" => $grantType]
-                    );
-                }
-                return $secretMatches;
-            }
+        // Check if client is registered
+        if ($client === false) {
+            $this->getSystemLogger()->error(
+                "ClientRepository->validateClient() no client found for identifier ",
+                ["client" => $clientIdentifier]
+            );
+            return false;
+        }
 
-            return true;
-        } else {
-            // password and refresh grant
+        // Public clients (non-confidential) do not hold a secret. Only PKCE
+        // (or an equivalent verifier) protects them, which is enforced
+        // elsewhere in the grant flow.
+        if (empty($client['is_confidential'])) {
             return true;
         }
+
+        // Confidential client. A missing client_secret is a failed
+        // validation, not a permit-with-no-check.
+        if (empty($clientSecret)) {
+            $this->getSystemLogger()->error(
+                "ClientRepository->validateClient() Confidential client did not present client secret. Validation failed",
+                ["client" => $clientIdentifier, "grantType" => $grantType]
+            );
+            return false;
+        }
+
+        try {
+            $secret = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+        } catch (CryptoGenException) {
+            return false;
+        }
+        if (empty($secret)) {
+            return false;
+        }
+        $secretMatches = hash_equals(is_string($clientSecret) ? $clientSecret : '', $secret);
+        if (!$secretMatches) {
+            $this->getSystemLogger()->error(
+                "ClientRepository->validateClient() Confidential client sent invalid client secret.  Validation failed",
+                ["client" => $clientIdentifier, "grantType" => $grantType]
+            );
+        }
+        return $secretMatches;
     }
 
     /**
@@ -274,6 +298,8 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setRegistrationDate($client_record['register_date']);
         $client->setSkipEHRLaunchAuthorizationFlow($client_record['skip_ehr_launch_authorization_flow'] == "1");
         $client->setDSIType(intval($client_record['dsi_type'] ?? 0));
+        $grantTypes = is_array($client_record) ? ($client_record['grant_types'] ?? null) : null;
+        $client->setGrantTypes(is_string($grantTypes) || is_array($grantTypes) ? $grantTypes : null);
         return $client;
     }
 
@@ -300,6 +326,18 @@ class ClientRepository implements ClientRepositoryInterface
             throw new \RuntimeException("Failed to save oauth_clients skip_ehr_launch_authorization_flow flag.  Check logs for sql error");
         }
         return true;
+    }
+
+    /**
+     * @param list<string> $grantTypes
+     */
+    public function saveGrantTypes(ClientEntity $client, array $grantTypes): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE oauth_clients SET grant_types = ? WHERE client_id = ?",
+            [implode('|', $grantTypes), $client->getIdentifier()]
+        );
+        $client->setGrantTypes($grantTypes);
     }
 
     public function remove(ClientEntity $clientEntity, bool $noLog = false)

@@ -1282,11 +1282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$provider$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$pid$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/api.inc.php',
@@ -2125,11 +2120,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$arr_group_titles might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$response might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$fhirScopes might not be defined\\.$#',

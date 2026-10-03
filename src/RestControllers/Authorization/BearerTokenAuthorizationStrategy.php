@@ -9,8 +9,10 @@ use League\OAuth2\Server\ResourceServer;
 use LogicException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -46,6 +48,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private TrustedUserService $trustedUserService;
 
+    private ?ClientRepository $clientRepository = null;
+
     /**
      * @var callable|null
      */
@@ -64,6 +68,17 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         }
     }
 
+    public function getClientRepository(): ClientRepository
+    {
+        $this->clientRepository ??= new ClientRepository();
+        return $this->clientRepository;
+    }
+
+    public function setClientRepository(ClientRepository $clientRepository): void
+    {
+        $this->clientRepository = $clientRepository;
+    }
+
     public function getTrustedUserService(): TrustedUserService
     {
         $this->trustedUserService ??= new TrustedUserService();
@@ -80,8 +95,10 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     public function setPublicKey(CryptKey|string $publicKey): void
     {
         if (is_string($publicKey)) {
-            // If the public key is a string, we can convert it to a CryptKey instance.
-            $publicKey = new CryptKey($publicKey);
+            // Convert a key path to a CryptKey. Skip League's file permission check: it guards
+            // secrets, and a public key is not one. Left on, it logs a notice on every API request
+            // wherever the key is world-readable, which is also all some filesystems can report.
+            $publicKey = new CryptKey($publicKey, keyPermissionsCheck: false);
         }
         $this->publicKey = $publicKey;
     }
@@ -173,6 +190,18 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
             );
             throw OAuthServerException::accessDenied('Access token has been revoked');
+        }
+        // A client an administrator disabled (or deleted) loses API access now, not when the
+        // tokens it already holds expire; disabling a client does not revoke its tokens.
+        if (is_string($clientId) && $clientId !== '') {
+            $client = $this->getClientRepository()->getClientEntity($clientId);
+            if (!$client instanceof ClientEntity || !$client->isEnabled()) {
+                $logger->error(
+                    "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: client disabled or not registered",
+                    ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+                );
+                throw OAuthServerException::accessDenied('Client is not enabled');
+            }
         }
         $logger->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 

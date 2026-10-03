@@ -34,6 +34,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
@@ -70,6 +71,7 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\RestControllers\SMART\ScopeConsentResolver;
 use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\DecisionSupportInterventionService;
@@ -293,7 +295,7 @@ class AuthorizationController implements LoggerAwareInterface
                 'initiate_login_uri' => null, // for anything with a SMART 'launch/ehr' context we need to know how to initiate the login
                 'request_uris' => null,
                 'response_types' => null,
-                'grant_types' => null,
+                // grant_types is resolved separately below (ClientGrantTypePolicy)
                 // info on scope can be seen at
                 // OAUTH2 Dynamic Client Registration RFC 7591 Section 2 Page 9
                 // @see https://tools.ietf.org/html/rfc7591#section-2
@@ -344,7 +346,7 @@ class AuthorizationController implements LoggerAwareInterface
 
             foreach ($keys as $key => $supported_values) {
                 if ($data->has($key)) {
-                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
+                    if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
                     } elseif (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
@@ -430,6 +432,15 @@ class AuthorizationController implements LoggerAwareInterface
                     }
                 }
             }
+            // The grant types this client may use, enforced at the token endpoint by
+            // ClientGrantTypeGuardTrait. Validated when sent; derived when omitted.
+            $payload = $data->all();
+            $params['grant_types'] = implode('|', (new ClientGrantTypePolicy())->resolveRegistrationGrantTypes(
+                $payload['grant_types'] ?? null,
+                $data->get('application_type') === 'private',
+                ScopeEntity::scopeListHasContext($scope, 'system'),
+                $data->has('jwks') || $data->has('jwks_uri')
+            ));
             if (!$data->has('redirect_uris')) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
             }
@@ -989,11 +1000,33 @@ class AuthorizationController implements LoggerAwareInterface
                         }
                     }
                     EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
+                    // MfaUtils::checkTOTP / checkU2F both bump the
+                    // mfa_fail_counter / mfa_login_fail_counter and
+                    // enforce the block gate on the wrong-code path.
+                    // But !$mfaToken (validateToken rejected a
+                    // malformed submission) short-circuits the ||
+                    // before check ever runs — attribute that
+                    // failure explicitly so malformed spam can't
+                    // sidestep the throttle.
+                    if (!$mfaToken) {
+                        (new AuthUtils())->recordFailedMfaChallenge(is_string($mfaUsername) ? $mfaUsername : null);
+                    }
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
                     return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
                 }
+                // Full auth (password + MFA) succeeded — zero the
+                // MFA-specific counters so this user / IP starts
+                // fresh for the next authentication session.
+                $userService = new UserService();
+                $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
+                $mfaUsername = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : null;
+                $ip = collectIpAddresses();
+                AuthUtils::resetMfaChallengeCounters(
+                    is_string($mfaUsername) ? $mfaUsername : null,
+                    $ip['ip_string']
+                );
             }
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
@@ -1167,22 +1200,51 @@ class AuthorizationController implements LoggerAwareInterface
         $scopeString ??= "";
         $userRole ??= UuidUserAccount::USER_ROLE_PATIENT;
 
+        // Only offer what the client is registered for. finalizeScopes() would drop anything else
+        // after the user approved it, so showing it here only misleads the user.
+        $scopes = $this->filterScopesToClientRegistration($scopes, $client);
+
         // Parse and structure scopes with granular permissions
-        $scopeParser = new ScopePermissionParser($this->getScopeRepository($session));
-        $structuredScopes = $scopeParser->parseScopes($scopes);
+        $scopeRepository = $this->getScopeRepository($session);
+        $structuredScopes = $this->buildConsentCards($scopes);
 
         $otherScopes = [];
         $hiddenScopes = [];
-        $scopeRepository = $this->getScopeRepository($session);
-        $fhirRequiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+        // OpenID Connect identity scopes (profile, email, phone, ...) are presented in the
+        // "Identity Information Requested" column rather than as scope checkboxes, and are
+        // posted back as hidden scopes so the grant matches what the user was shown.
+        $requiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+        $identityClaimScopes = array_values(array_filter(
+            $scopeRepository->getServerScopeList()->getOpenIDConnectScopes(),
+            static fn(mixed $identityScope): bool => is_string($identityScope) && !in_array($identityScope, $requiredSmartScopes, true)
+        ));
 
         foreach ($scopes as $scope) {
-            // Hidden scopes
+            if ($scope === '' || $this->isConsentCardScope($scope, $structuredScopes)) {
+                continue; // rendered as a resource card
+            }
+            if (in_array($scope, $identityClaimScopes, true)) {
+                $hiddenScopes[] = $scope;
+                continue;
+            }
+            if (!ScopeConsentResolver::hasSupportedConstraint($scope)) {
+                // a constraint the user cannot see or toggle is not offered (and never granted)
+                $this->logger->debug('scopeAuthorizeConfirm() scope with unsupported constraint not offered', ['scope' => $scope]);
+                continue;
+            }
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
-            } elseif (in_array($scope, $fhirRequiredSmartScopes)) {
-                $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
+                continue;
             }
+            // Everything else -- fhirUser, launch, api:*, and operation scopes such as
+            // patient/DocumentReference.$docref or system/*.$export -- is an individual checkbox.
+            try {
+                $description = $scopeRepository->lookupDescriptionForScope($scope);
+            } catch (\InvalidArgumentException $exception) {
+                $this->logger->debug('scopeAuthorizeConfirm() no description for scope', ['scope' => $scope, 'exception' => $exception]);
+                $description = '';
+            }
+            $otherScopes[$scope] = $description !== '' ? $description : $scope;
         }
 
         // Process claims
@@ -1305,8 +1367,28 @@ class AuthorizationController implements LoggerAwareInterface
     {
         $response = $this->createServerResponse();
         $authRequest = $this->deserializeUserSession();
+        // The client restored by deserializeUserSession() carries no registration, so look it up.
+        // It can have been deleted or disabled since the consent page was shown; say so plainly
+        // rather than issuing a code no token request could redeem.
+        $clientId = $authRequest->getClient()->getIdentifier();
+        $registeredClient = $this->getClientRepository()->getClientEntity($clientId);
+        if ($registeredClient === false || !$registeredClient->isEnabled()) {
+            $this->logger->error(
+                'authorizeUser() client is no longer registered or enabled',
+                ['client_id' => $clientId]
+            );
+            $this->session->invalidate();
+            return $this->renderTwigPage(
+                'oauth2/authorize/scopes-authorize',
+                'error/general_http_error.html.twig',
+                ['statusCode' => Response::HTTP_BAD_REQUEST]
+            );
+        }
         try {
-            $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $request->request->all('scope'));
+            $authRequest = $this->updateAuthRequestWithUserApprovedScopes(
+                $authRequest,
+                $this->resolveUserApprovedScopes($authRequest, $request, $registeredClient)
+            );
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
             $server = $this->getAuthorizationServer($this->getScopeRepository($this->session), $include_refresh_token);
 
@@ -1377,6 +1459,72 @@ class AuthorizationController implements LoggerAwareInterface
         return false;
     }
 
+    /**
+     * Rebuild the consent cards from the validated auth request exactly as scopeAuthorizeConfirm()
+     * rendered them, then intersect each requested scope with the user's checkbox choices.
+     *
+     * @return list<string>
+     */
+    private function resolveUserApprovedScopes(AuthorizationRequest $authRequest, HttpRestRequest $request, ClientEntity $registeredClient): array
+    {
+        $requested = array_values(array_map(
+            static fn(ScopeEntityInterface $scope): string => $scope->getIdentifier(),
+            $authRequest->getScopes()
+        ));
+        // Filter against the registered client, exactly as the consent page did; the client on
+        // the restored auth request carries no registered scopes (they are not serialized).
+        $requested = $this->filterScopesToClientRegistration($requested, $registeredClient);
+
+        return (new ScopeConsentResolver())->resolve(
+            $requested,
+            $this->buildConsentCards($requested),
+            $request->request->all('scope'),
+            $request->request->all('grant')
+        );
+    }
+
+    /**
+     * @param list<string> $scopes
+     * @return array<array-key, mixed>
+     */
+    private function buildConsentCards(array $scopes): array
+    {
+        return (new ScopePermissionParser($this->getScopeRepository($this->session)))->parseScopes($scopes);
+    }
+
+    /**
+     * @param array<array-key, mixed> $structuredScopes
+     */
+    private function isConsentCardScope(string $scope, array $structuredScopes): bool
+    {
+        try {
+            $entity = ScopeEntity::createFromString($scope);
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+        return $entity->isResourcePermissionScope()
+            && array_key_exists(($entity->getContext() ?? '') . '-' . ($entity->getResource() ?? ''), $structuredScopes);
+    }
+
+    /**
+     * Drop resource permission scopes the client is not registered for (fails closed when the
+     * client or its registration is missing). See ScopeConsentResolver::filterToClientRegistration().
+     *
+     * @param list<string> $scopes
+     * @return list<string>
+     */
+    private function filterScopesToClientRegistration(array $scopes, ?ClientEntity $client): array
+    {
+        $registeredScopes = $client?->getScopes();
+        $registered = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
+        $filtered = (new ScopeConsentResolver())->filterToClientRegistration($scopes, $registered);
+        $dropped = array_values(array_diff($scopes, $filtered));
+        if ($dropped !== []) {
+            $this->logger->debug('Requested scopes are not in the client registration and were not offered', ['scopes' => $dropped]);
+        }
+        return $filtered;
+    }
+
     private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes): AuthorizationRequest
     {
         $this->logger->debug(
@@ -1394,7 +1542,7 @@ class AuthorizationController implements LoggerAwareInterface
                 $lookupKey = $approvedScopeEntity->getScopeLookupKey();
                 if (
                     isset($scopeValidatorArray[$lookupKey])
-                    && $scopeValidatorArray[$lookupKey]->containsScope($approvedScopeEntity)
+                    && $scopeValidatorArray[$lookupKey]->grantsScope($approvedScopeEntity)
                 ) {
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
@@ -1522,9 +1670,21 @@ class AuthorizationController implements LoggerAwareInterface
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
             $this->session->invalidate();
+            // Never surface $exception->getMessage() to the caller —
+            // it can carry SQL fragments, file paths, or other
+            // internal detail that a token-endpoint client (potentially
+            // unauthenticated) should not see. The message is already
+            // logged for admin diagnosis; return the OAuth2-shaped
+            // generic error instead.
             $body = $response->getBody();
-            $body->write($exception->getMessage());
-            return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
+            $body->write((string) json_encode([
+                'error' => 'server_error',
+                'error_description' => 'An unexpected server error occurred processing the request.',
+            ]));
+            return $response
+                ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($body);
         }
     }
 
