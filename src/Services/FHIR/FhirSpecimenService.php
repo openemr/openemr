@@ -66,7 +66,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             'accession' => new FhirSearchParameterDefinition('accession', SearchFieldType::TOKEN, ['ps.accession_identifier']),
             'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['ps.specimen_type_code']),
             'collected' => new FhirSearchParameterDefinition('collected', SearchFieldType::DATETIME, ['ps.collected_date']),
-            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['ps.deleted']),
+            // unqualified 'deleted' so the field is keyed 'deleted', which searchForOpenEMRRecords() translates
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['deleted']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('ps.uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['ps.updated_at'])
         ];
@@ -88,9 +89,10 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                 $openEMRSearchParameters['deleted'] = $this->translateStatusToDeleted(
                     $openEMRSearchParameters['deleted']
                 );
-            } else {
-                // Default: exclude deleted specimens (only show 'available' status)
-                // Create a TokenSearchField for deleted = '0'
+            } elseif (!isset($openEMRSearchParameters['ps.uuid'])) {
+                // Default: exclude deleted specimens (only show 'available' status).
+                // Not when the search names specimens by _id: whatever a search can return must
+                // be readable by id, and the read (getOne()) goes through _id.
                 $openEMRSearchParameters['deleted'] = new TokenSearchField('deleted', ['0']);
             }
 
@@ -132,7 +134,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
                     $translatedValues[] = '0';
                     break;
                 case 'entered-in-error':
-                case 'unavailable':
+                    // a deleted specimen reads back as entered-in-error (mapDeletedToFhirStatus()),
+                    // so no stored specimen is ever 'unavailable': that value falls to the default
                     $translatedValues[] = '1';
                     break;
                 default:
