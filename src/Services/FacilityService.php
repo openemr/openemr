@@ -95,7 +95,8 @@ class FacilityService extends BaseService
     /**
      * JSON body for the facility save dialog.
      *
-     * A body that cannot be encoded is an explicit not-saved response.
+     * A sentence that cannot be encoded is dropped. A save that already
+     * finished still reports saved.
      */
     public static function facilitySaveDialogBody(bool $saved, string $sentence): string
     {
@@ -107,7 +108,9 @@ class FacilityService extends BaseService
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
         );
         if (!is_string($encoded)) {
-            return '{"status":"not_saved","message":""}';
+            return $saved
+                ? '{"status":"saved","message":""}'
+                : '{"status":"not_saved","message":""}';
         }
 
         return $encoded;
