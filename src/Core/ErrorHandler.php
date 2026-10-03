@@ -32,8 +32,20 @@ use function set_error_handler;
 use function set_exception_handler;
 use function sprintf;
 
+use const E_COMPILE_ERROR;
+use const E_COMPILE_WARNING;
+use const E_CORE_ERROR;
+use const E_CORE_WARNING;
 use const E_DEPRECATED;
+use const E_ERROR;
+use const E_NOTICE;
+use const E_PARSE;
+use const E_RECOVERABLE_ERROR;
 use const E_USER_DEPRECATED;
+use const E_USER_ERROR;
+use const E_USER_NOTICE;
+use const E_USER_WARNING;
+use const E_WARNING;
 
 readonly class ErrorHandler
 {
@@ -43,6 +55,7 @@ readonly class ErrorHandler
         private LoggerInterface $logger,
         private ResponseFactoryInterface $rf,
         private StreamFactoryInterface $sf,
+        private ErrorHandlingMode $errorMode,
         private bool $shouldDisplayErrors,
     ) {
         $this->isCli = (PHP_SAPI === 'cli');
@@ -61,16 +74,31 @@ readonly class ErrorHandler
         int $errline,
     ): bool {
         // If the current error_reporting error level matches the specified
-        // severity, convert it to an error exception. With this check, `@` error
-        // suppression (or changes to `error_reporting`) are respected.
+        // severity, handle the error in the configured manner. With this check,
+        // `@` error suppression (or changes to `error_reporting`) are respected.
         if ((error_reporting() & $errno) !== 0) {
-            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+            match ($this->errorMode) {
+                ErrorHandlingMode::Log => $this->logger->log(
+                    self::pickErrorLevel($errno),
+                    'PHP error: {message} ({file}:{line})',
+                    [
+                        'errno' => $errno,
+                        'message' => $errstr,
+                        'file' => $errfile,
+                        'line' => $errline,
+                    ],
+                ),
+                ErrorHandlingMode::Throw => throw new ErrorException($errstr, 0, $errno, $errfile, $errline),
+            };
+            // Indicates this has been handled.
+            return true;
         }
         // If the current error_reporting DOES NOT capture the error level,
         // still log deprecation warnings even if they're turned off at runtime.
-        // If running inside unit tests, throw anyway.
+        // Under PHPUnit, throw anyway so tests do not silently swallow them,
+        // but only when the caller has opted into throw semantics.
         if ($errno === E_USER_DEPRECATED || $errno === E_DEPRECATED) {
-            if (defined('PHPUNIT_COMPOSER_INSTALL')) {
+            if ($this->errorMode === ErrorHandlingMode::Throw && defined('PHPUNIT_COMPOSER_INSTALL')) {
                 throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
             }
             $this->logger->warning('Deprecated: {message} ({file}:{line})', [
@@ -207,5 +235,24 @@ readonly class ErrorHandler
     public function installExceptionHandler(): void
     {
         set_exception_handler($this->handleException(...));
+    }
+
+    /**
+     * Ported from Monolog\ErrorHandler::defaultErrorLevelMap(). The literal
+     * 2048 is E_STRICT, which is removed in PHP 8.4 but retained here so
+     * lookups still resolve if a legacy caller passes the raw int.
+     *
+     * @return LogLevel::*
+     */
+    private static function pickErrorLevel(int $phpErrorLevel): string
+    {
+        return match ($phpErrorLevel) {
+            E_ERROR, E_CORE_ERROR => LogLevel::CRITICAL,
+            E_PARSE, E_COMPILE_ERROR => LogLevel::ALERT,
+            E_USER_ERROR, E_RECOVERABLE_ERROR => LogLevel::ERROR,
+            E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING => LogLevel::WARNING,
+            E_NOTICE, E_USER_NOTICE, E_DEPRECATED, E_USER_DEPRECATED, 2048 => LogLevel::NOTICE,
+            default => LogLevel::CRITICAL,
+        };
     }
 }
