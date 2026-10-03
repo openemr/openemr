@@ -25,7 +25,7 @@ class CcdaGenerator
      * @var int
      */
     private $createdtime;
-
+    private $debug_ccda = false;
     /**
      * @var string
      */
@@ -165,6 +165,11 @@ class CcdaGenerator
             $send,
             $emr_transfer
         );
+        if ($this->debug_ccda === true) {
+            $tmp_file_location =OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR;
+            file_put_contents($tmp_file_location . 'ccda_document.xml', $generatedResult->getContent());
+            file_put_contents($tmp_file_location . 'ccda_data.xml', $data);
+        }
 
         return $generatedResult;
     }

@@ -162,7 +162,7 @@
                 <facility_postal_code>97006</facility_postal_code>
                 <facility_country_code></facility_country_code>
             </encounter_provider>
-            
+
         <author>
         <time>2015-06-22 11:00:00-0400</time>
         <id>c3b453e2-9693-404e-c2a1-4e39c3a6465f</id>
@@ -390,7 +390,7 @@
                     <text>Overweight (finding)</text>
                     <status>Completed</status>
                     </problem></encounter_problems>
-        
+
                         <encounter_diagnosis>
                         <extension>ZGVmYXVsdDg=</extension>
                         <code>386661006</code>
@@ -1823,8 +1823,8 @@
                 <code>34534-8</code>
                 <code_text>Ekg 12 channel panel</code_text>
                 <description>Get a Chest X-ray done on 6/23/2015 showing the Lower Respiratory Tract Structure.
-Essential hypertension (disorder) [SNOMED:59621000] 
-Fever Finding [SNOMED-CT:386661006] 
+Essential hypertension (disorder) [SNOMED:59621000]
+Fever Finding [SNOMED-CT:386661006]
 </description>
                 <date>2021-05-02 00:00:00</date>
                 <date_formatted>20210502 00:00:00</date_formatted>
@@ -1931,7 +1931,7 @@ Fever Finding [SNOMED-CT:386661006]
                 <code>5177007</code>
                 <code_text>Electrocardiogram axis finding (finding)</code_text>
                 <description>Get an EKG done on 6/23/2015
-Overweight (finding) [SNOMED-CT:238131007] 
+Overweight (finding) [SNOMED-CT:238131007]
 </description>
                 <date>2015-06-22 00:00:00</date>
                 <date_formatted>20150622 00:00:00</date_formatted>
@@ -2403,7 +2403,7 @@ iii. Watch Weight of patient</text>
                     </concern></health_concerns><social_history_sdoh><hunger_vital_signs><assessment_date>20250917</assessment_date><score>2</score><risk_status><code>88124-3</code><code_system>2.16.840.1.113883.6.1</code_system><display>Food insecurity risk</display><answer_code>LA19952-3</answer_code><answer_display>At risk</answer_display></risk_status><question1><code>88122-7</code><code_system>2.16.840.1.113883.6.1</code_system><display>Within past 12 months we worried whether our food would run out before we got money to buy more</display><answer_code>LA28397-0</answer_code><answer_display>Often true</answer_display></question1><question2><code>88123-5</code><code_system>2.16.840.1.113883.6.1</code_system><display>Within past 12 months the food we bought just didn't last and we didn't have money to get more</display><answer_code>LA28397-0</answer_code><answer_display>Often true</answer_display></question2></hunger_vital_signs></social_history_sdoh><functional_status><item>
     <cognitive>0</cognitive>
     <code>105504002</code>
-    <code_text>Dependance on cane</code_text>
+    <code_text>Dependence on cane</code_text>
     <description>2005-05-01 Uses a walking cane | </description>
     <date>2005-05-01</date>
     <date_formatted>20050501</date_formatted>
@@ -2710,7 +2710,7 @@ Overweight (finding) [SNOMED-CT:238131007] {|9|}</description>
             <facility_oid></facility_oid>
             <code>11502-2</code>
             <code_text>Laboratory Report Narrative</code_text>
-            <description>Ms Alice Newman was tested for the Urinanalysis macro panel and the results have been found to be 
+            <description>Ms Alice Newman was tested for the Urinanalysis macro panel and the results have been found to be
 normal</description>
             <date>2015-06-22</date>
             <date_formatted>20150622</date_formatted>
@@ -2746,9 +2746,9 @@ normal</description>
             <facility_oid></facility_oid>
             <code>51848-0</code>
             <code_text>Evaluation note</code_text>
-            <description>The patient was found to have fever and Dr Davis is suspecting Anemia 
-based on the patient history. So Dr Davis asked the patient to closely 
-monitor the temperature and blood pressure and get admitted to 
+            <description>The patient was found to have fever and Dr Davis is suspecting Anemia
+based on the patient history. So Dr Davis asked the patient to closely
+monitor the temperature and blood pressure and get admitted to
 Community Health Hospitals if the fever does not subside within a day
 </description>
             <date>2015-06-22</date>
