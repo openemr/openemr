@@ -1,0 +1,188 @@
+<?php
+
+/**
+ * Publish one claim batch only after its full contents are on disk.
+ *
+ * The batch name appears after the bytes are written and synced. A
+ * completion note is written second, and the directory entry is synced
+ * after the rename and after that note. A retry treats the batch as sent
+ * only when that note matches the file's size.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Billing;
+
+final class BatchFilePublisher
+{
+    /**
+     * Replace the batch with this content.
+     *
+     * A batch that is already complete is left alone. A failure after this
+     * run renames its own file removes that file and its completion note.
+     */
+    public static function publish(string $directory, string $filename, string $content): bool
+    {
+        if ($content === '' || !self::nameIsSafe($filename) || $directory === '') {
+            return false;
+        }
+
+        $final = $directory . DIRECTORY_SEPARATOR . $filename;
+        $temporary = $final . '.partial';
+        $note = $final . '.complete';
+        // A completed batch is left in place. A symlink is not a file this run wrote.
+        if (is_link($final) || is_link($temporary) || is_link($note) || self::isPublished($directory, $filename)) {
+            return false;
+        }
+        $handle = fopen($temporary, 'wb');
+        if ($handle === false) {
+            return false;
+        }
+
+        $written = fwrite($handle, $content);
+        $synced = fflush($handle);
+        if (function_exists('fsync')) {
+            $synced = fsync($handle) && $synced;
+        }
+        fclose($handle);
+        if ($written !== strlen($content) || $synced !== true || !is_file($temporary)) {
+            self::remove($temporary);
+
+            return false;
+        }
+
+        $size = filesize($temporary);
+        if ($size !== strlen($content) || !rename($temporary, $final)) {
+            self::remove($temporary);
+
+            return false;
+        }
+
+        // The new name has to reach disk before the completion note does.
+        // A later failure removes this run's file so the name is not left behind.
+        if (
+            !self::syncDirectory($directory, $filename)
+            || !self::writeCompletion($final, $size)
+            || !self::syncDirectory($directory, $filename . '.complete')
+        ) {
+            self::discard($directory, $filename);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sync the directory entry for one file in the batch directory.
+     */
+    private static function syncDirectory(string $directory, string $entry): bool
+    {
+        if (!is_file($directory . DIRECTORY_SEPARATOR . $entry)) {
+            return false;
+        }
+
+        if (!function_exists('fsync')) {
+            return true;
+        }
+
+        $handle = fopen($directory, 'r');
+        if ($handle === false) {
+            // Windows has no directory stream. Elsewhere the entry was not synced.
+            return PHP_OS_FAMILY === 'Windows';
+        }
+
+        $synced = fsync($handle);
+        fclose($handle);
+
+        return $synced;
+    }
+
+    /**
+     * Remove a batch this run published after the claim stopped naming it.
+     */
+    public static function discard(string $directory, string $filename): void
+    {
+        if (!self::nameIsSafe($filename) || $directory === '') {
+            return;
+        }
+
+        $final = $directory . DIRECTORY_SEPARATOR . $filename;
+        self::remove($final);
+        self::remove($final . '.partial');
+        self::remove($final . '.complete');
+    }
+
+    /**
+     * True when the batch name is present and its completion note matches its size.
+     */
+    public static function isPublished(string $directory, string $filename): bool
+    {
+        if (!self::nameIsSafe($filename) || $directory === '') {
+            return false;
+        }
+
+        $final = $directory . DIRECTORY_SEPARATOR . $filename;
+        $size = is_file($final) ? filesize($final) : false;
+        if (!is_int($size) || $size < 1) {
+            return false;
+        }
+
+        $note = $final . '.complete';
+        if (!is_file($note)) {
+            return false;
+        }
+
+        $recorded = file_get_contents($note);
+
+        return is_string($recorded) && trim($recorded) === (string) $size;
+    }
+
+    private static function nameIsSafe(string $filename): bool
+    {
+        return $filename !== ''
+            && !str_contains($filename, '/')
+            && !str_contains($filename, '\\')
+            && !str_contains($filename, '..');
+    }
+
+    private static function writeCompletion(string $final, int $size): bool
+    {
+        $note = $final . '.complete';
+        if (is_dir($note)) {
+            return false;
+        }
+        $handle = fopen($note, 'wb');
+        if ($handle === false) {
+            return false;
+        }
+
+        $text = (string) $size;
+        $written = fwrite($handle, $text);
+        $synced = fflush($handle);
+        if (function_exists('fsync')) {
+            $synced = fsync($handle) && $synced;
+        }
+        fclose($handle);
+        if ($written !== strlen($text) || $synced !== true) {
+            self::remove($note);
+
+            return false;
+        }
+
+        return self::isPublished(dirname($final), basename($final));
+    }
+
+    private static function remove(string $path): void
+    {
+        if (is_file($path)) {
+            unlink($path);
+        }
+    }
+}

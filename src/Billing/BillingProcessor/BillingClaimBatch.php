@@ -20,6 +20,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Core\OEGlobalsBag;
 
 class BillingClaimBatch
@@ -46,6 +47,11 @@ class BillingClaimBatch
      */
     protected $claims = [];
 
+    /**
+     * True while the claims in this batch still name its file.
+     */
+    private ?\Closure $generationOwner = null;
+
     public function __construct(
         protected string $ext = '.txt',
         private array $context = []
@@ -61,7 +67,7 @@ class BillingClaimBatch
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
         $this->bat_icn = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '000000001' : BillingClaimBatchControlNumber::getIsa13();
-        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $this->ext;
+        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-" . bin2hex(random_bytes(3)) . "-batch" . $this->ext;
         $this->bat_filedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
         $this->bat_gs06 = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '2' : BillingClaimBatchControlNumber::getGs06();
     }
@@ -150,19 +156,51 @@ class BillingClaimBatch
      * billing manager, we handle the array case.
      *
      */
+    /**
+     * Publish and queue only while this callback says the claims still name the file.
+     */
+    public function requireGenerationOwner(\Closure $owner): void
+    {
+        $this->generationOwner = $owner;
+    }
+
+    /**
+     * The claims still name this file, or this batch is not holding a deferred claim.
+     */
+    private function generationStillOwnsBatch(string $phase): bool
+    {
+        if ($phase === '') {
+            return false;
+        }
+        $owner = $this->generationOwner;
+        if (!$owner instanceof \Closure) {
+            return true;
+        }
+
+        return $owner($phase) === true;
+    }
+
     public function write_batch_file()
     {
         $success = true;
-        // If a writable edi directory exists, log the batch to it.
-        // I guarantee you'll be glad we did this. :-)
-        if ($this->bat_filedir !== false) {
-            $fh = fopen($this->bat_filedir . DIRECTORY_SEPARATOR . $this->bat_filename, 'a');
-            if ($fh) {
-                fwrite($fh, (string) $this->bat_content);
-                fclose($fh);
-            } else {
-                $success = false;
+        // The batch name appears only after the full contents are synced.
+        // A short write does not replace the file and is not queued.
+        if (is_string($this->bat_filedir) && is_string($this->bat_filename)) {
+            if (!$this->generationStillOwnsBatch('before-publish')) {
+                return false;
             }
+            $success = BatchFilePublisher::publish(
+                $this->bat_filedir,
+                $this->bat_filename,
+                (string) $this->bat_content
+            );
+            if ($success && !$this->generationStillOwnsBatch('after-publish')) {
+                BatchFilePublisher::discard($this->bat_filedir, $this->bat_filename);
+
+                return false;
+            }
+        } elseif ($this->bat_filedir !== false) {
+            $success = false;
         }
 
         // If we are automatically uploading claims to X12 partners, do that here right after we
@@ -171,6 +209,13 @@ class BillingClaimBatch
             true === $success &&
             OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
         ) {
+            if (!$this->generationStillOwnsBatch('before-queue')) {
+                if (is_string($this->bat_filedir) && is_string($this->bat_filename)) {
+                    BatchFilePublisher::discard($this->bat_filedir, $this->bat_filename);
+                }
+
+                return false;
+            }
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
             if (is_array($unique_x12_partners)) {
                 // If this is an array, queue the batchfile to send to all x-12 partners
