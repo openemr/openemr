@@ -1271,7 +1271,7 @@ class C_Prescription extends Controller
         return [$html, $prescription->patient];
     }
 
-    private function getDiagnosisCodesList(Prescription $prescription)
+    private function getDiagnosisCodesList(Prescription $prescription): array
     {
         $codeTypesService = $this->getCodeTypesService();
         $listsService = new PatientIssuesService();

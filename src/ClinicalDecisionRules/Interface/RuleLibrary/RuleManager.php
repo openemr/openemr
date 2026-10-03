@@ -259,8 +259,9 @@ class RuleManager
 
     /**
      * @param Rule $rule
+     * @return RuleTargets[]
      */
-    private function fetchRuleTargetCriteria($rule)
+    private function fetchRuleTargetCriteria($rule): array
     {
         $stmt = sqlStatement(self::SQL_RULE_TARGET, [$rule->id]);
         $criterion = $this->gatherCriteria(
@@ -283,8 +284,9 @@ class RuleManager
 
     /**
      * @param Rule $rule
+     * @return RuleActions[]
      */
-    private function fetchRuleActions($rule)
+    private function fetchRuleActions($rule): array
     {
         $stmt = sqlStatement(self::SQL_RULE_ACTIONS, [$rule->id]);
         $ruleActionGroups = [];
@@ -407,7 +409,7 @@ class RuleManager
      * @param Rule $rule
      * @param RuleCriteriaFactory $factory
      */
-    private function gatherCriteria($rule, $stmt, $factory)
+    private function gatherCriteria($rule, $stmt, $factory): array
     {
         $criterion = [];
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {

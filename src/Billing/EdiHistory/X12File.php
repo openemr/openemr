@@ -144,16 +144,16 @@ class X12File
         $this->constructing = false;
     }
 
-    /*
+    /**
      * function to support empty object and '_x12_' functions called with supplied file text
      *
      * @param string   $file_text
-     * @param bool     return x12 type
-     * @param bool     return delimiters
-     * @param bool     return segments
+     * @param bool     $type return x12 type
+     * @param bool     $delimiters return delimiters
+     * @param bool     $segments return segments
      * @return array   array['filetext'] and maybe ['type'] ['$delimiters'] ['segments']
      */
-    private function edih_file_text($file_text, $type = false, $delimiters = false, $segments = false)
+    private function edih_file_text($file_text, $type = false, $delimiters = false, $segments = false): array
     {
         $ret_ar = [];
         if (!$file_text || is_string($file_text) == false) {

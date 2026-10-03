@@ -1484,7 +1484,10 @@ class Events extends Base
         return $age;
     }
 
-    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = '')
+    /**
+     * @return string[]
+     */
+    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = ''): array
     {
         $start = date('Y-m-d', strtotime($interval . $start_days . ' day'));
         $end = date('Y-m-d', strtotime($interval . $end_days . ' day'));

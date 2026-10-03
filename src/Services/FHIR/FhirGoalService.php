@@ -710,7 +710,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    private function getGoalTextFromDetails($details)
+    private function getGoalTextFromDetails($details): array
     {
         $descriptions = [];
         foreach ($details as $detail) {

@@ -262,9 +262,8 @@ class TherapyGroupsController extends BaseController
      * Prepares the therapy group list that will be sent to view.
      * @param $therapy_groups
      * @param $counselors
-     * @return array
      */
-    private function prepareGroups($therapy_groups, $counselors)
+    private function prepareGroups($therapy_groups, $counselors): array
     {
 
         $new_array = [];
@@ -305,9 +304,8 @@ class TherapyGroupsController extends BaseController
     /**
      * Returns a list of counselors without duplicates.
      * @param $counselors
-     * @return array
      */
-    private function prepareCounselorsList($counselors)
+    private function prepareCounselorsList($counselors): array
     {
 
         $new_array = [];
@@ -325,9 +323,8 @@ class TherapyGroupsController extends BaseController
     /**
      * Change group status to 'deleted'. Can be done only if group has no encounters.
      * @param $group_id
-     * @return array
      */
-    private function deleteGroup($group_id)
+    private function deleteGroup($group_id): array
     {
 
         $response = [];

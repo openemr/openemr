@@ -571,7 +571,7 @@ class PatientService extends BaseService
         return $processingResult;
     }
 
-    private function hydratePatientAdditionalAddressInformation(&$record)
+    private function hydratePatientAdditionalAddressInformation(&$record): array
     {
         $address = [
             'id' => $record['contact_address_address_id'] ?? null
@@ -593,7 +593,7 @@ class PatientService extends BaseService
         return $address;
     }
 
-    private function hydratedPatientInitialAddressInformation(&$patient)
+    private function hydratedPatientInitialAddressInformation(&$patient): array
     {
         // we need to setup our initial address from the patient records if we have one
         $address = [

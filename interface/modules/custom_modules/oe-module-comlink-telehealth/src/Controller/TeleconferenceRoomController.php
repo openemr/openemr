@@ -1244,11 +1244,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return array
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getProviderSettings($queryVars)
+    private function getProviderSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
@@ -1329,10 +1328,9 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return array
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getPatientSettings($queryVars)
+    private function getPatientSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
