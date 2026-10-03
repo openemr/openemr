@@ -4,7 +4,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -134,6 +136,62 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * Related persons must appear as header participants.
+     *
+     * Node merges patient.related_persons.participant into the header
+     * participant list alongside document_participants.participant
+     * (serveccda.js populateHeader). The converter read only the latter, so
+     * related persons were dropped and the ONC scenarios reported their
+     * relationship codes as missing.
+     */
+    public function testRelatedPersonsAppearAsHeaderParticipants(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        foreach (['GRPRN' => 'Holler', 'SPS' => 'Newman'] as $relationship => $family) {
+            $entity = $xpath->query(
+                "/hl7:ClinicalDocument/hl7:participant/hl7:associatedEntity"
+                . "[hl7:code/@code='" . $relationship . "']"
+            );
+            self::assertNotFalse($entity, 'Participant query must be valid');
+            self::assertSame(
+                1,
+                $entity->length,
+                'Related person with relationship ' . $relationship . ' must be a header participant'
+            );
+
+            $node = $entity->item(0);
+            self::assertInstanceOf(\DOMElement::class, $node, 'associatedEntity must be an element');
+            self::assertSame(
+                'PRS',
+                $node->getAttribute('classCode'),
+                'Related person associatedEntity carries class_code from the input'
+            );
+
+            $code = $xpath->query("hl7:code", $node);
+            self::assertNotFalse($code, 'Code query must be valid');
+            $codeEl = $code->item(0);
+            self::assertInstanceOf(\DOMElement::class, $codeEl, 'Code must be an element');
+            self::assertSame(
+                '2.16.840.1.113883.1.11.19563',
+                $codeEl->getAttribute('codeSystem'),
+                'Relationship code uses the Personal Relationship Role Type value set'
+            );
+
+            $name = $xpath->query("hl7:associatedPerson/hl7:name/hl7:family", $node);
+            self::assertNotFalse($name, 'Name query must be valid');
+            self::assertSame(1, $name->length, 'Related person carries a family name');
+            self::assertSame($family, $name->item(0)->textContent, 'Family name matches the input');
+        }
+    }
+
+    /**
      * Tribal affiliation must carry the numeric TribalEntityUS code, not the
      * internal slug. The internal XML holds tribal_code ("65"), tribal_title
      * ("Coquille Indian Tribe") and tribal ("coquille") as siblings; only the
@@ -244,6 +302,138 @@ class InternalToCdaConverterTest extends TestCase
         );
         self::assertNotFalse($question, 'Question observation query must be valid');
         self::assertSame(1, $question->length, 'Each disability question is a COMP entryRelationship');
+
+        // id is SHALL 1..* on both templates (CONF:16724). The fixture has no
+        // facility OID, which previously suppressed the id entirely.
+        $obsId = $xpath->query("hl7:id", $observation);
+        self::assertNotFalse($obsId, 'Observation id query must be valid');
+        self::assertGreaterThan(0, $obsId->length, 'Disability Status Observation must carry an id');
+
+        $supporting = $question->item(0);
+        self::assertInstanceOf(\DOMElement::class, $supporting, 'Supporting observation must be an element');
+        $supportingId = $xpath->query("hl7:id", $supporting);
+        self::assertNotFalse($supportingId, 'Supporting id query must be valid');
+        self::assertGreaterThan(
+            0,
+            $supportingId->length,
+            'Assessment Scale Supporting Observation must carry an id'
+        );
+
+        $plain = $xpath->query(
+            "hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.505'][not(@extension)]",
+            $observation
+        );
+        self::assertNotFalse($plain, 'Plain templateId query must be valid');
+        self::assertSame(1, $plain->length, 'The unversioned templateId must not be duplicated');
+    }
+
+    /**
+     * Document-level provenance time is the encounter date, not the render
+     * time. Node emits created_time_timezone here, which made every document
+     * carry its own generation timestamp and failed the ONC scenario
+     * comparison against the encounter date.
+     */
+    public function testDocumentAuthorTimeUsesEncounterDate(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20261003123026-0400</created_time_timezone>
+                <encounter_list>
+                    <encounter>
+                        <date>2015-07-22 00:00:00-0400</date>
+                    </encounter>
+                </encounter_list>
+                <patient>
+                    <fname>Jeremy</fname>
+                    <lname>Bates</lname>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $time = $xpath->query('/hl7:ClinicalDocument/hl7:author/hl7:time');
+        self::assertNotFalse($time, 'Author time query must be valid');
+        self::assertSame(1, $time->length, 'Document author carries one time');
+
+        $element = $time->item(0);
+        self::assertInstanceOf(\DOMElement::class, $element, 'Time must be an element');
+        self::assertStringStartsWith(
+            '20150722',
+            $element->getAttribute('value'),
+            'Document author time uses the encounter date, not the generation timestamp'
+        );
+    }
+
+    /**
+     * With no encounter the generation timestamp remains the fallback, so a
+     * document without an encounter still carries a provenance time.
+     */
+    public function testDocumentAuthorTimeFallsBackToCreatedTime(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20261003123026-0400</created_time_timezone>
+                <patient>
+                    <fname>Jeremy</fname>
+                    <lname>Bates</lname>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $time = $xpath->query('/hl7:ClinicalDocument/hl7:author/hl7:time');
+        self::assertNotFalse($time, 'Author time query must be valid');
+        self::assertSame(1, $time->length, 'Document author carries one time');
+
+        $element = $time->item(0);
+        self::assertInstanceOf(\DOMElement::class, $element, 'Time must be an element');
+        self::assertStringStartsWith(
+            '20261003',
+            $element->getAttribute('value'),
+            'Without an encounter the generation timestamp is used'
+        );
+    }
+
+    /**
+     * The patient name must carry prefix and suffix when the record has them.
+     * createPersonName() had no suffix parameter, so a patient suffix was
+     * dropped and the ONC scenario reported it missing.
+     */
+    public function testPatientNameIncludesPrefixAndSuffix(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <fname>Jeremy</fname>
+                    <mname>V</mname>
+                    <lname>Bates</lname>
+                    <prefix>Mr.</prefix>
+                    <suffix>Jr.</suffix>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $base = "/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/hl7:name";
+
+        foreach (['prefix' => 'Mr.', 'suffix' => 'Jr.', 'family' => 'Bates'] as $part => $expected) {
+            $node = $xpath->query($base . "/hl7:" . $part);
+            self::assertNotFalse($node, $part . ' query must be valid');
+            self::assertSame(1, $node->length, 'Patient name must carry a ' . $part);
+            self::assertSame($expected, $node->item(0)->textContent, $part . ' matches the input');
+        }
     }
 
     /**

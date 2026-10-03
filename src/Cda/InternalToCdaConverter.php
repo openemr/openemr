@@ -4,7 +4,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -270,6 +272,8 @@ class InternalToCdaConverter
             given: $this->xpathValue('/CCDA/patient/fname'),
             middle: $this->xpathValue('/CCDA/patient/mname'),
             use: 'L',
+            prefix: $this->xpathValue('/CCDA/patient/prefix'),
+            suffix: $this->xpathValue('/CCDA/patient/suffix'),
         ));
 
         $genderCode = $this->xpathValue('/CCDA/patient/gender_code');
@@ -334,8 +338,11 @@ class InternalToCdaConverter
 
         $langComm = $this->createElement('languageCommunication');
 
+        // The language code is emitted as supplied. Node passes it through
+        // unchanged (headerLevel.js languageCommunication, leafLevel.input);
+        // appending a region turned a scenario's "en" into "en-US".
         $code = $this->createElement('languageCode');
-        $code->setAttribute('code', $langCode . '-US');
+        $code->setAttribute('code', $langCode);
         $langComm->appendChild($code);
 
         $modeCode = $this->createElement('modeCode');
@@ -439,9 +446,18 @@ class InternalToCdaConverter
     {
         $author = $this->createElement('author');
 
-        $createdTime = $this->xpathValue('/CCDA/created_time_timezone');
+        // Document-level provenance: ClinicalDocument/author/time is when the
+        // content was authored, not when the document was rendered. Node uses
+        // created_time_timezone (serveccda.js populateHeader), which emits the
+        // generation timestamp and fails the ONC scenario comparison against
+        // the encounter date. Prefer the encounter being summarised and fall
+        // back to the generation time when the document has no encounter.
+        $authorTime = $this->xpathValue('/CCDA/encounter_list/encounter[1]/date');
+        if ($authorTime === '') {
+            $authorTime = $this->xpathValue('/CCDA/created_time_timezone');
+        }
         $time = $this->createElement('time');
-        $this->setTimestampAttribute($time, $createdTime);
+        $this->setTimestampAttribute($time, $authorTime);
         $author->appendChild($time);
 
         $assignedAuthor = $this->createElement('assignedAuthor');
@@ -612,8 +628,15 @@ class InternalToCdaConverter
 
     private function renderParticipants(DOMElement $root): void
     {
-        $participants = $this->xpath('/CCDA/document_participants/participant');
-        foreach ($participants as $participantEl) {
+        // Node merges both sources into the header participant list
+        // (serveccda.js populateHeader: document_participants.participant plus
+        // patient.related_persons.participant). Related persons carry the
+        // Personal Relationship Role Type code (GRPRN, SPS, ...) that the ONC
+        // scenarios check for; omitting them drops those findings entirely.
+        foreach ($this->xpath('/CCDA/document_participants/participant') as $participantEl) {
+            $this->renderParticipant($root, $participantEl);
+        }
+        foreach ($this->xpath('/CCDA/patient/related_persons/participant') as $participantEl) {
             $this->renderParticipant($root, $participantEl);
         }
     }
@@ -636,26 +659,51 @@ class InternalToCdaConverter
         $participant->appendChild($time);
 
         $associatedEntity = $this->createElement('associatedEntity');
-        $associatedEntity->setAttribute('classCode', 'ASSIGNED');
+        // Related persons carry class_code (PRS); document participants default
+        // to ASSIGNED, matching node's populateParticipant fallback.
+        $classCode = $this->xpathValue('class_code', $participantEl);
+        $associatedEntity->setAttribute('classCode', $classCode !== '' ? $classCode : 'ASSIGNED');
 
+        // When an NPI is present the id is the NPI in the CMS root; otherwise it
+        // is the organization's own id with its extension. Node keys the whole
+        // pair off organization_npi, so the extension must follow the root it
+        // belongs to rather than being appended to whichever root was chosen.
         $orgId = $this->xpathValue('organization_id', $participantEl);
         $orgNpi = $this->xpathValue('organization_npi', $participantEl);
+        $orgExt = $this->xpathValue('organization_ext', $participantEl);
         $id = $this->createElement('id');
-        $id->setAttribute('root', $orgId);
         if ($orgNpi !== '') {
+            $id->setAttribute('root', '2.16.840.1.113883.4.6');
             $id->setAttribute('extension', $orgNpi);
+        } else {
+            $id->setAttribute('root', $orgId);
+            if ($orgExt !== '') {
+                $id->setAttribute('extension', $orgExt);
+            }
         }
         $associatedEntity->appendChild($id);
 
         $code = $this->createElement('code');
         $taxonomy = $this->xpathValue('organization_taxonomy', $participantEl);
+        $relationshipCode = $this->xpathValue('code', $participantEl);
         if ($taxonomy !== '') {
+            // Provider taxonomy stays in NUCC (2.16.840.1.113883.6.101). Node
+            // labels every participant code with the Personal Relationship Role
+            // Type value set regardless of which code it picked; NUCC is the
+            // correct system for a taxonomy code, so this is a deliberate
+            // divergence from node.
             $code->setAttribute('code', $taxonomy);
             $code->setAttribute('codeSystem', '2.16.840.1.113883.6.101');
             $taxDesc = $this->xpathValue('organization_taxonomy_desc', $participantEl);
             if ($taxDesc !== '') {
                 $code->setAttribute('displayName', $taxDesc);
             }
+        } elseif ($relationshipCode !== '') {
+            // Related person relationship (GRPRN, SPS, ...) from the HL7
+            // Personal Relationship Role Type value set.
+            $code->setAttribute('code', $this->cleanCode($relationshipCode));
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.1.11.19563');
+            $code->setAttribute('codeSystemName', 'Personal Relationship Role Type Value Set');
         } else {
             $code->setAttribute('nullFlavor', 'UNK');
         }
@@ -4138,13 +4186,13 @@ class InternalToCdaConverter
 
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.503', '2023-05-01');
 
+        // id is SHALL 1..* on this template and on the supporting observations
+        // below. Node's fieldLevel.uniqueId omits the id entirely when the
+        // document has no root id, which leaves a conformance failure
+        // (CONF:16724); fall back to a bare generated root instead, as node's
+        // own fieldLevel.uniqueIdRoot does elsewhere.
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid !== '') {
-            $uniqueId = $this->createElement('id');
-            $uniqueId->setAttribute('root', $facilityOid);
-            $uniqueId->setAttribute('extension', $this->generateUuid());
-            $obs->appendChild($uniqueId);
-        }
+        $obs->appendChild($this->createUniqueId($facilityOid));
 
         $id = $this->createElement('id');
         $id->setAttribute('root', $this->generateUuid());
@@ -4537,8 +4585,9 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
+        // appendVersionedTemplateId emits both the extension form and the plain
+        // form; a further appendTemplateId would duplicate the plain one.
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.505', '2023-05-01');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.505');
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid !== '') {
@@ -4603,12 +4652,7 @@ class InternalToCdaConverter
 
             $this->appendTemplateId($qObs, '2.16.840.1.113883.10.20.22.4.86');
 
-            if ($facilityOid !== '') {
-                $qUniqueId = $this->createElement('id');
-                $qUniqueId->setAttribute('root', $facilityOid);
-                $qUniqueId->setAttribute('extension', $this->generateUuid());
-                $qObs->appendChild($qUniqueId);
-            }
+            $qObs->appendChild($this->createUniqueId($facilityOid));
 
             $qCodeSystem = $this->xpathValue('code_system', $question);
             $qCodeSystemName = $this->xpathValue('code_system_name', $question);
@@ -6849,12 +6893,30 @@ class InternalToCdaConverter
         return $nodes->length > 0 ? trim((string) $nodes->item(0)?->textContent) : '';
     }
 
+    /**
+     * An id that is always present: rooted at the facility OID with a generated
+     * extension when the facility OID is known, otherwise a bare generated root.
+     * Used where the IG makes id SHALL 1..*.
+     */
+    private function createUniqueId(string $facilityOid): DOMElement
+    {
+        $id = $this->createElement('id');
+        if ($facilityOid !== '') {
+            $id->setAttribute('root', $facilityOid);
+            $id->setAttribute('extension', $this->generateUuid());
+        } else {
+            $id->setAttribute('root', $this->generateUuid());
+        }
+        return $id;
+    }
+
     private function createPersonName(
         string $family,
         string $given,
         string $middle = '',
         ?string $use = null,
         string $prefix = '',
+        string $suffix = '',
     ): DOMElement {
         $name = $this->createElement('name');
         if ($use !== null) {
@@ -6871,6 +6933,9 @@ class InternalToCdaConverter
         }
         if ($prefix !== '') {
             $name->appendChild($this->createElement('prefix', $prefix));
+        }
+        if ($suffix !== '') {
+            $name->appendChild($this->createElement('suffix', $suffix));
         }
         return $name;
     }
