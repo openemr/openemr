@@ -7,14 +7,17 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../globals.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/config.php";
 
+use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -86,7 +89,10 @@ if (strtolower(substr($fname, (strlen($fname) - 4))) == ".pdf") {
     $content_type = "application/pdf";
 }
 
-if (!file_exists($fname)) {
+$noteAgrees = $location === 'tmp'
+    || !is_file($fname . '.complete')
+    || BatchFilePublisher::isPublished(dirname($fname), basename($fname));
+if (!file_exists($fname) || !$noteAgrees) {
     echo xlt("The claim file: ") . text($_GET['key']) . xlt(" could not be accessed.");
 } else {
     $fp = fopen($fname, 'r');
