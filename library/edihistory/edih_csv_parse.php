@@ -406,7 +406,7 @@ function edih_837_csv_data($obj837): array
  * extract csv table row data for x12 277 files
  *
  * @param \OpenEMR\Billing\EdiHistory\X12File $obj277 edih_x12_file object of type 276/277
- * @return array<mixed, array<'claim'|'file'|'type', mixed>>
+ * @return array<array-key, array<'claim'|'file'|'type', mixed>>
  */
 function edih_277_csv_data($obj277): array
 {
