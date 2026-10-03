@@ -12,30 +12,34 @@
 namespace OpenEMR\Tests\Services;
 
 use InvalidArgumentException;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Services\CodeTypesService;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 class CodeTypesServiceTest extends TestCase
 {
     private $codeTypesService;
-    private $originalCodeTypes;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->codeTypesService = new CodeTypesService();
-
-        // Store original global $code_types if it exists
-        global $code_types;
-        $this->originalCodeTypes = $code_types ?? null;
     }
 
     protected function tearDown(): void
     {
-        // Restore original global $code_types
-        global $code_types;
-        $code_types = $this->originalCodeTypes;
+        CodeTypeRegistry::reset();
         parent::tearDown();
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $codeTypes
+     */
+    private function seedCodeTypes(array $codeTypes): void
+    {
+        (new ReflectionProperty(CodeTypeRegistry::class, 'codeTypes'))
+            ->setValue(null, $codeTypes);
     }
 
     public function testFormatCodeType(): void
@@ -134,8 +138,7 @@ class CodeTypesServiceTest extends TestCase
      */
     private function setupMockCodeTypes(): void
     {
-        global $code_types;
-        $code_types = [
+        $this->seedCodeTypes([
             'ICD10' => [
                 'active' => true,
                 'diag' => true,
@@ -184,7 +187,7 @@ class CodeTypesServiceTest extends TestCase
                 'problem' => false,
                 'drug' => false
             ]
-        ];
+        ]);
     }
 
     public function testCollectCodeTypesDiagnosisCategory(): void
@@ -292,8 +295,7 @@ class CodeTypesServiceTest extends TestCase
 
     public function testCollectCodeTypesEmptyCodeTypesGlobal(): void
     {
-        global $code_types;
-        $code_types = [];
+        $this->seedCodeTypes([]);
 
         $result = $this->codeTypesService->collectCodeTypes('diagnosis', 'array');
 
@@ -302,13 +304,12 @@ class CodeTypesServiceTest extends TestCase
 
     public function testCollectCodeTypesWithCodeTypesMissingFlags(): void
     {
-        global $code_types;
-        $code_types = [
+        $this->seedCodeTypes([
             'INCOMPLETE_CODE' => [
                 'active' => true
                 // Missing diag, proc, term, etc. flags
             ]
-        ];
+        ]);
 
         $result = $this->codeTypesService->collectCodeTypes('diagnosis', 'array');
 
@@ -318,8 +319,7 @@ class CodeTypesServiceTest extends TestCase
 
     public function testCollectCodeTypesPreservesOrder(): void
     {
-        global $code_types;
-        $code_types = [
+        $this->seedCodeTypes([
             'ZCODE' => [
                 'active' => true,
                 'diag' => true,
@@ -344,7 +344,7 @@ class CodeTypesServiceTest extends TestCase
                 'problem' => false,
                 'drug' => false
             ]
-        ];
+        ]);
 
         $result = $this->codeTypesService->collectCodeTypes('diagnosis', 'array');
 

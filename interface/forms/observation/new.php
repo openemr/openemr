@@ -19,7 +19,6 @@ require_once(__DIR__ . "/../../globals.php");
  */
 global $srcdir;
 require_once("$srcdir/options.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\CurrentRequest;

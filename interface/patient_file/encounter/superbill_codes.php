@@ -15,15 +15,14 @@ $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActi
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
-require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 /** @var array<string, array<string, mixed>> $code_types */
-$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$code_types = CodeTypeRegistry::codeTypes();
 $tback = '';
 $tmore = '';
 

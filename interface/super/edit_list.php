@@ -17,12 +17,12 @@
  */
 
 require_once("../globals.php");
-require_once("../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\CodeTypes\CodeTypeRegistry;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -339,7 +339,7 @@ $opt_line_no = 0;
 // @TODO Instead should use a function from custom/code_types.inc.php and need to remove casing functions
 function getCodeDescriptions($codes)
 {
-    global $code_types;
+    $code_types = CodeTypeRegistry::codeTypes();
     $arrcodes = explode('~', (string) $codes);
     $s = '';
     foreach ($arrcodes as $codestring) {
@@ -680,7 +680,8 @@ function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = ''
 //
 function writeCTLine($ct_array): void
 {
-    global $opt_line_no, $ct_external_options;
+    global $opt_line_no;
+    $ct_external_options = CodeTypeRegistry::ctExternalOptions();
 
     ++$opt_line_no;
     $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
