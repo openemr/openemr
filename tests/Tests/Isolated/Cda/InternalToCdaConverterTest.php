@@ -136,6 +136,48 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * The Goal Observation code must carry a codeSystem OID.
+     *
+     * The internal XML names the code system (code_type, e.g. "LOINC") without
+     * an OID. Node resolves it from the name in translate.js; the converter
+     * emitted codeSystemName alone, so the CD had no codeSystem and the ONC
+     * scenario code-system comparison failed.
+     */
+    public function testGoalObservationCodeCarriesCodeSystem(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $codes = $xpath->query(
+            "//hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.121']]/hl7:code"
+        );
+        self::assertNotFalse($codes, 'Goal code query must be valid');
+        self::assertGreaterThan(0, $codes->length, 'The scenario fixture carries goal observations');
+
+        foreach ($codes as $code) {
+            self::assertInstanceOf(\DOMElement::class, $code, 'Goal code must be an element');
+            if ($code->hasAttribute('nullFlavor')) {
+                continue;
+            }
+            self::assertSame(
+                '2.16.840.1.113883.6.1',
+                $code->getAttribute('codeSystem'),
+                'LOINC goal codes resolve code_type to the LOINC OID'
+            );
+            self::assertSame(
+                'LOINC',
+                $code->getAttribute('codeSystemName'),
+                'codeSystemName accompanies the resolved OID'
+            );
+        }
+    }
+
+    /**
      * Related persons must appear as header participants.
      *
      * Node merges patient.related_persons.participant into the header
@@ -868,7 +910,11 @@ class InternalToCdaConverterTest extends TestCase
         if ($this->actualOutput === null) {
             $input = file_get_contents(self::FIXTURE_DIR . 'ccda-example-input1.xml');
             self::assertNotFalse($input, 'Failed to read input fixture');
-            $expected = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
+            // ccda-example-response1.xml is the legacy CcdaServiceDocumentRequestor::socket_get
+            // expectation and must keep matching that path. The converter deliberately diverges
+            // from it (languageCode region suffix, document provenance time), so it has its own
+            // expectation here.
+            $expected = file_get_contents(self::FIXTURE_DIR . 'ccda-converter-response1.xml');
             self::assertNotFalse($expected, 'Failed to read expected fixture');
             $this->expectedOutput = $expected;
 

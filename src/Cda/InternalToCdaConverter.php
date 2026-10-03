@@ -6353,7 +6353,14 @@ class InternalToCdaConverter
                 $code->setAttribute('displayName', $codeText);
             }
             if ($codeType !== '') {
-                $code->setAttribute('codeSystemName', $codeType);
+                // The internal XML carries the code system by name (code_type,
+                // e.g. "LOINC") with no OID. Node resolves the OID from that name
+                // via translate.js code_system = css.findFromName(...); without it
+                // the CD is emitted with a codeSystemName and no codeSystem, which
+                // fails the scenario code-system comparison.
+                $system = $this->mapCodeTypeToSystem($codeType);
+                $code->setAttribute('codeSystem', $system['oid']);
+                $code->setAttribute('codeSystemName', $system['name']);
             }
         } else {
             $code->setAttribute('nullFlavor', 'UNK');
