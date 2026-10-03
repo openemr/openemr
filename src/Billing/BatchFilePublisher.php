@@ -22,7 +22,10 @@ namespace OpenEMR\Billing;
 final class BatchFilePublisher
 {
     /**
-     * Replace the batch with this content. False leaves the previous file in place.
+     * Replace the batch with this content.
+     *
+     * A batch that is already complete is left alone. A failure after this
+     * run renames its own file removes that file and its completion note.
      */
     public static function publish(string $directory, string $filename, string $content): bool
     {
@@ -62,16 +65,13 @@ final class BatchFilePublisher
         }
 
         // The new name has to reach disk before the completion note does.
-        if (!self::syncDirectory($directory, $filename)) {
-            return false;
-        }
-
-        if (!self::writeCompletion($final, $size)) {
-            return false;
-        }
-
-        if (!self::syncDirectory($directory, $filename . '.complete')) {
-            self::remove($final . '.complete');
+        // A later failure removes this run's file so the name is not left behind.
+        if (
+            !self::syncDirectory($directory, $filename)
+            || !self::writeCompletion($final, $size)
+            || !self::syncDirectory($directory, $filename . '.complete')
+        ) {
+            self::discard($directory, $filename);
 
             return false;
         }
@@ -155,6 +155,9 @@ final class BatchFilePublisher
     private static function writeCompletion(string $final, int $size): bool
     {
         $note = $final . '.complete';
+        if (is_dir($note)) {
+            return false;
+        }
         $handle = fopen($note, 'wb');
         if ($handle === false) {
             return false;
