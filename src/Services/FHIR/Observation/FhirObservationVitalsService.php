@@ -230,7 +230,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         , self::VITALS_CODE_BLOOD_PRESSURE => [
             'fullcode' => 'LOINC:85354-9'
             ,'code' => self::VITALS_CODE_BLOOD_PRESSURE
-            ,'description' => 'Blood pressure systolic and diastolic'
+            ,'description' => 'Blood pressure panel with all children optional'
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bps', 'bps_unit', 'bpd', 'bpd_unit']
             ,'in_vitals_panel' => true
