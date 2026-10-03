@@ -449,12 +449,14 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         }
         // Dose and Rate
         if (!empty($dataRecord['interval_codes'])) {
+            // Omit Coding.display — interval_notes is user-editable and rarely
+            // matches the canonical display for the HL7 timing abbreviation
+            // code system. Text set below carries the human-readable form.
             $intervalConcept = UtilsService::createCodeableConcept([
                 $dataRecord['interval_codes'] => [
                     'code' => $dataRecord['interval_codes'],
-                    'description' => $dataRecord['interval_notes'],
-                    'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION
-                ]
+                    'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION,
+                ],
             ]);
             $intervalConcept->setText($dataRecord['interval_notes'] ?? $dataRecord['interval_title']);
             $fhirTiming = new OpenEMRFHIRTiming();
