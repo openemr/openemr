@@ -1058,32 +1058,38 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * global asks for metric, so a client can legitimately send either spelling; the
      * write converts back rather than trusting the number it was handed.
      *
-     * @var array<string, array<string, array{unit: string}>>
+     * `max` is the largest value accepted, in the storage unit. It is a plausibility limit,
+     * set well above anything recorded in a living patient, not a clinical alert range: its
+     * job is to refuse a mistyped or wrong-unit value. Without it an oversized number is
+     * accepted and then cut down to what the column can hold, so the client reads back a
+     * value it never sent.
+     *
+     * @var array<string, array<string, array{unit: string, max: float}>>
      */
     private const VITALS_WRITE_COLUMNS = [
-        '9279-1' => ['respiration' => ['unit' => '/min']],
-        '8867-4' => ['pulse' => ['unit' => '/min']],
-        '8310-5' => ['temperature' => ['unit' => 'degF']],
-        '8302-2' => ['height' => ['unit' => 'in']],
-        '9843-4' => ['head_circ' => ['unit' => 'in']],
-        '29463-7' => ['weight' => ['unit' => 'lb']],
+        '9279-1' => ['respiration' => ['unit' => '/min', 'max' => 200.0]],
+        '8867-4' => ['pulse' => ['unit' => '/min', 'max' => 500.0]],
+        '8310-5' => ['temperature' => ['unit' => 'degF', 'max' => 120.0]],
+        '8302-2' => ['height' => ['unit' => 'in', 'max' => 120.0]],
+        '9843-4' => ['head_circ' => ['unit' => 'in', 'max' => 40.0]],
+        '29463-7' => ['weight' => ['unit' => 'lb', 'max' => 2000.0]],
         self::VITALS_CODE_BLOOD_PRESSURE => [
-            'bps' => ['unit' => 'mm[Hg]'],
-            'bpd' => ['unit' => 'mm[Hg]'],
+            'bps' => ['unit' => 'mm[Hg]', 'max' => 400.0],
+            'bpd' => ['unit' => 'mm[Hg]', 'max' => 300.0],
         ],
         self::VITALS_CODE_PULSE_OXIMETRY => [
-            'oxygen_saturation' => ['unit' => '%'],
-            'oxygen_flow_rate' => ['unit' => 'L/min'],
-            'inhaled_oxygen_concentration' => ['unit' => '%'],
+            'oxygen_saturation' => ['unit' => '%', 'max' => 100.0],
+            'oxygen_flow_rate' => ['unit' => 'L/min', 'max' => 100.0],
+            'inhaled_oxygen_concentration' => ['unit' => '%', 'max' => 100.0],
         ],
         self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION => [
-            'oxygen_saturation' => ['unit' => '%'],
-            'oxygen_flow_rate' => ['unit' => 'L/min'],
-            'inhaled_oxygen_concentration' => ['unit' => '%'],
+            'oxygen_saturation' => ['unit' => '%', 'max' => 100.0],
+            'oxygen_flow_rate' => ['unit' => 'L/min', 'max' => 100.0],
+            'inhaled_oxygen_concentration' => ['unit' => '%', 'max' => 100.0],
         ],
-        '8289-1' => ['ped_head_circ' => ['unit' => '%']],
-        '59576-9' => ['ped_bmi' => ['unit' => '%']],
-        '77606-2' => ['ped_weight_height' => ['unit' => '%']],
+        '8289-1' => ['ped_head_circ' => ['unit' => '%', 'max' => 100.0]],
+        '59576-9' => ['ped_bmi' => ['unit' => '%', 'max' => 100.0]],
+        '77606-2' => ['ped_weight_height' => ['unit' => '%', 'max' => 100.0]],
     ];
 
     /**
@@ -1316,7 +1322,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         // effectiveDateTime is half the identity of the row this Observation lands on, so a
         // vitals write cannot fall back to "now" the way a less structured resource could.
         $effective = $json['effectiveDateTime'] ?? null;
-        $date = FhirDateTimeParser::toDbDateTime($effective, 'Observation.effectiveDateTime');
+        try {
+            $date = FhirDateTimeParser::toDbDateTime($effective, 'Observation.effectiveDateTime');
+        } catch (InvalidArgumentException $e) {
+            // The parser's message names the element and what is wrong with the value. Left to
+            // propagate, the client would get a generic "see server logs" answer instead.
+            return self::vitalsValidationError('effectiveDateTime', $e->getMessage());
+        }
         if ($date === null) {
             return self::vitalsValidationError(
                 'effectiveDateTime',
@@ -1362,13 +1374,29 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                     . self::NON_POSITIVE_VALUE_REASON
                 );
             }
+            if ($converted > $spec[$column]['max']) {
+                return self::vitalsValidationError(
+                    'component',
+                    'Observation.component "' . $componentCode . '" is above the largest value accepted ('
+                    . $spec[$column]['max'] . ' ' . $spec[$column]['unit'] . ')'
+                );
+            }
             $columns[$column] = $converted;
         }
 
         $quantity = self::readQuantity($json['valueQuantity'] ?? null);
+        if ($quantity !== null && $code === self::VITALS_CODE_BLOOD_PRESSURE) {
+            // The panel has two numbers and valueQuantity has room for one. Storing it as the
+            // systolic would answer 201 for half a blood pressure.
+            return self::vitalsValidationError(
+                'valueQuantity',
+                'Observation.valueQuantity is not used for blood pressure; send the systolic and '
+                . 'diastolic values in Observation.component'
+            );
+        }
         if ($quantity !== null) {
-            // The single-value codes list exactly one column; the panel codes list several
-            // but put nothing in valueQuantity, so the first entry is the right target.
+            // The single-value codes list exactly one column. Pulse oximetry lists several and
+            // carries its saturation in valueQuantity, which is its first entry.
             $column = array_key_first($spec);
             $converted = self::convertQuantityToStorageUnit($quantity['value'], $quantity['unit'], $spec[$column]['unit']);
             if ($converted === null) {
@@ -1382,6 +1410,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 return self::vitalsValidationError(
                     'valueQuantity',
                     'Observation.valueQuantity must be greater than zero; ' . self::NON_POSITIVE_VALUE_REASON
+                );
+            }
+            if ($converted > $spec[$column]['max']) {
+                return self::vitalsValidationError(
+                    'valueQuantity',
+                    'Observation.valueQuantity is above the largest value accepted ('
+                    . $spec[$column]['max'] . ' ' . $spec[$column]['unit'] . ')'
                 );
             }
             $columns[$column] = $converted;
@@ -1473,6 +1508,18 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             } else {
                 $vitalsData['date'] = $date;
                 $vitalsData['activity'] = 1;
+                // Who recorded the reading. The read path finds Observation.performer by
+                // joining form_vitals.user to users, so a row without it reads back with no
+                // performer. Set when the row is created only: a later vital sign added to
+                // the row, or a PUT, does not change who took the original reading.
+                $user = $this->getSession()?->get('authUser');
+                if (is_string($user) && $user !== '') {
+                    $vitalsData['user'] = $user;
+                }
+                $group = $this->getSession()?->get('authProvider');
+                if (is_string($group) && $group !== '') {
+                    $vitalsData['groupname'] = $group;
+                }
             }
 
             return $this->service->saveVitalsArray($vitalsData);

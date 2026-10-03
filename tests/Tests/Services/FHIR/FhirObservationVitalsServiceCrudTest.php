@@ -15,6 +15,8 @@ use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * FHIR Observation (vital signs) Service CRUD Tests
@@ -269,6 +271,65 @@ class FhirObservationVitalsServiceCrudTest extends TestCase
         $this->assertEqualsWithDelta(72, $this->floatValue($row['pulse'] ?? null), 0.001);
         $this->assertEqualsWithDelta(120, $this->floatValue($row['bps'] ?? null), 0.001);
         $this->assertEqualsWithDelta(80, $this->floatValue($row['bpd'] ?? null), 0.001);
+    }
+
+    /**
+     * The read path finds Observation.performer through form_vitals.user, so the write has to
+     * record the signed-in user. It belongs to the reading: a later vital sign added to the
+     * same row by someone else does not take it over.
+     */
+    #[Test]
+    public function testANewReadingRecordsTheUserWhoWroteIt(): void
+    {
+        $this->fhirObservationService->setSession($this->sessionFor('vitals-nurse', 'Default'));
+        $this->insertObservation('8867-4');
+
+        $this->fhirObservationService->setSession($this->sessionFor('vitals-other', 'Other'));
+        $this->insertObservation('29463-7');
+
+        $this->assertSame(1, $this->countVitalsRows());
+        $row = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT `user`, `groupname` FROM form_vitals WHERE pid = ?",
+            [$this->pid]
+        ));
+        $this->assertSame('vitals-nurse', $row['user'] ?? null);
+        $this->assertSame('Default', $row['groupname'] ?? null);
+    }
+
+    private function sessionFor(string $user, string $group): Session
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('authUser', $user);
+        $session->set('authProvider', $group);
+
+        return $session;
+    }
+
+    #[Test]
+    public function testABloodPressureSentAsOneValueIsNotStored(): void
+    {
+        $payload = $this->observationPayload('85354-9');
+        unset($payload['component']);
+        $payload['valueQuantity'] = ['value' => 120, 'unit' => 'mm[Hg]', 'code' => 'mm[Hg]'];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('valueQuantity', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAnImplausibleValueIsNotStored(): void
+    {
+        $payload = $this->observationPayload('29463-7');
+        $payload['valueQuantity'] = ['value' => 99999999999, 'unit' => 'lb', 'code' => '[lb_av]'];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('valueQuantity', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
     }
 
     #[Test]

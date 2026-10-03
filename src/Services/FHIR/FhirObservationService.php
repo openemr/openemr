@@ -427,6 +427,13 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             return $result;
         }
 
+        // The controller gives the session to this dispatcher only. The store needs it to
+        // record who made the write.
+        $session = $this->getSession();
+        if ($session !== null) {
+            $matched->setSession($session);
+        }
+
         return $matched;
     }
 }

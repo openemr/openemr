@@ -502,6 +502,79 @@ class FhirObservationVitalsWriteTest extends TestCase
                 'effectiveDateTime',
                 'identifies the vitals reading being written',
             ],
+            'blood pressure sent as a single valueQuantity is refused, not stored as systolic' => [
+                self::observation([
+                    'code' => self::loincCode('85354-9'),
+                    'valueQuantity' => ['value' => 120, 'code' => 'mm[Hg]'],
+                ]),
+                'valueQuantity',
+                'is not used for blood pressure',
+            ],
+            'blood pressure with components and a valueQuantity is refused' => [
+                self::observation([
+                    'code' => self::loincCode('85354-9'),
+                    'valueQuantity' => ['value' => 120, 'code' => 'mm[Hg]'],
+                    'component' => [
+                        [
+                            'code' => self::loincCode('8480-6'),
+                            'valueQuantity' => ['value' => 120, 'code' => 'mm[Hg]'],
+                        ],
+                        [
+                            'code' => self::loincCode('8462-4'),
+                            'valueQuantity' => ['value' => 80, 'code' => 'mm[Hg]'],
+                        ],
+                    ],
+                ]),
+                'valueQuantity',
+                'is not used for blood pressure',
+            ],
+            'a value above the plausibility limit is refused rather than cut down by the column' => [
+                self::observation([
+                    'code' => self::loincCode('8867-4'),
+                    'valueQuantity' => ['value' => 1.0e30, 'code' => '/min'],
+                ]),
+                'valueQuantity',
+                'above the largest value accepted (500 /min)',
+            ],
+            'the limit applies to the converted value' => [
+                self::observation([
+                    'code' => self::loincCode('29463-7'),
+                    'valueQuantity' => ['value' => 1000, 'code' => 'kg'],
+                ]),
+                'valueQuantity',
+                'above the largest value accepted (2000 lb)',
+            ],
+            'a component above the plausibility limit is refused' => [
+                self::observation([
+                    'code' => self::loincCode('85354-9'),
+                    'component' => [
+                        [
+                            'code' => self::loincCode('8480-6'),
+                            'valueQuantity' => ['value' => 1200, 'code' => 'mm[Hg]'],
+                        ],
+                    ],
+                ]),
+                'component',
+                'above the largest value accepted (400 mm[Hg])',
+            ],
+            'an unparsable effectiveDateTime is named in the answer' => [
+                self::observation([
+                    'code' => self::loincCode('8867-4'),
+                    'valueQuantity' => ['value' => 72, 'code' => '/min'],
+                    'effectiveDateTime' => 'yesterday',
+                ]),
+                'effectiveDateTime',
+                'is not a valid FHIR date/dateTime',
+            ],
+            'an effectiveDateTime with a time and no offset is named in the answer' => [
+                self::observation([
+                    'code' => self::loincCode('8867-4'),
+                    'valueQuantity' => ['value' => 72, 'code' => '/min'],
+                    'effectiveDateTime' => '2026-03-04T09:30:00',
+                ]),
+                'effectiveDateTime',
+                'a timezone offset is required',
+            ],
             'an Observation carrying no value is refused' => [
                 self::observation(['code' => self::loincCode('8867-4')]),
                 'value',
