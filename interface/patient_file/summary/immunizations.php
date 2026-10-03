@@ -285,7 +285,7 @@ function getImmunizationObservationLists($k)
     }
 }
 
-function getImmunizationObservationResults()
+function getImmunizationObservationResults(): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $obs_res_q = "SELECT

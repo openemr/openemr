@@ -392,7 +392,7 @@ function postcalendar_userapi_getmonthname($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildMonthSelect($args)
+function postcalendar_userapi_buildMonthSelect($args): array
 {
     extract($args);
     unset($args);
@@ -422,7 +422,7 @@ function postcalendar_userapi_buildMonthSelect($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildDaySelect($args)
+function postcalendar_userapi_buildDaySelect($args): array
 {
     extract($args);
     unset($args);
@@ -452,7 +452,7 @@ function postcalendar_userapi_buildDaySelect($args)
 /**
  *  Returns an array of form data for FormSelectMultiple
  */
-function postcalendar_userapi_buildYearSelect($args)
+function postcalendar_userapi_buildYearSelect($args): array
 {
     extract($args);
     unset($args);
@@ -483,7 +483,7 @@ function postcalendar_userapi_buildYearSelect($args)
     return $output;
 }
 
-function &postcalendar_userapi_getCategories()
+function &postcalendar_userapi_getCategories(): array
 {
     $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -560,7 +560,10 @@ function &postcalendar_userapi_getTopics()
     return $data;
 }
 
-function findFirstAvailable($period)
+/**
+ * @return non-empty-list[]
+ */
+function findFirstAvailable($period): array
 {
     //print_r($period);
 
@@ -581,7 +584,7 @@ function findFirstAvailable($period)
     return $available_times;
 }
 
-function findFirstInDay($day, $date)
+function findFirstInDay($day, $date): array
 {
     $stack = [];
     $lastcat = 3;

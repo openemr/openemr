@@ -24,7 +24,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: AMC Full Report", xl("AMC Full Report"));
 }
 
-function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
+function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = []): array
 {
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];

@@ -78,9 +78,8 @@ function edih_parse_date($strdate)
  * @uses edih_x12_transaction()
  * @uses edih_get_segment()
  * @param mixed $obj835 edih_x12_obj
- * @return array
  */
-function edih_835_csv_data($obj835)
+function edih_835_csv_data($obj835): array
 {
     //
     $ret_ar = [];
@@ -233,16 +232,16 @@ function edih_835_csv_data($obj835)
 }
 
 
-/*
+/**
  * Parse csv data from 837 files
  * Note that this can return false provider values for extensive claims
  * since loops are not tracked and 837 claims can have numerous
  * providers, but probably not an issue for OpenEMR
  *
- * @param object  edih_x12_ file object
+ * @param \OpenEMR\Billing\EdiHistory\X12File $obj837 edih_x12_ file object
  * @return array  data to write csv file and csv clain table rows
  */
-function edih_837_csv_data($obj837)
+function edih_837_csv_data($obj837): array
 {
     //
     $ret_ar = [];
@@ -403,13 +402,13 @@ function edih_837_csv_data($obj837)
     return $ret_ar;
 }
 
-/*
+/**
  * extract csv table row data for x12 277 files
  *
- * @param object  edih_x12_file object of type 276/277
- * @return array
+ * @param \OpenEMR\Billing\EdiHistory\X12File $obj277 edih_x12_file object of type 276/277
+ * @return array<mixed, array<'claim'|'file'|'type', mixed>>
  */
-function edih_277_csv_data($obj277)
+function edih_277_csv_data($obj277): array
 {
     //
     $ret_ar = [];
@@ -968,9 +967,8 @@ function edih_278_csv_data($obj278)
  *
  * @param string $rsp_trace concatenate ISA13 and ST02 for source file
  * @param string $file_type type of source file
- * @return array
  */
-function edih_rsp_st_match($rsp_trace, $file_type)
+function edih_rsp_st_match($rsp_trace, $file_type): array
 {
     //
     $info_ar = [];
@@ -1018,9 +1016,8 @@ function edih_rsp_st_match($rsp_trace, $file_type)
  * @uses edih_x12_file()  edi HC file class
  * @uses edih_997_837_st_match()
  * @param mixed $obj997 edih_x12_file object of type 999/997
- * @return array
  */
-function edih_997_csv_data($obj997)
+function edih_997_csv_data($obj997): array
 {
     //
     $ret_ar = [];
@@ -1246,9 +1243,8 @@ function edih_997_csv_data($obj997)
  * parse an x12 270/271 file into data rows for csv tables
  *
  * @param mixed $obj270 x12_file_object
- * @return array
  */
-function edih_271_csv_data($obj270)
+function edih_271_csv_data($obj270): array
 {
     //'f270 claim = array('PtName', 'ReqDate', 'PtAcct', 'InsLevel', 'BHT03', 'FileName', 'Payer');
     //'f270 file = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner');

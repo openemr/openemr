@@ -536,7 +536,7 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getStaffElements($authUserId, $destination)
+    public function getStaffElements($authUserId, $destination): array
     {
         $userRole = $this->getStore()->getUserById($authUserId);
         $userRole = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
@@ -666,7 +666,7 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientFreeformHealthplans($patientId)
+    public function getPatientFreeformHealthplans($patientId): array
     {
         $healthplans = $this->getStore()
             ->getPatientHealthplansByPatientId($patientId);
@@ -683,7 +683,7 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientFreeformAllergy($patientId)
+    public function getPatientFreeformAllergy($patientId): array
     {
         $allergyData = $this->getStore()
             ->getPatientAllergiesByPatientId($patientId);
@@ -714,7 +714,7 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientDiagnosis($patientId)
+    public function getPatientDiagnosis($patientId): array
     {
         $diagnosisData = $this->getStore()
             ->getPatientDiagnosisByPatientId($patientId);
@@ -777,7 +777,7 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientPrescriptions($prescriptionIds)
+    public function getPatientPrescriptions($prescriptionIds): array
     {
         $elements = [];
 
@@ -806,7 +806,7 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientMedication($patientId, $uploadActive, $count)
+    public function getPatientMedication($patientId, $uploadActive, $count): array
     {
         $medications = $this->getStore()
             ->selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $count);
@@ -831,7 +831,7 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds)
+    public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds): array
     {
         $elements = [];
 

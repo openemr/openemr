@@ -23,7 +23,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 // This may be more appropriate to move to the library
 // later
-function getInsuranceCompanies($pid)
+function getInsuranceCompanies($pid): array
 {
     $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? " .
     "ORDER BY type ASC, date DESC", [$pid]);
