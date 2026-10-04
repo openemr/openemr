@@ -120,6 +120,7 @@ This file configures the kind that requires initialization.
       <directory>public</directory>
       <directory>sphere</directory>
       <directory>templates/super/rules</directory>
+      <directory>tests</directory>
       <directory>tools/release</directory>
       <directory>vendor</directory>
       <file>rector-bootstrap.php</file>
