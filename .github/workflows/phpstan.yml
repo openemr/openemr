@@ -44,21 +44,6 @@ jobs:
         key: phpstan-result-cache-${{ github.run_id }}
         restore-keys: |
           phpstan-result-cache-
-    # PHPStan's container cache uses file mtimes for validation. Git doesn't
-    # preserve mtimes, so without restoration every cached file looks stale
-    # and the cache is effectively useless. Only worth doing when we actually
-    # restored a cache - on a cold miss this is pure overhead.
-    - name: Restore file timestamps
-      if: steps.phpstan-cache.outputs.cache-matched-key != ''
-      run: |
-        sudo apt-get update -qq
-        sudo apt-get install -y --no-install-recommends git-restore-mtime
-        # Guard against running on a non-shallow checkout - --unshallow errors
-        # with "does not make sense" if history is already complete.
-        if [ -f .git/shallow ]; then
-          git fetch --unshallow --quiet
-        fi
-        git restore-mtime --skip-missing --quiet
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
     # Use CI config which sets reportUnmatchedIgnoredErrors: false so this step
