@@ -23,14 +23,14 @@ setup() {
     [[ $status -eq 0 ]] || return 1
     [[ "$output" == "0" ]] || return 1
     run bash -c "source '$LIB'; format_elapsed_seconds 4999"
-    [[ $status -eq 0 ]]
-    [[ "$output" == "0.00" ]]
+    [[ $status -eq 0 ]] || return 1
+    [[ "$output" == "0.00" ]] || return 1
     run bash -c "source '$LIB'; format_elapsed_seconds 5000"
-    [[ $status -eq 0 ]]
-    [[ "$output" == "0.01" ]]
+    [[ $status -eq 0 ]] || return 1
+    [[ "$output" == "0.01" ]] || return 1
     run bash -c "source '$LIB'; format_elapsed_seconds 234567"
-    [[ $status -eq 0 ]]
-    [[ "$output" == "0.23" ]]
+    [[ $status -eq 0 ]] || return 1
+    [[ "$output" == "0.23" ]] || return 1
 }
 
 @test "binary openemr.sh: startup timing avoids busybox nanoseconds and python" {
@@ -39,7 +39,7 @@ setup() {
     run grep -q 'python3 -c "print(round' "$SCRIPT"
     [[ $status -ne 0 ]] || return 1
     run grep -Fq 'PERM_DURATION_US >= 5000' "$SCRIPT"
-    [[ $status -eq 0 ]]
+    [[ $status -eq 0 ]] || return 1
 }
 
 @test "binary devtoolsLibrary: prepareVariables with custom env sets CONFIGURATION" {
