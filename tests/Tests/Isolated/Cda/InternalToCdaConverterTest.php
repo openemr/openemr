@@ -157,6 +157,8 @@ class InternalToCdaConverterTest extends TestCase
             'Occupation Industry Observation' => ['2.16.840.1.113883.10.20.22.4.504'],
             'Encounter Diagnosis' => ['2.16.840.1.113883.10.20.22.4.80'],
             'Product Instance' => ['2.16.840.1.113883.10.20.22.4.37'],
+            'Indication' => ['2.16.840.1.113883.10.20.22.4.19'],
+            'Notes Section' => ['2.16.840.1.113883.10.20.22.2.65'],
         ];
     }
 
@@ -190,6 +192,100 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * Advance Directive Observation (4.48).
+     *
+     * The scenario fixture carries an empty <advance_directives/>, so this
+     * renderer is reached by no fixture. Driven directly here instead.
+     */
+    public function testAdvanceDirectiveObservationIsEmitted(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <fname>Happy</fname>
+                    <lname>Kid</lname>
+                </patient>
+                <advance_directives>
+                    <directive>
+                        <extension>AD-1</extension>
+                        <observation>
+                            <code>75320-2</code>
+                            <code_system>2.16.840.1.113883.6.1</code_system>
+                            <display>Advance directive</display>
+                        </observation>
+                    </directive>
+                </advance_directives>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $observation = $xpath->query(
+            "//hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.48']]"
+        );
+        self::assertNotFalse($observation, 'Advance directive query must be valid');
+        self::assertSame(1, $observation->length, 'Advance Directive Observation is emitted');
+
+        $node = $observation->item(0);
+        self::assertInstanceOf(\DOMElement::class, $node, 'Observation must be an element');
+
+        $code = $xpath->query("hl7:code[@code='75320-2']", $node);
+        self::assertNotFalse($code, 'Code query must be valid');
+        self::assertSame(1, $code->length, 'The observation code comes from the directive');
+    }
+
+    /**
+     * Immunization Refusal Reason (4.53).
+     *
+     * No fixture has a refused immunization, so this renderer is reached by no
+     * fixture. It is called only when the immunization status is "refused", and
+     * then returns early unless a refusal reason code or name is present.
+     */
+    public function testImmunizationRefusalReasonIsEmitted(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <fname>Happy</fname>
+                    <lname>Kid</lname>
+                </patient>
+                <immunizations>
+                    <immunization>
+                        <extension>IMM-1</extension>
+                        <cvx_code>140</cvx_code>
+                        <code_text>Influenza</code_text>
+                        <administered_on>2015-07-22</administered_on>
+                        <status>refused</status>
+                        <refusal_reason_code>PATOBJ</refusal_reason_code>
+                        <refusal_reason>Patient objection</refusal_reason>
+                    </immunization>
+                </immunizations>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $observation = $xpath->query(
+            "//hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.53']]"
+        );
+        self::assertNotFalse($observation, 'Refusal reason query must be valid');
+        self::assertSame(1, $observation->length, 'Immunization Refusal Reason is emitted');
+
+        $node = $observation->item(0);
+        self::assertInstanceOf(\DOMElement::class, $node, 'Observation must be an element');
+
+        $code = $xpath->query("hl7:code[@code='PATOBJ']", $node);
+        self::assertNotFalse($code, 'Code query must be valid');
+        self::assertSame(1, $code->length, 'The refusal reason code is carried through');
+    }
+
+    /**
      * Document-wide structural invariants, asserted as rules rather than per
      * section.
      *
@@ -198,6 +294,10 @@ class InternalToCdaConverterTest extends TestCase
      * (cvc-complex-type.2.4.b), and a section with no entries and no nullFlavor
      * (entries-required conformance). Asserting them over the whole document
      * catches the next renderer that grows the same defect.
+     *
+     * A section that trips the entries rule is either a real conformance bug or
+     * a narrative-only section missing from the exemption list below. Check the
+     * IG for that section before adding it to the list.
      */
     public function testScenarioDocumentMeetsStructuralInvariants(): void
     {
@@ -226,9 +326,29 @@ class InternalToCdaConverterTest extends TestCase
         self::assertNotFalse($sections, 'Section query must be valid');
         self::assertGreaterThan(0, $sections->length, 'The document has sections');
 
+        // Narrative-only sections carry no entries by design, so the rule below
+        // does not apply to them. Assessment Section is the IG's conclusions
+        // narrative and defines no entry templates at all.
+        $narrativeOnly = [
+            '2.16.840.1.113883.10.20.22.2.8',
+        ];
+
         foreach ($sections as $section) {
             self::assertInstanceOf(\DOMElement::class, $section, 'Section must be an element');
             if ($section->hasAttribute('nullFlavor')) {
+                continue;
+            }
+
+            $isNarrativeOnly = false;
+            foreach ($narrativeOnly as $narrativeOnlyId) {
+                $match = $xpath->query("hl7:templateId[@root='" . $narrativeOnlyId . "']", $section);
+                self::assertNotFalse($match, 'Narrative-only templateId query must be valid');
+                if ($match->length > 0) {
+                    $isNarrativeOnly = true;
+                    break;
+                }
+            }
+            if ($isNarrativeOnly) {
                 continue;
             }
 
