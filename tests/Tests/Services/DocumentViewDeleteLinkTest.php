@@ -154,6 +154,30 @@ final class DocumentViewDeleteLinkTest extends TestCase
         $this->assertStringNotContainsString("onclick='return deleteme(", $html);
     }
 
+    public function testListActionHandlesPatientWithoutPatientDataRow(): void
+    {
+        $patient = sqlQuery('SELECT pid FROM patient_data WHERE pid = ?', [self::DOC_PATIENT_ID]);
+        $this->assertFalse($patient, 'the fixture patient ID must not have a patient_data row');
+
+        $warnings = [];
+        set_error_handler(static function (int $severity, string $message) use (&$warnings): bool {
+            if ($severity === E_WARNING && str_contains($message, 'array offset')) {
+                $warnings[] = $message;
+                return true;
+            }
+            return false;
+        });
+
+        try {
+            $html = $this->createDocumentController()->list_action((string) self::DOC_PATIENT_ID);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertIsString($html);
+        $this->assertSame([], $warnings);
+    }
+
     private function createDocumentController(): C_Document
     {
         $controller = new C_Document();
