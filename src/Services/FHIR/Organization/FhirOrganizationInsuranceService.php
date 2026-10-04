@@ -175,7 +175,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
      * @param  FHIROrganization|array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = [])
+    public function parseFhirResource($fhirResource = []): array
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // get_debug_type handles both objects and arrays; avoids `::class` on non-object.

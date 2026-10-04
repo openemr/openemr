@@ -199,7 +199,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRPerson) && !($fhirResource instanceof FHIRPractitioner)) {
             throw new \InvalidArgumentException(

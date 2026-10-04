@@ -298,7 +298,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param FHIRDomainResource $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIREncounter)) {
             throw new \InvalidArgumentException(

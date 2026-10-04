@@ -380,7 +380,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRGoal)) {
             throw new \InvalidArgumentException(

@@ -239,7 +239,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRMedicationRequest)) {
             throw new \InvalidArgumentException(

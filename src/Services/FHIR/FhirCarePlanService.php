@@ -728,7 +728,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      *   items: array<int, array<string, mixed>> activity rows
      * }
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCarePlan)) {
             throw new \InvalidArgumentException(
