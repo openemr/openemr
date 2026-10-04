@@ -1412,6 +1412,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/WenoGlobalConfig.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function handleGetMeasuresForPeriod\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/ajax/reporting_period_handler.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Helper\\\\SendToHieHelper\\:\\:__invoke\\(\\) has parameter \\$required_buttons with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
@@ -1422,9 +1427,44 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getCCDAComponents\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:getRevAndApproveAuditArray\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Controller\\\\ModuleconfigController\\:\\:getAclConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Controller\\\\ModuleconfigController\\:\\:getDependedModulesConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Controller\\\\ModuleconfigController\\:\\:getHookConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:getFacilities\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:getProviders\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:getUsersList\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:getUsers\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -1582,6 +1622,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaUserPreferencesTransformer.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Model\\\\Configuration\\:\\:getAclConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Configuration.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Model\\\\Configuration\\:\\:getHookConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Configuration.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Model\\\\Configuration\\:\\:getUsers\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Configuration.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:calculateBPMeanForIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -1667,6 +1722,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Model\\\\ModuleconfigTable\\:\\:getUsers\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Ccr\\\\Model\\\\CcrTable\\:\\:parseXmlStream\\(\\) has parameter \\$field_mapping with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Documents\\\\Module\\:\\:getAutoloaderConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/Module.php',
@@ -1680,6 +1745,51 @@ $ignoreErrors[] = [
     'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:saveDocumentdetails\\(\\) has parameter \\$current_document with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Documents\\\\Plugin\\\\Documents\\:\\:fetchXmlDocuments\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:getAllCodes\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Controller\\\\ModuleconfigController\\:\\:configSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Controller\\\\ModuleconfigController\\:\\:getAclConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Controller\\\\ModuleconfigController\\:\\:getDependedModulesConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Controller\\\\ModuleconfigController\\:\\:getHookConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Model\\\\Configuration\\:\\:configSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Configuration.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Model\\\\Configuration\\:\\:getAclConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Configuration.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Model\\\\Configuration\\:\\:getHookConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Configuration.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:immunizedPatientDetails\\(\\) has parameter \\$form_data with no value type specified in iterable type array\\.$#',
@@ -1707,12 +1817,42 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:checkDependencyOnDisable\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:checkDependencyOnEnable\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getActiveACL\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getActiveUsers\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getConfigSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getInstalledModules\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getSetupObject\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getTabSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
@@ -1737,6 +1877,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Patientvalidation\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property Patientvalidation\\\\Controller\\\\BaseController\\:\\:\\$cssFiles type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
@@ -1755,6 +1900,41 @@ $ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Model\\\\PatientDataTable\\:\\:getPatients\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Syndromicsurveillance\\\\Controller\\\\ModuleconfigController\\:\\:configSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Syndromicsurveillance\\\\Controller\\\\ModuleconfigController\\:\\:getAclConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Syndromicsurveillance\\\\Controller\\\\ModuleconfigController\\:\\:getDependedModulesConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Syndromicsurveillance\\\\Controller\\\\ModuleconfigController\\:\\:getHookConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/ModuleconfigController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Syndromicsurveillance\\\\Model\\\\Configuration\\:\\:configSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/Configuration.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Syndromicsurveillance\\\\Model\\\\Configuration\\:\\:getAclConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/Configuration.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Syndromicsurveillance\\\\Model\\\\Configuration\\:\\:getHookConfig\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/Configuration.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function default_loadPayerInfo\\(\\) return type has no value type specified in iterable type array\\.$#',

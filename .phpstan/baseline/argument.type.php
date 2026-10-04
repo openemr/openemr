@@ -11512,12 +11512,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/config/module.config.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$path of function basename expects string, mixed given\\.$#',
+    'message' => '#^Parameter \\#1 \\$am_id of method Ccr\\\\Model\\\\CcrTable\\:\\:createAuditArray\\(\\) expects int, mixed given\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$content of method Ccr\\\\Model\\\\CcrTable\\:\\:parseXmlStream\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function array_key_exists expects array, mixed given\\.$#',
+    'message' => '#^Parameter \\#1 \\$path of function basename expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
@@ -11539,11 +11544,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$input_date of static method Application\\\\Model\\\\ApplicationTable\\:\\:fixDate\\(\\) expects string, mixed given\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$source of method DOMDocument\\:\\:loadXML\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [

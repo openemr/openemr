@@ -129,13 +129,14 @@ class CcrTable
         return $audit_master_id;
     }
 
-  /*
-  * Library function to parse the CCR xml
-  *
-  * @param    content         XML     content from the CCR xml
-  * @param    field_mapping   Array   fields to be fetched from xml
-  */
-    public function parseXmlStream($content, $field_mapping)
+    /**
+     * Library function to parse the CCR xml
+     *
+     * @param string $content       XML content from the CCR xml
+     * @param array  $field_mapping fields to be fetched from xml
+     * @return array<array-key, array<int, non-empty-array<string, mixed>>>
+     */
+    public function parseXmlStream($content, $field_mapping): array
     {
         $res    = [];
         $xml    = new DOMDocument();
@@ -166,13 +167,14 @@ class CcrTable
         return $res;
     }
 
-  /*
-  * Fetch the data from audit tables
-  *
-  * @param    am_id         integer     audit master ID
-  * @param    table_name    string      identifier inserted for each table (eg: prescriptions, list1 ...)
-  */
-    public function createAuditArray($am_id, $table_name)
+    /**
+     * Fetch the data from audit tables
+     *
+     * @param int    $am_id      audit master ID
+     * @param string $table_name identifier inserted for each table (eg: prescriptions, list1 ...)
+     * @return non-empty-array<non-empty-array<mixed>>[]
+     */
+    public function createAuditArray($am_id, $table_name): array
     {
         if (strpos((string) $table_name, ',')) {
             $tables     = explode(',', (string) $table_name);

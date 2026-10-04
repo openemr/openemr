@@ -52,11 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Patientvalidation\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) has invalid return type Patientvalidation\\\\Controller\\\\post\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to property \\$RECEIVING_APPLICATION on an unknown class QuestResultClient\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',

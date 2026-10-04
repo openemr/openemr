@@ -227,7 +227,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<array\\>\\>, entry_identification_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\>\\}\\.$#',
+    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<int, array\\<string, mixed\\>\\>\\>, entry_identification_array\\: non\\-empty\\-array\\<non\\-empty\\-array\\<int, int\\>\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
