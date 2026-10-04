@@ -136,6 +136,118 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * @return array<string, array{0: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function scenarioEntryTemplateProvider(): array
+    {
+        return [
+            'Care Team Organizer' => ['2.16.840.1.113883.10.20.22.4.500'],
+            'Care Team Member Act' => ['2.16.840.1.113883.10.20.22.4.500.1'],
+            'Note Activity' => ['2.16.840.1.113883.10.20.22.4.202'],
+            'Health Concern' => ['2.16.840.1.113883.10.20.22.4.132'],
+            'Planned Encounter' => ['2.16.840.1.113883.10.20.22.4.40'],
+            'Planned Procedure' => ['2.16.840.1.113883.10.20.22.4.41'],
+            'Planned Substance Administration' => ['2.16.840.1.113883.10.20.22.4.42'],
+            'Planned Observation' => ['2.16.840.1.113883.10.20.22.4.44'],
+            'Mental Status Observation' => ['2.16.840.1.113883.10.20.22.4.74'],
+            'Smoking Status Observation' => ['2.16.840.1.113883.10.20.22.4.78'],
+            'Hunger Vital Signs' => ['2.16.840.1.113883.10.20.22.4.69'],
+            'Occupation Industry Observation' => ['2.16.840.1.113883.10.20.22.4.504'],
+            'Encounter Diagnosis' => ['2.16.840.1.113883.10.20.22.4.80'],
+            'Product Instance' => ['2.16.840.1.113883.10.20.22.4.37'],
+        ];
+    }
+
+    /**
+     * Entry templates reached only by the scenario fixture.
+     *
+     * The golden fixtures exercise most of the converter, but seventeen entry
+     * templates appear in no expected-output fixture and in no targeted test, so
+     * a renderer could stop emitting one and nothing would fail. Each template
+     * below has source data in the scenario fixture, which is the patient that
+     * passes the ONC scenarios, so each should be emitted.
+     *
+     * This is a presence guard, not a shape assertion: it catches a renderer
+     * going silent, which is the failure mode that produced the goals,
+     * occupation, pregnancy and disability findings.
+     */
+    #[DataProvider('scenarioEntryTemplateProvider')]
+    public function testScenarioFixtureEmitsEntryTemplate(string $templateId): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $nodes = $xpath->query("//hl7:templateId[@root='" . $templateId . "']");
+        self::assertNotFalse($nodes, 'templateId query must be valid');
+        self::assertGreaterThan(0, $nodes->length, $templateId . ' is not emitted from the scenario fixture');
+    }
+
+    /**
+     * Document-wide structural invariants, asserted as rules rather than per
+     * section.
+     *
+     * Both classes below reached ONC validation as findings before being caught
+     * here: a narrative table with a thead and no tbody
+     * (cvc-complex-type.2.4.b), and a section with no entries and no nullFlavor
+     * (entries-required conformance). Asserting them over the whole document
+     * catches the next renderer that grows the same defect.
+     */
+    public function testScenarioDocumentMeetsStructuralInvariants(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $tables = $xpath->query('//hl7:table');
+        self::assertNotFalse($tables, 'Table query must be valid');
+        foreach ($tables as $table) {
+            self::assertInstanceOf(\DOMElement::class, $table, 'Table must be an element');
+            $bodies = $xpath->query('hl7:tbody | hl7:tfoot', $table);
+            self::assertNotFalse($bodies, 'Table body query must be valid');
+            self::assertGreaterThan(
+                0,
+                $bodies->length,
+                'Every narrative table needs a tbody or tfoot, never a thead alone'
+            );
+        }
+
+        $sections = $xpath->query('//hl7:structuredBody/hl7:component/hl7:section');
+        self::assertNotFalse($sections, 'Section query must be valid');
+        self::assertGreaterThan(0, $sections->length, 'The document has sections');
+
+        foreach ($sections as $section) {
+            self::assertInstanceOf(\DOMElement::class, $section, 'Section must be an element');
+            if ($section->hasAttribute('nullFlavor')) {
+                continue;
+            }
+
+            $entries = $xpath->query('hl7:entry', $section);
+            self::assertNotFalse($entries, 'Entry query must be valid');
+
+            $title = $xpath->query('hl7:title', $section);
+            self::assertNotFalse($title, 'Title query must be valid');
+            $label = $title->length > 0 ? (string)$title->item(0)?->textContent : 'untitled section';
+
+            self::assertGreaterThan(
+                0,
+                $entries->length,
+                'Section "' . $label . '" has no entries and no nullFlavor'
+            );
+        }
+    }
+
+    /**
      * providerOrganization name and telecom are SHALL 1..* (CONF:5419,
      * CONF:5420). Node omits the telecom when the facility has no phone and
      * emits an empty <name/>; both fail validation.
