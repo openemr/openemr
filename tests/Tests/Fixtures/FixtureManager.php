@@ -720,6 +720,74 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR Observation fixtures (vital signs).
+     */
+    public function getFhirObservationFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/observation.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Observation fixture
+     */
+    public function getSingleFhirObservationFixture()
+    {
+        return $this->getSingleEntry($this->getFhirObservationFixtures());
+    }
+
+    /**
+     * Removes the vitals forms written by Observation fixtures.
+     *
+     * The uuid_mapping rows go first: each form_vitals row carries one mapping per vital
+     * sign code, and those are what a FHIR Observation id resolves through. Dropping the
+     * form_vitals row without them would leave mappings pointing at nothing, which the
+     * read path would then log an error for on every subsequent search.
+     */
+    public function removeObservationFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if ($pids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        // The registry rows go before the mapping and vitals rows they describe. A mapped
+        // registry row whose mapping has been deleted is not inert: the Observation read
+        // path resolves an id through the registry first, finds no mapping behind it, and
+        // answers a validation message instead of an empty result -- and every run would
+        // leave more of them behind.
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE uuid IN "
+            . "(SELECT mapping.uuid FROM uuid_mapping mapping "
+            . "JOIN form_vitals vitals ON vitals.uuid = mapping.target_uuid "
+            . "WHERE mapping.`table` = 'form_vitals' AND vitals.pid IN ($placeholders))",
+            $pids
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'form_vitals' AND uuid IN "
+            . "(SELECT uuid FROM form_vitals WHERE pid IN ($placeholders))",
+            $pids
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_mapping WHERE `table` = 'form_vitals' AND target_uuid IN "
+            . "(SELECT uuid FROM form_vitals WHERE pid IN ($placeholders))",
+            $pids
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM form_vitals WHERE pid IN ($placeholders)",
+            $pids
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'vitals'",
+            $pids
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR MedicationRequest fixtures.
      */
     public function getFhirMedicationRequestFixtures(): array
