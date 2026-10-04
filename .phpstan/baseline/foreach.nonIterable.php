@@ -2942,11 +2942,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FacilityServiceTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false supplied for foreach, only iterables are supported\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/ObservationServiceTest.php',

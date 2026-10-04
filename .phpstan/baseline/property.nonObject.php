@@ -3887,11 +3887,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$parentElement on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$nodeName on DOMElement\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Qrda/QrdaReportServiceTest.php',

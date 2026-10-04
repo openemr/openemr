@@ -39,12 +39,25 @@ class CdaValidateDocumentsTest extends TestCase {
         // counts below are calibrated against that output; describeValidation() dumps
         // the full finding list on any mismatch so drift points straight at the rule.
         //
-        // errorCount = 6: patientRole (CONF:1198-5280), providerOrganization
-        //   (CONF:1198-5420) and assignedAuthor (CONF:1198-5428) each missing a
-        //   required telecom, reported under both the US Realm Header
-        //   (2.16.840.1.113883.10.20.22.1.1) and CCD (...1.2) header patterns:
-        //   3 issues x 2 templates = 6 errors. Expected for this sparse sample;
-        //   header telecom is SHALL [1..*].
+        // errorCount = 4: patientRole (CONF:1198-5280) and assignedAuthor
+        //   (CONF:1198-5428) each missing a required telecom, reported under both
+        //   the US Realm Header (2.16.840.1.113883.10.20.22.1.1) and CCD (...1.2)
+        //   header patterns: 2 issues x 2 templates = 4 errors. Expected for this
+        //   sparse sample; header telecom is SHALL [1..*].
+        //
+        //   This was 6. The providerOrganization finding (CONF:1198-5420) is
+        //   resolved: providerOrganization telecom is SHALL [1..*], and the
+        //   generator now emits telecom nullFlavor="UNK" when the facility has no
+        //   phone rather than omitting the element as the node service did. If
+        //   that finding returns, the generator has gone back to omitting it; fix
+        //   the generator, do not raise this count.
+        //
+        //   patientRole and assignedAuthor telecom remain absent because this
+        //   sparse input carries no patient or author phone, and neither renderer
+        //   nullFlavors a missing one. Both are SHALL [1..*], so they are real
+        //   findings worth closing later; they are left here deliberately so this
+        //   smoke test keeps exercising the validator against a document that
+        //   still reports errors.
         //
         //   The prior Goals Section duplicate-templateId finding (CONF:1098-29584)
         //   is resolved: serveccda.js now emits the bare Goals templateId
@@ -58,7 +71,7 @@ class CdaValidateDocumentsTest extends TestCase {
         //   could not evaluate `document('voc.xml')/...` value-set predicates and
         //   silently punted; the pure-PHP validator rewrites those against a
         //   precomputed vocab lookup (they all pass on this fixture, so errorCount is
-        //   unchanged at 6). The one entry that survived that change was the
+        //   unchanged). The one entry that survived that change was the
         //   R1.1-compatibility meta-rule, whose test references the `$root`
         //   <sch:let> variable; XPathVariableExpander now inlines <sch:let>
         //   definitions, so it evaluates too.
@@ -73,11 +86,11 @@ class CdaValidateDocumentsTest extends TestCase {
         //   raising this number.
         $context = $this->describeValidation($validationResponse);
 
-        $this->assertEquals(6, $validationResponse['errorCount'], "Expected 6 validation errors for invalid CCDA document.\n" . $context);
+        $this->assertEquals(4, $validationResponse['errorCount'], "Expected 4 validation errors for invalid CCDA document.\n" . $context);
         $this->assertEquals(0, $validationResponse['warningCount'], "Expected no validation warnings: they are opt-in.\n" . $context);
         $this->assertEquals(0, $validationResponse['ignoredCount'], "Expected no ignored validation issues for invalid CCDA document.\n" . $context);
         $this->assertNotEmpty($validationResponse['errors'], "Expected validation errors for invalid CCDA document.");
-        $this->assertCount(6, $validationResponse['errors'], "Expected 6 validation errors for invalid CCDA document.\n" . $context);
+        $this->assertCount(4, $validationResponse['errors'], "Expected 4 validation errors for invalid CCDA document.\n" . $context);
     }
 
     /**
