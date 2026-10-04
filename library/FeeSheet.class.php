@@ -110,7 +110,7 @@ class FeeSheet
         $this->encounter = $encounter;
         // get provider field for pid's primary insurance from insurance_data to be added to billing row table as payer_id
         $primary_insurance = getInsuranceData($this->pid);
-        $this->payer_id = $primary_insurance['provider'];
+        $this->payer_id = $primary_insurance['provider'] ?? null;
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
         $this->ALLOW_COPAYS = empty(OEGlobalsBag::getInstance()->get('ippf_specific'));
