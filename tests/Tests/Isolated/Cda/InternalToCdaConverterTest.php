@@ -136,6 +136,139 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * providerOrganization name and telecom are SHALL 1..* (CONF:5419,
+     * CONF:5420). Node omits the telecom when the facility has no phone and
+     * emits an empty <name/>; both fail validation.
+     */
+    public function testProviderOrganizationCarriesNameAndTelecom(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <fname>Happy</fname>
+                    <lname>Kid</lname>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $base = '/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:providerOrganization';
+
+        foreach (['name', 'telecom'] as $part) {
+            $node = $xpath->query($base . '/hl7:' . $part);
+            self::assertNotFalse($node, $part . ' query must be valid');
+            self::assertSame(1, $node->length, 'providerOrganization must carry a ' . $part);
+
+            $element = $node->item(0);
+            self::assertInstanceOf(\DOMElement::class, $element, $part . ' must be an element');
+            self::assertSame(
+                'UNK',
+                $element->getAttribute('nullFlavor'),
+                'An unknown ' . $part . ' is nullFlavor, never omitted or empty'
+            );
+        }
+    }
+
+    /**
+     * A narrative table with a thead and no tbody is schema-invalid
+     * (cvc-complex-type.2.4.b). The Social History section can be non-empty on
+     * its USCDI observations alone while carrying no smoking or tobacco history
+     * element, which is the only kind of row its table holds.
+     */
+    public function testSocialHistoryOmitsEmptyNarrativeTable(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <fname>Happy</fname>
+                    <lname>Kid</lname>
+                    <tribal_code>65</tribal_code>
+                    <tribal_title>Coquille Indian Tribe</tribal_title>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $tables = $xpath->query(
+            "//hl7:section[hl7:templateId[@root='2.16.840.1.113883.10.20.22.2.17']]//hl7:table"
+        );
+        self::assertNotFalse($tables, 'Table query must be valid');
+
+        foreach ($tables as $table) {
+            self::assertInstanceOf(\DOMElement::class, $table, 'Table must be an element');
+            $bodies = $xpath->query('hl7:tbody | hl7:tfoot', $table);
+            self::assertNotFalse($bodies, 'Body query must be valid');
+            self::assertGreaterThan(
+                0,
+                $bodies->length,
+                'A narrative table must have a tbody or tfoot, never a thead alone'
+            );
+        }
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function entriesRequiredSectionProvider(): array
+    {
+        return [
+            'Vital Signs' => ['2.16.840.1.113883.10.20.22.2.4.1', 'Vital Signs'],
+            'Problems' => ['2.16.840.1.113883.10.20.22.2.5.1', 'Problem List'],
+            'Encounters' => ['2.16.840.1.113883.10.20.22.2.22.1', 'Encounters'],
+        ];
+    }
+
+    /**
+     * An entries-required section with no data must carry nullFlavor and must
+     * not emit a narrative table. Without the nullFlavor it fails the
+     * entries-required conformance, and the table would carry a thead with no
+     * tbody (cvc-complex-type.2.4.b).
+     */
+    #[DataProvider('entriesRequiredSectionProvider')]
+    public function testEmptyEntriesRequiredSectionIsNullFlavored(string $templateId, string $title): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <fname>Happy</fname>
+                    <lname>Kid</lname>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $sections = $xpath->query("//hl7:section[hl7:templateId[@root='" . $templateId . "']]");
+        self::assertNotFalse($sections, 'Section query must be valid');
+        self::assertSame(1, $sections->length, $title . ' section is present');
+
+        $section = $sections->item(0);
+        self::assertInstanceOf(\DOMElement::class, $section, 'Section must be an element');
+        self::assertSame(
+            'NI',
+            $section->getAttribute('nullFlavor'),
+            $title . ' carries nullFlavor when it has no entries'
+        );
+
+        $tables = $xpath->query('hl7:text//hl7:table', $section);
+        self::assertNotFalse($tables, 'Table query must be valid');
+        self::assertSame(0, $tables->length, $title . ' emits no narrative table when empty');
+    }
+
+    /**
      * The Goal Observation code must carry a codeSystem OID.
      *
      * The internal XML names the code system (code_type, e.g. "LOINC") without
