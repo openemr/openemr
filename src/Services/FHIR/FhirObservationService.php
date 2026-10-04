@@ -390,7 +390,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         // same store whichever direction it is travelling in.
         $acceptsCategory = [];
         $categoryServices = $this->getServiceListForCategory(new TokenSearchField('category', $categories));
-        foreach (is_array($categoryServices) ? $categoryServices : [] as $service) {
+        foreach ($categoryServices as $service) {
             if ($service instanceof FhirServiceBase) {
                 $acceptsCategory[$service::class] = true;
             }
@@ -402,7 +402,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         // category it requires, so a mixed list cannot carry a resource into a store whose
         // category it does not actually claim.
         $codeServices = $this->getServiceListForCode(new TokenSearchField('code', $codes));
-        foreach (is_array($codeServices) ? $codeServices : [] as $service) {
+        foreach ($codeServices as $service) {
             if ($service instanceof FhirServiceBase && isset($acceptsCategory[$service::class])) {
                 $matched = $service;
                 break;
