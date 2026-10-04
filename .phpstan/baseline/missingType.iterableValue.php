@@ -4097,6 +4097,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:extractUniqueX12PartnersFromClaims\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:getClaims\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
@@ -4292,6 +4297,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingProcessor\\\\X12RemoteTracker\\:\\:onlyRealFields\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingReport\\:\\:getBillsBetween\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/BillingReport.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingReport\\:\\:getBillsListBetween\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/BillingReport.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingUtilities\\:\\:getBillingByEncounter\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/BillingUtilities.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:getLineItemAdjustments\\(\\) has parameter \\$aarr with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
@@ -4300,6 +4325,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:getLineItemAdjustments\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EDI270\\:\\:mimeParse\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_file_text\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -4340,6 +4370,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_transaction\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\InvoiceSummary\\:\\:arGetInvoiceSummary\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/InvoiceSummary.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:generateDateQualifierSelect\\(\\) has parameter \\$obj with no value type specified in iterable type array\\.$#',
@@ -4402,6 +4437,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervals.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervals\\:\\:getTypes\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervals.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:getRuleTypeLabels\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Rule.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:getSummaryDataToPersist\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Rule.php',
@@ -4417,12 +4462,37 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Rule.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:getTableNameOptions\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaLifestyle\\:\\:getOptions\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaLifestyle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaSex\\:\\:getOptions\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaSex.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaType\\:\\:map\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaType.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:gatherCriteria\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getAllowedFilterCriteriaTypes\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getAllowedTargetCriteriaTypes\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
@@ -4437,12 +4507,42 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/TimeUnit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RulesPlanMappingEventHandlers\\:\\:getNonCQMPlans\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RulesPlanMappingEventHandlers.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RulesPlanMappingEventHandlers\\:\\:getRulesInPlan\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RulesPlanMappingEventHandlers.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RulesPlanMappingEventHandlers\\:\\:getRulesNotInPlan\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RulesPlanMappingEventHandlers.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:aclGetGroupTitleList\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:aclGetSectionAcos\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:aclGetSquads\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:addNewACL\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:genAcoArray\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
@@ -4667,6 +4767,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\JWT\\\\JsonWebKeyParser\\:\\:parseAccessToken\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/JsonWebKeyParser.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\JWT\\\\JsonWebKeyParser\\:\\:parseRefreshToken\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/JsonWebKeyParser.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\JWT\\\\RsaSha384Signer\\:\\:modifyHeader\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php',
@@ -4767,6 +4877,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\:\\:getLinks\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/QueryPagination.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:selectHelper\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
@@ -4795,6 +4910,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Forms\\\\FormLocator\\:\\:\\$pathCache type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/FormLocator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormQuestionnaireAssessment\\:\\:getFormTableDataForSave\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Forms/FormQuestionnaireAssessment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:setProviderList\\(\\) has parameter \\$providerList with no value type specified in iterable type array\\.$#',
@@ -5032,6 +5152,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactRelation.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\ORDataObject\\\\ORDataObject\\:\\:_utility_array\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\ORDataObject\\\\Person\\:\\:get_date_fields\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
@@ -5187,7 +5312,27 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Controllers\\\\Portal\\\\PortalPatientReportController\\:\\:getDocuments\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Controllers/Portal/PortalPatientReportController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Controllers\\\\Portal\\\\PortalPatientReportController\\:\\:getEncounters\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Controllers/Portal/PortalPatientReportController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Controllers\\\\Portal\\\\PortalPatientReportController\\:\\:getIssues\\(\\) has parameter \\$ISSUE_TYPES with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Controllers/Portal/PortalPatientReportController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Controllers\\\\Portal\\\\PortalPatientReportController\\:\\:getIssues\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Controllers/Portal/PortalPatientReportController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Controllers\\\\Portal\\\\PortalPatientReportController\\:\\:getProcedureOrders\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Controllers/Portal/PortalPatientReportController.php',
 ];
@@ -5265,6 +5410,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\DataElement\\:\\:__construct\\(\\) has parameter \\$properties with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/DataElement.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\:\\:get_data_elements\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Cqm/Qdm/Patient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\QrdaControllers\\\\QrdaReportController\\:\\:downloadConsolidatedQrdaIII\\(\\) has parameter \\$measures with no value type specified in iterable type array\\.$#',
@@ -9797,6 +9947,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Finder/PortalRouteFinder.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:getOne\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:operationSwapInsurance\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:post\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:put\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\PatientRestController\\:\\:getAll\\(\\) has parameter \\$search with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
@@ -14172,6 +14342,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ListService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\ListService\\:\\:getListOptionsForLists\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ListService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ListService\\:\\:getOptionsByListName\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ListService.php',
@@ -14545,6 +14720,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientTrackerService\\:\\:getApptStatus\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientTrackerService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\PatientTransactionService\\:\\:getOneFromDb\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/PatientTransactionService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PersonPatientLinkService\\:\\:findPotentialPersonMatches\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -15378,6 +15558,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\TrustedUserService\\:\\:getTrustedUser\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/TrustedUserService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\TrustedUserService\\:\\:getTrustedUsersForClient\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/TrustedUserService.php',
 ];

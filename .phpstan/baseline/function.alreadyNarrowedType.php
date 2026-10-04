@@ -472,7 +472,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/PatientValidatorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: mixed will always evaluate to true\\.$#',
+    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: array will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/InvoiceSummaryTest.php',
 ];

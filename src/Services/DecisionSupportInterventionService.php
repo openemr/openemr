@@ -190,9 +190,8 @@ class DecisionSupportInterventionService extends BaseService
      * then it will return the default attributes for the list.
      * @param $listId
      * @param $dsiServiceId
-     * @return array
      */
-    private function getAttributes($listId, ?string $dsiServiceId)
+    private function getAttributes($listId, ?string $dsiServiceId): array
     {
         if (empty($dsiServiceId)) {
             $query =  "SELECT "

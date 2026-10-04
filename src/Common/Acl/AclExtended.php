@@ -60,7 +60,7 @@ class AclExtended
     // Return an array keyed on squad ACO names.
     // This is only applicable for sports team use.
     //
-    public static function aclGetSquads()
+    public static function aclGetSquads(): array
     {
         $squads = self::aclGetSectionAcos('squads');
         uasort($squads, self::aclSquadCompare(...));
@@ -133,7 +133,7 @@ class AclExtended
     //
     // Returns a sorted array of all available Group Titles.
     //
-    public static function aclGetGroupTitleList($include_superusers = true)
+    public static function aclGetGroupTitleList($include_superusers = true): array
     {
         $gacl = self::collectGaclApiObject();
         $parent_id = $gacl->get_root_group_id();
@@ -564,7 +564,7 @@ class AclExtended
 
 
     // Returns array of all ACOs
-    public static function genAcoArray()
+    public static function genAcoArray(): array
     {
         $acoArray = [];
         $gacl = self::collectGaclApiObject();
@@ -1121,7 +1121,7 @@ class AclExtended
      * @param  string  $username              Name of user
      * @return array                          The array of ACOs
      */
-    public static function getUserPermissions($username = '')
+    public static function getUserPermissions($username = ''): array
     {
         if (!$username) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
