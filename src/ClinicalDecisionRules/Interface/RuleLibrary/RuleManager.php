@@ -685,7 +685,7 @@ class RuleManager
         }
     }
 
-    public function getAllowedFilterCriteriaTypes()
+    public function getAllowedFilterCriteriaTypes(): array
     {
         $allowed = [];
         foreach (RuleCriteriaType::values() as $type) {
@@ -696,7 +696,7 @@ class RuleManager
         return $allowed;
     }
 
-    public function getAllowedTargetCriteriaTypes()
+    public function getAllowedTargetCriteriaTypes(): array
     {
         $allowed = [];
         array_push($allowed, RuleCriteriaType::from(RuleCriteriaType::lifestyle));

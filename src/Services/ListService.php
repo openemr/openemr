@@ -60,7 +60,7 @@ class ListService
         return $results;
     }
 
-    public function getListOptionsForLists($lists)
+    public function getListOptionsForLists($lists): array
     {
         $sql = "SELECT * FROM list_options WHERE list_id IN (" . str_repeat('?,', count($lists) - 1) . "?) "
             . " ORDER BY list_id, seq";

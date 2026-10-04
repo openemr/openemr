@@ -59,7 +59,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return "custom.php";
     }
 
-    public function getTableNameOptions()
+    public function getTableNameOptions(): array
     {
         $options = [];
         $stmts = sqlStatement("SHOW TABLES");
