@@ -1234,7 +1234,7 @@ class Events extends Base
         return false;
     }
 
-    public function calculateEvents($event, $start_date, $stop_date)
+    public function calculateEvents($event, $start_date, $stop_date): array
     {
 
           ///////////////////////////////////////////////////////////////////////
@@ -2214,7 +2214,7 @@ class Display extends Base
         $content = ob_get_clean();
         echo $content;
     }
-    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = '')
+    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = ''): array
     {
         $recalls = [];
 
@@ -2589,7 +2589,7 @@ class Display extends Base
         }
         return false;
     }
-    public function possibleModalities($appt)
+    public function possibleModalities($appt): array
     {
         $pat = [];
         $sqlQuery = "SELECT * FROM medex_icons";

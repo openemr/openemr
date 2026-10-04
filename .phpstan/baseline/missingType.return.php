@@ -6682,26 +6682,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method TherapyGroupsController\\:\\:prepareGroupParticipationList\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method TherapyGroupsController\\:\\:prepareGroupTypesList\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method TherapyGroupsController\\:\\:prepareParticipantStatusesList\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method TherapyGroupsController\\:\\:prepareStatusesList\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method TherapyGroupsController\\:\\:setSession\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
@@ -6710,21 +6690,6 @@ $ignoreErrors[] = [
     'message' => '#^Method TherapyGroupsController\\:\\:shortenNotes\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups_Counselors\\:\\:getAllCounselorsNames\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups_Counselors\\:\\:getAllCounselors\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups_Counselors\\:\\:getCounselors\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Therapy_Groups_Counselors\\:\\:remove\\(\\) has no return type specified\\.$#',
@@ -6747,11 +6712,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups\\:\\:getAllGroups\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Therapy_Groups\\:\\:getGroup\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
@@ -6765,11 +6725,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Therapy_Groups\\:\\:updateGroup\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_groups_participants\\:\\:getParticipants\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Therapy_groups_participants\\:\\:isAlreadyRegistered\\(\\) has no return type specified\\.$#',
@@ -7077,11 +7032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Encounter_Signable\\:\\:getData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Signable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Encounter_Signable\\:\\:isLocked\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Encounter/Signable.php',
@@ -7157,11 +7107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Form/Factory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Form_LBF_Signable\\:\\:getData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/LBF/Signable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Form_Log\\:\\:getHtml\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Log.php',
@@ -7228,11 +7173,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Signature\\:\\:getClass\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Signature.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Signature\\:\\:getData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Signature.php',
 ];
@@ -7582,22 +7522,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:get_recalls\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method MedExApi\\\\Display\\:\\:icon_template\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method MedExApi\\\\Display\\:\\:navigation\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:possibleModalities\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
@@ -7623,11 +7553,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method MedExApi\\\\Events\\:\\:__increment\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:calculateEvents\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
@@ -7882,11 +7807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method CategoryTree\\:\\:_get_categories_array\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/CategoryTree.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method CategoryTree\\:\\:get_translated_name\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/CategoryTree.class.php',
@@ -7965,16 +7885,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Diagnosis\\:\\:getListType\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Diagnosis.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Encounter\\:\\:fetchDates\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Encounter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Encounter\\:\\:getEncounterTypes\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Encounter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Encounter\\:\\:getListId\\(\\) has no return type specified\\.$#',
@@ -8452,11 +8362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method InsuranceCompany\\:\\:insurance_companies_factory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method InsuranceCompany\\:\\:populate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
@@ -8608,11 +8513,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method InsuranceNumbers\\:\\:get_rendering_provider_number_type\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/InsuranceNumbers.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method InsuranceNumbers\\:\\:insurance_numbers_factory\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/InsuranceNumbers.class.php',
 ];
@@ -8772,11 +8672,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/PDF_Label.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method POSRef\\:\\:init_pos\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/POSRef.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method PQRIXml\\:\\:add_file_audit_data\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/PQRIXml.class.php',
@@ -8892,11 +8787,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Pharmacy\\:\\:pharmacies_factory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Pharmacy\\:\\:populate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
@@ -8992,11 +8882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Pharmacy\\:\\:utility_pharmacy_array\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method PrescriptionPatient\\:\\:get_dob\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
@@ -9088,16 +8973,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Provider\\:\\:populate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Provider.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Provider\\:\\:providers_factory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Provider.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Provider\\:\\:utility_provider_array\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Provider.class.php',
 ];
@@ -9952,11 +9827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/X12Partner.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method X12Partner\\:\\:x12_partner_factory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/X12Partner.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method XmlWriterOemr\\:\\:_indent\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/XmlWriterOemr.class.php',
@@ -10307,11 +10177,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method FPDF\\:\\:_parsepngstream\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method FPDF\\:\\:_put\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
@@ -10453,11 +10318,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method BarcodeDatamatrix\\:\\:champGaloisSum\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/php-barcode.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BarcodeDatamatrix\\:\\:getDigit\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];
@@ -10690,11 +10550,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AmcItemizedActionData\\:\\:addNumeratorActionData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/library/AmcItemizedActionData.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AmcResult\\:\\:format\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/library/AmcResult.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302c\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -11972,11 +11827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/library/CqmPopulationCrtiteriaFactory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method CqmResult\\:\\:format\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/library/CqmResult.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_Unimplemented\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/library/NFQ_Unimplemented.php',
@@ -12087,11 +11937,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0013/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0024\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0024_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/Denominator.php',
@@ -12152,11 +11997,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_PopulationCriteria1\\:\\:createNumerators\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0024_PopulationCriteria1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria1.php',
@@ -12182,11 +12022,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria2.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_PopulationCriteria2\\:\\:createNumerators\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria2.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0024_PopulationCriteria2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria2.php',
@@ -12208,11 +12043,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0024_PopulationCriteria3\\:\\:createInitialPatientPopulation\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_PopulationCriteria3\\:\\:createNumerators\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria3.php',
 ];
@@ -12487,11 +12317,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_PopulationCriteria\\:\\:createNumerators\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0038_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/PopulationCriteria.php',
@@ -12737,11 +12562,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0064_PopulationCriteria\\:\\:createNumerators\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0064_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064/PopulationCriteria.php',
@@ -12850,11 +12670,6 @@ $ignoreErrors[] = [
     'message' => '#^Method NQF_0384_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0384/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0421_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
@@ -13005,11 +12820,6 @@ $ignoreErrors[] = [
     'message' => '#^Method RsFilterIF\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/library/RsFilterIF.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RsHelper\\:\\:formatClinicalRules\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/library/RsHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method RsPatient\\:\\:calculateAgeOnDate\\(\\) has no return type specified\\.$#',
@@ -13477,42 +13287,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/globals.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getCounselors\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getGroupAttendanceStatuses\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getGroupCounselorsNames\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getGroupData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getGroupStatuses\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getGroup\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getParticipants\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/group.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getProvidersOfEvent\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/group.inc.php',
 ];
@@ -14172,11 +13947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getAuthPortalUsers\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/messaging/messages.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method GlobalConfig\\:\\:Init\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/_global_config.php',
@@ -14313,11 +14083,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method DataDriverMySQLi\\:\\:GetLastInsertId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:GetTableNames\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
