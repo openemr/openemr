@@ -550,7 +550,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
 
 // Get the array of checkout timestamps for the specified visit.
 //
-function craGetTimestamps($patient_id, $encounter_id)
+function craGetTimestamps($patient_id, $encounter_id): array
 {
     $ret = [];
     $res = sqlStatement(

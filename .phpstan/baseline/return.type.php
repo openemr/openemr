@@ -387,21 +387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getMonthFromFullName\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getMonthFullname\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayFullname\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Date_Calc\\:\\:julianDate\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
@@ -1195,11 +1180,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Therapy_Groups_Encounters\\:\\:getGroupEncounters\\(\\) should return ADORecordSet_mysqli but returns list\\<array\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_encounters_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups_Events\\:\\:getGroupEvents\\(\\) should return ADORecordSet_mysqli but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_events_model.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Users\\:\\:checkIfMultiple\\(\\) should return ADORecordSet_mysqli\\|bool but returns mixed\\.$#',

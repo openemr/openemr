@@ -573,7 +573,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 27,
+    'count' => 29,
     'path' => __DIR__ . '/../../interface/reports/patient_list_creation.php',
 ];
 $ignoreErrors[] = [
@@ -940,6 +940,11 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Possibly invalid array key type mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',

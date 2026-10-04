@@ -21567,16 +21567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_277_csv_data\\(\\) has parameter \\$obj277 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_837_csv_data\\(\\) has parameter \\$obj837 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_parse_select\\(\\) has parameter \\$file_path with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',

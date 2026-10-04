@@ -902,11 +902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getID\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method CompleteTrans\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
@@ -3243,17 +3238,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_delimiters\\(\\) on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method edih_envelopes\\(\\) on mixed\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method edih_envelopes\\(\\) on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method edih_filename\\(\\) on mixed\\.$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
@@ -3263,17 +3258,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_segments\\(\\) on mixed\\.$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_type\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_x12_transaction\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [

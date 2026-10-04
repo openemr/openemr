@@ -27,7 +27,7 @@
     // Functions for QRDA Category I (or) III 2014 XML format.
 
     //function for Stratification data getting for NQF# 0024 Rule
-function getQRDAStratumInfo($patArr, $begin_date)
+function getQRDAStratumInfo($patArr, $begin_date): array
 {
     $startumArr = [];
     if (count($patArr) > 0) {
@@ -51,7 +51,7 @@ function getQRDAStratumInfo($patArr, $begin_date)
 }
 
     //function for getting Payer(Insurance Type) Information for Export QRDA
-function getQRDAPayerInfo($patArr)
+function getQRDAPayerInfo($patArr): array
 {
     $payerCheckArr = [];
     $payerCheckArr['Medicare'] = 0;
@@ -80,7 +80,7 @@ function getQRDAPayerInfo($patArr)
 }
 
     //function for getting Race, Ethnicity and Gender Information for Export QRDA
-function getQRDAPatientNeedInfo($patArr)
+function getQRDAPatientNeedInfo($patArr): array
 {
     //Defining Array elements
     //Gender
@@ -174,7 +174,7 @@ function payerPatient($patient_id)
     return $payer;
 }
 
-function allEncPat($patient_id, $from_date, $to_date)
+function allEncPat($patient_id, $from_date, $to_date): array
 {
     $encArr = [];
     $patQry = "SELECT fe.encounter, fe.date,fe.pc_catid,opc.pc_catname FROM form_encounter fe inner join openemr_postcalendar_categories opc on opc.pc_catid = fe.pc_catid WHERE fe.pid = ? AND (DATE(fe.date) BETWEEN ? AND ?)";
@@ -186,7 +186,7 @@ function allEncPat($patient_id, $from_date, $to_date)
     return $encArr;
 }
 
-function allListsPat($type, $patient_id, $from_date, $to_date)
+function allListsPat($type, $patient_id, $from_date, $to_date): array
 {
     $diagArr = [];
     $diagQry = "SELECT * FROM lists WHERE TYPE = ? AND pid = ? AND (DATE(date) BETWEEN ? AND ?)";
@@ -198,7 +198,7 @@ function allListsPat($type, $patient_id, $from_date, $to_date)
     return $diagArr;
 }
 
-function allOrderMedsPat($patient_id, $from_date, $to_date)
+function allOrderMedsPat($patient_id, $from_date, $to_date): array
 {
     $medArr = [];
     $medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 0 AND (DATE(date_added) BETWEEN ? AND ?)";
@@ -210,7 +210,7 @@ function allOrderMedsPat($patient_id, $from_date, $to_date)
     return $medArr;
 }
 
-function allActiveMedsPat($patient_id, $from_date, $to_date)
+function allActiveMedsPat($patient_id, $from_date, $to_date): array
 {
     $medArr = [];
     $medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 1 AND (DATE(date_added) BETWEEN ? AND ?)";
@@ -222,7 +222,7 @@ function allActiveMedsPat($patient_id, $from_date, $to_date)
     return $medArr;
 }
 
-function allProcPat(?string $proc_type = null, $patient_id = null, $from_date = null, $to_date = null)
+function allProcPat(?string $proc_type = null, $patient_id = null, $from_date = null, $to_date = null): array
 {
     if (!$proc_type) {
         $proc_type = "Procedure";
@@ -242,7 +242,7 @@ function allProcPat(?string $proc_type = null, $patient_id = null, $from_date = 
     return $procArr;
 }
 
-function allVitalsPat($patient_id, $from_date, $to_date)
+function allVitalsPat($patient_id, $from_date, $to_date): array
 {
     $vitArr = [];
     $vitQry = "SELECT fe.encounter, v.bps, v.date,v.bpd,v.BMI as bmi FROM form_encounter fe " .
@@ -258,7 +258,7 @@ function allVitalsPat($patient_id, $from_date, $to_date)
     return $vitArr;
 }
 
-function allImmuPat($patient_id, $from_date, $to_date)
+function allImmuPat($patient_id, $from_date, $to_date): array
 {
     $immArr = [];
     $immQry =   "SELECT * FROM immunizations " .

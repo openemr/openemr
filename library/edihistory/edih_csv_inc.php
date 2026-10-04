@@ -713,9 +713,8 @@ function csv_file_type(string $type, bool $gs_code = false): string
  * or place links to files.
  *
  * @param string $type -- default = ALL or one of batch, ibr, ebr, dpr, f997, f277, era, ack, text
- * @return array
  */
-function csv_parameters($type = 'ALL')
+function csv_parameters($type = 'ALL'): array
 {
     //
     // This will need the OpenEMR 'oe_site_dir' to replace global
@@ -1784,10 +1783,8 @@ function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
  *
  * @param string $filetype
  * @param string $filename
- *
- * @return array
  */
-function csv_denied_by_file($filetype, $filename, $trace = '')
+function csv_denied_by_file($filetype, $filename, $trace = ''): array
 {
     //
     $ret_ar = [];

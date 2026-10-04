@@ -11032,11 +11032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/LBF_Validation.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\#\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/validation/validate_core.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/validation/validate_core.php',
