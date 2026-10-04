@@ -149,7 +149,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * - patient + status
      * - patient + authored
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         $return = [
             'patient' => $this->getPatientContextSearchField(),
@@ -809,7 +809,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRServiceRequest)) {
             throw new \InvalidArgumentException(

@@ -446,7 +446,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed> OpenEMR-shaped record
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCoverage)) {
             throw new \InvalidArgumentException(

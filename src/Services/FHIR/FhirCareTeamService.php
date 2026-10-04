@@ -300,7 +300,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCareTeam)) {
             throw new \InvalidArgumentException(

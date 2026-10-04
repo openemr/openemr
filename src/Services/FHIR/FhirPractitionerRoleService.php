@@ -171,7 +171,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRPractitionerRole)) {
             throw new \InvalidArgumentException(

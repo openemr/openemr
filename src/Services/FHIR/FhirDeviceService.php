@@ -168,7 +168,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRDevice)) {
             throw new \InvalidArgumentException(
