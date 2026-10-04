@@ -51,18 +51,18 @@ class Configuration extends Form implements InputFilterAwareInterface
         return $this->inputFilter;
     }
 
-    public function getHookConfig()
+    public function getHookConfig(): array
     {
         $hooks    =  [];
         return $hooks;
     }
-    public function getAclConfig()
+    public function getAclConfig(): array
     {
         $acl = [];
         return $acl;
     }
 
-    public function configSettings()
+    public function configSettings(): array
     {
         $settings = [];
         return $settings;

@@ -166,7 +166,7 @@ class ImmunizationController extends AbstractActionController
      * function getAllCodes
      * List All Codes in the combobox
      */
-    public function getAllCodes($data)
+    public function getAllCodes($data): array
     {
         $defaultCode = $data['codes'] ?? '';
         $res = $this->getImmunizationTable()->codeslist();
