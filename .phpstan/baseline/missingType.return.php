@@ -13177,11 +13177,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient_tracker.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function fetch_Patient_Tracker_Events\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient_tracker.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getApptStatus\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient_tracker.inc.php',

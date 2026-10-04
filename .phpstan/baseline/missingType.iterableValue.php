@@ -3517,6 +3517,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function fetch_Patient_Tracker_Events\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/patient_tracker.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getFormsByCategory\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/registry.inc.php',
