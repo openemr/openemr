@@ -318,9 +318,9 @@ class BaseService implements BaseServiceInterface
      *
      * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
-     * @return array of associative arrays
+     * @return ?array list of associative arrays, or null when a limit of 1 matched no row
      */
-    public function selectHelper($sqlUpToFromStatement, $map)
+    public function selectHelper($sqlUpToFromStatement, $map): ?array
     {
         $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
         if ($records !== null) {
