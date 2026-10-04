@@ -1,0 +1,696 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Services\FHIR;
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\Services\FHIR\FhirEncounterService;
+use OpenEMR\Services\FHIR\FhirObservationService;
+use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+
+/**
+ * FHIR Observation (vital signs) Service CRUD Tests
+ *
+ * Vitals are the one Observation category that is N resources to one row: every vital
+ * sign taken at one moment shares a single form_vitals record, and each gets its own
+ * FHIR id through uuid_mapping. These tests pin that down -- several Observations
+ * collapsing onto one row, a partial update leaving its siblings alone, and the
+ * categories that have no writable store being rejected rather than dropped.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+class FhirObservationVitalsServiceCrudTest extends TestCase
+{
+    private FixtureManager $fixtureManager;
+    private FhirObservationService $fhirObservationService;
+    private string $patientUuid;
+    private string $encounterUuid;
+    private int $pid;
+    /** @var list<string> Encounters created by individual tests, removed in tearDown(). */
+    private array $extraEncounterUuids = [];
+
+    protected function setUp(): void
+    {
+        $this->fixtureManager = new FixtureManager();
+        $this->fixtureManager->installPatientFixtures();
+
+        $patientFixture = $this->fixtureManager->getPatientFixtures()[0];
+        $this->assertIsArray($patientFixture);
+        $patientRecord = QueryUtils::querySingleRow(
+            "SELECT uuid, pid FROM patient_data WHERE pubpid = ?",
+            [$patientFixture['pubpid']]
+        );
+        $this->assertIsArray($patientRecord);
+        $this->patientUuid = UuidRegistry::uuidToString($patientRecord['uuid']);
+        $this->pid = (int) $this->floatValue($patientRecord['pid']);
+
+        // form_vitals rows are encounter forms, so a write needs a real encounter to hang
+        // the form off of.
+        $raw = file_get_contents(__DIR__ . '/../../Fixtures/FHIR/encounter.json');
+        $this->assertIsString($raw);
+        $encounterRaw = json_decode($raw, true);
+        $this->assertIsArray($encounterRaw);
+        $encounterPayload = $encounterRaw[0];
+        $this->assertIsArray($encounterPayload);
+        $encounterPayload['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
+
+        $encounterService = new FhirEncounterService();
+        $encounterService->setLogger($this->createMock(LoggerInterface::class));
+        $encounterInsert = $encounterService->insert(new FHIREncounter($encounterPayload));
+        $this->assertTrue(
+            $encounterInsert->isValid(),
+            'Encounter insert (setup) failed: ' . json_encode($encounterInsert->getValidationMessages())
+        );
+        $encounterUuid = $this->firstDataRow($encounterInsert)['euuid'];
+        $this->assertIsString($encounterUuid);
+        $this->encounterUuid = $encounterUuid;
+
+        $this->fhirObservationService = new FhirObservationService();
+        $this->fhirObservationService->setLogger($this->createMock(LoggerInterface::class));
+    }
+
+    /**
+     * Creates an encounter for a patient and records it for cleanup.
+     */
+    private function createEncounterFor(string $patientUuid): string
+    {
+        $raw = file_get_contents(__DIR__ . '/../../Fixtures/FHIR/encounter.json');
+        $this->assertIsString($raw);
+        $encounterRaw = json_decode($raw, true);
+        $this->assertIsArray($encounterRaw);
+        $encounterPayload = $this->arrayValue($encounterRaw[0] ?? null);
+        $encounterPayload['subject'] = ['reference' => 'Patient/' . $patientUuid];
+
+        $encounterService = new FhirEncounterService();
+        $encounterService->setLogger($this->createMock(LoggerInterface::class));
+        $encounterInsert = $encounterService->insert(new FHIREncounter($encounterPayload));
+        $this->assertTrue(
+            $encounterInsert->isValid(),
+            'Encounter insert failed: ' . json_encode($encounterInsert->getValidationMessages())
+        );
+        $encounterUuid = $this->stringValue($this->firstDataRow($encounterInsert)['euuid'] ?? null);
+        $this->extraEncounterUuids[] = $encounterUuid;
+
+        return $encounterUuid;
+    }
+
+    /**
+     * Returns the uuid of a second patient fixture, for the cross-patient tests.
+     */
+    private function otherPatientUuid(): string
+    {
+        $otherPatient = $this->fixtureManager->getPatientFixtures()[1] ?? null;
+        $this->assertIsArray($otherPatient, 'a second patient fixture is required for this test');
+        $otherRecord = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT uuid FROM patient_data WHERE pubpid = ?",
+            [$otherPatient['pubpid']]
+        ));
+
+        return UuidRegistry::uuidToString($otherRecord['uuid']);
+    }
+
+    private function currentPulse(): float
+    {
+        $row = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT pulse FROM form_vitals WHERE pid = ?",
+            [$this->pid]
+        ));
+
+        return $this->floatValue($row['pulse'] ?? null);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->fixtureManager->removeObservationFixtures();
+        foreach ($this->extraEncounterUuids as $extraEncounterUuid) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM form_encounter WHERE uuid = ?",
+                [UuidRegistry::uuidToBytes($extraEncounterUuid)]
+            );
+        }
+        $this->extraEncounterUuids = [];
+        // This run's encounter only -- a LIKE sweep would also delete the encounters of any
+        // other worker running this suite and fail them with rows that vanished mid-test.
+        if (isset($this->encounterUuid)) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM form_encounter WHERE uuid = ?",
+                [UuidRegistry::uuidToBytes($this->encounterUuid)]
+            );
+        }
+        $this->fixtureManager->removePatientFixtures();
+    }
+
+    /**
+     * Narrowing helpers. The service layer hands back mixed, and PHPStan runs at level 10
+     * here, so each read is funnelled through an assertion that both fails the test and
+     * narrows the type.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function arrayValue(mixed $value): array
+    {
+        if (!is_array($value)) {
+            $this->fail('expected an array, got ' . get_debug_type($value));
+        }
+
+        return $value;
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        if (!is_string($value)) {
+            $this->fail('expected a string, got ' . get_debug_type($value));
+        }
+
+        return $value;
+    }
+
+    private function floatValue(mixed $value): float
+    {
+        if (!is_numeric($value)) {
+            $this->fail('expected a numeric value, got ' . get_debug_type($value));
+        }
+
+        return (float) $value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function firstDataRow(ProcessingResult $result): array
+    {
+        $data = $this->arrayValue($result->getData());
+        $this->assertNotEmpty($data, 'expected the processing result to carry a record');
+        $row = $this->arrayValue($data[0] ?? null);
+        $stringKeyed = [];
+        foreach ($row as $key => $value) {
+            $stringKeyed[(string) $key] = $value;
+        }
+
+        return $stringKeyed;
+    }
+
+    /**
+     * Builds one of the observation.json fixtures bound to this test's patient/encounter.
+     *
+     * @return array<string, mixed>
+     */
+    private function observationPayload(string $loincCode, string $effectiveDateTime = '2026-03-04T09:30:00-05:00'): array
+    {
+        $fixtures = $this->fixtureManager->getFhirObservationFixtures();
+        foreach ($fixtures as $fixture) {
+            $coding = $this->arrayValue($this->arrayValue($fixture['code'] ?? null)['coding'] ?? null);
+            if (($this->arrayValue($coding[0] ?? null)['code'] ?? null) !== $loincCode) {
+                continue;
+            }
+            $fixture['subject'] = ['reference' => 'Patient/' . $this->patientUuid];
+            $fixture['encounter'] = ['reference' => 'Encounter/' . $this->encounterUuid];
+            $fixture['effectiveDateTime'] = $effectiveDateTime;
+
+            return $fixture;
+        }
+
+        $this->fail('no observation fixture for LOINC code ' . $loincCode);
+    }
+
+    private function insertObservation(string $loincCode, string $effectiveDateTime = '2026-03-04T09:30:00-05:00'): string
+    {
+        $result = $this->fhirObservationService->insert(
+            new FHIRObservation($this->observationPayload($loincCode, $effectiveDateTime))
+        );
+        $this->assertTrue(
+            $result->isValid(),
+            'Observation insert failed for ' . $loincCode . ': ' . json_encode($result->getValidationMessages())
+        );
+        return $this->stringValue($this->firstDataRow($result)['uuid'] ?? null);
+    }
+
+    private function countVitalsRows(): int
+    {
+        return (int) $this->floatValue(QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS total FROM form_vitals WHERE pid = ?",
+            'total',
+            [$this->pid]
+        ));
+    }
+
+    #[Test]
+    public function testMultipleVitalsForOneReadingCollapseOntoASingleRow(): void
+    {
+        $weightUuid = $this->insertObservation('29463-7');
+        $pulseUuid = $this->insertObservation('8867-4');
+        $bpUuid = $this->insertObservation('85354-9');
+
+        $this->assertSame(1, $this->countVitalsRows(), 'three vitals for one reading should share one form_vitals row');
+
+        // Each vital still gets its own FHIR id, which is what the read side resolves.
+        $this->assertNotSame($weightUuid, $pulseUuid);
+        $this->assertNotSame($pulseUuid, $bpUuid);
+
+        $row = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT weight, pulse, bps, bpd FROM form_vitals WHERE pid = ?",
+            [$this->pid]
+        ));
+        // 70 kg stored as pounds: form_vitals is a USA-units table and VitalsService converts
+        // on the way out, so the write has to convert on the way in.
+        $this->assertEqualsWithDelta(154.3236, $this->floatValue($row['weight'] ?? null), 0.001);
+        $this->assertEqualsWithDelta(72, $this->floatValue($row['pulse'] ?? null), 0.001);
+        $this->assertEqualsWithDelta(120, $this->floatValue($row['bps'] ?? null), 0.001);
+        $this->assertEqualsWithDelta(80, $this->floatValue($row['bpd'] ?? null), 0.001);
+    }
+
+    /**
+     * The read path finds Observation.performer through form_vitals.user, so the write has to
+     * record the signed-in user. It belongs to the reading: a later vital sign added to the
+     * same row by someone else does not take it over.
+     */
+    #[Test]
+    public function testANewReadingRecordsTheUserWhoWroteIt(): void
+    {
+        $this->fhirObservationService->setSession($this->sessionFor('vitals-nurse', 'Default'));
+        $this->insertObservation('8867-4');
+
+        $this->fhirObservationService->setSession($this->sessionFor('vitals-other', 'Other'));
+        $this->insertObservation('29463-7');
+
+        $this->assertSame(1, $this->countVitalsRows());
+        $row = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT `user`, `groupname` FROM form_vitals WHERE pid = ?",
+            [$this->pid]
+        ));
+        $this->assertSame('vitals-nurse', $row['user'] ?? null);
+        $this->assertSame('Default', $row['groupname'] ?? null);
+    }
+
+    private function sessionFor(string $user, string $group): Session
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('authUser', $user);
+        $session->set('authProvider', $group);
+
+        return $session;
+    }
+
+    #[Test]
+    public function testABloodPressureSentAsOneValueIsNotStored(): void
+    {
+        $payload = $this->observationPayload('85354-9');
+        unset($payload['component']);
+        $payload['valueQuantity'] = ['value' => 120, 'unit' => 'mm[Hg]', 'code' => 'mm[Hg]'];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('valueQuantity', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAnImplausibleValueIsNotStored(): void
+    {
+        $payload = $this->observationPayload('29463-7');
+        $payload['valueQuantity'] = ['value' => 99999999999, 'unit' => 'lb', 'code' => '[lb_av]'];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('valueQuantity', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAWrittenVitalSignReadsBackThroughItsOwnId(): void
+    {
+        $pulseUuid = $this->insertObservation('8867-4');
+
+        $readResult = $this->fhirObservationService->getOne($pulseUuid);
+        $this->assertTrue($readResult->isValid());
+        $resource = $this->arrayValue($readResult->getData())[0] ?? null;
+        $this->assertInstanceOf(FHIRObservation::class, $resource);
+
+        // jsonSerialize() hands back the FHIR element objects, not plain arrays, so the
+        // resource is round-tripped through JSON to read it the way a client would.
+        $json = $this->arrayValue(json_decode((string) json_encode($resource), true));
+        $this->assertSame($pulseUuid, $this->stringValue($json['id'] ?? null));
+        $coding = $this->arrayValue($this->arrayValue($json['code'] ?? null)['coding'] ?? null);
+        $this->assertSame('8867-4', $this->arrayValue($coding[0] ?? null)['code'] ?? null);
+        $this->assertEqualsWithDelta(
+            72,
+            $this->floatValue($this->arrayValue($json['valueQuantity'] ?? null)['value'] ?? null),
+            0.001
+        );
+    }
+
+    #[Test]
+    public function testAPostDoesNotOverwriteAReadingTheRowAlreadyHolds(): void
+    {
+        $pulseUuid = $this->insertObservation('8867-4');
+
+        // Same vital, same encounter, same effectiveDateTime: coalescing would land on the
+        // row that already holds this pulse. POST must not replace it.
+        $payload = $this->observationPayload('8867-4');
+        $quantity = $this->arrayValue($payload['valueQuantity'] ?? null);
+        $quantity['value'] = 90;
+        $payload['valueQuantity'] = $quantity;
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $message = $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null);
+        $this->assertStringContainsString('PUT', $message);
+        $this->assertStringContainsString($pulseUuid, $message, 'the rejection should name the Observation to update');
+        $this->assertEqualsWithDelta(72, $this->currentPulse(), 0.001, 'the stored reading must be untouched');
+        $this->assertSame(1, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAReadingAtADifferentTimeStartsItsOwnRow(): void
+    {
+        $this->insertObservation('8867-4', '2026-03-04T09:30:00-05:00');
+        $this->insertObservation('8867-4', '2026-03-04T14:00:00-05:00');
+
+        // Same encounter, different reading: a triage pulse and a reassessment pulse are
+        // two readings, and collapsing them would overwrite the first.
+        $this->assertSame(2, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testUpdatingOneVitalSignLeavesItsSiblingsAlone(): void
+    {
+        $this->insertObservation('29463-7');
+        $pulseUuid = $this->insertObservation('8867-4');
+
+        $payload = $this->observationPayload('8867-4');
+        $payload['id'] = $pulseUuid;
+        $quantity = $this->arrayValue($payload['valueQuantity'] ?? null);
+        $quantity['value'] = 88;
+        $payload['valueQuantity'] = $quantity;
+
+        $updateResult = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
+        $this->assertTrue(
+            $updateResult->isValid(),
+            'Observation update failed: ' . json_encode($updateResult->getValidationMessages())
+        );
+
+        $row = $this->arrayValue(QueryUtils::querySingleRow(
+            "SELECT weight, pulse FROM form_vitals WHERE pid = ?",
+            [$this->pid]
+        ));
+        $this->assertEqualsWithDelta(88, $this->floatValue($row['pulse'] ?? null), 0.001);
+        $this->assertEqualsWithDelta(
+            154.3236,
+            $this->floatValue($row['weight'] ?? null),
+            0.001,
+            'the sibling weight must survive the update'
+        );
+        $this->assertSame(1, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testUpdateRejectsACodeThatDoesNotMatchTheId(): void
+    {
+        $pulseUuid = $this->insertObservation('8867-4');
+
+        // The id names one code on one row; letting the code change would move the value
+        // into a different column while keeping the same id.
+        $payload = $this->observationPayload('29463-7');
+        $payload['id'] = $pulseUuid;
+
+        $result = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('code', $this->arrayValue($result->getValidationMessages()));
+    }
+
+    #[Test]
+    public function testUpdateRejectsAnIdBelongingToAnotherPatient(): void
+    {
+        $pulseUuid = $this->insertObservation('8867-4');
+        $originalPulse = $this->currentPulse();
+
+        // The other patient gets their own encounter. Sending the first patient's encounter
+        // would be refused for that reason alone, and the id-ownership check this test is
+        // about would never run.
+        $otherPatientUuid = $this->otherPatientUuid();
+        $otherEncounterUuid = $this->createEncounterFor($otherPatientUuid);
+
+        $payload = $this->observationPayload('8867-4');
+        $payload['id'] = $pulseUuid;
+        $payload['subject'] = ['reference' => 'Patient/' . $otherPatientUuid];
+        $payload['encounter'] = ['reference' => 'Encounter/' . $otherEncounterUuid];
+        $quantity = $this->arrayValue($payload['valueQuantity'] ?? null);
+        $quantity['value'] = 88;
+        $payload['valueQuantity'] = $quantity;
+
+        $result = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
+        $this->assertFalse($result->isValid(), 'a leaked Observation id must not write into another chart');
+        $this->assertArrayHasKey('uuid', $this->arrayValue($result->getValidationMessages()));
+        $this->assertEqualsWithDelta(
+            $originalPulse,
+            $this->currentPulse(),
+            0.001,
+            'the rejected update must not have reached the first patient\'s record'
+        );
+    }
+
+    #[Test]
+    public function testUpdateRejectsAChangedEffectiveDateTime(): void
+    {
+        $this->insertObservation('29463-7');
+        $pulseUuid = $this->insertObservation('8867-4');
+
+        // The date belongs to the whole record, not to one Observation on it. Applying this
+        // would move the weight above to the new time as well, and leave a later POST for
+        // the original time starting a second Vitals form.
+        $payload = $this->observationPayload('8867-4', '2026-03-04T14:00:00-05:00');
+        $payload['id'] = $pulseUuid;
+
+        $result = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('effectiveDateTime', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(1, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testUpdateRejectsAnEncounterOtherThanTheRecordsOwn(): void
+    {
+        $pulseUuid = $this->insertObservation('8867-4');
+        $originalPulse = $this->currentPulse();
+
+        // A second encounter for the same patient: it passes the subject/encounter
+        // agreement check, so only the comparison against the record's own encounter
+        // catches it. saveVitalsArray() drops eid on update, so without this the write
+        // would answer 200 and silently change nothing.
+        $otherEncounterUuid = $this->createEncounterFor($this->patientUuid);
+
+        $payload = $this->observationPayload('8867-4');
+        $payload['id'] = $pulseUuid;
+        $payload['encounter'] = ['reference' => 'Encounter/' . $otherEncounterUuid];
+        $quantity = $this->arrayValue($payload['valueQuantity'] ?? null);
+        $quantity['value'] = 88;
+        $payload['valueQuantity'] = $quantity;
+
+        $result = $this->fhirObservationService->update($pulseUuid, new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('encounter', $this->arrayValue($result->getValidationMessages()));
+        $this->assertEqualsWithDelta($originalPulse, $this->currentPulse(), 0.001);
+    }
+
+    #[Test]
+    public function testInsertRejectsASoftDeletedEncounter(): void
+    {
+        // Deleting an encounter flags its newpatient forms row and leaves form_encounter in
+        // place; the write must treat it as gone rather than attach vitals to it.
+        $deletedEncounterUuid = $this->createEncounterFor($this->patientUuid);
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE forms SET deleted = 1 WHERE formdir = 'newpatient' AND encounter = "
+            . "(SELECT encounter FROM form_encounter WHERE uuid = ?)",
+            [UuidRegistry::uuidToBytes($deletedEncounterUuid)]
+        );
+
+        $payload = $this->observationPayload('8867-4');
+        $payload['encounter'] = ['reference' => 'Encounter/' . $deletedEncounterUuid];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('encounter', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testInsertRejectsAnEncounterBelongingToAnotherPatient(): void
+    {
+        $otherPatient = $this->fixtureManager->getPatientFixtures()[1] ?? null;
+        $this->assertIsArray($otherPatient, 'a second patient fixture is required for this test');
+        $otherRecord = QueryUtils::querySingleRow(
+            "SELECT uuid FROM patient_data WHERE pubpid = ?",
+            [$otherPatient['pubpid']]
+        );
+        $this->assertIsArray($otherRecord);
+
+        $payload = $this->observationPayload('8867-4');
+        $payload['subject'] = ['reference' => 'Patient/' . UuidRegistry::uuidToString($otherRecord['uuid'])];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('encounter', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAnObservationWhoseCategoryHasNoWritableStoreIsRejected(): void
+    {
+        // Smoking status is a social history observation: it is a view over the patient
+        // history record, so there is nothing to write back through. It must be refused
+        // rather than accepted and dropped -- the next GET would reconstruct the old value
+        // from the untouched history row and the client would never know.
+        $payload = $this->observationPayload('8867-4');
+        $payload['code'] = [
+            'coding' => [['system' => 'http://loinc.org', 'code' => '72166-2', 'display' => 'Tobacco smoking status']],
+        ];
+        $payload['category'] = [
+            ['coding' => [[
+                'system' => 'http://terminology.hl7.org/CodeSystem/observation-category',
+                'code' => 'social-history',
+            ]]],
+        ];
+        unset($payload['valueQuantity']);
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $messages = $this->arrayValue($result->getValidationMessages());
+        $this->assertArrayHasKey('code', $messages);
+        $this->assertStringContainsString('cannot be written', $this->stringValue($messages['code'] ?? null));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    private static function categoryConcept(string $category): array
+    {
+        return [[
+            'coding' => [[
+                'system' => 'http://terminology.hl7.org/CodeSystem/observation-category',
+                'code' => $category,
+            ]],
+        ]];
+    }
+
+    #[Test]
+    public function testALaboratoryResultWithAVitalSignCodeIsNotWrittenAsAVital(): void
+    {
+        // 2708-6 is both a pulse-oximetry vital sign and an arterial blood gas result. The
+        // category says which one this is, and laboratory writes are not implemented yet, so
+        // it is refused -- not stored in form_vitals and read back as a vital sign.
+        $payload = $this->observationPayload('8867-4');
+        $payload['category'] = self::categoryConcept('laboratory');
+        $payload['code'] = [
+            'coding' => [['system' => 'http://loinc.org', 'code' => '2708-6']],
+        ];
+        $payload['valueQuantity'] = ['value' => 97, 'unit' => '%', 'code' => '%'];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertStringContainsString(
+            'laboratory',
+            $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null)
+        );
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAVitalSignWhoseLoincCodingIsNotFirstIsRoutedAndWritten(): void
+    {
+        // The router considers every coding and the vitals service picks the LOINC one, so a
+        // payload that lists SNOMED first is still a heart rate, not an unknown code.
+        $payload = $this->observationPayload('8867-4');
+        $payload['code'] = [
+            'coding' => [
+                ['system' => 'http://snomed.info/sct', 'code' => '364075005'],
+                ['system' => 'http://loinc.org', 'code' => '8867-4'],
+            ],
+        ];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertTrue($result->isValid(), json_encode($result->getValidationMessages()) ?: '');
+        $this->assertSame(1, $this->countVitalsRows());
+        $this->assertEqualsWithDelta(72, $this->currentPulse(), 0.001);
+    }
+
+    #[Test]
+    public function testAWriteWithoutACategoryIsRejected(): void
+    {
+        $payload = $this->observationPayload('8867-4');
+        unset($payload['category']);
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('category', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testAnUnknownCodeUnderVitalSignsIsNotWrittenAsAVital(): void
+    {
+        // Not a code the vitals service knows. Observation-form results are also filed
+        // under vital-signs and accept any code, so this routes there and is refused
+        // because that store is not writable yet. Either way nothing lands in form_vitals.
+        $payload = $this->observationPayload('8867-4');
+        $payload['code'] = [
+            'coding' => [['system' => 'http://loinc.org', 'code' => '99999-9']],
+        ];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('code', $this->arrayValue($result->getValidationMessages()));
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testACategoryNoStoreAcceptsIsRejectedAsUnstored(): void
+    {
+        // With the category taken into account, a category no service accepts leaves no
+        // candidate at all. Before this, the laboratory service caught every code, so the
+        // "not a code OpenEMR stores" answer could never be returned.
+        $payload = $this->observationPayload('8867-4');
+        $payload['category'] = self::categoryConcept('not-a-real-category');
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertStringContainsString(
+            'is not a code OpenEMR stores',
+            $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null)
+        );
+        $this->assertSame(0, $this->countVitalsRows());
+    }
+
+    #[Test]
+    public function testADerivedVitalSignIsRejectedRatherThanStored(): void
+    {
+        $payload = $this->observationPayload('8867-4');
+        $payload['code'] = [
+            'coding' => [['system' => 'http://loinc.org', 'code' => '39156-5', 'display' => 'Body mass index']],
+        ];
+        $payload['valueQuantity'] = ['value' => 22.5, 'unit' => 'kg/m2', 'code' => 'kg/m2'];
+
+        $result = $this->fhirObservationService->insert(new FHIRObservation($payload));
+        $this->assertFalse($result->isValid());
+        $this->assertStringContainsString(
+            'derived from height and weight',
+            $this->stringValue($this->arrayValue($result->getValidationMessages())['code'] ?? null)
+        );
+    }
+}

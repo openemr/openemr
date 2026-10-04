@@ -430,7 +430,7 @@ class Document extends ORDataObject
      *                        otherwise every document object is returned
      * @return Document[]
      */
-    public function documents_factory($foreign_id = "")
+    public function documents_factory($foreign_id = ""): array
     {
         $documents = [];
 
@@ -462,7 +462,7 @@ class Document extends ORDataObject
      * @param string $foreign_reference_id The table record that this document references
      * @return Document[]
      */
-    public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = "")
+    public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = ""): array
     {
         $documents = [];
 

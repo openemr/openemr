@@ -31,13 +31,11 @@ class MapperTable
         return QueryUtils::fetchRecords($query, []);
     }
 
-    /*
-    * This function will return an array of all the HTML forms, which will be displayed in the configuration screen.
-
-    * @param        none
-    * @return       array       $forms.
-    */
-    public function getFormsList()
+    /**
+     * This function will return an array of all the HTML forms, which will be displayed in the configuration screen.
+     * @return array{mixed, non-falsy-string}[]
+     */
+    public function getFormsList(): array
     {
         $forms = [];
 
@@ -52,13 +50,11 @@ class MapperTable
         return $forms;
     }
 
-    /*
-    * This function will return an array of all the LBF forms and its elements, which will be displayed in the configuration screen.
-
-    * @param        none
-    * @return       array       $lbf.
-    */
-    public function getLbfList()
+    /**
+     * This function will return an array of all the LBF forms and its elements, which will be displayed in the configuration screen.
+     * @return array<int, non-empty-array<(0 | 1 | 2), mixed>>
+     */
+    public function getLbfList(): array
     {
         $lbf = [];
 
@@ -82,13 +78,11 @@ class MapperTable
         return $lbf;
     }
 
-    /*
-    * This function will return an array of all the tables and its fields in EMR, which will be displayed in the configuration screen.
-
-    * @param        none
-    * @return       array       $tables.
-    */
-    public function getTableList()
+    /**
+     * This function will return an array of all the tables and its fields in EMR, which will be displayed in the configuration screen.
+     * @return array<int, non-empty-array<(0 | 1 | 2), mixed>>
+     */
+    public function getTableList(): array
     {
         $tables = [];
 
@@ -113,13 +107,11 @@ class MapperTable
         return $tables;
     }
 
-    /*
-    * This function will return an array of document categories, which will be displayed in the configuration screen.
-
-    * @param        none
-    * @return       array       $document_categories.
-    */
-    public function getDocuments()
+    /**
+     * This function will return an array of document categories, which will be displayed in the configuration screen.
+     * @return array{mixed, non-falsy-string}[]
+     */
+    public function getDocuments(): array
     {
         $document_categories = [];
 
@@ -132,13 +124,11 @@ class MapperTable
         return $document_categories;
     }
 
-    /*
-    * Function to fetch the mapped CCDA components and forms
-
-    *  @param       None
-    *  @return      $mapped_values
-    */
-    public function getMappedFields($id)
+    /**
+     * Function to fetch the mapped CCDA components and forms
+     * @return non-empty-array<non-empty-array<int<0, max>, non-empty-array<('ccda_field' | 'class' | 'form_dir' | 'form_table' | 'form_type' | 'name'), mixed>>>[]
+     */
+    public function getMappedFields($id): array
     {
         $mapped_values  = [];
 

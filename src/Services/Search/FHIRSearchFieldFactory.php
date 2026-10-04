@@ -243,9 +243,8 @@ class FHIRSearchFieldFactory
      * Given a search field that may or may not contain FHIR modifiers (noted by a : after the field name) it will remove
      * all the modifiers and return them as an array of strings to the caller.
      * @param $fhirSearchField
-     * @return array
      */
-    private function extractFieldModifiers($fhirSearchField)
+    private function extractFieldModifiers($fhirSearchField): array
     {
         $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];

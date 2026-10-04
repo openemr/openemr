@@ -144,16 +144,16 @@ class X12File
         $this->constructing = false;
     }
 
-    /*
+    /**
      * function to support empty object and '_x12_' functions called with supplied file text
      *
      * @param string   $file_text
-     * @param bool     return x12 type
-     * @param bool     return delimiters
-     * @param bool     return segments
+     * @param bool     $type return x12 type
+     * @param bool     $delimiters return delimiters
+     * @param bool     $segments return segments
      * @return array   array['filetext'] and maybe ['type'] ['$delimiters'] ['segments']
      */
-    private function edih_file_text($file_text, $type = false, $delimiters = false, $segments = false)
+    private function edih_file_text($file_text, $type = false, $delimiters = false, $segments = false): array
     {
         $ret_ar = [];
         if (!$file_text || is_string($file_text) == false) {
@@ -486,7 +486,7 @@ class X12File
      * @param string $isa_str110       first n>=106 characters of x12 file
      * @return array                   array or empty on error
      */
-    public function edih_x12_delimiters($isa_str110 = '')
+    public function edih_x12_delimiters($isa_str110 = ''): array
     {
         $delim_ar = [];
         $isa_str = !$isa_str110 && $this->text ? substr((string) $this->text, 0, 106) : trim($isa_str110);
@@ -577,7 +577,7 @@ class X12File
      *
      * @return array                array as shown above or empty on error
      */
-    public function edih_x12_envelopes($file_text = '')
+    public function edih_x12_envelopes($file_text = ''): array
     {
         // produce an array of envelopes and positions
         $env_ar = [];
@@ -902,7 +902,7 @@ class X12File
      * @param string      $file_text
      * @return array<int, string> array['i'] = segment, or empty on error
      */
-    public function edih_x12_segments($file_text = '')
+    public function edih_x12_segments($file_text = ''): array
     {
         $ar_seg = [];
         // do verifications
@@ -974,7 +974,7 @@ class X12File
      * @param string $filetext   optional file contents
      * @return array        multidimensional array of segments or empty on failure
      */
-    public function edih_x12_transaction($clm01, $stn = '', $filetext = '')
+    public function edih_x12_transaction($clm01, $stn = '', $filetext = ''): array
     {
         $ret_ar = [];
         if (!$clm01) {
@@ -1215,9 +1215,8 @@ class X12File
      * @param string    $segmentID such as NM1, CLP, STC, etc.
      * @param string    $srchStr  optional string contained in segment
      * @param array     $seg_array  optional supplied array of segments to search
-     * @return array
      */
-    public function edih_get_segment($segmentID, $srchStr = '', $seg_array = '')
+    public function edih_get_segment($segmentID, $srchStr = '', $seg_array = ''): array
     {
         $ret_ar = [];
         $seg_ar = [];
@@ -1311,9 +1310,8 @@ class X12File
      * The 'search' parameter results in one or more segments containing
      * the search string.  The
      * @param array $arg_array note: all element values except 'keys' are strings
-     * @return array
      */
-    public function edih_x12_slice($arg_array, $file_text = '')
+    public function edih_x12_slice($arg_array, $file_text = ''): array
     {
         $ret_ar = [];
         $f_str = '';

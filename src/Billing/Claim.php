@@ -348,14 +348,20 @@ class Claim
 
 
 
-  // Return an array of adjustments from the designated prior payer for the
-  // designated procedure key (might be procedure:modifier), or for the claim
-  // level.  For each adjustment give date, group code, reason code, amount.
-  // Note this will include "patient responsibility" adjustments which are
-  // not adjustments to OUR invoice, but they reduce the amount that the
-  // insurance company pays.
-  //
-    public function payerAdjustments($ins, $code = 'Claim')
+    /**
+     * Return an array of adjustments from the designated prior payer for the
+     * designated procedure key (might be procedure:modifier), or for the claim
+     * level.  For each adjustment give date, group code, reason code, amount.
+     * Note this will include "patient responsibility" adjustments which are
+     * not adjustments to OUR invoice, but they reduce the amount that the
+     * insurance company pays.
+     *
+     * @return list<
+     *   array{string, 'CO', non-empty-string, string}
+     *   |array{non-falsy-string, 'PR', '1'|'2', string, mixed}
+     * >
+     */
+    public function payerAdjustments($ins, $code = 'Claim'): array
     {
         $aadj = [];
 
@@ -1883,9 +1889,12 @@ class Claim
         return is_string($qual) ? $qual : '';
     }
 
-  // Returns an array of unique diagnoses.  Periods are stripped by default
-  // Option to keep periods is to support HCFA 1500 02/12 version
-    public function diagArray($strip_periods = true)
+    /**
+     * Returns an array of unique diagnoses.  Periods are stripped by default
+     * Option to keep periods is to support HCFA 1500 02/12 version
+     * @return string[]
+     */
+    public function diagArray($strip_periods = true): array
     {
         $da = [];
         foreach ($this->procs as $row) {
@@ -1940,8 +1949,11 @@ class Claim
         return '';
     }
 
-  // Compute array of 1-relative diagArray indices for the given procedure.
-    public function diagIndexArray($prockey)
+    /**
+     * Compute array of 1-relative diagArray indices for the given procedure.
+     * @return int[]
+     */
+    public function diagIndexArray($prockey): array
     {
         $dia = [];
         $da = $this->diagArray();

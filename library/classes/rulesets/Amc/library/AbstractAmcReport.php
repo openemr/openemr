@@ -300,7 +300,7 @@ abstract class AbstractAmcReport implements RsReportIF
         }
     }
 
-    private function collectObjects($patient, $object_label, $begin, $end)
+    private function collectObjects($patient, $object_label, $begin, $end): array
     {
 
         $results = [];
@@ -425,7 +425,7 @@ abstract class AbstractAmcReport implements RsReportIF
         return $results;
     }
 
-    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id)
+    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id): array
     {
 
         $results = [];

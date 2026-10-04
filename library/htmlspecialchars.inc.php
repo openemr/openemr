@@ -268,7 +268,7 @@ function text($text): string
  * @return array The array that has each key and property escaped.
  */
 #[NoDiscard]
-function textArray(array $arr, $depth = 0)
+function textArray(array $arr, $depth = 0): array
 {
     if ($depth > 50) {
         throw new \InvalidArgumentException("array was nested too deep for escaping.  Max limit reached");

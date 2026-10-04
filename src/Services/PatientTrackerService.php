@@ -302,9 +302,8 @@ class PatientTrackerService extends BaseService
      * This is used to collect the tracker elements for the Patient Flow Board Report
      * returns the elements in an array
      * @param $trackerid
-     * @return mixed
      */
-    public static function collect_Tracker_Elements($trackerid)
+    public static function collect_Tracker_Elements($trackerid): array
     {
         $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", [$trackerid]);
         $returnval = [];
@@ -363,7 +362,7 @@ class PatientTrackerService extends BaseService
         }
     }
 
-    public static function getApptStatus($appointments)
+    public static function getApptStatus($appointments): array
     {
         $astat = [];
         $astat['count_all'] = count($appointments);

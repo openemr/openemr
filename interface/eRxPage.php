@@ -161,7 +161,7 @@ class eRxPage
      * Check for required PHP extensions, return array of messages for missing extensions
      * @return array Array of messages for missing extensions
      */
-    public function checkForMissingExtensions()
+    public function checkForMissingExtensions(): array
     {
         $extensions = [
             'XML',

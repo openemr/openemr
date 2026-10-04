@@ -6,6 +6,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirCoverageService;
@@ -33,9 +34,18 @@ class FhirCoverageServiceCrudTest extends TestCase
     private FhirCoverageService $fhirCoverageService;
     private string $patientUuid;
     private string $insurerUuid;
+    private bool $hadCountryList = false;
+    private string $originalCountryList = '';
+
+    /** A list owned by this test, so the country tests do not depend on the site's country list. */
+    private const COUNTRY_LIST = 'phpunit_coverage_country';
 
     protected function setUp(): void
     {
+        $globals = OEGlobalsBag::getInstance();
+        $this->hadCountryList = $globals->has('country_list');
+        $this->originalCountryList = $globals->getString('country_list');
+
         $this->fixtureManager = new FixtureManager();
 
         $this->fixtureManager->installPatientFixtures();
@@ -62,6 +72,13 @@ class FhirCoverageServiceCrudTest extends TestCase
 
     protected function tearDown(): void
     {
+        $globals = OEGlobalsBag::getInstance();
+        if ($this->hadCountryList) {
+            $globals->set('country_list', $this->originalCountryList);
+        } else {
+            $globals->remove('country_list');
+        }
+        QueryUtils::sqlStatementThrowException('DELETE FROM `list_options` WHERE `list_id` = ?', [self::COUNTRY_LIST]);
         $this->fixtureManager->removeCoverageFixtures();
         $this->fixtureManager->removePatientFixtures();
         $this->fixtureManager->removeInsuranceCompanyFixtures();
@@ -80,6 +97,64 @@ class FhirCoverageServiceCrudTest extends TestCase
         $dataResult = $this->firstDataRow($processingResult);
         $this->assertArrayHasKey('uuid', $dataResult);
         $this->assertIsString($dataResult['uuid']);
+    }
+
+    /**
+     * A self-subscribed Coverage copies the subscriber's demographics from the patient. A patient
+     * country that is not an option of the country list (the list ships with 'USA' only; charts
+     * hold 'US', 'United States', ...) must not fail the write: FHIR Coverage does not carry a
+     * subscriber country, so the client can neither see nor correct it.
+     */
+    #[Test]
+    public function testInsertSucceedsWhenThePatientCountryIsNotACountryListOption(): void
+    {
+        $this->useCountryListWithOnlyUsa();
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `patient_data` SET `country_code` = ? WHERE `uuid` = ?',
+            ['United States', UuidRegistry::uuidToBytes($this->patientUuid)]
+        );
+
+        $this->fhirCoverageFixture->setId(new FHIRId());
+        $processingResult = $this->fhirCoverageService->insert($this->fhirCoverageFixture);
+
+        $this->assertTrue(
+            $processingResult->isValid(),
+            "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
+        );
+        $uuid = $this->firstDataRow($processingResult)['uuid'];
+        $this->assertIsString($uuid);
+        $stored = QueryUtils::querySingleRow(
+            'SELECT `subscriber_country` FROM `insurance_data` WHERE `uuid` = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertIsArray($stored);
+        $this->assertContains($stored['subscriber_country'], [null, ''], 'an unlisted country is not copied to the subscriber');
+    }
+
+    #[Test]
+    public function testInsertCopiesAPatientCountryThatIsACountryListOption(): void
+    {
+        $this->useCountryListWithOnlyUsa();
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `patient_data` SET `country_code` = ? WHERE `uuid` = ?',
+            ['USA', UuidRegistry::uuidToBytes($this->patientUuid)]
+        );
+
+        $this->fhirCoverageFixture->setId(new FHIRId());
+        $processingResult = $this->fhirCoverageService->insert($this->fhirCoverageFixture);
+
+        $this->assertTrue(
+            $processingResult->isValid(),
+            "Insert should succeed: " . json_encode($processingResult->getValidationMessages())
+        );
+        $uuid = $this->firstDataRow($processingResult)['uuid'];
+        $this->assertIsString($uuid);
+        $stored = QueryUtils::querySingleRow(
+            'SELECT `subscriber_country` FROM `insurance_data` WHERE `uuid` = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertIsArray($stored);
+        $this->assertSame('USA', $stored['subscriber_country']);
     }
 
     #[Test]
@@ -177,6 +252,19 @@ class FhirCoverageServiceCrudTest extends TestCase
         $messages = $result->getValidationMessages();
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('status', $messages);
+    }
+
+    /**
+     * Points the country_list global at a list holding the single option 'USA'.
+     */
+    private function useCountryListWithOnlyUsa(): void
+    {
+        QueryUtils::sqlStatementThrowException('DELETE FROM `list_options` WHERE `list_id` = ?', [self::COUNTRY_LIST]);
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `activity`) VALUES (?, ?, ?, 1)',
+            [self::COUNTRY_LIST, 'USA', 'USA']
+        );
+        OEGlobalsBag::getInstance()->set('country_list', self::COUNTRY_LIST);
     }
 
     /**

@@ -2335,7 +2335,6 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
 /**
  * @param $list_id
  * @param bool $translate
- * @return array
  *
  * Generate a key-value array containing each row of the specified list,
  * with the option ID as the index, and the title as the element
@@ -2344,7 +2343,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
  *
  * Use the translate flag to run the title element through the translator
  */
-function generate_list_map($list_id, $translate = false)
+function generate_list_map($list_id, $translate = false): array
 {
     $result = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ?", [$list_id]);
     $map = [];
@@ -4675,7 +4674,7 @@ function getLayoutTitle($list, $option)
     return xl_list_label($row['grp_title']);
 }
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
-function getSmokeCodes()
+function getSmokeCodes(): array
 {
     $smoking_codes_arr = [];
     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");

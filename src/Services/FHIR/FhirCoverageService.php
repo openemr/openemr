@@ -5,6 +5,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -446,7 +447,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed> OpenEMR-shaped record
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCoverage)) {
             throw new \InvalidArgumentException(
@@ -844,8 +845,34 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             if ($patientValue === '') {
                 continue;
             }
+            if ($recordKey === 'subscriber_country' && !$this->isCountryListOption($patientValue)) {
+                // The subscriber country is optional but, when present, must be an option of
+                // the country list. A chart can hold a country that is not one (the list ships
+                // with 'USA' only; charts hold 'US', 'United States', ...). FHIR Coverage does
+                // not carry a subscriber country, so the client can neither see nor correct
+                // the value: leave it unset rather than fail the write over it.
+                continue;
+            }
             $record[$recordKey] = $patientValue;
         }
+    }
+
+    /**
+     * Whether $country is an option of the list CoverageValidator checks subscriber_country
+     * against (the country_list setting).
+     */
+    private function isCountryListOption(string $country): bool
+    {
+        $listId = OEGlobalsBag::getInstance()->getString('country_list');
+        if ($listId === '') {
+            return false;
+        }
+        // The same match ListOptionRule makes: an option_id of the list.
+        $option = QueryUtils::querySingleRow(
+            'SELECT `option_id` FROM `list_options` WHERE `list_id` = ? AND `option_id` = ?',
+            [$listId, $country]
+        );
+        return is_array($option) && $option !== [];
     }
 
     /**

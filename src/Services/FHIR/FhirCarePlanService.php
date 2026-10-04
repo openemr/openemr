@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanDetail;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -728,7 +729,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      *   items: array<int, array<string, mixed>> activity rows
      * }
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCarePlan)) {
             throw new \InvalidArgumentException(
@@ -979,12 +980,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             return $result;
         }
 
-        $encounterId = QueryUtils::fetchSingleValue(
-            "SELECT encounter FROM form_encounter WHERE uuid = ?",
-            'encounter',
-            [UuidRegistry::uuidToBytes($encounterUuid)]
-        );
-        if (!is_numeric($encounterId)) {
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($encounterUuid)['encounter'] ?? null;
+        if ($encounterId === null) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['uuid' => 'Encounter not found for given CarePlan id']);
             return $result;
@@ -1046,12 +1044,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             $result->setValidationMessages(['encounter' => 'Encounter reference is required for CarePlan']);
             return $result;
         }
-        $encounterId = QueryUtils::fetchSingleValue(
-            "SELECT encounter FROM form_encounter WHERE uuid = ?",
-            'encounter',
-            [UuidRegistry::uuidToBytes($euuid)]
-        );
-        if (!is_numeric($encounterId)) {
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($euuid)['encounter'] ?? null;
+        if ($encounterId === null) {
             $result = new ProcessingResult();
             $result->setValidationMessages(
                 ['encounter' => 'Encounter reference could not be resolved: ' . $euuid]

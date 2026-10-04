@@ -69,7 +69,7 @@ class UtilsService
         return $canonical;
     }
 
-    public static function parseCanonicalUrl(?string $url)
+    public static function parseCanonicalUrl(?string $url): array
     {
         $parsed_url = [
             'localResource' => false

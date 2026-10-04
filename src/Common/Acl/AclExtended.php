@@ -60,7 +60,7 @@ class AclExtended
     // Return an array keyed on squad ACO names.
     // This is only applicable for sports team use.
     //
-    public static function aclGetSquads()
+    public static function aclGetSquads(): array
     {
         $squads = self::aclGetSectionAcos('squads');
         uasort($squads, self::aclSquadCompare(...));
@@ -84,10 +84,11 @@ class AclExtended
         return self::aclGetSectionAcos('sensitivities');
     }
 
-    // Get the ACO name/value pairs for a designated section.  Each value
-    // is an array (section_value, value, order_value, name, hidden).
-    //
-    private static function aclGetSectionAcos($section)
+    /**
+     * Get the ACO name/value pairs for a designated section.  Each value
+     * is an array (section_value, value, order_value, name, hidden).
+     */
+    private static function aclGetSectionAcos($section): array
     {
         $gacl = self::collectGaclApiObject();
         $arr1 = $gacl->get_objects($section, 1, 'ACO');
@@ -132,7 +133,7 @@ class AclExtended
     //
     // Returns a sorted array of all available Group Titles.
     //
-    public static function aclGetGroupTitleList($include_superusers = true)
+    public static function aclGetGroupTitleList($include_superusers = true): array
     {
         $gacl = self::collectGaclApiObject();
         $parent_id = $gacl->get_root_group_id();
@@ -524,10 +525,10 @@ class AclExtended
         return $aco_count;
     }
 
-    //
-    // Function to remove an element from an array
-    //
-    private static function removeElement($arr, $val)
+    /**
+     * Function to remove an element from an array
+     */
+    private static function removeElement($arr, $val): array
     {
         $arr2 = [];
         foreach ($arr as $value) {
@@ -563,7 +564,7 @@ class AclExtended
 
 
     // Returns array of all ACOs
-    public static function genAcoArray()
+    public static function genAcoArray(): array
     {
         $acoArray = [];
         $gacl = self::collectGaclApiObject();
@@ -1120,7 +1121,7 @@ class AclExtended
      * @param  string  $username              Name of user
      * @return array                          The array of ACOs
      */
-    public static function getUserPermissions($username = '')
+    public static function getUserPermissions($username = ''): array
     {
         if (!$username) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

@@ -22,7 +22,10 @@ class ModuleconfigController extends AbstractActionController
     {
     }
 
-    public function getDependedModulesConfig()
+    /**
+     * @return list<'Documents'>
+     */
+    public function getDependedModulesConfig(): array
     {
         // these modules need to be activated before this module can be installed
         $dependedModules = [
