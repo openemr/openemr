@@ -1167,17 +1167,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Group_Statuses\\:\\:getGroupAttendanceStatuses\\(\\) should return ADORecordSet_mysqli but returns list\\<array\\>\\.$#',
+    'message' => '#^Method Group_Statuses\\:\\:getGroupAttendanceStatuses\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<non\\-empty\\-array\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/group_statuses_model.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Group_Statuses\\:\\:getGroupStatuses\\(\\) should return ADORecordSet_mysqli but returns list\\<array\\>\\.$#',
+    'message' => '#^Method Group_Statuses\\:\\:getGroupStatuses\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<non\\-empty\\-array\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/group_statuses_model.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups_Encounters\\:\\:getGroupEncounters\\(\\) should return ADORecordSet_mysqli but returns list\\<array\\>\\.$#',
+    'message' => '#^Method Therapy_Groups_Encounters\\:\\:getGroupEncounters\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<non\\-empty\\-array\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_encounters_model.php',
 ];

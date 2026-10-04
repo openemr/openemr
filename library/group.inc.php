@@ -43,7 +43,7 @@ function getGroup($gid)
 }
 
 //Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
-function getGroupData($search_params, $result_columns, $column)
+function getGroupData($search_params, $result_columns, $column): array
 {
     $model = new Therapy_Groups();
     $result = $model->getGroupData($search_params, $result_columns, $column);
@@ -51,7 +51,7 @@ function getGroupData($search_params, $result_columns, $column)
 }
 
 //Fetches group statuses from 'groupstat' list
-function getGroupStatuses()
+function getGroupStatuses(): array
 {
     $model = new Group_Statuses();
     $result = $model->getGroupStatuses();
@@ -59,7 +59,7 @@ function getGroupStatuses()
 }
 
 //Fetches group attendance statuses from 'attendstat' list
-function getGroupAttendanceStatuses()
+function getGroupAttendanceStatuses(): array
 {
     $model = new Group_Statuses();
     $result = $model->getGroupAttendanceStatuses();
@@ -67,7 +67,7 @@ function getGroupAttendanceStatuses()
 }
 
 //Fetches counselors for specific group
-function getCounselors($gid)
+function getCounselors($gid): array
 {
     $model = new Therapy_Groups_Counselors();
     $result = $model->getCounselors($gid);
@@ -75,7 +75,7 @@ function getCounselors($gid)
 }
 
 //Fetches participants of group
-function getParticipants($gid, $onlyActive = false)
+function getParticipants($gid, $onlyActive = false): array
 {
     $model = new Therapy_groups_participants();
     $result = $model->getParticipants($gid, $onlyActive);
@@ -91,7 +91,7 @@ function getTypeName($key)
 }
 
 //Fetches providers for a specific group event
-function getProvidersOfEvent($eid)
+function getProvidersOfEvent($eid): array
 {
     $model = new Users();
     $result = $model->getProvidersOfEvent($eid);
@@ -106,7 +106,7 @@ function getUserNameById($uid)
     return $result;
 }
 
-function getGroupCounselorsNames($gid)
+function getGroupCounselorsNames($gid): array
 {
 
     $model = new Therapy_Groups_Counselors();

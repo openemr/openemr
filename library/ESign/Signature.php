@@ -120,7 +120,7 @@ class Signature implements SignatureIF
         return $this->amendment;
     }
 
-    public function getData()
+    public function getData(): array
     {
         $data = [ $this->tid, $this->table, $this->uid, $this->isLock, $this->hash, $this->amendment ];
         return $data;
