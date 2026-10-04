@@ -54,8 +54,10 @@ final class FhirImport extends Command
     {
         // Dev-only gate, same shape as ccda-import. Prevents accidental
         // invocation on a non-dev stack where the password grant and the
-        // oauth_clients UPDATE would be inappropriate.
-        if (getenv('OPENEMR_ENABLE_FHIR_IMPORT') === false) {
+        // oauth_clients UPDATE would be inappropriate. Require the exact
+        // string "1" — `getenv() === false` would accept any truthy or
+        // falsy value including OPENEMR_ENABLE_FHIR_IMPORT=0.
+        if (getenv('OPENEMR_ENABLE_FHIR_IMPORT') !== '1') {
             $output->writeln('Set OPENEMR_ENABLE_FHIR_IMPORT=1 environment variable to enable this command');
             return 2;
         }

@@ -161,37 +161,45 @@ final class FhirBundleImporter
         if ($client === null) {
             return 1;
         }
-        $token = $this->passwordGrant($http, $client['id'], $client['secret'], $scopes);
-        if ($token === null) {
+        // From here on the oauth client exists on the server; every exit
+        // path (early return on password-grant failure, empty-source failure,
+        // normal completion, or an uncaught Throwable from importBundle) has
+        // to delete it. Wrap in try/finally so a thrown exception can't leak
+        // the client. registerOauth2Client() handles the "DB UPDATE threw
+        // after DCR succeeded" sub-case internally — it deletes the client
+        // and returns null, so the branch above sees no $client to clean up.
+        try {
+            $token = $this->passwordGrant($http, $client['id'], $client['secret'], $scopes);
+            if ($token === null) {
+                return 1;
+            }
+
+            $files = $this->listSortedBundleFiles($sourceDir);
+            if ($files === []) {
+                $this->logMessage("FAIL: no *.json files in " . $sourceDir . "\n");
+                return 1;
+            }
+
+            $start = (int) round(microtime(true) * 1000);
+            foreach ($files as $file) {
+                $this->importBundle($file, $http, $token);
+            }
+            $seconds = (int) round(((int) round(microtime(true) * 1000) - $start) / 1000);
+
+            $this->logMessage(sprintf(
+                "\nCompleted FHIR import: %d bundles, %d POSTed, %d skipped (unsupported), %d filtered-by-transform, %d failed, %d seconds total.\n",
+                $this->counters['bundles'],
+                $this->counters['posted'],
+                $this->counters['skipped'],
+                $this->counters['transformSkipped'],
+                $this->counters['failed'],
+                $seconds,
+            ));
+
+            return $this->counters['failed'] > 0 ? 1 : 0;
+        } finally {
             $this->deleteOauth2Client($client['id']);
-            return 1;
         }
-
-        $files = $this->listSortedBundleFiles($sourceDir);
-        if ($files === []) {
-            $this->logMessage("FAIL: no *.json files in " . $sourceDir . "\n");
-            $this->deleteOauth2Client($client['id']);
-            return 1;
-        }
-
-        $start = (int) round(microtime(true) * 1000);
-        foreach ($files as $file) {
-            $this->importBundle($file, $http, $token);
-        }
-        $seconds = (int) round(((int) round(microtime(true) * 1000) - $start) / 1000);
-
-        $this->logMessage(sprintf(
-            "\nCompleted FHIR import: %d bundles, %d POSTed, %d skipped (unsupported), %d filtered-by-transform, %d failed, %d seconds total.\n",
-            $this->counters['bundles'],
-            $this->counters['posted'],
-            $this->counters['skipped'],
-            $this->counters['transformSkipped'],
-            $this->counters['failed'],
-            $seconds,
-        ));
-
-        $this->deleteOauth2Client($client['id']);
-        return $this->counters['failed'] > 0 ? 1 : 0;
     }
 
     private function readScopeListing(): ?string
@@ -247,11 +255,31 @@ final class FhirBundleImporter
         // Grant password type + flip is_enabled=1. DCR cannot authorize these,
         // so an administrator ordinarily does it in the UI; here we are that
         // administrator.
-        QueryUtils::sqlStatementThrowException(
-            'UPDATE `oauth_clients` SET `grant_types` = ?, `is_enabled` = 1 WHERE `client_id` = ?',
-            ['password', $data['client_id']],
-            true,
-        );
+        //
+        // If the UPDATE fails after DCR succeeded, the oauth client row
+        // already exists on the server but run()'s try/finally hasn't started
+        // yet. Delete the stranded client here and rethrow so the caller
+        // treats it as a registration failure.
+        try {
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE `oauth_clients` SET `grant_types` = ?, `is_enabled` = 1 WHERE `client_id` = ?',
+                ['password', $data['client_id']],
+                true,
+            );
+        } catch (\Throwable $e) {
+            try {
+                $this->deleteOauth2Client($data['client_id']);
+            } catch (\Throwable) {
+                // A SQL-layer exception here is less interesting than the
+                // original UPDATE failure; rethrow the UPDATE exception so
+                // the delete-side error does not replace the real cause.
+                // Error subclasses (TypeError, ParseError, etc.) are
+                // deliberately not caught so they still propagate — those
+                // indicate a programmer bug the global handler must surface.
+                throw $e;
+            }
+            throw $e;
+        }
         return ['id' => $data['client_id'], 'secret' => $data['client_secret']];
     }
 
@@ -395,23 +423,29 @@ final class FhirBundleImporter
         $fullUrl = $entry['fullUrl'] ?? null;
         $fullUrl = is_string($fullUrl) ? $fullUrl : null;
 
-        // Strip the Bundle-local id. The server mints its own uuid; keeping
-        // the Synthea id would force the FHIR write path to treat the POST
-        // as an update against a nonexistent resource.
-        unset($resource['id']);
-
         // Transforms run BEFORE reference rewriting on purpose:
         // transformInlineMedicationReference looks up the referenced Medication
         // in the bundleIndex (keyed by urn:uuid:...). If rewriteReferences ran
         // first, it would have already replaced urn:uuid:X with
         // Medication/<uuid>, and the bundleIndex lookup would miss.
         // Transforms that don't care about refs are order-safe.
+        //
+        // The Bundle-local `id` is kept on the resource across transforms —
+        // transformMintOrganizationNpi uses it to seed a deterministic NPI,
+        // and stripping it earlier would collapse every Organization that
+        // shares a name onto a single minted NPI. The id gets stripped at
+        // the POST boundary (below) so the server still mints its own uuid.
         $transformed = $this->applyTransforms($resource, $type, $bundleIndex);
         if ($transformed === null) {
             $this->counters['transformSkipped']++;
             return;
         }
         $resource = $this->rewriteReferences($transformed);
+
+        // Strip the Bundle-local id just before POST. The server mints its
+        // own uuid; keeping the Synthea id would force the FHIR write path
+        // to treat the POST as an update against a nonexistent resource.
+        unset($resource['id']);
 
         try {
             $resp = $http->post('/apis/' . $this->site . '/fhir/' . $type, [
@@ -583,7 +617,7 @@ final class FhirBundleImporter
     // Delete the method AND its registry entry in __construct() when the
     // upstream fix lands. The checklist tag in each docblock (e.g.
     // [README A1]) maps directly to a bullet in
-    // contrib/util/fhir_import/README.md so grep + delete is one step.
+    // src/Services/FHIR/Import/README.md so grep + delete is one step.
     //
     // Signature: each takes the current resource and the bundle index
     // (fullUrl → resource) and returns either the transformed resource or

@@ -50,7 +50,7 @@ noisily (counted under `failed`).
   stores raw JSON-decoded extension arrays into `$this->extension` without
   wrapping them as `FHIRExtension` objects. Any service that iterates
   `->getExtension()` and calls `->getUrl()` on an item crashes.
-  Transform: `transform_strip_extensions` strips `extension[]` from every
+  Transform: `transformStripExtensions` strips `extension[]` from every
   resource. Known loss: race/ethnicity/birthsex/mother's-maiden-name/birthplace
   demographics and synthea telemetry extensions. Delete the transform once
   the base-class constructor wraps raw arrays into `FHIRExtension`.
@@ -58,14 +58,14 @@ noisily (counted under `failed`).
 - ✅ **A2 — Services only read HumanName with `use="official"`, leaving
   fname/lname empty when no name carries that attribute.**
   Observed on `FhirPractitionerService::parseFhirResource`. Synthea names omit
-  `use` entirely. Transform: `transform_tag_first_name_official` sets
+  `use` entirely. Transform: `transformTagFirstNameOfficial` sets
   `name[0].use = "official"` when unset. Delete when the server falls back to
   `name[0]` on no-official-match.
 
 - ✅ **A3 — Non-ASCII email local parts rejected.**
   Synthea generates `Arturo47.Valentín837@example.com` style emails for
   internationalized given names; the write path's email validator refuses
-  them. Transform: `transform_strip_nonascii_telecom_emails` drops any
+  them. Transform: `transformStripNonAsciiTelecomEmails` drops any
   `telecom[]` entry with `system=email` whose value contains non-ASCII
   characters (keeps the rest of telecom). Delete when the validator accepts
   RFC 6531 internationalized local parts (or confirms it never will — in
@@ -83,14 +83,14 @@ noisily (counted under `failed`).
 
 - ✅ **B1 — `MedicationRequest.medicationReference is not supported`.** The
   write path accepts only `medicationCodeableConcept`. Standard R4 allows
-  either form. Transform: `transform_inline_medication_reference` resolves
+  either form. Transform: `transformInlineMedicationReference` resolves
   the referenced Medication from `bundleIndex` and inlines its `code` as a
   `medicationCodeableConcept`. Delete when the write path dereferences
   medicationReference server-side.
 
 - ✅ **B2 — `Only CarePlan.intent "plan" is supported`.** R4 valueset is
   `proposal | plan | order | option | directive`; Synthea emits "order" for
-  care plans tied to orders. Transform: `transform_careplan_force_plan_intent`
+  care plans tied to orders. Transform: `transformCareplanForcePlanIntent`
   rewrites non-plan intents to "plan". Semantic drift is tolerable for a
   dev tool. Delete when the write path accepts the full R4 valueset.
 
@@ -101,14 +101,14 @@ noisily (counted under `failed`).
   drops specific LOINCs inside the accepted `vital-signs` category (BMI
   39156-5 "derived from height and weight", pain scale 72514-3 "written
   through form"). Transform:
-  `transform_observation_drop_rejected_loincs`. Trim tier 1 as the write
+  `transformObservationDropRejectedLoincs`. Trim tier 1 as the write
   path adds laboratory / survey / social-history Observation support.
   Trim tier 2 as the narrow bans relax or get re-classified.
 
 - ✅ **B4 — `CareTeam.participant.member supports only Practitioner
   references on write`.** Synthea emits three participants per CareTeam
   (Patient, Practitioner, Organization). Transform:
-  `transform_careteam_keep_practitioner_participants` filters to
+  `transformCareteamKeepPractitionerParticipants` filters to
   Practitioner-only. If every participant is non-Practitioner the whole
   CareTeam drops (participant has 1..* cardinality). Delete when the
   write path accepts Patient/Organization members alongside Practitioner.
@@ -144,7 +144,7 @@ Synthea's shape. The transforms here are expected to live on indefinitely.
 
 - ✅ **D1 — `Organization.facility_npi` required.** Synthea Organizations
   carry only `identifier[system=https://github.com/.../synthea]`.
-  Transform: `transform_mint_organization_npi` mints a deterministic
+  Transform: `transformMintOrganizationNpi` mints a deterministic
   10-digit NPI from a SHA-1 hash of the Organization's `id` so re-runs
   produce the same NPI (idempotent across bundle imports).
 
