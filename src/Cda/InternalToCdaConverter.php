@@ -418,28 +418,17 @@ class InternalToCdaConverter
         }
         $provOrg->appendChild($id);
 
-        // providerOrganization name and telecom are both SHALL 1..* (CONF:5419,
-        // CONF:5420). Node omits the telecom when the facility has no phone and
-        // emits an empty <name/>; both fail validation, so an unknown value is
-        // carried as nullFlavor rather than omitted or emitted empty.
         $name = $this->xpathValue('/CCDA/encounter_provider/facility_name');
-        if ($name !== '') {
-            $provOrg->appendChild($this->createElement('name', $name));
-        } else {
-            $nameEl = $this->createElement('name');
-            $nameEl->setAttribute('nullFlavor', 'UNK');
-            $provOrg->appendChild($nameEl);
-        }
+        $provOrg->appendChild($this->createElement('name', $name !== '' ? $name : null));
 
+        // Node omits the telecom entirely when no facility phone is known.
         $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
-        $telecom = $this->createElement('telecom');
         if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
             $telecom->setAttribute('use', 'WP');
             $telecom->setAttribute('value', $phone);
-        } else {
-            $telecom->setAttribute('nullFlavor', 'UNK');
+            $provOrg->appendChild($telecom);
         }
-        $provOrg->appendChild($telecom);
 
         $this->appendWorkAddress(
             $provOrg,
@@ -2063,16 +2052,6 @@ class InternalToCdaConverter
         );
 
         $problems = $this->xpath('/CCDA/problem_lists/problem');
-        // A section with no entries and no nullFlavor fails the entries-required
-        // conformance, and its narrative table would carry a thead with no tbody
-        // (cvc-complex-type.2.4.b).
-        if ($problems->length === 0) {
-            $section->setAttribute('nullFlavor', 'NI');
-            $section->appendChild($this->createElement('text', 'Not Available'));
-            $this->appendSection($structuredBody, $component, $section);
-            return;
-        }
-
         $this->appendProblemsNarrative($section, $problems);
 
         $index = 1;
@@ -2797,16 +2776,6 @@ class InternalToCdaConverter
         $section->appendChild($this->createElement('title', 'Encounters'));
 
         $encounters = $this->xpath('/CCDA/encounter_list/encounter');
-        // A section with no entries and no nullFlavor fails the entries-required
-        // conformance, and its narrative table would carry a thead with no tbody
-        // (cvc-complex-type.2.4.b).
-        if ($encounters->length === 0) {
-            $section->setAttribute('nullFlavor', 'NI');
-            $section->appendChild($this->createElement('text', 'Not Available'));
-            $this->appendSection($structuredBody, $component, $section);
-            return;
-        }
-
         $this->appendEncountersNarrative($section, $encounters);
 
         $index = 1;
@@ -3485,16 +3454,6 @@ class InternalToCdaConverter
         );
 
         $vitals = $this->xpath('/CCDA/history_physical/vitals_list/vitals');
-        // A section with no entries and no nullFlavor fails the entries-required
-        // conformance, and its narrative table would carry a thead with no tbody
-        // (cvc-complex-type.2.4.b).
-        if ($vitals->length === 0) {
-            $section->setAttribute('nullFlavor', 'NI');
-            $section->appendChild($this->createElement('text', 'Not Available'));
-            $this->appendSection($structuredBody, $component, $section);
-            return;
-        }
-
         $this->appendVitalsNarrative($section, $vitals);
 
         $index = 1;
@@ -3923,15 +3882,6 @@ class InternalToCdaConverter
 
             $this->appendTableRow($table, [$element, $descDisplay, $dateDisplay], 'social' . $index);
             $index++;
-        }
-
-        // A table with a thead and no tbody is schema-invalid
-        // (cvc-complex-type.2.4.b). The section can be non-empty on its USCDI
-        // observations alone while carrying no smoking or tobacco history
-        // element, which is the only kind of row this table holds.
-        if ($index === 1) {
-            $section->appendChild($this->createElement('text', 'Not Available'));
-            return;
         }
 
         $text->appendChild($table);
