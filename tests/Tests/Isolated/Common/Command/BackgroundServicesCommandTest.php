@@ -464,9 +464,9 @@ class BackgroundServicesCommandTest extends TestCase
         ]);
         $tester = $this->createTester($command);
 
-        $tester->execute(['action' => 'crontab', '--site' => '2400']);
+        $tester->execute(['action' => 'crontab', '--site' => 'clinic2']);
 
-        $this->assertStringContainsString("background:services run --name='svc5' --site='2400'", $tester->getDisplay());
+        $this->assertStringContainsString("background:services run --name='svc5' --site='clinic2'", $tester->getDisplay());
     }
 
     public function testCrontabLinesDefaultToDefaultSite(): void
@@ -488,7 +488,7 @@ class BackgroundServicesCommandTest extends TestCase
         $command = new BackgroundServicesCommandStub([]);
         $tester = $this->createTester($command);
 
-        $exitCode = $tester->execute(['action' => 'run', '--site' => '2400']);
+        $exitCode = $tester->execute(['action' => 'run', '--site' => 'clinic2']);
 
         $this->assertSame(Command::SUCCESS, $exitCode);
     }
