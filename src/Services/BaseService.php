@@ -322,11 +322,7 @@ class BaseService implements BaseServiceInterface
      */
     public function selectHelper($sqlUpToFromStatement, $map): ?array
     {
-        $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
-        if ($records !== null) {
-            $records = is_array($records) ? $records : [$records];
-        }
-        return $records;
+        return QueryUtils::selectHelper($sqlUpToFromStatement, $map);
     }
 
     /**
