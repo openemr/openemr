@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Services;
 
 use C_Document;
 use Document;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
@@ -130,7 +131,7 @@ final class DocumentViewDeleteLinkTest extends TestCase
 
     public function testDeleteLinkCarriesThePatientTheDocumentIsFiledUnder(): void
     {
-        $html = (new C_Document())->view_action((string) self::DOC_PATIENT_ID, $this->documentId);
+        $html = $this->createDocumentController()->view_action((string) self::DOC_PATIENT_ID, $this->documentId);
         $this->assertIsString($html);
 
         // deleter.php denies the delete unless document_pid matches documents.foreign_id.
@@ -145,11 +146,20 @@ final class DocumentViewDeleteLinkTest extends TestCase
 
     public function testNoDeleteLinkWhenThePageHasNoPatient(): void
     {
-        $html = (new C_Document())->view_action(null, $this->documentId);
+        $html = $this->createDocumentController()->view_action(null, $this->documentId);
         $this->assertIsString($html);
 
         // document_pid 0 never matches a document filed under a patient, so deleter.php would refuse the delete.
         $this->assertStringContainsString("&document_pid=' + encodeURIComponent(\"0\")", $html);
         $this->assertStringNotContainsString("onclick='return deleteme(", $html);
+    }
+
+    private function createDocumentController(): C_Document
+    {
+        $controller = new C_Document();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $controller->assign('CSRF_TOKEN_FORM', CsrfUtils::collectCsrfToken($session));
+
+        return $controller;
     }
 }

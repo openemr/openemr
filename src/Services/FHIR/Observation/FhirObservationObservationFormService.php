@@ -122,11 +122,12 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
 
             foreach ($codeSearchField->getValues() as $codeSearchFieldValue) {
                 $system = $codeSearchFieldValue->getSystem() ?? null;
-                if (isset($systemLookupHash[$system])) {
-                    $codeTypes = $systemLookupHash[$system];
+                $systemKey = $system ?? '';
+                if (isset($systemLookupHash[$systemKey])) {
+                    $codeTypes = $systemLookupHash[$systemKey];
                 } else {
                     $codeTypes = $this->getCodeTypesService()->getCodeTypeListForSystem($system);
-                    $systemLookupHash[$system] = $codeTypes;
+                    $systemLookupHash[$systemKey] = $codeTypes;
                 }
                 if (!empty($codeTypes)) {
                     $compoundObCodeWithCodeType = new CompositeSearchField('ob_code_code_type', [], true);
