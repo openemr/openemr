@@ -310,7 +310,7 @@ class TelehealthGlobalConfig
         return self::APP_REGISTRATION_CODE_LENGTH;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
             self::COMLINK_VIDEO_REGISTRATION_API => [
