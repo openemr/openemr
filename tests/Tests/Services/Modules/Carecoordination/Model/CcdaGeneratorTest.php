@@ -64,10 +64,7 @@ class CcdaGeneratorTest extends TestCase
         // predecessor, so a versioned extension="2015-08-01" templateId is
         // intentionally absent — a second templateId sharing that root violates
         // "exactly one" (CONF:1098-29584). Do not re-add the versioned templateId.
-        // ccda-example-response1.xml is the legacy CcdaServiceDocumentRequestor::socket_get
-        // expectation. normalize() runs InternalToCdaConverter, which deliberately diverges
-        // from that path, so it compares against the converter's own expectation.
-        $expectedOutput = file_get_contents(self::FIXTURE_DIR . 'ccda-converter-response1.xml');
+        $expectedOutput = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
         self::assertNotFalse($expectedOutput, 'Failed to read expected fixture');
 
         $dispatchTable = $this->createMock(EncounterccdadispatchTable::class);

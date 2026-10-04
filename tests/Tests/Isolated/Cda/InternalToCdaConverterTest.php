@@ -1043,11 +1043,7 @@ class InternalToCdaConverterTest extends TestCase
         if ($this->actualOutput === null) {
             $input = file_get_contents(self::FIXTURE_DIR . 'ccda-example-input1.xml');
             self::assertNotFalse($input, 'Failed to read input fixture');
-            // ccda-example-response1.xml is the legacy CcdaServiceDocumentRequestor::socket_get
-            // expectation and must keep matching that path. The converter deliberately diverges
-            // from it (languageCode region suffix, document provenance time), so it has its own
-            // expectation here.
-            $expected = file_get_contents(self::FIXTURE_DIR . 'ccda-converter-response1.xml');
+            $expected = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
             self::assertNotFalse($expected, 'Failed to read expected fixture');
             $this->expectedOutput = $expected;
 
