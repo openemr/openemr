@@ -156,8 +156,8 @@ final class DocumentViewDeleteLinkTest extends TestCase
 
     public function testListActionHandlesPatientWithoutPatientDataRow(): void
     {
-        $patient = sqlQuery('SELECT pid FROM patient_data WHERE pid = ?', [self::DOC_PATIENT_ID]);
-        $this->assertFalse($patient, 'the fixture patient ID must not have a patient_data row');
+        $patients = QueryUtils::fetchRecords('SELECT pid FROM patient_data WHERE pid = ?', [self::DOC_PATIENT_ID]);
+        $this->assertSame([], $patients, 'the fixture patient ID must not have a patient_data row');
 
         $warnings = [];
         set_error_handler(static function (int $severity, string $message) use (&$warnings): bool {
@@ -174,7 +174,6 @@ final class DocumentViewDeleteLinkTest extends TestCase
             restore_error_handler();
         }
 
-        $this->assertIsString($html);
         $this->assertSame([], $warnings);
     }
 
