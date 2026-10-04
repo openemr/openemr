@@ -171,7 +171,7 @@ class BaseService implements BaseServiceInterface
      * Build SQL Query for Selecting Fields
      *
      * @param array $map
-     * @return array
+     * @return ?array
      */
     public function queryFields($map = null, $data = null)
     {
