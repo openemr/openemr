@@ -1222,7 +1222,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRObservation)) {
             throw new InvalidArgumentException(

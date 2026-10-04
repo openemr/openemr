@@ -592,7 +592,7 @@ function MidlevelPrescriber($doc, $r): void
     $r->appendChild($b);
 }
 
-function Patient($doc, $r, $pid)
+function Patient($doc, $r, $pid): array
 {
     global $msg,$warning_msg,$dem_check;
     $patient_data = sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?", [$pid]);

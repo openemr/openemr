@@ -345,7 +345,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 ////////////////////// End of code inserted by epsdky
 }
 
-function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id = null)
+function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id = null): array
 {
     $sqlBindArray = [];
 
@@ -367,7 +367,7 @@ function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id 
 }
 
 //Support for therapy group appointments added by shachar z.
-function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null)
+function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null): array
 {
     $sqlBindArray = [];
 
