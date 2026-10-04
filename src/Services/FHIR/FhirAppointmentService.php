@@ -566,7 +566,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         if ($insertId) {
             // Fetch the created appointment to return full data
             $appointment = $this->appointmentService->getAppointment($insertId);
-            if (is_array($appointment) && isset($appointment[0])) {
+            if (isset($appointment[0])) {
                 $processingResult->addData($appointment[0]);
             } else {
                 $processingResult->addData(['pc_eid' => $insertId]);

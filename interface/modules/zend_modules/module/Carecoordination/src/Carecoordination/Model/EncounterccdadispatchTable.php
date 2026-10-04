@@ -244,7 +244,7 @@ class EncounterccdadispatchTable
     public function getPreviousNames($pid): array
     {
         $nameService = new PatientNameHistoryService();
-        return $nameService->getPatientNameHistory($pid) ?? [];
+        return $nameService->getPatientNameHistory($pid);
     }
 
     public function getSdohData($pid, $encounter)

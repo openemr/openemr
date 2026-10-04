@@ -368,7 +368,7 @@ class C_EncounterVisitForm
 
         // Get list of discharge dispositions
         $dischargeService = new ListService();
-        $dispositionList = $dischargeService->getOptionsByListName('discharge-disposition') ?? [];
+        $dispositionList = $dischargeService->getOptionsByListName('discharge-disposition');
 
         foreach ($dispositionList as $disposition) {
             $dispositions[] = [

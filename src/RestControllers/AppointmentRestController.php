@@ -299,7 +299,7 @@ class AppointmentRestController
             $service = $this->appointmentService;
             assert($service instanceof AppointmentService);
             $existing = $service->getAppointment($eid);
-            $existingPidRaw = (is_array($existing) && isset($existing[0]) && is_array($existing[0]))
+            $existingPidRaw = (isset($existing[0]) && is_array($existing[0]))
                 ? ($existing[0]['pid'] ?? null)
                 : null;
             if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
