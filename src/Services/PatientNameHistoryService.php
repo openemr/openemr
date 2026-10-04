@@ -103,7 +103,7 @@ class PatientNameHistoryService extends BaseService
     }
 
 
-    public function getPatientNameHistory($pid)
+    public function getPatientNameHistory($pid): array
     {
         $sql = "SELECT pid,
             id,
