@@ -1303,7 +1303,9 @@ class C_Document extends Controller
             if ((int)$cur_pid > 0) {
                 $query = "select fname, lname from patient_data WHERE pid = ?";
                 $name = sqlQuery($query, [$cur_pid]);
-                $place_hld = $name['fname'] . ' ' . $name['lname'];
+                if (is_array($name)) {
+                    $place_hld = $name['fname'] . ' ' . $name['lname'];
+                }
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {

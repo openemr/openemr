@@ -24,8 +24,15 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\ObservationService;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use ReflectionProperty;
 
 class FhirObservationObservationFormServiceTest extends TestCase
 {
@@ -442,6 +449,53 @@ class FhirObservationObservationFormServiceTest extends TestCase
         $this->assertEquals("puuid", $fhirSearchDefinition->getMappedFields()[0]->getField());
         $this->assertEquals("patient", $fhirSearchDefinition->getName());
         $this->assertEquals(SearchFieldType::REFERENCE, $fhirSearchDefinition->getType());
+    }
+
+    public function testSearchWithRepeatedTokensMissingSystemDoesNotUseNullArrayKeys(): void
+    {
+        $codeTypesService = $this->createMock(CodeTypesService::class);
+        $codeTypesService->expects($this->once())
+            ->method('getCodeTypeListForSystem')
+            ->with(null)
+            ->willReturn([]);
+        $this->fhirService->setCodeTypesService($codeTypesService);
+
+        $observationService = $this->createMock(ObservationService::class);
+        $searchParameters = null;
+        $observationService->expects($this->once())
+            ->method('searchAndPopulateChildObservations')
+            ->with($this->callback(static function (array $parameters) use (&$searchParameters): bool {
+                $searchParameters = $parameters;
+                return true;
+            }))
+            ->willReturn(new ProcessingResult());
+        (new ReflectionProperty($this->fhirService, 'observationService'))->setValue($this->fhirService, $observationService);
+
+        $deprecations = [];
+        set_error_handler(static function (int $severity, string $message) use (&$deprecations): bool {
+            if ($severity === E_DEPRECATED && str_contains($message, 'array offset')) {
+                $deprecations[] = $message;
+                return true;
+            }
+            return false;
+        });
+
+        try {
+            (new ReflectionMethod($this->fhirService, 'searchForOpenEMRRecords'))->invoke($this->fhirService, [
+                'ob_code' => new TokenSearchField('ob_code', [
+                    new TokenSearchValue('code-one'),
+                    new TokenSearchValue('code-two'),
+                ]),
+            ]);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $deprecations);
+        $this->assertIsArray($searchParameters);
+        $codeSearch = $searchParameters['ob_code'] ?? null;
+        $this->assertInstanceOf(CompositeSearchField::class, $codeSearch);
+        $this->assertCount(2, $codeSearch->getChildren());
     }
 
     public function testSupportsCategory(): void
