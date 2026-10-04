@@ -38,7 +38,7 @@ class TherapyGroupsController extends BaseController
     /* Note: Created functions to return arrays so that xl method can be used in array rendering. */
 
     //list of group statuses
-    public static function prepareStatusesList()
+    public static function prepareStatusesList(): array
     {
         $statuses = [
             '10' => xl('Active'),
@@ -49,7 +49,7 @@ class TherapyGroupsController extends BaseController
     }
 
     //list of participant statuses
-    public static function prepareParticipantStatusesList()
+    public static function prepareParticipantStatusesList(): array
     {
         $participant_statuses = [
                 '10' => xl('Active'),
@@ -59,7 +59,7 @@ class TherapyGroupsController extends BaseController
     }
 
     //list of group types
-    public static function prepareGroupTypesList()
+    public static function prepareGroupTypesList(): array
     {
         $group_types = [
             '1' => xl('Closed'),
@@ -70,7 +70,7 @@ class TherapyGroupsController extends BaseController
     }
 
     //list of participation types
-    public static function prepareGroupParticipationList()
+    public static function prepareGroupParticipationList(): array
     {
         $group_participation = [
             '1' => xl('Mandatory'),
