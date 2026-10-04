@@ -264,7 +264,10 @@ class Measure extends AbstractType
          */
     }
 
-    public function population_keys()
+    /**
+     * @return list<('DENEX' | 'DENEXCEP' | 'DENOM' | 'IPP' | 'MSRPOPL' | 'MSRPOPLEX' | 'NUMER' | 'NUMEX')>
+     */
+    public function population_keys(): array
     {
         // we could probably cache this call if we needed to optimize...
         $popKeys = [];

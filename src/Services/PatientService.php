@@ -925,7 +925,7 @@ class PatientService extends BaseService
         return compact('age', 'age_in_months', 'ageinYMD');
     }
 
-    public function getProviderIDsForPatientPids(array $patientPids)
+    public function getProviderIDsForPatientPids(array $patientPids): array
     {
         // get integer only filtered pids for sql safety
         $pids = array_map(intval(...), $patientPids);
@@ -943,7 +943,7 @@ class PatientService extends BaseService
         return $mappedPids;
     }
 
-    public function getProviderIDsForPatientUuids(array $patientUuids)
+    public function getProviderIDsForPatientUuids(array $patientUuids): array
     {
         // get integer only filtered pids for sql safety
         $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";

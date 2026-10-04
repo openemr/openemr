@@ -220,7 +220,7 @@ trait Cat3View
         return $this->reformat_supplemental_data($supplemental_data);
     }
 
-    protected function reformat_supplemental_data($supplemental_data)
+    protected function reformat_supplemental_data($supplemental_data): array
     {
         $supplemental_data_array = [];
         foreach ($supplemental_data as $supplemental_data_key => $counts) {

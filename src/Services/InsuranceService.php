@@ -376,7 +376,7 @@ class InsuranceService extends BaseService
         return $result;
     }
 
-    public function getPoliciesOrganizedByTypeForPatientPid($pid)
+    public function getPoliciesOrganizedByTypeForPatientPid($pid): array
     {
         $insurancePolicies = $this->search(['pid' => $pid]);
         $result = [];
