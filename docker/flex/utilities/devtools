@@ -109,7 +109,9 @@
 #   disable-ldap            - Disable LDAP authentication
 #
 # DATA MANAGEMENT:
-#   import-random-patients <count> [false]  - Generate and import random patients
+#   import-random-patients <count> [false] [ccda|fhir]
+#                                           - Generate and import random patients.
+#                                             Third arg selects import format; default ccda.
 #
 # OAUTH2:
 #   register-oauth2-client [site]      - Register OAuth2 client for default/multisite
@@ -769,11 +771,12 @@ fi
 # DATA MANAGEMENT COMMANDS
 # ============================================================================
 if [ "$1" = "import-random-patients" ] && [ ! -z "$2" ]; then
+    irp_isdev="true"
     if [ ! -z "$3" ] && [ "$3" = "false" ]; then
-        importRandomPatients "$2" false
-    else
-        importRandomPatients "$2" true
+        irp_isdev="false"
     fi
+    irp_format="${4:-ccda}"
+    importRandomPatients "$2" "$irp_isdev" "$irp_format"
 fi
 
 if [ "$1" = "generate-multisite-bank" ] && [ ! -z "$2" ]; then
