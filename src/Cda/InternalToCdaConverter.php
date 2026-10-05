@@ -587,13 +587,27 @@ class InternalToCdaConverter
         }
         $repCustOrg->appendChild($id);
 
+        // representedCustodianOrganization name is SHALL 1..1 and telecom is
+        // SHALL 1..*. An empty <name/> fails validateST, and a bare "tel:" with
+        // no number is not a usable TEL value, so an unknown value is carried as
+        // nullFlavor rather than emitted empty.
         $name = $this->xpathValue('/CCDA/custodian/name');
-        $repCustOrg->appendChild($this->createElement('name', $name));
+        if ($name !== '') {
+            $repCustOrg->appendChild($this->createElement('name', $name));
+        } else {
+            $nameEl = $this->createElement('name');
+            $nameEl->setAttribute('nullFlavor', 'UNK');
+            $repCustOrg->appendChild($nameEl);
+        }
 
         $phone = $this->xpathValue('/CCDA/custodian/telecom');
         $telecom = $this->createElement('telecom');
-        $telecom->setAttribute('value', 'tel:' . $phone);
-        $telecom->setAttribute('use', 'WP');
+        if ($phone !== '') {
+            $telecom->setAttribute('value', 'tel:' . $phone);
+            $telecom->setAttribute('use', 'WP');
+        } else {
+            $telecom->setAttribute('nullFlavor', 'UNK');
+        }
         $repCustOrg->appendChild($telecom);
 
         $this->appendWorkAddress(
@@ -5719,8 +5733,13 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.65', '2016-11-01');
 
+        // II/@root must be an OID or a UUID. The literal inherited from node
+        // (sectionLevel2.js, "16C8G888-10D9-23E6-H141-0080055B0002") contains G
+        // and H, which are not hex digits, so it is neither. Replaced with a
+        // valid UUID; no validator has flagged it because none checks @root
+        // syntax, but it is a datatype violation.
         $id = $this->createElement('id');
-        $id->setAttribute('root', '16C8G888-10D9-23E6-H141-0080055B0002');
+        $id->setAttribute('root', '16c8f888-10d9-43e6-a141-0080055b0002');
         $section->appendChild($id);
 
         $code = $this->createElement('code');

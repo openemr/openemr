@@ -107,7 +107,7 @@
     <assignedCustodian>
         <representedCustodianOrganization>
             <id root="2.16.840.1.113883.4.6"/>
-            <name/>
+            <name nullFlavor="UNK"/>
             <telecom value="tel:0" use="WP"/>
             <addr nullFlavor="NI"/>
         </representedCustodianOrganization>

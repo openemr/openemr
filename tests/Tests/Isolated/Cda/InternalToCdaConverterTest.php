@@ -407,6 +407,80 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * representedCustodianOrganization name is SHALL 1..1 and telecom is
+     * SHALL 1..*. An empty <name/> fails validateST and a bare "tel:" with no
+     * number is not a usable TEL value, so both carry nullFlavor when unknown.
+     */
+    public function testCustodianOrganizationCarriesNameAndTelecom(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <patient>
+                    <fname>Happy</fname>
+                    <lname>Kid</lname>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $base = '/hl7:ClinicalDocument/hl7:custodian/hl7:assignedCustodian'
+            . '/hl7:representedCustodianOrganization';
+
+        foreach (['name', 'telecom'] as $part) {
+            $node = $xpath->query($base . '/hl7:' . $part);
+            self::assertNotFalse($node, $part . ' query must be valid');
+            self::assertSame(1, $node->length, 'The custodian organization carries a ' . $part);
+
+            $element = $node->item(0);
+            self::assertInstanceOf(\DOMElement::class, $element, $part . ' must be an element');
+            self::assertSame(
+                'UNK',
+                $element->getAttribute('nullFlavor'),
+                'An unknown custodian ' . $part . ' is nullFlavor, never empty'
+            );
+        }
+    }
+
+    /**
+     * Every II/@root is an OID or a UUID.
+     *
+     * The Notes Section id was ported from node as
+     * "16C8G888-10D9-23E6-H141-0080055B0002", which contains G and H and is
+     * therefore neither. No validator checks @root syntax, so this guards a
+     * class of defect nothing else would catch.
+     */
+    public function testEveryIdRootIsAnOidOrUuid(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $nodes = $xpath->query('//*[@root]');
+        self::assertNotFalse($nodes, 'Root query must be valid');
+        self::assertGreaterThan(0, $nodes->length, 'The document carries id roots');
+
+        $oid = '/^[0-2](\.(0|[1-9]\d*))+$/';
+        $uuid = '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/';
+
+        foreach ($nodes as $node) {
+            self::assertInstanceOf(\DOMElement::class, $node, 'Node must be an element');
+            $root = $node->getAttribute('root');
+            self::assertTrue(
+                preg_match($oid, $root) === 1 || preg_match($uuid, $root) === 1,
+                'II/@root must be an OID or a UUID, got "' . $root . '" on <' . $node->localName . '>'
+            );
+        }
+    }
+
+    /**
      * A narrative table with a thead and no tbody is schema-invalid
      * (cvc-complex-type.2.4.b). The Social History section can be non-empty on
      * its USCDI observations alone while carrying no smoking or tobacco history
