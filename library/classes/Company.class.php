@@ -67,7 +67,7 @@ class Company extends ORDataObject
         return $a;
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"

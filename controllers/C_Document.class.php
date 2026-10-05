@@ -83,7 +83,7 @@ class C_Document extends Controller
         $this->templateService = new DocumentTemplateService();
     }
 
-    public function upload_action($patient_id, $category_id)
+    public function upload_action($patient_id, $category_id): string
     {
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
@@ -437,7 +437,7 @@ class C_Document extends Controller
         return $this->list_action();
     }
 
-    public function view_action(?string $patient_id, $doc_id)
+    public function view_action(?string $patient_id, $doc_id): string
     {
         $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 

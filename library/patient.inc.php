@@ -146,7 +146,7 @@ function getFacility($facid = 0)
 // Generate a report title including report name and facility name, address
 // and phone.
 //
-function genFacilityTitle($repname = '', $facid = 0, $logo = "")
+function genFacilityTitle($repname = '', $facid = 0, $logo = ""): string
 {
     $s = '';
     $s .= "<table class='ftitletable' width='100%'>\n";
@@ -277,7 +277,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     return ($returnval ?? null);
 }
 
-function getProviderName($providerID, $provider_only = 'any')
+function getProviderName($providerID, $provider_only = 'any'): string
 {
     $pi = getProviderInfo($providerID, $provider_only);
     if (!empty($pi[0]["lname"]) && (strlen((string) $pi[0]["lname"]) > 0)) {
@@ -379,7 +379,7 @@ function getInsuranceDataByDate(
     return sqlQuery($sql, [$pid, $date, $date, $type]);
 }
 
-function get_unallocated_patient_balance($pid)
+function get_unallocated_patient_balance($pid): string
 {
     $unallocated = 0.0;
     $query = "SELECT a.session_id, a.pay_total, a.global_amount " .
@@ -431,7 +431,7 @@ function getEmployerData($pid, $given = "*")
 }
 
 // Generate a consistent header and footer, used for printed patient reports
-function genPatientHeaderFooter($pid, $DOS = null)
+function genPatientHeaderFooter($pid, $DOS = null): string
 {
     $patient_dob = getPatientData($pid, "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
     $patient_name = getPatientName($pid);
@@ -835,7 +835,7 @@ function getPatientPID($args)
 }
 
 /* return a patient's name in the format LAST [SUFFIX], FIRST [MIDDLE] */
-function getPatientName($pid)
+function getPatientName($pid): string
 {
     if (empty($pid)) {
         return "";
@@ -891,7 +891,7 @@ function getPatientFullNameAsString($pid): string
 }
 
 /* return a patient's name in the format FIRST LAST */
-function getPatientNameFirstLast($pid)
+function getPatientNameFirstLast($pid): string
 {
     if (empty($pid)) {
         return "";
@@ -1121,7 +1121,7 @@ function newPatientData(
     return $foo['pid'];
 }
 
-function pdValueOrNull($key, $value)
+function pdValueOrNull($key, $value): string
 {
     if (
         (in_array($key, ['DOB', 'regdate', 'contrastart']) ||
@@ -1462,7 +1462,7 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
     $service = new PatientService();
     return $service->getPatientAgeDisplay($dobYMD, $asOfYMD);
 }
-function dateToDB($date)
+function dateToDB($date): string
 {
     $date = substr((string) $date, 6, 4) . "-" . substr((string) $date, 3, 2) . "-" . substr((string) $date, 0, 2);
     return $date;
@@ -1527,9 +1527,9 @@ function getAllinsurances($pid): array
  * @param int $pid The PID of the patient.
  * @param bool $with_insurance Indicates if amounts owed by insurance are to be included.
  * @param int $eid Optional encounter id. If value is passed, will fetch only bills from specified encounter.
- * @return number The balance.
+ * @return numeric-string The balance.
  */
-function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false)
+function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false): string
 {
     $balance = 0;
     $bindarray = [$pid];
@@ -1600,7 +1600,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_co
     return sprintf('%01.2f', $balance);
 }
 
-function get_patient_balance_excluding($pid, $excluded = -1)
+function get_patient_balance_excluding($pid, $excluded = -1): string
 {
     // We join form_encounter here to make sure we only count amounts for
     // encounters that exist.  We've had some trouble before with encounters

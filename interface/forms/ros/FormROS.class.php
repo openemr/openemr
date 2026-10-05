@@ -1647,7 +1647,7 @@ class FormROS extends ORDataObject
             $this->constipation = $data;
         }
     }
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n" . "ID: " . $this->id . "\n";
         return $html ? nl2br($string) : $string;

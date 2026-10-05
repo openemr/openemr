@@ -827,7 +827,7 @@ class FeeSheet
   // Returns an error message if any product items cannot be filled.
   // You must call this before save().
   //
-    public function checkInventory(&$prod)
+    public function checkInventory(&$prod): string
     {
         $alertmsg = '';
         $insufficient = 0;

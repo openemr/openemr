@@ -1050,7 +1050,7 @@ class FPDF
         return true;
     }
 
-    protected function _httpencode($param, $value, $isUTF8)
+    protected function _httpencode($param, $value, $isUTF8): string
     {
     // Encode HTTP header field parameter
         if ($this->_isascii($value))
@@ -1062,7 +1062,7 @@ class FPDF
         else return $param."*=UTF-8''".rawurlencode((string) $value);
     }
 
-    protected function _UTF8toUTF16($s)
+    protected function _UTF8toUTF16($s): string
     {
     // Convert UTF-8 to UTF-16BE with BOM
         $res = "\xFE\xFF";
@@ -1097,7 +1097,7 @@ class FPDF
         else return $s;
     }
 
-    protected function _textstring($s)
+    protected function _textstring($s): string
     {
     // Format a text string
         if (!$this->_isascii($s))
@@ -1105,7 +1105,7 @@ class FPDF
         return '('.$this->_escape($s).')';
     }
 
-    protected function _dounderline($x, $y, $txt)
+    protected function _dounderline($x, $y, $txt): string
     {
     // Underline text
         $up = $this->CurrentFont['up'];
@@ -1252,7 +1252,7 @@ class FPDF
         return $info;
     }
 
-    protected function _readstream($f, $n)
+    protected function _readstream($f, $n): string
     {
     // Read n bytes from stream
         $res = '';
@@ -1517,7 +1517,7 @@ class FPDF
         }
     }
 
-    protected function _tounicodecmap($uv)
+    protected function _tounicodecmap($uv): string
     {
         $ranges = '';
         $nbr = 0;

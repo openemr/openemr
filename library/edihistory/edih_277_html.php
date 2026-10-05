@@ -37,7 +37,7 @@ use OpenEMR\Billing\EdiHistory\Claim277Renderer;
  * @param bool $accordion wrap each transaction in its own accordion section
  * @return string
  */
-function edih_277_transaction_html($obj277, string $bht03, bool $accordion = false)
+function edih_277_transaction_html($obj277, string $bht03, bool $accordion = false): string
 {
     // segment dispatch maps, defined once up front so each case below is a
     // declarative lookup rather than an inline match

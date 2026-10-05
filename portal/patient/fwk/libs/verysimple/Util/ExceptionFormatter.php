@@ -48,7 +48,7 @@ class ExceptionFormatter
      * @param bool $show_lines
      *          true to include line numbers
      */
-    public static function FormatTrace($tb, $depth = 0, $join = " :: ", $show_lines = true)
+    public static function FormatTrace($tb, $depth = 0, $join = " :: ", $show_lines = true): string
     {
         $msg = "";
         $delim = "";

@@ -1282,7 +1282,7 @@ function getMeasureSection($xml, $rule_id): void
 }
 
     //Download QRDA Category I
-function downloadQRDACat1($xml, $patient_id, $rule_id)
+function downloadQRDACat1($xml, $patient_id, $rule_id): string
 {
     //Patient Info
     if ($patient_id != "") {

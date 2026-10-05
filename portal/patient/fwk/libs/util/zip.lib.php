@@ -164,7 +164,7 @@ class zipfile
      *
      * @access public
      */
-    public function file()
+    public function file(): string
     {
         $data = implode('', $this->datasec);
         $ctrldir = implode('', $this->ctrl_dir);

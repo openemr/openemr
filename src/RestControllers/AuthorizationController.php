@@ -1815,7 +1815,7 @@ class AuthorizationController implements LoggerAwareInterface
      * @deprecated Use ServerConfig::getTokenUrl()
      * @return string
      */
-    public function getTokenUrl()
+    public function getTokenUrl(): string
     {
         return $this->authBaseFullUrl . self::getTokenPath();
     }

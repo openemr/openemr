@@ -23,7 +23,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 
-function add_escape_custom($s)
+function add_escape_custom($s): string
 {
     //prepare for safe mysql insertion
     $s = mysqli_real_escape_string(OEGlobalsBag::getInstance()->get('dbh'), ($s ?? ''));
@@ -80,7 +80,7 @@ function process_cols_escape($s)
  * @param bool $throwException Whether to throw a SQL exception instead of dying
  * @return  string                 Escaped table name variable.
  */
-function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
+function escape_sql_column_name($s, $tables, $long = false, $throwException = false): string
 {
     // If $s is asterisk return asterisk to select all columns
     if ($s === "*") {
@@ -150,7 +150,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  * @param   string $s  sql table name variable to be escaped/sanitized.
  * @return  string     Escaped table name variable.
  */
-function escape_table_name($s)
+function escape_table_name($s): string
 {
     return QueryUtils::escapeTableName($s);
 }

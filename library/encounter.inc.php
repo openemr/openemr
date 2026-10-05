@@ -21,9 +21,8 @@ function fetchCategoryIdByEncounter($encounter)
 
 /**
  * @param $encounter
- * @return mixed
  */
-function fetchDateService($encounter)
+function fetchDateService($encounter): string
 {
     $sql = "select date from form_encounter where encounter = ?";
     $result = sqlQuery($sql, [$encounter]);

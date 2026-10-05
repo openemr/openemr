@@ -362,7 +362,7 @@ class InstallerController extends AbstractActionController
      * @param unknown_type $data
      * @return string
      */
-    private function getContent($data)
+    private function getContent($data): string
     {
         $string = "";
         foreach ($data as $key => $value) {

@@ -116,7 +116,7 @@ rsort($datapoints);
 
 
 // convert to applicable weight units from Config Locale
-function unitsWt($wt)
+function unitsWt($wt): string
 {
     global $isMetric;
     return $isMetric
@@ -125,7 +125,7 @@ function unitsWt($wt)
 }
 
 // convert to applicable length units from Config Locale
-function unitsDist($dist)
+function unitsDist($dist): string
 {
     global $isMetric;
     return $isMetric

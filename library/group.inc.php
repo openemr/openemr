@@ -99,7 +99,7 @@ function getProvidersOfEvent($eid): array
 }
 
 //Fetches name of user by his id
-function getUserNameById($uid)
+function getUserNameById($uid): string
 {
     $model = new Users();
     $result = $model->getUserNameById($uid);

@@ -164,7 +164,7 @@ class InsuranceCompany extends ORDataObject
         return $this->name;
     }
 
-    public function get_display_name()
+    public function get_display_name(): string
     {
         return InsuranceCompanyService::getDisplayNameForInsuranceRecord([
             'name' => $this->name,
@@ -405,7 +405,7 @@ class InsuranceCompany extends ORDataObject
         return $icompanies;
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"

@@ -87,7 +87,7 @@ class Bootstrap
         return self::$instance;
     }
 
-    public function getAssetPath()
+    public function getAssetPath(): string
     {
         return OEGlobalsBag::getInstance()->getWebRoot() . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
     }
@@ -193,12 +193,12 @@ class Bootstrap
 //        }
     }
 
-    private function getPublicPath()
+    private function getPublicPath(): string
     {
         return self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
     }
 
-    public function getTemplatePath()
+    public function getTemplatePath(): string
     {
         return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }

@@ -259,7 +259,7 @@ class parseCSV
      * @param mixed $data 2D array with data
      * @param mixed $fields field names
      * @param mixed $delimiter delimiter used to separate data
-     * @return CSV data using delimiter of choice, or default
+     * @return string CSV data using delimiter of choice, or default
      */
     public function output($filename = null, $data = [], $fields = [], $delimiter = null)
     {
@@ -579,9 +579,8 @@ class parseCSV
      * @param mixed $is_php if a php die() call should be put on the first
      *          line of the file, this is later ignored when read.
      * @param mixed $delimiter field delimiter to use
-     * @return CSV data (text string)
      */
-    public function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null)
+    public function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null): string
     {
         if (! is_array($data) || empty($data)) {
             $data = &$this->data;

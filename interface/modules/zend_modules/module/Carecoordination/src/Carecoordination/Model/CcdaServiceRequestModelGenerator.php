@@ -221,7 +221,7 @@ class CcdaServiceRequestModelGenerator
         $this->data .= "</CCDA>";
     }
 
-    public function getContinuityCareDocument($pid, $components_list, $encounter)
+    public function getContinuityCareDocument($pid, $components_list, $encounter): string
     {
         $ccd = '';
         if (in_array('allergies', $components_list)) {
@@ -280,7 +280,7 @@ class CcdaServiceRequestModelGenerator
     }
 
 
-    public function getDischargeSummary($pid, $encounter)
+    public function getDischargeSummary($pid, $encounter): string
     {
         $discharge_summary = '';
 
@@ -307,7 +307,7 @@ class CcdaServiceRequestModelGenerator
 
     * $return   string  $procedure_notes      XML which contains the details collected from the patient.
     */
-    public function getProcedureNotes($pid, $encounter)
+    public function getProcedureNotes($pid, $encounter): string
     {
         $procedure_notes = '<procedure_notes>';
         $procedure_notes .= $this->getEncounterccdadispatchTable()->getComplications($pid, $encounter);
@@ -338,7 +338,7 @@ class CcdaServiceRequestModelGenerator
 
     * $return   string  $operative_notes      XML which contains the details collected from the patient.
     */
-    public function getOperativeNotes($pid, $encounter)
+    public function getOperativeNotes($pid, $encounter): string
     {
         $operative_notes = '<operative_notes>';
         $operative_notes .= $this->getEncounterccdadispatchTable()->getAnesthesia($pid, $encounter);
@@ -364,7 +364,7 @@ class CcdaServiceRequestModelGenerator
 
     * $return   string  $consultation_notes      XML which contains the details collected from the patient.
     */
-    public function getConsultationNote($pid, $encounter)
+    public function getConsultationNote($pid, $encounter): string
     {
         $consultation_notes = '';
         $consultation_notes .= "<consultation_notes>";
@@ -393,7 +393,7 @@ class CcdaServiceRequestModelGenerator
     * $return   string  $history_and_physical_notes      XML which contains the details collected from the patient.
     */
 
-    public function getHistoryAndPhysicalNotes($pid, $encounter, $components_list)
+    public function getHistoryAndPhysicalNotes($pid, $encounter, $components_list): string
     {
         $history_and_physical_notes = '';
         $history_and_physical_notes .= "<history_physical>";

@@ -553,7 +553,7 @@ class RuleManager
         return $ruleId;
     }
 
-    public function getNextRuleId()
+    public function getNextRuleId(): string
     {
         $result = sqlQuery("select count(*)+1 AS id from clinical_rules");
         $ruleId = "rule_" . $result['id'];

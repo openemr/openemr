@@ -182,7 +182,7 @@ class smtp_class
         return(1);
     }
 
-    public Function ConnectToHost($domain, $port, $resolve_message)
+    public Function ConnectToHost($domain, $port, $resolve_message): string
     {
         if ($this->ssl) {
             $version=explode(".",function_exists("phpversion") ? phpversion() : "3.0.7");

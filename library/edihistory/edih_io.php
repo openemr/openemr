@@ -36,7 +36,7 @@ function edih_php_inivals()
  * @uses csv_log_html()
  * @return string
  */
-function edih_disp_log()
+function edih_disp_log(): string
 {
     $lfn = '';
     if (isset($_GET['log_select'])) {
@@ -74,7 +74,7 @@ function edih_disp_logfiles()
  * @uses csv_notes_file()
  * @return string
  */
-function edih_user_notes()
+function edih_user_notes(): string
 {
     //
     $str_html = '';
@@ -107,7 +107,7 @@ function edih_user_notes()
  *
  * @return string
  */
-function edih_disp_archive_restore()
+function edih_disp_archive_restore(): string
 {
     //name="archrestore_sel" { archrestore: 'yes', archfile: archf };
     $fn = (isset($_POST['archrestore_sel'])) ? filter_input(INPUT_POST, 'archrestore_sel', FILTER_UNSAFE_RAW) : '';
@@ -128,7 +128,7 @@ function edih_disp_archive_restore()
  *
  * @return string
  */
-function edih_disp_archive_report()
+function edih_disp_archive_report(): string
 {
     //
     $str_html = '';
@@ -151,7 +151,7 @@ function edih_disp_archive_report()
  *
  * @return string
  */
-function edih_disp_archive()
+function edih_disp_archive(): string
 {
     //
     $pd = (isset($_POST['archive_sel'])) ? filter_input(INPUT_POST, 'archive_sel', FILTER_UNSAFE_RAW) : '';
@@ -175,7 +175,7 @@ function edih_disp_archive()
  *
  * @return string  html format
  */
-function edih_disp_file_process()
+function edih_disp_file_process(): string
 {
     // debug
     if (isset($_GET)) {
@@ -280,7 +280,7 @@ function edih_disp_file_process()
  * @uses edih_sort_upload()
  * @return string
  */
-function edih_disp_file_upload()
+function edih_disp_file_upload(): string
 {
     // multiple file upload
     $str_html = '';
@@ -320,7 +320,7 @@ function edih_disp_denied_claims()
  * @uses ibr_batch_get_st_block()
  * @return string
  */
-function edih_disp_x12trans()
+function edih_disp_x12trans(): string
 {
     //
     // query source ['gtbl']  file claim hist
@@ -706,7 +706,7 @@ function edih_disp_csvtable()
 }
 
 
-function edih_disp_clmhist()
+function edih_disp_clmhist(): string
 {
     //
     if (isset($_GET['hist_enctr'])) {
@@ -727,7 +727,7 @@ function edih_disp_clmhist()
  *
  * @return string
  */
-function edih_disp_era_processed()
+function edih_disp_era_processed(): string
 {
     //
     $str_html = '';

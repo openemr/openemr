@@ -239,7 +239,7 @@ class BillingReport
         return;
     }
 
-    public static function returnOFXSql()
+    public static function returnOFXSql(): string
     {
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;

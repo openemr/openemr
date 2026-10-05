@@ -20,7 +20,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class EncounterService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         // Get the encounter, and also collect the duration of the encounter using the appointment category
         $sql = "SELECT

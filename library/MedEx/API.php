@@ -76,7 +76,7 @@ class CurlRequest
         $this->saveSession();
     }
 
-    private function getCookies()
+    private function getCookies(): string
     {
         $cookies = [];
         foreach ($this->cookies as $name => $value) {
@@ -3586,7 +3586,7 @@ class MedEx
         $info['running'] = $back['running'];
         return $info;
     }
-    public function getUrl($method)
+    public function getUrl($method): string
     {
         return $this->url . $method; }
 

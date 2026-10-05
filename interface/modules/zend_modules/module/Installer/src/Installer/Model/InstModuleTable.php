@@ -739,7 +739,7 @@ class InstModuleTable
         return $retArray;
     }
 
-    public function getDependencyModules($mod_id)
+    public function getDependencyModules($mod_id): string
     {
         $modDirname = $this->getModuleDirectory($mod_id);
         $ret_str = "";

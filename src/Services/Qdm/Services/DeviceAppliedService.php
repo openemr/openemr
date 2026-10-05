@@ -17,7 +17,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class DeviceAppliedService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     O.patient_id AS pid,

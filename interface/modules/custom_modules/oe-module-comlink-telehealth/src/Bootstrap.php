@@ -132,12 +132,12 @@ class Bootstrap
         return $this->globalsConfig;
     }
 
-    public function getTemplatePath()
+    public function getTemplatePath(): string
     {
         return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }
 
-    public function getURLPath()
+    public function getURLPath(): string
     {
         return OEGlobalsBag::getInstance()->getWebRoot() . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/";
     }
@@ -229,14 +229,14 @@ class Bootstrap
         }
     }
 
-    private function getPublicPathFQDN()
+    private function getPublicPathFQDN(): string
     {
         // return the public path with the fully qualified domain name in it
         // qualified_site_addr already has the webroot in it.
         return OEGlobalsBag::getInstance()->get('qualified_site_addr') . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
     }
 
-    private function getAssetPath()
+    private function getAssetPath(): string
     {
         return $this->getURLPath() . 'assets' . '/';
     }

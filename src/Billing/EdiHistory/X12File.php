@@ -247,7 +247,7 @@ class X12File
      *
      * @return string
      */
-    public function edih_message()
+    public function edih_message(): string
     {
         $str_html = '<p>' . PHP_EOL;
         if (count($this->message)) {
@@ -287,7 +287,7 @@ class X12File
      * @param string $filetext   the file contents
      * @return string            zero length on failure
      */
-    public function edih_x12_scan($filetext)
+    public function edih_x12_scan($filetext): string
     {
         $hasval = '';
         $ftxt = ( $filetext && is_string($filetext) ) ? trim($filetext) : $filetext;

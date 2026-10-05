@@ -65,7 +65,7 @@ class ExportState
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
     }
 
-    public function getTempSysDir()
+    public function getTempSysDir(): string
     {
         if (!isset($this->tempDir)) {
             $this->tempDir = tempnam(sys_get_temp_dir(), 'ehi-export-');

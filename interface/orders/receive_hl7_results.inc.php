@@ -34,7 +34,7 @@ use phpseclib3\Net\SFTP;
 
 $rhl7_return = [];
 
-function parseZPS($segment)
+function parseZPS($segment): string
 {
     $composites = $segment; //explode('|', $segment);
 
@@ -185,7 +185,7 @@ function rhl7Text($s, $allow_newlines = false)
     return $s;
 }
 
-function rhl7DateTime($s)
+function rhl7DateTime($s): string
 {
     // Remove UTC offset if present.
     if (preg_match('/^([0-9.]+)[+-]/', (string) $s, $tmp)) {
@@ -210,7 +210,7 @@ function rhl7DateTime($s)
     return $ret;
 }
 
-function rhl7DateTimeZone($s)
+function rhl7DateTimeZone($s): string
 {
     // UTC offset if present always begins with "+" or "-".
     if (preg_match('/^[0-9.]+([+-].*)$/', (string) $s, $tmp)) {
@@ -220,7 +220,7 @@ function rhl7DateTimeZone($s)
     return '';
 }
 
-function rhl7Date($s)
+function rhl7Date($s): string
 {
     return substr((string) rhl7DateTime($s), 0, 10);
 }
@@ -342,7 +342,7 @@ function rhl7DecodeData($enctype, &$src)
     return false;
 }
 
-function rhl7CWE($s, $componentdelimiter)
+function rhl7CWE($s, $componentdelimiter): string
 {
     $out = '';
     if ($s === '') {
@@ -1507,7 +1507,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
  *
  * @return string  Error text, or empty if no errors.
  */
-function poll_hl7_results(&$info, $labs = 0)
+function poll_hl7_results(&$info, $labs = 0): string
 {
     global $srcdir, $orphanLog, $lab_npi;
     $labs = (int)$labs + 0;
@@ -1934,7 +1934,7 @@ function poll_hl7_results(&$info, $labs = 0)
  * @param string $content The unencrypted content of the hl7.
  * @return string         The encrypted content of the hl7 if the global is set.
  */
-function hl7Crypt($content)
+function hl7Crypt($content): string
 {
     return ServiceContainer::getCrypto()->encryptForFilesystem($content);
 }

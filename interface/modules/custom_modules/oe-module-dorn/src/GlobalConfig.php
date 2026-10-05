@@ -56,7 +56,7 @@ class GlobalConfig
     {
         return $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTID);
     }
-    public function getClientSecret()
+    public function getClientSecret(): string
     {
         $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTSECRET);
         return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);

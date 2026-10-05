@@ -160,7 +160,7 @@ class ExportCat3Service
      * @param array $patients    Array of Patient objects
      * @return string Complete QRDA III XML
      */
-    private function generateConsolidatedXml($measureObjs, $results, $patients)
+    private function generateConsolidatedXml($measureObjs, $results, $patients): string
     {
         $organizationInfo = $this->getOrganizationInfo();
         $documentId = $this->generateUuid();
@@ -244,7 +244,7 @@ XML;
     /**
      * Generate the measure section containing all measures
      */
-    private function generateConsolidatedMeasureSection($measureObjs, $results, $patients)
+    private function generateConsolidatedMeasureSection($measureObjs, $results, $patients): string
     {
         $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
@@ -315,7 +315,7 @@ XML;
     /**
      * Generate individual measure entry for consolidated report
      */
-    private function generateConsolidatedMeasureEntry($measure, $measureResults)
+    private function generateConsolidatedMeasureEntry($measure, $measureResults): string
     {
         $entryId = $this->generateUuid();
 
@@ -357,7 +357,7 @@ XML;
     /**
      * Generate population components for a measure
      */
-    private function generatePopulationComponents($measure, $results)
+    private function generatePopulationComponents($measure, $results): string
     {
         $xml = '';
         $populationKeys = $measure->population_keys();
@@ -456,7 +456,7 @@ XML;
         return $codes[$popKey] ?? $popKey;
     }
 
-    private function generateUuid()
+    private function generateUuid(): string
     {
         return sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -471,7 +471,7 @@ XML;
         );
     }
 
-    private function escapeXml($content)
+    private function escapeXml($content): string
     {
         return htmlspecialchars((string) $content, ENT_XML1 | ENT_COMPAT, 'UTF-8');
     }

@@ -133,7 +133,7 @@ class C_Prescription extends Controller
         return $this->twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
-    public function edit_action($id = "", $patient_id = "")
+    public function edit_action($id = "", $patient_id = ""): string
     {
         if (!(($this->prescriptions[0] ?? null) instanceof Prescription)) {
             $this->prescriptions[0] = new Prescription($id);
@@ -774,7 +774,7 @@ class C_Prescription extends Controller
         echo("</html>\n");
     }
 
-    public function get_prescription_body_text($p)
+    public function get_prescription_body_text($p): string
     {
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
         if ($p->get_form()) {

@@ -29,7 +29,7 @@ class ActionUrlBuilder
 
         return $url;
     }
-    private function getCSRFToken()
+    private function getCSRFToken(): string
     {
         return CsrfUtils::collectCsrfToken($this->session, $this->csrfTokenName);
     }

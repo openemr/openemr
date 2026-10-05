@@ -45,7 +45,7 @@ class Date_Calc
      * @return string the current date in specified format
      */
 
-    public static function dateNow($format = "%Y%m%d")
+    public static function dateNow($format = "%Y%m%d"): string
     {
         return(strftime($format, time()));
     } // end func dateNow
@@ -1419,7 +1419,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function dateFormat($day, $month, $year, $format)
+    public static function dateFormat($day, $month, $year, $format): string
     {
         if (!Date_Calc::isValidDate($day, $month, $year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1537,7 +1537,7 @@ class Date_Calc
      * @see Date_Calc::getMonthFullname
      */
 
-    public static function getMonthAbbrname($month, $length = 3)
+    public static function getMonthAbbrname($month, $length = 3): string
     {
         $month = (int)$month;
 
@@ -1594,7 +1594,7 @@ class Date_Calc
      * @see Date_Calc::getWeekdayFullname
      */
 
-    public static function getWeekdayAbbrname($day = "", $month = "", $year = "", $length = 3)
+    public static function getWeekdayAbbrname($day = "", $month = "", $year = "", $length = 3): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");

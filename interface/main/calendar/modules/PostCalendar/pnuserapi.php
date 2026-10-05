@@ -77,7 +77,7 @@ unset($pcModInfo, $pcDir);
  *  @return string generated html output
  *  @access public
  */
-function postcalendar_userapi_buildView($args)
+function postcalendar_userapi_buildView($args): string
 {
     $print = pnVarCleanFromInput('print');
     $show_days = pnVarCleanFromInput('show_days');
@@ -1461,7 +1461,7 @@ function &postcalendar_userapi_pcQueryEvents($args): array
 }
 
 
-function getBlockTime($time)
+function getBlockTime($time): string
 {
 
     if ($time == 0 || strlen((string) $time) == 0) {

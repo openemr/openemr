@@ -264,7 +264,7 @@ function getContraceptiveMethod(string $code)
 // Helper function to find a contraception-related IPPF code from
 // the related_code element of the given array.
 //
-function getRelatedContraceptiveCode($row)
+function getRelatedContraceptiveCode($row): string
 {
     if (!empty($row['related_code'])) {
         $relcodes = explode(';', (string) $row['related_code']);
@@ -292,7 +292,7 @@ function getRelatedContraceptiveCode($row)
 // Helper function to find an abortion-method IPPF code from
 // the related_code element of the given array.
 //
-function getRelatedAbortionMethod($row)
+function getRelatedAbortionMethod($row): string
 {
     if (!empty($row['related_code'])) {
         $relcodes = explode(';', (string) $row['related_code']);

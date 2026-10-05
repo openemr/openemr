@@ -97,7 +97,7 @@ class JsonWebKeyParser
         return $result;
     }
 
-    public function getTokenHintFromToken($rawToken)
+    public function getTokenHintFromToken($rawToken): string
     {
         if (empty($rawToken)) {
             throw new \InvalidArgumentException("Token cannot be empty");

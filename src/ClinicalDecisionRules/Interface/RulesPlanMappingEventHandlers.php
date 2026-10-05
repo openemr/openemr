@@ -230,7 +230,7 @@ class RulesPlanMappingEventHandlers
         }
     }
 
-    public static function generatePlanID()
+    public static function generatePlanID(): string
     {
         $plan_id = 1;
         $sql_st = "SELECT MAX(SUBSTR(clin_plans.id, 1, LOCATE('_plan', clin_plans.id)-1)) as max_planid " .
