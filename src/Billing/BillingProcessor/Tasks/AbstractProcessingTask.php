@@ -284,6 +284,12 @@ abstract class AbstractProcessingTask
             if (!$this->generationFenceHeld($claim)) {
                 return UnbilledFileDecision::Busy;
             }
+            $dir = $batch->getBatFiledir();
+            if ($dir !== '' && BatchFilePublisher::hasPublishingMarker($dir, $this->settledFileName)) {
+                if (!BatchFilePublisher::quarantineInterrupted($dir, $this->settledFileName)) {
+                    return UnbilledFileDecision::Busy;
+                }
+            }
             $this->clearClaimFile($claim, $this->settledVersion, $this->settledFileName);
         }
 

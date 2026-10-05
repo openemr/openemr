@@ -34,7 +34,7 @@ CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 $content_type = "text/plain";
 
 // The key contains the filename
-$fname = convert_safe_file_dir_name($_GET['key']);
+$safeName = convert_safe_file_dir_name($_GET['key']);
 
 // Because of the way the billing tables are constructed (as of 2021)
 // We may not know exactly where the file is, so we need to try a couple
@@ -51,7 +51,7 @@ $claim_file_found = false;
 $claim_file_dir = '';
 if ($location === 'tmp') {
     $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    if (file_exists($claim_file_dir . $fname)) {
+    if (file_exists($claim_file_dir . $safeName)) {
         $claim_file_found = true;
     }
 }
@@ -74,7 +74,7 @@ if (
         $claim_file_dir = $row['x12_sftp_local_dir'];
     }
 
-    if (file_exists($claim_file_dir . $fname)) {
+    if (file_exists($claim_file_dir . $safeName)) {
         $claim_file_found = true;
     }
 }
@@ -83,16 +83,15 @@ if ($claim_file_found === false) {
     $claim_file_dir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/";
 }
 
-$fname = $claim_file_dir . $fname;
+$fname = $claim_file_dir . $safeName;
 
 if (strtolower(substr($fname, (strlen($fname) - 4))) == ".pdf") {
     $content_type = "application/pdf";
 }
 
-$noteAgrees = $location === 'tmp'
-    || !is_file($fname . '.complete')
-    || BatchFilePublisher::isPublished(dirname($fname), basename($fname));
-if (!file_exists($fname) || !$noteAgrees) {
+// A publishing marker is an interrupted batch. A completion note must match.
+// A file with neither is an older batch or a validation file.
+if (!BatchFilePublisher::downloadAllowed(dirname($fname), basename($fname))) {
     echo xlt("The claim file: ") . text($_GET['key']) . xlt(" could not be accessed.");
 } else {
     $fp = fopen($fname, 'r');
