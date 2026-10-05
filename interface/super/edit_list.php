@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -372,6 +373,12 @@ function getCodeDescriptions($codes)
                 "code_type = ? AND " .
                 "code = ? ORDER BY modifier LIMIT 1", [$code_types[$code_type]['id'], $code]);
             $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? ''));
+            // A HCPCS entry can name the inventory drug to take the NDC and units from.
+            if ($code_type == 'HCPCS' && ctype_digit($selector)) {
+                $drug = QueryUtils::querySingleRow("SELECT name FROM drugs WHERE drug_id = ?", [$selector]);
+                $drugName = is_array($drug) && is_string($drug['name'] ?? null) ? $drug['name'] : $selector;
+                $desc .= " (" . xl('Drug') . ": " . $drugName . ")";
+            }
         }
         $desc = str_replace('~', ' ', $desc);
         if (!empty($modifier ?? '')) {

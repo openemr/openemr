@@ -59,6 +59,23 @@ final readonly class HcpcsDrugDefaults
     }
 
     /**
+     * Use one particular inventory drug for a HCPCS code, e.g. when a custom fee sheet list
+     * entry names it ("HCPCS|J1010|<drug_id>") because several products share the code. Only
+     * an active drug related to that code counts; otherwise null, and the caller falls back to
+     * forCode().
+     */
+    public static function forDrug(int $drugId, string $code): ?self
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT d.ndc_number, d.billing_units, d.ndc_uom, d.ndc_quantity FROM drugs AS d " .
+            "WHERE d.drug_id = ? AND d.active = 1 AND FIND_IN_SET(?, REPLACE(d.related_code, ';', ',')) > 0",
+            [$drugId, 'HCPCS:' . $code]
+        );
+        $row = $rows[0] ?? null;
+        return is_array($row) ? self::fromDrugRow($row) : null;
+    }
+
+    /**
      * @param array<mixed> $row A drugs row with ndc_number, billing_units, ndc_uom and ndc_quantity.
      */
     public static function fromDrugRow(array $row): self

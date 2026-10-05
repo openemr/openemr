@@ -107,4 +107,33 @@ class HcpcsDrugDefaultsServiceTest extends TestCase
         $this->assertNotNull($defaults);
         $this->assertSame(80, $defaults->units, 'With no stock anywhere, the first drug by name wins.');
     }
+
+    public function testNamedDrugIsUsedInsteadOfTheDefault(): void
+    {
+        // Two products share the code; the default would be the one in stock.
+        $inStock = $this->addDrug('ZZTEST Aaa 40 mg/mL', 'HCPCS:' . self::CODE, '0009-3073-01', 40);
+        $this->addStock($inStock, 10);
+        $named = $this->addDrug('ZZTEST Bbb 80 mg/mL', 'HCPCS:' . self::CODE, '0009-3475-03', 80);
+
+        $defaults = HcpcsDrugDefaults::forDrug($named, self::CODE);
+
+        $this->assertNotNull($defaults);
+        $this->assertSame('N40009-3475-03   ML1', $defaults->ndcInfo);
+        $this->assertSame(80, $defaults->units);
+    }
+
+    public function testNamedDrugNotRelatedToTheCodeIsIgnored(): void
+    {
+        $other = $this->addDrug('ZZTEST other code', 'HCPCS:' . self::CODE . '0', '0009-0000-01', 10);
+
+        $this->assertNull(HcpcsDrugDefaults::forDrug($other, self::CODE));
+    }
+
+    public function testNamedInactiveDrugIsIgnored(): void
+    {
+        $inactive = $this->addDrug('ZZTEST inactive', 'HCPCS:' . self::CODE, '0009-3073-01', 40, active: 0);
+
+        $this->assertNull(HcpcsDrugDefaults::forDrug($inactive, self::CODE));
+    }
+
 }
