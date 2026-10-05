@@ -1675,11 +1675,16 @@ function calculateEvents($days, $events, $viewtype)
                 $nd = $esD;
                 $occurance = Date_Calc::dateFormat($nd, $nm, $ny, '%Y-%m-%d');
                 while ($occurance < $start_date) {
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
+                    $nextOccurance = nextRepeatDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
+                    if ($nextOccurance === null) {
+                        $occurance = null;
+                        break;
+                    }
+                    $occurance = $nextOccurance;
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
 
-                while ($occurance <= $stop) {
+                while ($occurance !== null && $occurance <= $stop) {
                     if (isset($days[$occurance])) {
                         // check for date exceptions before pushing the event into the days array -- JRM
                         $excluded = false;
@@ -1709,8 +1714,12 @@ function calculateEvents($days, $events, $viewtype)
                         }
                     }
 
-                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurance);
+                    $nextOccurance = nextRepeatDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
+                    if ($nextOccurance === null) {
+                        break;
+                    }
+                    $occurance = $nextOccurance;
+                    [$ny, $nm, $nd] = explode('-', $occurance);
                 }
                 break;
 
@@ -1753,19 +1762,21 @@ function calculateEvents($days, $events, $viewtype)
                 // since $nd has no influence past the mktime functions - epsdky 2016.
 
                 // make us current
+                $monthWalk = true;
                 while ($ny < $cy) {
-                    $occurance = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
+                    if ($nextMonth === null) {
+                        $monthWalk = false;
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                 }
 
                 // populate the event array
-                while ($ny <= $cy) {
-                    $dnum = $rnum; // get day event repeats on
-                    do {
-                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurance === -1);
+                while ($monthWalk && $ny <= $cy) {
+                    $occurance = repeatOnDate($rnum, $rday, $nm, $ny);
 
-                    if (isset($days[$occurance]) && $occurance <= $stop) {
+                    if (is_string($occurance) && isset($days[$occurance]) && $occurance <= $stop) {
                         // check for date exceptions before pushing the event into the days array -- JRM
                         $excluded = false;
                         if (isset($exdate)) {
@@ -1791,8 +1802,11 @@ function calculateEvents($days, $events, $viewtype)
                         }
                     }
 
-                    $occurance = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurance);
+                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
+                    if ($nextMonth === null) {
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                 }
                 break;
         } // <- end of switch($event['recurrtype'])
