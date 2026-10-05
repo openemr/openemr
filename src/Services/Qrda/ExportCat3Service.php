@@ -400,7 +400,7 @@ XML;
     /**
      * Generate reporting parameters
      */
-    private function generateReportingParameters()
+    private function generateReportingParameters(): string
     {
         $parametersId = $this->generateUuid();
         $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');

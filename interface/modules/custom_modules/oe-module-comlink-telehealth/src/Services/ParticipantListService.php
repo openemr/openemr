@@ -119,7 +119,7 @@ class ParticipantListService
      * @return string
      * @throws Exception
      */
-    private function sessionUserInRoom($session, $userKey)
+    private function sessionUserInRoom($session, $userKey): string
     {
         if (
             !empty($session[$userKey . '_start_time']) &&

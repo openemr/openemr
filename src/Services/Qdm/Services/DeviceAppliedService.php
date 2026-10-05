@@ -33,7 +33,7 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'O.patient_id';
     }

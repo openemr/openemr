@@ -44,7 +44,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'O.patient_id';
     }

@@ -24,7 +24,7 @@
 
 class AMC_304h_STG2_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304h_STG2 Denominator";
     }

@@ -387,11 +387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function InsType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_labworks.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function LWDate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_labworks.php',
@@ -965,11 +960,6 @@ $ignoreErrors[] = [
     'message' => '#^Method eRxXMLBuilder\\:\\:warningMessage\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function checkError\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getErxPath\\(\\) has no return type specified\\.$#',
@@ -2887,11 +2877,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pcGetTopicName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pcVarPrepForDisplay\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
@@ -3397,11 +3382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Events/TelehealthNotificationSendEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Models\\\\UserVideoRegistrationRequest\\:\\:getArrayRole\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/UserVideoRegistrationRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\CalendarEventCategoryRepository\\:\\:getEventCategories\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/CalendarEventCategoryRepository.php',
@@ -3847,11 +3827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\DisplayHelper\\:\\:SelectOption\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DisplayHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\DornGenHl7Order\\:\\:createDg1\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
@@ -3932,11 +3907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GenHl7OrderBase\\:\\:hl7Workman\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GenHl7OrderBase\\:\\:hl7Zip\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php',
@@ -3947,17 +3917,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GlobalConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GlobalConfig\\:\\:getClientAuthority\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GlobalConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GlobalConfig\\:\\:getClientId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GlobalConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GlobalConfig\\:\\:getClientScope\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GlobalConfig.php',
 ];
@@ -5552,11 +5512,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:checkModuleHookExists\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:deleteACLSections\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
@@ -5622,11 +5577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getModuleStatusByDirectoryName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:insertAclSections\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
@@ -5648,11 +5598,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:saveSettings\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:unRegister\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
@@ -6068,11 +6013,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function hl7Race\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function hl7Workman\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
 ];
@@ -6597,11 +6537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Encounter/Button.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Encounter_Configuration\\:\\:getModule\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Encounter/Configuration.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Encounter_Controller\\:\\:esign_form_view\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Encounter/Controller.php',
@@ -6685,11 +6620,6 @@ $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Form_Button\\:\\:render\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Form/Button.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ESign\\\\Form_Configuration\\:\\:getModule\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ESign/Form/Configuration.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Form_Controller\\:\\:esign_form_view\\(\\) has no return type specified\\.$#',
@@ -7407,27 +7337,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/CategoryTree.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Allergy\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Allergy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Allergy\\:\\:getListType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Allergy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method CareGoal\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/CareGoal.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Characteristic\\:\\:doPatientCheck\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Characteristic.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Characteristic\\:\\:getListId\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Characteristic.php',
 ];
@@ -7460,31 +7370,6 @@ $ignoreErrors[] = [
     'message' => '#^Method ClinicalType\\:\\:getOptionId\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/ClinicalType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Communication\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Communication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Diagnosis\\:\\:getListColumn\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Diagnosis.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Diagnosis\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Diagnosis.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Diagnosis\\:\\:getListType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Diagnosis.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Encounter\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Encounter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Helper\\:\\:checkAllergy\\(\\) has no return type specified\\.$#',
@@ -7532,29 +7417,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Helper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method LabResult\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/LabResult.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Medication\\:\\:doPatientCheck\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Medication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Medication\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/Medication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PhysicalExam\\:\\:getListId\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/PhysicalExam.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PhysicalExam\\:\\:getListType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/ClinicalTypes/PhysicalExam.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Codes\\:\\:lookup\\(\\) has no return type specified\\.$#',
@@ -10132,26 +9997,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302c.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302c\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302c.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302c\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302c.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302c_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302c/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302c_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302c/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_302d\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302d.php',
@@ -10160,26 +10005,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_302d\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302d.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302d\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302d.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302d\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302d.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302d_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302d/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302d_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302d/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302e\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10192,26 +10017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302e.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302e\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302e.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302e\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302e.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302e_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302e/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302e_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302e/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_302f\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f.php',
@@ -10220,26 +10025,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_302f\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302f_1_STG1\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10252,26 +10037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_1_STG1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_1_STG1\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_1_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_1_STG1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_1_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_1_STG1_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_1_STG1/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_1_STG1_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_1_STG1/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_302f_2_STG1\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_2_STG1.php',
@@ -10280,26 +10045,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_302f_2_STG1\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_2_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_2_STG1\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_2_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_2_STG1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_2_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_2_STG1_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_2_STG1/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_2_STG1_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_2_STG1/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302f_3_STG1\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10312,26 +10057,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_3_STG1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_3_STG1\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_3_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_3_STG1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_3_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_3_STG1_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_3_STG1/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_3_STG1_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_3_STG1/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_302f_4_STG1\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_4_STG1.php',
@@ -10340,26 +10065,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_302f_4_STG1\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_4_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_4_STG1\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_4_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_4_STG1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_4_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_4_STG1_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_4_STG1/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_4_STG1_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_4_STG1/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302f_STG2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10372,29 +10077,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_STG2.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_302f_STG2_Denominator\\:\\:test\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302f_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302f_STG2/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302g\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10407,26 +10092,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302g.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302g\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302g.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302g\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302g.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302g_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302g/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302g_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302g/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_302h\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302h.php',
@@ -10435,26 +10100,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_302h\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302h.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302h\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302h.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302h\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302h.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302h_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302h/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302h_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302h/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302h_Numerator\\:\\:test\\(\\) has no return type specified\\.$#',
@@ -10472,26 +10117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302j.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302j\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302j.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302j\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302j.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302j_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302j/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302j_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302j/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_302m\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m.php',
@@ -10500,26 +10125,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_302m\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302m\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302m\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302m_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302m_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_302m_STG2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10532,26 +10137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m_STG2.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_302m_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302m_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302m_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_302m_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_302m_STG2/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304a\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a.php',
@@ -10560,26 +10145,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304a\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304a_1\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10592,26 +10157,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_1\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_1_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_1/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_1_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_1/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304a_2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_2.php',
@@ -10620,26 +10165,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304a_2\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_2/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304a_3\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10652,26 +10177,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_3\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_3\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_3_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_3/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304a_3_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304a_3/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304b\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b.php',
@@ -10680,26 +10185,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304b\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304b_1_STG2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10712,26 +10197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_1_STG2.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_1_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_1_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_1_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_1_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_1_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_1_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_1_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_1_STG2/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304b_2_STG2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_2_STG2.php',
@@ -10740,26 +10205,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304b_2_STG2\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_2_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_2_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_2_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_2_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_2_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_2_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_2_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_2_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_2_STG2/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304b_STG1\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10772,26 +10217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_STG1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_STG1\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_STG1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_STG1_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_STG1/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304b_STG1_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304b_STG1/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304c\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304c.php',
@@ -10800,26 +10225,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304c\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304c.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304c\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304c.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304c\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304c.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304c_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304c/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304c_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304c/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304d\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10832,26 +10237,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304d\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304d\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304d_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304d_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304d_STG2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d_STG2.php',
@@ -10860,26 +10245,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304d_STG2\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304d_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304d_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304d_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304d_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304d_STG2/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304f\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10892,26 +10257,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304f.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304f\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304f.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304f\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304f.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304f_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304f/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304f_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304f/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304g\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304g.php',
@@ -10920,26 +10265,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304g\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304g.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304g\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304g.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304g\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304g.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304g_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304g/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304g_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304g/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304h\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -10952,26 +10277,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304h\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304h\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304h_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304h_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304h_STG2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h_STG2.php',
@@ -10980,26 +10285,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304h_STG2\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304h_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304h_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304h_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304h_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304h_STG2/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_304i\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -11012,26 +10297,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_304i\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_304i_STG1\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG1.php',
@@ -11040,46 +10305,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_304i_STG1\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG1\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG1_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG1/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG1_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG1/Numerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_304i_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_304i_STG2/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_14\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -11092,26 +10317,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_14_STG2\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14_STG2.php',
@@ -11120,26 +10325,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_14_STG2\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14_STG2\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14_STG2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14_STG2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14_STG2_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14_STG2/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_14_STG2_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_14_STG2/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_19\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -11152,26 +10337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_19.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_19\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_19.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_19\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_19.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_19_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_19/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_19_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_19/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_20\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_20.php',
@@ -11180,26 +10345,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_20\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_20.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_20\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_20.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_20\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_20.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_20_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_20/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_20_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_20/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_20_Numerator\\:\\:test\\(\\) has no return type specified\\.$#',
@@ -11217,26 +10362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_21.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_21\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_21.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_21\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_21.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_21_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_21/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_21_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_21/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_22\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_22.php',
@@ -11245,26 +10370,6 @@ $ignoreErrors[] = [
     'message' => '#^Method AMC_314g_1_2_22\\:\\:createNumerator\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_22.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_22\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_22.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_22\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_22.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_22_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_22/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_314g_1_2_22_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_314g_1_2_22/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_315g_2c\\:\\:createDenominator\\(\\) has no return type specified\\.$#',
@@ -11277,54 +10382,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_2c.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_2c\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_2c.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_2c\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_2c.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_2c_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_2c/Denominator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_315g_2c_Denominator\\:\\:parseDetailsToString\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_2c/Denominator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_2c_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_2c/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AMC_315g_2c_Numerator\\:\\:parseDetailsToString\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_2c/Numerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_7\\:\\:getObjectToCount\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_7.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_7\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_7.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_7_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_7/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AMC_315g_7_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_7/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AMC_315g_7_Numerator\\:\\:parseDetailsToString\\(\\) has no return type specified\\.$#',
@@ -11402,26 +10467,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0002_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0002_Exclusion\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002/Exclusion.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0002_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0002_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002/Numerator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0002_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002/PopulationCriteria.php',
@@ -11447,29 +10492,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0002_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0002/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0013\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0013.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0013_Exclusion\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0013/Exclusion.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0013_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0013/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0013_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0013/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0013_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -11497,51 +10522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0013/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0013_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0013/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_Exclusion\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/Exclusion.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_InitialPatientPopulation1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/InitialPatientPopulation1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_InitialPatientPopulation2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/InitialPatientPopulation2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_InitialPatientPopulation3\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/InitialPatientPopulation3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_Numerator1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/Numerator1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_Numerator2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/Numerator2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_Numerator3\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/Numerator3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0024_PopulationCriteria1\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria1.php',
@@ -11558,11 +10538,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0024_PopulationCriteria1\\:\\:createInitialPatientPopulation\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_PopulationCriteria1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria1.php',
 ];
@@ -11587,11 +10562,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria2.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_PopulationCriteria2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria2.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0024_PopulationCriteria3\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria3.php',
@@ -11612,37 +10582,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0024_PopulationCriteria3\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0024/PopulationCriteria3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0028_2014\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0028_2014_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0028_2014_DenominatorException\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014/DenominatorException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0028_2014_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0028_2014_Numerator\\:\\:getApplicableEncounters\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014/Numerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0028_2014_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014/Numerator.php',
 ];
@@ -11672,27 +10617,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0028_2014_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028_2014/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0028a\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028a.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0028a_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028a/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0028a_Numerator\\:\\:getApplicableEncounters\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028a/Numerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0028a_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028a/Numerator.php',
 ];
@@ -11722,11 +10652,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028a/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0028a_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028a/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0028b\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b.php',
@@ -11737,22 +10662,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b/Denominator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0028b_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0028b_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0028b_Numerator\\:\\:getApplicableEncounters\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b/Numerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0028b_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b/Numerator.php',
 ];
@@ -11782,84 +10692,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0028b_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0028b/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0038\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator10\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator10.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator11\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator11.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator12\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator12.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator3\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator4\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator4.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator5\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator5.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator6\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator6.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator7\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator7.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator8\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator8.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_Numerator9\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/Numerator9.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0038_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -11882,29 +10717,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0038_2014\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038_2014.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_2014_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038_2014/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_2014_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038_2014/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_2014_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038_2014/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0038_2014_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -11932,34 +10747,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038_2014/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0038_2014_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0038_2014/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0041\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0041.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0041_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0041/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0041_Exclusions\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0041/Exclusions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0041_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0041/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0041_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0041/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0041_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -11987,29 +10777,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0041/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0041_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0041/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0043\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0043.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0043_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0043/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0043_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0043/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0043_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0043/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0043_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -12037,29 +10807,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0043/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0043_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0043/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0059\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0059.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0059_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0059/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0059_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0059/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0059_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0059/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0059_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -12087,24 +10837,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0059/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0059_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0059/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0064\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0064_Numerator1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064/Numerator1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0064_Numerator2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064/Numerator2.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0064_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -12127,34 +10862,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0064_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0064/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0101\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0101.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0101_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0101/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0101_DenominatorException\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0101/DenominatorException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0101_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0101/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0101_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0101/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0101_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -12182,29 +10892,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0101/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0101_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0101/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0384\\:\\:createPopulationCriteria\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0384.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0384_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0384/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0384_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0384/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0384_Numerator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0384/Numerator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0384_PopulationCriteria\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
@@ -12232,44 +10922,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0384/PopulationCriteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0384_PopulationCriteria\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0384/PopulationCriteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_Denominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/Denominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_Exclusion\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/Exclusion.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_InitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/InitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_InitialPatientPopulation2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/InitialPatientPopulation2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_Numerator1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/Numerator1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0421_Numerator1\\:\\:test\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/Numerator1.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_Numerator2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/Numerator2.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method NQF_0421_Numerator2\\:\\:test\\(\\) has no return type specified\\.$#',
@@ -12302,11 +10957,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/PopulationCriteria1.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_PopulationCriteria1\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/PopulationCriteria1.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method NQF_0421_PopulationCriteria2\\:\\:createDenominatorException\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/PopulationCriteria2.php',
@@ -12330,41 +10980,6 @@ $ignoreErrors[] = [
     'message' => '#^Method NQF_0421_PopulationCriteria2\\:\\:createNumerators\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/PopulationCriteria2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NQF_0421_PopulationCriteria2\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/NQF_0421/PopulationCriteria2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DenominatorAllPatients\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/common/DenominatorAllPatients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DiabetesDenominator\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/common/DiabetesDenominator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DiabetesExclusions\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/common/DiabetesExclusions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DiabetesInitialPatientPopulation\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/common/DiabetesInitialPatientPopulation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExceptionsNone\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/common/ExceptionsNone.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExclusionsNone\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/reports/common/ExclusionsNone.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ReportManager\\:\\:runReport\\(\\) has no return type specified\\.$#',
@@ -14592,11 +13207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method AppBasePortalController\\:\\:JSONPCallback\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method AppBasePortalController\\:\\:RenderErrorJSON\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
@@ -16237,16 +14847,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/ParseERA.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\ParseERA\\:\\:parseERAForCheck\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/ParseERA.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\ParseERA\\:\\:parseERA\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/ParseERA.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\PaymentGateway\\:\\:setApiKey\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/PaymentGateway.php',
@@ -16827,11 +15427,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaAge.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaAge\\:\\:getView\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaAge.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaAge\\:\\:updateFromRequest\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaAge.php',
@@ -16867,11 +15462,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseBucket.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseBucket\\:\\:getView\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseBucket.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseBucket\\:\\:updateFromRequest\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseBucket.php',
@@ -16888,11 +15478,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:getView\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
 ];
@@ -16918,11 +15503,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDiagnosis\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDiagnosis.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDiagnosis\\:\\:getView\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDiagnosis.php',
 ];
@@ -16972,11 +15552,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaLifestyle.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaLifestyle\\:\\:getView\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaLifestyle.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaLifestyle\\:\\:updateFromRequest\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaLifestyle.php',
@@ -16993,11 +15568,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaSex\\:\\:getTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaSex.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaSex\\:\\:getView\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaSex.php',
 ];
@@ -17705,11 +16275,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormActionBarSettings\\:\\:shouldDisplayTopActionBar\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/FormActionBarSettings.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormQuestionnaireAssessment\\:\\:getFormTableName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/FormQuestionnaireAssessment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormReportRenderer\\:\\:renderReport\\(\\) has no return type specified\\.$#',
@@ -23788,11 +22353,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\ExportCat3Service\\:\\:generatePopulationComponents\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\ExportCat3Service\\:\\:generateReportingParameters\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/ExportCat3Service.php',
 ];

@@ -19,7 +19,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class ImmunizationAdministeredService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'patient_id';
     }

@@ -46,7 +46,7 @@ class DataDriverMySQLi implements IDataDriver
     /**
      * @inheritdocs
      */
-    public function GetServerType()
+    public function GetServerType(): string
     {
         return "MySQLi";
     }

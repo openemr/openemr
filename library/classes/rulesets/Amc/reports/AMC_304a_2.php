@@ -24,12 +24,12 @@
 
 class AMC_304a_2 extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304a_2";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "cpoe_lab_orders";
     }
