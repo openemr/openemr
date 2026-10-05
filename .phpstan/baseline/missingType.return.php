@@ -3057,11 +3057,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_html_end\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Bootstrap\\:\\:addGlobalSettings\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Bootstrap.php',
@@ -6132,11 +6127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function payerCmp\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function updateBackgroundService\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_globals.php',
@@ -6168,11 +6158,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function nextGroupOrder\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_layout.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function renameColumn\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
@@ -7177,21 +7162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getIdealYSteps\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/graphs.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getIntoCmMultiplier\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/graphs.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getLbstoKgMultiplier\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/graphs.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function graphsGetValues\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
@@ -7283,11 +7253,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function compareAppointments\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function compareBasic\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
@@ -11032,11 +10997,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/library/RsResultIF.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method login_sasl_client_class\\:\\:Initialize\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/login_sasl_client.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method login_sasl_client_class\\:\\:Start\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/login_sasl_client.php',
@@ -11067,27 +11027,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:Disconnect\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:EndSendingData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:FlushRecipients\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method smtp_class\\:\\:GetLine\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:MailFrom\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
@@ -11098,26 +11038,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method smtp_class\\:\\:PrepareData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:PutData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:PutLine\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:ResetConnection\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:SASLAuthenticate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
@@ -11142,17 +11062,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:StartData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method smtp_class\\:\\:Tokenize\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method smtp_class\\:\\:VerifyResultLines\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
@@ -13527,11 +13437,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function recursive_writable_directory_test\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../setup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function LBFgcac_default_ab_location\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/LBF/LBFgcac.plugin.php',
@@ -14268,11 +14173,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\BillingUtilities\\:\\:reOpenEncounterForBilling\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingUtilities.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingUtilities\\:\\:updateClaim\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingUtilities.php',
 ];

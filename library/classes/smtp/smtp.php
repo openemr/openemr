@@ -112,7 +112,7 @@ class smtp_class
         }
     }
 
-    public Function PutLine($line)
+    public Function PutLine($line): int
     {
         if ($this->debug)
             $this->OutputDebug("C $line");
@@ -123,7 +123,7 @@ class smtp_class
         return(1);
     }
 
-    public Function PutData(&$data)
+    public Function PutData(&$data): int
     {
         if (strlen((string) $data)) {
             if ($this->debug)
@@ -136,7 +136,7 @@ class smtp_class
         return(1);
     }
 
-    public Function VerifyResultLines($code,&$responses)
+    public Function VerifyResultLines($code,&$responses): int
     {
         $responses=[];
         Unset($this->result_code);
@@ -168,7 +168,7 @@ class smtp_class
         return(-1);
     }
 
-    public Function FlushRecipients()
+    public Function FlushRecipients(): int
     {
         if ($this->pending_sender) {
             if ($this->VerifyResultLines("250",$responses)<=0)
@@ -219,7 +219,7 @@ class smtp_class
         };
     }
 
-    public Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism)
+    public Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism): int
     {
         $authenticated=0;
         if (!function_exists("class_exists")
@@ -505,7 +505,7 @@ class smtp_class
         return($success);
     }
 
-    public Function MailFrom($sender)
+    public Function MailFrom($sender): int
     {
         if ($this->direct_delivery) {
             switch ($this->state) {
@@ -593,7 +593,7 @@ class smtp_class
         return(1);
     }
 
-    public Function StartData()
+    public Function StartData(): int
     {
         if (strcmp((string) $this->state,"RecipientSet")) {
             $this->error="connection is not in the start sending data state";
@@ -630,7 +630,7 @@ class smtp_class
         return($this->PutData($data));
     }
 
-    public Function EndSendingData()
+    public Function EndSendingData(): int
     {
         if (strcmp((string) $this->state,"SendingData")) {
             $this->error="connection is not in the sending data state";
@@ -644,7 +644,7 @@ class smtp_class
         return(1);
     }
 
-    public Function ResetConnection()
+    public Function ResetConnection(): int
     {
         switch ($this->state) {
             case "Connected":
@@ -664,7 +664,7 @@ class smtp_class
         return(1);
     }
 
-    public Function Disconnect($quit=1)
+    public Function Disconnect($quit=1): int
     {
         if (!strcmp((string) $this->state,"Disconnected")) {
             $this->error="it was not previously established a SMTP connection";
