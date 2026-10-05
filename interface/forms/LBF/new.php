@@ -300,8 +300,7 @@ if (
                 $newPatientData[$field_id] = $value;
                 $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
                 sqlStatement(
-                    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
-                    "UPDATE patient_data SET $esc_field_id = ? WHERE pid = ?",
+                    "UPDATE patient_data SET $esc_field_id = ? WHERE pid = ?", // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
                     [$value, $pid]
                 );
             }
@@ -321,8 +320,7 @@ if (
             // Save to form_encounter.
             $esc_field_id = escape_sql_column_name($field_id, ['form_encounter']);
             sqlStatement(
-                // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
-                "UPDATE form_encounter SET $esc_field_id = ? WHERE pid = ? AND encounter = ?",
+                "UPDATE form_encounter SET $esc_field_id = ? WHERE pid = ? AND encounter = ?", // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
                 [$value, $pid, $visitid]
             );
             continue;
