@@ -230,7 +230,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $occurrence = $event['pc_eventDate'];
 
                 while ($occurrence < $from_date) {
-                    $nextOccurrence = nextRepeatDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurrence);
+                    $nextOccurrence = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurrence);
                     if ($nextOccurrence === null) {
                         $occurrence = null;
                         break;
@@ -266,7 +266,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                       //////
                     }
 
-                    $nextOccurrence = nextRepeatDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurrence);
+                    $nextOccurrence = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurrence);
                     if ($nextOccurrence === null) {
                         break;
                     }
@@ -302,7 +302,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 // appointments set prior to fix $nd remains unchanged). This can be done since
                 // $nd has no influence past the mktime functions.
                 while ($occuranceYm < $from_dateYm) {
-                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, $occuranceYm);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occuranceYm);
                     if ($nextMonth === null) {
                         $occuranceYm = null;
                         break;
@@ -313,7 +313,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
                 while ($occuranceYm !== null && $occuranceYm <= $stopDateYm) {
                     // (YYYY-mm)-dd
-                    $occurrence = repeatOnDate($rnum, $rday, $nm, $ny);
+                    $occurrence = \OpenEMR\Common\Calendar\RepeatAdvance::onDate($rnum, $rday, $nm, $ny);
 
                     if (is_string($occurrence) && $occurrence >= $from_date && $occurrence <= $stopDate) {
                         $excluded = false;
@@ -321,7 +321,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
+                                if (preg_replace("/-/", "", $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -343,7 +343,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                         }
                     }
 
-                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, (string) $occuranceYm);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occuranceYm);
                     if ($nextMonth === null) {
                         break;
                     }

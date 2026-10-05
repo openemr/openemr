@@ -461,51 +461,6 @@ function &__increment($d, $m, $y, $f, $t)
     return $dtYMD;
 }
 
-/**
- * Next date in a repeat series, or null when that step does not move forward.
- *
- * A step that stands still leaves the calendar walk spinning on that series.
- */
-function nextRepeatDate($day, $month, $year, $frequency, $repeatType, string $current): ?string
-{
-    $next = __increment($day, $month, $year, $frequency, $repeatType);
-    if (!is_string($next) || $next <= $current) {
-        return null;
-    }
-
-    return $next;
-}
-
-/**
- * Next month in a repeat-on series, or null when the month does not move forward.
- */
-function nextRepeatMonth($year, $month, $day, $frequency, string $currentYearMonth): ?string
-{
-    $next = date('Y-m-d', mktime(0, 0, 0, $month + $frequency, $day, $year));
-    if (substr($next, 0, 7) <= $currentYearMonth) {
-        return null;
-    }
-
-    return $next;
-}
-
-/**
- * The nth weekday of a month, walking back from $nth the way the calendar already did.
- * Null when none of those days exist, instead of decrementing forever.
- */
-function repeatOnDate($nth, $dayOfWeek, $month, $year): ?string
-{
-    $remaining = (int) $nth;
-    for ($tries = 0; $tries < 6 && $remaining >= 1; $tries++, $remaining--) {
-        $found = \Date_Calc::NWeekdayOfMonth($remaining, $dayOfWeek, $month, $year, '%Y-%m-%d');
-        if (is_string($found)) {
-            return $found;
-        }
-    }
-
-    return null;
-}
-
 function getTheNextAppointment($appointment_date, $freq)
 {
     $day_arr = explode(",", (string) $freq);
