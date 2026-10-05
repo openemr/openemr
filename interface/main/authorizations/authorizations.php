@@ -208,11 +208,7 @@ if ($imauthorized && $see_auth > 1) {
         echo "<a href='$rootDir/patient_file/summary/demographics.php?set_pid=" .
         attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
-        echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
-        text($name["lname"]) . "</span></a><br />" .
-        "<a class=link_submit href='authorizations.php?mode=authorize" .
-        "&pid=" . attr_url($ppid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" .
-        xlt('Authorize') . "</a></td>\n";
+        echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span></a><br /><a class=link_submit href='authorizations.php?" . \OpenEMR\Common\Http\QueryString::build(['mode' => 'authorize', 'pid' => $ppid, 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
 
         // Don't use sqlQuery because there might be no match.
         $providerName = sqlFetchArray(sqlStatement(

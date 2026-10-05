@@ -123,7 +123,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
             }
             $docTitle = $note ?: xl("View document");
 
-            $docHref = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
+            $docHref = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&view&" . \OpenEMR\Common\Http\QueryString::buildUntyped(['patient_id' => $pid, 'doc_id' => $documentrow['id']]);
             echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
             echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text($documentrow['document_name'])  . '-' . $documentrow['id'] . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
             echo "</div>";
@@ -183,7 +183,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
     if ($start < 0) {
         $start = 0;
     }
-    $url = "encounters.php?pagestart=" . attr_url($start) . "&pagesize=" . attr_url($pagesize);
+    $url = "encounters.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['pagestart' => $start, 'pagesize' => $pagesize]);
     $url .= "&billing=" . attr_url($billing);
     $url .= "&issue=" . attr_url($issue);
 

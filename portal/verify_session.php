@@ -34,7 +34,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 require_once(__DIR__ . "/../vendor/autoload.php");
 $session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-$landingpage ??= "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
+$landingpage ??= "index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) ($session->get('site_id', null) ?? null)]);
 
 $skipLandingPageError ??= false;
 //

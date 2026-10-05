@@ -30,7 +30,7 @@ if (empty($is_portal)) {
         $pid = $session->get('pid');
     } else {
         //landing page definition -- where to go if something goes wrong
-        $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id', null));
+        $landingpage = "index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id', null)]);
         //
         SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');

@@ -45,7 +45,7 @@ $allow_portal_uploads = $globalsBag->getBoolean('allow_portal_uploads');
 
 // for location assign
 $referer = "$webroot/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&referer_flag=" . attr_url($referer_flag);
-$referer_portal = "../home.php?site=" . (urlencode((string)$session->get('site_id', null) ?: 'default'));
+$referer_portal = "../home.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string)$session->get('site_id', null) ?: 'default']);
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));

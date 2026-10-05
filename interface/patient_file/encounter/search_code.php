@@ -134,15 +134,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
             $codeText = is_scalar($iter['code_text']) ? (string) $iter['code_text'] : '';
 
             echo "<div class='oneresult' style='padding: 3px 0 3px 0;'>";
-            echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
-                "&type="     . attr_url($codeTypeKey) .
-                "&code="     . attr_url($code) .
-                "&modifier=" . attr_url($modifier) .
-                "&units="    . attr_url($units) .
-                "&fee="      . attr_url($price) .
-                "&text="     . attr_url($codeText) .
-                "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
-                "' onclick='top.restoreSession()'>";
+            echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?" . \OpenEMR\Common\Http\QueryString::build(['mode' => 'add', 'type' => $codeTypeKey, 'code' => $code, 'modifier' => $modifier, 'units' => $units, 'fee' => $price, 'text' => $codeText, 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "' onclick='top.restoreSession()'>";
             echo ucwords("<b>" . text(strtoupper($code)) . "&nbsp;" . text($modifier) .
                 "</b>" . " " . text(strtolower($codeText)));
             echo "</a><br />\n";

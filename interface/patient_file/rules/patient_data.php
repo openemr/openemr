@@ -225,13 +225,7 @@ if (sqlNumRows($res) >= 1) { //display table ?>
             // hide the edit button
             echo "<td>&nbsp;</td>";
         } else { // show the edit button
-            echo "<td><a href='patient_data.php?category=" .
-            attr_url($category) . "&item=" .
-            attr_url($item) . "&entryID=" .
-            attr_url($row['id']) .
-            "' onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
-            "<span>" . xlt('Edit') . "</span></a>" .
-            "</td>";
+            echo "<td><a href='patient_data.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['category' => $category, 'item' => $item, 'entryID' => $row['id']]) . "' onclick='top.restoreSession()' class='btn btn-primary btn-sm'><span>" . xlt('Edit') . "</span></a></td>";
         }
 
         echo "<td>" . text($row['date']) . "</td>";

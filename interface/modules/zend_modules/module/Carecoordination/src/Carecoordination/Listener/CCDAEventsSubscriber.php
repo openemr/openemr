@@ -175,7 +175,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             // TODO: do we want to look at our LOINC codes here as that seems to be more accurate than if we went with just names...
             if (in_array(strtoupper(trim($categoryInfo['name'] ?? "")), ["CCR","CCDA","CCD"])) {
                 $htmlNode = $event->getHtmlTreeNode();
-                $url = $this->viewCcdaUrl . "?docId=" . attr_url($event->getDocumentId());
+                $url = $this->viewCcdaUrl . "?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['docId' => $event->getDocumentId()]);
                 $htmlNode->events = [
                     'onClick' => "javascript:newwindow=window.open('" . $url . "','_blank');"
                 ];

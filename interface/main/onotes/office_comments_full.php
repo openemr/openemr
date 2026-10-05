@@ -55,7 +55,7 @@ if (isset($_POST['mode'])) {
         $oNoteService->deleteNoteById($_POST['note_id']);
     }
 
-    header("Location: office_comments_full.php?offset=" . attr_url($_POST['offset']) . "&active=" . attr_url($_POST['active']));
+    header("Location: office_comments_full.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['offset' => $_POST['offset'], 'active' => $_POST['active']]));
     exit;
 }
 // Calculate total notes count and total pages

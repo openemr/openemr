@@ -47,7 +47,7 @@ SessionUtil::setSession('pid', true);
 SessionUtil::setSession('register', true);
 SessionUtil::setSession('register_silo_ajax', true);
 
-$landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
+$landingpage = "index.php?" . \OpenEMR\Common\Http\QueryString::build(['site' => (string) $session->get('site_id')]);
 
 // Prepare data for the template
 $data = [

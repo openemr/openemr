@@ -105,7 +105,7 @@ class SmartLaunchController
     public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, string $launchText = "Launch")
     {
         $launchCode = $launchToken->serialize();
-        $launchParams = "?launch=" . urlencode((string) $launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        $launchParams = "?" . \OpenEMR\Common\Http\QueryString::build(['launch' => (string) $launchCode, 'iss' => $issuer, 'aud' => $issuer]);
         ?>
         <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
                             data-intent="<?php echo attr(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG); ?>"
@@ -174,7 +174,7 @@ class SmartLaunchController
         $this->addQuestionnaireLaunchContext($launchCode, $intentData, $pid);
 
         $serializedCode = $launchCode->serialize();
-        $launchParams = "?launch=" . urlencode((string) $serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        $launchParams = "?" . \OpenEMR\Common\Http\QueryString::build(['launch' => (string) $serializedCode, 'iss' => $issuer, 'aud' => $issuer]);
         $redirectUrl = $client->getLaunchUri($launchParams);
         header("Location: " . $redirectUrl);
         exit;

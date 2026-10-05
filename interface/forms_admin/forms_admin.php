@@ -137,9 +137,9 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 if ($registry['sql_run'] == 0) {
                                     echo "<td><span class='text'>" . xlt('registered') . "</span>";
                                 } elseif ($registry['state'] == "0") {
-                                    echo "<td><a class='link_submit text-danger' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . xlt('disabled') . "</a>";
+                                    echo "<td><a class='link_submit text-danger' href='./forms_admin.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['id' => $registry['id'], 'method' => 'enable', 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "'>" . xlt('disabled') . "</a>";
                                 } else {
-                                    echo "<td><a class='link_submit text-success' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=disable&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . xlt('enabled') . "</a>";
+                                    echo "<td><a class='link_submit text-success' href='./forms_admin.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['id' => $registry['id'], 'method' => 'disable', 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "'>" . xlt('enabled') . "</a>";
                                 }
                                 ?>
                                 </td>
@@ -158,7 +158,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     if ($registry['sql_run']) {
                                         echo "<span class='text'>" . xlt('DB installed') . "</span>";
                                     } else {
-                                        echo "<a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=install_db&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . xlt('install DB') . "</a>";
+                                        echo "<a class='link_submit' href='./forms_admin.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped(['id' => $registry['id'], 'method' => 'install_db', 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . "'>" . xlt('install DB') . "</a>";
                                     }
                                     ?>
                                 </td>
@@ -231,7 +231,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 <td>
                                     <?php
                                     if ($phpState == "PHP extracted") {
-                                        echo '<a class="link_submit" href="./forms_admin.php?name=' . attr_url($fname) . '&method=register&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session) . '">' . xlt('register') . '</a>';
+                                        echo '<a class="link_submit" href="./forms_admin.php?' . \OpenEMR\Common\Http\QueryString::buildUntyped(['name' => $fname, 'method' => 'register', 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]) . '">' . xlt('register') . '</a>';
                                     } else {
                                         echo '<span class="text">' . xlt('n/a') . '</span>';
                                     }

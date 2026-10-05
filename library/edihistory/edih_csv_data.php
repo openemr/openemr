@@ -82,19 +82,38 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 $typ = $csvfile['RspType'] ?? '';
                 $rej = $csvfile['RejCt'] ?? '';
                 //
-                $dt_str .= ($fn1) ? "<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($fn1) . "</a>&nbsp;" : "";
+                $dt_str .= ($fn1) ? "<a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'file',
+                    'fname' => $fn1,
+                    'ftype' => $ft,
+                    'fmt' => 'seg',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($fn1) . "</a>&nbsp;" : "";
                 $dt_str .= ($dte) ? " &nbsp;" . text(substr((string) $dte, 0, 4)) . "-" . text(substr((string) $dte, 4, 2)) . "-" . text(substr((string) $dte, 6, 2)) : "";
                 $dt_str .= ($clmct) ? " &nbsp;<em>Claims</em> " . text($clmct) : "";
                 if ($ft == 'f997' || $ft == 'ta1') {
                     $dt_str .= ($typ) ? " &nbsp;" . text($typ) : "";
                     $dt_str .= ($rej) ? " &nbsp;" . text($rej) : "";
-                    $dt_str .= ($trc) ? "&nbsp; <a class='" . attr($cls) . "' title='" . attr($trc) . "' href='edih_main.php?gtbl=file&trace=" . attr_url($trc) . "&ftype=" . attr_url($ft) . "&rsptype=" . attr_url($typ) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'><em>trace</em></a>&nbsp;" : "";
+                    $dt_str .= ($trc) ? "&nbsp; <a class='" . attr($cls) . "' title='" . attr($trc) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'file',
+                        'trace' => $trc,
+                        'ftype' => $ft,
+                        'rsptype' => $typ,
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'><em>trace</em></a>&nbsp;" : "";
                 } elseif ($ft == 'f277') {
                     $dt_str .= (isset($csvfile['Accept'])) ? " &nbsp;<em>Accept</em> " . text($csvfile['Accept']) : "";
                     $dt_str .= (isset($csvfile['Reject'])) ? " &nbsp;<em>Rej</em> " . text($csvfile['Reject']) : "";
                 } elseif ($ft == 'f835') {
                     $dt_str .= (isset($csvfile['Denied'])) ? " &nbsp;<em>Denied</em> " . text($csvfile['Denied']) : "";
-                    $dt_str .= ($trc) ? " &nbsp;<em>Chk</em> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn1) . "&trace=" . attr_url($trc) . "&ftype=" . attr_url($ft) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($trc) . "</a>&nbsp;" : "";
+                    $dt_str .= ($trc) ? " &nbsp;<em>Chk</em> <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'file',
+                        'fname' => $fn1,
+                        'trace' => $trc,
+                        'ftype' => $ft,
+                        'fmt' => 'htm',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'>" . text($trc) . "</a>&nbsp;" : "";
                     $dt_str .= (isset($csvfile['Payer'])) ? " &nbsp;" . text($csvfile['Payer']) : "";
                 }
 
@@ -162,21 +181,84 @@ function edih_csv_process_html($data_ar, $err_only = false)
                     $dd_str .= ($sts) ? " &nbsp;" . text($sts) : "";
                     $dd_str .= ($ins) ? " &nbsp;" . text($ins) : "";
                     $dd_str .= ($clm) ? " &nbsp;" . text($clm) : "";
-                    $dd_str .= ($bht03) ? " &nbsp;<em>view</em> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&bht03=" . attr_url($bht03) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp; <a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&bht03=" . attr_url($bht03) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a>&nbsp;" : "";
-                    $dd_str .= ($pid) ? " &nbsp;<em>trace</em> <a class='sub' href='edih_main.php?gtbl=claim&ftype=" . attr_url($ft) . "&rsptype=f837&trace=" . attr_url($pid) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($pid) . "</a>" : "";
-                    $dd_str .= ($auth && $auth == 'Rsp' || $auth == 'Reply') ?  "<a class='sub' href='edih_main.php?gtbl=claim&ftype=" . attr_url($ft) . "&rsptype=f278&trace=" . attr_url($trc) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'><em>trace</em></a>" : "";
+                    $dd_str .= ($bht03) ? " &nbsp;<em>view</em> <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'fname' => $fn1,
+                        'ftype' => $ft,
+                        'bht03' => $bht03,
+                        'fmt' => 'htm',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'>H</a>&nbsp; <a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'fname' => $fn1,
+                        'ftype' => $ft,
+                        'bht03' => $bht03,
+                        'fmt' => 'seg',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'>T</a>&nbsp;" : "";
+                    $dd_str .= ($pid) ? " &nbsp;<em>trace</em> <a class='sub' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'ftype' => $ft,
+                        'rsptype' => 'f837',
+                        'trace' => $pid,
+                        'fmt' => 'seg',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'>" . text($pid) . "</a>" : "";
+                    $dd_str .= ($auth && $auth == 'Rsp' || $auth == 'Reply') ?  "<a class='sub' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'ftype' => $ft,
+                        'rsptype' => 'f278',
+                        'trace' => $trc,
+                        'fmt' => 'seg',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'><em>trace</em></a>" : "";
                 } elseif ($ft == 'f835') {
                     $dd_str .= ($clm) ? " &nbsp;<em>Claim ID</em> $ins" : "";
                     $dd_str .= ($ins) ? " &nbsp;<em>InsLevel</em> $ins" : "";
-                    $dd_str .= ($pid) ? " &nbsp;$pid <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&pid=" . attr_url($pid) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&pid=" . attr_url($pid) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a>" : "";
+                    $dd_str .= ($pid) ? " &nbsp;$pid <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'fname' => $fn1,
+                        'ftype' => $ft,
+                        'pid' => $pid,
+                        'fmt' => 'htm',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'>H</a> <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'fname' => $fn1,
+                        'ftype' => $ft,
+                        'pid' => $pid,
+                        'fmt' => 'seg',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'>T</a>" : "";
                 } elseif ($ft == 'f997') {
-                    $dd_str .= ($trc) ? " &nbsp;<a class='" . attr($cls) . "' title='" . attr($trc) . "' href='edih_main.php?gtbl=claim&ftype=" . attr_url($ft) . "&trace=" . attr_url($trc) . "&rsptype=" . attr_url($typ) . "&errseg=" . attr_url($err) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'><em>trace</em></a>" : "";
+                    $dd_str .= ($trc) ? " &nbsp;<a class='" . attr($cls) . "' title='" . attr($trc) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'ftype' => $ft,
+                        'trace' => $trc,
+                        'rsptype' => $typ,
+                        'errseg' => $err,
+                        'fmt' => 'seg',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'><em>trace</em></a>" : "";
                     $dd_str .= ($err) ? " &nbsp;" . text(substr((string) $err, 0, 8)) : "";
                 } else {
-                    $dd_str .= ($pid) ? " &nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&pid=" . attr_url($pid) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($pid) . "</a>" : "";
+                    $dd_str .= ($pid) ? " &nbsp;<a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                        'gtbl' => 'claim',
+                        'fname' => $fn1,
+                        'ftype' => $ft,
+                        'pid' => $pid,
+                        'fmt' => 'seg',
+                        'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                    ]) . "'>" . text($pid) . "</a>" : "";
                 }
 
-                $dd_str .= ($fn1) ? " &nbsp;<a class='" . attr($cls) . "' title='" . attr($fn1) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn1) . "&ftype=" . attr_url($ft) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'><em>file</em></a>" : "";
+                $dd_str .= ($fn1) ? " &nbsp;<a class='" . attr($cls) . "' title='" . attr($fn1) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'file',
+                    'fname' => $fn1,
+                    'ftype' => $ft,
+                    'fmt' => 'htm',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'><em>file</em></a>" : "";
                 //
                 $clm_html .= "<dd class='" . attr($oe) . "'>$dd_str</dd>" . PHP_EOL;
                 //
@@ -330,8 +412,21 @@ function edih_claim_history($encounter)
                 //
                 $ch_html .= "<td>" . text($ch['PtName']) . "</td>" . PHP_EOL;
                 $ch_html .= "<td>" . text($dt) . "</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&pid=" . attr_url($ch['CLM01']) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['CLM01']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td title='" . attr($ch['Control']) . "'><a  class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'claim',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'pid' => $ch['CLM01'],
+                    'fmt' => 'seg',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['CLM01']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td title='" . attr($ch['Control']) . "'><a  class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'file',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'fmt' => 'seg',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
                 //
                 $ch_html .= "</tr>" . PHP_EOL;
             }
@@ -359,8 +454,22 @@ function edih_claim_history($encounter)
                 //array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');;
                 $ch_html .= "<tr class='ch997'>";
                 $ch_html .= "<td>Rsp Ack</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='rsp' target='_blank' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&trace=" . attr_url($ch['Trace']) . "&rsptype=" . attr_url($ch['RspType']) . "&errseg=" . attr_url($ch['err_seg']) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td><a class='rsp' target='_blank' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'claim',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'trace' => $ch['Trace'],
+                    'rsptype' => $ch['RspType'],
+                    'errseg' => $ch['err_seg'],
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'file',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'fmt' => 'seg',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
                 $ch_html .= "<td title='Response type/date'>" . text($ch['RspType']) . " " . text($ch['RspDate']) . "</td>" . PHP_EOL;
                 $ch_html .= "</tr>" . PHP_EOL;
             }
@@ -387,8 +496,21 @@ function edih_claim_history($encounter)
                 $ch_html .= "<tr class='ch277'>";
                 //
                 $ch_html .= "<td>Claim Status</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($ch['BHT03']) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td title='" . attr($ch['FileName']) . "'><a href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td><a class='rsp' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'claim',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'bht03' => $ch['BHT03'],
+                    'fmt' => 'htm',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td title='" . attr($ch['FileName']) . "'><a href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'file',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'fmt' => 'seg',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
                 $ch_html .= "<td title='Payer " . attr($ch['Payer']) . "'>" . text($ch['Trace']) . "</td>" . PHP_EOL;
                 //
                 $ch_html .= "</tr>" . PHP_EOL;
@@ -418,8 +540,22 @@ function edih_claim_history($encounter)
                 $ch_html .= "<tr class='ch835'>";
                 //
                 $ch_html .= "<td>" . text($ch['PtName']) . "</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&pid=" . attr_url($ch['CLM01']) . "&summary=no&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td><a href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&trace=" . attr_url($ch['Trace']) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Trace']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td><a class='rsp' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'claim',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'pid' => $ch['CLM01'],
+                    'summary' => 'no',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
+                $ch_html .= "<td><a href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                    'gtbl' => 'file',
+                    'fname' => $ch['FileName'],
+                    'ftype' => $tp,
+                    'trace' => $ch['Trace'],
+                    'fmt' => 'htm',
+                    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                ]) . "'>" . text($ch['Trace']) . "</a></td>" . PHP_EOL;
                 $ch_html .= "<td title='" . attr($msg) . "'>" . text($ch['Payer']) . "</td>" . PHP_EOL;
                 //
                 $ch_html .= "</tr>" . PHP_EOL;
@@ -627,17 +763,46 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
                         $fn = $v;
-                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'Control') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'icn' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'Trace') {
                         $trc = $v;
-                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&trace=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&rsptype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'trace' => $v,
+                            'ftype' => $tp,
+                            'rsptype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'Claim_ct') {
-                        $csv_html .= "<td>" . text($v) . " <a class='sub' href='edih_main.php?tracecheck=" . attr_url($trc) . "&ckprocessed=yes&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'><em>P?</em></a></td>" . PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='sub' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'tracecheck' => $trc,
+                            'ckprocessed' => 'yes',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'><em>P?</em></a></td>" . PHP_EOL;
                     } elseif ($k == 'Denied') {
                         if ((int)$v > 0) {
-                            $csv_html .= "<td><a class='sub' href='edih_main.php?chkdenied=yes&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&trace=" . attr_url($trc) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                            $csv_html .= "<td><a class='sub' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                                'chkdenied' => 'yes',
+                                'fname' => $fn,
+                                'ftype' => $tp,
+                                'trace' => $trc,
+                                'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                            ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                         } else {
                             $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                         }
@@ -663,12 +828,30 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
                         $fn = $v;
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'Trace') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&trace=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&rsptype=" . attr_url($rsp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'trace' => $v,
+                            'ftype' => $tp,
+                            'rsptype' => $rsp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'RejCt') {
                         if ((int)$v > 0) {
-                            $csv_html .= "<td><a class='rpt' href='edih_main.php?chkdenied=yes&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                            $csv_html .= "<td><a class='rpt' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                                'chkdenied' => 'yes',
+                                'fname' => $fn,
+                                'ftype' => $tp,
+                                'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                            ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                         } else {
                             $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                         }
@@ -692,12 +875,29 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'Date') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'Control') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'icn' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'Reject') {
                         if ((int)$v > 0) {
-                            $csv_html .= "<td><a class='sub' href='edih_main.php?&chkdenied=yes&fname=" . attr_url($val['FileName']) . "&ftype=" . attr_url($tp) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                            $csv_html .= "<td><a class='sub' href='edih_main.php?&" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                                'chkdenied' => 'yes',
+                                'fname' => $val['FileName'],
+                                'ftype' => $tp,
+                                'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                            ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                         } else {
                             $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                         }
@@ -722,11 +922,23 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $fn = $val['FileName'];
                 foreach ($val as $k => $v) {
                     if ($k == 'CLM01') {
-                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&pid=" . attr_url($v) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='sub' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'pid' => $v,
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'SvcDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                     }
@@ -748,13 +960,46 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'SvcDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'CLM01') {
-                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&pid=" . attr_url($pid) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&pid=" . attr_url($pid) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'pid' => $pid,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'pid' => $pid,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } elseif ($k == 'Trace') {
-                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&trace=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'trace' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='" . attr($v) . "'>File <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'>File <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                     }
@@ -777,13 +1022,46 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'SvcDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'CLM01') {
-                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&trace=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&rsptype=f837&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='sub' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'trace' => $v,
+                            'ftype' => $tp,
+                            'rsptype' => 'f837',
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>" . text($v) . " <a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='rsp' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='" . attr($v) . "'>File <a class='rsp' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'>File <a class='rsp' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                     }
@@ -806,12 +1084,39 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'ReqDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'CLM01') {
-                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&trace=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&rsptype=f837&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='sub' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'trace' => $v,
+                            'ftype' => $tp,
+                            'rsptype' => 'f837',
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                     }
@@ -833,9 +1138,22 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'ReqDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td> <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                     }
@@ -857,11 +1175,37 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'RspDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;" . PHP_EOL;
-                        $csv_html .= "&nbsp;<a class='seg' target='_blank' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;" . PHP_EOL;
+                        $csv_html .= "&nbsp;<a class='seg' target='_blank' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='" . attr($v) . "'> File <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'> File <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                     }
@@ -883,11 +1227,37 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'FileDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;" . PHP_EOL;
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($v) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;" . PHP_EOL;
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'bht03' => $v,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='" . attr($v) . "'> File <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>T</a></td>" . PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'> File <a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'htm',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>T</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>$v</td>" . PHP_EOL;
                     }
@@ -910,9 +1280,24 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     if ($k == 'RspDate') {
                         $csv_html .= "<td>" . text(substr((string) $v, 0, 4)) . '-' . text(substr((string) $v, 4, 2)) . '-' . text(substr((string) $v, 6, 2)) . "</td>" . PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'Trace') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($fn) . "&ftype=" . attr_url($tp) . "&trace=" . attr_url($v) . "&rsptype=" . attr_url($rsp) . "&err=" . attr_url($err) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'claim',
+                            'fname' => $fn,
+                            'ftype' => $tp,
+                            'trace' => $v,
+                            'rsptype' => $rsp,
+                            'err' => $err,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } elseif ($k == 'err_seg') {
                         $csv_html .= "<td title='" . attr($v) . "'>" . text(substr((string) $v, 0, 8)) . "...</td>" . PHP_EOL;
                     } else {
@@ -931,7 +1316,13 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $csv_html .= "<tr class='" . attr($bgc) . "'>" . PHP_EOL;
                 foreach ($val as $k => $v) {
                     if ($k == 'FileName') {
-                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr_url($v) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($v) . "</a></td>" . PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?" . \OpenEMR\Common\Http\QueryString::buildUntyped([
+                            'gtbl' => 'file',
+                            'fname' => $v,
+                            'ftype' => $tp,
+                            'fmt' => 'seg',
+                            'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+                        ]) . "'>" . text($v) . "</a></td>" . PHP_EOL;
                     } else {
                         $csv_html .= "<td>" . text($v) . "</td>" . PHP_EOL;
                     }

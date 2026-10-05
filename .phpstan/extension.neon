@@ -59,6 +59,12 @@ services:
 - class: OpenEMR\PHPStan\Rules\SoftRequiredArgumentsRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\HandBuiltQueryStringRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\HandBuiltQueryStringTemplateRule
+  tags:
+  - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\OEGlobalsBagTypedGetterRule
   tags:
   - phpstan.rules.rule
