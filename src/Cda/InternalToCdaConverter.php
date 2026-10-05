@@ -4794,8 +4794,8 @@ class InternalToCdaConverter
         $tr2->appendChild($this->createElement('th', 'Payer Name'));
         $tr2->appendChild($this->createElement('th', 'Group ID'));
         $tr2->appendChild($this->createElement('th', 'Member ID'));
-        $tr2->appendChild($this->createElement('th', 'Elegibility Start Date'));
-        $tr2->appendChild($this->createElement('th', 'Elegibility End Date'));
+        $tr2->appendChild($this->createElement('th', 'Eligibility Start Date'));
+        $tr2->appendChild($this->createElement('th', 'Eligibility End Date'));
         $thead->appendChild($tr2);
         $table->appendChild($thead);
 

@@ -726,8 +726,8 @@
                                 <th>Payer Name</th>
                                 <th>Group ID</th>
                                 <th>Member ID</th>
-                                <th>Elegibility Start Date</th>
-                                <th>Elegibility End Date</th>
+                                <th>Eligibility Start Date</th>
+                                <th>Eligibility End Date</th>
                             </tr>
                         </thead>
                         <tbody>
