@@ -867,7 +867,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
                         <tr>
                             <td></td>
                             <td>
-                                <select name="form_tobacco" id="form_tobacco" onchange="radioChange(this.options[this.selectedIndex].value)" title="<?php xla('Tobacco use'); ?>">
+                                <select name="form_tobacco" id="form_tobacco" onchange="radioChange(this.options[this.selectedIndex].value)" title="<?php echo xla('Tobacco use'); ?>">
                                     <option value="" <?php if (($result2['tobacco']['reslist'] ?? '') == '') {
                                         echo "selected";
                                                      } ?>><?php echo xlt('Unassigned'); ?></option>
