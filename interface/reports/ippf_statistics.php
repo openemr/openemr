@@ -384,7 +384,7 @@ function getGcacClientStatus($row) {
 
 // Determine if a recent gcac service was performed.
 //
-function hadRecentAbService($pid, $encdate)
+function hadRecentAbService($pid, $encdate): bool
 {
     $query = "SELECT COUNT(*) AS count " .
     "FROM form_encounter AS fe, billing AS b, codes AS c WHERE " .
@@ -970,7 +970,7 @@ function process_referral($row): void
     }
 }
 
-function uses_description($form_by)
+function uses_description($form_by): bool
 {
     return (in_array($form_by, ['4', '102', '9', '10', '20', '104'], true));
 }

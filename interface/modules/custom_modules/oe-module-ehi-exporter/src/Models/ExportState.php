@@ -127,7 +127,7 @@ class ExportState
         throw new \RuntimeException("Invalid item in queue");
     }
 
-    public function hasTableDefinitions()
+    public function hasTableDefinitions(): bool
     {
         return !$this->queue->isEmpty();
     }

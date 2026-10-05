@@ -295,7 +295,7 @@ class Measure extends AbstractType
         return $serialized;
     }
 
-    public function getJsonArrayDefinition()
+    public function getJsonArrayDefinition(): bool
     {
         // get our populated measure if we have one or return the json.
         return $this->_measure || $this->jsonSerialize();

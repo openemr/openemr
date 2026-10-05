@@ -57,7 +57,7 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
         $this->service = new ClinicalNotesService();
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return $category == self::CATEGORY;
     }

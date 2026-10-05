@@ -80,7 +80,7 @@ function convert_very_strict_label($label)
 }
 
 // Check integer
-function check_integer($value)
+function check_integer($value): bool
 {
     return (empty(preg_match('/[^0-9]/', (string) $value)));
 }

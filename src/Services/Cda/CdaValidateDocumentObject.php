@@ -44,7 +44,7 @@ class CdaValidateDocumentObject
         return $errors;
     }
 
-    private function isZipDocument(Document $document)
+    private function isZipDocument(Document $document): bool
     {
         return in_array($document->get_mimetype(), ['application/zip', 'application/octet-stream']);
     }

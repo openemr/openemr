@@ -276,7 +276,7 @@ class AclMain
      * $param String $section_identifier ACL Section id
      * @return bool
      */
-    public static function zhAclCheck($user_id, $section_identifier)
+    public static function zhAclCheck($user_id, $section_identifier): bool
     {
         $sql_user_acl = " SELECT
                         COUNT(allowed) AS count

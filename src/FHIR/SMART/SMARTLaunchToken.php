@@ -322,7 +322,7 @@ class SMARTLaunchToken
         }
     }
 
-    public function isValidIntent($intent)
+    public function isValidIntent($intent): bool
     {
         return array_search($intent, self::VALID_INTENTS) !== false;
     }

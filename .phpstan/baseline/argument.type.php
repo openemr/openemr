@@ -27242,16 +27242,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$areSystemScopesEnabled of method OpenEMR\\\\Events\\\\RestApiExtend\\\\RestApiScopeEvent\\:\\:setSystemScopesEnabled\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$enabled of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ServerScopeListEntity\\:\\:setSystemScopesEnabled\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$scopeString of static method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopeEntity\\:\\:createFromString\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',

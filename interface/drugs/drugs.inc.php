@@ -94,7 +94,7 @@ function sellDrug(
 }
 
 // Determine if facility and warehouse restrictions are applicable for this user.
-function isUserRestricted($userid = 0)
+function isUserRestricted($userid = 0): bool
 {
     if (!$userid) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();

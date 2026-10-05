@@ -492,17 +492,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function check_age\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batchcom.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function check_date_format\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batchcom.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function check_select\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchcom.inc.php',
 ];
@@ -515,11 +505,6 @@ $ignoreErrors[] = [
     'message' => '#^Function SavePatientAudit\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function is_clinic\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function buildTemplate\\(\\) has no return type specified\\.$#',
@@ -628,11 +613,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isFacilityAllowed\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function isUserRestricted\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
 ];
@@ -1005,11 +985,6 @@ $ignoreErrors[] = [
     'message' => '#^Function validation\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function startsWith\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/js/eye_base.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function Menu_myGetRegistered\\(\\) has no return type specified\\.$#',
@@ -3192,27 +3167,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/Admin/TeleHealthPatientAdminController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\Admin\\\\TeleHealthPatientAdminController\\:\\:shouldUpdateRegistrationCodeForUser\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/Admin/TeleHealthPatientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\Admin\\\\TeleHealthPatientAdminController\\:\\:subscribeToEvents\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/Admin/TeleHealthPatientAdminController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\Admin\\\\TeleHealthUserAdminController\\:\\:getUserIdFromEvent\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/Admin/TeleHealthUserAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\Admin\\\\TeleHealthUserAdminController\\:\\:isTelehealthRenderEvent\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/Admin/TeleHealthUserAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\Admin\\\\TeleHealthUserAdminController\\:\\:isTelehealthUserEvent\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/Admin/TeleHealthUserAdminController.php',
 ];
@@ -3253,16 +3213,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthCalendarController\\:\\:getAssetPath\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthCalendarController\\:\\:isAppointmentPageInclude\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthCalendarController\\:\\:isCalendarPageInclude\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
 ];
@@ -3442,16 +3392,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthParticipantInvitationMailerService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\TeleHealthRemoteRegistrationService\\:\\:createPatientRegistration\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\TeleHealthRemoteRegistrationService\\:\\:createUserRegistration\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\TeleHealthRemoteRegistrationService\\:\\:getEndpointUrl\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php',
@@ -3587,22 +3527,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isDebugModeEnabled\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isOneTimePasswordLoginEnabled\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isOptionalSetting\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:isThirdPartyInvitationsEnabled\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
 ];
@@ -3623,11 +3548,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Util\\\\CalendarUtils\\:\\:isTelehealthSessionInActiveTimeRange\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Util/CalendarUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Util\\\\CalendarUtils\\:\\:isUserLastSeenTimeInActiveRange\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Util/CalendarUtils.php',
 ];
@@ -4217,16 +4137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJob.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJob\\:\\:hasPatientIds\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJob.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJob\\:\\:isCompleted\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJob.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJob\\:\\:setDocumentLimitSize\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJob.php',
@@ -4258,16 +4168,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJobTask\\:\\:getPatientIds\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJobTask.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJobTask\\:\\:hasPatientIds\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJobTask.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJobTask\\:\\:isCompleted\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJobTask.php',
 ];
@@ -4333,11 +4233,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportState\\:\\:hasDenormalizedKeys\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/ExportState.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportState\\:\\:hasTableDefinitions\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/ExportState.php',
 ];
@@ -4453,11 +4348,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Services\\\\EhiExporter\\:\\:processJobTask\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Services\\\\EhiExporter\\:\\:shouldExportAdditionalAssets\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
 ];
@@ -5005,11 +4895,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\CcdTable\\:\\:update_document_table\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CcdaDocumentTemplateOids\\:\\:isValidDocumentTemplateOid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaDocumentTemplateOids.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\CcdaGenerator\\:\\:create_data\\(\\) has no return type specified\\.$#',
@@ -6097,17 +5982,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function hadRecentAbService\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function ippf_stats_getListTitle\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function uses_description\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
@@ -6242,11 +6117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups\\:\\:existGroup\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Therapy_Groups\\:\\:getGroup\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
@@ -6255,31 +6125,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Therapy_Groups\\:\\:saveNewGroup\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups\\:\\:updateGroup\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_groups_participants\\:\\:isAlreadyRegistered\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_groups_participants\\:\\:removeParticipant\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_groups_participants\\:\\:saveParticipant\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_groups_participants\\:\\:updateParticipant\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Abstract_Configuration\\:\\:getBaseUrl\\(\\) has no return type specified\\.$#',
@@ -6913,11 +6758,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method FeeSheet\\:\\:logFSMessage\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/FeeSheet.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method FeeSheet\\:\\:pricesAuthorized\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
@@ -11817,11 +11657,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function check_integer\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sanitize.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function convert_safe_file_dir_name\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
@@ -12207,11 +12042,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:IsSSL\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method RequestUtil\\:\\:NormalizeUrlRewrite\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
@@ -12452,11 +12282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:IsLocked\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataSet\\:\\:LockCache\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
@@ -12493,11 +12318,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method FieldMap\\:\\:GetConstantFromType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/FieldMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method FieldMap\\:\\:IsNumeric\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/FieldMap.php',
 ];
@@ -13068,11 +12888,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method VsDateUtil\\:\\:HoursFromNow\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/VsDateUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VsDateUtil\\:\\:IsDstNorthAmerica\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/VsDateUtil.php',
 ];
@@ -14167,11 +13982,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingUtilities.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\BillingUtilities\\:\\:isEncounterBilled\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingUtilities.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\BillingUtilities\\:\\:reOpenEncounterForBilling\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingUtilities.php',
@@ -14227,16 +14037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:cptNOC\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:dateInitialTreatmentValid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:diagIndex\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
@@ -14277,16 +14077,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:hospitalizedFromDateValid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:hospitalizedToDateValid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:insuredDOB\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
@@ -14317,52 +14107,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:isHospitalized\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:isOutsideLab\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:isRelatedAuto\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:isRelatedEmployment\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:isRelatedOther\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:isSelfOfInsured\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:isUnableToWork\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:loadPayerInfo\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:miscOnsetDateValid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:onsetDateValid\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -15782,11 +15527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:isGroupIncludeSuperuser\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:removeUserAros\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
@@ -15912,21 +15652,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:hasDSI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:hasEvidenceDSI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:hasPredictiveDSI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:setContacts\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
@@ -16013,11 +15738,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\AccessTokenRepository\\:\\:getTokenByToken\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/AccessTokenRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\AccessTokenRepository\\:\\:isAccessTokenRevokedInDatabase\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/AccessTokenRepository.php',
 ];
@@ -16163,16 +15883,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormActionBarSettings\\:\\:getGlobalSettingsList\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/FormActionBarSettings.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormActionBarSettings\\:\\:shouldDisplayBottomActionBar\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/FormActionBarSettings.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\FormActionBarSettings\\:\\:shouldDisplayTopActionBar\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/FormActionBarSettings.php',
 ];
@@ -17372,11 +17082,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/RestApiExtend/RestApiSecurityCheckEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\Config\\\\ServerConfig\\:\\:areSystemScopesEnabled\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/Config/ServerConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\Config\\\\ServerConfig\\:\\:getPublicRestKey\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/Config/ServerConfig.php',
@@ -17393,11 +17098,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\Export\\\\ExportJob\\:\\:getResourcesString\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/Export/ExportJob.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\Export\\\\ExportJob\\:\\:isComplete\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportJob.php',
 ];
@@ -17507,19 +17207,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\RouteController\\:\\:supportsRequest\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ResourceConstraintFilterer\\:\\:getResourceValueForKey\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ResourceConstraintFilterer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SMARTLaunchToken\\:\\:isValidIntent\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SMARTLaunchToken\\:\\:serialize\\(\\) has no return type specified\\.$#',
@@ -18592,11 +18282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocumentObject\\:\\:isZipDocument\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocumentObject.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\ClinicalNoteParser\\:\\:fetchPlanTypeByCode\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/ClinicalNoteParser.php',
@@ -18660,16 +18345,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ClinicalNotesService\\:\\:setActivityForClinicalRecord\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\CodeTypes\\\\Subscriber\\\\CodeTypeEventsSubscriber\\:\\:isSnomedCodeType\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CodeTypes/Subscriber/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\CodeTypes\\\\Subscriber\\\\CodeTypeEventsSubscriber\\:\\:is_code_type_active\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CodeTypes/Subscriber/CodeTypeEventsSubscriber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\CodeTypes\\\\Subscriber\\\\CodeTypeEventsSubscriber\\:\\:onCodeTypeInstalledEvent\\(\\) has no return type specified\\.$#',
@@ -19172,11 +18847,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\FhirDiagnosticReportClinicalNotesService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\FhirDiagnosticReportClinicalNotesService\\:\\:supportsCode\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
@@ -19222,11 +18892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirClinicalNotesService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirClinicalNotesService\\:\\:supportsCode\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
@@ -19262,11 +18927,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirDocumentReferenceAdvanceCareDirectiveService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirDocumentReferenceAdvanceCareDirectiveService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirPatientDocumentReferenceService\\:\\:getProfileForVersions\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
@@ -19293,16 +18953,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirPatientDocumentReferenceService\\:\\:populateMetaData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirPatientDocumentReferenceService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirPatientDocumentReferenceService\\:\\:supportsCode\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
 ];
@@ -19573,11 +19223,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirLocationService\\:\\:getProfileForVersions\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirLocationService\\:\\:hasAccessToUserLocationData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirLocationService.php',
 ];
@@ -20157,11 +19802,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationEmployerService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationHistorySdohService\\:\\:getCodeFromResourcePath\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
@@ -20222,11 +19862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationLaboratoryService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationObservationFormService\\:\\:getCodeFromResourcePath\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationObservationFormService.php',
@@ -20272,11 +19907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationPatientService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationQuestionnaireItemService\\:\\:getCodeFromResourcePath\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
@@ -20288,11 +19918,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationQuestionnaireItemService\\:\\:getValidStatus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationQuestionnaireItemService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
 ];
@@ -20318,16 +19943,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationSocialHistoryService\\:\\:getValidStatus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationSocialHistoryService\\:\\:supportsCategory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationSocialHistoryService\\:\\:supportsCode\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
 ];
@@ -20602,11 +20217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Globals/GlobalSetting.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\GlobalSetting\\:\\:dataTypeSupportsOptions\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Globals/GlobalSetting.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\GlobalSetting\\:\\:isUserSetting\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Globals/GlobalSetting.php',
@@ -20822,16 +20432,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:isValidProcedureCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:isValidProcedureResultCode\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientAccessOnsiteService\\:\\:getOnsiteCredentialsForPid\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientAccessOnsiteService.php',
@@ -21032,11 +20632,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerService\\:\\:isValidPractitionerUuid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProductRegistrationService\\:\\:optInStrategy\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProductRegistrationService.php',
@@ -21128,11 +20723,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\Measure\\:\\:addStratificationToArray\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/Measure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\Measure\\:\\:getJsonArrayDefinition\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/Measure.php',
 ];
@@ -21982,11 +21572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:cpcplus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:current_time\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
@@ -22063,16 +21648,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:mrn\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:msrpopl\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Cat3\\:\\:not_observ\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
 ];
@@ -22727,11 +22302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:hasData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:setData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
@@ -22843,16 +22413,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:installFixtures\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:isForeignReference\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:isFunctionCall\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];

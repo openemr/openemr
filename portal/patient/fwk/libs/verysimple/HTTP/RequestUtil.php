@@ -68,7 +68,7 @@ class RequestUtil
     /**
      * Returns true if the current session is running in SSL
      */
-    public static function IsSSL()
+    public static function IsSSL(): bool
     {
         return isset($_SERVER ['HTTPS']) && $_SERVER ['HTTPS'] != "" && $_SERVER ['HTTPS'] != "off";
     }
@@ -508,7 +508,7 @@ class RequestUtil
      * @param string $fieldname
      * @return bool
      */
-    public static function HasNonAsciiChars($fieldname)
+    public static function HasNonAsciiChars($fieldname): bool
     {
 
         $val = $_REQUEST [$fieldname] ?? '';
