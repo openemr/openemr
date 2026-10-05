@@ -319,7 +319,7 @@ class Pharmacy extends ORDataObject
         return $count['numberof'];
     }
 
-    public function getPageno()
+    public function getPageno(): int
     {
         return $this->pageno = 1;
     }

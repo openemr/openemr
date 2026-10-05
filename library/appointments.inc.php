@@ -80,7 +80,7 @@ $REPEAT_ON_DAY = array_map(
     DayOfWeek::cases(),
 );
 
-function checkEvent($recurrtype, $recurrspec)
+function checkEvent($recurrtype, $recurrspec): int
 {
 
     $eFlag = 0;
@@ -653,7 +653,7 @@ function compareBasic($e1, $e2): int
     return 0;
 }
 
-function compareAppointmentsByDate($appointment1, $appointment2)
+function compareAppointmentsByDate($appointment1, $appointment2): int
 {
     $date1 = strtotime((string) $appointment1['pc_eventDate']);
     $date2 = strtotime((string) $appointment2['pc_eventDate']);
@@ -661,7 +661,7 @@ function compareAppointmentsByDate($appointment1, $appointment2)
     return compareBasic($date1, $date2);
 }
 
-function compareAppointmentsByTime($appointment1, $appointment2)
+function compareAppointmentsByTime($appointment1, $appointment2): int
 {
     $time1 = strtotime((string) $appointment1['pc_startTime']);
     $time2 = strtotime((string) $appointment2['pc_startTime']);
@@ -669,7 +669,7 @@ function compareAppointmentsByTime($appointment1, $appointment2)
     return compareBasic($time1, $time2);
 }
 
-function compareAppointmentsByDoctorName($appointment1, $appointment2)
+function compareAppointmentsByDoctorName($appointment1, $appointment2): int
 {
     $name1 = $appointment1['ulname'];
     $name2 = $appointment2['ulname'];
@@ -683,7 +683,7 @@ function compareAppointmentsByDoctorName($appointment1, $appointment2)
     return $cmp;
 }
 
-function compareAppointmentsByPatientName($appointment1, $appointment2)
+function compareAppointmentsByPatientName($appointment1, $appointment2): int
 {
     $name1 = $appointment1['lname'];
     $name2 = $appointment2['lname'];
@@ -697,42 +697,42 @@ function compareAppointmentsByPatientName($appointment1, $appointment2)
     return $cmp;
 }
 
-function compareAppointmentsByType($appointment1, $appointment2)
+function compareAppointmentsByType($appointment1, $appointment2): int
 {
     $type1 = $appointment1['pc_catid'];
     $type2 = $appointment2['pc_catid'];
     return compareBasic($type1, $type2);
 }
 
-function compareAppointmentsByPatientId($appointment1, $appointment2)
+function compareAppointmentsByPatientId($appointment1, $appointment2): int
 {
     $id1 = $appointment1['pubpid'];
     $id2 = $appointment2['pubpid'];
     return compareBasic($id1, $id2);
 }
 
-function compareAppointmentsByComment($appointment1, $appointment2)
+function compareAppointmentsByComment($appointment1, $appointment2): int
 {
     $comment1 = $appointment1['pc_hometext'];
     $comment2 = $appointment2['pc_hometext'];
     return compareBasic($comment1, $comment2);
 }
 
-function compareAppointmentsByStatus($appointment1, $appointment2)
+function compareAppointmentsByStatus($appointment1, $appointment2): int
 {
     $status1 = $appointment1['pc_apptstatus'];
     $status2 = $appointment2['pc_apptstatus'];
     return compareBasic($status1, $status2);
 }
 
-function compareAppointmentsByTrackerStatus($appointment1, $appointment2)
+function compareAppointmentsByTrackerStatus($appointment1, $appointment2): int
 {
     $trackerstatus1 = $appointment1['status'];
     $trackerstatus2 = $appointment2['status'];
     return compareBasic($trackerstatus1, $trackerstatus2);
 }
 
-function compareAppointmentsByCompletedDrugScreen($appointment1, $appointment2)
+function compareAppointmentsByCompletedDrugScreen($appointment1, $appointment2): int
 {
     $completed1 = $appointment1['drug_screen_completed'];
     $completed2 = $appointment2['drug_screen_completed'];

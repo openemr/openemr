@@ -344,7 +344,7 @@ class Phreezer extends Observable
 * @param mixed $b
 * @return int
 */
-    public static function Compare($a, $b)
+    public static function Compare($a, $b): int
     {
         return strcmp((string) $a->ToString(), (string) $b->ToString());
     }

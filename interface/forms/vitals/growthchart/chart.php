@@ -134,12 +134,12 @@ function unitsDist($dist): string
 }
 
 // convert vitals service data to US values for graphing
-function convertHeightToUs($height)
+function convertHeightToUs($height): float
 {
     return $height * 0.393701;
 }
 
-function convertWeightToUs($weight)
+function convertWeightToUs($weight): float
 {
     return $weight * 2.20462262185;
 }

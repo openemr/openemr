@@ -310,7 +310,7 @@ class ResultsCalculator
          */
     }
 
-    private function count(array $arr)
+    private function count(array $arr): int
     {
         return count($this->filter_null_values($arr));
 

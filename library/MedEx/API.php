@@ -1070,9 +1070,9 @@ class Events extends Base
  * This function will check recurring appt entries in calendar.
  * @param $appt
  * @param $result
- * @return array|bool
+ * @return int Number of occurrences split out into standalone appointments
  */
-    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER")
+    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER"): int
     {
         //get dates in this request
         if ($M_group == "REMINDER") {

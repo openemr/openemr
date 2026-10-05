@@ -619,13 +619,13 @@ class Claim
     }
 
   // Number of procedures in this claim.
-    public function procCount()
+    public function procCount(): int
     {
         return is_array($this->procs) ? count($this->procs) : 0;
     }
 
   // Number of payers for this claim. Ranges from 1 to 3.
-    public function payerCount()
+    public function payerCount(): int
     {
         return is_array($this->payers) ? count($this->payers) : 0;
     }
@@ -1716,7 +1716,7 @@ class Claim
      * @param int $ins
      * @return int 0 if the payer's sequence is unknown
      */
-    public function payerLevel($ins = 0)
+    public function payerLevel($ins = 0): int
     {
         return match ($this->payerSequence($ins)) {
             'P' => 1,

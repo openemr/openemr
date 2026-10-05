@@ -103,7 +103,7 @@ class AclExtended
     }
 
     // Sort squads by their order value.  Used only by aclGetSquads().
-    private static function aclSquadCompare($a, $b)
+    private static function aclSquadCompare($a, $b): int
     {
         if ($a[2] == $b[2]) {
             // If order value is the same, sort by squad name.
@@ -513,7 +513,7 @@ class AclExtended
     //   $acl_title = title of acl (string)
     //   $return_value = return value of acl (string)
     //
-    private static function aclCountAcos($acl_title, $return_value)
+    private static function aclCountAcos($acl_title, $return_value): int
     {
         $gacl = self::collectGaclApiObject();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);

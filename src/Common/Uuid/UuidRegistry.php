@@ -291,7 +291,7 @@ class UuidRegistry
         }
     }
 
-    private function createMissingUuids()
+    private function createMissingUuids(): int
     {
         try {
             QueryUtils::startTransaction();
@@ -407,7 +407,7 @@ class UuidRegistry
         return $this->getUnusedUuidBatch($limit);
     }
 
-    private function createMissingUuidsForTableWithId()
+    private function createMissingUuidsForTableWithId(): int
     {
         $counter = 0;
         $count = $this->getTableCountWithMissingUuids();
@@ -445,7 +445,7 @@ class UuidRegistry
      *      assigned this group uuid. (see completePartialMissingUuidsForVerticalTable() function)
      * @return int
      */
-    private function createMissingUuidsForVerticalTable()
+    private function createMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 
@@ -493,7 +493,7 @@ class UuidRegistry
      *      assigned this group uuid. (this function)
      * @return int
      */
-    private function completePartialMissingUuidsForVerticalTable()
+    private function completePartialMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 
