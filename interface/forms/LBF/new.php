@@ -17,6 +17,7 @@
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\LayoutColumnUpdate;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -298,11 +299,10 @@ if (
                 updateEmployerData($pid, $new);
             } else {
                 $newPatientData[$field_id] = $value;
-                $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
-                sqlStatement(
-                    "UPDATE patient_data SET $esc_field_id = ? WHERE pid = ?", // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
-                    [$value, $pid]
-                );
+                if (!is_string($field_id)) {
+                    throw new \OpenEMR\Common\Database\SqlQueryException('', 'The layout column cannot be saved.');
+                }
+                sqlStatement(LayoutColumnUpdate::patientStatement($field_id), [$value, $pid]);
             }
 
             continue;
@@ -318,11 +318,10 @@ if (
             continue;
         } elseif ($source == 'V') {
             // Save to form_encounter.
-            $esc_field_id = escape_sql_column_name($field_id, ['form_encounter']);
-            sqlStatement(
-                "UPDATE form_encounter SET $esc_field_id = ? WHERE pid = ? AND encounter = ?", // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
-                [$value, $pid, $visitid]
-            );
+            if (!is_string($field_id)) {
+                throw new \OpenEMR\Common\Database\SqlQueryException('', 'The layout column cannot be saved.');
+            }
+            sqlStatement(LayoutColumnUpdate::encounterStatement($field_id), [$value, $pid, $visitid]);
             continue;
         }
 
