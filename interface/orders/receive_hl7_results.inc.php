@@ -444,7 +444,7 @@ function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdeli
  *   0  No patient is close to a match.
  *  -1  It's not clear if there is a match.
  */
-function match_patient($ptarr)
+function match_patient($ptarr): int
 {
     $in_ss = str_replace('-', '', $ptarr['ss']);
     $in_fname = $ptarr['fname'];
@@ -682,7 +682,7 @@ function match_provider($arr)
 /**
  * Create a patient using whatever patient_data attributes are provided.
  */
-function create_skeleton_patient($patient_data)
+function create_skeleton_patient($patient_data): int
 {
     global $orphanLog;
     $employer_data = [];

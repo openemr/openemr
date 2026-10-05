@@ -62,7 +62,7 @@ class EhiExportJob
      */
     private int $document_limit_size;
 
-    public function getDocumentLimitSize()
+    public function getDocumentLimitSize(): int
     {
         return $this->document_limit_size;
     }

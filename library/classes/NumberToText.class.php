@@ -222,7 +222,7 @@ class NumberToText
         return $text;
     }
 
-    public function getmicrotime()
+    public function getmicrotime(): float
     {
         [$usec, $sec] = explode(" ", microtime());
         return ((float)$usec + (float)$sec);

@@ -597,7 +597,7 @@ function hl7Zip($s)
  * @param string $tstr The issue type string
  * @return int The index of the issue type
  */
-function issueTypeIndex($tstr)
+function issueTypeIndex($tstr): int
 {
     $i = 0;
     foreach (IssueTypeRegistry::issueTypes() as $key => $value) {

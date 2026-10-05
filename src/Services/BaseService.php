@@ -424,7 +424,7 @@ class BaseService implements BaseServiceInterface
      * @param string $table                     - Name of Table
      * @return string Generated Id
      */
-    public function getFreshId($idField, $table)
+    public function getFreshId($idField, $table): int
     {
         $resultId = sqlQuery("SELECT MAX($idField)+1 AS $idField FROM $table");
         return $resultId[$idField] === null ? 1 : intval($resultId[$idField]);

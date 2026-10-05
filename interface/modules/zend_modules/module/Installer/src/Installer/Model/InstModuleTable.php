@@ -1021,7 +1021,7 @@ class InstModuleTable
      * @param String $name nickname
      * @return bool Nickname available or not.
      **/
-    public function validateNickName($name)
+    public function validateNickName($name): int
     {
         $sql = "SELECT * FROM `modules` WHERE mod_nick_name = ? ";
         $result = QueryUtils::fetchRecords($sql, [$name]);

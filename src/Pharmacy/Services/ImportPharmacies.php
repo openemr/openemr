@@ -31,7 +31,7 @@ class ImportPharmacies
      * @param $state
      * @return string
      */
-    public function importPharmacies($city, $state)
+    public function importPharmacies($city, $state): int
     {
         $address = new Address();
 

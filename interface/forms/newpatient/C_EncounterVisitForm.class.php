@@ -241,7 +241,7 @@ class C_EncounterVisitForm
 
         return $categories;
     }
-    public function sensitivity_compare($a, $b)
+    public function sensitivity_compare($a, $b): int
     {
         return ($a[2] < $b[2]) ? -1 : 1;
     }

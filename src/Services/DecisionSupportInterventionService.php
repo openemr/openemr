@@ -235,7 +235,7 @@ class DecisionSupportInterventionService extends BaseService
         return null;
     }
 
-    public function getDsiTypeForStringName(string $dsiTypeName)
+    public function getDsiTypeForStringName(string $dsiTypeName): int
     {
         if (!array_key_exists($dsiTypeName, self::DSI_TYPES_BY_STRING_NAME)) {
             throw new \InvalidArgumentException("Invalid DSI type name");

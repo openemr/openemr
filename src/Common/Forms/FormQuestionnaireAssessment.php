@@ -91,7 +91,7 @@ class FormQuestionnaireAssessment extends BaseForm
     /**
      * @return mixed
      */
-    public function getActivity()
+    public function getActivity(): int
     {
         return $this->activity;
     }

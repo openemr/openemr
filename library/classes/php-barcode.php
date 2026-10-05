@@ -986,7 +986,7 @@ class BarcodeDatamatrix
  // SUM IN GALOIS FIELD GF(2^8)
         return $a ^ $b;
     }
-    private static function selectIndex($dataCodeWordsCount, $rectangular)
+    private static function selectIndex($dataCodeWordsCount, $rectangular): int
     {
  // CHOOSE THE GOOD INDEX FOR TABLES
         if (($dataCodeWordsCount < 1 || $dataCodeWordsCount > 1558) && !$rectangular) {

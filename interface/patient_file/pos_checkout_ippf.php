@@ -452,7 +452,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
 
 // Compute a current checksum of this encounter's invoice-related data from the database.
 //
-function invoiceChecksum($pid, $encounter)
+function invoiceChecksum($pid, $encounter): int
 {
     $row1 = sqlQuery(
         "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .

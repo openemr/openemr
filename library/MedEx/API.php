@@ -1072,7 +1072,7 @@ class Events extends Base
  * @param $result
  * @return array|bool
  */
-    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER")
+    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER"): int
     {
         //get dates in this request
         if ($M_group == "REMINDER") {

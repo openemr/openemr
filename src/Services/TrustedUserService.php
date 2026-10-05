@@ -53,7 +53,7 @@ class TrustedUserService
      * @throws SqlQueryException If the query fails
      * @return int The ID of the trusted user record
      */
-    public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '', $grant = 'authorization_code')
+    public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '', $grant = 'authorization_code'): int
     {
         if (\is_array($scope)) {
             $scope = implode(" ", $scope);

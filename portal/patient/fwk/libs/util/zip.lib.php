@@ -65,7 +65,7 @@ class zipfile
      *
      * @access private
      */
-    public function unix2DosTime($unixtime = 0)
+    public function unix2DosTime($unixtime = 0): int
     {
         $timearray = ($unixtime == 0) ? getdate() : getdate($unixtime);
 

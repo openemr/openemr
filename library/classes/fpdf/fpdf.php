@@ -500,7 +500,7 @@ class FPDF
         $this->_out(sprintf('BT /F%d %.2F Tf ET',$this->CurrentFont['i'],$this->FontSizePt));
     }
 
-    public function AddLink()
+    public function AddLink(): int
     {
     // Create a new internal link
         $n = count($this->links)+1;
@@ -1319,7 +1319,7 @@ class FPDF
         $this->buffer .= $s."\n";
     }
 
-    protected function _getoffset()
+    protected function _getoffset(): int
     {
         return strlen((string) $this->buffer);
     }

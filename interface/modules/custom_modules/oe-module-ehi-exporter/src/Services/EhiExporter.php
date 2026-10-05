@@ -647,7 +647,7 @@ class EhiExporter
         }
     }
 
-    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = [])
+    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = []): int
     {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
         $convertUuid = !empty($uuidDefinition);

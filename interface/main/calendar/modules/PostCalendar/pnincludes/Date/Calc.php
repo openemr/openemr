@@ -195,7 +195,7 @@ class Date_Calc
      * @return int $weekday_number
      */
 
-    public static function dayOfWeek($day = "", $month = "", $year = "")
+    public static function dayOfWeek($day = "", $month = "", $year = ""): float
     {
 
         if (empty($year)) {
@@ -247,7 +247,7 @@ class Date_Calc
      * @return int $week_number
      */
 
-    public static function weekOfYear($day, $month, $year)
+    public static function weekOfYear($day, $month, $year): float
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -320,7 +320,7 @@ class Date_Calc
      * @return int $year_quarter
      */
 
-    public static function quarterOfYear($day = "", $month = "", $year = "")
+    public static function quarterOfYear($day = "", $month = "", $year = ""): int
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -826,7 +826,7 @@ class Date_Calc
      *      -1 if there is an error.
      */
 
-    public static function dateDiff($day1, $month1, $year1, $day2, $month2, $year2)
+    public static function dateDiff($day1, $month1, $year1, $day2, $month2, $year2): int
     {
         if (!Date_Calc::isValidDate($day1, $month1, $year1)) {
             return -1;
@@ -886,7 +886,7 @@ class Date_Calc
      * @return int number of weeks
      */
 
-    public static function weeksInMonth($month = "", $year = "")
+    public static function weeksInMonth($month = "", $year = ""): float
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -931,7 +931,7 @@ class Date_Calc
      * @return int number of weekday for the first day, 0=Sunday
      */
 
-    public static function firstOfMonthWeekday($month = "", $year = "")
+    public static function firstOfMonthWeekday($month = "", $year = ""): float
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1279,7 +1279,7 @@ class Date_Calc
      * @return int number of days
      */
 
-    public static function dateToDays($day, $month, $year)
+    public static function dateToDays($day, $month, $year): float
     {
 
         $century = (int) substr((string) $year, 0, 2);

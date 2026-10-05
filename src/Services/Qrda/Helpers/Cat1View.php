@@ -110,7 +110,7 @@ trait Cat1View
         return $translation_list;
     }
 
-    public function value_as_float(Mustache_Context $context)
+    public function value_as_float(Mustache_Context $context): float
     {
         $value = $context->find('value');
         return floatval($value);
