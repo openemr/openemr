@@ -161,10 +161,7 @@ class Base
     {
         $quoted = [];
         foreach ($this->cancelledApptStatuses() as $status) {
-            $escaped = \add_escape_custom($status);
-            if (is_string($escaped)) {
-                $quoted[] = "'" . $escaped . "'";
-            }
+            $quoted[] = "'" . \add_escape_custom($status) . "'";
         }
         if ($quoted === []) {
             return '';
