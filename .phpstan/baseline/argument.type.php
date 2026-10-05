@@ -1832,11 +1832,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/customize_log.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$appointments of function sortAppointments expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/edi_270.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$selected of function dropdown_facility expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
@@ -7857,11 +7852,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function array_map expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$userId of method OpenEMR\\\\Services\\\\UserService\\:\\:getUser\\(\\) expects int\\|string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthVideoRegistrationController.php',
@@ -7890,11 +7880,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$password of method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthVideoRegistrationController\\:\\:suspendUser\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthVideoRegistrationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$arr of function textArray expects array, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$dobYMD of method OpenEMR\\\\Services\\\\PatientService\\:\\:getPatientAgeDisplay\\(\\) expects string, mixed given\\.$#',
@@ -8207,11 +8192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TelehealthRegistrationCodeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_keys expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$haystack of function str_ends_with expects string, string\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
@@ -8228,7 +8208,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$key of method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:get\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
 ];
 $ignoreErrors[] = [
@@ -8552,11 +8532,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key of method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:get\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$path of class OpenEMR\\\\Common\\\\Twig\\\\TwigContainer constructor expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/Bootstrap.php',
@@ -8607,7 +8582,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$value of function curl_setopt expects array\\<int, string\\>, mixed given\\.$#',
+    'message' => '#^Parameter \\#3 \\$value of function curl_setopt expects array\\<int, string\\>, array given\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
 ];
@@ -9193,11 +9168,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportOpenEmrPostCalendarEventsTableDefinition.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportOpenEmrPostCalendarEventsTableDefinition.php',
 ];
@@ -10377,16 +10347,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function errorLogEscape expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of method OpenEMR\\\\Common\\\\Crypto\\\\CryptoInterface\\:\\:decryptFromDatabase\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
@@ -10408,11 +10368,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$value of function curl_setopt expects bool, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$comments of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
 ];
@@ -15697,11 +15652,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/transaction/transactions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$appointments of function sortAppointments expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$constant of function xl_list_label expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
@@ -16232,11 +16182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/amc_tracking.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$appointments of function sortAppointments expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$constant of function xl_appt_category expects string, mixed given\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
@@ -16273,11 +16218,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
@@ -16594,11 +16534,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
     'count' => 8,
-    'path' => __DIR__ . '/../../interface/reports/daily_summary_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/daily_summary_report.php',
 ];
 $ignoreErrors[] = [
@@ -17265,11 +17200,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/patient_edu_web_lookup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$appointments of function sortAppointments expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/patient_flow_board_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$constant of function xl_appt_category expects string, mixed given\\.$#',
@@ -19612,11 +19542,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/api.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$appointments of function sortAppointments expects array, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$array of function array_slice expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
@@ -19639,11 +19564,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
 $ignoreErrors[] = [
@@ -22638,7 +22558,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
 ];
 $ignoreErrors[] = [
@@ -23675,11 +23595,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$haystack of function in_array expects array, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/account/verify.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_column expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$array of function array_diff expects array, mixed given\\.$#',
@@ -69807,11 +69722,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_pop expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\<mixed\\>\\|ArrayAccess\\<\\(int\\|string\\), mixed\\>, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
@@ -69935,11 +69845,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatient700APITest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$supportedProfiles of method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\SinglePatientApi\\\\CapabilityStatementTest\\:\\:assertProfilesSupported\\(\\) expects array, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/CapabilityStatementTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$testGroups of static method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\SinglePatientApi\\\\CapabilityStatementTest\\:\\:buildIdMap\\(\\) expects array, mixed given\\.$#',

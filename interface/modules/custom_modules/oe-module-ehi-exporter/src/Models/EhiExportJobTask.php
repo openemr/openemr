@@ -97,7 +97,7 @@ class EhiExportJobTask
         return !empty($this->pids);
     }
 
-    public function getJSON()
+    public function getJSON(): array
     {
         $data = [
             'status' => $this->status

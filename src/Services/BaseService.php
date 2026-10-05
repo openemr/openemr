@@ -171,7 +171,7 @@ class BaseService implements BaseServiceInterface
      * Build SQL Query for Selecting Fields
      *
      * @param array $map
-     * @return array
+     * @return ?array
      */
     public function queryFields($map = null, $data = null)
     {
@@ -318,15 +318,11 @@ class BaseService implements BaseServiceInterface
      *
      * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
-     * @return array of associative arrays
+     * @return ?array list of associative arrays, or for a limit of 1 the single row (null if none matched)
      */
-    public function selectHelper($sqlUpToFromStatement, $map)
+    public function selectHelper($sqlUpToFromStatement, $map): ?array
     {
-        $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
-        if ($records !== null) {
-            $records = is_array($records) ? $records : [$records];
-        }
-        return $records;
+        return QueryUtils::selectHelper($sqlUpToFromStatement, $map);
     }
 
     /**

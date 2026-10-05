@@ -367,6 +367,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function Patient\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/eRx_xml.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getErxCredentials\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
@@ -722,6 +727,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthFrontendSettingsController\\:\\:getTranslationSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthFrontendSettingsController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleconferenceRoomController\\:\\:getAppointmentStatuses\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
@@ -772,6 +782,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthPersonSettingsRepository.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\TeleHealthProviderRepository\\:\\:getEnabledProviders\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthProviderRepository.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\TeleHealthSessionRepository\\:\\:addRelatedPartyToSession\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthSessionRepository.php',
@@ -795,6 +810,21 @@ $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\TeleHealthSessionRepository\\:\\:updatePatientFromAppointment\\(\\) has parameter \\$session with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthSessionRepository.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\ParticipantListService\\:\\:getParticipantListForAppointment\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/ParticipantListService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\ParticipantListService\\:\\:getParticipantListWithInvitationsForAppointment\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/ParticipantListService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\ParticipantListService\\:\\:getSparseParticipantListFromSession\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/ParticipantListService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\TeleHealthParticipantInvitationMailerService\\:\\:getInvitationData\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -825,6 +855,11 @@ $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Services\\\\TelehealthConfigurationVerifier\\:\\:suspendAndActivateUser\\(\\) has parameter \\$user with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TelehealthConfigurationVerifier.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\TelehealthGlobalConfig\\:\\:getGlobalSettingSectionConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Util\\\\CalendarUtils\\:\\:isTelehealthSessionInActiveTimeRange\\(\\) has parameter \\$session with no value type specified in iterable type array\\.$#',
@@ -1012,12 +1047,27 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\ConnectorApi\\:\\:buildHeader\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GenHl7OrderBase\\:\\:loadGuarantorInfo\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GenHl7OrderBase\\:\\:loadPayerInfo\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GlobalConfig\\:\\:__construct\\(\\) has parameter \\$globalsArray with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GlobalConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\Dorn\\\\GlobalConfig\\:\\:getGlobalSettingSectionConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GlobalConfig.php',
 ];
@@ -1037,6 +1087,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/GlobalConfig.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\GlobalConfig\\:\\:getGlobalSettingSectionConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/GlobalConfig.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJob\\:\\:addPatientIdList\\(\\) has parameter \\$pids with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJob.php',
@@ -1052,6 +1107,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJobTask.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJobTask\\:\\:getJSON\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJobTask.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJobTask\\:\\:\\$pids type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/EhiExportJobTask.php',
@@ -1060,6 +1120,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportResult\\:\\:fromJSON\\(\\) has parameter \\$exportedResult with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/ExportResult.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportState\\:\\:getKeyDataForTable\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/ExportState.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportState\\:\\:\\$tableDefinitionsMap type has no value type specified in iterable type array\\.$#',
@@ -1102,7 +1167,47 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportClinicalNotesFormTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportClinicalNotesFormTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportContactTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportContactTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportEsignatureTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportEsignatureTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportFormsGroupsEncounterTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportFormsGroupsEncounterTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportOnsiteMailTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportOnsiteMailTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportOnsiteMessagesTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportOnsiteMessagesTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportOpenEmrPostCalendarEventsTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportOpenEmrPostCalendarEventsTableDefinition.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportPersonTableDefinition\\:\\:getContactIds\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportPersonTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportPersonTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportPersonTableDefinition.php',
 ];
@@ -1117,9 +1222,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportTableDefinition.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportTableDefinition.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportTableDefinition\\:\\:setSelectColumns\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportTableDefinition.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportTrackAnythingFormTableDefinition\\:\\:getRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/TableDefinitions/ExportTrackAnythingFormTableDefinition.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function cron_GetNotificationData\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -2257,6 +2372,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Form/LBF/Signable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method ESign\\\\Form_Signable\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Signature\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Signature.php',
@@ -2333,6 +2453,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function createAvailableSlot\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/appointments.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function fetchAllEvents\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/appointments.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function fetchAppointments\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
@@ -2515,6 +2645,16 @@ $ignoreErrors[] = [
     'message' => '#^Method Parser_HL7v2\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/class.Parser_HL7v2.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method FPDF\\:\\:_parsegif\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method FPDF\\:\\:_parsepng\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method FPDF\\:\\:_parsepngstream\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -3375,6 +3515,11 @@ $ignoreErrors[] = [
     'message' => '#^Function updateEmployerData\\(\\) has parameter \\$patientData with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function fetch_Patient_Tracker_Events\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/patient_tracker.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getFormsByCategory\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -5425,6 +5570,16 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\PaginationUtils\\:\\:render\\(\\) has parameter \\$requestParams with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Utils/PaginationUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UuidMapping\\:\\:getMappedRecordsForTableUUID\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Uuid/UuidMapping.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UuidMapping\\:\\:getMappingForUUID\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Uuid/UuidMapping.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:createMissingUuidsForTables\\(\\) has parameter \\$table_names with no value type specified in iterable type array\\.$#',
@@ -10460,6 +10615,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaTemplateParse\\:\\:parseUnstructuredComponents\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocumentObject\\:\\:getValidationErrorsForDocument\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocumentObject.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:ettValidateCcda\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -16110,6 +16270,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\AuthorizationGrantFlowTest\\:\\:\\$clientsToCleanup type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\CapabilityFhirTest\\:\\:getExtensionList\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\GroupExportFhirApiTest\\:\\:getJsonContents\\(\\) return type has no value type specified in iterable type array\\.$#',
