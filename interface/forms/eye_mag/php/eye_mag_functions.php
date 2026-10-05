@@ -2013,11 +2013,13 @@ function build_PMSFH($pid)
     $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
     $ROS = sqlStatement($query, [$form_id]);
+    $ros_display = [];
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
-            $PMSFH['ROS'][$item]['display'] = $row[$item];
+            $ros_display[$item]['display'] = $row[$item];
         }
     }
+    $PMSFH['ROS'] = $ros_display;
 
     // translator will need to translate each item in $given
     $PMSFH['ROS']['ROSGENERAL']['short_title'] = xlt("GEN{{General}}");
@@ -4194,7 +4196,6 @@ function start_your_engines($FIELDS)
                                 $hit_PDR[$side] = '1';
                             } elseif (
                                 (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
-                                (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
                                 (stripos((string) $FIELDS[$location], $IRMA)  !== false) ||
                                 (stripos((string) $FIELDS[$location2], $IRMA) !== false) ||
                                 (stripos((string) $FIELDS[$location3], $IRMA) !== false)
@@ -4208,8 +4209,6 @@ function start_your_engines($FIELDS)
                             ) {
                                     $trace = "tr";
                                 if (
-                                    (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
-                                    (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false)
                                 ) {
