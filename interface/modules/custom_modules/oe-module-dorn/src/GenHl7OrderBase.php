@@ -206,7 +206,7 @@ class GenHl7OrderBase
         return $s;
     }
 
-    public function hl7Workman($s)
+    public function hl7Workman($s): string
     {
         // $tmp = strtolower($s);
         if ($s == 15) {

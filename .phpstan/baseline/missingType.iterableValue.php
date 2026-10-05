@@ -1537,11 +1537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Helper\\\\SendToHieHelper\\:\\:__invoke\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getCCDAComponents\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',

@@ -946,7 +946,7 @@ function PrescriptionRenewalResponse($doc, $r, $pid): void
     $r->appendChild($b);
 }
 
-function checkError($xml)
+function checkError($xml): string
 {
     $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
     $ch = curl_init($xml);

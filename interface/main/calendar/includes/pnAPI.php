@@ -511,7 +511,7 @@ function pnGetBaseURI(): string
  * @returns string
  * @return base URL for PostNuke
  */
-function pnGetBaseURL()
+function pnGetBaseURL(): string
 {
 
     // Removed majority of this function in 10/2017 to just use relative path

@@ -67,7 +67,7 @@ function hl7Race($s)
     return $s;
 }
 
-function hl7Workman($s)
+function hl7Workman($s): string
 {
     // $tmp = strtolower($s);
     if ($s == 15) {

@@ -55,7 +55,7 @@ function LWDate($field)
 }
 
  // Translate insurance type.
-function InsType($field)
+function InsType($field): string
 {
     if (! $field) {
         return "";

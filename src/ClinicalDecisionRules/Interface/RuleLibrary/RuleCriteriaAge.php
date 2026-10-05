@@ -54,7 +54,7 @@ class RuleCriteriaAge extends RuleCriteria
         }
     }
 
-    public function getView()
+    public function getView(): string
     {
         return "age.php";
     }

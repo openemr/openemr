@@ -500,7 +500,7 @@ class TelehealthGlobalConfig
      *
      * @return string
      */
-    public function getOneTimePasswordTimeoutSetting()
+    public function getOneTimePasswordTimeoutSetting(): string
     {
         $setting = intval($this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT));
         if ($setting > self::MAX_LOGIN_LIMIT_TIME) {

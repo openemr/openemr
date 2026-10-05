@@ -62,7 +62,7 @@ class GlobalConfig
         return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
-    public function getClientScope()
+    public function getClientScope(): string
     {
         if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.onmicrosoft.com/portal/api/.default";
@@ -72,7 +72,7 @@ class GlobalConfig
         return "https://portalclaimrev.onmicrosoft.com/portal/api/.default";
     }
 
-    public function getClientAuthority()
+    public function getClientAuthority(): string
     {
         if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.b2clogin.com/stagingclaimrevcom.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";

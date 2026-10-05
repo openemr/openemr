@@ -25,12 +25,12 @@
 
 class AMC_314g_1_2_19 extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_314g_1_2_19";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "patients";
     }

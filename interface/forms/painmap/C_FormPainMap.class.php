@@ -101,7 +101,7 @@ class C_FormPainMap extends C_AbstractClickmap
     /**
      * @brief return a label for the dropdown boxes on the form, as a string.
      */
-    public function getOptionsLabel()
+    public function getOptionsLabel(): string
     {
         return "Pain Scale";
     }

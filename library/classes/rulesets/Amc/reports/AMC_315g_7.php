@@ -25,12 +25,12 @@
 
 class AMC_315g_7 extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_7";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         // @see AbstractAmcReport for how transitions-out is retrieved and calculated
         return "transitions-out";

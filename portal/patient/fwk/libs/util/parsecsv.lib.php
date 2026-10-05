@@ -710,7 +710,7 @@ class parseCSV
      * @param mixed $condition specified condition that the row must match
      * @return true of false
      */
-    public function _validate_row_condition($row, $condition)
+    public function _validate_row_condition($row, $condition): string
     {
         $operators =  [
                 '=',

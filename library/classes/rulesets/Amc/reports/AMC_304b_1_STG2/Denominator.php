@@ -26,7 +26,7 @@
 // Prescription written for drugs requiring a prescription in order to be dispensed(including controlled substance)
 class AMC_304b_1_STG2_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304b_1_STG2 Denominator";
     }

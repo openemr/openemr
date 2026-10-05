@@ -3455,7 +3455,7 @@ function itemsNumberCompare($comp, $thres, $num_items): bool
  * @param  string  $comp  Comparison operator(eq,ne,gt,ge,lt,le)
  * @return string         contains sql compatible comparison operator
  */
-function convertCompSql($comp)
+function convertCompSql($comp): string
 {
 
     if ($comp == "eq") {

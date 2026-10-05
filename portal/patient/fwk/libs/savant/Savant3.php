@@ -217,7 +217,7 @@ class Savant3 implements \Stringable
      * @return string A PHP-standard version number.
      *
      */
-    public function apiVersion()
+    public function apiVersion(): string
     {
         return '@package_version@';
     }

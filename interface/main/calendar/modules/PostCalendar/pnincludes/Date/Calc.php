@@ -797,7 +797,7 @@ class Date_Calc
      * @return string 4 digit year
      */
 
-    public static function defaultCentury($year)
+    public static function defaultCentury($year): string
     {
         if (strlen((string) $year) == 1) {
             $year = "0$year";
