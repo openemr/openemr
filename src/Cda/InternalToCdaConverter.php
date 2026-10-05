@@ -460,15 +460,9 @@ class InternalToCdaConverter
         // Document-level provenance: ClinicalDocument/author/time is when the
         // content was authored, not when the document was rendered. Node uses
         // created_time_timezone (serveccda.js populateHeader), which emits the
-        // generation timestamp and fails the ONC scenario comparison against
-        // the encounter date. Prefer the encounter being summarised and fall
-        // back to the generation time when the document has no encounter.
-        $authorTime = $this->xpathValue('/CCDA/encounter_list/encounter[1]/date');
-        if ($authorTime === '') {
-            $authorTime = $this->xpathValue('/CCDA/created_time_timezone');
-        }
+        // generation timestamp.
         $time = $this->createElement('time');
-        $this->setTimestampAttribute($time, $authorTime);
+        $this->setTimestampAttribute($time, $this->resolveDocumentAuthorTime());
         $author->appendChild($time);
 
         $assignedAuthor = $this->createElement('assignedAuthor');
@@ -1556,8 +1550,19 @@ class InternalToCdaConverter
 
         $this->appendVersionedTemplateId($reactionObs, '2.16.840.1.113883.10.20.22.4.9', '2014-06-09');
 
+        // The constant root is the assigning-authority namespace; it was emitted
+        // with no extension, so every reaction observation in the document
+        // carried the same id and a patient with two reactions had two
+        // indistinguishable observations. The allergy's own extension plus the
+        // reaction index is the local identifier - deterministic, so the same
+        // input always produces the same document.
         $id = $this->createElement('id');
         $id->setAttribute('root', '4adc1020-7b14-11db-9fe1-0800200c9a64');
+        $allergyExt = $this->xpathValue('extension', $allergy);
+        $id->setAttribute(
+            'extension',
+            ($allergyExt !== '' ? $allergyExt : 'reaction') . '-' . $index
+        );
         $reactionObs->appendChild($id);
 
         $code = $this->createElement('code');
@@ -5759,11 +5764,14 @@ class InternalToCdaConverter
 
         // II/@root must be an OID or a UUID. The literal inherited from node
         // (sectionLevel2.js, "16C8G888-10D9-23E6-H141-0080055B0002") contains G
-        // and H, which are not hex digits, so it is neither. Replaced with a
-        // valid UUID; no validator has flagged it because none checks @root
-        // syntax, but it is a datatype violation.
+        // and H, which are not hex digits, so it is neither. It was also a
+        // constant with no extension, and this renderer runs once per clinical
+        // note type, so a document with two note sections carried the same id on
+        // both. The note's display name is the local identifier - deterministic,
+        // so the same input always produces the same document.
         $id = $this->createElement('id');
         $id->setAttribute('root', '16c8f888-10d9-43e6-a141-0080055b0002');
+        $id->setAttribute('extension', $displayName);
         $section->appendChild($id);
 
         $code = $this->createElement('code');
@@ -6992,6 +7000,55 @@ class InternalToCdaConverter
     {
         $nodes = $this->xpath($query, $context);
         return $nodes->length > 0 ? trim((string) $nodes->item(0)?->textContent) : '';
+    }
+
+    /**
+     * The date the document's content was authored.
+     *
+     * An encounter-scoped document is authored at the encounter it summarises,
+     * so /CCDA/patient/encounter names it and the matching entry in
+     * /CCDA/encounter_list supplies the date. getPatientdata() populates that
+     * element with the requested encounter id, and each list entry carries its
+     * own encounter_id.
+     *
+     * A patient-level document has no single encounter - /CCDA/patient/encounter
+     * is empty - and summarises the record as a whole, so the most recent
+     * encounter is used. getEncounterHistory() sorts ORDER BY fe.date ascending,
+     * so that is the LAST entry; taking the first would stamp every such
+     * document with the patient's earliest encounter on record.
+     *
+     * With no encounters at all the generation time remains the fallback, so a
+     * document always carries a provenance time.
+     */
+    private function resolveDocumentAuthorTime(): string
+    {
+        $encounters = $this->xpath('/CCDA/encounter_list/encounter');
+
+        $documentEncounterId = $this->xpathValue('/CCDA/patient/encounter');
+        if ($documentEncounterId !== '') {
+            foreach ($encounters as $encounter) {
+                if ($this->xpathValue('encounter_id', $encounter) === $documentEncounterId) {
+                    $date = $this->xpathValue('date', $encounter);
+                    if ($date !== '') {
+                        return $date;
+                    }
+                    break;
+                }
+            }
+        }
+
+        for ($i = $encounters->length - 1; $i >= 0; $i--) {
+            $encounter = $encounters->item($i);
+            if (!$encounter instanceof DOMElement) {
+                continue;
+            }
+            $date = $this->xpathValue('date', $encounter);
+            if ($date !== '') {
+                return $date;
+            }
+        }
+
+        return $this->xpathValue('/CCDA/created_time_timezone');
     }
 
     /**

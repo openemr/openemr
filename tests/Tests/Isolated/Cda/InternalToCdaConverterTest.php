@@ -446,17 +446,23 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
-     * No two elements in a document share an id.
+     * A clinical statement never carries a bare UUID root as its id.
      *
-     * A root-only II means "this exact identifier", so a constant root with no
-     * extension gives every observation of that kind the same id - within the
-     * document and across installations. Functional status, self care and
-     * mental status all did this when the source record carried no extension.
+     * Five renderers hardcoded a UUID root and emitted it with no extension -
+     * allergy reactions, functional status, self care, mental status and the
+     * notes section - so every element of that kind in the document carried the
+     * same id. A root-only II means "this exact identifier".
      *
-     * Where the record does have an extension the constant root is correct: it
-     * is the assigning authority and the extension is the local identifier.
+     * Scoped deliberately, after three over-broad versions of this test:
+     *   - entity identifiers are excluded. A provider NPI or an organization OID
+     *     repeats because it names one real-world thing, and a root-only OID is
+     *     a perfectly good identifier.
+     *   - OID roots are excluded for the same reason; only generated UUID roots
+     *     need a local identifier alongside them.
+     *   - global uniqueness is not asserted. The same clinical statement
+     *     legitimately appears under more than one section with the same id.
      */
-    public function testDocumentIdsAreUnique(): void
+    public function testClinicalStatementsHaveNoBareUuidRootId(): void
     {
         $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
         self::assertIsString($input, 'Scenario fixture must be readable');
@@ -466,20 +472,35 @@ class InternalToCdaConverterTest extends TestCase
         $xpath = new DOMXPath($dom);
         $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
 
-        $ids = $xpath->query('//hl7:id[@root]');
-        self::assertNotFalse($ids, 'Id query must be valid');
-        self::assertGreaterThan(0, $ids->length, 'The document carries ids');
+        $statements = ['act', 'observation', 'procedure', 'substanceAdministration', 'encounter', 'organizer', 'supply', 'section'];
+        $query = implode(' | ', array_map(
+            static fn(string $name): string => '//hl7:' . $name . '/hl7:id[@root][not(@extension)]',
+            $statements
+        ));
 
-        $seen = [];
+        $ids = $xpath->query($query);
+        self::assertNotFalse($ids, 'Id query must be valid');
+
+        $uuid = '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/';
+        $byRoot = [];
         foreach ($ids as $id) {
             self::assertInstanceOf(\DOMElement::class, $id, 'Id must be an element');
-            $key = $id->getAttribute('root') . '|' . $id->getAttribute('extension');
-            self::assertArrayNotHasKey(
-                $key,
-                $seen,
-                'Duplicate id ' . $key . '; a constant root with no extension is not a unique identifier'
+            $root = $id->getAttribute('root');
+            if (preg_match($uuid, $root) !== 1) {
+                continue;
+            }
+            $parent = $id->parentNode;
+            $byRoot[$root][] = $parent instanceof \DOMElement ? $parent->localName : 'unknown';
+        }
+
+        foreach ($byRoot as $root => $owners) {
+            self::assertCount(
+                1,
+                $owners,
+                'UUID root ' . $root . ' is emitted ' . count($owners) . ' times with no extension (on '
+                . implode(', ', array_unique($owners))
+                . '); a hardcoded UUID root needs a local identifier alongside it'
             );
-            $seen[$key] = true;
         }
     }
 
@@ -850,24 +871,35 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
-     * Document-level provenance time is the encounter date, not the render
-     * time. Node emits created_time_timezone here, which made every document
-     * carry its own generation timestamp and failed the ONC scenario
-     * comparison against the encounter date.
+     * Document provenance is the encounter the document is about.
+     *
+     * getEncounterHistory() sorts ORDER BY fe.date ascending, so the first
+     * entry is the patient's OLDEST encounter. Taking it by position stamped
+     * every document with that date; the scenarios only passed because their
+     * earliest encounter happened to be the one being summarised.
+     *
+     * /CCDA/patient/encounter names the requested encounter, and each list
+     * entry carries its own encounter_id, so the two are matched directly.
      */
-    public function testDocumentAuthorTimeUsesEncounterDate(): void
+    public function testDocumentAuthorTimeMatchesTheDocumentEncounter(): void
     {
         $input = <<<'XML'
             <CCDA>
-                <created_time_timezone>20261003123026-0400</created_time_timezone>
+                <created_time_timezone>20261005123026-0400</created_time_timezone>
                 <encounter_list>
                     <encounter>
+                        <encounter_id>2</encounter_id>
                         <date>2015-07-22 00:00:00-0400</date>
+                    </encounter>
+                    <encounter>
+                        <encounter_id>9</encounter_id>
+                        <date>2026-07-08 22:11:00-0400</date>
                     </encounter>
                 </encounter_list>
                 <patient>
                     <fname>Jeremy</fname>
                     <lname>Bates</lname>
+                    <encounter>9</encounter>
                 </patient>
             </CCDA>
             XML;
@@ -884,9 +916,52 @@ class InternalToCdaConverterTest extends TestCase
         $element = $time->item(0);
         self::assertInstanceOf(\DOMElement::class, $element, 'Time must be an element');
         self::assertStringStartsWith(
-            '20150722',
+            '20260708',
             $element->getAttribute('value'),
-            'Document author time uses the encounter date, not the generation timestamp'
+            'Provenance follows the requested encounter, not the first in the list'
+        );
+    }
+
+    /**
+     * A patient-level document names no encounter, so the most recent one is
+     * used. The list is sorted ascending, so that is the last entry.
+     */
+    public function testDocumentAuthorTimeUsesMostRecentEncounterWhenPatientLevel(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20261005123026-0400</created_time_timezone>
+                <encounter_list>
+                    <encounter>
+                        <encounter_id>2</encounter_id>
+                        <date>2015-07-22 00:00:00-0400</date>
+                    </encounter>
+                    <encounter>
+                        <encounter_id>9</encounter_id>
+                        <date>2026-07-08 22:11:00-0400</date>
+                    </encounter>
+                </encounter_list>
+                <patient>
+                    <fname>Jeremy</fname>
+                    <lname>Bates</lname>
+                    <encounter></encounter>
+                </patient>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $time = $xpath->query('/hl7:ClinicalDocument/hl7:author/hl7:time');
+        self::assertNotFalse($time, 'Author time query must be valid');
+        $element = $time->item(0);
+        self::assertInstanceOf(\DOMElement::class, $element, 'Time must be an element');
+        self::assertStringStartsWith(
+            '20260708',
+            $element->getAttribute('value'),
+            'A patient-level document uses the most recent encounter, not the oldest'
         );
     }
 
