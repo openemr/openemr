@@ -842,6 +842,7 @@ class X125010837PZipTest extends TestCase
                     $globals->set('auto_sftp_claims_to_x12_partner', $savedSftp);
                 } else {
                     $globals->remove('auto_sftp_claims_to_x12_partner');
+                    unset($GLOBALS['auto_sftp_claims_to_x12_partner']);
                 }
                 $this->removeDirectory($directory);
             }
