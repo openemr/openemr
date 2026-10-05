@@ -573,7 +573,7 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
  * @param string $filetype
  * @param string $csvtype
  *
- * @return string
+ * @return int count of rows written, including the header row
  */
 function edih_archive_csv_combine($filetype, $csvtype): int
 {

@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type int is incompatible with native type float\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\DateTime\\|null is not subtype of native type DateTime\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/TeleHealthUser.php',
@@ -32,16 +27,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type bool is incompatible with native type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type array\\|bool is incompatible with native type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type AmcItemizedActionData\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/library/AMC_Unimplemented.php',
@@ -55,11 +40,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type AmcItemizedActionData\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_7/Numerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type string is incompatible with native type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\|bool\\.$#',
@@ -77,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/FormQuestionnaireAssessment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string\\|null is incompatible with native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/UserInterface/BaseActionButtonHelper.php',
@@ -97,19 +72,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Patient/Cards/CareTeamViewCard.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type string is incompatible with native type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Pharmacy/Services/ImportPharmacies.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type void is incompatible with native type Symfony\\\\Component\\\\HttpFoundation\\\\Response\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ApiApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type string is incompatible with native type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\.$#',

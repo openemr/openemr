@@ -1019,7 +1019,7 @@ class InstModuleTable
      * validateNickName
      *
      * @param String $name nickname
-     * @return bool Nickname available or not.
+     * @return int Number of modules already using the nickname.
      **/
     public function validateNickName($name): int
     {

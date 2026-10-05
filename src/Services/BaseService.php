@@ -422,7 +422,7 @@ class BaseService implements BaseServiceInterface
      *
      * @param string $idField                   - Name of Primary Id Field
      * @param string $table                     - Name of Table
-     * @return string Generated Id
+     * @return int Generated Id
      */
     public function getFreshId($idField, $table): int
     {

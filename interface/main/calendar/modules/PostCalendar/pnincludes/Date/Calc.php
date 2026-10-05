@@ -192,7 +192,7 @@ class Date_Calc
      *
      * @access public
      *
-     * @return int $weekday_number
+     * @return float $weekday_number
      */
 
     public static function dayOfWeek($day = "", $month = "", $year = ""): float
@@ -244,7 +244,7 @@ class Date_Calc
      *
      * @access public
      *
-     * @return int $week_number
+     * @return float $week_number
      */
 
     public static function weekOfYear($day, $month, $year): float
@@ -883,7 +883,7 @@ class Date_Calc
      *
      * @access public
      *
-     * @return int number of weeks
+     * @return float number of weeks
      */
 
     public static function weeksInMonth($month = "", $year = ""): float
@@ -928,7 +928,7 @@ class Date_Calc
      *
      * @access public
      *
-     * @return int number of weekday for the first day, 0=Sunday
+     * @return float number of weekday for the first day, 0=Sunday
      */
 
     public static function firstOfMonthWeekday($month = "", $year = ""): float
@@ -1276,7 +1276,7 @@ class Date_Calc
      *
      * @access public
      *
-     * @return int number of days
+     * @return float number of days
      */
 
     public static function dateToDays($day, $month, $year): float
