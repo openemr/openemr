@@ -31,43 +31,19 @@ jobs:
       uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php-version }}
-    # Resolve the installed phpstan version so the cache key invalidates on
-    # tool bumps but survives unrelated dependency changes. Hashing the whole
-    # composer.lock over-invalidates; fallback restore would otherwise serve
-    # a cache produced by a different phpstan, silently corrupting results.
-    - name: Resolve PHPStan version
-      id: phpstan-version
-      run: |
-        version=$(jq -r '
-          (.packages + .["packages-dev"])[]
-          | select(.name == "phpstan/phpstan")
-          | .version
-        ' composer.lock)
-        printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+    # Always restore the newest cache. PHPStan validates it on load (its own
+    # version, config, stubs, extensions) and discards it if stale, so the key
+    # must not hash inputs: hashing .phpstan/** included the baseline, which
+    # changes on nearly every commit and caused a miss on every run.
     - name: Restore PHPStan Cache
       # https://phpstan.org/user-guide/result-cache
       id: phpstan-cache
       uses: actions/cache/restore@v6
       with:
         path: tmp-phpstan # same as in phpstan.neon
-        key: phpstan-result-cache-${{ steps.phpstan-version.outputs.version }}-${{ hashFiles('phpstan.neon.dist', '.phpstan/**', 'tests/PHPStan/**') }}-${{ github.run_id }}
+        key: phpstan-result-cache-${{ github.run_id }}
         restore-keys: |
-          phpstan-result-cache-${{ steps.phpstan-version.outputs.version }}-${{ hashFiles('phpstan.neon.dist', '.phpstan/**', 'tests/PHPStan/**') }}-
-    # PHPStan's container cache uses file mtimes for validation. Git doesn't
-    # preserve mtimes, so without restoration every cached file looks stale
-    # and the cache is effectively useless. Only worth doing when we actually
-    # restored a cache - on a cold miss this is pure overhead.
-    - name: Restore file timestamps
-      if: steps.phpstan-cache.outputs.cache-matched-key != ''
-      run: |
-        sudo apt-get update -qq
-        sudo apt-get install -y --no-install-recommends git-restore-mtime
-        # Guard against running on a non-shallow checkout - --unshallow errors
-        # with "does not make sense" if history is already complete.
-        if [ -f .git/shallow ]; then
-          git fetch --unshallow --quiet
-        fi
-        git restore-mtime --skip-missing --quiet
+          phpstan-result-cache-
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
     # Use CI config which sets reportUnmatchedIgnoredErrors: false so this step
