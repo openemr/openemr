@@ -179,7 +179,7 @@ class Claim
      * @return array<mixed> empty when the encounter has no misc
      *                      billing options form
      */
-    public function getMiscBillingOptions($pid, $encounter_id)
+    public function getMiscBillingOptions($pid, $encounter_id): array
     {
         $sql = "SELECT fpa.* FROM forms JOIN form_misc_billing_options AS fpa " .
             "ON fpa.id = forms.form_id " .
