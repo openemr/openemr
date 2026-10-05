@@ -397,7 +397,7 @@ class InstModuleTable
      * @param int    $id  Module PK
      * @param string $mod Status
      */
-    public function unRegister($id)
+    public function unRegister($id): string
     {
         if ($id) {
             $sql = "DELETE FROM modules WHERE mod_id = ?";
@@ -775,7 +775,7 @@ class InstModuleTable
         return $depModulesArr;
     }
 
-    public function getModuleStatusByDirectoryName($moduleDir)
+    public function getModuleStatusByDirectoryName($moduleDir): string
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
         $res = QueryUtils::fetchRecords($sql, [trim((string) $moduleDir)]);
@@ -817,7 +817,7 @@ class InstModuleTable
         }
     }
 
-    public function checkModuleHookExists($mod_id, $hookId)
+    public function checkModuleHookExists($mod_id, $hookId): string
     {
         $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
         $res = QueryUtils::fetchRecords($sql, [$mod_id, $hookId]);
@@ -1034,7 +1034,7 @@ class InstModuleTable
      * @param  $moduleDirectory The directory path of the module
      * @return bool
      */
-    private function existsModuleConfigFile($moduleDirectory)
+    private function existsModuleConfigFile($moduleDirectory): bool
     {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
         return file_exists($filePath ?? '');

@@ -288,7 +288,7 @@ function rhl7ReportStatus($s)
  * @param string $fileext The lower case extension.
  * @return string            MIME type.
  */
-function rhl7MimeType($fileext)
+function rhl7MimeType($fileext): string
 {
     if ($fileext == 'pdf') {
         return 'application/pdf';

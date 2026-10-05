@@ -184,7 +184,7 @@ class ServerConfig
         return $this->getOauthAuthorizationUrl() . "/introspect";
     }
 
-    public function areSystemScopesEnabled()
+    public function areSystemScopesEnabled(): bool
     {
         return OEGlobalsBag::getInstance()->get('rest_system_scopes_api') === '1';
     }

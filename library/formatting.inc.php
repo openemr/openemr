@@ -126,7 +126,7 @@ function oeFormatClientID($id)
  * @param string $mode
  * @return string
  */
-function DateFormatRead($mode = 'legacy')
+function DateFormatRead($mode = 'legacy'): string
 {
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
     //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.

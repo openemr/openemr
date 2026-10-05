@@ -31,7 +31,7 @@ class AMC_314g_1_2_20_Denominator implements AmcFilterIF
     //    Likely best to use labs-radiology counter or could do:
     //    Then can screen for the imaging orders in the denominator screening.
     //
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_314g_1_2_20 Denominator";
     }

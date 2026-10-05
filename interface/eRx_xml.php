@@ -592,7 +592,7 @@ function MidlevelPrescriber($doc, $r): void
     $r->appendChild($b);
 }
 
-function Patient($doc, $r, $pid)
+function Patient($doc, $r, $pid): array
 {
     global $msg,$warning_msg,$dem_check;
     $patient_data = sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?", [$pid]);
@@ -946,7 +946,7 @@ function PrescriptionRenewalResponse($doc, $r, $pid): void
     $r->appendChild($b);
 }
 
-function checkError($xml)
+function checkError($xml): string
 {
     $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
     $ch = curl_init($xml);

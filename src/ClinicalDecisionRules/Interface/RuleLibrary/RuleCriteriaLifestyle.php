@@ -40,7 +40,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return xl("Lifestyle") . " - " . $label;
     }
 
-    public function getView()
+    public function getView(): string
     {
         return "lifestyle.php";
     }

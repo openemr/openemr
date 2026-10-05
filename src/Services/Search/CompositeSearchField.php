@@ -80,7 +80,7 @@ class CompositeSearchField implements ISearchField, \Stringable
         $this->values[] = $value;
     }
 
-    public function getType()
+    public function getType(): string
     {
         return SearchFieldType::COMPOSITE;
     }

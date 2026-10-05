@@ -40,7 +40,7 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_7 Numerator";
     }

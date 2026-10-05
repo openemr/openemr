@@ -588,7 +588,7 @@ class eRxSOAP
      * Update eRx uploaded status for current patient allergies
      * @return bool True on success, false on failure
      */
-    public function updateUploadedErx()
+    public function updateUploadedErx(): bool
     {
         $patientFreeFormAllergyHistory = $this
             ->getPatientFreeFormAllergyHistory()

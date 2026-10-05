@@ -591,7 +591,7 @@ class AclExtended
     }
 
     // check if aro group have superuser rule
-    public static function isGroupIncludeSuperuser($aro_group_name)
+    public static function isGroupIncludeSuperuser($aro_group_name): bool
     {
         $gacl = self::collectGaclApiObject();
         return !empty($gacl->search_acl('admin', 'super', false, false, $aro_group_name));

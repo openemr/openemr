@@ -99,7 +99,7 @@ class MeasureService
      * @param string $year
      * @return bool
      */
-    public static function validateReportingYear($year = null)
+    public static function validateReportingYear($year = null): bool
     {
         $year ??= self::getCurrentReportingYear();
 

@@ -54,7 +54,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return $this->table . "." . $this->column;
     }
 
-    public function getView()
+    public function getView(): string
     {
         return "custom.php";
     }

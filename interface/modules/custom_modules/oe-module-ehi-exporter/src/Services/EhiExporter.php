@@ -623,7 +623,7 @@ class EhiExporter
         }
     }
 
-    private function shouldExportAdditionalAssets($tableName)
+    private function shouldExportAdditionalAssets($tableName): bool
     {
         $additionalAssets = ['form_painmap'];
         return in_array($tableName, $additionalAssets);

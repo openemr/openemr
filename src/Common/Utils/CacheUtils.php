@@ -26,7 +26,7 @@ class CacheUtils
      * Returns the asset cache param that is used to bust the cache when the javascript versions change on the frontend.
      * @return string
      */
-    public static function getAssetCacheParam()
+    public static function getAssetCacheParam(): string
     {
         $v = OEGlobalsBag::getInstance()->get('v_js_includes');
         return "v={$v}";

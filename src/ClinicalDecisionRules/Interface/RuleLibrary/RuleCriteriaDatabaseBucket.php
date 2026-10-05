@@ -59,7 +59,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         return $this->itemLbl;
     }
 
-    public function getView()
+    public function getView(): string
     {
         return "bucket.php";
     }
