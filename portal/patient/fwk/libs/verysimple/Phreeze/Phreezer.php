@@ -90,7 +90,7 @@ class Phreezer extends Observable
 *
 * @return string
 */
-    public static function PharPath()
+    public static function PharPath(): string
     {
         return class_exists("Phar") ? Phar::running() : '';
     }

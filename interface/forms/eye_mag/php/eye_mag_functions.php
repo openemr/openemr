@@ -3104,7 +3104,7 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
-function canvas_select($zone, $encounter, $pid)
+function canvas_select($zone, $encounter, $pid): string
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
      * just like we do in the text fields.

@@ -3088,7 +3088,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget): bool
    The new interval logic allows both targets to be valid during interval (3),
    generating the proper rule status
 */
-function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget)
+function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget): string
 {
 
     $dateSql = "";
@@ -3516,7 +3516,7 @@ function convertDobtoAgeMonthDecimal($dob, $target)
    evaluated to true. $exclude_filter is the # of exclusion filters that evaluated
    to true. $pass_targ is # of targets that evalued to true
 */
-function calculate_percentage($pass_filt, $exclude_filt, $pass_targ)
+function calculate_percentage($pass_filt, $exclude_filt, $pass_targ): string
 {
     if ($pass_filt > 0) {
         if ($pass_filt == $exclude_filt) { // HR: don't want to divide by zero

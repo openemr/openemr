@@ -137,7 +137,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: mixed, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: string, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: string, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php',
 ];
@@ -262,7 +262,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: mixed, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'facility\' does not exist on array\\{result_data_type\\: string, comments\\: "\\\\n", document_id\\?\\: mixed, date\\: string, result_code\\: mixed, result_text\\: mixed, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\|array\\{result_data_type\\: string, comments\\: non\\-falsy\\-string, result\\: mixed, result_code\\: mixed, result_text\\: mixed, date\\: string, units\\: mixed, range\\: mixed, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];

@@ -19,12 +19,12 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\VersionService;
 
-function getErxPath()
+function getErxPath(): string
 {
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path');
 }
 
-function getErxSoapPath()
+function getErxSoapPath(): string
 {
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path_soap');
 }
@@ -67,7 +67,7 @@ function stripPhoneSlashes($str)
     return $str;
 }
 
-function trimData($str, $length)
+function trimData($str, $length): string
 {
     $str = substr((string) $str, 0, ($length - 1));
     return $str;

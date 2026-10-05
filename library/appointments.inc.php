@@ -751,7 +751,7 @@ function fetchAppointmentCategories()
      return sqlStatement($catSQL);
 }
 
-function interpretRecurrence($recurr_freq, $recurr_type)
+function interpretRecurrence($recurr_freq, $recurr_type): string
 {
     global $REPEAT_FREQ, $REPEAT_FREQ_TYPE, $REPEAT_ON_NUM, $REPEAT_ON_DAY;
     $interpreted = "";

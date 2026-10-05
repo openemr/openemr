@@ -194,7 +194,7 @@ class TeleHealthRemoteRegistrationService
         }
     }
 
-    private function getEndpointUrl($endpoint)
+    private function getEndpointUrl($endpoint): string
     {
         return $this->apiURL . $endpoint;
     }

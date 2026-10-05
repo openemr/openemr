@@ -349,7 +349,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param array $resource The domain resource
      * @return string The surrogate key.
      */
-    public function getSurrogateKeyForResource(FHIRDomainResource $resource)
+    public function getSurrogateKeyForResource(FHIRDomainResource $resource): string
     {
         $separator = self::SURROGATE_KEY_SEPARATOR_V2;
 

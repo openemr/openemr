@@ -175,7 +175,7 @@ class ReceiveHl7Results
         ConnectorApi::sendAck($returnValue->resultsGuid, false, null);
         return $returnValue;
     }
-    private function validatePaths($prpath)
+    private function validatePaths($prpath): string
     {
         if (!file_exists($prpath)) {
             if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
@@ -388,7 +388,7 @@ class ReceiveHl7Results
                         'fname' => $this->ucname($in_fname),
                         'lname' => $this->ucname($in_lname),
                         'mname' => $this->ucname($in_mname),
-                        'DOB' => strtoupper((string) $in_dob),
+                        'DOB' => strtoupper($in_dob),
                         'sex' => $in_sex,
                         'street' => $in_street,
                         'city' => $in_city,
@@ -1019,7 +1019,7 @@ class ReceiveHl7Results
         return false;
     }
 
-    private function parseZPS($segment)
+    private function parseZPS($segment): string
     {
         $composites = $segment; //explode('|', $segment);
 
@@ -1131,7 +1131,7 @@ class ReceiveHl7Results
 
     // Write the MDM document if appropriate.
     //
-    private function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider)
+    private function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider): string
     {
         if ($patient_id) {
             if (!empty($mdm_docname)) {
@@ -1171,7 +1171,7 @@ class ReceiveHl7Results
         return $s;
     }
 
-    private function rhl7DateTime($s)
+    private function rhl7DateTime($s): string
     {
         // Remove UTC offset if present.
         if (preg_match('/^([0-9.]+)[+-]/', (string) $s, $tmp)) {
@@ -1196,7 +1196,7 @@ class ReceiveHl7Results
         return $ret;
     }
 
-    private function rhl7DateTimeZone($s)
+    private function rhl7DateTimeZone($s): string
     {
         // UTC offset if present always begins with "+" or "-".
         if (preg_match('/^[0-9.]+([+-].*)$/', (string) $s, $tmp)) {
@@ -1206,9 +1206,9 @@ class ReceiveHl7Results
         return '';
     }
 
-    private function rhl7Date($s)
+    private function rhl7Date($s): string
     {
-        return substr((string) $this->rhl7DateTime($s), 0, 10);
+        return substr($this->rhl7DateTime($s), 0, 10);
     }
 
     private function rhl7Abnormal($s)
@@ -1328,7 +1328,7 @@ class ReceiveHl7Results
         return false;
     }
 
-    private function rhl7CWE($s, $componentdelimiter)
+    private function rhl7CWE($s, $componentdelimiter): string
     {
         $out = '';
         if ($s === '') {
@@ -1621,7 +1621,7 @@ class ReceiveHl7Results
         return false;
     }
 
-    private function ucname($string)
+    private function ucname($string): string
     {
         $string = ucwords(strtolower((string) $string));
 
@@ -1657,7 +1657,7 @@ class ReceiveHl7Results
      * @param  string $content The unencrypted content of the hl7.
      * @return string         The encrypted content of the hl7 if the global is set.
      */
-    private function hl7Crypt($content)
+    private function hl7Crypt($content): string
     {
         return ServiceContainer::getCrypto()
             ->encryptForFilesystem($content);

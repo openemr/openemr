@@ -24,7 +24,7 @@
  * @param string $html the input HTML
  * @return string the HTML converted, as best as possible, to text
  */
-function convert_html_to_text($html)
+function convert_html_to_text($html): string
 {
     $html = fix_newlines($html);
 

@@ -32,7 +32,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetUri()
+    public function GetUri(): string
     {
         return implode('/', RequestUtil::GetUrlParts($this->_appRoot));
     }
@@ -57,7 +57,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetUrl($controller, $method, $params = '', $requestMethod = '')
+    public function GetUrl($controller, $method, $params = '', $requestMethod = ''): string
     {
         $format = str_replace("{delim}", $this->delim, self::$_format);
 

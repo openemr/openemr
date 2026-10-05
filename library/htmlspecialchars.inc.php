@@ -332,7 +332,7 @@ function hsc_private_xl_or_warn(?string $key): string
  * @return string The translated string, with "&", "<", and ">" escaped.
  */
 #[NoDiscard]
-function xlt($key)
+function xlt($key): string
 {
     return text(hsc_private_xl_or_warn($key));
 }
@@ -344,7 +344,7 @@ function xlt($key)
  * @return string The translated string, with (&), (<), (>), ("), and (') escaped.
  */
 #[NoDiscard]
-function xla($key)
+function xla($key): string
 {
     return attr(hsc_private_xl_or_warn($key));
 }
@@ -368,7 +368,7 @@ function xlj($key)
  * @return string The translated string, escaped for XML contexts.
  */
 #[NoDiscard]
-function xlx($key)
+function xlx($key): string
 {
     return xmlEscape(hsc_private_xl_or_warn($key));
 }
@@ -380,7 +380,7 @@ function xlx($key)
  * @return string The translated string, escaped for CSV contexts.
  */
 #[NoDiscard]
-function xlc($key)
+function xlc($key): string
 {
     return csvEscape(hsc_private_xl_or_warn($key));
 }

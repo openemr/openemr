@@ -298,7 +298,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $jsonData;
     }
 
-    private function createJWTForKeys($iss, $aud)
+    private function createJWTForKeys($iss, $aud): string
     {
 
         $configuration = Configuration::forAsymmetricSigner(

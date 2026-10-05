@@ -239,7 +239,7 @@ class TeleHealthCalendarController
         return $pageName == 'pnuserapi.php' || $pageName == 'pnadmin.php';
     }
 
-    private function getAssetPath()
+    private function getAssetPath(): string
     {
         return $this->assetPath;
     }

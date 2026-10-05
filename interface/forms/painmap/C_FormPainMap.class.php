@@ -75,7 +75,7 @@ class C_FormPainMap extends C_AbstractClickmap
     /**
      * @brief return the path to the backing image relative to the webroot.
      */
-    public function getImage()
+    public function getImage(): string
     {
         return OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . C_FormPainMap::$FORM_CODE . "/templates/painmap.png";
     }

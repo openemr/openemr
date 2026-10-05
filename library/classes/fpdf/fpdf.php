@@ -1050,7 +1050,7 @@ class FPDF
         return true;
     }
 
-    protected function _httpencode($param, $value, $isUTF8)
+    protected function _httpencode($param, $value, $isUTF8): string
     {
     // Encode HTTP header field parameter
         if ($this->_isascii($value))
@@ -1062,7 +1062,7 @@ class FPDF
         else return $param."*=UTF-8''".rawurlencode((string) $value);
     }
 
-    protected function _UTF8toUTF16($s)
+    protected function _UTF8toUTF16($s): string
     {
     // Convert UTF-8 to UTF-16BE with BOM
         $res = "\xFE\xFF";
@@ -1097,7 +1097,7 @@ class FPDF
         else return $s;
     }
 
-    protected function _textstring($s)
+    protected function _textstring($s): string
     {
     // Format a text string
         if (!$this->_isascii($s))
@@ -1105,7 +1105,7 @@ class FPDF
         return '('.$this->_escape($s).')';
     }
 
-    protected function _dounderline($x, $y, $txt)
+    protected function _dounderline($x, $y, $txt): string
     {
     // Underline text
         $up = $this->CurrentFont['up'];
@@ -1190,11 +1190,11 @@ class FPDF
                 // Read transparency info
                 $t = $this->_readstream($f,$n);
                 if ($ct==0)
-                $trns = [ord(substr((string) $t,1,1))];
+                $trns = [ord(substr($t,1,1))];
                 elseif ($ct==2)
-                $trns = [ord(substr((string) $t,1,1)), ord(substr((string) $t,3,1)), ord(substr((string) $t,5,1))];
+                $trns = [ord(substr($t,1,1)), ord(substr($t,3,1)), ord(substr($t,5,1))];
                 else {
-                    $pos = strpos((string) $t,chr(0));
+                    $pos = strpos($t,chr(0));
                     if ($pos!==false)
                     $trns = [$pos];
                 }
@@ -1252,7 +1252,8 @@ class FPDF
         return $info;
     }
 
-    protected function _readstream($f, $n)
+    /** @phpstan-impure */
+    protected function _readstream($f, $n): string
     {
     // Read n bytes from stream
         $res = '';
@@ -1271,7 +1272,7 @@ class FPDF
     protected function _readint($f)
     {
     // Read a 4-byte integer from stream
-        $a = unpack('Ni',(string) $this->_readstream($f,4));
+        $a = unpack('Ni',$this->_readstream($f,4));
         return $a['i'];
     }
 
@@ -1517,7 +1518,7 @@ class FPDF
         }
     }
 
-    protected function _tounicodecmap($uv)
+    protected function _tounicodecmap($uv): string
     {
         $ranges = '';
         $nbr = 0;

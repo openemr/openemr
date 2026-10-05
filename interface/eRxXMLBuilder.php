@@ -89,7 +89,7 @@ class eRxXMLBuilder
         return $this->store;
     }
 
-    protected function trimData($string, $length)
+    protected function trimData($string, $length): string
     {
         return substr((string) $string, 0, $length - 1);
     }

@@ -94,10 +94,8 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Get the name of our base database table
-     *
-     * @return mixed
      */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->table;
     }
@@ -355,7 +353,7 @@ class BaseService implements BaseServiceInterface
      * @param $condition              - Boolean to check AND | OR
      * @return string of (AND | OR) Operator
      */
-    public static function sqlCondition($condition)
+    public static function sqlCondition($condition): string
     {
         return (string) $condition ? ' AND ' : ' OR ';
     }
@@ -579,7 +577,7 @@ class BaseService implements BaseServiceInterface
         return $result;
     }
 
-    protected function getSelectJoinClauses()
+    protected function getSelectJoinClauses(): string
     {
         $joins = $this->getSelectJoinTables();
         $clause = '';

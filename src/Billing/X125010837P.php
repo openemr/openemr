@@ -741,7 +741,7 @@ class X125010837P
                 "~\n";
         }
 
-        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->onsetDateValid()) {
+        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->onsetDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Hospitalization
                 "*" . "435" .
@@ -751,7 +751,7 @@ class X125010837P
         }
 
         // above is for historical use of encounter onset date, now in misc_billing_options
-        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->hospitalizedFromDateValid()) {
+        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedFromDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Admission
                 "*" . "435" .
@@ -761,7 +761,7 @@ class X125010837P
         }
 
         // Segment DTP*096 (Discharge Date)
-        if (strcmp((string) $claim->facilityPOS(), '21') == 0 && $claim->hospitalizedToDateValid()) {
+        if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedToDateValid()) {
             ++$edicount;
             $out .= "DTP" .     // Date of Discharge
                 "*" . "96" .

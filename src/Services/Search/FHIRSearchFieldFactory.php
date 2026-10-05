@@ -116,7 +116,7 @@ class FHIRSearchFieldFactory
      * @param $fhirSearchField
      * @return string
      */
-    private function extractSearchFieldName($fhirSearchField)
+    private function extractSearchFieldName($fhirSearchField): string
     {
         $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
@@ -201,7 +201,7 @@ class FHIRSearchFieldFactory
      * @throws \InvalidArgumentException if the URL does not match the server base URL
      * @return string
      */
-    private function resolveReferenceRelativeUrl($urlToResolve)
+    private function resolveReferenceRelativeUrl($urlToResolve): string
     {
         if (empty($this->getFhirUrlResolver())) {
             throw new \BadMethodCallException("FHIR URL Resolver is not properly setup.  This is a developer error");

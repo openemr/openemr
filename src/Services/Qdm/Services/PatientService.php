@@ -33,7 +33,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return 'P.pid';
     }
 
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     P.pid,

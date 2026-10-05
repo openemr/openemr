@@ -42,7 +42,7 @@ class MeasureService
         return $options;
     }
 
-    public static function fetchMeasuresPath()
+    public static function fetchMeasuresPath(): string
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
@@ -88,7 +88,7 @@ class MeasureService
      *
      * @return string
      */
-    public static function getCurrentReportingYear()
+    public static function getCurrentReportingYear(): string
     {
         return OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023';
     }

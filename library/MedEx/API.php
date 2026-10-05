@@ -76,7 +76,7 @@ class CurlRequest
         $this->saveSession();
     }
 
-    private function getCookies()
+    private function getCookies(): string
     {
         $cookies = [];
         foreach ($this->cookies as $name => $value) {
@@ -161,10 +161,7 @@ class Base
     {
         $quoted = [];
         foreach ($this->cancelledApptStatuses() as $status) {
-            $escaped = \add_escape_custom($status);
-            if (is_string($escaped)) {
-                $quoted[] = "'" . $escaped . "'";
-            }
+            $quoted[] = "'" . \add_escape_custom($status) . "'";
         }
         if ($quoted === []) {
             return '';
@@ -3586,7 +3583,7 @@ class MedEx
         $info['running'] = $back['running'];
         return $info;
     }
-    public function getUrl($method)
+    public function getUrl($method): string
     {
         return $this->url . $method; }
 

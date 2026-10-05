@@ -37,7 +37,7 @@ class CacheUtils
      * @param $path
      * @return string
      */
-    public static function addAssetCacheParamToPath($path)
+    public static function addAssetCacheParamToPath($path): string
     {
         return $path . "?" . self::getAssetCacheParam();
     }

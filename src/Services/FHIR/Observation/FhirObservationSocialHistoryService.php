@@ -81,7 +81,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         $this->service = new SocialHistoryService();
     }
 
-    public function getResourcePathForCode($code)
+    public function getResourcePathForCode($code): string
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
@@ -255,7 +255,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         }
     }
 
-    private function getDescriptionForCode($code)
+    private function getDescriptionForCode($code): string
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
         if (isset($codeMapping)) {

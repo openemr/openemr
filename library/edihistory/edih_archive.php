@@ -32,10 +32,8 @@
  * @uses csv_assoc_array()
  *
  * @param string $period archive date in CCYYMMDD format
- *
- * @return array   array[i] = filename
  */
-function edih_archive_report($period = '')
+function edih_archive_report($period = ''): string
 {
     //
     $str_html = '';
@@ -730,7 +728,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
  *
  * @return string
  */
-function edih_archive_restore($archive_name)
+function edih_archive_restore($archive_name): string
 {
     // Archive names must be plain filenames matching the format used at
     // archive creation time (e.g. "<date>_archive.zip"). Reject anything
@@ -881,7 +879,7 @@ function edih_archive_restore($archive_name)
  *
  * @return string
  */
-function edih_archive_undo()
+function edih_archive_undo(): string
 {
     //
     // archive process creates files in /history/tmp
@@ -1024,7 +1022,7 @@ function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
  *
  * @return string
  */
-function edih_archive_cleanup($archivename, $types_ar)
+function edih_archive_cleanup($archivename, $types_ar): string
 {
     //
     $str_out = '';
@@ -1096,7 +1094,7 @@ function edih_archive_cleanup($archivename, $types_ar)
  *
  * @return string       descriptive message in html format
  */
-function edih_archive_main($period)
+function edih_archive_main($period): string
 {
     //
     $out_html = '';

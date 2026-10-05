@@ -766,7 +766,7 @@ class PatientService extends BaseService
         return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
     }
 
-    public function formatPreviousName($item)
+    public function formatPreviousName($item): string
     {
         return PatientNameHistoryService::formatPreviousName($item);
     }
