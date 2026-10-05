@@ -46,3 +46,31 @@ coverage:
 flag_management:
   default_rules:
     carryforward: true
+  # Retired flags: no CI config uploads these any more, so without this they
+  # would be carried forward indefinitely and keep stale coverage in every
+  # total. Codecov keeps their history (flags are only soft-deleted).
+  individual_flags:
+  - name: api-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: api-tests-php8.2-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: e2e-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-php8.2-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: e2e-tests-php8.2-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: e2e-tests-php8.2-nginx-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: email-php8.2-apache-mariadb-11.8.8-upg
+    carryforward: false
+  - name: isolated-php8.2
+    carryforward: false
+  - name: services-php8.2-apache-mariadb-11.8.8
+    carryforward: false
+  - name: services-php8.2-nginx-mariadb-11.8.8
+    carryforward: false

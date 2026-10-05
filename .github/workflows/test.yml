@@ -133,6 +133,8 @@ jobs:
         DB: ${{ steps.parse.outputs.db }}
         DOCKER_DIR: ${{ inputs.docker_dir }}
       run: |
+        # Database major.minor only, so point-release bumps keep the same flag.
+        [[ "${DB}" =~ ^([0-9]+\.[0-9]+) ]] && DB="${BASH_REMATCH[1]}"
         flag="php${PHP}-${WEBSERVER}-${DATABASE}${DB:+-${DB}}"
         case "${DOCKER_DIR}" in
           *_upgrade) flag="${flag}-upg" ;;
