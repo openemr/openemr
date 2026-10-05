@@ -197,11 +197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$pal in empty\\(\\) always exists and is always falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$new_conflicts in empty\\(\\) always exists and is always falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',

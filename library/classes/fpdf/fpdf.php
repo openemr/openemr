@@ -1252,6 +1252,7 @@ class FPDF
         return $info;
     }
 
+    /** @phpstan-impure */
     protected function _readstream($f, $n): string
     {
     // Read n bytes from stream
