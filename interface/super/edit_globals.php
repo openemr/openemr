@@ -184,7 +184,7 @@ function checkBackgroundServices(): void
                                     // a new value has been inputted, so create the hash that will then be stored
                                     $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                                 }
-                                $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
+                                $fldvalue = $cryptoGen->encryptForDatabase($tmpValue);
                             }
                         } else {
                             $fldvalue = trim($_POST["form_$i"] ?? '');
@@ -267,7 +267,7 @@ function checkBackgroundServices(): void
                                     // a new value has been inputted, so create the hash that will then be stored
                                     $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                                 }
-                                $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
+                                $fldvalue = $cryptoGen->encryptForDatabase($tmpValue);
                             }
                         }
 
