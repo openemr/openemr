@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type base is incompatible with native type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\DateTime\\|null is not subtype of native type DateTime\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/TeleHealthUser.php',
@@ -20,11 +15,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type array is incompatible with native type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type void is incompatible with native type array\\|null\\.$#',
@@ -60,11 +50,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type void is incompatible with native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/Error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type true is incompatible with native type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type string\\.$#',

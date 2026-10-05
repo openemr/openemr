@@ -509,7 +509,7 @@ function pnGetBaseURI(): string
 /**
  * get base URL for PostNuke
  * @returns string
- * @return base URL for PostNuke
+ * @return string base URL for PostNuke
  */
 function pnGetBaseURL(): string
 {

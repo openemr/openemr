@@ -32,7 +32,6 @@ class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
    * @param String $controllerName Controller
    * @param String $actionName Action
    * @param Array $params Parameters to action
-   * @return Array
    * @author  Basil PT <basil@zhservices.com>
    **/
 

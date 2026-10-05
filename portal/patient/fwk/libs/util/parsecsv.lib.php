@@ -708,7 +708,7 @@ class parseCSV
      *
      * @param mixed $row array with values from a row
      * @param mixed $condition specified condition that the row must match
-     * @return true of false
+     * @return '1'|'0'
      */
     public function _validate_row_condition($row, $condition): string
     {
