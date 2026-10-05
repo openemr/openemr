@@ -211,7 +211,13 @@ class CcdaGenerator
             $params,
             $document_type,
             $referral_reason,
-            $send,
+            // CcdaServiceRequestModelGenerator::create_data() types $send as
+            // int|null. Callers reach generate() with an int, a numeric string,
+            // false or null depending on the entry point, so the value is
+            // normalised here rather than typing the parameter: typing it would
+            // reject EncounterccdadispatchController, CCDAEventsSubscriber and
+            // CDADocumentService, all of which pass something other than an int.
+            is_numeric($send) ? (int)$send : null,
             $date_options
         );
         $this->createdtime = $modelGenerator->getCreatedTime();
