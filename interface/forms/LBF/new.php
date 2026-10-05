@@ -299,9 +299,8 @@ if (
             } else {
                 $newPatientData[$field_id] = $value;
                 $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
-                // The helper already returns a quoted identifier.
-                // Interpolate it. Concatenating it is the Semgrep SQL-string sink.
                 sqlStatement(
+                    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
                     "UPDATE patient_data SET $esc_field_id = ? WHERE pid = ?",
                     [$value, $pid]
                 );
@@ -321,11 +320,9 @@ if (
         } elseif ($source == 'V') {
             // Save to form_encounter.
             $esc_field_id = escape_sql_column_name($field_id, ['form_encounter']);
-            // The helper already returns a quoted identifier.
-            // Interpolate it. Concatenating it is the Semgrep SQL-string sink.
             sqlStatement(
-                "UPDATE form_encounter SET $esc_field_id = ? WHERE " .
-                "pid = ? AND encounter = ?",
+                // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- escape_sql_column_name() whitelists this identifier; the value is a bound parameter
+                "UPDATE form_encounter SET $esc_field_id = ? WHERE pid = ? AND encounter = ?",
                 [$value, $pid, $visitid]
             );
             continue;
