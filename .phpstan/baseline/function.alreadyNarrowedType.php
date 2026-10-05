@@ -52,11 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/track_anything/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with list will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
@@ -113,16 +108,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_globals.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\{array\\{callback_url\\: non\\-falsy\\-string, providers\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, facilities\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, categories\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, apptstats\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, checkedOut\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, clinical_reminders\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>\\}\\} will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
@@ -247,11 +237,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthGlobal.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_object\\(\\) with ADORecordSet will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
@@ -260,11 +245,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Controllers/Portal/AuthHashPortalPasswordHasher.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
@@ -515,16 +495,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function method_exists\\(\\) with \'OpenEMR\\\\\\\\Billing\\\\\\\\InvoiceSummary\' and \'arResponsibleParty\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/InvoiceSummaryTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with non\\-falsy\\-string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/SMARTLaunchTokenTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Portal/PatientPortalLoginControllerTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
