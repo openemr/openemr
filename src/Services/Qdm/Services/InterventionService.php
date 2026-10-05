@@ -35,7 +35,7 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'O.patient_id';
     }

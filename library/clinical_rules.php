@@ -503,7 +503,7 @@ LIMIT 1)";
  * @param int $report_id id of report in database (if already bookmarked)
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget = '', $mode = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $batchSize = '', $report_id = null)
+function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget = '', $mode = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $batchSize = '', $report_id = null): array
 {
 
   // Default to a batchsize, if empty
@@ -936,7 +936,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = ''): array
 {
 
   // If dateTarget is an array, then organize them.
@@ -2918,7 +2918,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return bool true if check passed, otherwise false
  */
-function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
+function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget): bool
 {
 
     // Set date to current if not set
@@ -3455,7 +3455,7 @@ function itemsNumberCompare($comp, $thres, $num_items): bool
  * @param  string  $comp  Comparison operator(eq,ne,gt,ge,lt,le)
  * @return string         contains sql compatible comparison operator
  */
-function convertCompSql($comp)
+function convertCompSql($comp): string
 {
 
     if ($comp == "eq") {

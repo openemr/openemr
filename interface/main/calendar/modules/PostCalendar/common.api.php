@@ -159,7 +159,7 @@ function &pcVarPrepHTMLDisplay($s)
     $postcalendarRemoveScriptTags = pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($s));
     return $postcalendarRemoveScriptTags;
 }
-function pcGetTopicName($topicid)
+function pcGetTopicName($topicid): string
 {
     // not using topics in OpenEMR, so just return nothing
     return '';

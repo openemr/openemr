@@ -412,7 +412,7 @@ class ExportJob
         return $baseUrl . self::STATUS_REPORT_PREFIX . $this->getUuidString();
     }
 
-    public function isComplete()
+    public function isComplete(): bool
     {
         return $this->getStatus() === self::STATUS_COMPLETED;
     }

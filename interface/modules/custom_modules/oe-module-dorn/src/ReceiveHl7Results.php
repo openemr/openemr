@@ -1274,7 +1274,7 @@ class ReceiveHl7Results
      * @param  string $fileext The lower case extension.
      * @return string            MIME type.
      */
-    private function rhl7MimeType($fileext)
+    private function rhl7MimeType($fileext): string
     {
         if ($fileext == 'pdf') {
             return 'application/pdf';

@@ -132,8 +132,11 @@ RUN sed -i 's/^Listen 80$/Listen 0.0.0.0:80/' /etc/apache2/httpd.conf
 # ============================================================================
 # Set Apache user UID to 1000 to ensure consistent permissions across
 # shared volumes when using multiple containers (OpenEMR, nginx, php-fpm)
-# This prevents permission conflicts in multi-container deployments
-RUN usermod -u 1000 apache
+# This prevents permission conflicts in multi-container deployments.
+# Override with --build-arg APACHE_UID=<uid> to match a dedicated host account
+# that owns bind-mounted site directories (uid 1000 is often a person's login).
+ARG APACHE_UID=1000
+RUN usermod -u "${APACHE_UID}" apache
 
 # ============================================================================
 # PHP CONFIGURATION

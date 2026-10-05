@@ -89,7 +89,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         return $query_vars['code'] ?? null;
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return ($category === self::CATEGORY);
     }

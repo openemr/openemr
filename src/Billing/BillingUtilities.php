@@ -1532,7 +1532,7 @@ class BillingUtilities
         $partner_id = -1,
         $crossover = 0,
         $submitted_claim = ''
-    ) {
+    ): int {
 
         $sqlBindArray = [];
         if (!$newversion) {
@@ -1731,7 +1731,7 @@ class BillingUtilities
     // Determine if the encounter is billed.  It is considered billed if it
     // has at least one chargeable item, and all of them are billed.
     //
-    public static function isEncounterBilled($pid, $encounter)
+    public static function isEncounterBilled($pid, $encounter): bool
     {
         $billed = -1; // no chargeable services yet
 

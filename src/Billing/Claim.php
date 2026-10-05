@@ -630,7 +630,7 @@ class Claim
         return is_array($this->payers) ? count($this->payers) : 0;
     }
 
-    public function x12gsversionstring()
+    public function x12gsversionstring(): string
     {
         return Claim::X12_VERSION;
     }
@@ -1055,7 +1055,7 @@ class Claim
 
   // Is the patient also the subscriber?
   //
-    public function isSelfOfInsured($ins = 0)
+    public function isSelfOfInsured($ins = 0): bool
     {
         $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship'] ?? '');
         return (strcmp($tmp, 'self') == 0);
@@ -1520,7 +1520,7 @@ class Claim
     }
 
     // Not Otherwise Classified codes require a description on the SV1 line after the modifiers
-    public function cptNOC($prockey)
+    public function cptNOC($prockey): bool
     {
         return in_array($this->cptCode($prockey), Claim::NOC_CODES);
     }
@@ -1541,7 +1541,7 @@ class Claim
         return $this->cleanDate($this->encounter['onset_date']);
     }
 
-    public function onsetDateValid()
+    public function onsetDateValid(): bool
     {
         return $this->onsetDate() !== '';
     }
@@ -1562,17 +1562,17 @@ class Claim
         return $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
     }
 
-    public function isRelatedEmployment()
+    public function isRelatedEmployment(): bool
     {
         return !empty($this->billing_options['employment_related']);
     }
 
-    public function isRelatedAuto()
+    public function isRelatedAuto(): bool
     {
         return !empty($this->billing_options['auto_accident']);
     }
 
-    public function isRelatedOther()
+    public function isRelatedOther(): bool
     {
         return !empty($this->billing_options['other_accident']);
     }
@@ -1585,7 +1585,7 @@ class Claim
         return $this->x12Clean(trim((string) $this->billing_options['accident_state']));
     }
 
-    public function isUnableToWork()
+    public function isUnableToWork(): bool
     {
         return !empty($this->billing_options['is_unable_to_work']);
     }
@@ -1606,7 +1606,7 @@ class Claim
         return $this->cleanDate($this->billing_options['off_work_to']);
     }
 
-    public function isHospitalized()
+    public function isHospitalized(): bool
     {
         return !empty($this->billing_options['is_hospitalized']);
     }
@@ -1619,7 +1619,7 @@ class Claim
         return $this->cleanDate($this->billing_options['hospitalization_date_from']);
     }
 
-    public function hospitalizedFromDateValid()
+    public function hospitalizedFromDateValid(): bool
     {
         return $this->hospitalizedFrom() !== '';
     }
@@ -1631,12 +1631,12 @@ class Claim
     {
         return $this->cleanDate($this->billing_options['hospitalization_date_to']);
     }
-    public function hospitalizedToDateValid()
+    public function hospitalizedToDateValid(): bool
     {
         return $this->hospitalizedTo() !== '';
     }
 
-    public function isOutsideLab()
+    public function isOutsideLab(): bool
     {
         return !empty($this->billing_options['outside_lab']);
     }
@@ -1831,7 +1831,7 @@ class Claim
         return $this->cleanDate($this->billing_options['onset_date'] ?? '');
     }
 
-    public function miscOnsetDateValid()
+    public function miscOnsetDateValid(): bool
     {
         return $this->miscOnsetDate() !== '';
     }
@@ -1844,7 +1844,7 @@ class Claim
         return $this->cleanDate($this->billing_options['date_initial_treatment'] ?? '');
     }
 
-    public function dateInitialTreatmentValid()
+    public function dateInitialTreatmentValid(): bool
     {
         return $this->dateInitialTreatment() !== '';
     }

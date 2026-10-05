@@ -46,7 +46,7 @@ class Encounter extends ClinicalType
         return $encounters;
     }
 
-    public function getListId()
+    public function getListId(): string
     {
         return "rule_enc_types";
     }

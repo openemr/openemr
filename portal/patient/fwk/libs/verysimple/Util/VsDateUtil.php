@@ -69,7 +69,7 @@ class VsDateUtil
      * @param int $timestamp
      *          (if not provided then the current server time will be used)
      */
-    public static function IsDstNorthAmerica($timestamp = null)
+    public static function IsDstNorthAmerica($timestamp = null): bool
     {
         if (! $timestamp) {
             $timestamp = time();

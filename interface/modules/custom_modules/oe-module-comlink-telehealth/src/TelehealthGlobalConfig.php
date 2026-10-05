@@ -135,7 +135,7 @@ class TelehealthGlobalConfig
         }
     }
 
-    public function isThirdPartyInvitationsEnabled()
+    public function isThirdPartyInvitationsEnabled(): bool
     {
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
     }
@@ -151,7 +151,7 @@ class TelehealthGlobalConfig
     /**
      * @return string
      */
-    public function getAppTitle()
+    public function getAppTitle(): string
     {
         return self::COMLINK_MOBILE_APP_TITLE;
     }
@@ -237,7 +237,7 @@ class TelehealthGlobalConfig
         return true;
     }
 
-    public function isDebugModeEnabled()
+    public function isDebugModeEnabled(): bool
     {
         $setting = $this->getGlobalSetting(self::DEBUG_MODE_FLAG);
         return $setting !== "";
@@ -305,12 +305,12 @@ class TelehealthGlobalConfig
         return OEGlobalsBag::getInstance()->get($settingKey) ?? '';
     }
 
-    public function getAppRegistrationCodeLength()
+    public function getAppRegistrationCodeLength(): int
     {
         return self::APP_REGISTRATION_CODE_LENGTH;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
             self::COMLINK_VIDEO_REGISTRATION_API => [
@@ -489,7 +489,7 @@ class TelehealthGlobalConfig
         }
     }
 
-    private function isOptionalSetting($key)
+    private function isOptionalSetting($key): bool
     {
         return in_array($key, [self::COMLINK_AUTO_PROVISION_PROVIDER, self::VERIFY_SETTINGS_BUTTON, self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS, self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT, self::DEBUG_MODE_FLAG, self::COMLINK_SECTION_FOOTER_BOX, self::COMLINK_ONETIME_PASSWORD_LOGIN, self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT, self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID]); // we don't require the payment subscription id
     }
@@ -500,7 +500,7 @@ class TelehealthGlobalConfig
      *
      * @return string
      */
-    public function getOneTimePasswordTimeoutSetting()
+    public function getOneTimePasswordTimeoutSetting(): string
     {
         $setting = intval($this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT));
         if ($setting > self::MAX_LOGIN_LIMIT_TIME) {

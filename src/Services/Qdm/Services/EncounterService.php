@@ -43,7 +43,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'FE.pid';
     }

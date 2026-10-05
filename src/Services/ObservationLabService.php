@@ -63,14 +63,14 @@ class ObservationLabService extends BaseService
         return $processingResult;
     }
 
-    public function isValidProcedureResultCode($code)
+    public function isValidProcedureResultCode($code): bool
     {
         $sql = "SELECT result_code FROM procedure_result WHERE result_code = ? LIMIT 1";
         $code = QueryUtils::fetchSingleValue($sql, 'result_code', [$code]);
         return !empty($code);
     }
 
-    public function isValidProcedureCode($code)
+    public function isValidProcedureCode($code): bool
     {
         $sql = "SELECT procedure_code FROM procedure_order_code WHERE procedure_code = ? LIMIT 1";
         $code = QueryUtils::fetchSingleValue($sql, 'procedure_code', [$code]);

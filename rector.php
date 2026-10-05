@@ -120,4 +120,5 @@ return RectorConfig::configure()
     ->withPhpSets()
     ->withDeadCodeLevel(5)
     ->withCodeQualityLevel(5)
-    ->withTypeCoverageLevel(8);
+    // vendor/rector/rector/src/Config/Level/TypeDeclarationLevel.php shows the coverage levels
+    ->withTypeCoverageLevel(13);

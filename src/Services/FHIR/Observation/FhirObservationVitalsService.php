@@ -1222,7 +1222,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRObservation)) {
             throw new InvalidArgumentException(
@@ -1577,8 +1577,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
         $mapping = UuidMapping::getMappingForUUID($fhirResourceId);
         if (
-            !is_array($mapping)
-            || ($mapping['resource'] ?? null) !== 'Observation'
+            ($mapping['resource'] ?? null) !== 'Observation'
             || ($mapping['table'] ?? null) !== VitalsService::TABLE_VITALS
         ) {
             $result = new ProcessingResult();

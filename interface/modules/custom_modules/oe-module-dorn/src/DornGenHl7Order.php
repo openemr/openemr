@@ -44,7 +44,7 @@ class DornGenHl7Order extends GenHl7OrderBase
      * @param string  &$out     Container for target HL7 text.
      * @return string            Error text, or empty if no errors.
      */
-    public function genHl7Order($orderid, &$out)
+    public function genHl7Order($orderid, &$out): string
     {
         // Delimiters
         $d0 = "\r";

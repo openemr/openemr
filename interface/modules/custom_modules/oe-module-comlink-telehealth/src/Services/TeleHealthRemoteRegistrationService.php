@@ -84,7 +84,7 @@ class TeleHealthRemoteRegistrationService
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
-    public function createPatientRegistration($patient)
+    public function createPatientRegistration($patient): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($patient['id']);
@@ -101,7 +101,7 @@ class TeleHealthRemoteRegistrationService
         return !empty($userId);
     }
 
-    public function createUserRegistration($user)
+    public function createUserRegistration($user): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($user['id']);

@@ -32,7 +32,7 @@ trait Cat3View
          */
     }
 
-    public function msrpopl(\Mustache_Context $context)
+    public function msrpopl(\Mustache_Context $context): bool
     {
         $type = $context->find('type');
         return $type == 'MSRPOPL';
@@ -43,7 +43,7 @@ trait Cat3View
          */
     }
 
-    public function not_observ(\Mustache_Context $context)
+    public function not_observ(\Mustache_Context $context): bool
     {
         $type = $context->find('type');
         return $type != 'OBSERV';

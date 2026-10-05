@@ -82,7 +82,7 @@ class ParseERA
         }
     }
 
-    public static function parseERA($filename, $cb)
+    public static function parseERA($filename, $cb): string
     {
         $delimiter1 = '~';
         $delimiter2 = '|';
@@ -479,7 +479,7 @@ class ParseERA
     }
 
     // for getting the check details and provider details
-    public static function parseERAForCheck($filename)
+    public static function parseERAForCheck($filename): string
     {
         $delimiter1 = '~';
         $delimiter2 = '|';

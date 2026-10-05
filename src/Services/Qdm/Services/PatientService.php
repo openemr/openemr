@@ -28,7 +28,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'P.pid';
     }

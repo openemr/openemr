@@ -65,7 +65,7 @@ class FormQuestionnaireAssessment extends BaseForm
         return $data;
     }
 
-    public function getFormTableName()
+    public function getFormTableName(): string
     {
         return "form_questionnaire_assessments";
     }

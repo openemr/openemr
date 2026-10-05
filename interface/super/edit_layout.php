@@ -363,7 +363,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
 //   3 = There is already a column having the new name.
 //   4 = Old name is needed internally and cannot be changed.
 //
-function renameColumn($layout_id, $old_field_id, $new_field_id)
+function renameColumn($layout_id, $old_field_id, $new_field_id): int
 {
     $tablename = tableNameFromLayout($layout_id);
     if (!$tablename) {

@@ -127,7 +127,7 @@ class ExportState
         throw new \RuntimeException("Invalid item in queue");
     }
 
-    public function hasTableDefinitions()
+    public function hasTableDefinitions(): bool
     {
         return !$this->queue->isEmpty();
     }
@@ -144,7 +144,7 @@ class ExportState
         }
     }
 
-    public function getKeyDataForTable(ExportTableDefinition $tableDefinition)
+    public function getKeyDataForTable(ExportTableDefinition $tableDefinition): array
     {
         $keyData = [
             'tables' => []

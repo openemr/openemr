@@ -36,14 +36,14 @@ class UuidMapping
         ['resource' => 'Group', 'table' => 'users']
     ];
 
-    public static function getMappedRecordsForTableUUID($table_uuid)
+    public static function getMappedRecordsForTableUUID($table_uuid): array
     {
         $sql = "select `uuid`, `resource`, `table`, `target_uuid`, `created`, `resource_path` FROM `uuid_mapping` WHERE `target_uuid` = ?";
         $records = QueryUtils::fetchRecords($sql, [$table_uuid]);
         return $records;
     }
 
-    public static function getMappingForUUID($uuid, $is_binary = false)
+    public static function getMappingForUUID($uuid, $is_binary = false): array
     {
         $sql = "select * from `uuid_mapping` WHERE uuid = ?";
         $uuid_as_binary = $is_binary ? $uuid : UuidRegistry::uuidToBytes($uuid);
