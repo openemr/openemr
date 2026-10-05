@@ -299,8 +299,9 @@ if (
             } else {
                 $newPatientData[$field_id] = $value;
                 $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
+                // The helper already returns a quoted identifier.
                 sqlStatement(
-                    "UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
+                    "UPDATE patient_data SET " . $esc_field_id . " = ? WHERE pid = ?",
                     [$value, $pid]
                 );
             }
@@ -319,8 +320,9 @@ if (
         } elseif ($source == 'V') {
             // Save to form_encounter.
             $esc_field_id = escape_sql_column_name($field_id, ['form_encounter']);
+            // The helper already returns a quoted identifier.
             sqlStatement(
-                "UPDATE form_encounter SET `$esc_field_id` = ? WHERE " .
+                "UPDATE form_encounter SET " . $esc_field_id . " = ? WHERE " .
                 "pid = ? AND encounter = ?",
                 [$value, $pid, $visitid]
             );
