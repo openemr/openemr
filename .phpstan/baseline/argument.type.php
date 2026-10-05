@@ -6737,11 +6737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$occurrence of static method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$providerID of method OpenEMR\\\\Events\\\\Appointments\\\\CalendarUserGetEventsFilter\\:\\:setProviderID\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -6762,11 +6757,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$dayOfWeek of static method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$string of function explode expects string, \\(float\\|int\\) given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -6778,7 +6768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 29,
+    'count' => 27,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -6792,22 +6782,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$month of function mktime expects int\\|null, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$month of function mktime expects int\\|null, string given\\.$#',
     'count' => 23,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#5 \\$day of function mktime expects int\\|null, float\\|int given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$day of function mktime expects int\\|null, int\\|string given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -6828,7 +6808,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#6 \\$year of function mktime expects int\\|null, string given\\.$#',
-    'count' => 26,
+    'count' => 24,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -18553,7 +18533,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 21,
+    'count' => 19,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -18573,17 +18553,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$month of function mktime expects int\\|null, mixed given\\.$#',
-    'count' => 10,
+    'count' => 8,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$month of function mktime expects int\\|null, string given\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$day of function mktime expects int\\|null, int\\|string given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -18603,7 +18578,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#6 \\$year of function mktime expects int\\|null, string given\\.$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -19157,11 +19132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$occurrence of static method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$statement of function sqlStatement expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
@@ -19182,11 +19152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$dayOfWeek of static method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$offset of function array_slice expects int, float\\|int given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
@@ -19198,7 +19163,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
 $ignoreErrors[] = [
@@ -19209,21 +19174,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$length of function array_slice expects int\\|null, mixed given\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$month of function mktime expects int\\|null, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$day of function mktime expects int\\|null, int\\|string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$year of function mktime expects int\\|null, string given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
 $ignoreErrors[] = [
