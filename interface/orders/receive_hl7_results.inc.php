@@ -1527,6 +1527,13 @@ function poll_hl7_results(&$info, $labs = 0): string
 
     $ppres = sqlStatement("SELECT * FROM procedure_providers ORDER BY name");
 
+    // Writes the archive copy of a results file, encrypted when enabled.
+    // True if the whole file was written.
+    $archiveHl7File = static function (string $path, string $hl7): bool {
+        $content = hl7Crypt($hl7);
+        return file_put_contents($path, $content) === strlen($content);
+    };
+
     while ($pprow = sqlFetchArray($ppres)) {
         $ppid = (int)$pprow['ppid'];
         $protocol = $pprow['protocol'];
@@ -1534,7 +1541,7 @@ function poll_hl7_results(&$info, $labs = 0): string
         $send_account = $pprow['send_fac_id'];
         $recv_account = $pprow['recv_fac_id'];
         $lab_app = $pprow['recv_app_id'];
-        $lab_name = $pprow['name'];
+        $lab_name = is_string($pprow['name']) ? $pprow['name'] : '';
         $lab_npi = strtoupper(trim((string) $pprow['npi']));
         $debug = trim((string) $pprow['DorP']) === 'D';
         $hl7 = '';
@@ -1578,7 +1585,7 @@ function poll_hl7_results(&$info, $labs = 0): string
                 $files = [];
             }
             foreach ($files as $file) {
-                if (str_starts_with((string) $file, '.')) {
+                if (!is_string($file) || str_starts_with($file, '.')) {
                     continue;
                 }
 
@@ -1653,23 +1660,22 @@ function poll_hl7_results(&$info, $labs = 0): string
                     // There are errors or matching requests so skip this file.
                     continue;
                 }
+                // Archive before importing: the file is removed from the lab only
+                // once archived, so a file imported without an archive copy would
+                // be imported again on the next run.
+                if (!$archiveHl7File("$prpath/$file", $hl7)) {
+                    $log .= "Couldn't Save File #$filecount, Not Imported: $file\n";
+                    $info["$lab_name/$ppid/$file"]['mssgs'] = ['*' . xl('Not imported, cannot create file') . ' "' . "$prpath/$file" . '"'];
+                    continue;
+                }
                 $orphanLog = '';
                 // Now the money shot - not a dry run.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 // $info["$lab_name/$ppid/$file"]['match'] = $tmp['match'];
                 if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
-                    // It worked, archive and delete the file.
-                    $fh = fopen("$prpath/$file", 'w');
-                    if ($fh) {
-                        $hl7_crypt = hl7Crypt($hl7);
-                        fwrite($fh, $hl7_crypt);
-                        fclose($fh);
-                        $log .= "Success Saved Results #$filecount to: $file\n";
-                    } else {
-                        $log .= "Success but Couldn't Save File #$filecount: $file\n";
-                        return xl('Cannot create file') . ' "' . "$prpath/$file" . '"';
-                    }
+                    // It worked and it's archived, delete the file.
+                    $log .= "Success Saved Results #$filecount to: $file\n";
                     if (strtoupper($lab_npi) != 'LABCORP') { // this is nuts
                         if (!$sftp->delete("$pathname/$file")) {
                             return xl('Cannot delete (from SFTP server) file') . ' "' . "$pathname/$file" . '"';
@@ -1780,23 +1786,22 @@ function poll_hl7_results(&$info, $labs = 0): string
                     // There are errors or matching requests so skip this file.
                     continue;
                 }
+                // Archive before importing: the file is removed from the lab only
+                // once archived, so a file imported without an archive copy would
+                // be imported again on the next run.
+                if (!$archiveHl7File("$prpath/$file", $hl7)) {
+                    $log .= "Couldn't Save File #$filecount, Not Imported: $file\n";
+                    $info["$lab_name/$ppid/$file"]['mssgs'] = ['*' . xl('Not imported, cannot create file') . ' "' . "$prpath/$file" . '"'];
+                    continue;
+                }
                 $orphanLog = '';
                 // Now the money shot - not a dry run.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 // $info["$lab_name/$ppid/$file"]['match'] = $tmp['match'];
                 if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
-                    // It worked, archive and delete the file.
-                    $fh = fopen("$prpath/$file", 'w');
-                    if ($fh) {
-                        $hl7_crypt = hl7Crypt($hl7);
-                        fwrite($fh, $hl7_crypt);
-                        fclose($fh);
-                        $log .= "Success Saved Results #$filecount to: $prpath/$file\n";
-                    } else {
-                        return xl('Cannot create file') . ' "' . "$prpath/$file" . '"';
-                    }
-
+                    // It worked and it's archived, delete the file.
+                    $log .= "Success Saved Results #$filecount to: $prpath/$file\n";
                     if (!unlink("$pathname/$file")) {
                         return xl('Cannot delete file') . ' "' . "$pathname/$file" . '"';
                     }
@@ -1899,21 +1904,20 @@ function poll_hl7_results(&$info, $labs = 0): string
                     // There are errors or matching requests so skip this file.
                     continue;
                 }
+                // Archive before importing: the file is removed from the lab only
+                // once archived, so a file imported without an archive copy would
+                // be imported again on the next run.
+                if (!$archiveHl7File("$prpath/$file", $hl7)) {
+                    $log .= "Couldn't Save File #$filecount, Not Imported: $file\n";
+                    $info["$lab_name/$ppid/$file"]['mssgs'] = ['*' . xl('Not imported, cannot create file') . ' "' . "$prpath/$file" . '"'];
+                    continue;
+                }
                 $orphanLog = '';
                 // Now the money shot - not a dry run.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
-                    // It worked, archive and delete the file.
-                    $fh = fopen("$prpath/$file", 'w');
-                    if ($fh) {
-                        $hl7_crypt = hl7Crypt($hl7);
-                        fwrite($fh, $hl7_crypt);
-                        fclose($fh);
-                    } else {
-                        return xl('Cannot create file') . ' "' . "$prpath/$file" . '"';
-                    }
-                    // remove ie ack
+                    // It worked and it's archived, remove ie ack
                     $acks = $client->buildResultAck($control_id);
                     $response = $client->sendResultAck($request_id, $acks, false);
                 }
