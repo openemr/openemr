@@ -357,7 +357,8 @@ class InternalToCdaConverterTest extends TestCase
 
             $title = $xpath->query('hl7:title', $section);
             self::assertNotFalse($title, 'Title query must be valid');
-            $label = $title->length > 0 ? (string)$title->item(0)?->textContent : 'untitled section';
+            $titleNode = $title->item(0);
+            $label = $titleNode instanceof \DOMElement ? $titleNode->textContent : 'untitled section';
 
             self::assertGreaterThan(
                 0,
