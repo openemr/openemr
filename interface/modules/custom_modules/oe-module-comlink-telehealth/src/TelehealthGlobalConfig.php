@@ -151,7 +151,7 @@ class TelehealthGlobalConfig
     /**
      * @return string
      */
-    public function getAppTitle()
+    public function getAppTitle(): string
     {
         return self::COMLINK_MOBILE_APP_TITLE;
     }
@@ -305,7 +305,7 @@ class TelehealthGlobalConfig
         return OEGlobalsBag::getInstance()->get($settingKey) ?? '';
     }
 
-    public function getAppRegistrationCodeLength()
+    public function getAppRegistrationCodeLength(): int
     {
         return self::APP_REGISTRATION_CODE_LENGTH;
     }

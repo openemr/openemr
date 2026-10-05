@@ -53,7 +53,7 @@ trait FhirServiceBaseEmptyTrait
         return;
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): null
     {
         return null;
     }

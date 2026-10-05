@@ -15,7 +15,7 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class MedicationActiveService extends AbstractMedicationService implements QdmServiceInterface
 {
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return MedicationActive::class;
     }

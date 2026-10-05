@@ -26,7 +26,7 @@ class FormActionBarSettings
         ];
     }
 
-    public static function getDefaultSetting()
+    public static function getDefaultSetting(): string
     {
         return self::ACTION_BAR_DISPLAY_FORM_TOP;
     }
