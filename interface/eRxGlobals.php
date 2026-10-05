@@ -128,7 +128,7 @@ class eRxGlobals
      * Return the Ensora eRx password for credentials
      * @return string Password for credentials
      */
-    public function getAccountPassword()
+    public function getAccountPassword(): string
     {
         $cryptoGen = ServiceContainer::getCrypto();
         $value = $this->getGlobalValue('erx_account_password');

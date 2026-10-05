@@ -34,7 +34,7 @@ class ParticipantListService
      * @param $thirdPartyLaunchAction
      * @return string
      */
-    private function getJoinLink($session)
+    private function getJoinLink($session): string
     {
         // the index-portal will redirect the person to login before completing the action
         return $this->publicPathFQDN . "index-portal.php?action=launch_patient_session&pc_eid="

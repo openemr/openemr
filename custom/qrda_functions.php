@@ -152,7 +152,7 @@ function getQRDAPatientNeedInfo($patArr): array
     return $mainArr;
 }
 
-function payerPatient($patient_id)
+function payerPatient($patient_id): string
 {
     $payer = 'Other';
     $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd " .

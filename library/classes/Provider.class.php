@@ -94,7 +94,7 @@ class Provider extends ORDataObject
         return $this->id;
     }
 
-    public function get_name_display()
+    public function get_name_display(): string
     {
         return $this->fname . " " . $this->lname;
     }

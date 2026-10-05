@@ -49,7 +49,7 @@ class ExportTableDefinition
         $this->primaryKeys[] = $key;
     }
 
-    private function createPrimaryKeyHashFromRecord(&$record)
+    private function createPrimaryKeyHashFromRecord(&$record): string
     {
         $hash = [];
         foreach ($this->primaryKeys as $key) {
@@ -112,7 +112,7 @@ class ExportTableDefinition
         $this->selectClause = implode(',', $columns);
     }
 
-    public function getSelectClause()
+    public function getSelectClause(): string
     {
         return $this->selectClause;
     }

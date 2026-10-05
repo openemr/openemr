@@ -86,7 +86,7 @@ function check_integer($value): bool
 }
 
 //Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
-function basename_international($path)
+function basename_international($path): string
 {
     $parts = preg_split('~[\\\\/]~', (string) $path);
     foreach ($parts as $key => $value) {
@@ -170,7 +170,7 @@ function sanitizeNumber($number)
  * @return string                 SQL statement checking if passed column is empty
  */
 
-function dateEmptySql($sqlColumn, $time = false, $rev = false)
+function dateEmptySql($sqlColumn, $time = false, $rev = false): string
 {
     if (!$rev) {
         if ($time) {

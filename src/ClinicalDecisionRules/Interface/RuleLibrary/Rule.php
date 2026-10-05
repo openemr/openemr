@@ -219,7 +219,7 @@ class Rule
         $this->feedback = $feedback;
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }

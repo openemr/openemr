@@ -1663,12 +1663,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 11,
+    'count' => 10,
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
@@ -10023,12 +10023,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 11,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
-    'count' => 4,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
@@ -27053,7 +27053,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 12,
+    'count' => 11,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];
 $ignoreErrors[] = [
@@ -27162,11 +27162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\<0, 3\\> on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/php-barcode.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, 46\\> on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
@@ -27187,23 +27182,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\<1, 6\\> on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/php-barcode.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<1, max\\> on mixed\\.$#',
     'count' => 5,
-    'path' => __DIR__ . '/../../library/classes/php-barcode.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\<4, 7\\> on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/php-barcode.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\<7, 12\\> on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];
 $ignoreErrors[] = [
@@ -36267,13 +36247,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 1,
+    'message' => '#^Cannot access offset non\\-falsy\\-string on mixed\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset non\\-falsy\\-string on mixed\\.$#',
-    'count' => 3,
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [

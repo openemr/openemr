@@ -1290,7 +1290,7 @@ function write_form_line_ippf(
         $units = 1;
     }
     $price = formatMoneyNumber($amount / $units, 2); // should be even cents, but...
-    if (str_ends_with((string) $price, '00')) {
+    if (str_ends_with($price, '00')) {
         $price = formatMoneyNumber($price);
     }
 

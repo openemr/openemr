@@ -41,14 +41,14 @@ CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
  $out = "";
 
  // Add a string to output with some basic sanitizing.
-function custom_labworks_Add($field)
+function custom_labworks_Add($field): string
 {
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
 
  // Translate a date.
-function LWDate($field)
+function LWDate($field): string
 {
     $tmp = fixDate($field);
     return substr((string) $tmp, 5, 2) . substr((string) $tmp, 8, 2) . substr((string) $tmp, 0, 4);

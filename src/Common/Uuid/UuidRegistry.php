@@ -330,7 +330,7 @@ class UuidRegistry
      * Converts a UUID byte value to a string representation
      * @return string the UUID string value
      */
-    public static function uuidToString($uuidBytes)
+    public static function uuidToString($uuidBytes): string
     {
         return Uuid::fromBytes($uuidBytes)->toString();
     }
@@ -339,7 +339,7 @@ class UuidRegistry
      * Converts a UUID string to a bytes representation
      * @return string the UUID bytes value
      */
-    public static function uuidToBytes($uuidString)
+    public static function uuidToBytes($uuidString): string
     {
         return Uuid::fromString($uuidString)->getBytes();
     }

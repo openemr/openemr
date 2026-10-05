@@ -81,7 +81,7 @@ class Header
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    public static function setupHeader($assets = [], $echoOutput = true)
+    public static function setupHeader($assets = [], $echoOutput = true): string
     {
         $favicon = self::getFavIcon();
 
@@ -132,7 +132,7 @@ class Header
         return $output;
     }
 
-    public static function getFavIcon()
+    public static function getFavIcon(): string
     {
         $logoService = new LogoService();
         $icon = $logoService->getLogo("core/favicon/", "favicon.ico");
@@ -354,7 +354,7 @@ class Header
      * @param string $type Must be `script` or `link`
      * @return string mixed HTML element
      */
-    private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = [])
+    private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = []): string
     {
         $attrs = '';
         // make sure we clear out any attributes we don't want overridden
@@ -393,7 +393,7 @@ class Header
      * @param string $path specific path / filename
      * @return string The full path
      */
-    private static function createFullPath($base, $path)
+    private static function createFullPath($base, $path): string
     {
         return $base . $path;
     }

@@ -269,7 +269,7 @@ class PatientAccessOnsiteService
         return $trustedEmail;
     }
 
-    public function getRandomPortalPassword()
+    public function getRandomPortalPassword(): string
     {
         return RandomGenUtils::generatePortalPassword();
     }

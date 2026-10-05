@@ -536,7 +536,7 @@ class EhiExporter
         }
     }
 
-    private function getCsvFileContents(ExportState $state, string $tableName)
+    private function getCsvFileContents(ExportState $state, string $tableName): string
     {
         // now we need to decrypt the contents and add them to the export.
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';

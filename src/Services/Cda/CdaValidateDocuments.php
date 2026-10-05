@@ -269,7 +269,7 @@ class CdaValidateDocuments
      * @param $amid
      * @return string
      */
-    public function createSchematronHtml($amid)
+    public function createSchematronHtml($amid): string
     {
         $errors = $this->fetchValidationLog($amid);
 

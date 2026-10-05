@@ -32,7 +32,7 @@ class RuleCriteriaAge extends RuleCriteria
         return $this->value;
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         $title = xl("Age");
         if ($this->type == "min") {
@@ -45,7 +45,7 @@ class RuleCriteriaAge extends RuleCriteria
         return $title;
     }
 
-    public function getType()
+    public function getType(): string
     {
         if ($this->type == "min") {
             return xl("Min");

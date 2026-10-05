@@ -243,7 +243,7 @@ class DecisionSupportInterventionService extends BaseService
         return self::DSI_TYPES_BY_STRING_NAME[$dsiTypeName];
     }
 
-    public function getDsiTypeStringName(int $dsiType)
+    public function getDsiTypeStringName(int $dsiType): string
     {
         if (!array_key_exists($dsiType, self::DSI_TYPES)) {
             throw new \InvalidArgumentException("Invalid DSI type");

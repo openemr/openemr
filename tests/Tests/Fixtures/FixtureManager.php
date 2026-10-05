@@ -1050,7 +1050,7 @@ class FixtureManager
      * Returns an unregistered/unlogged UUID for use in testing fixtures
      * @return string a uuid4 string value
      */
-    public function getUnregisteredUuid()
+    public function getUnregisteredUuid(): string
     {
         $uuid4 = Uuid::uuid4();
         return $uuid4->toString();

@@ -32,7 +32,7 @@ require_once(__DIR__ . '/appointments.inc.php');
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientTrackerService;
 
-function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
+function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false): string
 {
     return PatientTrackerService::get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec);
 }

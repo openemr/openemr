@@ -52,7 +52,7 @@ class Users
      * @param $uid
      * @return string
      */
-    public function getUserNameById($uid)
+    public function getUserNameById($uid): string
     {
         $sql = 'SELECT fname, lname FROM ' . self::TABLE . ' WHERE id = ?';
 

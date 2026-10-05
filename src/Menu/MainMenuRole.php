@@ -80,7 +80,7 @@ class MainMenuRole extends MenuRole
      * @var string $selected Current MainMenuRole for current users.
      * @return string Html select element to list the MainMenuRole options.
      */
-    public function displayMenuRoleSelector($selected = "")
+    public function displayMenuRoleSelector($selected = ""): string
     {
         $output = "<select name='main_menu_role' id='main_menu_role' class='form-control'>";
         $output .= "<option value='standard' " . (($selected == "standard") ? "selected" : "") . ">" . xlt("Standard") . "</option>";

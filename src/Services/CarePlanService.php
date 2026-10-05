@@ -331,7 +331,7 @@ class CarePlanService extends BaseService
      * @param array $record An array containing a 'form_id' and 'euuid' element.
      * @return string The surrogate key.
      */
-    public function getSurrogateKeyForRecord(array $record)
+    public function getSurrogateKeyForRecord(array $record): string
     {
         // Only form_id + encounter = ONE CarePlan
         $form_id = $record['form_id'] ?? '';

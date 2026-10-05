@@ -77,7 +77,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $this->service = $service;
     }
 
-    public function getResourcePathForCode($code)
+    public function getResourcePathForCode($code): string
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }

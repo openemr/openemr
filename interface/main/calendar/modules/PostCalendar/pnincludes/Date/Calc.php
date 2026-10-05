@@ -45,7 +45,7 @@ class Date_Calc
      * @return string the current date in specified format
      */
 
-    public static function dateNow($format = "%Y%m%d")
+    public static function dateNow($format = "%Y%m%d"): string
     {
         return(strftime($format, time()));
     } // end func dateNow
@@ -352,7 +352,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function beginOfNextMonth($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function beginOfNextMonth($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -391,7 +391,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function endOfNextMonth($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function endOfNextMonth($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -431,7 +431,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function beginOfPrevMonth($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function beginOfPrevMonth($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -476,7 +476,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function endOfPrevMonth($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function endOfPrevMonth($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -522,7 +522,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function nextWeekday($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function nextWeekday($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -563,7 +563,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function prevWeekday($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function prevWeekday($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -606,7 +606,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function nextDayOfWeek($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d", $onOrAfter = false)
+    public static function nextDayOfWeek($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d", $onOrAfter = false): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -652,7 +652,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function prevDayOfWeek($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d", $onOrBefore = false)
+    public static function prevDayOfWeek($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d", $onOrBefore = false): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -697,7 +697,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function nextDayOfWeekOnOrAfter($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function nextDayOfWeekOnOrAfter($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         return(Date_Calc::nextDayOfWeek($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d", true));
     } // end func nextDayOfWeekOnOrAfter
@@ -717,7 +717,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function prevDayOfWeekOnOrBefore($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function prevDayOfWeekOnOrBefore($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         return(Date_Calc::prevDayOfWeek($dow, $day = "", $month = "", $year = "", $format = "%Y%m%d", true));
     } // end func prevDayOfWeekOnOrAfter
@@ -735,7 +735,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function nextDay($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function nextDay($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -767,7 +767,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function prevDay($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function prevDay($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -956,7 +956,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function beginOfMonth($month = "", $year = "", $format = "%Y%m%d")
+    public static function beginOfMonth($month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -983,7 +983,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function beginOfWeek($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function beginOfWeek($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1033,7 +1033,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function endOfWeek($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function endOfWeek($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1069,7 +1069,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function beginOfNextWeek($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function beginOfNextWeek($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1111,7 +1111,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function beginOfPrevWeek($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    public static function beginOfPrevWeek($day = "", $month = "", $year = "", $format = "%Y%m%d"): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1314,7 +1314,7 @@ class Date_Calc
      * @return string date in specified format
      */
 
-    public static function daysToDate($days, $format = "%Y%m%d")
+    public static function daysToDate($days, $format = "%Y%m%d"): string
     {
 
         $days         -=     1721119;
@@ -1419,7 +1419,7 @@ class Date_Calc
      * @return string date in given format
      */
 
-    public static function dateFormat($day, $month, $year, $format)
+    public static function dateFormat($day, $month, $year, $format): string
     {
         if (!Date_Calc::isValidDate($day, $month, $year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1470,7 +1470,7 @@ class Date_Calc
      * @return string year in format CCYY
      */
 
-    public static function getYear()
+    public static function getYear(): string
     {
         return Date_Calc::dateNow("%Y");
     } // end func getYear
@@ -1483,7 +1483,7 @@ class Date_Calc
      * @return string month in format MM
      */
 
-    public static function getMonth()
+    public static function getMonth(): string
     {
         return Date_Calc::dateNow("%m");
     } // end func getMonth
@@ -1496,7 +1496,7 @@ class Date_Calc
      * @return string day in format DD
      */
 
-    public static function getDay()
+    public static function getDay(): string
     {
         return Date_Calc::dateNow("%d");
     } // end func getDay
@@ -1537,7 +1537,7 @@ class Date_Calc
      * @see Date_Calc::getMonthFullname
      */
 
-    public static function getMonthAbbrname($month, $length = 3)
+    public static function getMonthAbbrname($month, $length = 3): string
     {
         $month = (int)$month;
 
@@ -1594,7 +1594,7 @@ class Date_Calc
      * @see Date_Calc::getWeekdayFullname
      */
 
-    public static function getWeekdayAbbrname($day = "", $month = "", $year = "", $length = 3)
+    public static function getWeekdayAbbrname($day = "", $month = "", $year = "", $length = 3): string
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");

@@ -424,7 +424,7 @@ class ServerScopeListEntity
         return array_keys(array_combine($allScopes, $allScopes));
     }
 
-    public function lookupDescriptionForFullScopeString($scope)
+    public function lookupDescriptionForFullScopeString($scope): string
     {
         $requiredSmart = [
             "openid" => xl("Permission to retrieve information about the current logged-in user"),
