@@ -1532,7 +1532,7 @@ class BillingUtilities
         $partner_id = -1,
         $crossover = 0,
         $submitted_claim = ''
-    ) {
+    ): int {
 
         $sqlBindArray = [];
         if (!$newversion) {

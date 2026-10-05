@@ -642,7 +642,7 @@ function compareAppointments($appointment1, $appointment2)
     return 0;
 }
 
-function compareBasic($e1, $e2)
+function compareBasic($e1, $e2): int
 {
     if ($e1 < $e2) {
         return -1;

@@ -850,7 +850,7 @@ class Date_Calc
      * @return int number of days
      */
 
-    public static function daysInMonth($month = "", $year = "")
+    public static function daysInMonth($month = "", $year = ""): int
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");

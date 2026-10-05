@@ -17457,11 +17457,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$callback of function usort expects callable\\(never, never\\)\\: int, Closure\\(mixed, mixed\\)\\: mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$encounter_id of function receiptsByMethodLineItem expects int, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',

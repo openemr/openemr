@@ -17,7 +17,7 @@ class login_sasl_client_class
     public $credentials=[];
     public $state=SASL_LOGIN_STATE_START;
 
-    public Function Initialize(&$client)
+    public Function Initialize(&$client): int
     {
         return(1);
     }
