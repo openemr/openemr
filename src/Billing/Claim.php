@@ -1562,17 +1562,17 @@ class Claim
         return $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
     }
 
-    public function isRelatedEmployment()
+    public function isRelatedEmployment(): bool
     {
         return !empty($this->billing_options['employment_related']);
     }
 
-    public function isRelatedAuto()
+    public function isRelatedAuto(): bool
     {
         return !empty($this->billing_options['auto_accident']);
     }
 
-    public function isRelatedOther()
+    public function isRelatedOther(): bool
     {
         return !empty($this->billing_options['other_accident']);
     }
