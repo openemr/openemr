@@ -353,14 +353,21 @@ final class FhirBundleImporter
 
     private function importBundle(string $file, Client $http, string $token): void
     {
+        // Count unreadable / non-Bundle inputs as failures. If every input
+        // file gets silently skipped the run would otherwise return success
+        // with zero imported bundles — misleading when the sourcePath is
+        // wrong, the files are corrupt, or synthea produced a different
+        // shape than expected.
         $raw = file_get_contents($file);
         if ($raw === false) {
-            $this->logMessage("Skip (unreadable): " . basename($file) . "\n");
+            $this->counters['failed']++;
+            $this->logMessage("FAIL (unreadable): " . basename($file) . "\n");
             return;
         }
         $bundle = json_decode($raw, true);
         if (!is_array($bundle) || ($bundle['resourceType'] ?? null) !== 'Bundle') {
-            $this->logMessage("Skip (not a Bundle): " . basename($file) . "\n");
+            $this->counters['failed']++;
+            $this->logMessage("FAIL (not a Bundle): " . basename($file) . "\n");
             return;
         }
         $this->counters['bundles']++;
