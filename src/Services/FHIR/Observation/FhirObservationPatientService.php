@@ -293,7 +293,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
         }
     }
 
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return self::PROFILE_VERSIONS_V2;
     }

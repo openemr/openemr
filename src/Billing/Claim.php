@@ -630,7 +630,7 @@ class Claim
         return is_array($this->payers) ? count($this->payers) : 0;
     }
 
-    public function x12gsversionstring()
+    public function x12gsversionstring(): string
     {
         return Claim::X12_VERSION;
     }

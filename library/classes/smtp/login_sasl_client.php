@@ -43,7 +43,7 @@ class login_sasl_client_class
         return($status);
     }
 
-    public Function Step(&$client, $response, &$message, &$interactions)
+    public Function Step(&$client, $response, &$message, &$interactions): int
     {
         switch ($this->state) {
             case SASL_LOGIN_STATE_IDENTIFY_USER:
