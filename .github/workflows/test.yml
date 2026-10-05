@@ -124,6 +124,8 @@ jobs:
       # Each CI config needs its own flag. Codecov carries coverage forward per
       # flag, so configs sharing a name (the Redis Sentinel variants of a base
       # config) replaced each other's coverage instead of adding to it.
+      # Codecov limits flag names to 45 characters, so the variant suffixes are
+      # short; "Check Codecov flag lengths" below enforces the limit.
       env:
         PHP: ${{ steps.parse.outputs.php }}
         WEBSERVER: ${{ steps.parse.outputs.webserver }}
@@ -134,9 +136,9 @@ jobs:
         flag="php${PHP}-${WEBSERVER}-${DATABASE}${DB:+-${DB}}"
         case "${DOCKER_DIR}" in
           *_upgrade) flag="${flag}-upg" ;;
-          *_redis_sentinel_mtls) flag="${flag}-redis-sentinel-mtls" ;;
-          *_redis_sentinel_tls) flag="${flag}-redis-sentinel-tls" ;;
-          *_redis_sentinel) flag="${flag}-redis-sentinel" ;;
+          *_redis_sentinel_mtls) flag="${flag}-rsm" ;;
+          *_redis_sentinel_tls) flag="${flag}-rst" ;;
+          *_redis_sentinel) flag="${flag}-rs" ;;
         esac
         echo "coverage_flag=${flag}" >> "$GITHUB_OUTPUT"
 
@@ -152,6 +154,30 @@ jobs:
           base="${base},"'"redis-failover"'
         fi
         echo "suites=${base}]" >> "$GITHUB_OUTPUT"
+
+    - name: Check Codecov flag lengths
+      # Codecov rejects flag names longer than 45 characters. Build every flag
+      # the test jobs will upload (the redis-failover suite uploads as
+      # "redis"; api and e2e also upload "<suite>-tests") and fail early.
+      env:
+        FLAG: ${{ steps.coverage-flag.outputs.coverage_flag }}
+        SUITES: ${{ steps.compute-suites.outputs.suites }}
+      run: |
+        status=0
+        for suite in $(jq -r '.[]' <<<"${SUITES}"); do
+          prefix="${suite/#redis-failover/redis}"
+          names="${prefix}-${FLAG}"
+          if [[ "${suite}" == api || "${suite}" == e2e ]]; then
+            names="${names} ${suite}-tests-${FLAG}"
+          fi
+          for name in ${names}; do
+            if (( ${#name} > 45 )); then
+              echo "::error::Codecov flag '${name}' is ${#name} characters; the limit is 45."
+              status=1
+            fi
+          done
+        done
+        exit "${status}"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -698,7 +724,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
-        flags: ${{ matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
+        flags: ${{ matrix.suite == 'redis-failover' && 'redis' || matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
         report_type: test_results
 
     ##
@@ -712,7 +738,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
-        flags: ${{ matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
+        flags: ${{ matrix.suite == 'redis-failover' && 'redis' || matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
     # Verifies the test code itself is executing, separate from server-side coverage.
