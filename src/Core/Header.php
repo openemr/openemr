@@ -269,7 +269,7 @@ class Header
      * @var bool $alreadyBuilt - This means the path with cache busting segment has already been built
      * @return array Array with `scripts` and `links` keys which contain arrays of elements
      */
-    private static function buildAsset($opts = [], $alreadyBuilt = false)
+    private static function buildAsset($opts = [], $alreadyBuilt = false): array
     {
         $script = $opts['script'] ?? false;
         $link = $opts['link'] ?? false;

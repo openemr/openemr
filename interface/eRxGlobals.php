@@ -193,7 +193,7 @@ class eRxGlobals
      * Return array containing Ensora eRx credentials
      * @return array Ensora eRx credentials: index [ 0 = Partner Name, 1 = Account Name, 2 = Password ]
      */
-    public function getCredentials()
+    public function getCredentials(): array
     {
         return [
             $this->getPartnerName(),

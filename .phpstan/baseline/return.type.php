@@ -82,11 +82,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method eRxPage\\:\\:buildXML\\(\\) should return eRxPage but returns array\\<string, mixed\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method eRxPage\\:\\:getAuthUserId\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxPage.php',

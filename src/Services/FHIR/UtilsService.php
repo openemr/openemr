@@ -178,7 +178,7 @@ class UtilsService
         return $outerExtension;
     }
 
-    public static function getExtensionsByUrl($url, $object)
+    public static function getExtensionsByUrl($url, $object): array
     {
         if (method_exists($object, 'getExtension')) {
             $extensions = $object->getExtension();
@@ -354,7 +354,7 @@ class UtilsService
      * @param FHIRPeriod $period The object representing the period interval.
      * @return array Containing two keys of 'start' and 'end' representing the period.
      */
-    public static function getPeriodTimestamps(?FHIRPeriod $period)
+    public static function getPeriodTimestamps(?FHIRPeriod $period): array
     {
         $end = null;
         $start = null;

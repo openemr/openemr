@@ -389,7 +389,7 @@ class X12Partner extends ORDataObject
         $this->x12_gs03 = $string;
     }
 
-    public function get_x12_isa14_array()
+    public function get_x12_isa14_array(): array
     {
         return [
         '0' => 'No',
@@ -397,7 +397,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    public function get_x12_isa15_array()
+    public function get_x12_isa15_array(): array
     {
         return [
         'T' => 'Testing',
@@ -405,7 +405,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    public function get_idqual_array()
+    public function get_idqual_array(): array
     {
         return [
         '01' => 'Duns (Dun & Bradstreet)',
@@ -420,7 +420,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    public function get_x12_version_array()
+    public function get_x12_version_array(): array
     {
         return [
         '005010X222A1' => '005010X222A1',
@@ -428,7 +428,7 @@ class X12Partner extends ORDataObject
         ];
     }
 
-    public function get_x12_dtp03_type_array()
+    public function get_x12_dtp03_type_array(): array
     {
         return [
             'C' => 'Current Date',

@@ -626,7 +626,7 @@ class EncounterService extends BaseService
         return $updatedRecords;
     }
 
-    public function insertVital($pid, $eid, $data)
+    public function insertVital($pid, $eid, $data): array
     {
         // Strip any user-supplied id to prevent IDOR — insert must always
         // create a new record, never update an existing one.

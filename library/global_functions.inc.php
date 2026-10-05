@@ -110,7 +110,7 @@ function CloseTag($tag): void
  *
  * @return array{msg_map: array<int, string>, phone_map: array<int, string>}
  */
-function cron_getFacilitiesMap(FacilityService $facilityService)
+function cron_getFacilitiesMap(FacilityService $facilityService): array
 {
     /** @var array<string, string> $message_map */
     $message_map = OEGlobalsBag::getInstance()->get('phone_appt_message');
@@ -735,7 +735,7 @@ function rbvalue($rbname): string
  * @param int $pid The patient ID
  * @return array Contains 'base' filename, 'fname', and 'lname'
  */
-function report_basename($pid)
+function report_basename($pid): array
 {
     $ptd = getPatientData($pid, "fname,lname");
     // escape names for pesky periods hyphen etc.

@@ -323,7 +323,7 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
-    public function verifyProvisioningServiceIsValid()
+    public function verifyProvisioningServiceIsValid(): array
     {
         $randomUuid = UuidV4::uuid4()->toString();
         $randomPassword = UuidV4::uuid4()->toString();
@@ -333,7 +333,7 @@ class TeleHealthRemoteRegistrationService
         return ['status' => $response['internalStatus'], 'message' => $response['internalError']];
     }
 
-    private function sendAPIRequest($endpointUrl, array $body)
+    private function sendAPIRequest($endpointUrl, array $body): array
     {
         // because this could be an already existing event we've tried saving before we decode the json, even though
         // on the first event notification we may be doubling the work

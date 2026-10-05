@@ -67,7 +67,7 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
         }
     }
 
-    protected function get_date_fields()
+    protected function get_date_fields(): array
     {
         return ['created_date', 'period_start', 'period_end'];
     }

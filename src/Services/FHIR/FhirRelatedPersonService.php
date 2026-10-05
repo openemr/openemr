@@ -44,7 +44,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     /**
      * @inheritDoc
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

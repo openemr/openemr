@@ -42,6 +42,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/native_save.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_numeric\\(\\) with float\\|int\\|numeric\\-string will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/track_anything/history.php',
@@ -325,6 +335,16 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',

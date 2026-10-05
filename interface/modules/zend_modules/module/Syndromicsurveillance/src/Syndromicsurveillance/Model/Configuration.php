@@ -68,7 +68,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         return $settings;
     }
 
-    public function getDependedModulesConfig()
+    public function getDependedModulesConfig(): array
     {
         return [];
     }

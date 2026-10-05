@@ -722,7 +722,7 @@ class EhiExporter
         $exportedResult->exportedDocumentCount = $docCount;
     }
 
-    public function getExportSizeSettings()
+    public function getExportSizeSettings(): array
     {
         $maxDocSize = QueryUtils::fetchSingleValue("select max(size) as size FROM documents WHERE foreign_id != 0", 'size', []);
         $totalPatients = QueryUtils::fetchSingleValue("select count(*) as cnt FROM patient_data", 'cnt', []);

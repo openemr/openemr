@@ -18,7 +18,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 trait FhirServiceBaseEmptyTrait
 {
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [];
     }

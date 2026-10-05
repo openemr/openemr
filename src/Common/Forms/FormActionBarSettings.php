@@ -17,7 +17,7 @@ class FormActionBarSettings
      */
     public const EXIT_URL = 'javascript:parent.closeTab(window.name, false)';
 
-    public static function getGlobalSettingsList()
+    public static function getGlobalSettingsList(): array
     {
         return [
             self::ACTION_BAR_DISPLAY_FORM_TOP => xl('Top of Form (default)')

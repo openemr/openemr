@@ -90,7 +90,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetRoute($uri = "")
+    public function GetRoute($uri = ""): array
     {
         if ($uri == "") {
             $action = RequestUtil::Get('action');

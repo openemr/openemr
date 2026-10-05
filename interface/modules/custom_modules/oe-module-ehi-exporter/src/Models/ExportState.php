@@ -214,7 +214,7 @@ class ExportState
         }
     }
 
-    private function getDenormalizedKeys(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition)
+    private function getDenormalizedKeys(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition): array
     {
         // these columns are denormalized data and have the ids separated by a pipe (|)
         if ($tableDefinition->table === 'patient_data' || $tableDefinition->table == 'patient_history') {

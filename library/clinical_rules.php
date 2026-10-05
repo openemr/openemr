@@ -3264,7 +3264,7 @@ function collect_database_label($label, $table)
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, ?string $dateTarget = null, $type = null)
+function calculate_reminder_dates($rule, ?string $dateTarget = null, $type = null): array
 {
 
     // Set date to current if not set

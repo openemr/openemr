@@ -99,7 +99,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('id', ServiceField::TYPE_STRING)]),
