@@ -36,10 +36,8 @@ class RepeatSeriesWalkTest extends TestCase
     {
         $category = QueryUtils::querySingleRow('SELECT pc_catid FROM openemr_postcalendar_categories ORDER BY pc_catid LIMIT 1');
         $provider = QueryUtils::querySingleRow('SELECT id FROM users ORDER BY id LIMIT 1');
-        $this->assertIsArray($category);
-        $this->assertIsArray($provider);
-        $this->categoryId = (int) $category['pc_catid'];
-        $this->providerId = (int) $provider['id'];
+        $this->categoryId = $this->requiredId(is_array($category) ? ($category['pc_catid'] ?? null) : null);
+        $this->providerId = $this->requiredId(is_array($provider) ? ($provider['id'] ?? null) : null);
         $this->removeFixtures();
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO patient_data (pid, fname, lname, DOB, sex, pubpid) VALUES (?, 'ZZ', 'Repeat', '1980-01-01', 'Male', ?)",
@@ -60,7 +58,9 @@ class RepeatSeriesWalkTest extends TestCase
         $rows = $this->rowsOn('2024-06-03', '2024-06-03');
 
         $this->assertCount(1, $rows);
-        $this->assertSame('2024-06-03', $rows[0]['pc_eventDate']);
+        $first = $rows[0] ?? null;
+        $this->assertIsArray($first);
+        $this->assertSame('2024-06-03', $first['pc_eventDate'] ?? null);
     }
 
     #[Test]
@@ -95,7 +95,9 @@ class RepeatSeriesWalkTest extends TestCase
         $rows = $this->rowsOn('2016-01-04', '2016-01-04');
 
         $this->assertCount(1, $rows);
-        $this->assertSame('2016-01-04', $rows[0]['pc_eventDate']);
+        $first = $rows[0] ?? null;
+        $this->assertIsArray($first);
+        $this->assertSame('2016-01-04', $first['pc_eventDate'] ?? null);
     }
 
     #[Test]
@@ -169,14 +171,24 @@ class RepeatSeriesWalkTest extends TestCase
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return array<int|string, mixed>
      */
     private function rowsOn(string $from, string $to): array
     {
-        $rows = fetchEvents($from, $to, ' AND e.pc_title = ?', null, false, 0, [self::TITLE]);
-        $this->assertIsArray($rows);
+        return fetchEvents($from, $to, ' AND e.pc_title = ?', null, false, 0, [self::TITLE]);
+    }
 
-        return $rows;
+    private function requiredId(mixed $value): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && preg_match('/^[0-9]+$/', $value) === 1) {
+            return (int) $value;
+        }
+
+        $this->fail('The fixture id was not a whole number.');
     }
 
     private function removeFixtures(): void

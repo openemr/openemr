@@ -1323,7 +1323,7 @@ class Events extends Base
                 // appointments set prior to fix $nd remains unchanged). This can be done since
                 // $nd has no influence past the mktime functions.
                 while ($occurenceYm < $from_dateYm) {
-                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, $occurenceYm);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occurenceYm);
                     if ($nextMonth === null) {
                         $occurenceYm = null;
                         break;
@@ -1334,7 +1334,7 @@ class Events extends Base
 
                 while ($occurenceYm !== null && $occurenceYm <= $stop_dateYm) {
                     // (YYYY-mm)-dd
-                    $occurrence = repeatOnDate($rnum, $rday, $nm, $ny);
+                    $occurrence = \OpenEMR\Common\Calendar\RepeatAdvance::onDate($rnum, $rday, $nm, $ny);
 
                     if (is_string($occurrence) && $occurrence >= $start_date && $occurrence <= $stop_date) {
                         $excluded = false;
@@ -1342,7 +1342,7 @@ class Events extends Base
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
+                                if (preg_replace("/-/", "", $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1356,7 +1356,7 @@ class Events extends Base
                         }
                     }
 
-                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, (string) $occurenceYm);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occurenceYm);
                     if ($nextMonth === null) {
                         break;
                     }
