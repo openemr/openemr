@@ -86,6 +86,7 @@ jobs:
       e2e_enabled: ${{ steps.parse.outputs.e2e_enabled }}
       openemr_dir: ${{ steps.parse.outputs.openemr_dir }}
       redis_sentinel_enabled: ${{ steps.parse.outputs.redis_sentinel_enabled }}
+      coverage_flag: ${{ steps.coverage-flag.outputs.coverage_flag }}
       suites: ${{ steps.compute-suites.outputs.suites }}
       compose_file: ${{ steps.parse-env.outputs.compose_file }}
       # Cache keys for restore in test jobs
@@ -117,6 +118,27 @@ jobs:
       id: parse-env
       run: |
         jq -r '"compose_file=\(.[0].env.COMPOSE_FILE)"' parsed_config.json >> "$GITHUB_OUTPUT"
+
+    - name: Compute Codecov flag name
+      id: coverage-flag
+      # Each CI config needs its own flag. Codecov carries coverage forward per
+      # flag, so configs sharing a name (the Redis Sentinel variants of a base
+      # config) replaced each other's coverage instead of adding to it.
+      env:
+        PHP: ${{ steps.parse.outputs.php }}
+        WEBSERVER: ${{ steps.parse.outputs.webserver }}
+        DATABASE: ${{ steps.parse.outputs.database }}
+        DB: ${{ steps.parse.outputs.db }}
+        DOCKER_DIR: ${{ inputs.docker_dir }}
+      run: |
+        flag="php${PHP}-${WEBSERVER}-${DATABASE}${DB:+-${DB}}"
+        case "${DOCKER_DIR}" in
+          *_upgrade) flag="${flag}-upg" ;;
+          *_redis_sentinel_mtls) flag="${flag}-redis-sentinel-mtls" ;;
+          *_redis_sentinel_tls) flag="${flag}-redis-sentinel-tls" ;;
+          *_redis_sentinel) flag="${flag}-redis-sentinel" ;;
+        esac
+        echo "coverage_flag=${flag}" >> "$GITHUB_OUTPUT"
 
     - name: Compute test suite list
       id: compute-suites
@@ -676,7 +698,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
-        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
+        flags: ${{ matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
         report_type: test_results
 
     ##
@@ -690,7 +712,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
-        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
+        flags: ${{ matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
     # Verifies the test code itself is executing, separate from server-side coverage.
@@ -700,7 +722,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}-tests.clover.xml
-        flags: ${{ matrix.suite }}-tests-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
+        flags: ${{ matrix.suite }}-tests-${{ needs.setup.outputs.coverage_flag }}
 
     ##
     # Upload JUnit results to GitHub

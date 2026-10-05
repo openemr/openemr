@@ -40,6 +40,9 @@ coverage:
 # .github/workflows/test-all.yml). Without carryforward,
 # codecov/project compares a single-config head total against a
 # full-matrix base total and reports a phantom drop.
+# Each CI config must upload under its own flag: a fresh upload replaces
+# everything carried forward under that flag, so configs sharing a flag
+# overwrite each other's coverage instead of adding to it.
 flag_management:
   default_rules:
     carryforward: true
