@@ -1037,11 +1037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/prior_auth/FormPriorAuth.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function saveEreq\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function deleteProcedure\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/handle_deletions.php',
