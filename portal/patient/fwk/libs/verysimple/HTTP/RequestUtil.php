@@ -596,7 +596,7 @@ class RequestUtil
      *          default value = today
      * @return string
      */
-    public static function GetAsDateTime($fieldname, $default = "date('Y-m-d H:i:s')")
+    public static function GetAsDateTime($fieldname, $default = "date('Y-m-d H:i:s')"): string
     {
         return self::GetAsDate($fieldname, $default, true);
     }

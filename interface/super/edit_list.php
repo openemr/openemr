@@ -604,8 +604,8 @@ function writeFSLine($category, $option, $codes): void
 
     echo "  <td align='left' class='optcell'>";
     echo "   <div id='codelist_" . attr($opt_line_no) . "'>";
-    if (strlen((string) $descs)) {
-        $arrdescs = explode('~', (string) $descs);
+    if (strlen($descs)) {
+        $arrdescs = explode('~', $descs);
         $i = 0;
         foreach ($arrdescs as $desc) {
             echo "<a href='' onclick='return delete_code(" . attr($opt_line_no) . ",$i)' title='" . xla('Delete') . "'>";

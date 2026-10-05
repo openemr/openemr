@@ -225,7 +225,7 @@ function ippf_stats_genNumCell($num, $cnum): void
 // Translate an IPPF code to the corresponding descriptive name of its
 // contraceptive method, or to an empty string if none applies.
 //
-function getContraceptiveMethod(string $code)
+function getContraceptiveMethod(string $code): string
 {
     $key = '';
     if (str_starts_with($code, '111101')) {
@@ -320,7 +320,7 @@ function getRelatedAbortionMethod($row): string
 // Translate an IPPF code to the corresponding descriptive name of its
 // abortion method, or to an empty string if none applies.
 //
-function getAbortionMethod(string $code)
+function getAbortionMethod(string $code): string
 {
     $key = '';
     if (preg_match('/^25222[34]/', $code)) {

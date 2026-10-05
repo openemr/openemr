@@ -440,7 +440,7 @@ class FormVitals extends ORDataObject
         }
     }
 
-    public function get_uuid_string()
+    public function get_uuid_string(): string
     {
         if (empty($this->uuid)) {
             return "";

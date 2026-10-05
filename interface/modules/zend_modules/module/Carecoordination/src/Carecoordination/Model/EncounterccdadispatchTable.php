@@ -3092,7 +3092,7 @@ class EncounterccdadispatchTable
                 // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
                 // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
                 $temp = US_weight($row['weight'], 1);
-                $tempArr = explode(" ", (string)$temp);
+                $tempArr = explode(" ", $temp);
                 $weight_value = (float)$tempArr[0];
                 $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];

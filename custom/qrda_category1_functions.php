@@ -26,7 +26,7 @@
 
 use OpenEMR\BC\ServiceContainer;
 
-function mainQrdaCatOneGenerate($xml, $patient_id, $rule_id, $provider_id)
+function mainQrdaCatOneGenerate($xml, $patient_id, $rule_id, $provider_id): string
 {
     //Open Main Clinical Document
     $xml->open_clinicaldocument();

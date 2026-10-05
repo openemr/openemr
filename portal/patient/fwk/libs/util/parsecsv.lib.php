@@ -261,7 +261,7 @@ class parseCSV
      * @param mixed $delimiter delimiter used to separate data
      * @return string CSV data using delimiter of choice, or default
      */
-    public function output($filename = null, $data = [], $fields = [], $delimiter = null)
+    public function output($filename = null, $data = [], $fields = [], $delimiter = null): string
     {
         if (empty($filename)) {
             $filename = $this->output_filename;

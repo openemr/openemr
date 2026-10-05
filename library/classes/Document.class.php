@@ -732,7 +732,7 @@ class Document extends ORDataObject
     /**
     * get the url filename only
     */
-    public function get_url_file()
+    public function get_url_file(): string
     {
         return basename_international(preg_replace("|^(.*)://|", "", (string) $this->url));
     }
@@ -978,7 +978,7 @@ class Document extends ORDataObject
         $foreign_reference_id = null,
         $foreign_reference_table = null,
         $eid = "",
-    ) {
+    ): string {
         if (
             !empty($foreign_reference_id) && empty($foreign_reference_table)
             || empty($foreign_reference_id) && !empty($foreign_reference_table)

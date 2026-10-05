@@ -120,7 +120,7 @@ class ExportCat3Service
      * @param array $measures Array of measure paths
      * @return string Consolidated QRDA III XML
      */
-    public function exportConsolidated($measures)
+    public function exportConsolidated($measures): string
     {
         // Use your existing measure building logic
         $measureObjs = [];

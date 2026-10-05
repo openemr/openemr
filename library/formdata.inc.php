@@ -242,7 +242,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
  * @param bool $istrim whether to use trim() on the data.
  * @return string variable requested, or empty string
  */
-function formData($name, $type = 'P', $isTrim = false)
+function formData($name, $type = 'P', $isTrim = false): string
 {
     if ($type == 'P') {
         $s = $_POST[$name] ?? '';
@@ -266,7 +266,7 @@ function formData($name, $type = 'P', $isTrim = false)
  * @param bool $istrim whether to use trim() on the data.
  * @return string
  */
-function formDataCore($s, $isTrim = false)
+function formDataCore($s, $isTrim = false): string
 {
     //trim if selected
     if ($isTrim) {

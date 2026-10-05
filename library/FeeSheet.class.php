@@ -208,7 +208,7 @@ class FeeSheet
 
     // Close the designated visit, making sure it has no charges.
     //
-    public static function closeVisit($pid, $encounter)
+    public static function closeVisit($pid, $encounter): string
     {
         $tmp1 = sqlQuery(
             "SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .

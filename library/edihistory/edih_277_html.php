@@ -268,7 +268,7 @@ function edih_277_transaction_html($obj277, string $bht03, bool $accordion = fal
  *
  * @return string  either an error message or a table with the information from the response
  */
-function edih_277_html($filename, $bht03 = '')
+function edih_277_html($filename, $bht03 = ''): string
 {
     // create a display for an individual 277 response
     if ($filename === '') {

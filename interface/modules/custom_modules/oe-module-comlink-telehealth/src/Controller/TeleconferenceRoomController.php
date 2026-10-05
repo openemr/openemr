@@ -1446,7 +1446,7 @@ class TeleconferenceRoomController
      * @param $password
      * @return string
      */
-    private function getApiKeyForPassword($password)
+    private function getApiKeyForPassword($password): string
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
         return TelehealthAuthUtils::getFormattedPassword($decrypted);

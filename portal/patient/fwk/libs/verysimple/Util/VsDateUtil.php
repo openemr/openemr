@@ -30,7 +30,7 @@ class VsDateUtil
      *
      * @param string $format
      */
-    public static function Today($format = "Y-m-d")
+    public static function Today($format = "Y-m-d"): string
     {
         return self::Now($format);
     }
@@ -93,7 +93,7 @@ class VsDateUtil
      *
      * @param string $format
      */
-    public static function Yesterday($format = "Y-m-d")
+    public static function Yesterday($format = "Y-m-d"): string
     {
         return self::DaysAgo(1, $format);
     }
@@ -103,7 +103,7 @@ class VsDateUtil
      *
      * @param string $format
      */
-    public static function Tomorrow($format = "Y-m-d")
+    public static function Tomorrow($format = "Y-m-d"): string
     {
         return self::DaysFromNow(1, $format);
     }
@@ -113,7 +113,7 @@ class VsDateUtil
      *
      * @param string $format
      */
-    public static function TwentyFourHoursAgo($format = "Y-m-d H:i:s")
+    public static function TwentyFourHoursAgo($format = "Y-m-d H:i:s"): string
     {
         return self::HoursAgo(24, $format);
     }
@@ -123,7 +123,7 @@ class VsDateUtil
      *
      * @param string $format
      */
-    public static function TwentyFourHoursFromNow($format = "Y-m-d H:i:s")
+    public static function TwentyFourHoursFromNow($format = "Y-m-d H:i:s"): string
     {
         return self::HoursFromNow(24, $format);
     }

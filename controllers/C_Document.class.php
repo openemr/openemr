@@ -923,10 +923,10 @@ class C_Document extends Controller
             //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
             //try to convert it if it has not yet been converted
             $originalUrl = $url;
-            if (strrpos((string) basename_international($url), '.') === false) {
+            if (strrpos(basename_international($url), '.') === false) {
                 $convertedFile = basename_international($url) . '_converted.jpg';
             } else {
-                $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
+                $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
             }
             $url = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $convertedFile;
             if (!is_file($url)) {
@@ -1529,7 +1529,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function image_procedure_action(?string $patient_id, $document_id)
+    public function image_procedure_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit tagging a document the caller can already access.
         $this->authorizeDocumentWrite($patient_id, $document_id);
@@ -1556,7 +1556,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function clear_procedure_tag_action(?string $patient_id, $document_id)
+    public function clear_procedure_tag_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit clearing tags on a document the caller can access.
         $this->authorizeDocumentWrite($patient_id, $document_id);
@@ -1600,7 +1600,7 @@ class C_Document extends Controller
     }
 
 //clear encounter tag public function
-    public function clear_encounter_tag_action(?string $patient_id, $document_id)
+    public function clear_encounter_tag_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit clearing the encounter tag on a document the
         // caller can already access.

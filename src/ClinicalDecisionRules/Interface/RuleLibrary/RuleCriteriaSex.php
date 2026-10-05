@@ -34,7 +34,7 @@ class RuleCriteriaSex extends RuleCriteria
         return xl_list_label($this->value);
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return xl("Sex");
     }

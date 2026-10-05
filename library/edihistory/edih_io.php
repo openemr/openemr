@@ -299,7 +299,7 @@ function edih_disp_file_upload(): string
     return $str_html;
 }
 
-function edih_disp_denied_claims()
+function edih_disp_denied_claims(): string
 {
     //
     $fn = isset($_GET['fname']) ? filter_input(INPUT_GET, 'fname', FILTER_UNSAFE_RAW) : '';
@@ -509,7 +509,7 @@ function edih_disp_x12trans(): string
  *
  * @return string
  */
-function edih_disp_x12file()
+function edih_disp_x12file(): string
 {
     //
     $str_htm = '';

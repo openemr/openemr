@@ -210,7 +210,7 @@ function edih_csv_process_html($data_ar, $err_only = false): string
  *
  * @return string
  */
-function edih_list_denied_claims($filetype, $filename, $trace = '')
+function edih_list_denied_claims($filetype, $filename, $trace = ''): string
 {
     //
     $str_html = '';

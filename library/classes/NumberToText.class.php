@@ -174,7 +174,7 @@ class NumberToText
         // capitalize words
         if ($capitalize) {
             // easier to capitalize all words then un-capitalize "and"
-            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords((string) $text));
+            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords($text));
         }
 
         return trim((string) $text);

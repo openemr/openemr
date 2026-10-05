@@ -388,7 +388,7 @@ class ReceiveHl7Results
                         'fname' => $this->ucname($in_fname),
                         'lname' => $this->ucname($in_lname),
                         'mname' => $this->ucname($in_mname),
-                        'DOB' => strtoupper((string) $in_dob),
+                        'DOB' => strtoupper($in_dob),
                         'sex' => $in_sex,
                         'street' => $in_street,
                         'city' => $in_city,
@@ -1131,7 +1131,7 @@ class ReceiveHl7Results
 
     // Write the MDM document if appropriate.
     //
-    private function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider)
+    private function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider): string
     {
         if ($patient_id) {
             if (!empty($mdm_docname)) {
@@ -1208,7 +1208,7 @@ class ReceiveHl7Results
 
     private function rhl7Date($s): string
     {
-        return substr((string) $this->rhl7DateTime($s), 0, 10);
+        return substr($this->rhl7DateTime($s), 0, 10);
     }
 
     private function rhl7Abnormal($s)

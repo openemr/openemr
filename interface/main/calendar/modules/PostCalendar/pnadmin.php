@@ -773,7 +773,7 @@ EOF;
     return $output;
 }
 
-function postcalendar_admin_clearCache()
+function postcalendar_admin_clearCache(): string
 {
     // Calendar Twig templates have no on-disk cache (TwigContainer does
     // not set a cache option, so Twig recompiles per request). Modern

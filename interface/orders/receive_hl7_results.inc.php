@@ -145,7 +145,7 @@ function rhl7FlushMain(&$amain, $commentdelim = "\n"): void
 
 // Write the MDM document if appropriate.
 //
-function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider)
+function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider): string
 {
     if ($patient_id) {
         if (!empty($mdm_docname)) {
@@ -222,7 +222,7 @@ function rhl7DateTimeZone($s): string
 
 function rhl7Date($s): string
 {
-    return substr((string) rhl7DateTime($s), 0, 10);
+    return substr(rhl7DateTime($s), 0, 10);
 }
 
 function rhl7Abnormal($s)
@@ -909,7 +909,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     'fname' => ucname($in_fname),
                     'lname' => ucname($in_lname),
                     'mname' => ucname($in_mname),
-                    'DOB' => strtoupper((string) $in_dob),
+                    'DOB' => strtoupper($in_dob),
                     'sex' => $in_sex,
                     'street' => $in_street,
                     'city' => $in_city,

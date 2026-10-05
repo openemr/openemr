@@ -451,7 +451,7 @@ class BarcodeEAN
 
 class BarcodeUPC
 {
-    public static function getDigit($code)
+    public static function getDigit($code): string
     {
         if (strlen((string) $code) < 12) {
             $code = '0' . $code;
@@ -466,7 +466,7 @@ class BarcodeUPC
             $code = '0' . $code;
         }
 
-        return substr((string) BarcodeEAN::compute($code, 'ean13'), 1);
+        return substr(BarcodeEAN::compute($code, 'ean13'), 1);
     }
 }
 

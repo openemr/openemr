@@ -849,7 +849,7 @@ class C_Prescription extends Controller
         $d = $this->get_prescription_body_text($p);
         $patterns =  ['/\n/','/     /'];
         $replace =  ['<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'];
-        $d = preg_replace($patterns, $replace, (string) $d);
+        $d = preg_replace($patterns, $replace, $d);
         echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
     }
 
@@ -1005,7 +1005,7 @@ class C_Prescription extends Controller
             }
 
             // we don't want any html in the plain text rendering
-            echo strip_tags((string) $this->get_prescription_body_text($p));
+            echo strip_tags($this->get_prescription_body_text($p));
         }
 
         $this->multiprintplain_footer();

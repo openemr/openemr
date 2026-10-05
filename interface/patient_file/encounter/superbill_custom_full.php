@@ -44,7 +44,7 @@ $institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
 function ffescape($field): string
 {
     $field = add_escape_custom($field);
-    return trim((string) $field);
+    return trim($field);
 }
 
 /** @var array<string, array<string, mixed>> $code_types */

@@ -95,7 +95,7 @@ class RulesPlanMappingEventHandlers
         return $rules;
     }
 
-    public static function addNewPlan($plan_name, $plan_rules)
+    public static function addNewPlan($plan_name, $plan_rules): string
     {
         //Validate if plan name already exists
         $sql_st = "SELECT `option_id` " .

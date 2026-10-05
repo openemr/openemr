@@ -380,11 +380,11 @@ class smtp_class
             $this->error="could not determine the SMTP to connect";
             return(0);
         }
-        for ($host=0, $error="not connected";strlen((string) $error) && $host<count($hosts);$host++) {
+        for ($host=0, $error="not connected";strlen($error) && $host<count($hosts);$host++) {
             $domain=$hosts[$host];
             $error=$this->ConnectToHost($domain, $this->host_port, "Resolving SMTP server domain \"$domain\"...");
         }
-        if (strlen((string) $error)) {
+        if (strlen($error)) {
             $this->error=$error;
             return(0);
         }

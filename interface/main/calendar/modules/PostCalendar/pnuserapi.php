@@ -165,9 +165,9 @@ function postcalendar_userapi_buildView($args): string
         //=================================================================
         //  Let's just finish setting things up
         //=================================================================
-        $the_year   = substr((string) $Date, 0, 4);
-        $the_month  = substr((string) $Date, 4, 2);
-        $the_day    = substr((string) $Date, 6, 2);
+        $the_year   = substr($Date, 0, 4);
+        $the_month  = substr($Date, 4, 2);
+        $the_day    = substr($Date, 6, 2);
         $last_day = Date_Calc::daysInMonth($the_month, $the_year);
 
         //=================================================================
@@ -598,7 +598,7 @@ function postcalendar_userapi_buildView($args): string
 
             // monthSelector.php is the legacy jump-to-month dropdown.
             // The Twig template renders it via {{ monthSelectorHtml|raw }}.
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -614,7 +614,7 @@ function postcalendar_userapi_buildView($args): string
 
             // Month-screen page header — month name via Month::label() (translated +
             // statically-extractable), year via text(date('Y')).
-            $currentMonthLabelTs = strtotime((string) $Date);
+            $currentMonthLabelTs = strtotime($Date);
             $currentMonthLabel = $currentMonthLabelTs !== false
                 ? text(Month::from((int) date('n', $currentMonthLabelTs))->label())
                     . ' ' . text(date('Y', $currentMonthLabelTs))
@@ -647,7 +647,7 @@ function postcalendar_userapi_buildView($args): string
             $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
             $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -663,7 +663,7 @@ function postcalendar_userapi_buildView($args): string
 
             // Day-screen page header — legacy used dateformat(strtotime($atmp[0]), true)
             // which respects user language for day/month names and date ordering.
-            $dayHeaderTs = strtotime((string) $Date);
+            $dayHeaderTs = strtotime($Date);
             $dayHeaderLabel = $dayHeaderTs !== false ? dateformat($dayHeaderTs, true) : '';
 
             $intervalInt = LegacyInputNarrowing::intValue(
@@ -701,7 +701,7 @@ function postcalendar_userapi_buildView($args): string
             $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
             $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -1500,9 +1500,9 @@ function &postcalendar_userapi_pcGetEvents($args)
     $patient_id ??= 0;
 
     $date = postcalendar_getDate();
-    $cy = substr((string) $date, 0, 4);
-    $cm = substr((string) $date, 4, 2);
-    $cd = substr((string) $date, 6, 2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
     if (isset($start) && isset($end)) {
         // parse start date
         [$sm, $sd, $sy] = explode('/', $start);
@@ -1586,9 +1586,9 @@ function calculateEvents($days, $events, $viewtype)
 {
   //
     $date = postcalendar_getDate();
-    $cy = substr((string) $date, 0, 4);
-    $cm = substr((string) $date, 4, 2);
-    $cd = substr((string) $date, 6, 2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
 
   // here the start_date value is set to whatever comes in
   // on postcalendar_getDate() which is not always the first
