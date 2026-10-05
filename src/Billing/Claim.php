@@ -1794,6 +1794,7 @@ class Claim
 
     public function frequencyTypeCode(): string
     {
+        $tmp = '';
         if (!empty($this->billing_options['replacement_claim'])) {
             if ($this->billing_options['replacement_claim'] == 1) {
                 $tmp = '7';
