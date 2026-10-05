@@ -654,6 +654,9 @@ class X125010837PZipTest extends TestCase
             file_put_contents($directory . '/short.txt', 'ISA');
             $this->assertFalse(BatchFilePublisher::isPublished($directory, 'short.txt'));
             file_put_contents($directory . '/batch.txt', 'OLD');
+            $this->assertFalse(BatchFilePublisher::publish($directory, 'batch.txt', 'GS~'));
+            $this->assertSame('OLD', file_get_contents($directory . '/batch.txt'));
+            unlink($directory . '/batch.txt');
             $this->assertTrue(BatchFilePublisher::publish($directory, 'batch.txt', 'GS~'));
             $this->assertSame('GS~', file_get_contents($directory . '/batch.txt'));
             $this->assertTrue(BatchFilePublisher::isPublished($directory, 'batch.txt'));
@@ -666,6 +669,17 @@ class X125010837PZipTest extends TestCase
             }
             $this->assertFalse(BatchFilePublisher::publish($directory, '../batch.txt', 'ISA~'));
             $this->assertFalse(BatchFilePublisher::publish($directory, 'batch.txt', ''));
+            file_put_contents($directory . '/plain.txt', 'KEEP');
+            $this->assertFalse(BatchFilePublisher::publish($directory, 'plain.txt', 'GS~'));
+            $this->assertSame('KEEP', file_get_contents($directory . '/plain.txt'));
+            file_put_contents($directory . '/legacy.txt', 'OLD');
+            $this->assertTrue(BatchFilePublisher::downloadAllowed($directory, 'legacy.txt'));
+            file_put_contents($directory . '/stopped.txt', 'PART');
+            file_put_contents($directory . '/stopped.txt.publishing', '1');
+            $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, 'stopped.txt'));
+            $this->assertTrue(BatchFilePublisher::quarantineInterrupted($directory, 'stopped.txt'));
+            $this->assertFileDoesNotExist($directory . '/stopped.txt');
+            $this->assertSame('PART', file_get_contents($directory . '/stopped.txt.interrupted'));
             $blocked = $directory . '/blocked.txt.complete';
             mkdir($blocked);
             $this->assertFalse(BatchFilePublisher::publish($directory, 'blocked.txt', 'GS~'));
@@ -807,7 +821,10 @@ class X125010837PZipTest extends TestCase
     public function testPublishedBatchIsDroppedBeforeItIsQueued(): void
     {
         $this->withGlobals(true, function (): void {
-            OEGlobalsBag::getInstance()->set('auto_sftp_claims_to_x12_partner', true);
+            $globals = OEGlobalsBag::getInstance();
+            $hadSftp = $globals->has('auto_sftp_claims_to_x12_partner');
+            $savedSftp = $hadSftp ? $globals->getBoolean('auto_sftp_claims_to_x12_partner') : false;
+            $globals->set('auto_sftp_claims_to_x12_partner', true);
             $directory = sys_get_temp_dir() . '/openemr-own-' . bin2hex(random_bytes(4));
             mkdir($directory);
             try {
@@ -819,7 +836,13 @@ class X125010837PZipTest extends TestCase
                 $this->assertFalse($batch->write_batch_file());
                 $this->assertFileDoesNotExist($directory . '/owned-batch.txt');
                 $this->assertFileDoesNotExist($directory . '/owned-batch.txt.complete');
+                $this->assertFileDoesNotExist($directory . '/owned-batch.txt.publishing');
             } finally {
+                if ($hadSftp) {
+                    $globals->set('auto_sftp_claims_to_x12_partner', $savedSftp);
+                } else {
+                    $globals->remove('auto_sftp_claims_to_x12_partner');
+                }
                 $this->removeDirectory($directory);
             }
         });
