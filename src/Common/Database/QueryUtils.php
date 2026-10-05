@@ -406,7 +406,7 @@ class QueryUtils
         }
 
         if ($limit === 1) {
-            return $results[0];
+            return $results[0] ?? null;
         }
 
         return $results;
