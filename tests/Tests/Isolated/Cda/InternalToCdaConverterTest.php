@@ -446,6 +446,44 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * No two elements in a document share an id.
+     *
+     * A root-only II means "this exact identifier", so a constant root with no
+     * extension gives every observation of that kind the same id - within the
+     * document and across installations. Functional status, self care and
+     * mental status all did this when the source record carried no extension.
+     *
+     * Where the record does have an extension the constant root is correct: it
+     * is the assigning authority and the extension is the local identifier.
+     */
+    public function testDocumentIdsAreUnique(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $ids = $xpath->query('//hl7:id[@root]');
+        self::assertNotFalse($ids, 'Id query must be valid');
+        self::assertGreaterThan(0, $ids->length, 'The document carries ids');
+
+        $seen = [];
+        foreach ($ids as $id) {
+            self::assertInstanceOf(\DOMElement::class, $id, 'Id must be an element');
+            $key = $id->getAttribute('root') . '|' . $id->getAttribute('extension');
+            self::assertArrayNotHasKey(
+                $key,
+                $seen,
+                'Duplicate id ' . $key . '; a constant root with no extension is not a unique identifier'
+            );
+            $seen[$key] = true;
+        }
+    }
+
+    /**
      * Every II/@root is an OID or a UUID.
      *
      * The Notes Section id was ported from node as

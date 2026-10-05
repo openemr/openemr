@@ -5492,10 +5492,18 @@ class InternalToCdaConverter
 
         // id
         $ext = $this->xpathValue('extension', $item);
+        // The constant root is an assigning-authority namespace and the record's
+        // own extension is the local identifier, which is the correct II shape.
+        // With no extension a root-only II means "this exact identifier", so the
+        // shared constant would make every such observation carry the same id,
+        // within a document and across installations. Fall back to a generated
+        // root instead.
         $id = $this->createElement('id');
-        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809000');
         if ($ext !== '') {
+            $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809000');
             $id->setAttribute('extension', $ext);
+        } else {
+            $id->setAttribute('root', $this->generateUuid());
         }
         $organizer->appendChild($id);
 
@@ -5537,10 +5545,18 @@ class InternalToCdaConverter
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67', '2014-06-09');
 
         $ext = $this->xpathValue('extension', $item);
+        // The constant root is an assigning-authority namespace and the record's
+        // own extension is the local identifier, which is the correct II shape.
+        // With no extension a root-only II means "this exact identifier", so the
+        // shared constant would make every such observation carry the same id,
+        // within a document and across installations. Fall back to a generated
+        // root instead.
         $id = $this->createElement('id');
-        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
         if ($ext !== '') {
+            $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
             $id->setAttribute('extension', $ext);
+        } else {
+            $id->setAttribute('root', $this->generateUuid());
         }
         $obs->appendChild($id);
 
@@ -5599,10 +5615,18 @@ class InternalToCdaConverter
         $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.128');
 
         $ext = $this->xpathValue('extension', $item);
+        // The constant root is an assigning-authority namespace and the record's
+        // own extension is the local identifier, which is the correct II shape.
+        // With no extension a root-only II means "this exact identifier", so the
+        // shared constant would make every such observation carry the same id,
+        // within a document and across installations. Fall back to a generated
+        // root instead.
         $id = $this->createElement('id');
-        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
         if ($ext !== '') {
+            $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
             $id->setAttribute('extension', $ext);
+        } else {
+            $id->setAttribute('root', $this->generateUuid());
         }
         $obs->appendChild($id);
 
@@ -5900,8 +5924,17 @@ class InternalToCdaConverter
 
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.74', '2015-08-01');
 
+        // Always root-only until now, so every Mental Status Observation in every
+        // document carried the same id. Use the record's extension under the
+        // namespace root when present, otherwise a generated root.
+        $mentalStatusExt = $this->xpathValue('extension', $item);
         $id = $this->createElement('id');
-        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809ccc');
+        if ($mentalStatusExt !== '') {
+            $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809ccc');
+            $id->setAttribute('extension', $mentalStatusExt);
+        } else {
+            $id->setAttribute('root', $this->generateUuid());
+        }
         $obs->appendChild($id);
 
         // Code - Cognitive function with LOINC translation
