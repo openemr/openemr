@@ -27,7 +27,7 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\IGlobalsAware;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
+use OpenEMR\Services\Traits\GlobalInterfaceTrait;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
