@@ -1678,7 +1678,7 @@ function calculateEvents($days, $events, $viewtype)
                 $nd = $esD;
                 $occurance = Date_Calc::dateFormat($nd, $nm, $ny, '%Y-%m-%d');
                 while ($occurance < $start_date) {
-                    $nextOccurance = nextRepeatDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
+                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
                     if ($nextOccurance === null) {
                         $occurance = null;
                         break;
@@ -1717,7 +1717,7 @@ function calculateEvents($days, $events, $viewtype)
                         }
                     }
 
-                    $nextOccurance = nextRepeatDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
+                    $nextOccurance = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurance);
                     if ($nextOccurance === null) {
                         break;
                     }
@@ -1767,7 +1767,7 @@ function calculateEvents($days, $events, $viewtype)
                 // make us current
                 $monthWalk = true;
                 while ($ny < $cy) {
-                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
                     if ($nextMonth === null) {
                         $monthWalk = false;
                         break;
@@ -1777,7 +1777,7 @@ function calculateEvents($days, $events, $viewtype)
 
                 // populate the event array
                 while ($monthWalk && $ny <= $cy) {
-                    $occurance = repeatOnDate($rnum, $rday, $nm, $ny);
+                    $occurance = \OpenEMR\Common\Calendar\RepeatAdvance::onDate($rnum, $rday, $nm, $ny);
 
                     if (is_string($occurance) && isset($days[$occurance]) && $occurance <= $stop) {
                         // check for date exceptions before pushing the event into the days array -- JRM
@@ -1786,7 +1786,7 @@ function calculateEvents($days, $events, $viewtype)
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
+                                if (preg_replace("/-/", "", $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1805,7 +1805,7 @@ function calculateEvents($days, $events, $viewtype)
                         }
                     }
 
-                    $nextMonth = nextRepeatMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, sprintf('%04d-%02d', (int) $ny, (int) $nm));
                     if ($nextMonth === null) {
                         break;
                     }
