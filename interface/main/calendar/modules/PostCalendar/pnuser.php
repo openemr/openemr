@@ -74,10 +74,8 @@ function postcalendar_user_view(): string
     }
 
     $displayResult = postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]);
-    $footer = postcalendar_footer();
     $displayStr = is_string($displayResult) ? $displayResult : '';
-    $footerStr = is_string($footer) ? $footer : '';
-    return $displayStr . $footerStr;
+    return $displayStr . postcalendar_footer();
 }
 
 /**
