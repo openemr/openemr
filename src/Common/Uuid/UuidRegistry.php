@@ -357,7 +357,7 @@ class UuidRegistry
      * Check if UUID Brinary is Empty
      * @return bool
      */
-    public static function isEmptyBinaryUUID($uuidString)
+    public static function isEmptyBinaryUUID($uuidString): bool
     {
         return (empty($uuidString) || ($uuidString == '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'));
     }

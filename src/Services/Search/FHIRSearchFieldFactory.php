@@ -65,7 +65,7 @@ class FHIRSearchFieldFactory
      * @param $fhirSearchField
      * @return bool
      */
-    public function hasSearchField($fhirSearchField)
+    public function hasSearchField($fhirSearchField): bool
     {
         $fieldName = $this->extractSearchFieldName($fhirSearchField);
         return isset($this->resourceSearchParameters[$fieldName]);

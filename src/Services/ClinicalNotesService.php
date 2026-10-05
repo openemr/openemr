@@ -399,7 +399,7 @@ class ClinicalNotesService extends BaseService
      * @param $code string
      * @return bool true if the code is valid, false otherwise
      */
-    public function isValidClinicalNoteCode($code)
+    public function isValidClinicalNoteCode($code): bool
     {
         // make it a LOINC code
         if (!str_contains((string) $code, ":")) {

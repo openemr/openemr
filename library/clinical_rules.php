@@ -2918,7 +2918,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return bool true if check passed, otherwise false
  */
-function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
+function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget): bool
 {
 
     // Set date to current if not set

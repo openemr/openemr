@@ -50,7 +50,7 @@ class DataDriverMySQLi implements IDataDriver
     {
         return "MySQLi";
     }
-    public function Ping($connection)
+    public function Ping($connection): bool
     {
         return mysqli_ping($connection);
     }

@@ -344,7 +344,7 @@ class BaseService implements BaseServiceInterface
      * @param $dateString              - The Date string which is to be verified
      * @return bool
      */
-    public static function isValidDate($dateString)
+    public static function isValidDate($dateString): bool
     {
         return (bool) strtotime((string) $dateString);
     }

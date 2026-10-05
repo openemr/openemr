@@ -117,7 +117,7 @@ class ProcedureOrderRelationshipService
      * @param int $id The procedure_order_relationships.id
      * @return bool Success status
      */
-    public function deleteRelationship($id)
+    public function deleteRelationship($id): bool
     {
         $sql = "DELETE FROM procedure_order_relationships WHERE id = ?";
         return sqlStatement($sql, [$id]) !== false;
@@ -130,7 +130,7 @@ class ProcedureOrderRelationshipService
      * @param int $procedureOrderId The procedure_order.procedure_order_id
      * @return bool Success status
      */
-    public function deleteRelationshipsByOrderId($procedureOrderId)
+    public function deleteRelationshipsByOrderId($procedureOrderId): bool
     {
         $sql = "DELETE FROM procedure_order_relationships WHERE procedure_order_id = ?";
         return sqlStatement($sql, [$procedureOrderId]) !== false;
@@ -143,7 +143,7 @@ class ProcedureOrderRelationshipService
      * @param string $resourceType
      * @return bool Success status
      */
-    public function deleteRelationshipsByType($procedureOrderId, $resourceType)
+    public function deleteRelationshipsByType($procedureOrderId, $resourceType): bool
     {
         $sql = "DELETE FROM procedure_order_relationships
                 WHERE procedure_order_id = ? AND resource_type = ?";
@@ -182,7 +182,7 @@ class ProcedureOrderRelationshipService
      * @param int $procedureOrderId
      * @return bool
      */
-    private function procedureOrderExists($procedureOrderId)
+    private function procedureOrderExists($procedureOrderId): bool
     {
         $sql = "SELECT COUNT(*) as count
                 FROM procedure_order

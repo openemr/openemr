@@ -1034,7 +1034,7 @@ class InstModuleTable
      * @param  $moduleDirectory The directory path of the module
      * @return bool
      */
-    private function existsModuleConfigFile($moduleDirectory)
+    private function existsModuleConfigFile($moduleDirectory): bool
     {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
         return file_exists($filePath ?? '');

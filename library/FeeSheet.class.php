@@ -1611,7 +1611,7 @@ class FeeSheet
 
     // Determine if the current user is allowed to see prices.
     //
-    public function pricesAuthorized()
+    public function pricesAuthorized(): bool
     {
         return AclMain::aclCheckCore('acct', 'disc') || AclMain::aclCheckCore('acct', 'bill');
     }

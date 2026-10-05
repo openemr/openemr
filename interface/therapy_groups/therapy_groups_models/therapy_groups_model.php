@@ -62,7 +62,7 @@ class Therapy_Groups
         return $groupId;
     }
 
-    public function updateGroup(array $groupData)
+    public function updateGroup(array $groupData): bool
     {
 
         $sql = "UPDATE " . self::TABLE . " SET ";
@@ -77,7 +77,7 @@ class Therapy_Groups
         return (bool) $result;
     }
 
-    public function existGroup($name, $startDate, $groupId = null)
+    public function existGroup($name, $startDate, $groupId = null): bool
     {
 
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE group_name = ? AND group_start_date = ?";
