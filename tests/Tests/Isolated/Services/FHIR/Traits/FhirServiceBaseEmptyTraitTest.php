@@ -12,48 +12,45 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\FHIR\Traits;
 
-use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Exercises FhirServiceBaseEmptyTrait through FhirProvenanceService, which
+ * takes every stub from the trait.
+ */
 class FhirServiceBaseEmptyTraitTest extends TestCase
 {
     /**
-     * @return array<string, array{callable(object): mixed}>
+     * @return array<string, array{callable(FhirProvenanceService): mixed}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function writeMethodProvider(): array
     {
         return [
-            'parseFhirResource' => [fn(object $service) => $service->parseFhirResource([])],
-            'insertOpenEMRRecord' => [fn(object $service) => $service->insertOpenEMRRecord([])],
-            'updateOpenEMRRecord' => [fn(object $service) => $service->updateOpenEMRRecord('id', [])],
+            'parseFhirResource' => [fn(FhirProvenanceService $service) => $service->parseFhirResource([])],
+            'insertOpenEMRRecord' => [fn(FhirProvenanceService $service) => $service->insertOpenEMRRecord([])],
+            'updateOpenEMRRecord' => [fn(FhirProvenanceService $service) => $service->updateOpenEMRRecord('id', [])],
         ];
     }
 
     /**
-     * @param callable(object): mixed $call
+     * @param callable(FhirProvenanceService): mixed $call
      */
     #[DataProvider('writeMethodProvider')]
     public function testWriteMethodsThrow(callable $call): void
     {
         $this->expectException(\BadMethodCallException::class);
-        $call($this->makeService());
+        $call(new FhirProvenanceService());
     }
 
     public function testCreateProvenanceResourceReturnsNull(): void
     {
         self::assertNull(
-            $this->makeService()->createProvenanceResource(),
+            (new FhirProvenanceService())->createProvenanceResource(),
             'FhirServiceBase::getAll() treats null as "no provenance available" and keeps going',
         );
-    }
-
-    private function makeService(): object
-    {
-        return new class {
-            use FhirServiceBaseEmptyTrait;
-        };
     }
 }
