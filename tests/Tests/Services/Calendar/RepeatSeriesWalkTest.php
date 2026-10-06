@@ -32,6 +32,9 @@ class RepeatSeriesWalkTest extends TestCase
 
     private int $providerId;
 
+    /**
+     * Prepare one category, one provider, and the fixture patient.
+     */
     protected function setUp(): void
     {
         $category = QueryUtils::querySingleRow('SELECT pc_catid FROM openemr_postcalendar_categories ORDER BY pc_catid LIMIT 1');
@@ -45,11 +48,17 @@ class RepeatSeriesWalkTest extends TestCase
         );
     }
 
+    /**
+     * Remove the fixture patient and its events.
+     */
     protected function tearDown(): void
     {
         $this->removeFixtures();
     }
 
+    /**
+     * A daily series returns the single requested day.
+     */
     #[Test]
     public function testADailySeriesLandsOnOneRequestedDay(): void
     {
@@ -63,6 +72,9 @@ class RepeatSeriesWalkTest extends TestCase
         $this->assertSame('2024-06-03', $first['pc_eventDate'] ?? null);
     }
 
+    /**
+     * A daily series returns every day in a quarter.
+     */
     #[Test]
     public function testADailySeriesExpandsAcrossAQuarter(): void
     {
@@ -72,6 +84,9 @@ class RepeatSeriesWalkTest extends TestCase
         $this->assertCount(92, $this->rowsOn('2024-06-01', '2024-08-31'));
     }
 
+    /**
+     * An unhandled repeat type finishes and skips days it cannot reach.
+     */
     #[Test]
     public function testAnUnhandledRepeatTypeFinishesAndSkipsDaysItCannotReach(): void
     {
@@ -87,6 +102,9 @@ class RepeatSeriesWalkTest extends TestCase
         $this->assertLessThan(2.0, $elapsed);
     }
 
+    /**
+     * An unhandled repeat type still shows the day it starts.
+     */
     #[Test]
     public function testAnUnhandledRepeatTypeStillShowsItsStartDay(): void
     {
@@ -100,6 +118,9 @@ class RepeatSeriesWalkTest extends TestCase
         $this->assertSame('2016-01-04', $first['pc_eventDate'] ?? null);
     }
 
+    /**
+     * A zero interval is not expanded into later days.
+     */
     #[Test]
     public function testAZeroIntervalIsNotExpanded(): void
     {
@@ -108,6 +129,9 @@ class RepeatSeriesWalkTest extends TestCase
         $this->assertSame([], $this->rowsOn('2024-06-03', '2024-06-03'));
     }
 
+    /**
+     * A weekly series counts the Mondays in the span.
+     */
     #[Test]
     public function testAWeeklySeriesCountsTheMondaysInTheSpan(): void
     {
@@ -118,6 +142,9 @@ class RepeatSeriesWalkTest extends TestCase
         $this->assertCount(13, $this->rowsOn('2024-01-01', '2024-03-31'));
     }
 
+    /**
+     * A monthly weekday series counts twelve occurrences in a year.
+     */
     #[Test]
     public function testAMonthlyWeekdaySeriesCountsTwelveInAYear(): void
     {
@@ -178,6 +205,9 @@ class RepeatSeriesWalkTest extends TestCase
         return fetchEvents($from, $to, ' AND e.pc_title = ?', null, false, 0, [self::TITLE]);
     }
 
+    /**
+     * The fixture id as an integer.
+     */
     private function requiredId(mixed $value): int
     {
         if (is_int($value)) {
@@ -191,6 +221,9 @@ class RepeatSeriesWalkTest extends TestCase
         $this->fail('The fixture id was not a whole number.');
     }
 
+    /**
+     * Delete the fixture patient and its events.
+     */
     private function removeFixtures(): void
     {
         QueryUtils::sqlStatementThrowException(
