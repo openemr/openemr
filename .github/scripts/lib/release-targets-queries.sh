@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+#
+# Shared predicate helpers for querying .github/release-targets.yml.
+#
+# Sourced (not executed) by callers that need read-only answers about
+# the current shape of release-targets.yml. Not executable on its own
+# -- these are function definitions consumed by the caller.
+#
+# The functions here are PURE: no side effects, no stdout chatter, no
+# $GITHUB_OUTPUT writes, no `::error::` emissions. Callers interpret the
+# function's exit code and decide how to narrate the result (an upgrade-
+# cell skip-reason heredoc, an orchestrator step summary line, a BATS
+# assertion). Keeping the predicate dumb lets different callers compose
+# their own context around the same underlying signal.
+#
+# Why a lib and not an inline block in each caller: multiple workflows
+# need to answer the same question ("is master row carrying `next`?")
+# from release-targets.yml. The first caller
+# (.github/scripts/detect-upgrade-cell-skip.sh) uses it to decide
+# whether the docker acceptance workflow's upgrade cell should skip.
+# The second caller (.github/workflows/docker-release-orchestrator.yml)
+# uses it to decide whether a daily master-row dispatch should pass
+# `require_upgrade_cell=true` (real ship moment, loud-fail on skip) or
+# `require_upgrade_cell=false` (between-cycles floating-tag refresh,
+# tolerant-skip is the correct answer). Both reach the same awk+grep
+# predicate -- extracting it here keeps the signal single-sourced so
+# a future change to the predicate (e.g., a wider match pattern, a
+# different row-identity rule) propagates to every consumer at once.
+
+# Predicate: does the master row's `docker_tags:` line in
+# release-targets.yml contain the floating `next` tag?
+#
+# Arguments:
+#   $1  Path to release-targets.yml. Required. Caller MUST pass the
+#       master-authoritative copy -- when invoking from a rel-branch
+#       checkout, fetch master's version explicitly (e.g. via
+#       `git show origin/master:.github/release-targets.yml > /tmp/rt.yml`)
+#       because rel-branch copies are frozen snapshots from cut-time
+#       and drift as master mutates. Reading the stale copy gives the
+#       wrong answer when master moves `next` between cycles.
+#
+# Exit codes:
+#   0   master row carries `next` (between-cycles state active)
+#   1   master row does NOT carry `next` (rel-XXX branch owns the dev
+#       cycle; master has upgrade infra for its current version.php)
+#   2   bad shape -- RELEASE_TARGETS_PATH missing/unreadable. Callers
+#       should fail loudly rather than treating this as a "no" answer.
+#
+# Match semantics: `grep -qE '(^|,| )next(,| |$)'` anchors `next` as a
+# whole token so `next-dev` or `nothing-next` don't false-match. The
+# awk filter scopes to the master row only -- the `- branch:` sentinel
+# on any other row closes the master scope, so an absent `docker_tags:`
+# line in master won't leak into a later row's tags being read.
+#
+# BATS coverage lives at tests/bats/ci-scripts/release-targets-queries/
+# and must include negative cases (master without `next`, master with
+# `next-dev` only, no master row) to guarantee we never flip to a
+# false-positive answer. The caller side of this predicate makes
+# release-mode guardrails stand down when it returns 0, so a false
+# positive would silently skip real signal and ship an un-validated
+# artifact. Keep the test suite protective.
+master_row_carries_next() {
+    local release_targets_path="${1:-}"
+    if [[ -z "${release_targets_path}" ]] || [[ ! -r "${release_targets_path}" ]]; then
+        return 2
+    fi
+    local master_tags_line
+    master_tags_line=$(awk '
+        /^- branch: master$/ { in_master=1; next }
+        /^- branch:/         { if (in_master) exit; next }
+        in_master && /^  docker_tags:/ { print; exit }
+    ' "${release_targets_path}")
+    if printf '%s' "${master_tags_line}" | grep -qE '(^|,| )next(,| |$)'; then
+        return 0
+    fi
+    return 1
+}
