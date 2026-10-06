@@ -15,6 +15,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -1106,7 +1107,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
     /**
      * Creates the Provenance resource for the ServiceRequest
      */
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRServiceRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
