@@ -265,6 +265,85 @@ final class CalendarViewModelTest extends TestCase
         $vm->buildMiniCalendar('not-a-date');
     }
 
+    /**
+     * A fall-back day is 25 hours and a spring-forward day is 23.
+     * The month must still show each date once, including the last week.
+     *
+     * @param string $zone
+     */
+    #[DataProvider('daylightSavingZoneProvider')]
+    public function testBuildMiniCalendarKeepsEveryDateWhenClocksChange(string $zone): void
+    {
+        $previous = date_default_timezone_get();
+        date_default_timezone_set($zone);
+        try {
+            $monday = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 1);
+
+            $november = $monday->buildMiniCalendar('2026-11-15');
+            $this->assertCount(6, $november['weeks']);
+            $novemberDays = $this->calendarDays($november);
+            $this->assertContains('20261101', $novemberDays);
+            $this->assertContains('20261130', $novemberDays);
+            $this->assertSame($novemberDays, array_values(array_unique($novemberDays)));
+            foreach ($november['weeks'] as $week) {
+                $this->assertCount(7, $week);
+            }
+
+            $march = $monday->buildMiniCalendar('2027-03-15');
+            $this->assertCount(5, $march['weeks']);
+            $marchDays = $this->calendarDays($march);
+            $this->assertContains('20270329', $marchDays);
+            $this->assertContains('20270330', $marchDays);
+            $this->assertContains('20270331', $marchDays);
+            foreach ($march['weeks'] as $week) {
+                $this->assertCount(7, $week);
+            }
+
+            $october = $monday->buildMiniCalendar('2026-10-15');
+            $this->assertCount(5, $october['weeks']);
+            $this->assertContains('20261001', $this->calendarDays($october));
+            $this->assertContains('20261031', $this->calendarDays($october));
+
+            $sunday = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+            $novemberSunday = $sunday->buildMiniCalendar('2026-11-15');
+            $this->assertCount(5, $novemberSunday['weeks']);
+            $this->assertSame('20261101', $novemberSunday['weeks'][0][0]['dateYmd']);
+            $this->assertContains('20261130', $this->calendarDays($novemberSunday));
+        } finally {
+            date_default_timezone_set($previous);
+        }
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function daylightSavingZoneProvider(): array
+    {
+        return [
+            'central' => ['America/Chicago'],
+            'eastern' => ['America/New_York'],
+            'pacific' => ['America/Los_Angeles'],
+        ];
+    }
+
+    /**
+     * @param array{weeks: list<list<array{dateYmd: string}>>} $calendar
+     * @return list<string>
+     */
+    private function calendarDays(array $calendar): array
+    {
+        $days = [];
+        foreach ($calendar['weeks'] as $week) {
+            foreach ($week as $day) {
+                $days[] = $day['dateYmd'];
+            }
+        }
+
+        return $days;
+    }
+
     public function testNormalizeAllDayEventOverridesTimeAndDuration(): void
     {
         $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
