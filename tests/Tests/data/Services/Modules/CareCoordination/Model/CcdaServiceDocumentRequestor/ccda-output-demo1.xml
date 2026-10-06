@@ -9,7 +9,7 @@
 <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
 <templateId root="2.16.840.1.113883.10.20.22.1.2" extension="2015-08-01"/>
 <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
-<id root="2.16.840.1.113883.19.5.99999.1" extension="OE-DOC-0001"/>
+<id root="5f0c2a6e-8d1b-4c3a-9e7f-2b4d6a8c0e11"/>
 <code codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" code="34133-9"
       displayName="Summarization of Episode Note"/>
 <title>Summarization of Episode Note</title>
@@ -17,7 +17,7 @@
 <confidentialityCode displayName="Normal" code="N" codeSystem="2.16.840.1.113883.5.25"
                      codeSystemName="Confidentiality Code"/>
 <languageCode code="en-US"/>
-<setId root="2.16.840.1.113883.19.5.99999.1" extension="sOE-DOC-0001"/>
+<setId root="9a3e7c1d-4b2f-4e6a-8c5d-1f0b3e5a7c92"/>
 <versionNumber value="1"/>
 <recordTarget>
     <patientRole>

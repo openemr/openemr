@@ -118,12 +118,10 @@ class InternalToCdaConverter
         $this->appendTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2015-08-01');
         $this->appendVersionedTemplateId($root, $docOid, '2015-08-01');
 
-        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid === '') {
-            $facilityOid = self::DEFAULT_FACILITY_OID;
-        }
-
-        $this->appendId($root, $facilityOid, 'OE-DOC-0001');
+        // ClinicalDocument/id identifies this document instance and must be
+        // unique (CDA R2); Node gave every document the same OE-DOC-0001. Each
+        // export is a new document, so it also starts a new set at version 1.
+        $this->appendId($root, $this->generateUuid());
 
         $code = $this->createElement('code');
         $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
@@ -151,8 +149,7 @@ class InternalToCdaConverter
         $root->appendChild($languageCode);
 
         $setId = $this->createElement('setId');
-        $setId->setAttribute('root', $facilityOid);
-        $setId->setAttribute('extension', 'sOE-DOC-0001');
+        $setId->setAttribute('root', $this->generateUuid());
         $root->appendChild($setId);
 
         $versionNumber = $this->createElement('versionNumber');

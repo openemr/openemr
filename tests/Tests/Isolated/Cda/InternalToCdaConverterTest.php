@@ -1284,6 +1284,28 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * ClinicalDocument/id identifies one document instance (CDA R2), so two
+     * exports must not share it; Node gave every document OE-DOC-0001.
+     */
+    public function testEachDocumentGetsItsOwnIdAndSetId(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-demo1.xml');
+        self::assertIsString($input, 'Demo fixture must be readable');
+
+        $identifiers = [];
+        foreach ([1, 2] as $run) {
+            $xpath = $this->convertToXPath($input);
+            $id = $this->singleElement($xpath, '/hl7:ClinicalDocument/hl7:id');
+            $setId = $this->singleElement($xpath, '/hl7:ClinicalDocument/hl7:setId');
+            self::assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $id->getAttribute('root'));
+            self::assertNotSame($id->getAttribute('root'), $setId->getAttribute('root'));
+            $identifiers[] = $id->getAttribute('root');
+            $identifiers[] = $setId->getAttribute('root');
+        }
+        self::assertCount(4, array_unique($identifiers), 'Each export needs its own document id and setId');
+    }
+
+    /**
      * A TEL value is a URL, so every telecom value needs a scheme. The
      * providerOrganization phone was emitted as a bare number.
      */
@@ -1967,6 +1989,20 @@ class InternalToCdaConverterTest extends TestCase
         $this->replaceRootIdForQuery("//hl7:observation/hl7:code[@code='76690-7']", $xpath, $xpathExpected);
         $this->replaceRootIdForQuery("//hl7:section/hl7:entry/hl7:organizer/hl7:code[@code='86744-0']", $xpath, $xpathExpected);
         $this->replaceRootIdForQuery("//hl7:component/hl7:act/hl7:code[@code='85847-2']", $xpath, $xpathExpected);
+
+        // The document id and setId are generated per document.
+        foreach (['/hl7:ClinicalDocument/hl7:id', '/hl7:ClinicalDocument/hl7:setId'] as $query) {
+            $actualNodes = $xpath->query($query);
+            $expectedNodes = $xpathExpected->query($query);
+            if ($actualNodes === false || $expectedNodes === false) {
+                continue;
+            }
+            $actualId = $actualNodes->item(0);
+            $expectedId = $expectedNodes->item(0);
+            if ($actualId instanceof \DOMElement && $expectedId instanceof \DOMElement) {
+                $actualId->setAttribute('root', $expectedId->getAttribute('root'));
+            }
+        }
 
         return $actual;
     }
