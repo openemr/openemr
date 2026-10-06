@@ -97,11 +97,11 @@ class FhirProvenanceNullHandlingTest extends TestCase
      * @param class-string<FHIRDomainResource> $resourceClass
      */
     #[DataProvider('provenanceServiceProvider')]
-    public function testReturnsFalseWhenProvenanceIsUnavailable(string $serviceClass, string $resourceClass): void
+    public function testReturnsNullWhenProvenanceIsUnavailable(string $serviceClass, string $resourceClass): void
     {
         $service = $this->getServiceWithProvenanceResult($serviceClass, null);
         $result = $service->createProvenanceResource(new $resourceClass());
-        $this->assertFalse($result, "Expected false when no Provenance can be constructed so FhirServiceBase::getAll() can skip it.");
+        $this->assertNull($result, "Expected null when no Provenance can be constructed so FhirServiceBase::getAll() can skip it.");
     }
 
     /**
