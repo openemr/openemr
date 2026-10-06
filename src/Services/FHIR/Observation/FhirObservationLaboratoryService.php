@@ -373,9 +373,8 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param      $dataRecord - The source OpenEMR data record
-     * @return false|FHIRProvenance|string|null - the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
