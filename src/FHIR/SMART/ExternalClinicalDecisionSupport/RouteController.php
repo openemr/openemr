@@ -49,7 +49,7 @@ class RouteController
             str_starts_with((string) $action, self::EXTERNAL_CDR_ACTION . '/');
     }
 
-    public function parseRequest(Request $request)
+    public function parseRequest(Request $request): array
     {
         $parts = explode("/", (string) $request->query->get('action'));
 
@@ -160,7 +160,7 @@ class RouteController
         return new Response($bodyContents);
     }
 
-    public function getRootParams()
+    public function getRootParams(): array
     {
         return [
             'nav' => [

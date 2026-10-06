@@ -535,7 +535,7 @@ class Claim
   // prior payer. If $code is specified then only that procedure key is
   // selected, otherwise it's for the whole claim.
   //
-    public function payerTotals($ins, $code = '')
+    public function payerTotals($ins, $code = ''): array
     {
         // If we have no modifiers stored in SQL-Ledger for this claim,
         // then we cannot use a modifier passed in with the key.

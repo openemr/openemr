@@ -120,7 +120,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * Returns an array mapping FHIR Patient Resource search parameters to OpenEMR Patient search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         // @see https://www.hl7.org/fhir/patient.html#search
         return  [

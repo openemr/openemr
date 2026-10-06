@@ -14,7 +14,7 @@ class MeasureService
      * Get measure sources with dynamic path building
      * The 'openemr/oe-cqm-parsers' path is built at runtime using the global cqm_performance_period
      */
-    public static function fetchMeasureSourceOptions()
+    public static function fetchMeasureSourceOptions(): array
     {
         $reporting_year = OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023';
         $reporting_year .= '_reporting_period';
@@ -56,7 +56,7 @@ class MeasureService
      * @param  $measurePath
      * @return string[]
      */
-    public static function fetchMeasureFiles($measurePath)
+    public static function fetchMeasureFiles($measurePath): array
     {
         return [
             'measure' => $measurePath . '/' . basename((string) $measurePath) . '.json',

@@ -86,7 +86,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * Returns an array mapping FHIR Encounter Resource search parameters to OpenEMR Encounter search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition(

@@ -61,7 +61,7 @@ class UserService
         }
     }
 
-    public function getUuidFields()
+    public function getUuidFields(): array
     {
         return ['uuid'];
     }

@@ -508,7 +508,7 @@ class FhirOperationExportRestController
         return $this->getResultForResourceDocument($resource, $document);
     }
 
-    private function getResultForResourceDocument($resource, \Document $document)
+    private function getResultForResourceDocument($resource, \Document $document): array
     {
         return [
             'url' => $this->request->getApiBaseFullUrl() . '/fhir/Binary/' . $document->get_id()

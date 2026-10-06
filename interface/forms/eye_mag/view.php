@@ -3724,10 +3724,6 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                *    e. double-click a DX appends this DX to the bottom of the IMP/Plan list
                                */
 
-                            if (!$PMSFH) {
-                                $PMSFH = build_PMSFH($pid);
-                            }
-
                               $total_DX = '0';
                             if ((($PMSFH[0]['POH'][0] ?? null) > '') && ($PMSFH[0]['PMH'][0] > '')) {
                                 $total_DX = '1';

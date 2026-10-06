@@ -1665,9 +1665,9 @@ function send_json_values($PMSFH = ""): void
  *  to function at their base level.
  *
  * @param string $pid is the patient identifier
- * @return mixed array, access items as $PMSFH[0]
+ * @return array{array<string, mixed>} access items as $PMSFH[0]
  */
-function build_PMSFH($pid)
+function build_PMSFH($pid): array
 {
     global $form_id;
 
@@ -2150,7 +2150,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             "POH"        => xlt("POH"),
             "POS"        => xlt("POS"),
             "PMH"        => xlt("Past Medical History"),
-            default      => is_string($key) ? text($key) : '',
+            default      => text($key),
         };
         $header .= '    <table class="PMSFH_header">
                 <tr>
@@ -3425,7 +3425,7 @@ function build_CODING_items($pid, $encounter)
  *  @param string $pid patient_id
  *  @return array
  */
-function document_engine($pid)
+function document_engine($pid): array
 {
     $categories = [];
     $my_name = [];
@@ -3505,7 +3505,7 @@ function document_engine($pid)
  *                They allow us to regroup the categories how we like them.
  *  @return array
  */
-function display($pid, $encounter, $category_value)
+function display($pid, $encounter, $category_value): array
 {
     global $form_folder;
     global $id;
@@ -4418,7 +4418,7 @@ function coding_carburetor($term, $field)
  *
  *  This function is not called directly but via the wrapper function start_your_engines().
  */
-function coding_engine($term, $code_found, $location, $side = '')
+function coding_engine($term, $code_found, $location, $side = ''): array
 {
     if (strpos((string) $code_found['code'], ":")) {
         [$code_type, $code] = explode(':', (string) $code_found['code']);
@@ -6399,7 +6399,7 @@ function in_array_r($needle, $haystack, $strict = false): bool
              * @param $provider_id = who is the patient's provider is only needed if there is no value anywhere else.
              * @return array (ODIOPTARGET AND OSIOPTARGET to be saved in this encounter
              */
-function getIOPTARGETS($pid, $id, $provider_id)
+function getIOPTARGETS($pid, $id, $provider_id): array
 {
     $ODIOPTARGET = '';
     $OSIOPTARGET = '';

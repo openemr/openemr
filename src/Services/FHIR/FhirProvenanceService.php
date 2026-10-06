@@ -195,7 +195,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['_id']),

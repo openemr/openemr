@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Module
 {
-    public function getAutoloaderConfig()
+    public function getAutoloaderConfig(): array
     {
         return [
             \Laminas\Loader\ClassMapAutoloader::class => [

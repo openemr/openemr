@@ -121,7 +121,7 @@ function isRegistered($directory, $state = 1): bool
     return false;
 }
 
-function getTherapyGroupCategories()
+function getTherapyGroupCategories(): array
 {
     return [''];
 }

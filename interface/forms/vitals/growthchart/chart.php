@@ -442,7 +442,7 @@ function cssPage($image1, $image2): void
 // Convert a point from above settings for gd into a
 // a format (pt) to use for css html document
 //  return - Array(Xcoord,Ycoord,page)
-function convertpoint($coord)
+function convertpoint($coord): array
 {
     global $cssWidth, $cssHeight;
 

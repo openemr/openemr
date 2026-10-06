@@ -792,7 +792,7 @@ class InstModuleTable
         }
     }
 
-    public function getHangers()
+    public function getHangers(): array
     {
         return [
             'reports' => "Reports",
