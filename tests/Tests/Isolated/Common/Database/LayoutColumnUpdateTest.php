@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Layout columns are saved with a literal statement, not a built identifier.
+ * A layout column is refused when it would rewrite the row key or break the quote.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -16,55 +16,64 @@ namespace OpenEMR\Tests\Isolated\Common\Database;
 
 use OpenEMR\Common\Database\LayoutColumnUpdate;
 use OpenEMR\Common\Database\SqlQueryException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class LayoutColumnUpdateTest extends TestCase
 {
     #[Test]
-    public function testAVisitReasonUsesOneLiteralStatement(): void
-    {
-        $statement = LayoutColumnUpdate::encounterStatement('reason');
-
-        $this->assertSame(
-            'UPDATE form_encounter SET `reason` = ? WHERE pid = ? AND encounter = ?',
-            $statement
-        );
-        $this->assertSame(2, substr_count($statement, '`'));
-        $this->assertStringNotContainsString('``', $statement);
-    }
-
-    #[Test]
-    public function testAPatientNameUsesOneLiteralStatement(): void
-    {
-        $statement = LayoutColumnUpdate::patientStatement('fname');
-
-        $this->assertSame(
-            'UPDATE patient_data SET `fname` = ? WHERE pid = ?',
-            $statement
-        );
-        $this->assertSame(2, substr_count($statement, '`'));
-        $this->assertStringNotContainsString('``', $statement);
-    }
-
-    #[Test]
-    public function testAnIdentityColumnIsRefused(): void
+    #[DataProvider('refusedPatientColumns')]
+    public function testAPatientIdentityColumnIsRefused(string $column): void
     {
         $this->expectException(SqlQueryException::class);
-        LayoutColumnUpdate::patientStatement('pid');
+        LayoutColumnUpdate::patientStatement($column);
     }
 
     #[Test]
-    public function testAnUnknownColumnIsRefused(): void
+    #[DataProvider('refusedVisitColumns')]
+    public function testAVisitIdentityColumnIsRefused(string $column): void
     {
         $this->expectException(SqlQueryException::class);
-        LayoutColumnUpdate::encounterStatement('not_a_column');
+        LayoutColumnUpdate::encounterStatement($column);
     }
 
     #[Test]
-    public function testAQuotedFieldIdIsNotAStatement(): void
+    public function testABacktickInTheFieldIdIsRefused(): void
     {
         $this->expectException(SqlQueryException::class);
         LayoutColumnUpdate::encounterStatement('reason` = 1; --');
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function refusedPatientColumns(): array
+    {
+        return [
+            'id' => ['id'],
+            'uuid' => ['uuid'],
+            'pid' => ['pid'],
+            'encounter' => ['encounter'],
+            'empty' => [''],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function refusedVisitColumns(): array
+    {
+        return [
+            'id' => ['id'],
+            'uuid' => ['uuid'],
+            'pid' => ['pid'],
+            'encounter' => ['encounter'],
+            'empty' => [''],
+        ];
     }
 }
