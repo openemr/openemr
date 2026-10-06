@@ -20,7 +20,7 @@
   border-bottom: 0;
 }
 
-#grapheus .g-row input[type="text"] {
+#grapheus .g-row input[type='text'] {
   font-size: 13px;
 }
 
@@ -84,7 +84,7 @@
 
 body.g-rec {
   margin: 0;
-  font: 15px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 15px/1.4 -apple-system, 'Segoe UI', Roboto, sans-serif;
   background: #022c44;
   color: #e6fffb;
 }
