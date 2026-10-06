@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -34,23 +35,23 @@ trait FhirServiceBaseEmptyTrait
         return $processingResult;
     }
 
-    public function parseFhirResource($fhirResource = [])
+    public function parseFhirResource($fhirResource = []): array
     {
-        return;
+        throw $this->writeNotSupported();
     }
 
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
-        return;
+        throw $this->writeNotSupported();
     }
 
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        return;
+        throw $this->writeNotSupported();
     }
-    public function createProvenanceResource($dataRecord = [])
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
-        return;
+        return null;
     }
 
     /**
@@ -61,5 +62,10 @@ trait FhirServiceBaseEmptyTrait
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): mixed
     {
         return null;
+    }
+
+    private function writeNotSupported(): \BadMethodCallException
+    {
+        return new \BadMethodCallException(static::class . ' does not support writes');
     }
 }
