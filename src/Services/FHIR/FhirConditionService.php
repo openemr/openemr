@@ -271,7 +271,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR Condition record array');
@@ -287,7 +287,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @param array $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         // The patient the caller asserts has to be the condition's actual owner. parseFhirResource()
         // sets puuid only when Condition.subject resolves, and without it update() has nothing to
