@@ -913,10 +913,9 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
 
     /**
      * @param array $dataRecord
-     * @param bool $encode
-     * @return FHIRProvenance|string|false The FHIR Resource. Returned format is defined using $encode parameter.
+     * @return FHIRProvenance|string|false The FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord = []): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRCoverage)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -928,7 +927,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             // available" and continues (see issue #13054).
             return false;
         }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $fhirProvenance;
     }
 
     /**
