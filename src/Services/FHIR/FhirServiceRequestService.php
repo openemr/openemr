@@ -1106,7 +1106,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
     /**
      * Creates the Provenance resource for the ServiceRequest
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRServiceRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -1119,10 +1119,6 @@ class FhirServiceRequestService extends FhirServiceBase implements
             $dataRecord,
             $requester
         );
-
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        }
 
         return $fhirProvenance;
     }
