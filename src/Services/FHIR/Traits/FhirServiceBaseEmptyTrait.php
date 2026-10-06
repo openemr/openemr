@@ -34,23 +34,24 @@ trait FhirServiceBaseEmptyTrait
         return $processingResult;
     }
 
-    public function parseFhirResource($fhirResource = [])
+    public function parseFhirResource($fhirResource = []): never
     {
-        return;
+        $this->throwWriteNotSupported();
     }
 
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): never
     {
-        return;
+        $this->throwWriteNotSupported();
     }
 
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): never
     {
-        return;
+        $this->throwWriteNotSupported();
     }
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+
+    public function createProvenanceResource($dataRecord = [], $encode = false): null
     {
-        return;
+        return null;
     }
 
     /**
@@ -61,5 +62,10 @@ trait FhirServiceBaseEmptyTrait
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): mixed
     {
         return null;
+    }
+
+    private function throwWriteNotSupported(): never
+    {
+        throw new \BadMethodCallException(static::class . ' does not support writes');
     }
 }
