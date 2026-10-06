@@ -419,21 +419,13 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements
 
     /**
      * @param FHIRDomainResource $dataRecord
-     * @return FHIRProvenance|string
      */
-    public function createProvenanceResource($dataRecord): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRQuestionnaire)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
-        if ($fhirProvenance === null) {
-            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
-            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
-            // available" and continues (see issue #13054).
-            return false;
-        }
-        return $fhirProvenance;
+        return $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
     }
 
     /**
