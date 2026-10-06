@@ -4272,16 +4272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$PMSFH of function send_json_values expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$PMSFH of function show_PMSFH_panel expects array, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$array of function extract expects array, array\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
@@ -4298,7 +4288,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of function build_PMSFH expects string, int given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [

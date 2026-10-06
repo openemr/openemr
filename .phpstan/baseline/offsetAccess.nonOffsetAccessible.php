@@ -6012,21 +6012,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'PMH\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'POH\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'POS\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'city\' on array\\|false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
@@ -6213,7 +6198,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 8,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
 ];
 $ignoreErrors[] = [
