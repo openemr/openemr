@@ -34,6 +34,11 @@ enum UnbilledFileDecision
      */
     public const STILL_BEING_WRITTEN = 'This claim is already being written to a file.';
 
+    /**
+     * Screen text when the file was written and the billed update missed.
+     */
+    public const WRITTEN_NOT_BILLED = 'The claim file was written, but this claim was not marked billed.';
+
     case None;
     case Missing;
     case Present;
