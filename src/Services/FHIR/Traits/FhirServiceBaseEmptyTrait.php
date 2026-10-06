@@ -48,7 +48,7 @@ trait FhirServiceBaseEmptyTrait
     {
         return;
     }
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = [])
     {
         return;
     }
