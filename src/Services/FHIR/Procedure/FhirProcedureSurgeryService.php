@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\Procedure;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -165,9 +166,8 @@ class FhirProcedureSurgeryService extends FhirServiceBase implements IPatientCom
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @return the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRProcedure)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
