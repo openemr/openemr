@@ -27,6 +27,7 @@ namespace OpenEMR\Services\FHIR\Import;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 
 final class FhirBundleImporter
 {
@@ -165,9 +166,10 @@ final class FhirBundleImporter
         // path (early return on password-grant failure, empty-source failure,
         // normal completion, or an uncaught Throwable from importBundle) has
         // to delete it. Wrap in try/finally so a thrown exception can't leak
-        // the client. registerOauth2Client() handles the "DB UPDATE threw
-        // after DCR succeeded" sub-case internally — it deletes the client
-        // and returns null, so the branch above sees no $client to clean up.
+        // the client. If the DB UPDATE throws after DCR succeeded,
+        // registerOauth2Client() attempts to delete the client and rethrows
+        // the UPDATE exception, so the branch above never sees a $client to
+        // clean up on that path.
         try {
             $token = $this->passwordGrant($http, $client['id'], $client['secret'], $scopes);
             if ($token === null) {
@@ -269,14 +271,15 @@ final class FhirBundleImporter
         } catch (\Throwable $e) {
             try {
                 $this->deleteOauth2Client($data['client_id']);
-            } catch (\Throwable) {
-                // A SQL-layer exception here is less interesting than the
-                // original UPDATE failure; rethrow the UPDATE exception so
-                // the delete-side error does not replace the real cause.
-                // Error subclasses (TypeError, ParseError, etc.) are
-                // deliberately not caught so they still propagate — those
-                // indicate a programmer bug the global handler must surface.
-                throw $e;
+            } catch (SqlQueryException) {
+                // The DELETE itself failed. The UPDATE failure is the real
+                // cause and gets rethrown below; log the stranded client id
+                // first so a human has something to grep for when cleaning
+                // up oauth_clients by hand. Narrowed to SqlQueryException
+                // (not Throwable) so programmer bugs — TypeError, etc. —
+                // still propagate to the global handler rather than being
+                // silently swapped for the UPDATE exception.
+                $this->logMessage("WARN: failed to delete stranded oauth client " . $data['client_id'] . "\n");
             }
             throw $e;
         }
