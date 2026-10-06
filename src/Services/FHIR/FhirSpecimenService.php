@@ -471,9 +471,8 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
      * Creates the Provenance resource for the equivalent FHIR Resource
      *
      * @param mixed $dataRecord The source data record (FHIRSpecimen or array)
-     * @return FHIRProvenance|null
      */
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRSpecimen)) {
             throw new \BadMethodCallException("Data record should be FHIRSpecimen instance");
