@@ -8,6 +8,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 
 class ModuleManagerListener extends AbstractModuleActionListener
@@ -19,8 +20,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
 
     public function moduleManagerAction($methodName, $modId, string $currentActionStatus = 'Success'): string
     {
-        if (method_exists(self::class, $methodName)) {
-            return self::$methodName($modId, $currentActionStatus);
+        if ($methodName === 'unregister') {
+            return $this->unregister($currentActionStatus);
         }
         return $currentActionStatus;
     }
@@ -35,15 +36,10 @@ class ModuleManagerListener extends AbstractModuleActionListener
         return new self();
     }
 
-    private function disable($modId, $currentActionStatus): mixed
+    /** Unregistering removes the connected keys (useless without the module); keeps the record of what was applied. */
+    private function unregister(string $currentActionStatus): string
     {
-        return $currentActionStatus;
-    }
-
-    /** Unregistering removes the connected keys (they would be useless without the module), keeps the audit of what was applied. */
-    private function unregister($modId, $currentActionStatus)
-    {
-        sqlStatement("DROP TABLE IF EXISTS `grapheus_keys`");
+        QueryUtils::sqlStatementThrowException("DROP TABLE IF EXISTS `grapheus_keys`", []);
         return $currentActionStatus;
     }
 }

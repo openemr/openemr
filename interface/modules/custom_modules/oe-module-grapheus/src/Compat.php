@@ -1,10 +1,9 @@
 <?php
 
 /**
- * One module for OpenEMR 7.0.x and 8.x. OpenEMR 8 moved session data behind
- * SessionWrapperFactory, CSRF tokens now take the session, and globals live in
- * OEGlobalsBag; 7.0.x uses $_SESSION and $GLOBALS. Everything version-specific
- * goes through here.
+ * The few OpenEMR services the module needs, in one place: the session, CSRF
+ * tokens, the request, paths and attaching a form to an encounter.
+ * (OpenEMR 8.x. The 7.0.x build of this file uses the legacy equivalents.)
  *
  * @package   Grapheus
  * @copyright Copyright (c) 2026 Exetazo Health
@@ -14,73 +13,66 @@
 namespace Exetazo\Grapheus;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class Compat
+final class Compat
 {
     public const CSRF_SUBJECT = 'grapheus';
 
-    /** The OpenEMR 8 session object, or null on 7.0.x. */
-    public static function session(): ?object
+    private static ?Request $request = null;
+
+    public static function request(): Request
     {
-        $f = 'OpenEMR\\Common\\Session\\SessionWrapperFactory';
-        return class_exists($f) ? $f::getInstance()->getActiveSession() : null;
+        return self::$request ??= Request::createFromGlobals();
+    }
+
+    public static function session(): SessionInterface
+    {
+        return SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        $s = self::session();
-        if ($s) {
-            return $s->get($key, $default);
-        }
-        return $_SESSION[$key] ?? $default;
+        return self::session()->get($key, $default);
     }
 
     public static function csrfToken(): string
     {
-        $s = self::session();
-        return $s ? CsrfUtils::collectCsrfToken($s, self::CSRF_SUBJECT) : CsrfUtils::collectCsrfToken(self::CSRF_SUBJECT);
+        return CsrfUtils::collectCsrfToken(self::session(), self::CSRF_SUBJECT);
     }
 
     public static function csrfValid(string $token): bool
     {
-        $s = self::session();
-        return $s ? CsrfUtils::verifyCsrfToken($token, $s, self::CSRF_SUBJECT) : CsrfUtils::verifyCsrfToken($token, self::CSRF_SUBJECT);
+        return CsrfUtils::verifyCsrfToken($token, self::session(), self::CSRF_SUBJECT);
     }
 
     /** Let other OpenEMR requests run while a long upload is in progress. */
     public static function releaseSession(): void
     {
-        $s = self::session();
-        if ($s && method_exists($s, 'save')) {
-            $s->save();
-        } elseif (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    private static function bag(): ?object
-    {
-        $b = 'OpenEMR\\Core\\OEGlobalsBag';
-        return class_exists($b) ? $b::getInstance() : null;
+        self::session()->save();
     }
 
     public static function webroot(): string
     {
-        $b = self::bag();
-        return $b ? (string) $b->getWebRoot() : (string) ($GLOBALS['webroot'] ?? '');
+        return OEGlobalsBag::getInstance()->getWebRoot();
     }
 
     public static function fileroot(): string
     {
-        $b = self::bag();
-        if ($b) {
-            return (string) ($b->get('fileroot') ?? $b->getProjectDir());
-        }
-        return (string) ($GLOBALS['fileroot'] ?? dirname(__DIR__, 5));
+        return OEGlobalsBag::getInstance()->getProjectDir();
     }
 
     public static function moduleUrl(string $path = ''): string
     {
         return self::webroot() . '/interface/modules/custom_modules/oe-module-grapheus/public' . ($path === '' ? '' : '/' . ltrim($path, '/'));
+    }
+
+    public static function addForm(int $encounter, string $name, int $formId, string $dir, int $pid, int $authorized): void
+    {
+        (new FormService())->addForm($encounter, $name, $formId, $dir, $pid, (string) $authorized);
     }
 }

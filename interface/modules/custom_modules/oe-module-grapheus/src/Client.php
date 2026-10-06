@@ -1,8 +1,9 @@
 <?php
 
 /**
- * Talks to the Grapheus service with the clinician's own key. Everything the
- * browser does goes through here, so the key never reaches the browser.
+ * Talks to the Grapheus service with the clinician's (or practice's) own key.
+ * Everything the browser does goes through here, so the key never reaches the
+ * browser.
  *
  * @package   Grapheus
  * @copyright Copyright (c) 2026 Exetazo Health
@@ -11,42 +12,43 @@
 
 namespace Exetazo\Grapheus;
 
-class Client
+use GuzzleHttp\Client as Http;
+use GuzzleHttp\Exception\GuzzleException;
+
+final readonly class Client
 {
-    public function __construct(private string $server, private string $key)
+    private string $server;
+
+    public function __construct(string $server, private string $key)
     {
         $this->server = rtrim($server, '/');
     }
 
-    /** @return array{status:int, body:array} */
-    public function call(string $method, string $path, $body = null, ?string $contentType = null, int $timeout = 60): array
+    /**
+     * @param array<string, mixed>|string|null $body JSON body (array), raw body (string with $contentType), or none
+     * @return array{status: int, body: array<string, mixed>}
+     */
+    public function call(string $method, string $path, array|string|null $body = null, ?string $contentType = null, int $timeout = 60): array
     {
-        $ch = curl_init($this->server . $path);
-        $headers = ['Authorization: Bearer ' . $this->key, 'Accept: application/json'];
-        if ($body !== null) {
-            if ($contentType === null) {
-                $body = json_encode($body);
-                $contentType = 'application/json';
-            }
-            $headers[] = 'Content-Type: ' . $contentType;
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        $options = [
+            'headers' => ['Authorization' => 'Bearer ' . $this->key, 'Accept' => 'application/json'],
+            'timeout' => $timeout,
+            'connect_timeout' => 10,
+            'http_errors' => false,
+        ];
+        if (is_array($body)) {
+            $options['json'] = $body === [] ? new \stdClass() : $body;
+        } elseif (is_string($body)) {
+            $options['body'] = $body;
+            $options['headers']['Content-Type'] = $contentType ?? 'application/octet-stream';
         }
-        curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => $timeout,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_SSL_VERIFYPEER => true,
-        ]);
-        $raw = curl_exec($ch);
-        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        $err = curl_error($ch);
-        curl_close($ch);
-        if ($raw === false) {
-            return ['status' => 0, 'body' => ['ok' => false, 'error' => 'Could not reach Grapheus: ' . $err]];
+        try {
+            $res = (new Http())->request($method, $this->server . $path, $options);
+        } catch (GuzzleException $e) {
+            return ['status' => 0, 'body' => ['ok' => false, 'error' => 'Could not reach Grapheus: ' . $e->getMessage()]];
         }
-        $json = json_decode((string) $raw, true);
-        return ['status' => $status, 'body' => is_array($json) ? $json : ['ok' => false, 'error' => 'Unexpected answer from Grapheus (' . $status . ').']];
+        $status = $res->getStatusCode();
+        $json = json_decode((string) $res->getBody(), true);
+        return ['status' => $status, 'body' => is_array($json) ? Val::map($json) : ['ok' => false, 'error' => 'Unexpected answer from Grapheus (' . $status . ').']];
     }
 }

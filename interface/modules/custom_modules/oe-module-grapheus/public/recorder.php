@@ -20,8 +20,12 @@ if (!AclMain::aclCheckCore('encounters', 'notes', '', 'write') && !AclMain::aclC
     exit;
 }
 $base = \Exetazo\Grapheus\Compat::moduleUrl();
-$sessPid = (int) \Exetazo\Grapheus\Compat::get('pid', 0);
-$patient = $sessPid ? getPatientData($sessPid, 'fname, lname') : [];
+$query = \Exetazo\Grapheus\Compat::request()->query;
+$mode = \Exetazo\Grapheus\Val::str($query->get('mode')) === 'telehealth' ? 'telehealth' : 'in_person';
+$ptype = \Exetazo\Grapheus\Val::str($query->get('ptype')) === 'new' ? 'new' : 'established';
+$prep = max(0, min(240, \Exetazo\Grapheus\Val::int($query->get('prep'))));
+$sessPid = \Exetazo\Grapheus\Val::int(\Exetazo\Grapheus\Compat::get('pid', 0));
+$patient = $sessPid > 0 ? \Exetazo\Grapheus\Val::map(getPatientData($sessPid, 'fname, lname')) : [];
 ?>
 <!doctype html>
 <html>
@@ -32,8 +36,8 @@ $patient = $sessPid ? getPatientData($sessPid, 'fname, lname') : [];
 </head>
 <body class="g-rec">
 <main id="rec" data-api="<?php echo attr($base . '/api.php'); ?>" data-csrf="<?php echo attr(\Exetazo\Grapheus\Compat::csrfToken()); ?>"
-      data-mode="<?php echo attr($_GET['mode'] ?? 'in_person'); ?>" data-ptype="<?php echo attr($_GET['ptype'] ?? 'established'); ?>" data-prep="<?php echo attr((string) (int) ($_GET['prep'] ?? 0)); ?>">
-    <div class="g-rec-head"><b>Grapheus</b> <span><?php echo text(trim(($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? ''))); ?></span></div>
+      data-mode="<?php echo attr($mode); ?>" data-ptype="<?php echo attr($ptype); ?>" data-prep="<?php echo attr((string) $prep); ?>">
+    <div class="g-rec-head"><b>Grapheus</b> <span><?php echo text(trim(\Exetazo\Grapheus\Val::str($patient['fname'] ?? '') . ' ' . \Exetazo\Grapheus\Val::str($patient['lname'] ?? ''))); ?></span></div>
     <div class="g-rec-state"><span class="g-dot" id="dot"></span><span id="state"><?php echo xlt('Starting…'); ?></span></div>
     <div class="g-timer" id="timer">0:00</div>
     <div class="g-meter"><div id="level"></div></div>

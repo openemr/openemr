@@ -1,19 +1,13 @@
 <?php
 
 /**
- * Grapheus module API, called by panel.js and recorder.js inside OpenEMR.
- * Signed-in OpenEMR session + CSRF token on every call; the clinician's
- * Grapheus key stays here on the server.
+ * Grapheus module API, called by the module's own pages inside OpenEMR.
+ * Signed-in OpenEMR session + CSRF token on every call; Grapheus keys stay on
+ * the server.
  *
- *   GET  ?action=state                     connection, patient, encounter
- *   POST ?action=connect   {key, email}    after the Grapheus Connect window
- *   POST ?action=disconnect
- *   POST ?action=start     {patientType, prepMin, mode}
- *   POST ?action=segment&visit=&seq=       raw audio
- *   POST ?action=finish    {visit, pausedSecs, prepMin, tz, reason, patientType}
- *   GET  ?action=visits                    the clinician's Grapheus drafts (48 h)
- *   GET  ?action=status&visit=
- *   POST ?action=apply     {visit, soap, problems, allergies, prescriptions, diagnoses, billing}
+ *   Scribe (clinicians):  state, connect, disconnect, start, segment, finish, visits, status, apply
+ *   Assistant (by role):  assistant-state, assistant-connect, assistant-disconnect, assistant-settings,
+ *                         assistant-chat, assistant-find-patient, assistant-apply, assistant-undo
  *
  * @package   Grapheus
  * @copyright Copyright (c) 2026 Exetazo Health
@@ -22,251 +16,246 @@
 
 require_once dirname(__FILE__, 5) . "/globals.php";
 require_once dirname(__DIR__) . '/src/Compat.php';
-require_once dirname(__FILE__, 5) . "/../library/forms.inc.php";
 
 use Exetazo\Grapheus\Applier;
 use Exetazo\Grapheus\Assistant;
 use Exetazo\Grapheus\Client;
-use Exetazo\Grapheus\Store;
-use OpenEMR\Common\Acl\AclMain;
 use Exetazo\Grapheus\Compat;
+use Exetazo\Grapheus\Http;
+use Exetazo\Grapheus\Store;
+use Exetazo\Grapheus\Val;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ModulesClassLoader;
 
 (new ModulesClassLoader(Compat::fileroot()))->registerNamespaceIfNotExists('Exetazo\\Grapheus\\', dirname(__DIR__) . '/src');
 
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
-
-function out(int $status, array $body): never
-{
-    http_response_code($status);
-    echo json_encode($body);
-    exit;
+$request = Compat::request();
+if (!Compat::csrfValid(Val::str($request->headers->get('X-CSRF-Token')))) {
+    Http::json(403, ['ok' => false, 'error' => 'Your OpenEMR session expired. Reload the page.']);
 }
-
-$csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-if (!Compat::csrfValid((string) $csrf)) {
-    out(403, ['ok' => false, 'error' => 'Your OpenEMR session expired. Reload the page.']);
-}
-$action = $_GET['action'] ?? '';
-$isAssistant = str_starts_with($action, 'assistant');
+$action = Val::str($request->query->get('action'));
 $role = Assistant::role();
-if ($isAssistant) {
+if (str_starts_with($action, 'assistant')) {
     if ($role === 'none') {
-        out(403, ['ok' => false, 'error' => 'The practice has limited the Grapheus Assistant to administrators.']);
+        Http::json(403, ['ok' => false, 'error' => 'The practice has limited the Grapheus Assistant to administrators.']);
     }
 } elseif (!AclMain::aclCheckCore('encounters', 'notes', '', 'write') && !AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) {
-    out(403, ['ok' => false, 'error' => 'You do not have permission to write encounter notes.']);
+    Http::json(403, ['ok' => false, 'error' => 'You do not have permission to write encounter notes.']);
 }
 
-$userId = (int) Compat::get('authUserID', 0);
-$userName = (string) Compat::get('authUser', '');
-$groupName = (string) Compat::get('authProvider', 'Default');
-$authorized = (int) Compat::get('userauthorized', 0);
-$pid = (int) Compat::get('pid', 0);
-$encounter = (int) Compat::get('encounter', 0);
-$method = $_SERVER['REQUEST_METHOD'];
+$userId = Val::int(Compat::get('authUserID', 0));
+$userName = Val::str(Compat::get('authUser', ''));
+$groupName = Val::str(Compat::get('authProvider', 'Default'));
+$authorized = Val::int(Compat::get('userauthorized', 0));
+$pid = Val::int(Compat::get('pid', 0));
+$encounter = Val::int(Compat::get('encounter', 0));
 
-// Long uploads must not hold the session lock (the rest of OpenEMR would freeze).
+// Long uploads must not hold the session lock (the rest of OpenEMR would wait).
 Compat::releaseSession();
 
 $body = [];
-if ($method === 'POST' && $action !== 'segment') {
-    $body = json_decode((string) file_get_contents('php://input'), true) ?: [];
+if ($request->getMethod() === 'POST' && $action !== 'segment') {
+    $body = Val::map(json_decode((string) $request->getContent(), true));
 }
 
 $conn = Store::key($userId);
-$client = $conn ? new Client(Store::server(), $conn['key']) : null;
-$needClient = function () use ($client) {
-    if (!$client) {
-        out(401, ['ok' => false, 'code' => 'connect', 'error' => 'Connect your Grapheus account first.']);
+$client = $conn !== null ? new Client(Store::server(), $conn['key']) : null;
+$needClient = static function () use ($client): Client {
+    if ($client === null) {
+        Http::json(401, ['ok' => false, 'code' => 'connect', 'error' => 'Connect your Grapheus account first.']);
     }
     return $client;
 };
-$relay = function (array $r) {
-    if ($r['status'] === 401) {
-        out(401, ['ok' => false, 'code' => 'connect', 'error' => 'Your Grapheus connection has ended. Connect again.']);
+$practiceClient = static function (): ?Client {
+    $practice = Store::practiceKey();
+    return $practice !== null ? new Client(Store::server(), $practice['key']) : null;
+};
+$adminOnly = static function () use ($role): void {
+    if ($role !== 'admin') {
+        Http::json(403, ['ok' => false, 'error' => 'Only an administrator can do that.']);
     }
-    out($r['status'] ?: 502, $r['body']);
+};
+$acceptKey = static function (string $key): string {
+    if (preg_match('/^sxk_[A-Za-z0-9_-]{30,}$/', $key) !== 1) {
+        Http::json(400, ['ok' => false, 'error' => 'That is not a Grapheus key.']);
+    }
+    $test = (new Client(Store::server(), $key))->call('GET', '/api/me', null, null, 15);
+    if (($test['body']['ok'] ?? false) !== true) {
+        Http::json(400, ['ok' => false, 'error' => 'Grapheus did not accept the key.']);
+    }
+    return Val::str(Val::map($test['body']['user'] ?? null)['email'] ?? '');
+};
+$patientName = static function (int $pid): string {
+    if ($pid <= 0) {
+        return '';
+    }
+    $p = Val::map(getPatientData($pid, 'fname, lname'));
+    return trim(Val::str($p['fname'] ?? '') . ' ' . Val::str($p['lname'] ?? ''));
 };
 
 switch ($action) {
     case 'state':
-        $patient = $pid ? getPatientData($pid, 'fname, lname, DOB') : [];
-        $me = null;
-        if ($client) {
+        $account = null;
+        if ($client !== null) {
             $r = $client->call('GET', '/api/me', null, null, 15);
             if ($r['status'] === 401) {
                 Store::forget($userId);
                 $client = null;
-            } elseif (!empty($r['body']['ok'])) {
-                $me = ['email' => $r['body']['user']['email'] ?? '', 'plan' => $r['body']['access']['planLabel'] ?? '', 'access' => $r['body']['access'] ?? null, 'name' => $r['body']['profile']['fullName'] ?? ''];
+            } elseif (($r['body']['ok'] ?? false) === true) {
+                $access = Val::map($r['body']['access'] ?? null);
+                $account = ['email' => Val::str(Val::map($r['body']['user'] ?? null)['email'] ?? ''), 'plan' => Val::str($access['planLabel'] ?? ''), 'access' => $access];
             }
         }
-        out(200, ['ok' => true, 'connected' => (bool) $client, 'account' => $me, 'server' => Store::server(),
-            'pid' => $pid, 'encounter' => $encounter, 'patientName' => trim(($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')),
-            'links' => array_values(Store::linksFor($pid, $encounter))]);
+        Http::json(200, ['ok' => true, 'connected' => $client !== null, 'account' => $account, 'server' => Store::server(),
+            'pid' => $pid, 'encounter' => $encounter, 'patientName' => $patientName($pid), 'links' => array_values(Store::linksFor($pid, $encounter))]);
 
     case 'connect':
-        $key = (string) ($body['key'] ?? '');
-        if (!preg_match('/^sxk_[A-Za-z0-9_-]{30,}$/', $key)) {
-            out(400, ['ok' => false, 'error' => 'That is not a Grapheus key.']);
-        }
-        $test = (new Client(Store::server(), $key))->call('GET', '/api/me', null, null, 15);
-        if (empty($test['body']['ok'])) {
-            out(400, ['ok' => false, 'error' => 'Grapheus did not accept the key.']);
-        }
-        Store::saveKey($userId, $key, (string) ($test['body']['user']['email'] ?? ''));
-        out(200, ['ok' => true]);
+        $key = Val::str($body['key'] ?? '');
+        $email = $acceptKey($key);
+        Store::saveKey($userId, $key, $email);
+        Http::json(200, ['ok' => true]);
 
     case 'disconnect':
-        if ($client) {
-            $client->call('POST', '/api/ext/disconnect', new stdClass(), null, 15);
-        }
+        $client?->call('POST', '/api/ext/disconnect', [], null, 15);
         Store::forget($userId);
-        out(200, ['ok' => true]);
+        Http::json(200, ['ok' => true]);
 
     case 'start':
-        if (!$pid || !$encounter) {
-            out(400, ['ok' => false, 'error' => 'Open the patient and the encounter first.']);
+        if ($pid <= 0 || $encounter <= 0) {
+            Http::json(400, ['ok' => false, 'error' => 'Open the patient and the encounter first.']);
         }
-        $patient = getPatientData($pid, 'fname, lname');
-        $label = trim(($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? ''));
         $r = $needClient()->call('POST', '/api/visits/start', [
-            'label' => $label, 'mode' => ($body['mode'] ?? '') === 'telehealth' ? 'telehealth' : 'in_person',
-            'patientType' => ($body['patientType'] ?? '') === 'new' ? 'new' : 'established',
+            'label' => $patientName($pid),
+            'mode' => Val::str($body['mode'] ?? '') === 'telehealth' ? 'telehealth' : 'in_person',
+            'patientType' => Val::str($body['patientType'] ?? '') === 'new' ? 'new' : 'established',
         ], null, 20);
-        if (!empty($r['body']['ok']) && !empty($r['body']['id'])) {
-            Store::link((string) $r['body']['id'], $pid, $encounter, $userId);
+        $visitId = Val::str($r['body']['id'] ?? '');
+        if (($r['body']['ok'] ?? false) === true && $visitId !== '') {
+            Store::link($visitId, $pid, $encounter, $userId);
         }
-        $relay($r);
+        Http::relay($r);
 
     case 'segment':
-        $visit = (string) ($_GET['visit'] ?? '');
+        $visit = Val::str($request->query->get('visit'));
         $link = Store::linkOf($visit);
-        if (!$link || (int) $link['user_id'] !== $userId) {
-            out(404, ['ok' => false, 'error' => 'Unknown recording.']);
+        if ($link === null || Val::int($link['user_id'] ?? 0) !== $userId) {
+            Http::json(404, ['ok' => false, 'error' => 'Unknown recording.']);
         }
-        $type = (string) ($_SERVER['CONTENT_TYPE'] ?? 'audio/webm');
-        $audio = (string) file_get_contents('php://input');
-        $relay($needClient()->call('POST', '/api/visits/segment?id=' . rawurlencode($visit) . '&seq=' . (int) ($_GET['seq'] ?? 0), $audio, $type, 600));
+        $type = Val::str($request->headers->get('Content-Type', 'audio/webm'));
+        $path = '/api/visits/segment?id=' . rawurlencode($visit) . '&seq=' . Val::int($request->query->get('seq'));
+        Http::relay($needClient()->call('POST', $path, (string) $request->getContent(), $type, 600));
 
     case 'finish':
-        $visit = (string) ($body['visit'] ?? '');
-        $relay($needClient()->call('POST', '/api/visits/finish', [
-            'id' => $visit, 'pausedSecs' => (int) ($body['pausedSecs'] ?? 0), 'prepMin' => (int) ($body['prepMin'] ?? 0),
-            'tz' => (string) ($body['tz'] ?? ''), 'reason' => (string) ($body['reason'] ?? 'stopped'), 'patientType' => (string) ($body['patientType'] ?? ''),
+        Http::relay($needClient()->call('POST', '/api/visits/finish', [
+            'id' => Val::str($body['visit'] ?? ''), 'pausedSecs' => Val::int($body['pausedSecs'] ?? 0), 'prepMin' => Val::int($body['prepMin'] ?? 0),
+            'tz' => Val::str($body['tz'] ?? '', 60), 'reason' => Val::str($body['reason'] ?? 'stopped', 60), 'patientType' => Val::str($body['patientType'] ?? '', 20),
         ], null, 60));
 
     case 'visits':
         $r = $needClient()->call('GET', '/api/visits', null, null, 20);
         $links = Store::linksFor($pid, $encounter);
-        foreach ($r['body']['visits'] ?? [] as $i => $v) {
-            $r['body']['visits'][$i]['thisEncounter'] = isset($links[$v['id']]);
-            $r['body']['visits'][$i]['appliedAt'] = $links[$v['id']]['applied_at'] ?? null;
+        $visits = [];
+        foreach (Val::maps($r['body']['visits'] ?? null) as $v) {
+            $id = Val::str($v['id'] ?? '');
+            $v['thisEncounter'] = isset($links[$id]);
+            $v['appliedAt'] = $links[$id]['applied_at'] ?? null;
+            $visits[] = $v;
         }
-        $relay($r);
+        $r['body']['visits'] = $visits;
+        Http::relay($r);
 
     case 'status':
-        $relay($needClient()->call('GET', '/api/visits/status?id=' . rawurlencode((string) ($_GET['visit'] ?? '')), null, null, 30));
+        Http::relay($needClient()->call('GET', '/api/visits/status?id=' . rawurlencode(Val::str($request->query->get('visit'))), null, null, 30));
 
     case 'apply':
-        if (!$pid || !$encounter) {
-            out(400, ['ok' => false, 'error' => 'Open the patient and the encounter first.']);
+        if ($pid <= 0 || $encounter <= 0) {
+            Http::json(400, ['ok' => false, 'error' => 'Open the patient and the encounter first.']);
         }
-        $visit = (string) ($body['visit'] ?? '');
+        $visit = Val::str($body['visit'] ?? '');
         $link = Store::linkOf($visit);
-        if ($link && !empty($link['applied_at'])) {
-            out(409, ['ok' => false, 'error' => 'This draft was already added to a chart on ' . $link['applied_at'] . '.']);
+        if ($link !== null && Val::str($link['applied_at'] ?? '') !== '') {
+            Http::json(409, ['ok' => false, 'error' => 'This draft was already added to a chart on ' . Val::str($link['applied_at']) . '.']);
         }
-        // The draft must belong to this clinician's Grapheus account.
+        // The draft must belong to this clinician's Grapheus account and be ready.
         $check = $needClient()->call('GET', '/api/visits/status?id=' . rawurlencode($visit), null, null, 30);
-        if (empty($check['body']['ok']) || ($check['body']['visit']['status'] ?? '') !== 'ready') {
-            out(400, ['ok' => false, 'error' => 'That draft is not ready or not yours.']);
+        if (($check['body']['ok'] ?? false) !== true || Val::str(Val::map($check['body']['visit'] ?? null)['status'] ?? '') !== 'ready') {
+            Http::json(400, ['ok' => false, 'error' => 'That draft is not ready or not yours.']);
         }
         try {
             $summary = (new Applier($pid, $encounter, $userId, $userName, $groupName, $authorized))->apply($body);
-        } catch (\Throwable $e) {
-            (new \OpenEMR\Common\Logging\SystemLogger())->error('Grapheus apply failed', ['error' => $e->getMessage()]);
-            out(500, ['ok' => false, 'error' => 'Nothing was added: ' . $e->getMessage()]);
+        } catch (\RuntimeException $e) {
+            Http::json(500, ['ok' => false, 'error' => 'Nothing was added: ' . $e->getMessage()]);
         }
         Store::markApplied($visit, $pid, $encounter, $userId, $summary);
-        out(200, ['ok' => true, 'summary' => $summary]);
+        Http::json(200, ['ok' => true, 'summary' => $summary]);
 
     // ------------------------------------------------------------ Grapheus Assistant
     case 'assistant-state':
         $practice = Store::practiceKey();
-        out(200, ['ok' => true, 'role' => $role, 'practiceConnected' => (bool) $practice, 'practiceEmail' => $practice['email'] ?? '',
+        Http::json(200, ['ok' => true, 'role' => $role, 'practiceConnected' => $practice !== null, 'practiceEmail' => $practice['email'] ?? '',
             'server' => Store::server(), 'adminsOnly' => Assistant::adminsOnly(), 'log' => $role === 'admin' ? Assistant::recent(30) : []]);
 
     case 'assistant-connect':
-        if ($role !== 'admin') {
-            out(403, ['ok' => false, 'error' => 'Only an administrator can connect the practice account.']);
-        }
-        $key = (string) ($body['key'] ?? '');
-        $test = preg_match('/^sxk_[A-Za-z0-9_-]{30,}$/', $key) ? (new Client(Store::server(), $key))->call('GET', '/api/me', null, null, 15) : ['body' => []];
-        if (empty($test['body']['ok'])) {
-            out(400, ['ok' => false, 'error' => 'Grapheus did not accept the key.']);
-        }
-        Store::savePracticeKey($key, (string) ($test['body']['user']['email'] ?? ''));
-        out(200, ['ok' => true]);
+        $adminOnly();
+        $key = Val::str($body['key'] ?? '');
+        $email = $acceptKey($key);
+        Store::savePracticeKey($key, $email);
+        Http::json(200, ['ok' => true]);
 
     case 'assistant-disconnect':
-        if ($role !== 'admin') {
-            out(403, ['ok' => false, 'error' => 'Only an administrator can do that.']);
-        }
+        $adminOnly();
         Store::forgetPractice();
-        out(200, ['ok' => true]);
+        Http::json(200, ['ok' => true]);
 
     case 'assistant-settings':
-        if ($role !== 'admin') {
-            out(403, ['ok' => false, 'error' => 'Only an administrator can do that.']);
-        }
-        Assistant::setAdminsOnly(!empty($body['adminsOnly']));
-        out(200, ['ok' => true]);
+        $adminOnly();
+        Assistant::setAdminsOnly(Val::bool($body['adminsOnly'] ?? false));
+        Http::json(200, ['ok' => true]);
 
     case 'assistant-chat':
-        $practice = Store::practiceKey();
-        if (!$practice) {
-            out(401, ['ok' => false, 'code' => 'connect', 'error' => 'An administrator needs to connect the practice\'s Grapheus account first.']);
+        $pc = $practiceClient();
+        if ($pc === null) {
+            Http::json(401, ['ok' => false, 'code' => 'connect', 'error' => "An administrator needs to connect the practice's Grapheus account first."]);
         }
-        $r = (new Client(Store::server(), $practice['key']))->call('POST', '/api/setup/chat', [
-            'emr' => 'openemr', 'messages' => $body['messages'] ?? [], 'snapshot' => Assistant::snapshot($role, $userName),
+        $r = $pc->call('POST', '/api/setup/chat', [
+            'emr' => 'openemr', 'messages' => Val::maps($body['messages'] ?? null), 'snapshot' => Assistant::snapshot($role, $userName),
         ], null, 180);
-        if (!empty($r['body']['changes'])) {
-            foreach ($r['body']['changes'] as $i => $c) {
-                $r['body']['changes'][$i]['allowed'] = Assistant::allowed((string) ($c['op'] ?? ''), $role);
-            }
+        $changes = [];
+        foreach (Val::maps($r['body']['changes'] ?? null) as $c) {
+            $c['allowed'] = Assistant::allowed(Val::str($c['op'] ?? ''), $role);
+            $changes[] = $c;
         }
-        $relay($r);
+        $r['body']['changes'] = $changes;
+        Http::relay($r);
 
     case 'assistant-find-patient':
         if (!Assistant::allowed('create_appointment', $role)) {
-            out(403, ['ok' => false, 'error' => 'Your role cannot schedule.']);
+            Http::json(403, ['ok' => false, 'error' => 'Your role cannot schedule.']);
         }
-        out(200, ['ok' => true, 'patients' => Assistant::findPatients((string) ($body['name'] ?? ''), (string) ($body['dob'] ?? ''))]);
+        Http::json(200, ['ok' => true, 'patients' => Assistant::findPatients(Val::str($body['name'] ?? ''), Val::str($body['dob'] ?? ''))]);
 
     case 'assistant-apply':
         $results = [];
         $applied = 0;
-        foreach (array_slice((array) ($body['changes'] ?? []), 0, 300) as $c) {
+        foreach (array_slice(Val::maps($body['changes'] ?? null), 0, 300) as $c) {
+            $chosen = Val::int($c['pid'] ?? 0);
             try {
-                $res = Assistant::apply((string) ($c['op'] ?? ''), (array) ($c['args'] ?? []), $role, $userId, isset($c['pid']) ? (int) $c['pid'] : null);
-            } catch (\Throwable $e) {
+                $res = Assistant::apply(Val::str($c['op'] ?? ''), Val::map($c['args'] ?? null), $role, $userId, $chosen > 0 ? $chosen : null);
+            } catch (\RuntimeException $e) {
                 $res = ['ok' => false, 'error' => $e->getMessage()];
             }
             $applied += $res['ok'] ? 1 : 0;
             $results[] = $res;
         }
-        $practice = Store::practiceKey();
-        if ($practice && !empty($body['requestId'])) {
-            (new Client(Store::server(), $practice['key']))->call('POST', '/api/setup/applied', ['requestId' => (int) $body['requestId'], 'applied' => $applied], null, 15);
+        $requestId = Val::int($body['requestId'] ?? 0);
+        if ($requestId > 0) {
+            $practiceClient()?->call('POST', '/api/setup/applied', ['requestId' => $requestId, 'applied' => $applied], null, 15);
         }
-        out(200, ['ok' => true, 'results' => $results, 'applied' => $applied]);
+        Http::json(200, ['ok' => true, 'results' => $results, 'applied' => $applied]);
 
     case 'assistant-undo':
-        out(200, Assistant::undo((int) ($body['logId'] ?? 0), $role));
+        Http::json(200, Assistant::undo(Val::int($body['logId'] ?? 0), $role));
 
     default:
-        out(404, ['ok' => false, 'error' => 'Unknown action.']);
+        Http::json(404, ['ok' => false, 'error' => 'Unknown action.']);
 }

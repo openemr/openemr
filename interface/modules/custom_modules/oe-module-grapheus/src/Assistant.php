@@ -22,13 +22,17 @@ namespace Exetazo\Grapheus;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\AppointmentService;
 
-class Assistant
+final class Assistant
 {
     public const SETUP_OPS = ['set_global', 'upsert_facility', 'add_list_option', 'update_list_option', 'upsert_fee', 'upsert_appt_category', 'set_form_enabled'];
     public const DAILY_OPS = ['create_appointment'];
 
     /** Globals the Assistant never reads or writes: security, credentials, integrations. */
     public const BLOCKED_GLOBAL = '/pass|secret|token|key|salt|encrypt|crypt|oauth|auth|login|mfa|2fa|totp|ssl|cert|session|timeout|audit|log|api|smtp|sms|twilio|fax|portal|ccr|hl7|phimail|direct|weno|erx|backup|cron|webroot|url|path|dir|host|port|server|email/i';
+
+    private const FACILITY_TEXT = ['street', 'city', 'state', 'postal_code', 'phone', 'fax', 'email', 'website', 'federal_ein', 'facility_npi', 'facility_taxonomy', 'pos_code'];
+    private const FACILITY_FLAGS = ['billing_location', 'service_location', 'primary_business_entity', 'accepts_assignment'];
+    private const NO_REPEAT = 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}';
 
     public static function role(): string
     {
@@ -49,13 +53,12 @@ class Assistant
 
     public static function adminsOnly(): bool
     {
-        $r = sqlQuery("SELECT `value` FROM grapheus_settings WHERE `name` = 'assistant_admins_only'");
-        return ($r['value'] ?? '0') === '1';
+        return Store::setting('assistant_admins_only') === '1';
     }
 
     public static function setAdminsOnly(bool $on): void
     {
-        sqlStatement("REPLACE INTO grapheus_settings (`name`, `value`) VALUES ('assistant_admins_only', ?)", [$on ? '1' : '0']);
+        Store::setSetting('assistant_admins_only', $on ? '1' : '0');
     }
 
     public static function allowed(string $op, string $role): bool
@@ -69,63 +72,69 @@ class Assistant
         return false;
     }
 
-    // ---------------------------------------------------------------- snapshot (no patient records)
-    private static function rows(string $sql, array $binds = []): array
-    {
-        $out = [];
-        $res = sqlStatement($sql, $binds);
-        while ($row = sqlFetchArray($res)) {
-            $out[] = $row;
-        }
-        return $out;
-    }
-
+    /**
+     * What Grapheus sees: configuration only, never patient records.
+     *
+     * @return array<string, mixed>
+     */
     public static function snapshot(string $role, string $username): array
     {
-        $tz = date_default_timezone_get();
+        $categories = [];
+        foreach (Db::all("SELECT pc_catid, pc_catname, pc_duration, pc_active, pc_cattype FROM openemr_postcalendar_categories ORDER BY pc_seq, pc_catid") as $c) {
+            $categories[] = ['id' => $c['pc_catid'] ?? null, 'name' => $c['pc_catname'] ?? null, 'minutes' => (int) round(Val::int($c['pc_duration'] ?? 0) / 60),
+                'active' => $c['pc_active'] ?? null, 'type' => $c['pc_cattype'] ?? null];
+        }
         $s = [
-            'today' => date('Y-m-d (l) H:i') . ' ' . $tz,
+            'today' => date('Y-m-d (l) H:i') . ' ' . date_default_timezone_get(),
             'user' => ['username' => $username, 'role' => $role],
-            'facilities' => self::rows("SELECT id, name, street, city, state, postal_code, phone, facility_npi, pos_code, billing_location, service_location, primary_business_entity FROM facility ORDER BY id"),
-            'providers' => self::rows("SELECT username, fname, lname, specialty, facility_id FROM users WHERE authorized = 1 AND active = 1 AND username <> '' ORDER BY lname"),
-            'appointment_categories' => array_map(fn ($c) => ['id' => $c['pc_catid'], 'name' => $c['pc_catname'], 'minutes' => (int) round(((int) $c['pc_duration']) / 60), 'active' => $c['pc_active'], 'type' => $c['pc_cattype']],
-                self::rows("SELECT pc_catid, pc_catname, pc_duration, pc_active, pc_cattype FROM openemr_postcalendar_categories ORDER BY pc_seq, pc_catid")),
+            'facilities' => Db::all("SELECT id, name, street, city, state, postal_code, phone, facility_npi, pos_code, billing_location, service_location, primary_business_entity FROM facility ORDER BY id"),
+            'providers' => Db::all("SELECT username, fname, lname, specialty, facility_id FROM users WHERE authorized = 1 AND active = 1 AND username <> '' ORDER BY lname"),
+            'appointment_categories' => $categories,
         ];
         if ($role !== 'admin') {
             return $s;
         }
         $globals = [];
-        foreach (self::rows("SELECT gl_name, gl_value FROM globals WHERE gl_index = 0 ORDER BY gl_name") as $g) {
-            if (!preg_match(self::BLOCKED_GLOBAL, $g['gl_name'])) {
-                $globals[$g['gl_name']] = mb_substr((string) $g['gl_value'], 0, 120);
+        foreach (Db::all("SELECT gl_name, gl_value FROM globals WHERE gl_index = 0 ORDER BY gl_name") as $g) {
+            $name = Val::str($g['gl_name'] ?? '');
+            if (preg_match(self::BLOCKED_GLOBAL, $name) !== 1) {
+                $globals[$name] = Val::str($g['gl_value'] ?? '', 120);
             }
         }
         $s['globals'] = $globals;
-        $s['forms'] = self::rows("SELECT directory, name, state FROM registry ORDER BY name");
+        $s['forms'] = Db::all("SELECT directory, name, state FROM registry ORDER BY name");
         $lists = [];
-        foreach (self::rows("SELECT option_id AS id, title FROM list_options WHERE list_id = 'lists' AND activity = 1 ORDER BY title") as $l) {
-            $n = sqlQuery("SELECT COUNT(*) AS n FROM list_options WHERE list_id = ?", [$l['id']]);
-            $entry = ['id' => $l['id'], 'title' => $l['title'], 'count' => (int) $n['n']];
-            if ((int) $n['n'] <= 30) {
-                $entry['options'] = array_map(fn ($o) => $o['option_id'] . '=' . $o['title'] . ($o['activity'] ? '' : ' (hidden)'),
-                    self::rows("SELECT option_id, title, activity FROM list_options WHERE list_id = ? ORDER BY seq", [$l['id']]));
+        foreach (Db::all("SELECT option_id AS id, title FROM list_options WHERE list_id = 'lists' AND activity = 1 ORDER BY title") as $l) {
+            $id = Val::str($l['id'] ?? '');
+            $count = Val::int(Db::one("SELECT COUNT(*) AS n FROM list_options WHERE list_id = ?", [$id])['n'] ?? 0);
+            $entry = ['id' => $id, 'title' => $l['title'] ?? '', 'count' => $count];
+            if ($count <= 30) {
+                $options = [];
+                foreach (Db::all("SELECT option_id, title, activity FROM list_options WHERE list_id = ? ORDER BY seq", [$id]) as $o) {
+                    $options[] = Val::str($o['option_id'] ?? '') . '=' . Val::str($o['title'] ?? '') . (Val::int($o['activity'] ?? 0) === 1 ? '' : ' (hidden)');
+                }
+                $entry['options'] = $options;
             }
             $lists[] = $entry;
         }
         $s['lists'] = $lists;
-        $s['fee_schedule'] = self::rows("SELECT t.ct_key AS type, c.code, c.code_text AS description, p.pr_price AS price FROM codes c JOIN code_types t ON t.ct_id = c.code_type
+        $s['fee_schedule'] = Db::all("SELECT t.ct_key AS type, c.code, c.code_text AS description, p.pr_price AS price FROM codes c JOIN code_types t ON t.ct_id = c.code_type
             LEFT JOIN prices p ON p.pr_id = c.id AND p.pr_selector = '' AND p.pr_level = 'standard' WHERE t.ct_key IN ('CPT4','HCPCS') ORDER BY c.code LIMIT 300");
         return $s;
     }
 
-    // ---------------------------------------------------------------- find a patient (stays in OpenEMR)
+    /**
+     * Patients matching a name the user typed. Stays inside OpenEMR.
+     *
+     * @return list<array<string, mixed>>
+     */
     public static function findPatients(string $name, string $dob = ''): array
     {
-        $parts = preg_split('/\s+/', trim($name));
-        if (!$parts || $parts[0] === '') {
+        $parts = preg_split('/\s+/', trim($name)) ?: [];
+        $first = $parts[0] ?? '';
+        if ($first === '') {
             return [];
         }
-        $first = $parts[0];
         $last = count($parts) > 1 ? end($parts) : '';
         $sql = "SELECT pid, fname, lname, DOB FROM patient_data WHERE (fname LIKE ? OR preferred_name LIKE ?)";
         $binds = [$first . '%', $first . '%'];
@@ -133,271 +142,355 @@ class Assistant
             $sql .= " AND lname LIKE ?";
             $binds[] = $last . '%';
         }
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dob)) {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dob) === 1) {
             $sql .= " AND DOB = ?";
             $binds[] = $dob;
         }
-        return self::rows($sql . " ORDER BY lname, fname LIMIT 10", $binds);
+        return Db::all($sql . " ORDER BY lname, fname LIMIT 10", $binds);
     }
 
-    // ---------------------------------------------------------------- apply one approved change
-    /** @return array{ok:bool, result?:string, error?:string, log_id?:int} */
+    /**
+     * Apply one approved change and log how to undo it.
+     *
+     * @param array<string, mixed> $a
+     * @return array{ok: bool, result?: string, error?: string, log_id?: int}
+     */
     public static function apply(string $op, array $a, string $role, int $userId, ?int $pid = null): array
     {
         if (!self::allowed($op, $role)) {
             return ['ok' => false, 'error' => 'Your OpenEMR role cannot make this change.'];
         }
-        $before = null;
-        $undo = null;
-        switch ($op) {
-            case 'set_global':
-                $name = (string) ($a['name'] ?? '');
-                if ($name === '' || preg_match(self::BLOCKED_GLOBAL, $name)) {
-                    return ['ok' => false, 'error' => "Grapheus cannot change the setting $name."];
-                }
-                $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = ? AND gl_index = 0", [$name]);
-                if ($row === false || $row === null || !array_key_exists('gl_value', (array) $row)) {
-                    return ['ok' => false, 'error' => "There is no setting named $name."];
-                }
-                $before = ['value' => $row['gl_value']];
-                sqlStatement("UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0", [mb_substr((string) ($a['value'] ?? ''), 0, 255), $name]);
-                $undo = ['op' => 'set_global', 'name' => $name];
-                $result = "Setting $name changed";
-                break;
-
-            case 'upsert_facility':
-                $name = trim((string) ($a['name'] ?? ''));
-                if ($name === '') {
-                    return ['ok' => false, 'error' => 'The facility needs a name.'];
-                }
-                $cols = ['street', 'city', 'state', 'postal_code', 'phone', 'fax', 'email', 'website', 'federal_ein', 'facility_npi', 'facility_taxonomy', 'pos_code'];
-                $flags = ['billing_location', 'service_location', 'primary_business_entity', 'accepts_assignment'];
-                $set = [];
-                foreach ($cols as $c) {
-                    if (isset($a[$c]) && $a[$c] !== '') {
-                        $set[$c] = mb_substr((string) $a[$c], 0, 255);
-                    }
-                }
-                foreach ($flags as $f) {
-                    if (isset($a[$f])) {
-                        $set[$f] = $a[$f] ? 1 : 0;
-                    }
-                }
-                $existing = sqlQuery("SELECT * FROM facility WHERE name = ?", [$name]);
-                if (!empty($existing['id'])) {
-                    $before = array_intersect_key($existing, $set);
-                    if ($set) {
-                        sqlStatement("UPDATE facility SET " . implode(', ', array_map(fn ($c) => "`$c` = ?", array_keys($set))) . " WHERE id = ?", array_merge(array_values($set), [$existing['id']]));
-                    }
-                    $undo = ['op' => 'restore_facility', 'id' => (int) $existing['id']];
-                    $result = "Facility $name updated";
-                } else {
-                    $set['name'] = mb_substr($name, 0, 255);
-                    $id = sqlInsert("INSERT INTO facility (" . implode(', ', array_map(fn ($c) => "`$c`", array_keys($set))) . ") VALUES (" . implode(', ', array_fill(0, count($set), '?')) . ")", array_values($set));
-                    $undo = ['op' => 'delete_facility', 'id' => (int) $id];
-                    $result = "Facility $name added";
-                }
-                break;
-
-            case 'add_list_option':
-                $list = (string) ($a['list_id'] ?? '');
-                $oid = mb_substr((string) ($a['option_id'] ?? ''), 0, 100);
-                if (!sqlQuery("SELECT option_id FROM list_options WHERE list_id = 'lists' AND option_id = ?", [$list])) {
-                    return ['ok' => false, 'error' => "There is no list $list."];
-                }
-                if ($oid === '' || sqlQuery("SELECT option_id FROM list_options WHERE list_id = ? AND option_id = ?", [$list, $oid])) {
-                    return ['ok' => false, 'error' => "$list already has an option $oid."];
-                }
-                sqlStatement("INSERT INTO list_options (list_id, option_id, title, seq, is_default, notes, activity) VALUES (?, ?, ?, ?, ?, ?, 1)",
-                    [$list, $oid, mb_substr((string) ($a['title'] ?? $oid), 0, 255), (int) ($a['seq'] ?? 0), !empty($a['is_default']) ? 1 : 0, mb_substr((string) ($a['notes'] ?? ''), 0, 255)]);
-                $undo = ['op' => 'delete_list_option', 'list_id' => $list, 'option_id' => $oid];
-                $result = "Added \"" . ($a['title'] ?? $oid) . "\" to $list";
-                break;
-
-            case 'update_list_option':
-                $list = (string) ($a['list_id'] ?? '');
-                $oid = (string) ($a['option_id'] ?? '');
-                $row = sqlQuery("SELECT title, seq, activity FROM list_options WHERE list_id = ? AND option_id = ?", [$list, $oid]);
-                if (empty($row)) {
-                    return ['ok' => false, 'error' => "There is no option $oid in $list."];
-                }
-                $before = $row;
-                sqlStatement("UPDATE list_options SET title = ?, seq = ?, activity = ? WHERE list_id = ? AND option_id = ?", [
-                    isset($a['title']) ? mb_substr((string) $a['title'], 0, 255) : $row['title'], isset($a['seq']) ? (int) $a['seq'] : $row['seq'],
-                    isset($a['active']) ? ($a['active'] ? 1 : 0) : $row['activity'], $list, $oid]);
-                $undo = ['op' => 'restore_list_option', 'list_id' => $list, 'option_id' => $oid];
-                $result = "Updated $oid in $list";
-                break;
-
-            case 'upsert_fee':
-                $type = strtoupper((string) ($a['code_type'] ?? 'CPT4'));
-                $code = strtoupper(trim((string) ($a['code'] ?? '')));
-                $ct = sqlQuery("SELECT ct_id FROM code_types WHERE ct_key = ?", [$type]);
-                if (empty($ct['ct_id']) || !preg_match('/^[A-Z0-9]{4,6}$/', $code)) {
-                    return ['ok' => false, 'error' => "Cannot add code $type $code."];
-                }
-                $price = sprintf('%.2f', (float) ($a['price'] ?? 0));
-                $row = sqlQuery("SELECT id, code_text FROM codes WHERE code_type = ? AND code = ? AND modifier = ''", [$ct['ct_id'], $code]);
-                if (!empty($row['id'])) {
-                    $p = sqlQuery("SELECT pr_price FROM prices WHERE pr_id = ? AND pr_selector = '' AND pr_level = 'standard'", [$row['id']]);
-                    $before = ['code_text' => $row['code_text'], 'price' => $p['pr_price'] ?? null];
-                    $cid = (int) $row['id'];
-                    if (!empty($a['description'])) {
-                        sqlStatement("UPDATE codes SET code_text = ? WHERE id = ?", [mb_substr((string) $a['description'], 0, 255), $cid]);
-                    }
-                    $undo = ['op' => 'restore_fee', 'code_id' => $cid];
-                } else {
-                    $cid = (int) sqlInsert("INSERT INTO codes (code_text, code, code_type, modifier, units, fee, active, reportable, financial_reporting) VALUES (?, ?, ?, '', 1, ?, 1, 1, 1)",
-                        [mb_substr((string) ($a['description'] ?? $code), 0, 255), $code, $ct['ct_id'], $price]);
-                    $undo = ['op' => 'delete_fee', 'code_id' => $cid];
-                }
-                sqlStatement("REPLACE INTO prices (pr_id, pr_selector, pr_level, pr_price) VALUES (?, '', 'standard', ?)", [$cid, $price]);
-                $result = "$type $code at \$$price";
-                break;
-
-            case 'upsert_appt_category':
-                $name = trim((string) ($a['name'] ?? ''));
-                if ($name === '') {
-                    return ['ok' => false, 'error' => 'The visit type needs a name.'];
-                }
-                $mins = max(5, min(480, (int) ($a['duration_minutes'] ?? 15)));
-                $color = preg_match('/^#[0-9a-f]{6}$/i', (string) ($a['color'] ?? '')) ? $a['color'] : '#cce5ff';
-                $row = sqlQuery("SELECT pc_catid, pc_catname, pc_catcolor, pc_catdesc, pc_duration, pc_active FROM openemr_postcalendar_categories WHERE pc_catname = ?", [$name]);
-                if (!empty($row['pc_catid'])) {
-                    $before = $row;
-                    sqlStatement("UPDATE openemr_postcalendar_categories SET pc_duration = ?, pc_catcolor = ?, pc_catdesc = ?, pc_active = ? WHERE pc_catid = ?",
-                        [$mins * 60, $color, mb_substr((string) ($a['description'] ?? $row['pc_catdesc']), 0, 255), isset($a['active']) ? ($a['active'] ? 1 : 0) : $row['pc_active'], $row['pc_catid']]);
-                    $undo = ['op' => 'restore_category', 'id' => (int) $row['pc_catid']];
-                    $result = "Visit type $name updated ($mins min)";
-                } else {
-                    $seq = sqlQuery("SELECT COALESCE(MAX(pc_seq), 0) + 1 AS s FROM openemr_postcalendar_categories");
-                    $id = sqlInsert("INSERT INTO openemr_postcalendar_categories (pc_catname, pc_catcolor, pc_catdesc, pc_recurrtype, pc_recurrspec, pc_recurrfreq, pc_duration, pc_end_date_flag, pc_end_date_type, pc_end_date_freq, pc_end_all_day, pc_dailylimit, pc_cattype, pc_active, pc_seq, pc_constant_id)
-                        VALUES (?, ?, ?, 0, 'a:5:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}', 0, ?, 0, NULL, 0, 0, 0, 0, 1, ?, ?)",
-                        [mb_substr($name, 0, 100), $color, mb_substr((string) ($a['description'] ?? ''), 0, 255), $mins * 60, (int) $seq['s'], 'grapheus_' . preg_replace('/[^a-z0-9]+/', '_', strtolower($name))]);
-                    $undo = ['op' => 'delete_category', 'id' => (int) $id];
-                    $result = "Visit type $name added ($mins min)";
-                }
-                break;
-
-            case 'set_form_enabled':
-                $dir = (string) ($a['directory'] ?? '');
-                $row = sqlQuery("SELECT id, state FROM registry WHERE directory = ?", [$dir]);
-                if (empty($row['id'])) {
-                    return ['ok' => false, 'error' => "There is no form $dir."];
-                }
-                $before = ['state' => $row['state']];
-                sqlStatement("UPDATE registry SET state = ? WHERE id = ?", [!empty($a['enabled']) ? 1 : 0, $row['id']]);
-                $undo = ['op' => 'restore_form', 'id' => (int) $row['id']];
-                $result = "Form $dir " . (!empty($a['enabled']) ? 'turned on' : 'turned off');
-                break;
-
-            case 'create_appointment':
-                if (!$pid) {
-                    return ['ok' => false, 'error' => 'Choose which patient first.'];
-                }
-                $prov = sqlQuery("SELECT id, facility_id FROM users WHERE username = ? AND active = 1", [(string) ($a['provider_username'] ?? '')]);
-                if (empty($prov['id'])) {
-                    return ['ok' => false, 'error' => 'Unknown provider.'];
-                }
-                $cat = !empty($a['category_name']) ? sqlQuery("SELECT pc_catid, pc_catname, pc_duration FROM openemr_postcalendar_categories WHERE pc_catname = ? AND pc_active = 1", [$a['category_name']]) : null;
-                if (empty($cat['pc_catid'])) {
-                    $cat = sqlQuery("SELECT pc_catid, pc_catname, pc_duration FROM openemr_postcalendar_categories WHERE pc_cattype = 0 AND pc_active = 1 ORDER BY (pc_constant_id = 'office_visit') DESC, pc_seq LIMIT 1");
-                }
-                $date = (string) ($a['date'] ?? '');
-                $time = (string) ($a['time'] ?? '');
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !preg_match('/^\d{2}:\d{2}$/', $time)) {
-                    return ['ok' => false, 'error' => 'The date or time is not clear.'];
-                }
-                $fac = !empty($a['facility_name']) ? sqlQuery("SELECT id FROM facility WHERE name = ?", [$a['facility_name']]) : null;
-                $facId = (int) ($fac['id'] ?? $prov['facility_id'] ?? 0);
-                $mins = (int) ($a['duration_minutes'] ?? 0) ?: (int) round(((int) $cat['pc_duration']) / 60) ?: 15;
-                $clash = sqlQuery("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_aid = ? AND pc_eventDate = ? AND pc_startTime < ? AND pc_endTime > ? AND pc_pid <> ''",
-                    [$prov['id'], $date, date('H:i:s', strtotime("$time +$mins minutes")), $time . ':00']);
-                if (!empty($clash['pc_eid'])) {
-                    return ['ok' => false, 'error' => 'That provider already has an appointment at that time.'];
-                }
-                $eid = (new AppointmentService())->insert($pid, [
-                    'pc_catid' => $cat['pc_catid'], 'pc_title' => $cat['pc_catname'], 'pc_duration' => $mins * 60, 'pc_hometext' => mb_substr((string) ($a['reason'] ?? ''), 0, 255),
-                    'pc_eventDate' => $date, 'pc_apptstatus' => '-', 'pc_startTime' => $time, 'pc_facility' => $facId, 'pc_billing_location' => $facId, 'pc_aid' => $prov['id'],
-                ]);
-                $undo = ['op' => 'delete_appointment', 'id' => (int) $eid];
-                $result = "Appointment booked $date $time ($mins min)";
-                break;
-
-            default:
-                return ['ok' => false, 'error' => "Unknown change $op."];
+        $done = match ($op) {
+            'set_global' => self::setGlobal($a),
+            'upsert_facility' => self::upsertFacility($a),
+            'add_list_option' => self::addListOption($a),
+            'update_list_option' => self::updateListOption($a),
+            'upsert_fee' => self::upsertFee($a),
+            'upsert_appt_category' => self::upsertCategory($a),
+            'set_form_enabled' => self::setFormEnabled($a),
+            'create_appointment' => self::createAppointment($a, $pid),
+            default => ['error' => "Unknown change $op."],
+        };
+        if (isset($done['error'])) {
+            return ['ok' => false, 'error' => $done['error']];
         }
-        $logId = (int) sqlInsert("INSERT INTO grapheus_setup_log (at, user_id, op, args, before_json, undo_json) VALUES (NOW(), ?, ?, ?, ?, ?)",
-            [$userId, $op, json_encode($a), json_encode($before), json_encode($undo)]);
-        return ['ok' => true, 'result' => $result, 'log_id' => $logId];
+        $logId = Db::insert(
+            "INSERT INTO grapheus_setup_log (at, user_id, op, args, before_json, undo_json) VALUES (NOW(), ?, ?, ?, ?, ?)",
+            [$userId, $op, (string) json_encode($a), (string) json_encode($done['before'] ?? null), (string) json_encode($done['undo'] ?? [])]
+        );
+        return ['ok' => true, 'result' => $done['result'] ?? '', 'log_id' => $logId];
     }
 
-    /** Put one change back the way it was. */
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function setGlobal(array $a): array
+    {
+        $name = Val::str($a['name'] ?? '');
+        if ($name === '' || preg_match(self::BLOCKED_GLOBAL, $name) === 1) {
+            return ['error' => "Grapheus cannot change the setting $name."];
+        }
+        $row = Db::one("SELECT gl_value FROM globals WHERE gl_name = ? AND gl_index = 0", [$name]);
+        if ($row === null) {
+            return ['error' => "There is no setting named $name."];
+        }
+        Db::exec("UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0", [Val::str($a['value'] ?? '', 255), $name]);
+        return ['result' => "Setting $name changed", 'before' => ['value' => $row['gl_value'] ?? ''], 'undo' => ['op' => 'set_global', 'name' => $name]];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function upsertFacility(array $a): array
+    {
+        $name = Val::str($a['name'] ?? '', 255);
+        if ($name === '') {
+            return ['error' => 'The facility needs a name.'];
+        }
+        $set = [];
+        foreach (self::FACILITY_TEXT as $c) {
+            $v = Val::str($a[$c] ?? '', 255);
+            if ($v !== '') {
+                $set[$c] = $v;
+            }
+        }
+        foreach (self::FACILITY_FLAGS as $f) {
+            if (array_key_exists($f, $a)) {
+                $set[$f] = Val::bool($a[$f]) ? 1 : 0;
+            }
+        }
+        $existing = Db::one("SELECT * FROM facility WHERE name = ?", [$name]);
+        if ($existing !== null) {
+            $before = array_intersect_key($existing, $set);
+            if ($set !== []) {
+                $cols = implode(', ', array_map(static fn (string $c): string => "`$c` = ?", array_keys($set)));
+                Db::exec("UPDATE facility SET $cols WHERE id = ?", [...array_values($set), Val::int($existing['id'] ?? 0)]);
+            }
+            return ['result' => "Facility $name updated", 'before' => $before, 'undo' => ['op' => 'restore_facility', 'id' => Val::int($existing['id'] ?? 0)]];
+        }
+        $set['name'] = $name;
+        $cols = implode(', ', array_map(static fn (string $c): string => "`$c`", array_keys($set)));
+        $marks = implode(', ', array_fill(0, count($set), '?'));
+        $id = Db::insert("INSERT INTO facility ($cols) VALUES ($marks)", array_values($set));
+        return ['result' => "Facility $name added", 'undo' => ['op' => 'delete_facility', 'id' => $id]];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function addListOption(array $a): array
+    {
+        $list = Val::str($a['list_id'] ?? '');
+        $oid = Val::str($a['option_id'] ?? '', 100);
+        if (Db::one("SELECT option_id FROM list_options WHERE list_id = 'lists' AND option_id = ?", [$list]) === null) {
+            return ['error' => "There is no list $list."];
+        }
+        if ($oid === '' || Db::one("SELECT option_id FROM list_options WHERE list_id = ? AND option_id = ?", [$list, $oid]) !== null) {
+            return ['error' => "$list already has an option $oid."];
+        }
+        $title = Val::str($a['title'] ?? '', 255);
+        Db::exec(
+            "INSERT INTO list_options (list_id, option_id, title, seq, is_default, notes, activity) VALUES (?, ?, ?, ?, ?, ?, 1)",
+            [$list, $oid, $title !== '' ? $title : $oid, Val::int($a['seq'] ?? 0), Val::bool($a['is_default'] ?? false) ? 1 : 0, Val::str($a['notes'] ?? '', 255)]
+        );
+        return ['result' => 'Added "' . ($title !== '' ? $title : $oid) . "\" to $list", 'undo' => ['op' => 'delete_list_option', 'list_id' => $list, 'option_id' => $oid]];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function updateListOption(array $a): array
+    {
+        $list = Val::str($a['list_id'] ?? '');
+        $oid = Val::str($a['option_id'] ?? '');
+        $row = Db::one("SELECT title, seq, activity FROM list_options WHERE list_id = ? AND option_id = ?", [$list, $oid]);
+        if ($row === null) {
+            return ['error' => "There is no option $oid in $list."];
+        }
+        Db::exec("UPDATE list_options SET title = ?, seq = ?, activity = ? WHERE list_id = ? AND option_id = ?", [
+            array_key_exists('title', $a) ? Val::str($a['title'], 255) : Val::str($row['title'] ?? ''),
+            array_key_exists('seq', $a) ? Val::int($a['seq']) : Val::int($row['seq'] ?? 0),
+            array_key_exists('active', $a) ? (Val::bool($a['active']) ? 1 : 0) : Val::int($row['activity'] ?? 1),
+            $list, $oid]);
+        return ['result' => "Updated $oid in $list", 'before' => $row, 'undo' => ['op' => 'restore_list_option', 'list_id' => $list, 'option_id' => $oid]];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function upsertFee(array $a): array
+    {
+        $type = strtoupper(Val::str($a['code_type'] ?? 'CPT4'));
+        $code = strtoupper(Val::str($a['code'] ?? ''));
+        $ct = Val::int(Db::one("SELECT ct_id FROM code_types WHERE ct_key = ?", [$type])['ct_id'] ?? 0);
+        if ($ct === 0 || preg_match('/^[A-Z0-9]{4,6}$/', $code) !== 1) {
+            return ['error' => "Cannot add code $type $code."];
+        }
+        $price = sprintf('%.2f', (float) Val::str($a['price'] ?? '0'));
+        $description = Val::str($a['description'] ?? '', 255);
+        $row = Db::one("SELECT id, code_text FROM codes WHERE code_type = ? AND code = ? AND modifier = ''", [$ct, $code]);
+        if ($row !== null) {
+            $cid = Val::int($row['id'] ?? 0);
+            $old = Db::one("SELECT pr_price FROM prices WHERE pr_id = ? AND pr_selector = '' AND pr_level = 'standard'", [$cid]);
+            $before = ['code_text' => $row['code_text'] ?? '', 'price' => $old['pr_price'] ?? null];
+            if ($description !== '') {
+                Db::exec("UPDATE codes SET code_text = ? WHERE id = ?", [$description, $cid]);
+            }
+            $undo = ['op' => 'restore_fee', 'code_id' => $cid];
+        } else {
+            $cid = Db::insert(
+                "INSERT INTO codes (code_text, code, code_type, modifier, units, fee, active, reportable, financial_reporting) VALUES (?, ?, ?, '', 1, ?, 1, 1, 1)",
+                [$description !== '' ? $description : $code, $code, $ct, $price]
+            );
+            $before = null;
+            $undo = ['op' => 'delete_fee', 'code_id' => $cid];
+        }
+        Db::exec("REPLACE INTO prices (pr_id, pr_selector, pr_level, pr_price) VALUES (?, '', 'standard', ?)", [$cid, $price]);
+        return ['result' => "$type $code at \$$price", 'before' => $before, 'undo' => $undo];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function upsertCategory(array $a): array
+    {
+        $name = Val::str($a['name'] ?? '', 100);
+        if ($name === '') {
+            return ['error' => 'The visit type needs a name.'];
+        }
+        $mins = max(5, min(480, Val::int($a['duration_minutes'] ?? 15)));
+        $color = Val::str($a['color'] ?? '');
+        $color = preg_match('/^#[0-9a-f]{6}$/i', $color) === 1 ? $color : '#cce5ff';
+        $row = Db::one("SELECT pc_catid, pc_catname, pc_catcolor, pc_catdesc, pc_duration, pc_active FROM openemr_postcalendar_categories WHERE pc_catname = ?", [$name]);
+        if ($row !== null) {
+            $id = Val::int($row['pc_catid'] ?? 0);
+            Db::exec(
+                "UPDATE openemr_postcalendar_categories SET pc_duration = ?, pc_catcolor = ?, pc_catdesc = ?, pc_active = ? WHERE pc_catid = ?",
+                [$mins * 60, $color, array_key_exists('description', $a) ? Val::str($a['description'], 255) : Val::str($row['pc_catdesc'] ?? ''),
+                    array_key_exists('active', $a) ? (Val::bool($a['active']) ? 1 : 0) : Val::int($row['pc_active'] ?? 1), $id]
+            );
+            return ['result' => "Visit type $name updated ($mins min)", 'before' => $row, 'undo' => ['op' => 'restore_category', 'id' => $id]];
+        }
+        $seq = Val::int(Db::one("SELECT COALESCE(MAX(pc_seq), 0) + 1 AS s FROM openemr_postcalendar_categories")['s'] ?? 1);
+        $id = Db::insert(
+            "INSERT INTO openemr_postcalendar_categories (pc_catname, pc_catcolor, pc_catdesc, pc_recurrtype, pc_recurrspec, pc_recurrfreq, pc_duration, pc_end_date_flag, pc_end_date_type, pc_end_date_freq, pc_end_all_day, pc_dailylimit, pc_cattype, pc_active, pc_seq, pc_constant_id)
+             VALUES (?, ?, ?, 0, ?, 0, ?, 0, NULL, 0, 0, 0, 0, 1, ?, ?)",
+            [$name, $color, Val::str($a['description'] ?? '', 255), self::NO_REPEAT, $mins * 60, $seq, 'grapheus_' . preg_replace('/[^a-z0-9]+/', '_', strtolower($name))]
+        );
+        return ['result' => "Visit type $name added ($mins min)", 'undo' => ['op' => 'delete_category', 'id' => $id]];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function setFormEnabled(array $a): array
+    {
+        $dir = Val::str($a['directory'] ?? '');
+        $row = Db::one("SELECT id, state FROM registry WHERE directory = ?", [$dir]);
+        if ($row === null) {
+            return ['error' => "There is no form $dir."];
+        }
+        $on = Val::bool($a['enabled'] ?? false);
+        Db::exec("UPDATE registry SET state = ? WHERE id = ?", [$on ? 1 : 0, Val::int($row['id'] ?? 0)]);
+        return ['result' => "Form $dir " . ($on ? 'turned on' : 'turned off'), 'before' => ['state' => $row['state'] ?? 0], 'undo' => ['op' => 'restore_form', 'id' => Val::int($row['id'] ?? 0)]];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @return array{error?: string, result?: string, before?: mixed, undo?: array<string, mixed>}
+     */
+    private static function createAppointment(array $a, ?int $pid): array
+    {
+        if ($pid === null || $pid <= 0) {
+            return ['error' => 'Choose which patient first.'];
+        }
+        $prov = Db::one("SELECT id, facility_id FROM users WHERE username = ? AND active = 1", [Val::str($a['provider_username'] ?? '')]);
+        if ($prov === null) {
+            return ['error' => 'Unknown provider.'];
+        }
+        $catName = Val::str($a['category_name'] ?? '');
+        $cat = $catName !== '' ? Db::one("SELECT pc_catid, pc_catname, pc_duration FROM openemr_postcalendar_categories WHERE pc_catname = ? AND pc_active = 1", [$catName]) : null;
+        $cat ??= Db::one("SELECT pc_catid, pc_catname, pc_duration FROM openemr_postcalendar_categories WHERE pc_cattype = 0 AND pc_active = 1 ORDER BY (pc_constant_id = 'office_visit') DESC, pc_seq LIMIT 1");
+        if ($cat === null) {
+            return ['error' => 'There is no visit type to book.'];
+        }
+        $date = Val::str($a['date'] ?? '');
+        $time = Val::str($a['time'] ?? '');
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) !== 1 || preg_match('/^\d{2}:\d{2}$/', $time) !== 1) {
+            return ['error' => 'The date or time is not clear.'];
+        }
+        $facName = Val::str($a['facility_name'] ?? '');
+        $fac = $facName !== '' ? Db::one("SELECT id FROM facility WHERE name = ?", [$facName]) : null;
+        $facId = Val::int($fac['id'] ?? ($prov['facility_id'] ?? 0));
+        $mins = Val::int($a['duration_minutes'] ?? 0);
+        if ($mins <= 0) {
+            $mins = (int) round(Val::int($cat['pc_duration'] ?? 0) / 60);
+        }
+        if ($mins <= 0) {
+            $mins = 15;
+        }
+        $end = date('H:i:s', (int) strtotime("$time +$mins minutes"));
+        $clash = Db::one(
+            "SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_aid = ? AND pc_eventDate = ? AND pc_startTime < ? AND pc_endTime > ? AND pc_pid <> ''",
+            [Val::int($prov['id'] ?? 0), $date, $end, $time . ':00']
+        );
+        if ($clash !== null) {
+            return ['error' => 'That provider already has an appointment at that time.'];
+        }
+        $eid = (new AppointmentService())->insert($pid, [
+            'pc_catid' => $cat['pc_catid'] ?? null, 'pc_title' => $cat['pc_catname'] ?? '', 'pc_duration' => $mins * 60, 'pc_hometext' => Val::str($a['reason'] ?? '', 255),
+            'pc_eventDate' => $date, 'pc_apptstatus' => '-', 'pc_startTime' => $time, 'pc_facility' => $facId, 'pc_billing_location' => $facId, 'pc_aid' => Val::int($prov['id'] ?? 0),
+        ]);
+        return ['result' => "Appointment booked $date $time ($mins min)", 'undo' => ['op' => 'delete_appointment', 'id' => Val::int($eid)]];
+    }
+
+    /**
+     * Put one change back the way it was.
+     *
+     * @return array{ok: bool, error?: string}
+     */
     public static function undo(int $logId, string $role): array
     {
-        $log = sqlQuery("SELECT * FROM grapheus_setup_log WHERE id = ? AND undone_at IS NULL", [$logId]);
-        if (empty($log['id'])) {
+        $log = Db::one("SELECT * FROM grapheus_setup_log WHERE id = ? AND undone_at IS NULL", [$logId]);
+        if ($log === null) {
             return ['ok' => false, 'error' => 'Nothing to undo.'];
         }
-        if (!self::allowed($log['op'], $role)) {
+        if (!self::allowed(Val::str($log['op'] ?? ''), $role)) {
             return ['ok' => false, 'error' => 'Your OpenEMR role cannot undo this change.'];
         }
-        $u = json_decode((string) $log['undo_json'], true) ?: [];
-        $b = json_decode((string) $log['before_json'], true) ?: [];
-        switch ($u['op'] ?? '') {
+        $u = Val::map(json_decode(Val::str($log['undo_json'] ?? ''), true));
+        $b = Val::map(json_decode(Val::str($log['before_json'] ?? ''), true));
+        $id = Val::int($u['id'] ?? 0);
+        switch (Val::str($u['op'] ?? '')) {
             case 'set_global':
-                sqlStatement("UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0", [$b['value'] ?? '', $u['name']]);
+                Db::exec("UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0", [Val::str($b['value'] ?? ''), Val::str($u['name'] ?? '')]);
                 break;
             case 'restore_facility':
-                if ($b) {
-                    sqlStatement("UPDATE facility SET " . implode(', ', array_map(fn ($c) => "`" . preg_replace('/[^a-z_]/', '', $c) . "` = ?", array_keys($b))) . " WHERE id = ?", array_merge(array_values($b), [$u['id']]));
+                $cols = array_values(array_intersect(array_keys($b), [...self::FACILITY_TEXT, ...self::FACILITY_FLAGS]));
+                if ($cols !== []) {
+                    $set = implode(', ', array_map(static fn (string $c): string => "`$c` = ?", $cols));
+                    Db::exec("UPDATE facility SET $set WHERE id = ?", [...array_map(static fn (string $c): mixed => $b[$c], $cols), $id]);
                 }
                 break;
             case 'delete_facility':
-                sqlStatement("DELETE FROM facility WHERE id = ?", [$u['id']]);
+                Db::exec("DELETE FROM facility WHERE id = ?", [$id]);
                 break;
             case 'delete_list_option':
-                sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", [$u['list_id'], $u['option_id']]);
+                Db::exec("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", [Val::str($u['list_id'] ?? ''), Val::str($u['option_id'] ?? '')]);
                 break;
             case 'restore_list_option':
-                sqlStatement("UPDATE list_options SET title = ?, seq = ?, activity = ? WHERE list_id = ? AND option_id = ?", [$b['title'], $b['seq'], $b['activity'], $u['list_id'], $u['option_id']]);
+                Db::exec("UPDATE list_options SET title = ?, seq = ?, activity = ? WHERE list_id = ? AND option_id = ?",
+                    [Val::str($b['title'] ?? ''), Val::int($b['seq'] ?? 0), Val::int($b['activity'] ?? 1), Val::str($u['list_id'] ?? ''), Val::str($u['option_id'] ?? '')]);
                 break;
             case 'restore_fee':
-                sqlStatement("UPDATE codes SET code_text = ? WHERE id = ?", [$b['code_text'], $u['code_id']]);
-                if ($b['price'] === null) {
-                    sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector = '' AND pr_level = 'standard'", [$u['code_id']]);
+                $cid = Val::int($u['code_id'] ?? 0);
+                Db::exec("UPDATE codes SET code_text = ? WHERE id = ?", [Val::str($b['code_text'] ?? ''), $cid]);
+                if (($b['price'] ?? null) === null) {
+                    Db::exec("DELETE FROM prices WHERE pr_id = ? AND pr_selector = '' AND pr_level = 'standard'", [$cid]);
                 } else {
-                    sqlStatement("REPLACE INTO prices (pr_id, pr_selector, pr_level, pr_price) VALUES (?, '', 'standard', ?)", [$u['code_id'], $b['price']]);
+                    Db::exec("REPLACE INTO prices (pr_id, pr_selector, pr_level, pr_price) VALUES (?, '', 'standard', ?)", [$cid, Val::str($b['price'])]);
                 }
                 break;
             case 'delete_fee':
-                sqlStatement("DELETE FROM prices WHERE pr_id = ?", [$u['code_id']]);
-                sqlStatement("DELETE FROM codes WHERE id = ?", [$u['code_id']]);
+                $cid = Val::int($u['code_id'] ?? 0);
+                Db::exec("DELETE FROM prices WHERE pr_id = ?", [$cid]);
+                Db::exec("DELETE FROM codes WHERE id = ?", [$cid]);
                 break;
             case 'restore_category':
-                sqlStatement("UPDATE openemr_postcalendar_categories SET pc_duration = ?, pc_catcolor = ?, pc_catdesc = ?, pc_active = ? WHERE pc_catid = ?", [$b['pc_duration'], $b['pc_catcolor'], $b['pc_catdesc'], $b['pc_active'], $u['id']]);
+                Db::exec("UPDATE openemr_postcalendar_categories SET pc_duration = ?, pc_catcolor = ?, pc_catdesc = ?, pc_active = ? WHERE pc_catid = ?",
+                    [Val::int($b['pc_duration'] ?? 900), Val::str($b['pc_catcolor'] ?? ''), Val::str($b['pc_catdesc'] ?? ''), Val::int($b['pc_active'] ?? 1), $id]);
                 break;
             case 'delete_category':
-                if (sqlQuery("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_catid = ? LIMIT 1", [$u['id']])) {
+                if (Db::one("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_catid = ? LIMIT 1", [$id]) !== null) {
                     return ['ok' => false, 'error' => 'Appointments already use this visit type; hide it instead.'];
                 }
-                sqlStatement("DELETE FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$u['id']]);
+                Db::exec("DELETE FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$id]);
                 break;
             case 'restore_form':
-                sqlStatement("UPDATE registry SET state = ? WHERE id = ?", [$b['state'], $u['id']]);
+                Db::exec("UPDATE registry SET state = ? WHERE id = ?", [Val::int($b['state'] ?? 0), $id]);
                 break;
             case 'delete_appointment':
-                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", [$u['id']]);
+                Db::exec("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", [$id]);
                 break;
             default:
                 return ['ok' => false, 'error' => 'This change cannot be undone automatically.'];
         }
-        sqlStatement("UPDATE grapheus_setup_log SET undone_at = NOW() WHERE id = ?", [$logId]);
+        Db::exec("UPDATE grapheus_setup_log SET undone_at = NOW() WHERE id = ?", [$logId]);
         return ['ok' => true];
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     public static function recent(int $limit = 50): array
     {
-        return self::rows("SELECT l.id, l.at, l.op, l.args, l.undone_at, u.username FROM grapheus_setup_log l LEFT JOIN users u ON u.id = l.user_id ORDER BY l.id DESC LIMIT " . (int) $limit);
+        return Db::all("SELECT l.id, l.at, l.op, l.args, l.undone_at, u.username FROM grapheus_setup_log l LEFT JOIN users u ON u.id = l.user_id ORDER BY l.id DESC LIMIT " . max(1, min(200, $limit)));
     }
 }
