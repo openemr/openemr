@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\DocumentReference\Trait;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -261,7 +262,7 @@ trait FhirDocumentReferenceTrait {
         return json_encode($resource, JSON_THROW_ON_ERROR);
     }
 
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRDocumentReference)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
