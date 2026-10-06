@@ -1578,10 +1578,9 @@ function &postcalendar_userapi_pcGetEvents($args)
     return $eventsByDays;
 }
 
-//===========================
-// Given an array of events, an array of days, and a view type
-// fill days with events (recurring is the challenge)
-//===========================
+/**
+ * Fill the requested days with events, including a repeat series.
+ */
 function calculateEvents($days, $events, $viewtype)
 {
   //
