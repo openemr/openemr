@@ -1137,6 +1137,104 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * assignedAuthor telecom is SHALL 1..* (CONF:1198-5428). Node omits it when
+     * the author has no phone; the converter carries the unknown number as
+     * nullFlavor instead.
+     */
+    public function testDocumentAuthorTelecomUsesNullFlavorWhenPhoneEmpty(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20210723</created_time_timezone>
+                <author>
+                    <npi>1234567890</npi>
+                </author>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $telecoms = $xpath->query('/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:telecom');
+        self::assertNotFalse($telecoms, 'Author telecom query must be valid');
+        self::assertSame(1, $telecoms->length, 'Author must carry exactly one telecom');
+        $telecom = $telecoms->item(0);
+        self::assertInstanceOf(\DOMElement::class, $telecom);
+        self::assertSame('UNK', $telecom->getAttribute('nullFlavor'));
+        self::assertFalse($telecom->hasAttribute('value'), 'A nullFlavor telecom must not carry a value');
+    }
+
+    /**
+     * patientRole telecom is SHALL 1..* (CONF:1198-5280). A patient with no
+     * phone or email gets one nullFlavor telecom rather than none.
+     */
+    public function testPatientTelecomUsesNullFlavorWhenNoContact(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20210723</created_time_timezone>
+                <patient>
+                    <fname>Test</fname>
+                    <lname>Patient</lname>
+                </patient>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $telecoms = $xpath->query('/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:telecom');
+        self::assertNotFalse($telecoms, 'Patient telecom query must be valid');
+        self::assertSame(1, $telecoms->length, 'Patient must carry exactly one telecom');
+        $telecom = $telecoms->item(0);
+        self::assertInstanceOf(\DOMElement::class, $telecom);
+        self::assertSame('UNK', $telecom->getAttribute('nullFlavor'));
+    }
+
+    public function testPatientTelecomOmitsNullFlavorWhenPhonePresent(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20210723</created_time_timezone>
+                <patient>
+                    <fname>Test</fname>
+                    <lname>Patient</lname>
+                    <phone_home>555-555-1234</phone_home>
+                </patient>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $telecoms = $xpath->query('/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:telecom');
+        self::assertNotFalse($telecoms, 'Patient telecom query must be valid');
+        self::assertSame(1, $telecoms->length, 'A known phone must be the only telecom');
+        $telecom = $telecoms->item(0);
+        self::assertInstanceOf(\DOMElement::class, $telecom);
+        self::assertSame('tel:555-555-1234', $telecom->getAttribute('value'));
+        self::assertFalse($telecom->hasAttribute('nullFlavor'));
+    }
+
+    /**
+     * Severity Observation value is SHALL 1..1 with xsi:type="CD"
+     * (CONF:1098-7356), and CDA's ANY type is abstract, so an untyped value
+     * fails the schema. Node drops the xsi:type when the severity is unknown;
+     * demo1 has two such allergies.
+     */
+    public function testUnknownSeverityValueKeepsCdType(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-demo1.xml');
+        self::assertIsString($input, 'Demo fixture must be readable');
+
+        $xpath = $this->convertToXPath($input);
+        $xpath->registerNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        $severity = "//hl7:observation[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.8']/hl7:value";
+
+        $unknown = $xpath->query($severity . "[@nullFlavor='UNK']");
+        self::assertNotFalse($unknown, 'Severity value query must be valid');
+        self::assertGreaterThan(0, $unknown->length, 'demo1 must exercise the unknown-severity branch');
+
+        $untyped = $xpath->query($severity . '[not(@xsi:type)]');
+        self::assertNotFalse($untyped, 'Untyped severity value query must be valid');
+        self::assertSame(0, $untyped->length, 'Every severity value must carry xsi:type');
+    }
+
+    /**
      * The medication manufacturedMaterial code uses Node's leafLevel.code
      * (no existsWhen), so a missing RxNorm code collapses to nullFlavor="UNK"
      * rather than emitting code="null_flavor" or an empty codeSystemName.

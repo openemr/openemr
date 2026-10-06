@@ -261,6 +261,15 @@ class InternalToCdaConverter
             $telecom->setAttribute('value', 'mailto:' . $email);
             $patientRole->appendChild($telecom);
         }
+
+        // patientRole telecom is SHALL 1..* (CONF:1198-5280). Node emits none
+        // when the patient has no phone or email, which fails validation, so
+        // the unknown contact is carried as nullFlavor.
+        if ($patientRole->getElementsByTagName('telecom')->length === 0) {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('nullFlavor', 'UNK');
+            $patientRole->appendChild($telecom);
+        }
     }
 
     private function appendPatientDemographics(DOMElement $patientRole): void
@@ -503,20 +512,22 @@ class InternalToCdaConverter
             $this->xpathValue('/CCDA/author/country'),
         );
 
-        // The IG requires assignedAuthor to carry a telecom (CONF:1198-5428),
-        // but node omits it entirely when no contact number is known. We match
-        // certified node output; the missing telecom is a spec variation for a
-        // follow-up issue rather than a fabricated nullFlavor.
+        // assignedAuthor telecom is SHALL 1..* (CONF:1198-5428). Node omits it
+        // when no contact number is known, which fails validation, so an
+        // unknown number is carried as nullFlavor, as for providerOrganization
+        // and the custodian.
         $authorPhone = $this->xpathValue('/CCDA/author/phone');
         if ($authorPhone === '') {
             $authorPhone = $this->xpathValue('/CCDA/author/telecom');
         }
+        $authorTelecom = $this->createElement('telecom');
         if ($authorPhone !== '') {
-            $authorTelecom = $this->createElement('telecom');
             $authorTelecom->setAttribute('value', 'tel:' . $authorPhone);
             $authorTelecom->setAttribute('use', 'WP');
-            $assignedAuthor->appendChild($authorTelecom);
+        } else {
+            $authorTelecom->setAttribute('nullFlavor', 'UNK');
         }
+        $assignedAuthor->appendChild($authorTelecom);
 
         $assignedPerson = $this->createElement('assignedPerson');
         $assignedPerson->appendChild($this->createPersonName(
@@ -1651,13 +1662,15 @@ class InternalToCdaConverter
 
         $outcome = $this->xpathValue('outcome', $allergy);
         $value = $this->output->createElement('value');
+        // value is SHALL 1..1 with xsi:type="CD" (CONF:1098-7356), and CDA's
+        // ANY type is abstract, so a value without xsi:type fails the schema.
+        // Node drops the xsi:type on the nullFlavor branch; it is kept on both.
+        $this->setXsiType($value, 'CD');
         $cleanedOutcome = $this->cleanCode($outcomeCode);
         if ($outcomeCode === '0' || $cleanedOutcome === '') {
-            // Node emits a nullFlavor severity value (no xsi:type) when the
-            // outcome code is the "0" sentinel rather than a real SNOMED code.
+            // The "0" outcome sentinel means no real SNOMED severity is known.
             $value->setAttribute('nullFlavor', 'UNK');
         } else {
-            $this->setXsiType($value, 'CD');
             $value->setAttribute('code', $cleanedOutcome);
             if ($outcome !== '') {
                 $value->setAttribute('displayName', $outcome);
@@ -1708,13 +1721,15 @@ class InternalToCdaConverter
         $this->appendStatusCode($sevObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
+        // value is SHALL 1..1 with xsi:type="CD" (CONF:1098-7356), and CDA's
+        // ANY type is abstract, so a value without xsi:type fails the schema.
+        // Node drops the xsi:type on the nullFlavor branch; it is kept on both.
+        $this->setXsiType($value, 'CD');
         $cleanedOutcome = $this->cleanCode($outcomeCode);
         if ($outcomeCode === '0' || $cleanedOutcome === '') {
-            // Node emits a nullFlavor severity value (no xsi:type) when the
-            // outcome code is the "0" sentinel rather than a real SNOMED code.
+            // The "0" outcome sentinel means no real SNOMED severity is known.
             $value->setAttribute('nullFlavor', 'UNK');
         } else {
-            $this->setXsiType($value, 'CD');
             $value->setAttribute('code', $cleanedOutcome);
             if ($outcome !== '') {
                 $value->setAttribute('displayName', $outcome);

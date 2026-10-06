@@ -82,6 +82,7 @@
         <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066"
               codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
         <addr nullFlavor="NI"/>
+        <telecom nullFlavor="UNK"/>
         <assignedPerson>
             <name>
                 <family>Lee</family>

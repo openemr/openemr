@@ -83,6 +83,7 @@
         <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066"
               codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
         <addr nullFlavor="NI"/>
+        <telecom nullFlavor="UNK"/>
         <assignedPerson>
             <name>
                 <family>Smith</family>
@@ -370,7 +371,7 @@
                                                     <reference value="#severity1"/>
                                                 </text>
                                                 <statusCode code="completed"/>
-                                                <value nullFlavor="UNK"/>
+                                                <value xsi:type="CD" nullFlavor="UNK"/>
                                             </observation>
                                         </entryRelationship>
                                     </observation>
@@ -385,7 +386,7 @@
                                             <reference value="#severity2"/>
                                         </text>
                                         <statusCode code="completed"/>
-                                        <value nullFlavor="UNK"/>
+                                        <value xsi:type="CD" nullFlavor="UNK"/>
                                     </observation>
                                 </entryRelationship>
                             </observation>
