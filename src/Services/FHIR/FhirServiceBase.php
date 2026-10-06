@@ -211,9 +211,8 @@ abstract class FhirServiceBase implements
      * Updates an existing OpenEMR record.
      * @param string $fhirResourceId  The OpenEMR record's FHIR Resource ID.
      * @param array $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return mixed The OpenEMR Service Result
      */
-    abstract protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord);
+    abstract protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult;
 
     /**
      * Performs a FHIR Resource lookup by FHIR Resource ID
