@@ -212,7 +212,8 @@ abstract class AbstractProcessingTask
             return false;
         }
 
-        return BatchFilePublisher::isPublished($dir, $filename);
+        return BatchFilePublisher::downloadAllowed($dir, $filename)
+            && BatchFilePublisher::isPublished($dir, $filename);
     }
 
     /**
@@ -286,6 +287,11 @@ abstract class AbstractProcessingTask
             }
             $dir = $batch->getBatFiledir();
             if ($dir !== '' && BatchFilePublisher::hasPublishingMarker($dir, $this->settledFileName)) {
+                // A matching note is a finished file whose marker is still present.
+                // Leave the assignment until that marker can be removed.
+                if (BatchFilePublisher::isPublished($dir, $this->settledFileName)) {
+                    return UnbilledFileDecision::Busy;
+                }
                 if (!BatchFilePublisher::quarantineInterrupted($dir, $this->settledFileName)) {
                     return UnbilledFileDecision::Busy;
                 }
@@ -334,18 +340,24 @@ abstract class AbstractProcessingTask
         $patient = $claim->getPid();
         $encounter = $claim->getEncounter();
         $payer = $claim->getPayorId();
-        if (preg_match('/^[1-9][0-9]*$/', $patient) !== 1 || preg_match('/^[1-9][0-9]*$/', $encounter) !== 1) {
-            return null;
-        }
-        if (!is_string($payer) || preg_match('/^[0-9]+$/', $payer) !== 1) {
-            return null;
-        }
-        $name = 'openemr_x12_' . $patient . '_' . $encounter . '_' . $payer;
-        if (strlen($name) > 64) {
+        if (!is_string($payer)) {
             return null;
         }
 
-        return $name;
+        return BillingUtilities::generationFenceName(
+            $patient,
+            $encounter,
+            $payer,
+            $this->generationFenceSite()
+        );
+    }
+
+    /**
+     * Database name that keeps this claim's fence off other sites on the server.
+     */
+    protected function generationFenceSite(): string
+    {
+        return BillingUtilities::generationFenceSite();
     }
 
     /**
@@ -491,10 +503,15 @@ abstract class AbstractProcessingTask
 
     /**
      * The file is on disk. Mark each claim that was waiting on this name.
+     *
+     * A claim whose billed update does not land stays in the waiting list.
+     *
+     * @return list<BillingClaim>
      */
-    protected function billAwaitingFile(string $filename): void
+    protected function billAwaitingFile(string $filename): array
     {
         $stillWaiting = [];
+        $unbilled = [];
         foreach ($this->awaitingFile as $pending) {
             if ($pending['filename'] !== $filename) {
                 $stillWaiting[] = $pending;
@@ -504,10 +521,13 @@ abstract class AbstractProcessingTask
             $claim = $pending['claim'];
             if (!$this->settleClaimFile($claim, $pending['version'], $filename)) {
                 $stillWaiting[] = $pending;
+                $unbilled[] = $claim;
             }
         }
 
         $this->awaitingFile = $stillWaiting;
+
+        return $unbilled;
     }
 
     /**
