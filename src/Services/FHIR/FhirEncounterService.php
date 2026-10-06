@@ -24,6 +24,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -603,7 +604,7 @@ class FhirEncounterService extends FhirServiceBase implements
         );
     }
 
-    public function createProvenanceResource($dataRecord = [])
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIREncounter)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
