@@ -558,7 +558,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return null;
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord = []): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -570,7 +570,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             // available" and continues (see issue #13054).
             return false;
         }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $fhirProvenance;
     }
 
     /**
