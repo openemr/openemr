@@ -149,13 +149,13 @@ jobs:
       run: |
         # On its own line so a jq failure fails the step, and checked for
         # empty (jq accepts empty input), so the loop can't pass vacuously.
-        suites=$(jq -r '.[]' <<<"${SUITES}")
-        if [[ -z "${suites}" || -z "${FLAG}" ]]; then
+        suite_list=$(jq -r '.[]' <<<"${SUITES}")
+        if [[ -z "${suite_list}" || -z "${FLAG}" ]]; then
           echo '::error::No test suites or Codecov flag to check.'
           exit 1
         fi
         status=0
-        for suite in ${suites}; do
+        for suite in ${suite_list}; do
           prefix="${suite/#redis-failover/redis}"
           names="${prefix}-${FLAG}"
           if [[ "${suite}" == api || "${suite}" == e2e ]]; then
