@@ -490,7 +490,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         return $this->immunizationService->getAll($openEMRSearchParameters, true);
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = [])
     {
         if (!($dataRecord instanceof FHIRImmunization)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -502,11 +502,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $author = $performer->getActor();
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
     /**
