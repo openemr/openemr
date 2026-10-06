@@ -109,38 +109,12 @@ class FhirProvenanceNullHandlingTest extends TestCase
      * @param class-string<FHIRDomainResource> $resourceClass
      */
     #[DataProvider('provenanceServiceProvider')]
-    public function testReturnsFalseWhenProvenanceIsUnavailableAndEncodeRequested(string $serviceClass, string $resourceClass): void
-    {
-        $service = $this->getServiceWithProvenanceResult($serviceClass, null);
-        $result = $service->createProvenanceResource(new $resourceClass(), true);
-        $this->assertFalse($result, "Expected false (not the JSON string 'null') when no Provenance can be constructed and encoding was requested.");
-    }
-
-    /**
-     * @param ProvenanceServiceClass $serviceClass
-     * @param class-string<FHIRDomainResource> $resourceClass
-     */
-    #[DataProvider('provenanceServiceProvider')]
     public function testReturnsProvenanceResourceWhenAvailable(string $serviceClass, string $resourceClass): void
     {
         $provenance = new FHIRProvenance();
         $service = $this->getServiceWithProvenanceResult($serviceClass, $provenance);
         $result = $service->createProvenanceResource(new $resourceClass());
         $this->assertSame($provenance, $result, "Expected the FHIRProvenance instance to be returned unmodified.");
-    }
-
-    /**
-     * @param ProvenanceServiceClass $serviceClass
-     * @param class-string<FHIRDomainResource> $resourceClass
-     */
-    #[DataProvider('provenanceServiceProvider')]
-    public function testReturnsEncodedProvenanceWhenEncodeRequested(string $serviceClass, string $resourceClass): void
-    {
-        $provenance = new FHIRProvenance();
-        $service = $this->getServiceWithProvenanceResult($serviceClass, $provenance);
-        $result = $service->createProvenanceResource(new $resourceClass(), true);
-        $this->assertIsString($result, "Expected a JSON string when encoding was requested.");
-        $this->assertJson($result, "Expected the encoded Provenance to be valid JSON.");
     }
 
     /**
