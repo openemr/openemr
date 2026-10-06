@@ -1231,6 +1231,9 @@ class Events extends Base
         return false;
     }
 
+    /**
+     * Occurrences of one repeat between the two dates.
+     */
     public function calculateEvents($event, $start_date, $stop_date): array
     {
 
