@@ -603,7 +603,7 @@ class FhirEncounterService extends FhirServiceBase implements
         );
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = [])
     {
         if (!($dataRecord instanceof FHIREncounter)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
