@@ -5,6 +5,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -78,13 +79,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['modifydate']);
     }
 
-    /**
-     * Parses an OpenEMR allergyIntolerance record, returning the equivalent FHIR AllergyIntolerance Resource
-     *
-     * @param array $dataRecord The source OpenEMR data record
-     * @return FHIRAllergyIntolerance
-     */
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRAllergyIntolerance)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
