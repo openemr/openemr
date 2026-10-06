@@ -620,9 +620,8 @@ trait FhirObservationTrait
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param FHIRDomainResource $dataRecord The source OpenEMR data record
-     * @return FhirProvenanceService|string|null the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord): FHIRProvenance|string|null
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new BadMethodCallException("Data record should be correct instance class");
