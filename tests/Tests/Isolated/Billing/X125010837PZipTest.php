@@ -622,6 +622,28 @@ class X125010837PZipTest extends TestCase
         });
     }
 
+
+    /**
+     * A published file whose billed update misses names that claim.
+     */
+    public function testPublishedClaimThatStaysUnbilledIsReported(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->generate($this->versionClaim());
+            $probe->billedUpdateResult = 0;
+            $probe->fileStored = true;
+            $probe->fileOnDisk = true;
+            $probe->completeToFile([]);
+
+            $screen = implode("\n", $probe->screen);
+            $this->assertStringContainsString(UnbilledFileDecision::WRITTEN_NOT_BILLED, $screen);
+            $this->assertStringContainsString('9-9', $screen);
+            $this->assertStringNotContainsString(FacilityZipDenial::LEFT_OUT_NOT_BILLED, $screen);
+            $this->assertSame([], $probe->cleared);
+        });
+    }
+
     /**
      * @return array<string, array{string, bool, UnbilledFileDecision}>
      *
@@ -945,6 +967,114 @@ class X125010837PZipTest extends TestCase
         if (is_dir($directory)) {
             rmdir($directory);
         }
+    }
+
+
+
+    /**
+     * A finished file with a stuck marker is not downloaded or cleared.
+     */
+    public function testAFinishedFileWithAStuckMarkerStaysAssigned(): void
+    {
+        $directory = sys_get_temp_dir() . '/openemr-mark-' . bin2hex(random_bytes(4));
+        mkdir($directory);
+        $name = 'owned-batch.txt';
+        $final = $directory . '/' . $name;
+        try {
+            file_put_contents($final, 'GS~');
+            file_put_contents($final . '.complete', (string) filesize($final));
+            file_put_contents($final . '.publishing', '1');
+            chmod($directory, 0555);
+            try {
+                $this->assertTrue(BatchFilePublisher::isPublished($directory, $name));
+                $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, $name));
+                $this->assertFalse(BatchFilePublisher::discard($directory, $name));
+                $this->assertFileExists($final);
+                $this->assertFileExists($final . '.publishing');
+                $this->assertFileExists($final . '.complete');
+            } finally {
+                chmod($directory, 0755);
+            }
+
+            $this->assertTrue(BatchFilePublisher::downloadAllowed($directory, $name));
+            $this->assertFileDoesNotExist($final . '.publishing');
+            $this->assertTrue(BatchFilePublisher::isPublished($directory, $name));
+
+            file_put_contents($final . '.publishing', '1');
+            chmod($directory, 0555);
+            try {
+                $probe = $this->versionProbe();
+                $probe->openUnbilled = 4;
+                $probe->storedFile = $name;
+                $probe->useBatch($this->ownedBatch($directory));
+                $claim = $this->versionClaim();
+                (new \ReflectionMethod(VersionHoldProbe::class, 'holdGeneration'))->invoke($probe, $claim);
+                $batch = (new \ReflectionProperty(GeneratorX12::class, 'batch'))->getValue($probe);
+                $decision = (new \ReflectionMethod(VersionHoldProbe::class, 'previousFileDecision'))
+                    ->invoke($probe, $claim, $batch);
+
+                $this->assertSame(UnbilledFileDecision::Busy, $decision);
+                $this->assertSame([], $probe->cleared);
+                $this->assertFileExists($final);
+            } finally {
+                chmod($directory, 0755);
+            }
+        } finally {
+            chmod($directory, 0755);
+            $this->removeDirectory($directory);
+        }
+    }
+
+    /**
+     * A claim file is the directory entry, and a traversal name is not.
+     */
+    public function testListedFileUsesTheDirectoryEntry(): void
+    {
+        $directory = sys_get_temp_dir() . '/openemr-list-' . bin2hex(random_bytes(4));
+        mkdir($directory);
+        try {
+            file_put_contents($directory . '/batch.txt', 'GS~');
+            $this->assertSame(
+                $directory . '/batch.txt',
+                BatchFilePublisher::listedFile($directory, 'batch.txt')
+            );
+            $this->assertNull(BatchFilePublisher::listedFile($directory, '../batch.txt'));
+            $this->assertNull(BatchFilePublisher::listedFile($directory, 'missing.txt'));
+            $this->assertNull(BatchFilePublisher::listedFile($directory, ''));
+        } finally {
+            $this->removeDirectory($directory);
+        }
+    }
+
+    /**
+     * Two databases do not share a fence, and every name stays within 64 characters.
+     */
+    public function testGenerationFenceNamesTheDatabase(): void
+    {
+        $one = BillingUtilities::generationFenceName('10', '20', '30', 'clinic_a');
+        $two = BillingUtilities::generationFenceName('10', '20', '30', 'clinic_b');
+        $again = BillingUtilities::generationFenceName('10', '20', '30', 'clinic_a');
+        $this->assertNotNull($one);
+        $this->assertNotNull($two);
+        $this->assertSame($one, $again);
+        $this->assertNotSame($one, $two);
+        $this->assertLessThanOrEqual(64, strlen($one));
+        $this->assertLessThanOrEqual(64, strlen($two));
+        $this->assertStringContainsString('clinic_a', $one);
+
+        $long = BillingUtilities::generationFenceName(
+            str_repeat('9', 18),
+            str_repeat('8', 18),
+            str_repeat('7', 18),
+            str_repeat('department', 8)
+        );
+        $this->assertNotNull($long);
+        $this->assertLessThanOrEqual(64, strlen($long));
+        $this->assertStringStartsWith('openemr_x12_', $long);
+        $this->assertNotSame($one, $long);
+        $this->assertNull(BillingUtilities::generationFenceName('10', '20', '30', ''));
+        $this->assertNull(BillingUtilities::generationFenceName('0', '20', '30', 'clinic_a'));
+        $this->assertNull(BillingUtilities::generationFenceName('10', '20', 'nope', 'clinic_a'));
     }
 
 }
@@ -1308,6 +1438,14 @@ final class VersionHoldProbe extends GeneratorX12
     protected function renderedClaim(BillingClaim $claim): array
     {
         return ['X12 generate patient on file.', [''], new FacilityZipDenial()];
+    }
+
+    /**
+     * Isolated cases share one stand-in database name.
+     */
+    protected function generationFenceSite(): string
+    {
+        return 'isolated';
     }
 
     /**
