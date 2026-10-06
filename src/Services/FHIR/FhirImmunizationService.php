@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRImmunization;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
@@ -490,7 +491,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         return $this->immunizationService->getAll($openEMRSearchParameters, true);
     }
 
-    public function createProvenanceResource($dataRecord = [])
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRImmunization)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
