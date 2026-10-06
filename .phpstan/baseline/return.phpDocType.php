@@ -2,16 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type eRxPage is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\DateTime\\|null is not subtype of native type DateTime\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/TeleHealthUser.php',
@@ -140,11 +130,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string\\|null is not subtype of native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type void\\.$#',
