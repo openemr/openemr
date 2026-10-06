@@ -936,10 +936,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param array|FHIRObservation $dataRecord The source OpenEMR data record
-     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return FHIRProvenance|string the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return FHIRProvenance|string the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new BadMethodCallException("Data record should be correct instance class");
@@ -956,7 +955,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             // available" and continues (see issue #13054).
             return false;
         }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $fhirProvenance;
     }
 
     /**
