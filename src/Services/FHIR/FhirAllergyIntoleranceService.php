@@ -440,7 +440,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR AllergyIntolerance record array');
@@ -456,7 +456,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param array $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         // The patient the caller asserts has to be the allergy's actual owner. parseFhirResource()
         // sets puuid only when AllergyIntolerance.patient resolves, and without it update() has
