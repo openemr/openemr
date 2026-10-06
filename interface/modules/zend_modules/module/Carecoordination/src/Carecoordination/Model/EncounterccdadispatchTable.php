@@ -29,6 +29,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CareTeamService;
+use OpenEMR\Services\Cda\TemperatureConversion;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
@@ -3079,7 +3080,9 @@ class EncounterccdadispatchTable
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
             $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
             $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
-            $convTempValue = number_format((round($row['temperature'] - 32) * (5 / 9)), 1);
+            // Rounding the Fahrenheit offset before converting put 98.6 [degF] at
+            // 37.2 Cel, and an unrecorded temperature (stored as 0) at -17.8 Cel.
+            $convTempValue = TemperatureConversion::fahrenheitToCelsius($row['temperature']);
             if (OEGlobalsBag::getInstance()->get('units_of_measurement') == 2 || OEGlobalsBag::getInstance()->get('units_of_measurement') == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';

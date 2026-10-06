@@ -1347,6 +1347,21 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * The temperature is sent as recorded. Node rounded it up to a whole
+     * degree, so the scenario patient's 37.8 Cel went out as 38.
+     */
+    public function testBodyTemperatureIsNotRounded(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-scenario-uscdi.xml');
+        self::assertIsString($input, 'Scenario fixture must be readable');
+        $xpath = $this->convertToXPath($input);
+
+        $value = $this->singleElement($xpath, "//hl7:observation[hl7:code/@code='8310-5']/hl7:value");
+        self::assertSame('37.8', $value->getAttribute('value'));
+        self::assertSame('Cel', $value->getAttribute('unit'));
+    }
+
+    /**
      * ClinicalDocument/id identifies one document instance (CDA R2), so two
      * exports must not share it; Node gave every document OE-DOC-0001.
      */

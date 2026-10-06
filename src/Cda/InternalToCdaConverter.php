@@ -3666,10 +3666,8 @@ class InternalToCdaConverter
             if ($value === '') {
                 continue;
             }
-            if ($key === 'temperature') {
-                // Node rounds the temperature up to a whole degree; kept for parity.
-                $value = (string) (int) ceil((float) $value);
-            }
+            // Values are sent as recorded. Node rounded the temperature up to a
+            // whole degree (37.8 Cel became 38, 98.6 [degF] became 99).
             $interpretation = 'Normal';
             if ($key === 'BMI') {
                 $interpretation = match ($this->xpathValue('BMI_status', $vital)) {
