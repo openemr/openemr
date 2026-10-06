@@ -620,10 +620,9 @@ trait FhirObservationTrait
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param FHIRDomainResource $dataRecord The source OpenEMR data record
-     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return FhirProvenanceService|string|null the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return FhirProvenanceService|string|null the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|null
+    public function createProvenanceResource($dataRecord): FHIRProvenance|string|null
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new BadMethodCallException("Data record should be correct instance class");
@@ -635,11 +634,7 @@ trait FhirObservationTrait
             $performer = current($dataRecord->getPerformer());
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
