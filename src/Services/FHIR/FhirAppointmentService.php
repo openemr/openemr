@@ -590,10 +590,9 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRAppointment)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -601,10 +600,6 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         $fhirProvenanceService = new FhirProvenanceService();
         // we don't have an individual authorship right now for appointments so we default to billing organization
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 }
