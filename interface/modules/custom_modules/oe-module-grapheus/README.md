@@ -1,6 +1,6 @@
 # Grapheus for OpenEMR
 
-`oe-module-grapheus` adds Grapheus by Exetazo to OpenEMR 7 (tested on 7.0.3 patch 4). Licensed GPL-3.0-or-later like OpenEMR; the paid part (transcription, AI drafting, Setup Assistant) runs on the Grapheus service and needs a Grapheus subscription.
+`oe-module-grapheus` adds **Grapheus by Exetazo** to OpenEMR. This branch (`main`) is for **OpenEMR 8.x** (tested on 8.4.1); for OpenEMR 7.0.x use the `openemr-7.0` branch (tested on 7.0.3). Licensed GPL-3.0-or-later like OpenEMR; the paid part (transcription, AI drafting, the Assistant) runs on the Grapheus service and needs a Grapheus subscription.
 
 ## What it does
 **In every encounter — "Grapheus" tab (clinicians):**
@@ -20,11 +20,12 @@
 **Any OpenEMR 7:**
 ```
 cd /var/www/localhost/htdocs/openemr/interface/modules/custom_modules
-git clone https://github.com/mikebirkheadmd-maker/oe-module-grapheus.git
+git clone https://github.com/mikebirkheadmd-maker/oe-module-grapheus.git            # OpenEMR 8.x
+# git clone -b openemr-7.0 https://github.com/mikebirkheadmd-maker/oe-module-grapheus.git   # OpenEMR 7.0.x
 ```
-then *Modules > Manage Modules* → Install → Enable (or `php oe-module-grapheus/install/autoinstall.php`).
+then *Modules > Manage Modules* → Install → Enable (or, as the web user: `su -s /bin/sh apache -c "php oe-module-grapheus/install/autoinstall.php"`).
 
-**New practice — OpenEMR with Grapheus built in:** download `distribution/docker-compose.yml`, change the passwords, run `docker compose up -d`. It uses the image `ghcr.io/mikebirkheadmd-maker/openemr-with-grapheus:7.0.3`; Grapheus installs and enables itself on first start.
+**New practice — OpenEMR with Grapheus built in:** download `distribution/docker-compose.yml`, change the passwords, run `docker compose up -d`. It uses the image `ghcr.io/mikebirkheadmd-maker/openemr-with-grapheus:8.4.1`; Grapheus installs and enables itself on first start.
 
 Sign up at https://scribe.exetazohealth.com, then press **Connect** in the Grapheus tab.
 
