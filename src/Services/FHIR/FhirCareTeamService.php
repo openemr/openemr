@@ -19,6 +19,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -558,7 +559,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Create Provenance resource for the Care Team
      */
-    public function createProvenanceResource($dataRecord = [])
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRCareTeam)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
