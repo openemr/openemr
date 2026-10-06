@@ -128,18 +128,30 @@ final class BatchFilePublisher
 
     /**
      * Remove a batch this run published after the claim stopped naming it.
+     *
+     * False means the file is still in place, so its note and marker stay.
      */
-    public static function discard(string $directory, string $filename): void
+    public static function discard(string $directory, string $filename): bool
     {
         if (!self::nameIsSafe($filename) || $directory === '') {
-            return;
+            return false;
         }
 
         $final = $directory . DIRECTORY_SEPARATOR . $filename;
+        if (is_link($final)) {
+            return false;
+        }
+
         self::remove($final);
+        if (is_file($final)) {
+            return false;
+        }
+
         self::remove($final . '.partial');
         self::remove($final . '.complete');
         self::remove($final . '.publishing');
+
+        return !is_file($final . '.complete') && !is_file($final . '.publishing');
     }
 
     /**
@@ -198,6 +210,8 @@ final class BatchFilePublisher
             return false;
         }
 
+        self::reconcilePublication($directory, $filename);
+
         $final = $directory . DIRECTORY_SEPARATOR . $filename;
         if (!is_file($final) || is_link($final) || self::hasPublishingMarker($directory, $filename)) {
             return false;
@@ -208,6 +222,52 @@ final class BatchFilePublisher
         }
 
         return self::isPublished($directory, $filename);
+    }
+
+    /**
+     * Path of one directory entry whose name matches, or null when it is absent.
+     *
+     * The path is taken from the directory listing. The requested name is only
+     * compared with those entries, so it is never joined onto a directory.
+     */
+    public static function listedFile(string $directory, string $safeName): ?string
+    {
+        if (!self::nameIsSafe($safeName) || $directory === '' || !is_dir($directory)) {
+            return null;
+        }
+
+        $handle = opendir($directory);
+        if ($handle === false) {
+            return null;
+        }
+
+        $found = null;
+        while (($entry = readdir($handle)) !== false) {
+            if ($entry === $safeName) {
+                $found = $entry;
+                break;
+            }
+        }
+        closedir($handle);
+        if ($found === null) {
+            return null;
+        }
+
+        return rtrim($directory, "/\\") . DIRECTORY_SEPARATOR . $found;
+    }
+
+    /**
+     * Drop a leftover publishing marker once the completion note matches.
+     *
+     * The file stays unavailable while the marker is still there.
+     */
+    public static function reconcilePublication(string $directory, string $filename): void
+    {
+        if (!self::hasPublishingMarker($directory, $filename) || !self::isPublished($directory, $filename)) {
+            return;
+        }
+
+        self::remove($directory . DIRECTORY_SEPARATOR . $filename . '.publishing');
     }
 
     /**
@@ -294,9 +354,13 @@ final class BatchFilePublisher
         return self::isPublished(dirname($final), basename($final));
     }
 
+    /**
+     * Remove one regular file when this run can write its directory.
+     */
     private static function remove(string $path): void
     {
-        if (is_file($path)) {
+        $directory = dirname($path);
+        if (is_file($path) && $directory !== "" && is_writable($directory)) {
             unlink($path);
         }
     }
