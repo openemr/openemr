@@ -268,9 +268,8 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @return false|string|FHIRProvenance the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
