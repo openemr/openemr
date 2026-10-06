@@ -441,7 +441,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR Immunization record array');
@@ -457,7 +457,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
      * @param array $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         // The patient the caller asserts has to be the immunization's actual owner. Without this
         // the resolved patient_id would simply be written, moving the record to another chart.
