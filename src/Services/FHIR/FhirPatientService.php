@@ -949,7 +949,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $this->searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, new SearchQueryConfig());
     }
 
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRPatient)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
