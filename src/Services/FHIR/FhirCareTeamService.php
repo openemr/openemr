@@ -558,18 +558,14 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Create Provenance resource for the Care Team
      */
-    public function createProvenanceResource($dataRecord = [], $encode = false)
+    public function createProvenanceResource($dataRecord = [])
     {
         if (!($dataRecord instanceof FHIRCareTeam)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
     public function getSupportedVersions(): array
