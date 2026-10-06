@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\DiagnosticReport;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
@@ -234,9 +235,8 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @return the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord)
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRDiagnosticReport)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
