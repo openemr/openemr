@@ -261,7 +261,7 @@ trait FhirDocumentReferenceTrait {
         return json_encode($resource, JSON_THROW_ON_ERROR);
     }
 
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRDocumentReference)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -274,10 +274,6 @@ trait FhirDocumentReferenceTrait {
             $author = reset($authors); // grab the first one, as we only populate one anyways.
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 }
