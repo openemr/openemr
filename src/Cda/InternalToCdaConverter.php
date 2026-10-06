@@ -32,8 +32,46 @@ class InternalToCdaConverter
     private DOMDocument $input;
     private DOMXPath $inputXpath;
     private int $clinicalNoteRefCounter = 0;
+    /** Set while rendering the separate unstructured document. */
+    private ?string $docTypeOverride = null;
 
     public function convert(string $internalXml): string
+    {
+        $root = $this->startDocument($internalXml);
+        $this->renderHeader($root);
+        $this->renderBody($root);
+        return $this->serializeDocument();
+    }
+
+    /**
+     * Build the separate unstructured document that carries the patient files
+     * exported with a C-CDA (/CCDA/patient_files), or return '' when the input
+     * has none. Node returned this as a second ClinicalDocument alongside the
+     * main one; it shares the main document's header under the unstructured
+     * document template and carries one nonXMLBody component per file, as
+     * Node did.
+     */
+    public function convertUnstructured(string $internalXml): string
+    {
+        $root = $this->startDocument($internalXml);
+        $files = $this->xpath('/CCDA/patient_files/component');
+        if ($files->length === 0) {
+            return '';
+        }
+
+        $this->docTypeOverride = 'unstructured';
+        try {
+            $this->renderHeader($root);
+        } finally {
+            $this->docTypeOverride = null;
+        }
+        foreach ($files as $file) {
+            $root->appendChild($this->importIntoCdaNamespace($file));
+        }
+        return $this->serializeDocument();
+    }
+
+    private function startDocument(string $internalXml): DOMElement
     {
         $this->input = new DOMDocument();
         $result = $this->input->loadXML($internalXml, LIBXML_NONET);
@@ -53,15 +91,36 @@ class InternalToCdaConverter
 
         $root = $this->createRootElement();
         $this->output->appendChild($root);
+        return $root;
+    }
 
-        $this->renderHeader($root);
-        $this->renderBody($root);
-
+    private function serializeDocument(): string
+    {
         $xml = $this->output->saveXML();
         if ($xml === false) {
             throw new \RuntimeException('Failed to serialize XML');
         }
         return $xml;
+    }
+
+    /**
+     * Copy an input element and its subtree into the output document, placing
+     * each element in the CDA namespace.
+     */
+    private function importIntoCdaNamespace(DOMElement $source): DOMElement
+    {
+        $copy = $this->output->createElementNS(self::NS_CDA, $source->nodeName);
+        foreach ($source->attributes ?? [] as $attribute) {
+            $copy->setAttribute($attribute->nodeName, $attribute->nodeValue ?? '');
+        }
+        foreach ($source->childNodes as $child) {
+            if ($child instanceof DOMElement) {
+                $copy->appendChild($this->importIntoCdaNamespace($child));
+            } elseif ($child instanceof \DOMText) {
+                $copy->appendChild($this->output->createTextNode($child->data));
+            }
+        }
+        return $copy;
     }
 
     private function createRootElement(): DOMElement
@@ -87,7 +146,7 @@ class InternalToCdaConverter
 
     private function renderDocumentMetadata(DOMElement $root): void
     {
-        $docType = $this->xpathValue('/CCDA/doc_type');
+        $docType = $this->docTypeOverride ?? $this->xpathValue('/CCDA/doc_type');
 
         $docCode = '34133-9';
         $docName = 'Summarization of Episode Note';

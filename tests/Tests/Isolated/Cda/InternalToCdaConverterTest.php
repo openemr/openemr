@@ -1284,6 +1284,69 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * Patient files exported with a C-CDA travel in a separate unstructured
+     * document, as the Node service returned them: the main document's header
+     * under the unstructured template, then one nonXMLBody component per file
+     * with the attributes the OpenEMR importer reads.
+     */
+    public function testExportedPatientFilesProduceAnUnstructuredDocument(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20210723</created_time_timezone>
+                <patient><fname>Test</fname><lname>Patient</lname></patient>
+                <patient_files>
+                    <component>
+                        <nonXMLBody>
+                            <text category="Lab Report" name="labs.pdf" hash="abc123" mediaType="application/pdf" representation="B64" compression="ZL">eJwrSS0uAQAEXQHB</text>
+                        </nonXMLBody>
+                    </component>
+                    <component>
+                        <nonXMLBody>
+                            <text category="Imaging" name="xray.png" hash="def456" mediaType="image/png" representation="B64" compression="ZL">eJwrSS0uAQAEXQHB</text>
+                        </nonXMLBody>
+                    </component>
+                </patient_files>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convertUnstructured($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $this->singleElement($xpath, "/hl7:ClinicalDocument/hl7:templateId[@root='2.16.840.1.113883.10.20.22.1.10'][@extension='2015-08-01']");
+        $this->singleElement($xpath, '/hl7:ClinicalDocument/hl7:recordTarget');
+        $structured = $xpath->query('//hl7:structuredBody');
+        self::assertNotFalse($structured);
+        self::assertSame(0, $structured->length, 'The unstructured document must not carry a structuredBody');
+
+        $texts = $xpath->query('/hl7:ClinicalDocument/hl7:component/hl7:nonXMLBody/hl7:text');
+        self::assertNotFalse($texts);
+        self::assertSame(2, $texts->length, 'One CDA-namespaced nonXMLBody component per exported file');
+        $first = $texts->item(0);
+        self::assertInstanceOf(\DOMElement::class, $first);
+        self::assertSame('Lab Report', $first->getAttribute('category'));
+        self::assertSame('abc123', $first->getAttribute('hash'));
+        self::assertSame('application/pdf', $first->getAttribute('mediaType'));
+        self::assertSame('eJwrSS0uAQAEXQHB', $first->textContent);
+
+        $main = $this->convertToXPath($input);
+        $mainFiles = $main->query('//hl7:nonXMLBody');
+        self::assertNotFalse($mainFiles);
+        self::assertSame(0, $mainFiles->length, 'Exported files must not appear in the main document');
+        $this->singleElement($main, "/hl7:ClinicalDocument/hl7:templateId[@root='2.16.840.1.113883.10.20.22.1.2'][@extension='2015-08-01']");
+    }
+
+    public function testNoUnstructuredDocumentWithoutExportedFiles(): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . 'ccda-input-demo1.xml');
+        self::assertIsString($input, 'Demo fixture must be readable');
+
+        self::assertSame('', (new InternalToCdaConverter())->convertUnstructured($input));
+    }
+
+    /**
      * ClinicalDocument/id identifies one document instance (CDA R2), so two
      * exports must not share it; Node gave every document OE-DOC-0001.
      */
