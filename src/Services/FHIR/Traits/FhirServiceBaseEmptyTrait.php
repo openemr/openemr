@@ -1,8 +1,9 @@
 <?php
 
 /**
- * FhirServiceBaseEmptyTrait is used to provide default empty service methods for when a FHIR service class is implementing
- * only a single or subset of service methods.  At some point we may want to consider refactoring the FHIRServiceBase
+ * FhirServiceBaseEmptyTrait provides default service methods for when a FHIR service class is implementing
+ * only a single or subset of service methods. Search reports an internal error, provenance is unavailable, and the write
+ * methods throw.  At some point we may want to consider refactoring the FHIRServiceBase
  * class to make these methods not required.
  * @package openemr
  * @link      https://www.open-emr.org
