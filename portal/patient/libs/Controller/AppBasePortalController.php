@@ -60,7 +60,7 @@ class AppBasePortalController extends PortalController
      * Return the default SimpleObject params used when rendering objects as JSON
      * @return array
      */
-    protected function SimpleObjectParams()
+    protected function SimpleObjectParams(): array
     {
         return ['camelCase' => true];
     }

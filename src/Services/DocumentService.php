@@ -184,10 +184,8 @@ class DocumentService extends BaseService
      * @param ISearchField[] $search  $search         search array parameters
      * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param array  $options        - Optional array of sql clauses like LIMIT, ORDER, etc
-     * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
-     *                               payload.
      */
-    public function search($search, $isAndCondition = true, $options = [])
+    public function search($search, $isAndCondition = true, $options = []): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 

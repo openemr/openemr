@@ -97,7 +97,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -117,9 +117,8 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRAppointment
     {
         $appt = new FHIRAppointment();
 
@@ -497,9 +496,8 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
      * Inserts an OpenEMR record into the system.
      *
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
-     * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR Appointment record array');

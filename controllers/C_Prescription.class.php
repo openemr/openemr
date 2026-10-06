@@ -1259,7 +1259,7 @@ class C_Prescription extends Controller
         return [$pdf, $p->patient];
     }
 
-    private function generateHtmlObjectForPrescriptionIds($id)
+    private function generateHtmlObjectForPrescriptionIds($id): array
     {
         ob_start();
         $this->multiprintcss_action($id);

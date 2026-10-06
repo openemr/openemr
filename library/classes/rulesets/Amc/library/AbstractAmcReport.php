@@ -113,8 +113,8 @@ abstract class AbstractAmcReport implements RsReportIF
         return $this->_amcPopulation;
     }
 
-    abstract public function createNumerator();
-    abstract public function createDenominator();
+    abstract public function createNumerator(): ?AmcFilterIF;
+    abstract public function createDenominator(): ?AmcFilterIF;
     abstract public function getObjectToCount();
 
     public function getAggregator()

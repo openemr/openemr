@@ -331,9 +331,8 @@ class InstModuleTable
     /**
      * @param int    $id
      * @param string $cols -- This field is unused! TODO: remove this field
-     * @return InstModule
      */
-    public function getRegistryEntry($id, $cols = "")
+    public function getRegistryEntry($id, $cols = ""): InstModule
     {
         $sql = "SELECT mod_directory, sql_version, acl_version,type FROM modules WHERE mod_id = ?";
         $results = QueryUtils::fetchRecords($sql, [$id]);
@@ -792,7 +791,7 @@ class InstModuleTable
         }
     }
 
-    public function getHangers()
+    public function getHangers(): array
     {
         return [
             'reports' => "Reports",
@@ -1019,9 +1018,9 @@ class InstModuleTable
      * validateNickName
      *
      * @param String $name nickname
-     * @return bool Nickname available or not.
+     * @return int Number of modules already using the nickname.
      **/
-    public function validateNickName($name)
+    public function validateNickName($name): int
     {
         $sql = "SELECT * FROM `modules` WHERE mod_nick_name = ? ";
         $result = QueryUtils::fetchRecords($sql, [$name]);

@@ -21,7 +21,7 @@ class MaviqClient
     {
     }
 
-    public function sendRequest($path, $method = "POST", $vars = [])
+    public function sendRequest($path, $method = "POST", $vars = []): RestResponse
     {
 
         echo "Path: {$path}\n";

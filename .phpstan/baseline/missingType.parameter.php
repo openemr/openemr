@@ -13652,6 +13652,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/SignableIF.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method ESign\\\\SignableIF\\:\\:sign\\(\\) has parameter \\$lock with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ESign/SignableIF.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\SignableIF\\:\\:sign\\(\\) has parameter \\$userId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/SignableIF.php',

@@ -249,7 +249,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param array $dataRecord The source data
      * @return array Array of validation warnings/errors
      */
-    private function validateUSCoreRequirements($dataRecord)
+    private function validateUSCoreRequirements($dataRecord): array
     {
         $errors = [];
         $warnings = [];

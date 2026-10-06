@@ -29,27 +29,27 @@ class NQF_0013_PopulationCriteria implements CqmPopulationCrtiteriaFactory
         return "Population Criteria";
     }
 
-    public function createInitialPatientPopulation()
+    public function createInitialPatientPopulation(): CqmFilterIF
     {
         return new NQF_0013_InitialPatientPopulation();
     }
 
-    public function createNumerators()
+    public function createNumerators(): CqmFilterIF
     {
         return new NQF_0013_Numerator();
     }
 
-    public function createDenominator()
+    public function createDenominator(): CqmFilterIF
     {
         return new DenominatorAllPatients();
     }
 
-    public function createExclusion()
+    public function createExclusion(): CqmFilterIF
     {
         return new NQF_0013_Exclusion();
     }
 
-    public function createDenominatorException()
+    public function createDenominatorException(): CqmFilterIF
     {
         return new ExceptionsNone();
     }

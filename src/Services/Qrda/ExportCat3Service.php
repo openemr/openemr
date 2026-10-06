@@ -424,7 +424,7 @@ XML;
     /**
      * Helper methods
      */
-    private function getOrganizationInfo()
+    private function getOrganizationInfo(): array
     {
         return [
             'name' => OEGlobalsBag::getInstance()->getString('openemr_name') ?? 'OpenEMR Practice',

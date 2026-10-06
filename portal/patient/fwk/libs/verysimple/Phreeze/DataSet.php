@@ -69,7 +69,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *          array to use for populating a single object
      * @return Preezable
      */
-    private function _getObject(&$row)
+    private function _getObject(&$row): object
     {
         $obj = new $this->_objectclass($this->_phreezer, $row);
         return $obj;

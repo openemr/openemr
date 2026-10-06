@@ -57,7 +57,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase implements IPatientCom
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),

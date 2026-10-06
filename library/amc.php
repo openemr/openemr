@@ -301,7 +301,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 // $start in YYYY-MM-DD
 // $end in YYYY-MM-DD
 // $holiday is an array containing YYYY-MM-DD
-function businessDaysDifference($startDate, $endDate, $holidays = [])
+function businessDaysDifference($startDate, $endDate, $holidays = []): float
 {
   //The total number of days between the two dates. We compute the no. of seconds and divide it to 60*60*24
   //We add one to include both dates in the interval.

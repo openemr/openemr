@@ -120,7 +120,7 @@ class AppointmentService extends BaseService
         return $validator->validate($appointment);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT pce.pc_eid,
                        pce.pc_uuid,
@@ -693,7 +693,7 @@ class AppointmentService extends BaseService
         return QueryUtils::fetchRecords($sql, [$cat_id]);
     }
 
-    public function searchCalendarCategories(array $oeSearchParameters)
+    public function searchCalendarCategories(array $oeSearchParameters): ProcessingResult
     {
         $sql = "SELECT * FROM openemr_postcalendar_categories ";
         $whereClause = FhirSearchWhereClauseBuilder::build($oeSearchParameters, true);

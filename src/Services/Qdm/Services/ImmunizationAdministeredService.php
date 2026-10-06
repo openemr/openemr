@@ -31,7 +31,7 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): ImmunizationAdministered
     {
         $record = $recordObj->getData();
         $model = new ImmunizationAdministered([

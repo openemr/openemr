@@ -573,9 +573,9 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
  * @param string $filetype
  * @param string $csvtype
  *
- * @return string
+ * @return int count of rows written, including the header row
  */
-function edih_archive_csv_combine($filetype, $csvtype)
+function edih_archive_csv_combine($filetype, $csvtype): int
 {
     //
     $str_out = '';
@@ -963,7 +963,7 @@ function edih_archive_undo(): string
  *
  * @return int count the rows written
  */
-function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
+function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array): int
 {
     // @param string $csv_path -- the tmp csv file path is expected
     // @param array $heading_ar -- the column heading for the csv file

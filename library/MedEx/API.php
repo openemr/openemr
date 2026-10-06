@@ -1070,9 +1070,9 @@ class Events extends Base
  * This function will check recurring appt entries in calendar.
  * @param $appt
  * @param $result
- * @return array|bool
+ * @return int Number of occurrences split out into standalone appointments
  */
-    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER")
+    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER"): int
     {
         //get dates in this request
         if ($M_group == "REMINDER") {
@@ -3197,7 +3197,7 @@ class Setup extends Base
                                     <label for="new_password"><?php echo xlt('Password'); ?>:</label>
                                     <i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
                                     <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
-                                    <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required />
+                                    <input type="password" placeholder="<?php echo xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required />
                                     <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required') . ": " . xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
                                 </div>
                                 <div class="form-group mt-3">

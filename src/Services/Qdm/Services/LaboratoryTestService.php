@@ -49,7 +49,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed
     {
         $record = $recordObj->getData();
         $result = 'Negative';

@@ -21,12 +21,12 @@ class AMC_304h extends AbstractAmcReport
         return "encounters_office_visit";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304h_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304h_Numerator();
     }

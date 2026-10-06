@@ -307,7 +307,7 @@ class smtp_class
 
     /* Public methods */
 
-    public Function Connect($domain="")
+    public Function Connect($domain=""): int
     {
         if (strcmp((string) $this->state,"Disconnected")) {
             $this->error="connection is already established";
@@ -620,7 +620,7 @@ class smtp_class
         else $output=preg_replace("#(^|\n)\\.#m","\\1..",(string) preg_replace("#\r([^\n]|\$)#m","\r\n\\1",(string) preg_replace("#(^|[^\r])\n#m","\\1\r\n",(string) preg_replace("#\n\n|\r\r#m","\r\n\r\n",(string) $data))));
     }
 
-    public Function SendData($data)
+    public Function SendData($data): int
     {
         if (strcmp((string) $this->state,"SendingData")) {
             $this->error="connection is not in the sending data state";

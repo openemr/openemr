@@ -97,7 +97,7 @@ class Bootstrap
         return $this->logger;
     }
 
-    public function getExporter()
+    public function getExporter(): EhiExporter
     {
         $xmlConfigPath = OEGlobalsBag::getInstance()->get('webserver_root') . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export';
         // . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml';

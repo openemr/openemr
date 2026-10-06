@@ -155,9 +155,8 @@ class EncounterccdadispatchTable
     /**
      * @param DateSearchField $searchField
      * @param                 $column
-     * @return DateSearchField
      */
-    private function convertDateSearchFieldForColumn(DateSearchField $searchField, $column)
+    private function convertDateSearchFieldForColumn(DateSearchField $searchField, $column): DateSearchField
     {
         return new DateSearchField($column, $searchField->getValues(), $searchField->getDateType(), $searchField->isAnd());
     }
@@ -3898,7 +3897,6 @@ class EncounterccdadispatchTable
     * @param    integer     $content
     * @param    integer     $time
     * @param    integer     $status
-    * @return   None
     */
     /**
      * @param $pid
@@ -3911,10 +3909,9 @@ class EncounterccdadispatchTable
      * @param $view
      * @param $transfer
      * @param $emr_transfer
-     * @return GeneratedCcdaResult
      * @throws \Exception
      */
-    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
+    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0): GeneratedCcdaResult
     {
         $content = base64_decode((string)$content);
         $document = new \Document();

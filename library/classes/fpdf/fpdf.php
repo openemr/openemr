@@ -500,7 +500,7 @@ class FPDF
         $this->_out(sprintf('BT /F%d %.2F Tf ET',$this->CurrentFont['i'],$this->FontSizePt));
     }
 
-    public function AddLink()
+    public function AddLink(): int
     {
     // Create a new internal link
         $n = count($this->links)+1;
@@ -1114,7 +1114,7 @@ class FPDF
         return sprintf('%.2F %.2F %.2F %.2F re f',$x*$this->k,($this->h-($y-$up/1000*$this->FontSize))*$this->k,$w*$this->k,-$ut/1000*$this->FontSizePt);
     }
 
-    protected function _parsejpg($file)
+    protected function _parsejpg($file): array
     {
     // Extract info from a JPEG file
         $a = getimagesize($file);
@@ -1319,7 +1319,7 @@ class FPDF
         $this->buffer .= $s."\n";
     }
 
-    protected function _getoffset()
+    protected function _getoffset(): int
     {
         return strlen((string) $this->buffer);
     }

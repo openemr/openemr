@@ -98,7 +98,7 @@ if (stristr(PHP_OS, 'WIN')) {
     $backup_log_dir = '/tmp';
 }
 
-function getDefaultRenderListOptions()
+function getDefaultRenderListOptions(): array
 {
     return [
         RenderFormFieldHelper::SHOW_ON_NEW_ONLY => xl('Show on New Form Only'),

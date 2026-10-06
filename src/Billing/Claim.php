@@ -179,7 +179,7 @@ class Claim
      * @return array<mixed> empty when the encounter has no misc
      *                      billing options form
      */
-    public function getMiscBillingOptions($pid, $encounter_id)
+    public function getMiscBillingOptions($pid, $encounter_id): array
     {
         $sql = "SELECT fpa.* FROM forms JOIN form_misc_billing_options AS fpa " .
             "ON fpa.id = forms.form_id " .
@@ -535,7 +535,7 @@ class Claim
   // prior payer. If $code is specified then only that procedure key is
   // selected, otherwise it's for the whole claim.
   //
-    public function payerTotals($ins, $code = '')
+    public function payerTotals($ins, $code = ''): array
     {
         // If we have no modifiers stored in SQL-Ledger for this claim,
         // then we cannot use a modifier passed in with the key.
@@ -619,13 +619,13 @@ class Claim
     }
 
   // Number of procedures in this claim.
-    public function procCount()
+    public function procCount(): int
     {
         return is_array($this->procs) ? count($this->procs) : 0;
     }
 
   // Number of payers for this claim. Ranges from 1 to 3.
-    public function payerCount()
+    public function payerCount(): int
     {
         return is_array($this->payers) ? count($this->payers) : 0;
     }
@@ -1716,7 +1716,7 @@ class Claim
      * @param int $ins
      * @return int 0 if the payer's sequence is unknown
      */
-    public function payerLevel($ins = 0)
+    public function payerLevel($ins = 0): int
     {
         return match ($this->payerSequence($ins)) {
             'P' => 1,

@@ -35,12 +35,12 @@ class AMC_304b_STG1 extends AbstractAmcReport
         return "prescriptions";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304b_STG1_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304b_STG1_Numerator();
     }

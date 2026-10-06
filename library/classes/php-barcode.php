@@ -133,7 +133,7 @@ class Barcode
     }
 
     // convert a bit string to an array of array of bit char
-    private static function bitStringTo2DArray($digit)
+    private static function bitStringTo2DArray($digit): array
     {
         $d = [];
         $len = strlen((string) $digit);
@@ -225,7 +225,7 @@ class Barcode
         return self::digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit);
     }
 
-    private static function result($xi, $yi, $columns, $lines, $mw, $mh, $cos, $sin)
+    private static function result($xi, $yi, $columns, $lines, $mw, $mh, $cos, $sin): array
     {
         self::_rotate(0, 0, $cos, $sin, $x1, $y1);
         self::_rotate($columns * $mw, 0, $cos, $sin, $x2, $y2);
@@ -986,7 +986,7 @@ class BarcodeDatamatrix
  // SUM IN GALOIS FIELD GF(2^8)
         return $a ^ $b;
     }
-    private static function selectIndex($dataCodeWordsCount, $rectangular)
+    private static function selectIndex($dataCodeWordsCount, $rectangular): int
     {
  // CHOOSE THE GOOD INDEX FOR TABLES
         if (($dataCodeWordsCount < 1 || $dataCodeWordsCount > 1558) && !$rectangular) {

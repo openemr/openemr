@@ -74,7 +74,7 @@ class InsuranceService extends BaseService
         return sqlQuery($sql, [$id, $type]);
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,

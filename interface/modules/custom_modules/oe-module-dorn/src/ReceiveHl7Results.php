@@ -1430,7 +1430,7 @@ class ReceiveHl7Results
      *   0  No patient is close to a match.
      *  -1  It's not clear if there is a match.
      */
-    private function matchPatient($ptarr)
+    private function matchPatient($ptarr): int
     {
         $in_ss = str_replace('-', '', $ptarr['ss']);
         $in_fname = $ptarr['fname'];
@@ -1636,7 +1636,7 @@ class ReceiveHl7Results
     /**
      * Create a patient using whatever patient_data attributes are provided.
      */
-    private function createSkeletonPatient($patient_data)
+    private function createSkeletonPatient($patient_data): int
     {
         global $orphanLog;
         $employer_data = [];

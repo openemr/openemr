@@ -64,7 +64,7 @@ trait MappedServiceCodeTrait
         throw new SearchFieldException($field->getField(), "Invalid or unsupported code");
     }
 
-    public function getTokenSearchFieldWithSupportedCodes(FhirServiceBase $service, TokenSearchField $field)
+    public function getTokenSearchFieldWithSupportedCodes(FhirServiceBase $service, TokenSearchField $field): TokenSearchField
     {
         $subsetCodes = [];
         foreach ($field->getValues() as $value) {
