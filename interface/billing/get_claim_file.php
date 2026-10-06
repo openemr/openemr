@@ -15,14 +15,18 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/config.php";
 
 use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+$globals = OEGlobalsBag::getInstance();
+require_once $globals->getString('OE_SITE_DIR') . "/config.php";
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
@@ -31,90 +35,71 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-$content_type = "text/plain";
+$request = CurrentRequest::get();
+$contentType = "text/plain";
+$key = $request->query->get('key');
+$converted = is_string($key) ? convert_safe_file_dir_name($key) : null;
+$safeName = is_string($converted) ? $converted : '';
 
-// The key contains the filename
-$safeName = convert_safe_file_dir_name($_GET['key']);
-
-// Because of the way the billing tables are constructed (as of 2021)
-// We may not know exactly where the file is, so we need to try a couple
-// different places. This is mainly because the full path is not stored
-// in the database. Also, the file could have been generated with the
-// 'gen_x12_based_on_ins_co' global set to 'on' but if it was turned off,
-// we still want to be able to download the file. So, we have to do a bit
-// of searching.
-// The edi directory is the default location.
-
-// the loc, if set, may tell us where the file is
-$location = $_GET['location'] ?? '';
-$claim_file_found = false;
-$claim_file_dir = '';
+// The billing tables store a file name, not a directory. The name is accepted
+// only when that directory already lists it, so the request is not a path.
+$location = $request->query->get('location');
+$claimFile = null;
 if ($location === 'tmp') {
-    $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    if (file_exists($claim_file_dir . $safeName)) {
-        $claim_file_found = true;
+    $temporary = rtrim($globals->getString('temporary_files_dir'), DIRECTORY_SEPARATOR);
+    $claimFile = BatchFilePublisher::listedFile($temporary, $safeName);
+}
+
+$partner = $request->query->get('partner');
+if ($claimFile === null && is_string($partner) && $partner !== '') {
+    $row = QueryUtils::querySingleRow(
+        "SELECT `X`.`id`, `X`.`x12_sftp_local_dir` FROM `x12_partners` `X` WHERE `X`.`id` = ? LIMIT 1",
+        [$partner]
+    );
+    $partnerDirectory = is_array($row) ? ($row['x12_sftp_local_dir'] ?? null) : null;
+    if (is_string($partnerDirectory) && $partnerDirectory !== '') {
+        $claimFile = BatchFilePublisher::listedFile($partnerDirectory, $safeName);
     }
 }
 
-// See if the file exists in the x-12 partner's SFTP directory
-// If it's not there, try the edi directory
+$claimFile ??= BatchFilePublisher::listedFile(
+    $globals->getString('OE_SITE_DIR') . "/documents/edi",
+    $safeName
+);
+
 if (
-    false === $claim_file_found &&
-    isset($_GET['partner'])
+    !is_string($claimFile)
+    || !BatchFilePublisher::downloadAllowed(dirname($claimFile), basename($claimFile))
 ) {
-    $x12_partner_id = $_GET['partner'];
-    // First look in the database for the file so we know
-    // which partner directory to check
-    $sql = "SELECT `X`.`id`, `X`.`x12_sftp_local_dir`
-        FROM `x12_partners` `X`
-        WHERE `X`.`id` = ?
-        LIMIT 1";
-    $row = sqlQuery($sql, [$x12_partner_id]);
-    if ($row) {
-        $claim_file_dir = $row['x12_sftp_local_dir'];
-    }
-
-    if (file_exists($claim_file_dir . $safeName)) {
-        $claim_file_found = true;
-    }
+    echo xlt("The claim file: ") . text($safeName) . xlt(" could not be accessed.");
+    exit;
 }
 
-if ($claim_file_found === false) {
-    $claim_file_dir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/";
+if (strtolower(substr($claimFile, -4)) === ".pdf") {
+    $contentType = "application/pdf";
 }
 
-$fname = $claim_file_dir . $safeName;
-
-if (strtolower(substr($fname, (strlen($fname) - 4))) == ".pdf") {
-    $content_type = "application/pdf";
+$handle = fopen($claimFile, 'r');
+if ($handle === false) {
+    echo xlt("The claim file: ") . text($safeName) . xlt(" could not be accessed.");
+    exit;
 }
 
-// A publishing marker is an interrupted batch. A completion note must match.
-// A file with neither is an older batch or a validation file.
-if (!BatchFilePublisher::downloadAllowed(dirname($fname), basename($fname))) {
-    echo xlt("The claim file: ") . text($_GET['key']) . xlt(" could not be accessed.");
-} else {
-    $fp = fopen($fname, 'r');
+$size = filesize($claimFile);
+header("Pragma: public");
+header("Expires: 0");
+header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+header("Content-Type: " . $contentType);
+if (is_int($size)) {
+    header("Content-Length: " . $size);
+}
+header("Content-Disposition: attachment; filename=" . basename($claimFile));
+fpassthru($handle);
+fclose($handle);
 
-    header("Pragma: public");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Content-Type: $content_type");
-    header("Content-Length: " . filesize($fname));
-    header("Content-Disposition: attachment; filename=" . basename($fname));
-
-    // dump the picture and stop the script
-    fpassthru($fp);
-
-    // If the caller sets the delete flag, delete the file when we're done serving it
-    // This is the common case of a temporary file when validation-only is performed
-    // by the BillingProcessor
-    if (
-        isset($_GET['delete']) &&
-        $_GET['delete'] == 1
-    ) {
-        unlink($fname);
-    }
+$delete = $request->query->get('delete');
+if ($delete === '1') {
+    unlink($claimFile);
 }
 
 exit;
