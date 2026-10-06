@@ -936,9 +936,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param array|FHIRObservation $dataRecord The source OpenEMR data record
-     * @return FHIRProvenance|string the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new BadMethodCallException("Data record should be correct instance class");
@@ -948,14 +947,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             // grab the first one
             $performer = current($dataRecord->getPerformer());
         }
-        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $performer);
-        if ($fhirProvenance === null) {
-            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
-            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
-            // available" and continues (see issue #13054).
-            return false;
-        }
-        return $fhirProvenance;
+        return $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $performer);
     }
 
     /**
