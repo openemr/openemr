@@ -241,10 +241,9 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param FHIRDiagnosticReport $dataRecord The source OpenEMR data record
-     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return FHIRProvenance|string|false the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return FHIRProvenance|string|false the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRDiagnosticReport)) {
             throw new BadMethodCallException("Data record should be correct instance class");
@@ -256,7 +255,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
             // available" and continues (see issue #13054).
             return false;
         }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $fhirProvenance;
     }
 
     /**
