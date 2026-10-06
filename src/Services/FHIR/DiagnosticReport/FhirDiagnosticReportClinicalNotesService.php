@@ -101,7 +101,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         return $this->service->isValidClinicalNoteCode($code);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDiagnosticReport
     {
         $report = new FHIRDiagnosticReport();
         $this->populateMeta($report, $dataRecord);

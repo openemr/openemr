@@ -237,7 +237,7 @@ class UserService
         return ($records ?? null);
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT  id,
                         uuid,

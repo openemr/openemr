@@ -722,6 +722,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PhoneNumberService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$qdmPatient on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/QdmBuilder.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Helpers/Cat1View.php',

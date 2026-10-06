@@ -372,12 +372,12 @@ class Bootstrap
         return $service;
     }
 
-    private function getMailerService()
+    private function getMailerService(): TeleHealthParticipantInvitationMailerService
     {
         return new TeleHealthParticipantInvitationMailerService($this->eventDispatcher, $this->getTwig(), $this->getPublicPathFQDN(), $this->globalsConfig);
     }
 
-    private function getFrontendSettingsController()
+    private function getFrontendSettingsController(): TeleHealthFrontendSettingsController
     {
         return new TeleHealthFrontendSettingsController($this->getAssetPath(), $this->getTwig(), $this->globalsConfig);
     }

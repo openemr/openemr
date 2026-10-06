@@ -38,7 +38,7 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): DeviceApplied
     {
         $record = $recordObj->getData();
         $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());

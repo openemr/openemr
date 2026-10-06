@@ -48,7 +48,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         return 'FE.pid';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): EncounterPerformed
     {
         $record = $recordObj->getData();
         // Convert the encounter datetime into a DateTime Object so we can calculate end time based on encounter end date

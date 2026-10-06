@@ -63,7 +63,7 @@ class C_FormPainMap extends C_AbstractClickmap
      * @param mixed $form_id
      *  optional id of a form in the EMR, to populate data from.
      */
-    public function createModel($form_id = "")
+    public function createModel($form_id = ""): FormPainMap
     {
         if ($form_id != "") {
             return new FormPainMap($form_id);

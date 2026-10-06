@@ -473,12 +473,8 @@ class EncounterccdadispatchController extends AbstractActionController
     * Automatically sign off the combination forms
     *
     * @param    None
-    * @return   None
     */
-    /**
-     * @return ViewModel
-     */
-    public function autosignoffAction()
+    public function autosignoffAction(): ViewModel
     {
         $auto_signoff_days = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_sign_off_id');
         $str_time = ((strtotime(date('Y-m-d'))) - ($auto_signoff_days * 60 * 60 * 24));

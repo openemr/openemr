@@ -21,12 +21,12 @@ class AMC_302h extends AbstractAmcReport
         return "lab_orders";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_302h_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_302h_Numerator();
     }

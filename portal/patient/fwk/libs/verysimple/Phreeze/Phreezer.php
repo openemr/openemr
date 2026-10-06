@@ -413,9 +413,8 @@ class Phreezer extends Observable
 * @param Criteria $criteria
 *          a Criteria object to limit results
 * @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
-* @return DataSet
 */
-    public function Query($objectclass, $criteria = null, $cache_timeout = null)
+    public function Query($objectclass, $criteria = null, $cache_timeout = null): DataSet
     {
         $cache_timeout ??= $this->ValueCacheTimeout;
 

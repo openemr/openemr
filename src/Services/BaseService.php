@@ -465,9 +465,8 @@ class BaseService implements BaseServiceInterface
      * @param array<string, ISearchField> $search Hashmap of string => ISearchField
      *                                             where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return ProcessingResult The results of the search.
      */
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         try {

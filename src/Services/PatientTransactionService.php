@@ -114,7 +114,7 @@ class PatientTransactionService extends BaseService
         return $records;
     }
 
-    public function getAll($pid)
+    public function getAll($pid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $sqlBindArray = [];

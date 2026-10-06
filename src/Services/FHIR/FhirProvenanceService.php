@@ -153,7 +153,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $fhirProvenance;
     }
 
-    protected function createAgentAuthorForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity, ?FHIRReference $who = null)
+    protected function createAgentAuthorForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity, ?FHIRReference $who = null): FHIRProvenanceAgent
     {
         $agent = new FHIRProvenanceAgent();
         $agentConcept = new FHIRCodeableConcept();
@@ -173,7 +173,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $agent;
     }
 
-    protected function createAgentTransmitterForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity)
+    protected function createAgentTransmitterForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity): FHIRProvenanceAgent
     {
         // agent:ProvenanceTransmitter - must support
         // agent:provenanceAuthor.type.coding.system=http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type - required
@@ -233,7 +233,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $fhirSearchResult;
     }
 
-    private function getAllProvenanceRecordsFromServices(array $fhirSearchParameters, $puuidBind = null)
+    private function getAllProvenanceRecordsFromServices(array $fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         if (empty($this->serviceLocator)) {
@@ -291,9 +291,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * Given a provenance record id retrieve the provenance record for the given resource and its uuid
      * @param $id string in the format of <resource>:<uuid>
      * @param $puuidBind string The patient uuid we will bind requests to in order to avoid patient data leaking
-     * @return ProcessingResult
      */
-    private function getProvenanceRecordsForId($id, $puuidBind)
+    private function getProvenanceRecordsForId($id, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $idParts = $this->splitSurrogateKeyIntoParts($id);

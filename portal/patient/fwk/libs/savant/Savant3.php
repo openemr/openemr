@@ -1145,10 +1145,8 @@ class Savant3 implements \Stringable
      *          Whether or not to include a backtrace, default
      *          true.
      *
-     * @return object Savant3_Error
-     *
      */
-    public function error($code, $info = [], $level = E_USER_ERROR, $trace = true)
+    public function error($code, $info = [], $level = E_USER_ERROR, $trace = true): Savant3_Error
     {
         $autoload = $this->__config ['autoload'];
 

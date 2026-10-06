@@ -203,14 +203,14 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
         $this->setIsObjectModified(true);
     }
 
-    private function loadAddress($id)
+    private function loadAddress($id): Address
     {
         $address = new Address($id);
         $address->setThrowExceptionOnError(true);
         return $address;
     }
 
-    private function loadContact($id)
+    private function loadContact($id): Contact
     {
         $contact = new Contact($id);
         $contact->setThrowExceptionOnError(true);

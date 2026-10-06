@@ -34,12 +34,12 @@ class AMC_304a_2 extends AbstractAmcReport
         return "cpoe_lab_orders";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304a_2_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304a_2_Numerator();
     }

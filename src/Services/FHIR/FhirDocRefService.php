@@ -95,7 +95,7 @@ class FhirDocRefService
         return $fhirSearchResult;
     }
 
-    private function createDefaultType()
+    private function createDefaultType(): TokenSearchField
     {
         return new TokenSearchField('type', [self::LOINC_CCD_CLINICAL_SUMMARY_OF_CARE]);
     }

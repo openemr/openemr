@@ -112,7 +112,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['sublist_updated_date', 'last_updated']);
     }
 
-    private function getLastModifiedSearchFieldForAppointmentCategories()
+    private function getLastModifiedSearchFieldForAppointmentCategories(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['pc_last_updated']);
     }

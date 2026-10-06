@@ -63,7 +63,7 @@ class TeleHealthProviderRepository
         return $providers;
     }
 
-    private function mapProviderToPersonSetting($provider)
+    private function mapProviderToPersonSetting($provider): TeleHealthPersonSettings
     {
         $personSetting = new TeleHealthPersonSettings();
         $personSetting->setIsPatient(false);

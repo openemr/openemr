@@ -176,7 +176,7 @@ class RuleManager
         return $rule;
     }
 
-    public function newRule()
+    public function newRule(): Rule
     {
         $rule = new Rule();
         return $rule;

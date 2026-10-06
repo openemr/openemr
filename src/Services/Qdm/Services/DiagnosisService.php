@@ -26,7 +26,7 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): Diagnosis
     {
         $record = $recordObj->getData();
         $qdmModel = new Diagnosis([

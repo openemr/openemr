@@ -88,7 +88,7 @@ class TeleHealthUserRepository extends BaseService
         return null;
     }
 
-    protected function createResultRecordFromDatabaseResult($row)
+    protected function createResultRecordFromDatabaseResult($row): TeleHealthUser
     {
         $dateFormat = "Y-m-d H:i:s";
         $user = new TeleHealthUser();
