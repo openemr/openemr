@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
                         <div class="col">
                             <?php if (empty($datas)) : ?>
                                 <div class="alert alert-info my-3">
-                                    <?php xlt("No routes found") ?>
+                                    <?php echo xlt("No routes found") ?>
                                 </div>
                             <?php else : ?>
                                 <table class="table table-hover table-striped">
@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
                                             <td scope="row"><?php echo text($data->primaryPhone) ?></td>
                                             <td scope="row">
                                                 <?php if (!empty($data->primaryEmail)) : ?>
-                                                    <a href="mailto:<?php attr($data->primaryEmail) ?>">
+                                                    <a href="mailto:<?php echo attr($data->primaryEmail) ?>">
                                                         <?php echo text($data->primaryEmail) ?>
                                                     </a>
                                                 <?php endif; ?>

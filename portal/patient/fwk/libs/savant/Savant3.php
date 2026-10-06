@@ -1205,10 +1205,8 @@ class Savant3 implements \Stringable
                 include_once __DIR__ . '/Savant3/Error.php';
             }
 
-            // now compare the parentage
-            $is = $obj instanceof Savant3_Error;
-            $sub = is_subclass_of($obj, 'Savant3_Error');
-            return ($is || $sub);
+            // now compare the parentage (instanceof also covers subclasses)
+            return $obj instanceof Savant3_Error;
         }
     }
 }
