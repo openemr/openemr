@@ -685,7 +685,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return str_contains($stored, ':') ? $stored : null;
     }
 
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRGoal)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
