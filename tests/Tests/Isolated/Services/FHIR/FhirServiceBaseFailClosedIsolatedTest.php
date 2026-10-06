@@ -185,7 +185,7 @@ abstract class FailClosedTestServiceBase extends FhirServiceBase
         return new ProcessingResult();
     }
 
-    public function createProvenanceResource($dataRecord, $encode = false): null
+    public function createProvenanceResource($dataRecord): null
     {
         return null;
     }
