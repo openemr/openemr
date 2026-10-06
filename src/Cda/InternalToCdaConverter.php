@@ -4904,12 +4904,15 @@ class InternalToCdaConverter
         $policyName = $this->xpathValue('policy/code/@name', $payer);
         $policyCodeSystem = $this->xpathValue('policy/code/@code_system', $payer);
         $policyCodeSystemName = $this->xpathValue('policy/code/@code_system_name', $payer);
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $policyCode !== '' ? $policyCode : '72');
-        $code->setAttribute('displayName', $policyName !== '' ? $policyName : 'Self');
-        $code->setAttribute('codeSystem', $policyCodeSystem !== '' ? $policyCodeSystem : '2.16.840.1.113883.3.221.5');
-        $code->setAttribute('codeSystemName', $policyCodeSystemName !== '' ? $policyCodeSystemName : 'Insurance Type Code');
-        $policyAct->appendChild($code);
+        // Coverage type in Source of Payment Typology (2.16.840.1.113883.3.221.5).
+        // Node defaults a missing type to 72 (PPO) named "Self"; an unknown
+        // coverage type is carried as nullFlavor instead of asserting one.
+        $policyAct->appendChild($this->createPayerCode(
+            $policyCode,
+            $policyName,
+            $policyCodeSystem !== '' ? $policyCodeSystem : '2.16.840.1.113883.3.221.5',
+            $policyCodeSystemName !== '' ? $policyCodeSystemName : 'Source of Payment Typology',
+        ));
 
         $this->appendStatusCode($policyAct, ActStatus::Completed);
 
@@ -4930,6 +4933,30 @@ class InternalToCdaConverter
 
         $entryRel->appendChild($policyAct);
         $act->appendChild($entryRel);
+    }
+
+    /**
+     * A payer-section code: nullFlavor="UNK" when no code is known, otherwise
+     * the code with whichever display name and system the input supplies.
+     */
+    private function createPayerCode(string $value, string $name, string $system, string $systemName): DOMElement
+    {
+        $code = $this->createElement('code');
+        if ($value === '') {
+            $code->setAttribute('nullFlavor', 'UNK');
+            return $code;
+        }
+        $code->setAttribute('code', $value);
+        if ($name !== '') {
+            $code->setAttribute('displayName', $name);
+        }
+        if ($system !== '') {
+            $code->setAttribute('codeSystem', $system);
+        }
+        if ($systemName !== '') {
+            $code->setAttribute('codeSystemName', $systemName);
+        }
+        return $code;
     }
 
     private function appendPayerPerformer(DOMElement $policyAct, DOMElement $payer): void
@@ -5035,19 +5062,16 @@ class InternalToCdaConverter
         $id->setAttribute('extension', $participantIdExt);
         $participantRole->appendChild($id);
 
-        // Code from participant/code - use Insurance Type Code system
-        $codeValue = $this->xpathValue('participant/code/code', $payer);
-        $codeName = $this->xpathValue('participant/code/name', $payer);
-        $codeSystem = $this->xpathValue('participant/code/code_system', $payer);
-        $codeSystemName = $this->xpathValue('participant/code/code_system_name', $payer);
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $codeValue !== '' ? $codeValue : 'SELF');
-        $code->setAttribute('displayName', $codeName !== '' ? $codeName : 'Self');
-        // Remove quotes if present in code_system
-        $codeSystem = trim($codeSystem, '"');
-        $code->setAttribute('codeSystem', $codeSystem !== '' ? $codeSystem : '2.16.840.1.113883.3.221.5');
-        $code->setAttribute('codeSystemName', $codeSystemName !== '' ? $codeSystemName : 'Insurance Type Code');
-        $participantRole->appendChild($code);
+        // Relationship to the subscriber, Coverage Role Type (CONF:1198-16078).
+        // The internal XML carries it as attributes on participant/code; the
+        // previous child-element path never matched, so every covered party
+        // came out as SELF. An unknown relationship is nullFlavor, not SELF.
+        $participantRole->appendChild($this->createPayerCode(
+            $this->xpathValue('participant/code/@code', $payer),
+            $this->xpathValue('participant/code/@name', $payer),
+            trim($this->xpathValue('participant/code/@code_system', $payer), '"'),
+            $this->xpathValue('participant/code/@code_system_name', $payer),
+        ));
 
         // Address from participant/performer/address
         $street = $this->xpathValue('participant/performer/address/street_lines', $payer);

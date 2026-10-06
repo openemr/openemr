@@ -1235,6 +1235,84 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * The relationship to the subscriber arrives as attributes on
+     * participant/code. The converter read child elements there, so the code
+     * never matched and every covered party was emitted as SELF.
+     */
+    public function testPayerCoveredPartyUsesRecordedRelationship(): void
+    {
+        $xpath = $this->convertToXPath($this->payerInput(
+            '<code code="512" code_system="2.16.840.1.113883.3.221.5" code_system_name="Source of Payment Typology" name="" />',
+            '<code name="family dependent" code="FAMDEP" code_system="2.16.840.1.113883.5.111" code_system_name="HL7 RoleCode" />',
+        ));
+
+        $code = $this->singleElement($xpath, "//hl7:participant[@typeCode='COV']/hl7:participantRole/hl7:code");
+        self::assertSame('FAMDEP', $code->getAttribute('code'));
+        self::assertSame('family dependent', $code->getAttribute('displayName'));
+        self::assertSame('2.16.840.1.113883.5.111', $code->getAttribute('codeSystem'));
+
+        $policyCode = $this->singleElement($xpath, "//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.61']/hl7:code");
+        self::assertSame('512', $policyCode->getAttribute('code'));
+        self::assertFalse($policyCode->hasAttribute('displayName'), 'An unnamed coverage type must not be labelled');
+    }
+
+    /**
+     * An unknown relationship or coverage type is nullFlavor, not the SELF
+     * and 72 ("PPO") defaults Node substitutes.
+     */
+    public function testPayerUnknownCodesUseNullFlavor(): void
+    {
+        $xpath = $this->convertToXPath($this->payerInput(
+            '<code code="" code_system="" code_system_name="" name="" />',
+            '<code name="" code="" code_system="" code_system_name="" />',
+        ));
+
+        $code = $this->singleElement($xpath, "//hl7:participant[@typeCode='COV']/hl7:participantRole/hl7:code");
+        self::assertSame('UNK', $code->getAttribute('nullFlavor'));
+        self::assertFalse($code->hasAttribute('code'));
+
+        $policyCode = $this->singleElement($xpath, "//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.61']/hl7:code");
+        self::assertSame('UNK', $policyCode->getAttribute('nullFlavor'));
+        self::assertFalse($policyCode->hasAttribute('code'));
+    }
+
+    private function payerInput(string $policyCode, string $participantCode): string
+    {
+        return <<<XML
+            <CCDA>
+                <created_time_timezone>20210723</created_time_timezone>
+                <payers>
+                    <payer>
+                        <identifiers><identifier>2.16.840.1.113883.19.5</identifier></identifiers>
+                        <policy>
+                            <identifiers><identifier>2.16.840.1.113883.19.5.1</identifier><extension>GRP-1</extension></identifiers>
+                            {$policyCode}
+                        </policy>
+                        <participant>
+                            <time_low>2024-08-01</time_low>
+                            <time_high>2026-08-01</time_high>
+                            {$participantCode}
+                            <performer>
+                                <identifiers><identifier>2.16.840.1.113883.19.5.2</identifier><extension>POL-1</extension></identifiers>
+                            </performer>
+                        </participant>
+                    </payer>
+                </payers>
+            </CCDA>
+            XML;
+    }
+
+    private function singleElement(DOMXPath $xpath, string $query): \DOMElement
+    {
+        $nodes = $xpath->query($query);
+        self::assertNotFalse($nodes, 'Query must be valid: ' . $query);
+        self::assertSame(1, $nodes->length, 'Expected exactly one match: ' . $query);
+        $node = $nodes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $node);
+        return $node;
+    }
+
+    /**
      * The medication manufacturedMaterial code uses Node's leafLevel.code
      * (no existsWhen), so a missing RxNorm code collapses to nullFlavor="UNK"
      * rather than emitting code="null_flavor" or an empty codeSystemName.
