@@ -55,10 +55,10 @@ on:
   workflow_dispatch:
     inputs:
       from_tag:
-        description: 'Prior openemr Docker Hub tag (fresh + upgrade source)'
-        required: true
+        description: 'Prior openemr Docker Hub tag (fresh + upgrade source). Leave empty to auto-derive from the checkout''s sql/*-to-*_upgrade.sql filenames (per-rel-branch prior-shipped version — rel-820 → 8.1.1, rel-830 → 8.2.0, rel-840 → 8.3.0, etc.). Pass an explicit tag string to override (e.g. `latest` for the pre-fix behavior).'
+        required: false
         type: string
-        default: 'latest'
+        default: ''
       to_tag:
         description: 'Target openemr Docker Hub tag (fresh + upgrade target)'
         required: true
@@ -88,10 +88,10 @@ on:
   workflow_call:
     inputs:
       from_tag:
-        description: 'Prior openemr Docker Hub tag. Defaults to latest.'
+        description: 'Prior openemr Docker Hub tag. Leave empty (default) to auto-derive from the checkout''s sql/*-to-*_upgrade.sql filenames.'
         required: false
         type: string
-        default: 'latest'
+        default: ''
       to_tag:
         description: 'Target openemr Docker Hub tag (typically a Phase 7c-docker gate candidate tag suffix; may also be next / a version-pinned tag / etc.).'
         required: false
@@ -210,6 +210,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       build_locally: ${{ steps.decide.outputs.build_locally }}
+      from_tag: ${{ steps.resolve-from-tag.outputs.from_tag }}
     steps:
     - uses: actions/checkout@v7
       with:
@@ -306,6 +307,77 @@ jobs:
           echo "==> docker/release/** unchanged between $BASE and $HEAD: build_locally=false"
           echo "build_locally=false" >> "$GITHUB_OUTPUT"
         fi
+
+    # Resolve from_tag for the acceptance matrix.
+    #
+    # Pre-fix: the matrix hardcoded `from_tag || 'latest'` as the
+    # fallback, which produced a legitimate test only on the rel
+    # branch that currently publishes `latest` (today rel-840 →
+    # 8.4.1). For every rel branch BELOW that (rel-820, rel-830),
+    # `from=latest=8.4.1 → to=own-candidate=8.2.0/8.3.0` is a
+    # downgrade — OpenEMR has no DB-downgrade machinery, so the
+    # auto-upgrade cell boots 8.4.1, swaps to 8.2.0 image, DB stays
+    # at 8.4.1, and the version-check test fails loud with
+    # "returned version 8.4.1 does not match expected 8.2.0".
+    # Observed on every rel-820/rel-830 docker-build-release.yml
+    # dispatch since rel-840 took `latest` on 2026-09-18.
+    #
+    # Post-fix: when the caller doesn't pass an explicit `from_tag`,
+    # derive the from-version from the checkout's own `sql/*-to-
+    # *_upgrade.sql` filenames (same signal driving the package
+    # side's `detect-acceptance-mode.sh::derive_from_version`;
+    # see .github/scripts/lib/derive-from-version.sh for the shared
+    # predicate). Each rel branch's checkout then produces its own
+    # prior-shipped version (rel-820 → 8.1.1, rel-830 → 8.2.0,
+    # rel-840 → 8.3.0, master during active cycle → whatever's in
+    # its sql/, between-cycles → caught by criterion 2 in
+    # detect-upgrade-cell-skip.sh before this value matters).
+    #
+    # Docker-vs-package note: this is sql-only (no shipped-versions-
+    # manifest intersect, unlike the package side). Docker Hub carries
+    # pre-production tags in addition to shipped releases, so a
+    # manifest intersect wouldn't correctly distinguish them anyway.
+    # Rare edge case where the derived version was never shipped
+    # (branch cut but never published): `docker pull openemr/openemr:
+    # <version>` in the acceptance cell's boot step fails loud naming
+    # the exact tag — no silent skip. See the lib header for the full
+    # "nothing-breaks-on-unreleased-version" invariant.
+    #
+    # Operator override: explicit `from_tag` input (workflow_dispatch
+    # or workflow_call) passes through unchanged. The default is now
+    # empty-string (used to be `'latest'`); callers who genuinely want
+    # the pre-fix `latest` behavior must pass `from_tag=latest`
+    # explicitly.
+    - id: resolve-from-tag
+      env:
+        INPUT_FROM_TAG: ${{ inputs.from_tag }}
+      run: |
+        set -euo pipefail
+        if [[ -n "${INPUT_FROM_TAG}" ]]; then
+          # Operator override path — honor the exact value as a
+          # Docker Hub tag. No derivation, no shape check (the
+          # downstream docker pull is the shape gate).
+          echo "==> from_tag override: ${INPUT_FROM_TAG}"
+          echo "from_tag=${INPUT_FROM_TAG}" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        # Default path — derive from the checkout.
+        # shellcheck source=./.github/scripts/lib/derive-from-version.sh
+        source .github/scripts/lib/derive-from-version.sh
+        if ! candidates=$(derive_from_version_sql_candidates "."); then
+          echo "::error::acceptance-docker.yml resolve-from-tag: sql-side derivation failed (see lib error above). Checkout is missing sql/ or has no well-formed sql/*-to-*_upgrade.sql filenames. If this is intentional (e.g., a rel branch that pre-dates the upgrade-file convention), pass an explicit from_tag on dispatch or document the per-branch default here." >&2
+          exit 1
+        fi
+        # Take the highest candidate as the from-version. The lib
+        # sorts ascending; tail -1 selects the max.
+        derived=$(printf '%s\n' "${candidates}" | tail -1)
+        echo "==> from_tag derived from checkout sql/: ${derived}"
+        # Docker Hub tag names: version tags are published as plain
+        # X.Y.Z strings alongside a dated-sibling X.Y.Z-YYYY-MM-DD.
+        # The plain form is sufficient for CI (an acceptance cell is
+        # ephemeral; immutability isn't a requirement here) and keeps
+        # the surface simple.
+        echo "from_tag=${derived}" >> "$GITHUB_OUTPUT"
 
   # Build the target image from the PR's docker/release/Dockerfile.
   # Runs only when detect-mode resolved build_locally=true.
@@ -419,7 +491,7 @@ jobs:
         include:
         - scenario: fresh-install-from
           description: 'Fresh install of from_tag'
-          image_tag: ${{ inputs.from_tag || 'latest' }}
+          image_tag: ${{ needs.detect-mode.outputs.from_tag }}
           test_group: post-install
         - scenario: fresh-install-to
           description: 'Fresh install of to_tag'
@@ -427,13 +499,13 @@ jobs:
           test_group: post-install
         - scenario: upgrade
           description: 'Upgrade from_tag -> to_tag'
-          image_tag: ${{ inputs.from_tag || 'latest' }}
+          image_tag: ${{ needs.detect-mode.outputs.from_tag }}
           # test_group runs first against from_tag (seeds any
           # persistence fixtures), then post-upgrade group runs
           # against to_tag after the image swap.
           test_group: post-install
     env:
-      FROM_TAG: ${{ inputs.from_tag || 'latest' }}
+      FROM_TAG: ${{ needs.detect-mode.outputs.from_tag }}
       TO_TAG: ${{ inputs.to_tag || 'next' }}
       # Pin project name so `docker compose down` preserves named
       # volumes reliably across the from_tag -> to_tag swap in the
