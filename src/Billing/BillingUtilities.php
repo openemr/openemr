@@ -21,6 +21,7 @@ use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class BillingUtilities
 {
@@ -2125,6 +2126,60 @@ class BillingUtilities
         $status = $row['status'] ?? null;
 
         return $status === BillingClaim::STATUS_LEAVE_UNBILLED || $status === '1';
+    }
+
+    /**
+     * Lock name for one claim on this database.
+     *
+     * The database name is part of the fence, so two sites on one server do
+     * not block each other. A name longer than 64 characters is a hash of
+     * the same parts.
+     */
+    public static function generationFenceName(string $patient, string $encounter, string $payer, string $site): ?string
+    {
+        if (preg_match('/^[1-9][0-9]*$/', $patient) !== 1 || preg_match('/^[1-9][0-9]*$/', $encounter) !== 1) {
+            return null;
+        }
+        if (preg_match('/^[0-9]+$/', $payer) !== 1 || $site === '') {
+            return null;
+        }
+
+        $readable = 'openemr_x12_' . $site . '_' . $patient . '_' . $encounter . '_' . $payer;
+        if (strlen($readable) <= 64 && preg_match('/^[A-Za-z0-9_]+$/', $readable) === 1) {
+            return $readable;
+        }
+
+        $hashed = 'openemr_x12_' . substr(hash('sha256', $site . "\0" . $patient . "\0" . $encounter . "\0" . $payer), 0, 52);
+        if (strlen($hashed) > 64) {
+            return null;
+        }
+
+        return $hashed;
+    }
+
+    /**
+     * Database name that keeps a generation fence on this site.
+     */
+    public static function generationFenceSite(): string
+    {
+        $bag = OEGlobalsBag::getInstance();
+        if ($bag->has('dbase')) {
+            $database = $bag->get('dbase');
+            if (is_string($database) && $database !== '') {
+                return $database;
+            }
+        }
+        if ($bag->has('OE_SITE_DIR')) {
+            $directory = $bag->get('OE_SITE_DIR');
+            if (is_string($directory) && $directory !== '') {
+                $base = basename($directory);
+                if ($base !== '' && $base !== '.' && $base !== '..') {
+                    return $base;
+                }
+            }
+        }
+
+        return '';
     }
 
     /**
