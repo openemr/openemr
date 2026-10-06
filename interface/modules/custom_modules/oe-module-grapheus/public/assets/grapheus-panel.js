@@ -132,7 +132,7 @@
       return '<div class="g-row"><input type="checkbox" data-al="' + i + '" checked><div>' + esc(a.substance) + (a.reaction ? ' — ' + esc(a.reaction) : '') + (a.severity ? ' (' + esc(a.severity) + ')' : '') + (!a.certain ? ' <span class="g-flag">check</span>' : '') + '</div></div>';
     }).join('') || '<p class="small text-muted mb-0">No new allergies reported.</p>';
     $('g-rx').innerHTML = (r.prescriptions || []).map(function (x, i) {
-      var flag = (x.missing && x.missing.length ? 'Not stated: ' + x.missing.join(', ') + '. ' : '') + (!x.certain ? 'Unclear in the recording. ' : '') + (x.action !== 'new' ? x.action.toUpperCase() + '. ' : '');
+      var flag = (x.missing && x.missing.length ? 'Not stated: ' + x.missing.join(', ') + '. ' : '') + (!x.certain ? 'Unclear in the recording. ' : '') + (x.action && x.action !== 'new' ? String(x.action).toUpperCase() + '. ' : '');
       return '<div class="g-row"><input type="checkbox" data-rx="' + i + '"' + (x.action === 'stop' ? '' : ' checked') + '><div class="g-rx-grid">' +
         '<input class="form-control form-control-sm" data-f="drug" value="' + esc(x.drug) + '" title="Drug">' +
         '<input class="form-control form-control-sm" data-f="strength" value="' + esc(x.strength) + '" title="Strength">' +

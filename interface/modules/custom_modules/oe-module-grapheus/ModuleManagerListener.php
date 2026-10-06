@@ -8,6 +8,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 
@@ -36,10 +38,12 @@ class ModuleManagerListener extends AbstractModuleActionListener
         return new self();
     }
 
-    /** Unregistering removes the connected keys (useless without the module); keeps the record of what was applied. */
+    /** Unregistering removes every stored Grapheus key (clinicians' and the practice's); keeps the record of what was applied. */
     private function unregister(string $currentActionStatus): string
     {
         QueryUtils::sqlStatementThrowException("DROP TABLE IF EXISTS `grapheus_keys`", []);
+        // The practice account key used by the Assistant goes too.
+        QueryUtils::sqlStatementThrowException("DELETE FROM `grapheus_settings` WHERE `name` IN ('practice_key_enc', 'practice_email')", []);
         return $currentActionStatus;
     }
 }

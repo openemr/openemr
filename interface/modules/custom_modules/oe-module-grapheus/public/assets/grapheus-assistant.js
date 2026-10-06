@@ -76,7 +76,7 @@
       if (!j.ok) { wait.innerHTML = '<span class="text-danger">' + esc(j.error) + '</span>'; history.pop(); return; }
       history.push({ role: 'assistant', content: j.reply + (j.changes && j.changes.length ? '\n[Proposed ' + j.changes.length + ' change(s).]' : '') });
       wait.innerHTML = md(j.reply) + (j.questions && j.questions.length ? '<ul class="mb-0 mt-2">' + j.questions.map(function (q) { return '<li>' + md(q) + '</li>'; }).join('') + '</ul>' : '') +
-        (j.chargeCents != null ? '<div class="g-why mt-1">This request: $' + Number(j.chargeCents).toFixed(2) + '</div>' : '');
+        (j.chargeCents != null ? '<div class="g-why mt-1">This request: $' + (Number(j.chargeCents) / 100).toFixed(2) + '</div>' : '');
       if (j.changes && j.changes.length) plan(wait, j);
     });
   };

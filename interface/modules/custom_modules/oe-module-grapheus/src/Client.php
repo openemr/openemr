@@ -10,10 +10,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace Exetazo\Grapheus;
 
 use GuzzleHttp\Client as Http;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenEMR\BC\ServiceContainer;
 
 final readonly class Client
 {
@@ -35,6 +38,7 @@ final readonly class Client
             'timeout' => $timeout,
             'connect_timeout' => 10,
             'http_errors' => false,
+            'allow_redirects' => false,   // the service never redirects; never follow one (could downgrade to http)
         ];
         if (is_array($body)) {
             $options['json'] = $body === [] ? new \stdClass() : $body;
@@ -45,7 +49,8 @@ final readonly class Client
         try {
             $res = (new Http())->request($method, $this->server . $path, $options);
         } catch (GuzzleException $e) {
-            return ['status' => 0, 'body' => ['ok' => false, 'error' => 'Could not reach Grapheus: ' . $e->getMessage()]];
+            ServiceContainer::getLogger()->error('Grapheus request failed', ['path' => $path, 'error' => $e->getMessage()]);
+            return ['status' => 0, 'body' => ['ok' => false, 'error' => 'Could not reach Grapheus. Try again in a moment.']];
         }
         $status = $res->getStatusCode();
         $json = json_decode((string) $res->getBody(), true);

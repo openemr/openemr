@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once dirname(__FILE__, 5) . "/globals.php";
 require_once dirname(__DIR__) . '/src/Compat.php';
 
@@ -173,6 +175,9 @@ switch ($action) {
         }
         $visit = Val::str($body['visit'] ?? '');
         $link = Store::linkOf($visit);
+        if ($link !== null && (Val::int($link['pid'] ?? 0) !== $pid || Val::int($link['encounter'] ?? 0) !== $encounter)) {
+            Http::json(409, ['ok' => false, 'error' => 'This draft was recorded in a different patient or encounter. Open that encounter to add it.']);
+        }
         if ($link !== null && Val::str($link['applied_at'] ?? '') !== '') {
             Http::json(409, ['ok' => false, 'error' => 'This draft was already added to a chart on ' . Val::str($link['applied_at']) . '.']);
         }

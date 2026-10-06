@@ -17,6 +17,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace Exetazo\Grapheus;
 
 use OpenEMR\Common\Acl\AclMain;
@@ -63,6 +65,10 @@ final class Assistant
 
     public static function allowed(string $op, string $role): bool
     {
+        // Booking (and the patient search behind it) also needs OpenEMR's own scheduling permission.
+        if (in_array($op, self::DAILY_OPS, true) && !AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
+            return false;
+        }
         if ($role === 'admin') {
             return in_array($op, self::SETUP_OPS, true) || in_array($op, self::DAILY_OPS, true);
         }
@@ -324,10 +330,14 @@ final class Assistant
         if ($name === '') {
             return ['error' => 'The visit type needs a name.'];
         }
-        $mins = max(5, min(480, Val::int($a['duration_minutes'] ?? 15)));
-        $color = Val::str($a['color'] ?? '');
-        $color = preg_match('/^#[0-9a-f]{6}$/i', $color) === 1 ? $color : '#cce5ff';
         $row = Db::one("SELECT pc_catid, pc_catname, pc_catcolor, pc_catdesc, pc_duration, pc_active FROM openemr_postcalendar_categories WHERE pc_catname = ?", [$name]);
+        // Only what the request names changes: an update keeps the current duration and color otherwise.
+        $mins = array_key_exists('duration_minutes', $a) ? max(5, min(480, Val::int($a['duration_minutes'])))
+            : ($row !== null ? max(5, (int) round(Val::int($row['pc_duration'] ?? 900) / 60)) : 15);
+        $color = Val::str($a['color'] ?? '');
+        if (preg_match('/^#[0-9a-f]{6}$/i', $color) !== 1) {
+            $color = $row !== null ? Val::str($row['pc_catcolor'] ?? '#cce5ff') : '#cce5ff';
+        }
         if ($row !== null) {
             $id = Val::int($row['pc_catid'] ?? 0);
             Db::exec(

@@ -17,7 +17,7 @@
 - Billed to the practice's Grapheus account at 2× AI cost per request. Security settings, passwords and integrations are blocked.
 
 ## Install
-**Any OpenEMR 7:**
+**Any OpenEMR 8.x (or 7.0.x with the `openemr-7.0` branch):**
 ```
 cd /var/www/localhost/htdocs/openemr/interface/modules/custom_modules
 git clone https://github.com/mikebirkheadmd-maker/oe-module-grapheus.git            # OpenEMR 8.x

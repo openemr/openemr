@@ -20,6 +20,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace Exetazo\Grapheus;
 
 use OpenEMR\Billing\BillingUtilities;
@@ -112,8 +114,9 @@ final readonly class Applier
         }
         $diagnosis = $code !== '' ? 'ICD10:' . $code : '';
         $dupe = Db::one(
-            "SELECT id FROM lists WHERE pid = ? AND type = 'medical_problem' AND activity = 1 AND (enddate IS NULL OR enddate = '0000-00-00') AND ((? <> '' AND diagnosis LIKE ?) OR title = ?)",
-            [$this->pid, $diagnosis, '%' . $diagnosis . '%', $title]
+            "SELECT id FROM lists WHERE pid = ? AND type = 'medical_problem' AND activity = 1 AND (enddate IS NULL OR enddate = '0000-00-00')
+             AND ((? <> '' AND FIND_IN_SET(?, REPLACE(REPLACE(COALESCE(diagnosis, ''), '; ', ','), ';', ',')) > 0) OR title = ?)",
+            [$this->pid, $diagnosis, $diagnosis, $title]
         );
         if ($dupe !== null) {
             return null;
