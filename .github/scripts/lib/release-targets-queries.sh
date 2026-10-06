@@ -68,6 +68,20 @@
 # on any other row closes the master scope, so an absent `docker_tags:`
 # line in master won't leak into a later row's tags being read.
 #
+# YAML inline comment handling:
+#   - The `- branch: master` line match allows an optional `# ...`
+#     trailer so `- branch: master  # daily floating tags` still
+#     scopes correctly (yq's structural parse treats both forms as
+#     the same row; this predicate must agree).
+#   - The `docker_tags:` line match strips any trailing `# ...`
+#     comment before the next-tag match so a comment like
+#     `docker_tags: 8.5.0,dev  # next moved to rel-840` cannot
+#     count the commented-out `next` as a tag. This is the more
+#     important of the two anchors because the failure direction
+#     is a FALSE POSITIVE (predicate reports between-cycles when
+#     it isn't), which silently stands down the release-mode
+#     guardrail.
+#
 # BATS coverage lives at tests/bats/ci-scripts/release-targets-queries/
 # and must include negative cases (master without `next`, master with
 # `next-dev` only, no master row) to guarantee we never flip to a
@@ -82,9 +96,13 @@ master_row_carries_next() {
     fi
     local master_tags_line
     master_tags_line=$(awk '
-        /^- branch: master$/ { in_master=1; next }
+        /^- branch: master([[:space:]]+#.*)?$/ { in_master=1; next }
         /^- branch:/         { if (in_master) exit; next }
-        in_master && /^  docker_tags:/ { print; exit }
+        in_master && /^  docker_tags:/ {
+            sub(/[[:space:]]+#.*/, "")
+            print
+            exit
+        }
     ' "${release_targets_path}")
     if printf '%s' "${master_tags_line}" | grep -qE '(^|,| )next(,| |$)'; then
         return 0

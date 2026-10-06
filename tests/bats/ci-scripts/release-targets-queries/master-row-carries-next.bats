@@ -184,3 +184,73 @@ teardown() {
     # tightens this surface is a deliberate contract change.
     [[ "${status}" -eq 1 ]] || [[ "${status}" -eq 2 ]]
 }
+
+# ==== Inline YAML comment handling ====
+#
+# yq's structural parse treats inline-commented and bare YAML lines
+# as identical. This predicate must agree -- a mismatch produces
+# either a false negative (comment on `- branch: master`, cell runs
+# during between-cycles and asserts against unreliable upgrade DB
+# state) or a false positive (comment on `docker_tags` containing
+# the word "next", release-mode guardrail silently stands down).
+# The false-positive direction is strictly worse, which is why
+# docker_tags comment stripping is the more load-bearing of the two.
+# CodeRabbit flagged both in the 2026-10-06 review of this PR; the
+# fixtures below pin the fix.
+
+@test "master row with inline comment on - branch: master line, carries next -> rc=0" {
+    # yq parses `- branch: master  # comment` identically to `- branch: master`.
+    # Predicate must scope to master correctly despite the inline comment.
+    local rt
+    rt="$(write_release_targets_master_with_inline_comment "8.5.0,dev,next")"
+    run_predicate "${rt}"
+    [[ "${status}" -eq 0 ]]
+}
+
+@test "master row with inline comment on - branch: master line, carries only dev -> rc=1" {
+    local rt
+    rt="$(write_release_targets_master_with_inline_comment "8.5.0,dev")"
+    run_predicate "${rt}"
+    [[ "${status}" -eq 1 ]]
+}
+
+@test "docker_tags comment contains 'next' but tags are only dev -> rc=1 (FALSE-POSITIVE PROTECTION)" {
+    # The critical case. docker_tags: 8.5.0,dev with a trailing
+    # `# next moved to rel-840` comment. Naive regex over the raw
+    # line matches 'next' in the comment and reports rc=0,
+    # silently standing down the release-mode guardrail. Predicate
+    # MUST strip the comment before the next-tag match.
+    local rt
+    rt="$(write_release_targets_master_with_tags_comment "8.5.0,dev" "next moved to rel-840")"
+    run_predicate "${rt}"
+    [[ "${status}" -eq 1 ]]
+}
+
+@test "docker_tags comment contains ',next,' (comma-wrapped) but tags are only dev -> rc=1 (FALSE-POSITIVE PROTECTION)" {
+    local rt
+    rt="$(write_release_targets_master_with_tags_comment "8.5.0,dev" "was 8.5.0,dev,next pre-cut")"
+    run_predicate "${rt}"
+    [[ "${status}" -eq 1 ]]
+}
+
+@test "docker_tags carries next AND comment contains 'next' -> rc=0 (tags win, not comment)" {
+    # Real tag is `next`; comment also mentions `next`. The predicate
+    # should return rc=0 because the tag is present, regardless of
+    # the comment. This confirms the comment-strip doesn't eat the
+    # legitimate tag.
+    local rt
+    rt="$(write_release_targets_master_with_tags_comment "8.5.0,dev,next" "next here is real")"
+    run_predicate "${rt}"
+    [[ "${status}" -eq 0 ]]
+}
+
+@test "docker_tags carries next with NO comment -> rc=0 (comment-strip is a no-op)" {
+    # Regression guard: ensure the comment-strip awk sub() rule
+    # doesn't accidentally eat the tag portion when no comment is
+    # present. This repeats case 1 but exists for strict coverage
+    # of the sub() code path on a comment-free input.
+    local rt
+    rt="$(write_release_targets "8.5.0,dev,next")"
+    run_predicate "${rt}"
+    [[ "${status}" -eq 0 ]]
+}

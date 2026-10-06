@@ -77,3 +77,40 @@ write_release_targets_no_master() {
     } > "${path}"
     echo "${path}"
 }
+
+# Write a fixture where the `- branch: master` line carries an inline
+# YAML comment. yq's structural parse treats this identically to the
+# bare form, so the predicate must agree -- a regex that only matches
+# `/^- branch: master$/` silently flips a FALSE NEGATIVE here (fails
+# to scope the master row -> emits empty tag line -> returns 1 when
+# master really does carry `next`). Caller passes the master_tags to
+# use.
+write_release_targets_master_with_inline_comment() {
+    local master_tags="$1"
+    local path="${CWD}/release-targets.yml"
+    {
+        echo "# BATS fixture -- master row has inline comment on - branch: line"
+        echo "- branch: master  # inline comment that must not break scoping"
+        echo "  docker_tags: ${master_tags}"
+    } > "${path}"
+    echo "${path}"
+}
+
+# Write a fixture where the master row's `docker_tags:` line carries
+# an inline YAML comment whose text contains tokens that could
+# false-match the predicate ("next", "8.5.0,next", etc). This is the
+# CRITICAL false-positive protection: a naive regex over the raw line
+# treats the comment as a tag and silently stands down the release-
+# mode guardrail. The predicate MUST strip the comment before the
+# next-tag match.
+write_release_targets_master_with_tags_comment() {
+    local master_tags="$1"
+    local comment_text="$2"
+    local path="${CWD}/release-targets.yml"
+    {
+        echo "# BATS fixture -- master's docker_tags has inline comment"
+        echo "- branch: master"
+        echo "  docker_tags: ${master_tags}  # ${comment_text}"
+    } > "${path}"
+    echo "${path}"
+}
