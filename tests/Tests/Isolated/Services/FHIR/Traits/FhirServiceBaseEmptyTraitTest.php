@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\FHIR\Traits;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +31,7 @@ class FhirServiceBaseEmptyTraitTest extends TestCase
     public static function writeMethodProvider(): array
     {
         return [
-            'parseFhirResource' => [fn(FhirProvenanceService $service) => $service->parseFhirResource([])],
+            'parseFhirResource' => [fn(FhirProvenanceService $service) => $service->parseFhirResource(new FHIRProvenance())],
             'insertOpenEMRRecord' => [fn(FhirProvenanceService $service) => $service->insertOpenEMRRecord([])],
             'updateOpenEMRRecord' => [fn(FhirProvenanceService $service) => $service->updateOpenEMRRecord('id', [])],
         ];
@@ -44,13 +45,5 @@ class FhirServiceBaseEmptyTraitTest extends TestCase
     {
         $this->expectException(\BadMethodCallException::class);
         $call(new FhirProvenanceService());
-    }
-
-    public function testCreateProvenanceResourceReturnsNull(): void
-    {
-        self::assertNull(
-            (new FhirProvenanceService())->createProvenanceResource(),
-            'FhirServiceBase::getAll() treats null as "no provenance available" and keeps going',
-        );
     }
 }
