@@ -112,8 +112,10 @@ class InternalToCdaConverter
         $typeId->setAttribute('extension', 'POCD_HD000040');
         $root->appendChild($typeId);
 
+        // One plain US Realm Header templateId; appendVersionedTemplateId emits
+        // the plain root too, so it is used for the first version only.
         $this->appendVersionedTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2023-05-01');
-        $this->appendVersionedTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2015-08-01');
+        $this->appendTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2015-08-01');
         $this->appendVersionedTemplateId($root, $docOid, '2015-08-01');
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
@@ -4398,9 +4400,11 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
+        // appendVersionedTemplateId also emits the plain root, so calling it per
+        // version repeated the plain 4.38 templateId three times.
         $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
-        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38', '2015-08-01');
-        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38', '2022-06-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38', '2015-08-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38', '2022-06-01');
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid !== '') {

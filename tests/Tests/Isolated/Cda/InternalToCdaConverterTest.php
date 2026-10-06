@@ -1284,6 +1284,40 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * appendVersionedTemplateId emits the plain root as well as the versioned
+     * one, so calling it once per version repeated the plain templateId (the
+     * US Realm Header twice, the Hunger Vital Signs observation three times).
+     */
+    #[DataProvider('inputFixtureProvider')]
+    public function testNoElementRepeatsATemplateId(string $inputFile): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . $inputFile);
+        self::assertIsString($input, 'Input fixture must be readable');
+        $xpath = $this->convertToXPath($input);
+
+        $parents = $xpath->query('//*[hl7:templateId]');
+        self::assertNotFalse($parents);
+        $repeated = [];
+        foreach ($parents as $parent) {
+            if (!$parent instanceof \DOMElement) {
+                continue;
+            }
+            $seen = [];
+            foreach ($parent->childNodes as $child) {
+                if (!$child instanceof \DOMElement || $child->localName !== 'templateId') {
+                    continue;
+                }
+                $key = $child->getAttribute('root') . '|' . $child->getAttribute('extension');
+                if (isset($seen[$key])) {
+                    $repeated[] = $key;
+                }
+                $seen[$key] = true;
+            }
+        }
+        self::assertSame([], $repeated, 'templateIds repeated on one element');
+    }
+
+    /**
      * Each vital sign observation must reference the narrative cell that
      * shows its own value, not a neighbouring measurement.
      */
