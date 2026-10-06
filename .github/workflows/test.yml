@@ -147,8 +147,15 @@ jobs:
         FLAG: ${{ steps.coverage-flag.outputs.coverage_flag }}
         SUITES: ${{ steps.compute-suites.outputs.suites }}
       run: |
+        # On its own line so a jq failure fails the step, and checked for
+        # empty (jq accepts empty input), so the loop can't pass vacuously.
+        suites=$(jq -r '.[]' <<<"${SUITES}")
+        if [[ -z "${suites}" || -z "${FLAG}" ]]; then
+          echo '::error::No test suites or Codecov flag to check.'
+          exit 1
+        fi
         status=0
-        for suite in $(jq -r '.[]' <<<"${SUITES}"); do
+        for suite in ${suites}; do
           prefix="${suite/#redis-failover/redis}"
           names="${prefix}-${FLAG}"
           if [[ "${suite}" == api || "${suite}" == e2e ]]; then
