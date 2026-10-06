@@ -507,18 +507,14 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     /**
      * Creates the Provenance resource for the equivalent FHIR Resource
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRMedicationDispense)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
     /**
