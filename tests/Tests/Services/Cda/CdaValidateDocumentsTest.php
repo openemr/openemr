@@ -19,9 +19,26 @@ use Psr\Log\LoggerInterface;
 class CdaValidateDocumentsTest extends TestCase {
     const EXAMPLE_DIR = __DIR__ . "/../../data/Services/Modules/CareCoordination/Model/CcdaServiceDocumentRequestor/";
 
-    public function testValidateDocumentWithCcdaTypeWithInvalidDocument(): void
+    /**
+     * The generator output for this sparse sample now meets every SHALL rule in
+     * Consolidation.sch. If an error returns, the generator has regressed; fix
+     * the generator rather than adding an expected count here.
+     */
+    public function testValidateDocumentWithCcdaTypeWithValidDocument(): void
     {
         $ccda = file_get_contents(self::EXAMPLE_DIR . "ccda-example-response1.xml");
+        $this->assertIsString($ccda, 'Example CCDA fixture must be readable');
+        $cdaDocumentValidator = new CdaValidateDocuments();
+        $validationResponse = $cdaDocumentValidator->validateDocument($ccda, 'ccda');
+
+        $context = $this->describeValidation($validationResponse);
+        $this->assertEquals(0, $validationResponse['errorCount'], "Expected the generator output to validate cleanly.\n" . $context);
+        $this->assertEquals(0, $validationResponse['ignoredCount'], "Expected no ignored validation issues.\n" . $context);
+    }
+
+    public function testValidateDocumentWithCcdaTypeWithInvalidDocument(): void
+    {
+        $ccda = $this->withoutHeaderTelecoms(self::EXAMPLE_DIR . "ccda-example-response1.xml");
         $cdaDocumentValidator = new CdaValidateDocuments();
         $cdaDocumentValidator->setSystemLogger($this->createMock(LoggerInterface::class));
         $validationResponse = $cdaDocumentValidator->validateDocument($ccda, 'ccda');
@@ -32,39 +49,19 @@ class CdaValidateDocumentsTest extends TestCase {
         $this->assertArrayHasKey('ignoredCount', $validationResponse);
         $this->assertArrayHasKey('errors', $validationResponse);
 
-        // Snapshot of the validator's findings against this deliberately imperfect
-        // sample. ccda-example-response1.xml is generator output from a sparse input
-        // (shared with CcdaGeneratorTest's golden comparison), not a hand-authored
-        // valid document, so it is expected to report a stable set of errors. The
-        // counts below are calibrated against that output; describeValidation() dumps
-        // the full finding list on any mismatch so drift points straight at the rule.
+        // Snapshot of the validator's findings against a deliberately invalid
+        // document. The generator output (ccda-example-response1.xml, shared with
+        // CcdaGeneratorTest's golden comparison) now validates cleanly; see
+        // testValidateDocumentWithCcdaTypeWithValidDocument. To keep exercising
+        // error reporting, this test removes the patientRole and header author
+        // telecoms from it, so the findings are fixed by the test rather than by
+        // whatever the generator emits. describeValidation() dumps the full
+        // finding list on any mismatch so drift points straight at the rule.
         //
         // errorCount = 4: patientRole (CONF:1198-5280) and assignedAuthor
         //   (CONF:1198-5428) each missing a required telecom, reported under both
         //   the US Realm Header (2.16.840.1.113883.10.20.22.1.1) and CCD (...1.2)
-        //   header patterns: 2 issues x 2 templates = 4 errors. Expected for this
-        //   sparse sample; header telecom is SHALL [1..*].
-        //
-        //   This was 6. The providerOrganization finding (CONF:1198-5420) is
-        //   resolved: providerOrganization telecom is SHALL [1..*], and the
-        //   generator now emits telecom nullFlavor="UNK" when the facility has no
-        //   phone rather than omitting the element as the node service did. If
-        //   that finding returns, the generator has gone back to omitting it; fix
-        //   the generator, do not raise this count.
-        //
-        //   patientRole and assignedAuthor telecom remain absent because this
-        //   sparse input carries no patient or author phone, and neither renderer
-        //   nullFlavors a missing one. Both are SHALL [1..*], so they are real
-        //   findings worth closing later; they are left here deliberately so this
-        //   smoke test keeps exercising the validator against a document that
-        //   still reports errors.
-        //
-        //   The prior Goals Section duplicate-templateId finding (CONF:1098-29584)
-        //   is resolved: serveccda.js now emits the bare Goals templateId
-        //   (2.16.840.1.113883.10.20.22.2.60) only -- it is R2.1-only with no R1.1
-        //   predecessor, per the current C-CDA IG / Companion Guide R3 (v3). If that
-        //   count returns, the versioned extension="2015-08-01" templateId has crept
-        //   back into the generator; fix the generator, do not raise this count.
+        //   header patterns: 2 issues x 2 templates = 4 errors.
         //
         // ignoredCount = 0: nothing in Consolidation.sch is now unevaluable. The
         //   prior Node-service snapshot showed 8 ignored because the JS xpath library
@@ -91,6 +88,32 @@ class CdaValidateDocumentsTest extends TestCase {
         $this->assertEquals(0, $validationResponse['ignoredCount'], "Expected no ignored validation issues for invalid CCDA document.\n" . $context);
         $this->assertNotEmpty($validationResponse['errors'], "Expected validation errors for invalid CCDA document.");
         $this->assertCount(4, $validationResponse['errors'], "Expected 4 validation errors for invalid CCDA document.\n" . $context);
+    }
+
+    /**
+     * Load a CCDA and remove every patientRole and header author telecom, which
+     * are SHALL [1..*] in the US Realm Header.
+     */
+    private function withoutHeaderTelecoms(string $path): string
+    {
+        $dom = new \DOMDocument();
+        $this->assertTrue($dom->load($path), 'Example CCDA fixture must be readable');
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+        $telecoms = $xpath->query(
+            '/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:telecom'
+            . ' | /hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:telecom'
+        );
+        $this->assertNotFalse($telecoms);
+        $this->assertGreaterThan(0, $telecoms->length, 'The fixture must carry header telecoms to remove');
+        foreach (iterator_to_array($telecoms) as $telecom) {
+            if ($telecom instanceof \DOMElement) {
+                $telecom->parentNode?->removeChild($telecom);
+            }
+        }
+        $xml = $dom->saveXML();
+        $this->assertIsString($xml);
+        return $xml;
     }
 
     /**
