@@ -136,6 +136,20 @@ jobs:
         # acceptance-side criterion 2, so false positives / negatives
         # propagate symmetrically. Negative-case regression wall lives
         # in tests/bats/ci-scripts/release-targets-queries/.
+        #
+        # release-targets.yml is master-authoritative. It is NOT in
+        # the byte-identical manifest -- rel branches never carry a
+        # current copy; the frozen snapshot each rel branch inherits
+        # at cut time drifts as master mutates (new rows added, dev
+        # cycles advancing, `next` moving between branches). Reading
+        # it anywhere other than master's live tree gives a wrong
+        # answer. This orchestrator job gates on `github.ref ==
+        # refs/heads/master` (compute-matrix's `if:` above), so the
+        # sparse-checkout above is already master's authoritative
+        # copy -- no `git show origin/master:...` dance needed here
+        # (unlike acceptance-docker.yml, which does the dance because
+        # it byte-identical-syncs to rel branches and fires from
+        # non-master refs).
         set +e
         # shellcheck source=./.github/scripts/lib/release-targets-queries.sh
         source .github/scripts/lib/release-targets-queries.sh

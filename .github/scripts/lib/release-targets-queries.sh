@@ -32,12 +32,28 @@
 #
 # Arguments:
 #   $1  Path to release-targets.yml. Required. Caller MUST pass the
-#       master-authoritative copy -- when invoking from a rel-branch
-#       checkout, fetch master's version explicitly (e.g. via
-#       `git show origin/master:.github/release-targets.yml > /tmp/rt.yml`)
-#       because rel-branch copies are frozen snapshots from cut-time
-#       and drift as master mutates. Reading the stale copy gives the
-#       wrong answer when master moves `next` between cycles.
+#       MASTER-authoritative copy.
+#
+#       release-targets.yml is master-only -- it is NOT in the
+#       .github/byte-identical.yml manifest. Rel branches carry only
+#       the frozen snapshot captured at cut time; master then adds
+#       rows (branch-cut), promotes rows (release-finalize), and
+#       strips `next` from master's row (patch-prep). The rel-branch
+#       copy diverges from master's live state and reading it gives
+#       the wrong answer for every consumer of this predicate.
+#
+#       Callers that MIGHT fire from a non-master ref (anything
+#       byte-identical-synced -- acceptance-docker.yml, this lib
+#       itself) must fetch master's copy explicitly:
+#         git fetch --depth=1 origin master
+#         git show origin/master:.github/release-targets.yml > /tmp/rt.yml
+#       then pass /tmp/rt.yml here. See acceptance-docker.yml:604-617
+#       for the shape (comment there is kept in sync with this one).
+#
+#       Callers that ALWAYS fire from master (docker-release-
+#       orchestrator.yml -- gated by `if: github.ref ==
+#       refs/heads/master`) can pass .github/release-targets.yml
+#       directly from a sparse checkout.
 #
 # Exit codes:
 #   0   master row carries `next` (between-cycles state active)
