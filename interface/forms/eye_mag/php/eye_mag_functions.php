@@ -1665,7 +1665,7 @@ function send_json_values($PMSFH = ""): void
  *  to function at their base level.
  *
  * @param string $pid is the patient identifier
- * @return mixed array, access items as $PMSFH[0]
+ * @return array{array<string, mixed>} access items as $PMSFH[0]
  */
 function build_PMSFH($pid): array
 {
@@ -2150,7 +2150,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             "POH"        => xlt("POH"),
             "POS"        => xlt("POS"),
             "PMH"        => xlt("Past Medical History"),
-            default      => is_string($key) ? text($key) : '',
+            default      => text($key),
         };
         $header .= '    <table class="PMSFH_header">
                 <tr>

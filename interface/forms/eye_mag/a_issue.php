@@ -154,7 +154,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
             echo " aitypes['" . attr($key) . "'] = '0';\n";
 
             // FH, SocHx and ROS have no quick-pick list of their own; they are built below.
-            $panel = is_string($key) ? IssueQuickPick::tryFrom($key) : null;
+            $panel = IssueQuickPick::tryFrom($key);
             if ($panel === null) {
                 continue;
             }
@@ -597,7 +597,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
                         "POS"        => ['', xlt("POS")],
                         "FH"         => ['', xlt("FH")],
                         "ROS"        => ['', xlt("ROS")],
-                        default      => ['', is_string($key) ? text($key) : ''],
+                        default      => ['', text($key)],
                     };
                     $keyAttr = attr($key);
                     $inputId = "PMSFH_{$keyAttr}";
