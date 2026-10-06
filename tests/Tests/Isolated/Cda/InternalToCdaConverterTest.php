@@ -1235,6 +1235,82 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function inputFixtureProvider(): array
+    {
+        return [
+            'scenario' => ['ccda-input-scenario-uscdi.xml'],
+            'demo1' => ['ccda-input-demo1.xml'],
+            'demo2' => ['ccda-input-demo2.xml'],
+            'example' => ['ccda-example-input1.xml'],
+            'cert data' => ['ccda-cert-data.xml'],
+        ];
+    }
+
+    /**
+     * Every narrative reference must point at an element in the document.
+     * Immunization consumables referenced #imminfoN, the no-known-allergies
+     * entry #reaction1, and vital signs ran past the narrative's cells; none
+     * of those targets existed.
+     */
+    #[DataProvider('inputFixtureProvider')]
+    public function testEveryNarrativeReferenceResolves(string $inputFile): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . $inputFile);
+        self::assertIsString($input, 'Input fixture must be readable');
+        $xpath = $this->convertToXPath($input);
+
+        $ids = [];
+        $idNodes = $xpath->query('//@ID');
+        self::assertNotFalse($idNodes);
+        foreach ($idNodes as $idNode) {
+            $ids[$idNode->nodeValue] = true;
+        }
+
+        $references = $xpath->query("//hl7:reference[starts-with(@value, '#')]/@value");
+        self::assertNotFalse($references);
+        self::assertGreaterThan(0, $references->length, 'The document must carry narrative references');
+        $dangling = [];
+        foreach ($references as $reference) {
+            $target = substr((string)$reference->nodeValue, 1);
+            if (!isset($ids[$target])) {
+                $dangling[] = $target;
+            }
+        }
+        self::assertSame([], $dangling, 'References with no matching ID in the document');
+    }
+
+    /**
+     * Each vital sign observation must reference the narrative cell that
+     * shows its own value, not a neighbouring measurement.
+     */
+    #[DataProvider('inputFixtureProvider')]
+    public function testVitalSignReferencesShowTheirOwnValue(string $inputFile): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . $inputFile);
+        self::assertIsString($input, 'Input fixture must be readable');
+        $xpath = $this->convertToXPath($input);
+
+        $observations = $xpath->query("//hl7:observation[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.27']");
+        self::assertNotFalse($observations);
+        foreach ($observations as $observation) {
+            self::assertInstanceOf(\DOMElement::class, $observation);
+            $reference = $xpath->evaluate('string(hl7:code/hl7:originalText/hl7:reference/@value)', $observation);
+            $value = $xpath->evaluate('string(hl7:value/@value)', $observation);
+            $unit = $xpath->evaluate('string(hl7:value/@unit)', $observation);
+            self::assertIsString($reference);
+            self::assertIsString($value);
+            self::assertIsString($unit);
+
+            $cell = $xpath->evaluate(sprintf("string(//*[@ID='%s'])", substr($reference, 1)));
+            self::assertSame(trim($value . ' ' . $unit), $cell, 'Vital sign ' . $reference . ' must show its own value');
+        }
+    }
+
+    /**
      * The relationship to the subscriber arrives as attributes on
      * participant/code. The converter read child elements there, so the code
      * never matched and every covered party was emitted as SELF.

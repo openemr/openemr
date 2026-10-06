@@ -1307,7 +1307,12 @@ class InternalToCdaConverter
 
         $allergies = $this->xpath('/CCDA/allergies/allergy');
         if ($allergies->length === 0) {
-            $section->appendChild($this->createElement('text', 'No known Allergies and Intolerances'));
+            // The no-known-allergies entry references this content, so it needs an ID.
+            $text = $this->createElement('text');
+            $content = $this->createElement('content', 'No known Allergies and Intolerances');
+            $content->setAttribute('ID', 'noallergies');
+            $text->appendChild($content);
+            $section->appendChild($text);
             $this->appendNoKnownAllergiesEntry($section);
         } else {
             $this->appendAllergiesNarrative($section, $allergies);
@@ -1810,7 +1815,7 @@ class InternalToCdaConverter
         $value->setAttribute('displayName', 'Allergy to substance (disorder)');
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
-        $ref->setAttribute('value', '#reaction1');
+        $ref->setAttribute('value', '#noallergies');
         $origText->appendChild($ref);
         $value->appendChild($origText);
         $obs->appendChild($value);
@@ -3362,7 +3367,9 @@ class InternalToCdaConverter
         $this->applyCodedOrNullFlavor($code, $cvxCode, $codeText, '2.16.840.1.113883.12.292', 'CVX');
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
-        $ref->setAttribute('value', '#imminfo' . $index);
+        // The immunizations narrative identifies each vaccine cell as
+        // immunizationN; Node referenced #imminfoN, which no element carries.
+        $ref->setAttribute('value', '#immunization' . $index);
         $origText->appendChild($ref);
         $code->appendChild($origText);
         $mfgMaterial->appendChild($code);
@@ -3529,92 +3536,120 @@ class InternalToCdaConverter
             return;
         }
 
-        $this->appendVitalsNarrative($section, $vitals);
-
-        $index = 1;
+        // The narrative and the entries are built from one measurement list, so
+        // each observation's originalText references the cell showing its own
+        // value. Node rendered seven fixed columns whose headers did not match
+        // the values beneath them (BMI under "Body Temperature") and numbered
+        // the entry references independently of the cells, so most references
+        // pointed at another measurement or at no cell at all.
+        $rows = [];
+        $refIndex = 1;
         foreach ($vitals as $vital) {
-            $this->appendVitalOrganizer($section, $vital, $index);
-            $index++;
+            $measurements = [];
+            foreach ($this->vitalMeasurements($vital) as $measurement) {
+                $measurement['refId'] = 'vital' . $refIndex++;
+                $measurements[] = $measurement;
+            }
+            $rows[] = [$vital, $measurements];
+        }
+
+        $this->appendVitalsNarrative($section, $rows);
+        foreach ($rows as [$vital, $measurements]) {
+            $this->appendVitalOrganizer($section, $vital, $measurements);
         }
 
         $this->appendSection($structuredBody, $component, $section);
     }
 
     /**
-     * @param \DOMNodeList<\DOMElement> $vitals
+     * The measurements recorded on one vitals form, in entry order.
+     *
+     * @return list<array{loinc: string, name: string, value: string, unit: string, extension: string, root: string, interpretation: string}>
      */
-    private function appendVitalsNarrative(DOMElement $section, \DOMNodeList $vitals): void
+    private function vitalMeasurements(DOMElement $vital): array
+    {
+        $shaExt = $this->xpathValue('sha_extension', $vital);
+        // Respiratory rate and temperature carry their own id roots, as in Node.
+        $definitions = [
+            ['bps', '8480-6', 'Blood Pressure Systolic', 'mm[Hg]', $shaExt],
+            ['bpd', '8462-4', 'Blood Pressure Diastolic', 'mm[Hg]', $shaExt],
+            ['bp_avg', '96607-7', 'Average Blood Pressure', 'mm[Hg]', $shaExt],
+            ['avg_systolic', '96608-5', 'Average Systolic Blood Pressure', 'mm[Hg]', $shaExt],
+            ['avg_diastolic', '96609-3', 'Average Diastolic Blood Pressure', 'mm[Hg]', $shaExt],
+            ['height', '8302-2', 'Height', $this->xpathValue('unit_height', $vital), $shaExt],
+            ['weight', '29463-7', 'Weight Measured', $this->xpathValue('unit_weight', $vital), $shaExt],
+            ['BMI', '39156-5', 'BMI (Body Mass Index)', 'kg/m2', $shaExt],
+            ['pulse', '8867-4', 'Heart Rate', '/min', $shaExt],
+            ['breath', '9279-1', 'Respiratory Rate', '/min', '2.16.840.1.113883.3.140.1.0.6.10.14.2'],
+            ['temperature', '8310-5', 'Body Temperature', $this->xpathValue('unit_temperature', $vital), '2.16.840.1.113883.3.140.1.0.6.10.14.3'],
+            ['oxygen_saturation', '59408-5', 'O2 % BldC Oximetry', '%', $shaExt],
+            ['ped_weight_height', '77606-2', 'Weight for Height Percentile', '%', $shaExt],
+            ['inhaled_oxygen_concentration', '3150-0', 'Inhaled Oxygen Concentration', '%', $shaExt],
+            ['ped_bmi', '59576-9', 'BMI Percentile', '%', $shaExt],
+            ['ped_head_circ', '8289-1', 'Head Occipital-frontal Circumference Percentile', '%', $shaExt],
+        ];
+
+        $measurements = [];
+        foreach ($definitions as [$key, $loinc, $name, $unit, $root]) {
+            $value = $this->xpathValue($key, $vital);
+            if ($value === '') {
+                continue;
+            }
+            if ($key === 'temperature') {
+                // Node rounds the temperature up to a whole degree; kept for parity.
+                $value = (string) (int) ceil((float) $value);
+            }
+            $interpretation = 'Normal';
+            if ($key === 'BMI') {
+                $interpretation = match ($this->xpathValue('BMI_status', $vital)) {
+                    'Overweight' => 'High',
+                    'Underweight' => 'Low',
+                    default => 'Normal',
+                };
+            }
+            $measurements[] = [
+                'loinc' => $loinc,
+                'name' => $name,
+                'value' => $value,
+                'unit' => $unit,
+                'extension' => $this->xpathValue('extension_' . $key, $vital),
+                'root' => $root,
+                'interpretation' => $interpretation,
+            ];
+        }
+        return $measurements;
+    }
+
+    /**
+     * One row per recorded measurement; the value cell carries the ID its
+     * observation references.
+     *
+     * @param list<array{DOMElement, list<array{loinc: string, name: string, value: string, unit: string, extension: string, root: string, interpretation: string, refId: string}>}> $rows
+     */
+    private function appendVitalsNarrative(DOMElement $section, array $rows): void
     {
         $text = $this->createElement('text');
-        $table = $this->createNarrativeTable([
-            'Date',
-            'Body Temperature',
-            'Systolic[90-140 mmHg]',
-            'Diastolic[60-90 mmHg]',
-            'Heart Rate',
-            'Height',
-            'Weight Measured',
-            'BMI (Body Mass Index)',
-        ]);
+        $table = $this->createNarrativeTable(['Date', 'Vital Sign', 'Value']);
 
-        $vitalIndex = 1;
-        foreach ($vitals as $vital) {
+        foreach ($rows as [$vital, $measurements]) {
             $tbody = $this->createElement('tbody');
-            $row = $this->createElement('tr');
-
             $date = $this->xpathValue('date', $vital);
-            $row->appendChild($this->createElement('td', $date));
-
-            // Node.js mapping. htmlHeaders vitalSignsSectionEntriesOptionalHtmlHeader
-            // renders vital_list indices 7,0,1,5,2,3,4 after the date column, i.e.
-            // BMI, bps, bpd, height, bp_avg, avg_systolic, avg_diastolic. The column
-            // headers do not describe the data beneath them; that mismatch exists in
-            // the Node service and is reproduced here deliberately so narrative
-            // reference IDs (#vitalN) keep pointing at the same values.
-            // Column 1 (Body Temp): BMI with kg/m2
-            $bmi = $this->xpathValue('BMI', $vital);
-            $cell1 = $this->createElement('td', $bmi !== '' ? "$bmi kg/m2" : 'No Data Available');
-            $cell1->setAttribute('ID', 'vital' . $vitalIndex++);
-            $row->appendChild($cell1);
-
-            // Column 2 (Systolic): bps with mm[Hg]
-            $bps = $this->xpathValue('bps', $vital);
-            $cell2 = $this->createElement('td', $bps !== '' ? "$bps mm[Hg]" : 'No Data Available');
-            $cell2->setAttribute('ID', 'vital' . $vitalIndex++);
-            $row->appendChild($cell2);
-
-            // Column 3 (Diastolic): bpd with mm[Hg]
-            $bpd = $this->xpathValue('bpd', $vital);
-            $cell3 = $this->createElement('td', $bpd !== '' ? "$bpd mm[Hg]" : 'No Data Available');
-            $cell3->setAttribute('ID', 'vital' . $vitalIndex++);
-            $row->appendChild($cell3);
-
-            // Column 4 (Heart Rate): height with unit_height
-            $height = $this->xpathValue('height', $vital);
-            $heightUnit = $this->xpathValue('unit_height', $vital);
-            $cell4 = $this->createElement('td', $height !== '' ? "$height $heightUnit" : 'No Data Available');
-            $cell4->setAttribute('ID', 'vital' . $vitalIndex++);
-            $row->appendChild($cell4);
-
-            // Column 5 (Height): bp_avg with mm[Hg]
-            $bpAvg = $this->xpathValue('bp_avg', $vital);
-            $cell5 = $this->createElement('td', $bpAvg !== '' ? "$bpAvg mm[Hg]" : 'No Data Available');
-            $cell5->setAttribute('ID', 'vital' . $vitalIndex++);
-            $row->appendChild($cell5);
-
-            // Column 6 (Weight): avg_systolic with mm[Hg]
-            $avgSystolic = $this->xpathValue('avg_systolic', $vital);
-            $cell6 = $this->createElement('td', $avgSystolic !== '' ? "$avgSystolic mm[Hg]" : 'No Data Available');
-            $cell6->setAttribute('ID', 'vital' . $vitalIndex++);
-            $row->appendChild($cell6);
-
-            // Column 7 (BMI): avg_diastolic with mm[Hg]
-            $avgDiastolic = $this->xpathValue('avg_diastolic', $vital);
-            $cell7 = $this->createElement('td', $avgDiastolic !== '' ? "$avgDiastolic mm[Hg]" : 'No Data Available');
-            $cell7->setAttribute('ID', 'vital' . $vitalIndex++);
-            $row->appendChild($cell7);
-
-            $tbody->appendChild($row);
+            if ($measurements === []) {
+                $row = $this->createElement('tr');
+                $row->appendChild($this->createElement('td', $date));
+                $row->appendChild($this->createElement('td', 'No Data Available'));
+                $row->appendChild($this->createElement('td', 'No Data Available'));
+                $tbody->appendChild($row);
+            }
+            foreach ($measurements as $measurement) {
+                $row = $this->createElement('tr');
+                $row->appendChild($this->createElement('td', $date));
+                $row->appendChild($this->createElement('td', $measurement['name']));
+                $valueCell = $this->createElement('td', trim($measurement['value'] . ' ' . $measurement['unit']));
+                $valueCell->setAttribute('ID', $measurement['refId']);
+                $row->appendChild($valueCell);
+                $tbody->appendChild($row);
+            }
             $table->appendChild($tbody);
         }
 
@@ -3622,7 +3657,10 @@ class InternalToCdaConverter
         $section->appendChild($text);
     }
 
-    private function appendVitalOrganizer(DOMElement $section, DOMElement $vital, int $index): void
+    /**
+     * @param list<array{loinc: string, name: string, value: string, unit: string, extension: string, root: string, interpretation: string, refId: string}> $measurements
+     */
+    private function appendVitalOrganizer(DOMElement $section, DOMElement $vital, array $measurements): void
     {
         $entry = $this->createElement('entry');
         $entry->setAttribute('typeCode', 'DRIV');
@@ -3660,130 +3698,19 @@ class InternalToCdaConverter
         $this->setDateAttribute($effectiveTime, $date);
         $organizer->appendChild($effectiveTime);
 
-        // Node.js service uses specific entry order matching populateVital vital_list
-        // Only increment refIndex when a vital is actually added
-        $refIndex = 1;
-
-        // Blood Pressure Systolic
-        $bps = $this->xpathValue('bps', $vital);
-        if ($bps !== '') {
-            $bpsExt = $this->xpathValue('extension_bps', $vital);
-            $this->appendVitalObservation($organizer, $vital, $bps, 'mm[Hg]', $bpsExt, $shaExt, '8480-6', 'Blood Pressure Systolic', $refIndex++);
-        }
-
-        // Blood Pressure Diastolic
-        $bpd = $this->xpathValue('bpd', $vital);
-        if ($bpd !== '') {
-            $bpdExt = $this->xpathValue('extension_bpd', $vital);
-            $this->appendVitalObservation($organizer, $vital, $bpd, 'mm[Hg]', $bpdExt, $shaExt, '8462-4', 'Blood Pressure Diastolic', $refIndex++);
-        }
-
-        // Average Blood Pressure
-        $bpAvg = $this->xpathValue('bp_avg', $vital);
-        if ($bpAvg !== '') {
-            $bpAvgExt = $this->xpathValue('extension_bp_avg', $vital);
-            $this->appendVitalObservation($organizer, $vital, $bpAvg, 'mm[Hg]', $bpAvgExt, $shaExt, '96607-7', 'Average Blood Pressure', $refIndex++);
-        }
-
-        // Average Systolic Blood Pressure
-        $avgSystolic = $this->xpathValue('avg_systolic', $vital);
-        if ($avgSystolic !== '') {
-            $avgSystolicExt = $this->xpathValue('extension_avg_systolic', $vital);
-            $this->appendVitalObservation($organizer, $vital, $avgSystolic, 'mm[Hg]', $avgSystolicExt, $shaExt, '96608-5', 'Average Systolic Blood Pressure', $refIndex++);
-        }
-
-        // Average Diastolic Blood Pressure
-        $avgDiastolic = $this->xpathValue('avg_diastolic', $vital);
-        if ($avgDiastolic !== '') {
-            $avgDiastolicExt = $this->xpathValue('extension_avg_diastolic', $vital);
-            $this->appendVitalObservation($organizer, $vital, $avgDiastolic, 'mm[Hg]', $avgDiastolicExt, $shaExt, '96609-3', 'Average Diastolic Blood Pressure', $refIndex++);
-        }
-
-        // Height
-        $height = $this->xpathValue('height', $vital);
-        if ($height !== '') {
-            $heightUnit = $this->xpathValue('unit_height', $vital);
-            $heightExt = $this->xpathValue('extension_height', $vital);
-            $this->appendVitalObservation($organizer, $vital, $height, $heightUnit, $heightExt, $shaExt, '8302-2', 'Height', $refIndex++);
-        }
-
-        // Weight Measured
-        $weight = $this->xpathValue('weight', $vital);
-        if ($weight !== '') {
-            $weightUnit = $this->xpathValue('unit_weight', $vital);
-            $weightExt = $this->xpathValue('extension_weight', $vital);
-            $this->appendVitalObservation($organizer, $vital, $weight, $weightUnit, $weightExt, $shaExt, '29463-7', 'Weight Measured', $refIndex++);
-        }
-
-        // BMI
-        $bmi = $this->xpathValue('BMI', $vital);
-        if ($bmi !== '') {
-            $bmiExt = $this->xpathValue('extension_BMI', $vital);
-            $bmiStatus = $this->xpathValue('BMI_status', $vital);
-            $bmiInterp = match ($bmiStatus) {
-                'Overweight' => 'High',
-                'Underweight' => 'Low',
-                default => 'Normal',
-            };
-            $this->appendVitalObservation($organizer, $vital, $bmi, 'kg/m2', $bmiExt, $shaExt, '39156-5', 'BMI (Body Mass Index)', $refIndex++, $bmiInterp);
-        }
-
-        // Heart Rate
-        $pulse = $this->xpathValue('pulse', $vital);
-        if ($pulse !== '') {
-            $pulseExt = $this->xpathValue('extension_pulse', $vital);
-            $this->appendVitalObservation($organizer, $vital, $pulse, '/min', $pulseExt, $shaExt, '8867-4', 'Heart Rate', $refIndex++);
-        }
-
-        // Respiratory Rate
-        $breath = $this->xpathValue('breath', $vital);
-        if ($breath !== '') {
-            $breathExt = $this->xpathValue('extension_breath', $vital);
-            $this->appendVitalObservation($organizer, $vital, $breath, '/min', $breathExt, '2.16.840.1.113883.3.140.1.0.6.10.14.2', '9279-1', 'Respiratory Rate', $refIndex++);
-        }
-
-        // Temperature
-        $temp = $this->xpathValue('temperature', $vital);
-        if ($temp !== '') {
-            $tempUnit = $this->xpathValue('unit_temperature', $vital);
-            $tempExt = $this->xpathValue('extension_temperature', $vital);
-            $tempRounded = (string) (int) ceil((float) $temp);
-            $this->appendVitalObservation($organizer, $vital, $tempRounded, $tempUnit, $tempExt, '2.16.840.1.113883.3.140.1.0.6.10.14.3', '8310-5', 'Body Temperature', $refIndex++);
-        }
-
-        // O2 Saturation
-        $o2Sat = $this->xpathValue('oxygen_saturation', $vital);
-        if ($o2Sat !== '') {
-            $o2SatExt = $this->xpathValue('extension_oxygen_saturation', $vital);
-            $this->appendVitalObservation($organizer, $vital, $o2Sat, '%', $o2SatExt, $shaExt, '59408-5', 'O2 % BldC Oximetry', $refIndex++);
-        }
-
-        // Weight for Height Percentile
-        $pedWeightHeight = $this->xpathValue('ped_weight_height', $vital);
-        if ($pedWeightHeight !== '') {
-            $pedWeightHeightExt = $this->xpathValue('extension_ped_weight_height', $vital);
-            $this->appendVitalObservation($organizer, $vital, $pedWeightHeight, '%', $pedWeightHeightExt, $shaExt, '77606-2', 'Weight for Height Percentile', $refIndex++);
-        }
-
-        // Inhaled Oxygen Concentration
-        $inhaledO2 = $this->xpathValue('inhaled_oxygen_concentration', $vital);
-        if ($inhaledO2 !== '') {
-            $inhaledO2Ext = $this->xpathValue('extension_inhaled_oxygen_concentration', $vital);
-            $this->appendVitalObservation($organizer, $vital, $inhaledO2, '%', $inhaledO2Ext, $shaExt, '3150-0', 'Inhaled Oxygen Concentration', $refIndex++);
-        }
-
-        // BMI Percentile
-        $pedBmi = $this->xpathValue('ped_bmi', $vital);
-        if ($pedBmi !== '') {
-            $pedBmiExt = $this->xpathValue('extension_ped_bmi', $vital);
-            $this->appendVitalObservation($organizer, $vital, $pedBmi, '%', $pedBmiExt, $shaExt, '59576-9', 'BMI Percentile', $refIndex++);
-        }
-
-        // Head Circumference Percentile
-        $pedHeadCirc = $this->xpathValue('ped_head_circ', $vital);
-        if ($pedHeadCirc !== '') {
-            $pedHeadCircExt = $this->xpathValue('extension_ped_head_circ', $vital);
-            $this->appendVitalObservation($organizer, $vital, $pedHeadCirc, '%', $pedHeadCircExt, $shaExt, '8289-1', 'Head Occipital-frontal Circumference Percentile', $refIndex++);
+        foreach ($measurements as $measurement) {
+            $this->appendVitalObservation(
+                $organizer,
+                $vital,
+                $measurement['value'],
+                $measurement['unit'],
+                $measurement['extension'],
+                $measurement['root'],
+                $measurement['loinc'],
+                $measurement['name'],
+                $measurement['refId'],
+                $measurement['interpretation'],
+            );
         }
 
         $entry->appendChild($organizer);
@@ -3799,7 +3726,7 @@ class InternalToCdaConverter
         string $root,
         string $loincCode,
         string $displayName,
-        int $refIndex,
+        string $refId,
         string $interpretation = 'Normal',
     ): void {
         $component = $this->createElement('component');
@@ -3821,7 +3748,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'LOINC');
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
-        $ref->setAttribute('value', '#vital' . $refIndex);
+        $ref->setAttribute('value', '#' . $refId);
         $origText->appendChild($ref);
         $code->appendChild($origText);
         $obs->appendChild($code);

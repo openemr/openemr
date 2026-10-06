@@ -231,7 +231,7 @@
                 <code code="48765-2" displayName="Allergies, adverse reactions, alerts"
                       codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
                 <title>Allergies, adverse reactions, alerts</title>
-                <text>No known Allergies and Intolerances</text>
+                <text><content ID="noallergies">No known Allergies and Intolerances</content></text>
                 <entry typeCode="DRIV">
                     <act classCode="ACT" moodCode="EVN">
                         <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
@@ -256,7 +256,7 @@
                                 <value xsi:type="CD" code="419199007" codeSystem="2.16.840.1.113883.6.96"
                                        codeSystemName="SNOMED-CT" displayName="Allergy to substance (disorder)">
                                     <originalText>
-                                        <reference value="#reaction1"/>
+                                        <reference value="#noallergies"/>
                                     </originalText>
                                 </value>
                                 <participant typeCode="CSM">
@@ -994,25 +994,70 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Body Temperature</th>
-                                <th>Systolic[90-140 mmHg]</th>
-                                <th>Diastolic[60-90 mmHg]</th>
-                                <th>Heart Rate</th>
-                                <th>Height</th>
-                                <th>Weight Measured</th>
-                                <th>BMI (Body Mass Index)</th>
+                                <th>Vital Sign</th>
+                                <th>Value</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>2014-02-01</td>
-                                <td ID="vital1">29.3 kg/m2</td>
-                                <td ID="vital2">150 mm[Hg]</td>
-                                <td ID="vital3">80 mm[Hg]</td>
-                                <td ID="vital4">60 [in_i]</td>
-                                <td ID="vital5">103.3 mm[Hg]</td>
-                                <td ID="vital6">150 mm[Hg]</td>
-                                <td ID="vital7">80 mm[Hg]</td>
+                                <td>Blood Pressure Systolic</td>
+                                <td ID="vital1">150 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Blood Pressure Diastolic</td>
+                                <td ID="vital2">80 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Average Blood Pressure</td>
+                                <td ID="vital3">103.3 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Average Systolic Blood Pressure</td>
+                                <td ID="vital4">150 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Average Diastolic Blood Pressure</td>
+                                <td ID="vital5">80 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Height</td>
+                                <td ID="vital6">60 [in_i]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Weight Measured</td>
+                                <td ID="vital7">150 [lb_av]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>BMI (Body Mass Index)</td>
+                                <td ID="vital8">29.3 kg/m2</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Heart Rate</td>
+                                <td ID="vital9">99 /min</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Respiratory Rate</td>
+                                <td ID="vital10">22 /min</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Body Temperature</td>
+                                <td ID="vital11">99 [degF]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>O2 % BldC Oximetry</td>
+                                <td ID="vital12">97 %</td>
                             </tr>
                         </tbody>
                     </table>

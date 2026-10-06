@@ -1169,25 +1169,70 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Body Temperature</th>
-                                <th>Systolic[90-140 mmHg]</th>
-                                <th>Diastolic[60-90 mmHg]</th>
-                                <th>Heart Rate</th>
-                                <th>Height</th>
-                                <th>Weight Measured</th>
-                                <th>BMI (Body Mass Index)</th>
+                                <th>Vital Sign</th>
+                                <th>Value</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>2014-02-01</td>
-                                <td ID="vital1">31.6 kg/m2</td>
-                                <td ID="vital2">130 mm[Hg]</td>
-                                <td ID="vital3">80 mm[Hg]</td>
-                                <td ID="vital4">70 [in_i]</td>
-                                <td ID="vital5">96.7 mm[Hg]</td>
-                                <td ID="vital6">130 mm[Hg]</td>
-                                <td ID="vital7">80 mm[Hg]</td>
+                                <td>Blood Pressure Systolic</td>
+                                <td ID="vital1">130 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Blood Pressure Diastolic</td>
+                                <td ID="vital2">80 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Average Blood Pressure</td>
+                                <td ID="vital3">96.7 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Average Systolic Blood Pressure</td>
+                                <td ID="vital4">130 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Average Diastolic Blood Pressure</td>
+                                <td ID="vital5">80 mm[Hg]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Height</td>
+                                <td ID="vital6">70 [in_i]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Weight Measured</td>
+                                <td ID="vital7">220 [lb_av]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>BMI (Body Mass Index)</td>
+                                <td ID="vital8">31.6 kg/m2</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Heart Rate</td>
+                                <td ID="vital9">60 /min</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Respiratory Rate</td>
+                                <td ID="vital10">20 /min</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>Body Temperature</td>
+                                <td ID="vital11">98 [degF]</td>
+                            </tr>
+                            <tr>
+                                <td>2014-02-01</td>
+                                <td>O2 % BldC Oximetry</td>
+                                <td ID="vital12">98 %</td>
                             </tr>
                         </tbody>
                     </table>
