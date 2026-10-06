@@ -30,6 +30,16 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v7
 
+    - name: Check Codecov flags
+      # Every CI config needs its own Codecov flag (see ci/codecov_flags.sh).
+      run: |
+        shopt -s nullglob
+        shopt -s extglob
+        dirs=( ci/!(compose-shared-*)/docker-compose.yml )
+        dirs=( "${dirs[@]%/docker-compose.yml}" )
+        dirs=( "${dirs[@]#ci/}" )
+        ci/parse_docker_dir.sh "${dirs[@]}" | ci/codecov_flags.sh
+
     - name: Collect Docker Dirs
       id: docker-dirs
       ##

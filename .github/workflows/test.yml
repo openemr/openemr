@@ -121,28 +121,10 @@ jobs:
 
     - name: Compute Codecov flag name
       id: coverage-flag
-      # Each CI config needs its own flag. Codecov carries coverage forward per
-      # flag, so configs sharing a name (the Redis Sentinel variants of a base
-      # config) replaced each other's coverage instead of adding to it.
-      # Codecov limits flag names to 45 characters, so the variant suffixes are
-      # short; "Check Codecov flag lengths" below enforces the limit.
-      env:
-        PHP: ${{ steps.parse.outputs.php }}
-        WEBSERVER: ${{ steps.parse.outputs.webserver }}
-        DATABASE: ${{ steps.parse.outputs.database }}
-        DB: ${{ steps.parse.outputs.db }}
-        DOCKER_DIR: ${{ inputs.docker_dir }}
+      # Each CI config needs its own flag; ci/codecov_flags.sh explains why.
       run: |
-        # Database major.minor only, so point-release bumps keep the same flag.
-        [[ "${DB}" =~ ^([0-9]+\.[0-9]+) ]] && DB="${BASH_REMATCH[1]}"
-        flag="php${PHP}-${WEBSERVER}-${DATABASE}${DB:+-${DB}}"
-        case "${DOCKER_DIR}" in
-          *_upgrade) flag="${flag}-upg" ;;
-          *_redis_sentinel_mtls) flag="${flag}-rsm" ;;
-          *_redis_sentinel_tls) flag="${flag}-rst" ;;
-          *_redis_sentinel) flag="${flag}-rs" ;;
-        esac
-        echo "coverage_flag=${flag}" >> "$GITHUB_OUTPUT"
+        line=$(ci/codecov_flags.sh < parsed_config.json)
+        echo "coverage_flag=${line#* }" >> "$GITHUB_OUTPUT"
 
     - name: Compute test suite list
       id: compute-suites
