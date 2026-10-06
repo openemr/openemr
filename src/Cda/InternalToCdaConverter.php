@@ -445,8 +445,9 @@ class InternalToCdaConverter
         $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
         $telecom = $this->createElement('telecom');
         if ($phone !== '') {
+            // A TEL value is a URL; Node omitted the tel: scheme here only.
             $telecom->setAttribute('use', 'WP');
-            $telecom->setAttribute('value', $phone);
+            $telecom->setAttribute('value', 'tel:' . $phone);
         } else {
             $telecom->setAttribute('nullFlavor', 'UNK');
         }

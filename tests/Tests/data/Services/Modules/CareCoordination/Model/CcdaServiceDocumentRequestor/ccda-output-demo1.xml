@@ -64,7 +64,7 @@
         <providerOrganization>
             <id root="2.16.840.1.113883.4.6"/>
             <name>Great Clinic</name>
-            <telecom use="WP" value="000-000-0000"/>
+            <telecom use="WP" value="tel:000-000-0000"/>
             <addr use="WP">
                 <country>USA</country>
                 <state>FL</state>

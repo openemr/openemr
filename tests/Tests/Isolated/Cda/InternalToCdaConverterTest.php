@@ -1284,6 +1284,28 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * A TEL value is a URL, so every telecom value needs a scheme. The
+     * providerOrganization phone was emitted as a bare number.
+     */
+    #[DataProvider('inputFixtureProvider')]
+    public function testEveryTelecomValueIsAUrl(string $inputFile): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . $inputFile);
+        self::assertIsString($input, 'Input fixture must be readable');
+        $xpath = $this->convertToXPath($input);
+
+        $values = $xpath->query('//hl7:telecom/@value');
+        self::assertNotFalse($values);
+        $bare = [];
+        foreach ($values as $value) {
+            if (preg_match('/^(tel|mailto|fax|https?):/', (string)$value->nodeValue) !== 1) {
+                $bare[] = $value->nodeValue;
+            }
+        }
+        self::assertSame([], $bare, 'telecom values without a URL scheme');
+    }
+
+    /**
      * appendVersionedTemplateId emits the plain root as well as the versioned
      * one, so calling it once per version repeated the plain templateId (the
      * US Realm Header twice, the Hunger Vital Signs observation three times).
