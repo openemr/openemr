@@ -1079,7 +1079,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Create provenance resource for care plan
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRCarePlan)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -1087,9 +1087,6 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         $provenanceService = new FhirProvenanceService();
         $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
 
-        if ($encode) {
-            return json_encode($provenance);
-        }
         return $provenance;
     }
 
