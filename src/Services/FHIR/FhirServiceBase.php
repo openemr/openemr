@@ -178,9 +178,8 @@ abstract class FhirServiceBase implements
 
     /**
      * Inserts an OpenEMR record into the system.
-     * @return ProcessingResult The OpenEMR processing result.
      */
-    abstract protected function insertOpenEMRRecord($openEmrRecord);
+    abstract protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult;
 
     /**
      * Inserts a FHIR resource into the system.
