@@ -379,11 +379,10 @@ abstract class FhirServiceBase implements
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param mixed $dataRecord The source OpenEMR data record
-     * @return FHIRProvenance|string|false|null the FHIR Resource. A falsy
-     *         return (false/null) indicates no Provenance could be constructed for the resource;
+     * @return ?FHIRProvenance null when no Provenance could be constructed for the resource;
      *         getAll() treats this as "no provenance available" and continues.
      */
-    abstract public function createProvenanceResource($dataRecord);
+    abstract public function createProvenanceResource($dataRecord): ?FHIRProvenance;
 
     /*
     * public function to return search params
