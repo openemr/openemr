@@ -82,6 +82,20 @@
 #     it isn't), which silently stands down the release-mode
 #     guardrail.
 #
+# errexit nuance: the awk invocation runs inside `$(...)` command
+# substitution. bash's default is `inherit_errexit` OFF, so an awk
+# failure (e.g. the path became unreadable mid-call) does NOT
+# propagate through the function even when callers have `set -e`.
+# This is intentional and correct here -- awk failure yields empty
+# output, grep returns 1 on empty input, the function returns 1
+# ("no match"). That matches the fail-safe direction (don't skip
+# acceptance validation on uncertain state). If a caller wants to
+# distinguish "awk succeeded with no match" from "awk failed
+# entirely", that caller should validate the path itself before
+# calling -- the readability guard above only catches "unreadable
+# at call time", not "readable now but failed during the awk
+# scan".
+#
 # BATS coverage lives at tests/bats/ci-scripts/release-targets-queries/
 # and must include negative cases (master without `next`, master with
 # `next-dev` only, no master row) to guarantee we never flip to a

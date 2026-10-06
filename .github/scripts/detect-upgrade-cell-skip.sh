@@ -32,6 +32,25 @@
 #      to BOTH the rel branch AND master -- master's dev docker DOES
 #      have upgrade infra in that window.
 #
+# Criterion 2's "master carries `next`" predicate lives in
+# `lib/release-targets-queries.sh::master_row_carries_next`, sourced
+# below. Second consumer is docker-release-orchestrator.yml's
+# compute-matrix step, which uses the same predicate to decide the
+# per-row `require_upgrade_cell` flag for its fan-out dispatches --
+# single-sourced signal across both consumers so false-positive and
+# false-negative behavior cannot drift between them. The lib's
+# header covers the predicate semantics, YAML inline-comment handling
+# (`- branch: master  # ...` scoping and `docker_tags: ...  # ...`
+# strip-before-match), and master-authoritative-path invariant.
+# Lib has its own BATS corpus at
+# tests/bats/ci-scripts/release-targets-queries/ -- the negative
+# cases there (word-boundary false-match protection, comment
+# stripping, missing docker_tags, no master row) are the regression
+# wall for criterion 2's underlying signal. The BATS at
+# tests/bats/ci-scripts/detect-upgrade-cell-skip/ then covers this
+# file's own composition on top of that signal (output format,
+# both-criteria interaction, bad-shape handling).
+#
 # Inputs (env, all required except RELEASE_TARGETS_PATH):
 #
 #   FROM_REV               OCI revision label of the from-tag image
