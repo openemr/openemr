@@ -2756,15 +2756,27 @@ class InternalToCdaConverter
         // Interpretation code based on abnormal_flag
         $abnormalFlag = strtoupper($this->xpathValue('abnormal_flag', $subtest));
         if ($abnormalFlag !== '') {
+            // OpenEMR's proc_res_abnormal list in HL7 ObservationInterpretation.
+            // Node mapped only yes/no, so high, low, vhigh and vlow results got an
+            // interpretationCode with neither a code nor a nullFlavor.
+            [$interpCode, $interpName] = match ($abnormalFlag) {
+                'NO' => ['N', 'Normal'],
+                'YES', 'ABNORMAL' => ['A', 'Abnormal'],
+                'HIGH' => ['H', 'High'],
+                'LOW' => ['L', 'Low'],
+                'VHIGH' => ['HH', 'Critical high'],
+                'VLOW' => ['LL', 'Critical low'],
+                'CRITICAL' => ['AA', 'Critical abnormal'],
+                default => ['', ''],
+            };
             $interp = $this->createElement('interpretationCode');
-            if ($abnormalFlag === 'NO') {
-                $interp->setAttribute('code', 'N');
-                $interp->setAttribute('displayName', 'Normal');
-            } elseif ($abnormalFlag === 'YES') {
-                $interp->setAttribute('code', 'A');
-                $interp->setAttribute('displayName', 'Abnormal');
+            if ($interpCode === '') {
+                $interp->setAttribute('nullFlavor', 'UNK');
+            } else {
+                $interp->setAttribute('code', $interpCode);
+                $interp->setAttribute('displayName', $interpName);
+                $interp->setAttribute('codeSystem', '2.16.840.1.113883.5.83');
             }
-            $interp->setAttribute('codeSystem', '2.16.840.1.113883.5.83');
             $obs->appendChild($interp);
         }
 

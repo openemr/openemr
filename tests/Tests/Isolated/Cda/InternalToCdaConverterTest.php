@@ -1519,6 +1519,62 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * @return array<string, array{string, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function abnormalFlagProvider(): array
+    {
+        return [
+            'no' => ['no', 'N'],
+            'yes' => ['yes', 'A'],
+            'high' => ['high', 'H'],
+            'low' => ['low', 'L'],
+            'vhigh' => ['vhigh', 'HH'],
+            'vlow' => ['vlow', 'LL'],
+            'unrecognised' => ['borderline', null],
+        ];
+    }
+
+    /**
+     * Every proc_res_abnormal value maps to an ObservationInterpretation code;
+     * anything else is nullFlavor rather than a CD with neither.
+     */
+    #[DataProvider('abnormalFlagProvider')]
+    public function testResultInterpretationMapsAbnormalFlag(string $flag, ?string $expectedCode): void
+    {
+        $input = <<<XML
+            <CCDA>
+                <results>
+                    <result>
+                        <extension>RES-1</extension>
+                        <test_code>24323-8</test_code>
+                        <test_name>Metabolic Panel</test_name>
+                        <subtest>
+                            <result_code>2345-7</result_code>
+                            <result_desc>Glucose</result_desc>
+                            <abnormal_flag>{$flag}</abnormal_flag>
+                        </subtest>
+                    </result>
+                </results>
+            </CCDA>
+            XML;
+
+        $interp = $this->singleElement(
+            $this->convertToXPath($input),
+            '//hl7:organizer/hl7:component/hl7:observation/hl7:interpretationCode'
+        );
+        if ($expectedCode === null) {
+            self::assertSame('UNK', $interp->getAttribute('nullFlavor'));
+            self::assertFalse($interp->hasAttribute('code'));
+            return;
+        }
+        self::assertSame($expectedCode, $interp->getAttribute('code'));
+        self::assertSame('2.16.840.1.113883.5.83', $interp->getAttribute('codeSystem'));
+        self::assertFalse($interp->hasAttribute('nullFlavor'));
+    }
+
+    /**
      * The encounter performer assignedEntity code uses Node's leafLevel.code:
      * a missing physician type code collapses to nullFlavor="UNK", and a present
      * code with an unknown code system omits the empty codeSystemName attribute.
