@@ -899,7 +899,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @param array $openEmrRecord OpenEMR patient record
      * @return ProcessingResult
      */
-    public function insertOpenEMRRecord($openEmrRecord)
+    public function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         return $this->patientService->insert($openEmrRecord);
     }
@@ -912,7 +912,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
      * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         $processingResult = $this->patientService->update($fhirResourceId, $updatedOpenEMRRecord);
         return $processingResult;
