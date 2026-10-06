@@ -373,10 +373,9 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
      * @param      $dataRecord - The source OpenEMR data record
-     * @param bool $encode     - Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return false|FHIRProvenance|string|null - the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return false|FHIRProvenance|string|null - the FHIR Resource.
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord)
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
@@ -388,11 +387,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $performer = current($dataRecord->getPerformer());
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $fhirProvenance;
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
