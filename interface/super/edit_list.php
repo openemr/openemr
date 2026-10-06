@@ -382,7 +382,7 @@ function getCodeDescriptions($codes)
         }
         $desc = str_replace('~', ' ', $desc);
         if (!empty($modifier ?? '')) {
-            $desc .= " " . xlt("Modifier") . ": " . $modifier;
+            $desc .= " " . xl("Modifier") . ": " . $modifier;
         }
         if ($s) {
             $s .= '~';
@@ -917,33 +917,28 @@ function writeITLine($it_array): void
         var current_sel_name = '';
         var current_sel_clin_term = '';
 
-        // Helper function to set the contents of a div.
-        // This is for Fee Sheet administration.
-        function setDivContent(id, content) {
-            if (document.getElementById) {
-                var x = document.getElementById(id);
-                x.innerHTML = '';
-                x.innerHTML = content;
-            } else if (document.all) {
-                var x = document.all[id];
-                x.innerHTML = content;
-            }
-        }
-
         // Given a line number, redisplay its descriptive list of codes.
-        // This is for Fee Sheet administration.
+        // This is for Fee Sheet administration. The descriptions are plain
+        // text (code and drug names), so they're added as text, not HTML.
         function displayCodes(lino) {
             var f = document.forms[0];
-            var s = '';
+            var div = document.getElementById('codelist_' + lino);
+            div.textContent = '';
             var descs = f['opt[' + lino + '][descs]'].value;
-            if (descs.length) {
-                var arrdescs = descs.split('~');
-                for (var i = 0; i < arrdescs.length; ++i) {
-                    s += "<a href='' onclick='return delete_code(" + lino + "," + i + ")' title='<?php echo xla('Delete'); ?>'>";
-                    s += "[x]&nbsp;</a>" + arrdescs[i] + "<br />";
-                }
+            if (!descs.length) {
+                return;
             }
-            setDivContent('codelist_' + lino, s);
+            var arrdescs = descs.split('~');
+            for (let i = 0; i < arrdescs.length; ++i) {
+                var a = document.createElement('a');
+                a.href = '';
+                a.title = <?php echo xlj('Delete'); ?>;
+                a.onclick = function () {
+                    return delete_code(lino, i);
+                };
+                a.textContent = '[x]\u00a0';
+                div.append(a, arrdescs[i], document.createElement('br'));
+            }
         }
 
         // Helper function to remove a Fee Sheet code.
