@@ -469,7 +469,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (!is_array($openEmrRecord)) {
             throw new \InvalidArgumentException('Expected a parsed OpenEMR Encounter record array');
@@ -520,7 +520,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param array<array-key, mixed> $updatedOpenEMRRecord The updated OpenEMR record
      * @return ProcessingResult
      */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         $puuid = $updatedOpenEMRRecord['puuid'] ?? '';
         unset($updatedOpenEMRRecord['puuid']);
