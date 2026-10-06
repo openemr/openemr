@@ -292,21 +292,13 @@ class FhirConditionHealthConcernService extends FhirServiceBase implements IPati
      * Creates the Provenance resource for the equivalent FHIR Resource
      *
      * @param mixed $dataRecord The FHIRCondition resource to build the Provenance for
-     * @return FHIRProvenance|string|false The FHIR Provenance resource, or false when no Provenance can be
-     *                                     constructed for the resource (for example when no author/organization
-     *                                     reference can be resolved). FhirServiceBase::getAll() treats a falsy
-     *                                     return as "no provenance available" and continues the export.
      */
-    public function createProvenanceResource($dataRecord = []): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord = []): ?FHIRProvenance
     {
         if (!($dataRecord instanceof FHIRCondition)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
-        if ($fhirProvenance === null) {
-            return false;
-        }
-        return $fhirProvenance;
+        return $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
     }
 
     /**
