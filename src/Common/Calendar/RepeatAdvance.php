@@ -19,6 +19,9 @@ namespace OpenEMR\Common\Calendar;
 
 final class RepeatAdvance
 {
+    /**
+     * The next date, or null when the step does not move forward.
+     */
     public static function nextDate(mixed $day, mixed $month, mixed $year, mixed $frequency, mixed $repeatType, string $current): ?string
     {
         $next = __increment($day, $month, $year, $frequency, $repeatType);
@@ -29,6 +32,9 @@ final class RepeatAdvance
         return $next;
     }
 
+    /**
+     * The next month, or null when the month does not advance.
+     */
     public static function nextMonth(mixed $year, mixed $month, mixed $day, mixed $frequency, string $currentYearMonth): ?string
     {
         $yearInt = self::wholeNumber($year);
@@ -52,6 +58,9 @@ final class RepeatAdvance
         return $next;
     }
 
+    /**
+     * The nth weekday of the month, or null when none is found.
+     */
     public static function onDate(mixed $nth, mixed $dayOfWeek, mixed $month, mixed $year): ?string
     {
         $remaining = self::wholeNumber($nth);
@@ -69,6 +78,9 @@ final class RepeatAdvance
         return null;
     }
 
+    /**
+     * A whole number, or null when the value is not one.
+     */
     private static function wholeNumber(mixed $value): ?int
     {
         if (is_int($value)) {

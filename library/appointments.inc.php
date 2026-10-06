@@ -103,6 +103,9 @@ function checkEvent($recurrtype, $recurrspec): int
     return $eFlag;
 }
 
+/**
+ * Events in the span, including repeats that can be stepped forward.
+ */
 function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null): array
 {
     $sqlBindArray = [];
