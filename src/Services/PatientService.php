@@ -408,7 +408,7 @@ class PatientService extends BaseService
         return $this->search($querySearch, $isAndCondition, $config);
     }
 
-    public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null)
+    public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null): ProcessingResult
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
         // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
@@ -515,7 +515,7 @@ class PatientService extends BaseService
         }
     }
 
-    private function hydrateSearchResultsFromQueryResource($queryResource, ?QueryPagination $pagination = null)
+    private function hydrateSearchResultsFromQueryResource($queryResource, ?QueryPagination $pagination = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         if (!empty($pagination)) {

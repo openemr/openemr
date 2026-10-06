@@ -53,7 +53,7 @@ class Address extends ORDataObject implements \JsonSerializable
             $this->populate();
         }
     }
-    public static function factory_address($foreign_id = "")
+    public static function factory_address($foreign_id = ""): Address
     {
         $sqlArray = [];
 

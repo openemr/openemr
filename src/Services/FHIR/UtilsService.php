@@ -44,7 +44,7 @@ class UtilsService
     const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
     const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
 
-    public static function createRelativeReference($type, $uuid, $displayName = null)
+    public static function createRelativeReference($type, $uuid, $displayName = null): FHIRReference
     {
         $reference = new FHIRReference();
         $reference->setType($type);
@@ -165,7 +165,7 @@ class UtilsService
         return $diagnosisCode;
     }
 
-    public static function createDataMissingExtension()
+    public static function createDataMissingExtension(): FHIRExtension
     {
         // @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
         // for some reason in order to get this to work we have to wrap our inner exception
@@ -431,7 +431,7 @@ class UtilsService
         $severity_value,
         $code_value,
         $details_value = ''
-    ) {
+    ): FHIROperationOutcome {
         $resource = new FHIROperationOutcome();
         $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();

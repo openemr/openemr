@@ -71,10 +71,8 @@ class ProcedureService extends BaseService
      *
      * @param  array<string, ISearchField> $search         search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     *                         payload.
      */
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         // Query structure: Start from procedure_order (the ServiceRequest)
         // and LEFT JOIN all related data so orders without reports/results still appear
@@ -326,9 +324,8 @@ class ProcedureService extends BaseService
      * with procedures, reports, results, and specimens.
      *
      * @param \ADORecordSet $queryResource The result resource from the executed SQL query.
-     * @return ProcessingResult The structured processing result containing procedures and their details.
      */
-    private function hydrateSearchResultsFromQueryResource($queryResource)
+    private function hydrateSearchResultsFromQueryResource($queryResource): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $procedureByUuid = [];

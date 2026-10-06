@@ -63,7 +63,7 @@ class ImmunizationService extends BaseService
         return ['uuid', 'puuid', 'provider_uuid', 'euuid', 'facility_uuid', 'facility_location_uuid'];
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT immunizations.id,
                 immunizations.uuid,

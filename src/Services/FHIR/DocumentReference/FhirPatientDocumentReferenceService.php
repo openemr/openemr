@@ -130,7 +130,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
         return $this->service->search($openEMRSearchParameters);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDocumentReference
     {
         $docReference = new FHIRDocumentReference();
         $fhirMeta = new FHIRMeta();

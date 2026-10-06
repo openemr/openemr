@@ -251,7 +251,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $request;
     }
 
-    private function getClientEntityForTest()
+    private function getClientEntityForTest(): ClientEntity
     {
         $clientEntity = new ClientEntity();
         $clientEntity->setIdentifier(self::TEST_CLIENT_ID);

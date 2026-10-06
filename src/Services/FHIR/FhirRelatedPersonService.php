@@ -56,7 +56,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     /**
      * @inheritDoc
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRRelatedPerson
     {
         $fhirRelatedPerson = new FHIRRelatedPerson();
         $this->populateId($fhirRelatedPerson, $dataRecord);

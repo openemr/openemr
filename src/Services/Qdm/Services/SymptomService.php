@@ -26,7 +26,7 @@ class SymptomService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): Symptom
     {
         $record = $recordObj->getData();
         $qdmModel = new Symptom([

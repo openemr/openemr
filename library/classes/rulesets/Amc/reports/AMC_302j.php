@@ -21,12 +21,12 @@ class AMC_302j extends AbstractAmcReport
         return "transitions-in";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_302j_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_302j_Numerator();
     }

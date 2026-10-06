@@ -316,7 +316,7 @@ class PractitionerRoleService extends BaseService
         }
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         // note we are optimizing our key indexes by specifying our list_ids for list_options
         // note because facility_user_ids is denormalized and stores its form data in a Key Value list in order to grab
@@ -535,10 +535,8 @@ class PractitionerRoleService extends BaseService
      *
      * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
      */
-    public function getAll(array $search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true): ProcessingResult
     {
         $sqlBindArray = [];
 
@@ -603,10 +601,8 @@ class PractitionerRoleService extends BaseService
     /**
      * Returns a single practitioner-role record by id.
      * @param $uuid - The practitioner-role uuid identifier in string format.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
      */
-    public function getOne($uuid)
+    public function getOne($uuid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 

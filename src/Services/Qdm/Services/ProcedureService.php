@@ -47,7 +47,7 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): ProcedurePerformed
     {
         $record = $recordObj->getData();
         $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
