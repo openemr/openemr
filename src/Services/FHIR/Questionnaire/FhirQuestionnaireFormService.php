@@ -419,10 +419,9 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements
 
     /**
      * @param FHIRDomainResource $dataRecord
-     * @param bool $encode
      * @return FHIRProvenance|string
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
+    public function createProvenanceResource($dataRecord): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRQuestionnaire)) {
             throw new BadMethodCallException("Data record should be correct instance class");
@@ -434,7 +433,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements
             // available" and continues (see issue #13054).
             return false;
         }
-        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+        return $fhirProvenance;
     }
 
     /**
