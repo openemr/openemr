@@ -112,10 +112,10 @@ class eRxStore
             [$patientId]
         );
 
-        $data = formFetch("form_vitals", $result['id']);
+        $data = is_array($result) ? formFetch("form_vitals", $result['id']) : false;
 
-        $weight = number_format($data['weight'] * 0.45359237, 2);
-        $height = number_format(round($data['height'] * 2.54, 1), 2);
+        $weight = number_format(($data['weight'] ?? 0) * 0.45359237, 2);
+        $height = number_format(round(($data['height'] ?? 0) * 2.54, 1), 2);
 
         return [
             'height' => $height,
@@ -393,7 +393,7 @@ class eRxStore
             [$name]
         );
 
-        return $return['id'];
+        return $return['id'] ?? null;
     }
 
     /**
