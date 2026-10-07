@@ -349,6 +349,11 @@ function image_widget($doc_id, $doc_catg): void
 $tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'vitals' AND state = 1");
 $vitals_is_registered = $tmp['count'];
 
+// Determine if the Track Anything form is in use for this site. Read here
+// because the card and the fragment that fills it are emitted far apart.
+$tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'track_anything' AND state = 1");
+$track_is_registered = $tmp['count'];
+
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -630,7 +635,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
             placeHtml("disc_fragment.php", "disclosures_ps_expand");
             placeHtml("labdata_fragment.php", "labdata_ps_expand");
+            <?php if ($track_is_registered) { ?>
             placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
+            <?php } ?>
             <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
             // Initialize the Vitals form if it is registered and user is authorized.
             placeHtml("vitals_fragment.php", "vitals_ps_expand");
@@ -2063,9 +2070,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     echo "<div id=\"stats_div\"></div>";
 
                     // TRACK ANYTHING
-                    // Determine if track_anything form is in use for this site.
-                    $tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'track_anything' AND state = 1");
-                    $track_is_registered = $tmp['count'];
                     if ($track_is_registered) {
                         $spruch = "SELECT id FROM forms WHERE pid = ? AND formdir = ?";
                         $existTracks = sqlQuery($spruch, [$pid, "track_anything"]);
