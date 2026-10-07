@@ -107,7 +107,7 @@ if (!empty($_POST['show_address'])) {
 
 $provider  = $_POST['form_provider'] ?? null;
 //RM if 'all' selected set to null
-if ($provider[0] == '') {
+if (($provider[0] ?? '') == '') {
     $provider = null;
 }
 
