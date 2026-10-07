@@ -212,7 +212,6 @@ class PatientTransactionServiceTest extends TestCase
 
         $rows = getTransByPid(self::PID);
 
-        $this->assertIsArray($rows);
         $this->assertCount(2, $rows);
         $row0 = $rows[0];
         $row1 = $rows[1];
@@ -231,7 +230,6 @@ class PatientTransactionServiceTest extends TestCase
 
         $rows = getTransByPid(self::PID, 'id, title');
 
-        $this->assertIsArray($rows);
         $this->assertCount(1, $rows);
         $row0 = $rows[0];
         $this->assertIsArray($row0);
