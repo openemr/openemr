@@ -101,7 +101,7 @@ final class ApiLogRedactorTest extends TestCase
         self::assertSame(['https://localhost/cb'], $decoded['redirect_uris']);
     }
 
-    public function testRegistrationRequestIsNotRedacted(): void
+    public function testRegistrationRequestWithOnlyDescriptiveMetadataPassesThrough(): void
     {
         $body = json_encode([
             'client_name' => 'test app',
@@ -111,6 +111,47 @@ final class ApiLogRedactorTest extends TestCase
         self::assertIsString($body);
         $redacted = $this->redactor->redactRequest('/oauth2/default/registration', $body);
         self::assertSame($body, $redacted);
+    }
+
+    public function testRegistrationRequestWithNestedSensitiveKeyGetsRedacted(): void
+    {
+        $body = json_encode([
+            'client_name' => 'test app',
+            'jwks' => [
+                'keys' => [
+                    ['kid' => 'k1', 'kty' => 'RSA', 'client_secret' => 'leaked-via-nest'],
+                ],
+            ],
+        ]);
+        self::assertIsString($body);
+        $redacted = $this->redactor->redactRequest('/oauth2/default/registration', $body);
+        $decoded = json_decode($redacted, true);
+        self::assertIsArray($decoded);
+        self::assertSame('test app', $decoded['client_name']);
+        self::assertIsArray($decoded['jwks']);
+        self::assertIsArray($decoded['jwks']['keys']);
+        self::assertIsArray($decoded['jwks']['keys'][0]);
+        self::assertSame(ApiLogRedactor::SENTINEL, $decoded['jwks']['keys'][0]['client_secret']);
+        self::assertSame('k1', $decoded['jwks']['keys'][0]['kid'], 'non-redacted keys preserved');
+    }
+
+    public function testTrailingSlashOnTokenUrlStillMatches(): void
+    {
+        $body = 'grant_type=password&username=admin&password=hunter2';
+        $redacted = $this->redactor->redactRequest('/oauth2/default/token/', $body);
+        parse_str($redacted, $parsed);
+        self::assertSame(ApiLogRedactor::SENTINEL, $parsed['password'] ?? null);
+    }
+
+    public function testTrailingSlashOnRegistrationUrlStillMatches(): void
+    {
+        $body = json_encode(['client_secret' => 's', 'client_id' => 'cid']);
+        self::assertIsString($body);
+        $redacted = $this->redactor->redactResponse('/oauth2/default/registration/', $body);
+        $decoded = json_decode($redacted, true);
+        self::assertIsArray($decoded);
+        self::assertSame(ApiLogRedactor::SENTINEL, $decoded['client_secret']);
+        self::assertSame('cid', $decoded['client_id']);
     }
 
     public function testFhirUrlsPassThroughUnchanged(): void

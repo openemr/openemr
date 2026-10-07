@@ -45,12 +45,15 @@ final class ApiLogRedactor
 
     /**
      * Fields whose values are replaced on the OAuth2 Dynamic Client
-     * Registration response. The request carries only descriptive metadata
-     * (redirect_uris, scopes, client_name) and is left as-is.
+     * Registration endpoint, in both directions. The request body only
+     * carries descriptive metadata (redirect_uris, scopes, client_name)
+     * under normal use — the keys are present here as a defensive measure
+     * against unusual client payloads that nest them inside echoed fields
+     * such as jwks.keys[*].
      *
      * @var list<string>
      */
-    private const REGISTRATION_RESPONSE_FIELDS = ['client_secret', 'registration_access_token'];
+    private const REGISTRATION_FIELDS = ['client_secret', 'registration_access_token'];
 
     public function redactRequest(string $url, string $body): string
     {
@@ -59,6 +62,9 @@ final class ApiLogRedactor
         }
         if (self::isTokenUrl($url)) {
             return self::redactKeys($body, self::TOKEN_REQUEST_FIELDS);
+        }
+        if (self::isRegistrationUrl($url)) {
+            return self::redactKeys($body, self::REGISTRATION_FIELDS);
         }
         return $body;
     }
@@ -72,21 +78,23 @@ final class ApiLogRedactor
             return self::redactKeys($body, self::TOKEN_RESPONSE_FIELDS);
         }
         if (self::isRegistrationUrl($url)) {
-            return self::redactKeys($body, self::REGISTRATION_RESPONSE_FIELDS);
+            return self::redactKeys($body, self::REGISTRATION_FIELDS);
         }
         return $body;
     }
 
     private static function isTokenUrl(string $url): bool
     {
-        return str_contains(self::stripQuery($url), '/oauth2/')
-            && str_ends_with(self::stripQuery($url), '/token');
+        $path = rtrim(self::stripQuery($url), '/');
+        return str_contains($path, '/oauth2/')
+            && str_ends_with($path, '/token');
     }
 
     private static function isRegistrationUrl(string $url): bool
     {
-        return str_contains(self::stripQuery($url), '/oauth2/')
-            && str_ends_with(self::stripQuery($url), '/registration');
+        $path = rtrim(self::stripQuery($url), '/');
+        return str_contains($path, '/oauth2/')
+            && str_ends_with($path, '/registration');
     }
 
     private static function stripQuery(string $url): string
@@ -96,10 +104,11 @@ final class ApiLogRedactor
     }
 
     /**
-     * Replaces the value of every listed key with SENTINEL. Handles both JSON
-     * object bodies and application/x-www-form-urlencoded bodies — a token
-     * endpoint accepts either per RFC 6749 and we may be asked to redact
-     * whichever shape was actually sent.
+     * Replaces the value of every listed key with SENTINEL, recursing into
+     * nested arrays. Handles both JSON object bodies and
+     * application/x-www-form-urlencoded bodies — a token endpoint accepts
+     * either per RFC 6749 and we may be asked to redact whichever shape
+     * was actually sent.
      *
      * @param list<string> $keys
      */
@@ -108,12 +117,7 @@ final class ApiLogRedactor
         $decoded = json_decode($body, true);
         if (is_array($decoded)) {
             $redactedAny = false;
-            foreach ($keys as $key) {
-                if (array_key_exists($key, $decoded)) {
-                    $decoded[$key] = self::SENTINEL;
-                    $redactedAny = true;
-                }
-            }
+            $decoded = self::redactNested($decoded, $keys, $redactedAny);
             if (!$redactedAny) {
                 return $body;
             }
@@ -127,12 +131,25 @@ final class ApiLogRedactor
         // bodies with no sensitive keys round-trip unchanged.
         parse_str($body, $parsed);
         $redactedAny = false;
-        foreach ($keys as $key) {
-            if (array_key_exists($key, $parsed)) {
-                $parsed[$key] = self::SENTINEL;
+        $parsed = self::redactNested($parsed, $keys, $redactedAny);
+        return $redactedAny ? http_build_query($parsed) : $body;
+    }
+
+    /**
+     * @param array<array-key, mixed> $data
+     * @param list<string>            $keys
+     * @return array<array-key, mixed>
+     */
+    private static function redactNested(array $data, array $keys, bool &$redactedAny): array
+    {
+        foreach ($data as $key => $value) {
+            if (is_string($key) && in_array($key, $keys, true)) {
+                $data[$key] = self::SENTINEL;
                 $redactedAny = true;
+            } elseif (is_array($value)) {
+                $data[$key] = self::redactNested($value, $keys, $redactedAny);
             }
         }
-        return $redactedAny ? http_build_query($parsed) : $body;
+        return $data;
     }
 }
