@@ -228,7 +228,7 @@ class InsuranceService extends BaseService
             $this->getEventDispatcher()->dispatch($serviceSavePostEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($data['uuid']);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
         return $processingResult;
     }
@@ -325,7 +325,7 @@ class InsuranceService extends BaseService
             $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($stringUuid);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
