@@ -32,9 +32,8 @@ class Users
 
     /**
      * Get all users' ids and full names from users table.
-     * @return array
      */
-    public function getAllUsers()
+    public function getAllUsers(): array
     {
 
         $sql = 'SELECT id, fname, lname FROM ' . self::TABLE . ' WHERE active = 1';
@@ -53,7 +52,7 @@ class Users
      * @param $uid
      * @return string
      */
-    public function getUserNameById($uid)
+    public function getUserNameById($uid): string
     {
         $sql = 'SELECT fname, lname FROM ' . self::TABLE . ' WHERE id = ?';
 
@@ -66,9 +65,8 @@ class Users
     /**
      * Get all providers of event.
      * @param $eid
-     * @return array
      */
-    public function getProvidersOfEvent($eid)
+    public function getProvidersOfEvent($eid): array
     {
 
         $providers = [];

@@ -90,7 +90,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -150,7 +150,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @param FHIRDomainResource $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCondition)) {
             throw new \InvalidArgumentException(

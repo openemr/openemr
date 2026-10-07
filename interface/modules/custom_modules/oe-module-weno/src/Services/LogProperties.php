@@ -151,7 +151,7 @@ class LogProperties
     /**
      * @return string
      */
-    public function logReview()
+    public function logReview(): string
     {
         $email = $this->getProviderEmail();
         $prov_pass = $this->getProviderPassword();

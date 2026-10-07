@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -25,6 +26,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
@@ -166,6 +168,8 @@ class ClientAdminController
                 ,self::REVOKE_TRUSTED_USER => $this->revokeTrustedUserAction($mainActionChild, $request)
                 ,self::REVOKE_ACCESS_TOKEN => $this->revokeAccessToken($mainActionChild, $request)
                 ,self::REVOKE_REFRESH_TOKEN => $this->revokeRefreshToken($mainActionChild, $request)
+                ,'allow-password-grant' => $this->passwordGrantAction($mainActionChild, true)
+                ,'deny-password-grant' => $this->passwordGrantAction($mainActionChild, false)
                 ,'enable-authorization-flow-skip' => $this->enableAuthorizationFlowSkipAction($mainActionChild)
                 ,'disable-authorization-flow-skip' => $this->disableAuthorizationFlowSkipAction($mainActionChild)
                 , default => $this->notFoundAction()
@@ -427,6 +431,9 @@ class ClientAdminController
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
         $disableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable-authorization-flow-skip']);
         $enableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable-authorization-flow-skip']);
+        $allowPasswordGrantLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'allow-password-grant']);
+        $denyPasswordGrantLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'deny-password-grant']);
+        $grantTypes = (new ClientGrantTypePolicy())->effectiveGrantTypes($client->getGrantTypes());
         $isEnabled = $client->isEnabled();
         $allowSkipAuthSetting = $this->globalsBag->getString('oauth_ehr_launch_authorization_flow_skip') === '1';
         $skipAuthorizationFlow = $client->shouldSkipEHRLaunchAuthorizationFlow();
@@ -456,6 +463,11 @@ class ClientAdminController
                 'type' => 'text'
                 ,'label' => xl("Date Registered")
                 ,'value' => $client->getRegistrationDate()
+            ],
+            'grantTypes' => [
+                'type' => 'text'
+                ,'label' => xl("Allowed Grant Types")
+                ,'value' => implode(', ', $grantTypes)
             ],
             'confidential' => [
                 'type' => 'checkbox'
@@ -563,6 +575,9 @@ class ClientAdminController
             ,'enableSkipAuthorizationFlowLink' => $enableSkipAuthorizationFlowLink
             ,'disableClientLink' => $disableClientLink
             ,'enableClientLink' => $enableClientLink
+            ,'passwordGrantAllowed' => in_array(ClientGrantTypePolicy::PASSWORD, $grantTypes, true)
+            ,'allowPasswordGrantLink' => $allowPasswordGrantLink
+            ,'denyPasswordGrantLink' => $denyPasswordGrantLink
             ,'requestMessage' => $requestMessage
             ,'isEnabled' => $isEnabled
             ,'formValues' => $formValues
@@ -891,6 +906,31 @@ class ClientAdminController
         /** @var array<string, mixed> $tokenParts */
         $tokenParts['token_type'] = $tokenType;
         return $tokenParts;
+    }
+
+    /**
+     * The password grant cannot be derived at registration, so an administrator allows or
+     * denies it per client. Other grant types are fixed by the client's registration.
+     */
+    private function passwordGrantAction(string $clientId, bool $allow): Response
+    {
+        $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            return $this->notFoundAction();
+        }
+        $policy = new ClientGrantTypePolicy();
+        $grantTypes = array_values(array_diff($policy->effectiveGrantTypes($client->getGrantTypes()), [ClientGrantTypePolicy::PASSWORD]));
+        if ($allow) {
+            $grantTypes[] = ClientGrantTypePolicy::PASSWORD;
+        }
+        try {
+            $this->clientRepo->saveGrantTypes($client, $grantTypes);
+            $message = ($allow ? xl('Allowed password grant for') : xl('Denied password grant for')) . " " . $client->getName();
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+            return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
+        } catch (SqlQueryException $ex) {
+            return $this->returnFailedToSaveClientResponse($ex, $client);
+        }
     }
 
     private function enableAuthorizationFlowSkipAction(string $clientId): Response

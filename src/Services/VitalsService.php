@@ -82,7 +82,7 @@ class VitalsService extends BaseService
         $this->shouldConvertVitalMeasurements = $shouldConvert;
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlSelect = "
                     SELECT patients.pid
@@ -425,6 +425,44 @@ class VitalsService extends BaseService
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.
         return ['puuid', 'euuid', 'uuid', 'user_uuid'];
+    }
+
+    /**
+     * Finds the vitals form row for an encounter taken at a given time.
+     *
+     * `form_vitals` has no encounter column -- the link is through `forms` -- so the
+     * lookup joins there. The date is part of the key because an encounter can legitimately
+     * carry more than one Vitals form (triage then reassessment, pre- and post-op), and
+     * collapsing those onto a single row would overwrite the earlier reading.
+     *
+     * @param int $encounterId The encounter (forms.encounter) the form belongs to.
+     * @param int $pid The patient the encounter belongs to.
+     * @param string $date The vitals date as stored in form_vitals.date (Y-m-d H:i:s).
+     * @return array{id: int, uuid: string}|null The matching row, or null when there is none.
+     */
+    public function getVitalsFormForEncounterDate(int $encounterId, int $pid, string $date): ?array
+    {
+        $sql = "SELECT vitals.`id`, vitals.`uuid`
+                  FROM `" . self::TABLE_VITALS . "` vitals
+                  JOIN `forms` ON `forms`.`form_id` = vitals.`id` AND `forms`.`formdir` = 'vitals'
+                 WHERE `forms`.`encounter` = ? AND `forms`.`pid` = ? AND vitals.`date` = ?
+                   AND (`forms`.`deleted` IS NULL OR `forms`.`deleted` = 0)
+              ORDER BY vitals.`id` ASC
+                 LIMIT 1";
+        $record = QueryUtils::querySingleRow($sql, [$encounterId, $pid, $date]);
+        if (!is_array($record)) {
+            return null;
+        }
+        $id = $record['id'] ?? null;
+        $uuid = $record['uuid'] ?? null;
+        if (!is_numeric($id) || !is_string($uuid) || $uuid === '') {
+            return null;
+        }
+
+        return [
+            'id' => (int) $id,
+            'uuid' => UuidRegistry::uuidToString($uuid),
+        ];
     }
 
     /**

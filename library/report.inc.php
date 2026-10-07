@@ -287,7 +287,7 @@ function printPatientBilling($pid): void
     }
 }
 
-function getPatientBillingEncounter($pid, $encounter)
+function getPatientBillingEncounter($pid, $encounter): array
 {
     $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
     "pid = ? AND encounter = ? " .
@@ -413,7 +413,7 @@ function getRecHistoryData($pid)
     return $retar;
 }
 
-function getRecEmployerData($pid)
+function getRecEmployerData($pid): array
 {
     //data is returned as a multi-level array:
     //column name->dates->values
@@ -442,7 +442,7 @@ function getRecEmployerData($pid)
     return $retar;
 }
 
-function getRecPatientData($pid)
+function getRecPatientData($pid): array
 {
     //data is returned as a multi-level array:
     //column name->dates->values
@@ -471,7 +471,7 @@ function getRecPatientData($pid)
     return $retar;
 }
 
-function getRecInsuranceData($pid, $ins_type)
+function getRecInsuranceData($pid, $ins_type): array
 {
     //data is returned as a multi-level array:
     //column name->dates->values

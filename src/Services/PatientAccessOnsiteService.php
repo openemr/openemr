@@ -110,7 +110,7 @@ class PatientAccessOnsiteService
         $this->twig = $twig;
     }
 
-    public function saveCredentials($pid, $pwd, $userName, $loginUsername, $forced_reset_disable)
+    public function saveCredentials($pid, $pwd, $userName, $loginUsername, $forced_reset_disable): array
     {
         $trustedEmail = $this->getTrustedEmailForPid($pid);
         $clear_pass = $pwd;
@@ -167,7 +167,7 @@ class PatientAccessOnsiteService
         ];
     }
 
-    public function sendCredentialsEmail($pid, $pwd, $username, $loginUsername, $emailDirect)
+    public function sendCredentialsEmail($pid, $pwd, $username, $loginUsername, $emailDirect): array
     {
         // Create the message
         $fhirServerConfig = new ServerConfig();
@@ -269,7 +269,7 @@ class PatientAccessOnsiteService
         return $trustedEmail;
     }
 
-    public function getRandomPortalPassword()
+    public function getRandomPortalPassword(): string
     {
         return RandomGenUtils::generatePortalPassword();
     }

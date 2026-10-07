@@ -24,22 +24,22 @@
 
 class AMC_314g_1_2_20 extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_314g_1_2_20";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "image_orders";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_314g_1_2_20_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_314g_1_2_20_Numerator();
     }

@@ -215,6 +215,26 @@ ALTER TABLE `drugs` ADD COLUMN `ndc_uom` varchar(2) NOT NULL DEFAULT '' COMMENT 
 ALTER TABLE `drugs` ADD COLUMN `ndc_quantity` decimal(10,3) DEFAULT NULL COMMENT 'NDC quantity for the related HCPCS service line' AFTER `ndc_uom`;
 #EndIf
 
+-- OAuth2 clients may now use only the grant types they registered for
+-- (oauth_clients.grant_types was stored but never enforced). Backfill it so
+-- existing clients keep working after the upgrade:
+--   * no recorded grant types: the RFC 7591 default, authorization_code
+--   * confidential backend-services clients (system/ scopes plus a JWKS):
+--     client_credentials, which the registration UI never recorded. A JWKS is
+--     required because this grant only ever authenticated with a signed JWT
+--     assertion; a client holding just a secret could not use it before either.
+--   * clients that have already used the password grant, per
+--     oauth_trusted_user.grant_type: password
+-- A client that named grant types when it registered keeps them as recorded.
+-- A client that never named the password grant and has not used it yet is not
+-- given it here; an administrator allows it under Admin > System > API Clients.
+-- Each statement is idempotent.
+#IfColumn oauth_clients grant_types
+UPDATE `oauth_clients` SET `grant_types` = 'authorization_code' WHERE `grant_types` IS NULL OR `grant_types` = '';
+UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|client_credentials') WHERE `is_confidential` = 1 AND `scope` LIKE '%system/%' AND ((`jwks` IS NOT NULL AND `jwks` <> '') OR (`jwks_uri` IS NOT NULL AND `jwks_uri` <> '')) AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|client_credentials|%';
+UPDATE `oauth_clients` SET `grant_types` = CONCAT(`grant_types`, '|password') WHERE `client_id` IN (SELECT `client_id` FROM `oauth_trusted_user` WHERE `grant_type` = 'password') AND CONCAT('|', `grant_types`, '|') NOT LIKE '%|password|%';
+#EndIf
+
 -- 6.0.0-to-6.1.0 seeded a WenoExchange background service pointing at /library/weno_log_sync.php
 -- and start_weno(), neither of which exists in core. The Weno module registers its own
 -- WenoExchange row (scripts/weno_log_sync.php, downloadWenoPrescriptionLog) when it is installed.

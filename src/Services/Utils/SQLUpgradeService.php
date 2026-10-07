@@ -1028,7 +1028,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $engine  engine name ( myisam, memory, innodb )...
      * @return bool true if the table has been created using specified engine
      */
-    private function tableHasEngine($tblname, $engine)
+    private function tableHasEngine($tblname, $engine): bool
     {
         $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', [$tblname, $engine]);
         return !empty($row);
@@ -1190,9 +1190,9 @@ class SQLUpgradeService implements ISQLUpgradeService
      * Request to information_schema
      *
      * @param array $arg possible arguments: engine, table_name
-     * @return SQLStatement
+     * @return array<string, string> table names, keyed by table name
      */
-    private function getTablesList($arg = [])
+    private function getTablesList($arg = []): array
     {
         $binds = [$this->databaseName()];
         $sql = 'SELECT TABLE_NAME AS table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = "BASE TABLE"';

@@ -105,7 +105,7 @@ class FeeSheet
         $this->encounter = $encounter;
         // get provider field for pid's primary insurance from insurance_data to be added to billing row table as payer_id
         $primary_insurance = getInsuranceData($this->pid);
-        $this->payer_id = $primary_insurance['provider'];
+        $this->payer_id = $primary_insurance['provider'] ?? null;
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
         $this->ALLOW_COPAYS = empty(OEGlobalsBag::getInstance()->get('ippf_specific'));
@@ -180,7 +180,7 @@ class FeeSheet
   // Gets the provider from the encounter, logged-in user or patient demographics.
   // Adapted from work by Terry Hill.
   //
-    public function findProvider()
+    public function findProvider(): int
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -208,7 +208,7 @@ class FeeSheet
 
     // Close the designated visit, making sure it has no charges.
     //
-    public static function closeVisit($pid, $encounter)
+    public static function closeVisit($pid, $encounter): string
     {
         $tmp1 = sqlQuery(
             "SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
@@ -309,7 +309,7 @@ class FeeSheet
 
   // Compute a current checksum of this encounter's Fee Sheet data from the database.
   //
-    public function visitChecksum($saved = false)
+    public function visitChecksum($saved = false): int
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $rowb = sqlQuery(
@@ -459,7 +459,7 @@ class FeeSheet
         // If using line item billing and user wishes to default to a selected provider, then do so.
         if (OEGlobalsBag::getInstance()->getBoolean('default_fee_sheet_line_item_provider') && OEGlobalsBag::getInstance()->getBoolean('support_fee_sheet_line_item_provider')) {
             if ($provider_id == 0) {
-                $provider_id = (int) $this->findProvider();
+                $provider_id = $this->findProvider();
             }
         }
 
@@ -827,7 +827,7 @@ class FeeSheet
   // Returns an error message if any product items cannot be filled.
   // You must call this before save().
   //
-    public function checkInventory(&$prod)
+    public function checkInventory(&$prod): string
     {
         $alertmsg = '';
         $insufficient = 0;
@@ -1457,7 +1457,7 @@ class FeeSheet
     // and in that case the return value is a LBFcontra form_id or -1 if none.
     // -1 could be returned if a non-LBFcontra form type recorded data that needs fixing.
     //
-    public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0)
+    public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0): int
     {
         if (!empty($ippfconmeth)) {
             /**********************************************************
@@ -1611,7 +1611,7 @@ class FeeSheet
 
     // Determine if the current user is allowed to see prices.
     //
-    public function pricesAuthorized()
+    public function pricesAuthorized(): bool
     {
         return AclMain::aclCheckCore('acct', 'disc') || AclMain::aclCheckCore('acct', 'bill');
     }

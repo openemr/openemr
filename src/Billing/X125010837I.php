@@ -16,7 +16,7 @@ use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 
 class X125010837I
 {
-    public static function x12Date($frmdate)
+    public static function x12Date($frmdate): string
     {
         return ('20' . substr((string) $frmdate, 4, 2) . substr((string) $frmdate, 0, 2) . substr((string) $frmdate, 2, 2));
     }
