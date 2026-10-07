@@ -192,8 +192,8 @@ $check_sum = isset($_GET['check_sum']);
   <th id="sortby_pid" class="text" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('PatientID'); ?></th>
   <th id="sortby_comments" class="text" title="<?php echo xla('Sort by Comments'); ?>"><?php echo xlt('Comments'); ?></th>
     <?php  if ($check_sum) {?>
-  <th id="sortby_newchecksum" class="text" title="<?php xla('Sort by New Checksum'); ?>"><?php echo xlt('Tampered Checksum'); ?></th>
-  <th id="sortby_oldchecksum" class="text" title="<?php xla('Sort by Old Checksum'); ?>"><?php echo xlt('Original Checksum'); ?></th>
+  <th id="sortby_newchecksum" class="text" title="<?php echo xla('Sort by New Checksum'); ?>"><?php echo xlt('Tampered Checksum'); ?></th>
+  <th id="sortby_oldchecksum" class="text" title="<?php echo xla('Sort by Old Checksum'); ?>"><?php echo xlt('Original Checksum'); ?></th>
     <?php } ?>
  </tr>
     <?php

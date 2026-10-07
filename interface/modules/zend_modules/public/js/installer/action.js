@@ -112,7 +112,11 @@ function configure(id, imgpath) {
         $(".config").hide();
         $("#ConfigRow_" + id).fadeOut();
     } else {
-        $.post("./Installer/configure", {mod_id: id},
+        $.post("./Installer/configure",
+            {
+                mod_id: id,
+                csrf_token_form: window.csrfTokenForm
+            },
             function (data) {
                 $(".config").hide();
                 $("#ConfigRow_" + id).hide();
@@ -143,7 +147,8 @@ function SaveMe(frmId, mod_id) {
         $.ajax({
             type: 'POST',
             url: "./Installer/SaveHooks",
-            data: $('#' + frmId + mod_id).serialize(),
+            data: $('#' + frmId + mod_id).serialize() +
+                '&csrf_token_form=' + encodeURIComponent(window.csrfTokenForm),
             success: function (data) {
                 $.each(data, function (jsonIndex, jsonValue) {
                     if (jsonValue['return'] == 1) {

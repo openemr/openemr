@@ -16,7 +16,6 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
-use League\OAuth2\Server\RequestEvent;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\JWTClientAuthenticationService;
@@ -28,6 +27,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class CustomClientCredentialsGrant extends ClientCredentialsGrant
 {
     use SystemLoggerAwareTrait;
+    use ClientGrantTypeGuardTrait;
 
     /**
      * @var TrustedUserService
@@ -226,18 +226,13 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             throw OAuthServerException::invalidClient($request);
         }
 
-        if ($this->clientRepository->validateClient($clientId, null, $this->getIdentifier()) === false) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-
-            throw OAuthServerException::invalidClient($request);
-        }
-
         // If a redirect URI is provided ensure it matches what is pre-registered
         $redirectUri = $this->getRequestParameter('redirect_uri', $request, null);
 
         if ($redirectUri !== null) {
             $this->validateRedirectUri($redirectUri, $client, $request);
         }
+        $this->assertClientMayUseGrant($client, $this->getIdentifier(), $this->logger);
 
         return $client;
     }

@@ -52,7 +52,12 @@
 #
 #   1. dry_run=true on the dispatched build-release.yml -- gates
 #      tag push + GitHub Release creation (via reusable-publish-
-#      release.yml).
+#      release.yml). skip_acceptance_gate=true is also passed as a
+#      separate runtime-optimization flag (avoids duplicate matrix
+#      work; variants A + B below cover the acceptance surface). The
+#      two flags are DECOUPLED as of G43 (2026-09-19) -- dry_run
+#      alone remains load-bearing for the publish skip regardless
+#      of skip_acceptance_gate's value.
 #   2. no_publish=true on both dispatched acceptance-only.yml runs
 #      -- gates publish job at the recovery-workflow layer (from
 #      openemr/openemr#13985).
@@ -344,6 +349,16 @@ jobs:
           # out post-release drift on the rel branch making the source
           # version mismatch what we're passing (see the picker step's
           # header comment for the edge-case rationale).
+          # skip_acceptance_gate=true because the smoketest runs its
+          # own variant-A + variant-B acceptance-only matrices on the
+          # preserved source artifact downstream (see the dispatch
+          # steps below). Without this flag, build-release.yml would
+          # ALSO run its internal acceptance-gate against the shipped
+          # tarball -- duplicating ~30 min of matrix work with zero
+          # additional signal, and adding avoidable runtime + rate-
+          # limit pressure. Independent of dry_run (see G43 decoupling
+          # 2026-09-19): dry_run stays load-bearing for the publish
+          # skip (L1 guardrail against stomping a real release).
           if gh workflow run build-release.yml \
               --repo "${{ github.repository }}" \
               --ref master \
@@ -351,6 +366,7 @@ jobs:
               -f version="${SHIPPED_VERSION}" \
               -f release_tag="${RELEASE_TAG}" \
               -f dry_run=true \
+              -f skip_acceptance_gate=true \
               -f skip_milestone_check=true \
               -f skip_ghsa_check=true; then
             exit 0

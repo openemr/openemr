@@ -31,7 +31,7 @@ class PatientTransactionService extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public function getSelectStatement($predicateColumnName)
+    public function getSelectStatement($predicateColumnName): string
     {
 
         $criteriaItemsWhitelist = [
@@ -103,7 +103,7 @@ class PatientTransactionService extends BaseService
         ";
     }
 
-    private function getOneFromDb($tid)
+    private function getOneFromDb($tid): array
     {
 
         $sqlBindArray = [];
@@ -116,7 +116,7 @@ class PatientTransactionService extends BaseService
         return $records;
     }
 
-    public function getAll($pid)
+    public function getAll($pid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $sqlBindArray = [];

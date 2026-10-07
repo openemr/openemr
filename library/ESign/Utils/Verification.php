@@ -20,7 +20,7 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/VerificationIF.p
 
 class Utils_Verification implements VerificationIF
 {
-    public function hash($data, $algo = 'sha3-512')
+    public function hash($data, $algo = 'sha3-512'): string
     {
         $string = "";
         $string = is_array($data) ? $this->stringifyArray($data) : $data;
@@ -34,7 +34,7 @@ class Utils_Verification implements VerificationIF
         return $hash;
     }
 
-    protected function stringifyArray(array $arr)
+    protected function stringifyArray(array $arr): string
     {
         $string = "";
         foreach ($arr as $part) {

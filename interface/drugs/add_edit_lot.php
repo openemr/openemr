@@ -66,7 +66,7 @@ function areVendorsUsed()
 // Returns the number of warehouses allowed.
 // For these purposes the "unassigned" option is considered a warehouse.
 //
-function genWarehouseList($tag_name, $currvalue, $title, $class = '')
+function genWarehouseList($tag_name, $currvalue, $title, $class = ''): int
 {
     global $drug_id, $is_user_restricted;
 

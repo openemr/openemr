@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ControllerRouter
 {
-    protected function createActionRouter(BaseController $controller, string $action)
+    protected function createActionRouter(BaseController $controller, string $action): ActionRouter
     {
         return new ActionRouter($controller, $action);
     }

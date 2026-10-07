@@ -105,7 +105,7 @@ function handleUpdateReportingPeriod()
 /**
  * Handle getting measures for a period
  */
-function handleGetMeasuresForPeriod()
+function handleGetMeasuresForPeriod(): array
 {
     $period = $_POST['period'] ?? '';
 

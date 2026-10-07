@@ -486,11 +486,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo text('CycloMydril'); ?></label>
                         </td>
                         <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 2.5%" <?php
-                            if ($TROPICAMIDE == 'Tropicamide 2.5%') {
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 1%" <?php
+                            if ($TROPICAMIDE == 'Tropicamide 1%' || $TROPICAMIDE == 'Tropicamide 2.5%') {
                                 echo "checked='checked'";
                             } ?> />
-                            <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo text('Tropic 2.5%'); ?></label>
+                            <label for="PRIORS_Tropicamide" class="input-helper input-helper--checkbox"><?php echo ($TROPICAMIDE == 'Tropicamide 2.5%') ? xlt('Tropic 2.5%') : xlt('Tropic 1%'); ?></label>
                         </td>
                       </tr>
                       <tr>
@@ -1665,9 +1665,9 @@ function send_json_values($PMSFH = ""): void
  *  to function at their base level.
  *
  * @param string $pid is the patient identifier
- * @return mixed array, access items as $PMSFH[0]
+ * @return array{array<string, mixed>} access items as $PMSFH[0]
  */
-function build_PMSFH($pid)
+function build_PMSFH($pid): array
 {
     global $form_id;
 
@@ -2013,11 +2013,13 @@ function build_PMSFH($pid)
     $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
     $ROS = sqlStatement($query, [$form_id]);
+    $ros_display = [];
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
-            $PMSFH['ROS'][$item]['display'] = $row[$item];
+            $ros_display[$item]['display'] = $row[$item];
         }
     }
+    $PMSFH['ROS'] = $ros_display;
 
     // translator will need to translate each item in $given
     $PMSFH['ROS']['ROSGENERAL']['short_title'] = xlt("GEN{{General}}");
@@ -2067,9 +2069,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $total_PMSFH = 0;
     $header1 = '';
     $display_PMSFH = [];
-    if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
-    }
+    $PMSFH = build_PMSFH($pid);
 
     ob_start();
     // There are two rows in our PMH section, only one in the side panel.
@@ -2152,7 +2152,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             "POH"        => xlt("POH"),
             "POS"        => xlt("POS"),
             "PMH"        => xlt("Past Medical History"),
-            default      => is_string($key) ? text($key) : '',
+            default      => text($key),
         };
         $header .= '    <table class="PMSFH_header">
                 <tr>
@@ -2688,9 +2688,7 @@ function show_PMSFH_report($PMSFH): void
 
     //4 panels
     $rows = '4';
-    if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
-    }
+    $PMSFH = build_PMSFH($pid);
 
     // Find out the number of items present now and put 1/4 in each column.
     foreach ($PMSFH[0] as $key => $value) {
@@ -3031,9 +3029,10 @@ function display_QP($zone, $provider_id)
     }
 
     foreach ($here as $title => $values) { //start QP section items
-        $title_show = (strlen((string) $title) > 19) ? substr((string) $title, 0, 16) . '...' : $title;
+        $titleShort = (strlen((string) $title) > 19) ? substr((string) $title, 0, 16) . '...' : (string) $title;
+        $title_show = text($titleShort);
         if (preg_match('/clear field/', (string) $title)) {
-            $title_show = "<em><strong>$title</strong></em>";
+            $title_show = "<em><strong>" . text($titleShort) . "</strong></em>";
         }
 
         if ($values['OD'] ?? '') {
@@ -3107,7 +3106,7 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
-function canvas_select($zone, $encounter, $pid)
+function canvas_select($zone, $encounter, $pid): string
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
      * just like we do in the text fields.
@@ -3428,7 +3427,7 @@ function build_CODING_items($pid, $encounter)
  *  @param string $pid patient_id
  *  @return array
  */
-function document_engine($pid)
+function document_engine($pid): array
 {
     $categories = [];
     $my_name = [];
@@ -3508,7 +3507,7 @@ function document_engine($pid)
  *                They allow us to regroup the categories how we like them.
  *  @return array
  */
-function display($pid, $encounter, $category_value)
+function display($pid, $encounter, $category_value): array
 {
     global $form_folder;
     global $id;
@@ -3542,22 +3541,33 @@ function display($pid, $encounter, $category_value)
 
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '';
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", (string) $documents['zones'][$category_value][$j]['name']);
+        $categoryName = is_string($documents['zones'][$category_value][$j]['name'] ?? null)
+            ? $documents['zones'][$category_value][$j]['name']
+            : '';
+        $categoryId = $documents['zones'][$category_value][$j]['id'] ?? '';
+        $uploadUrl = OEGlobalsBag::getInstance()->getWebRoot()
+            . '/controller.php?document&upload&patient_id=' . urlencode((string) $pid)
+            . '&parent_id=' . urlencode((string) $categoryId)
+            . '&';
+        $viewUrl = OEGlobalsBag::getInstance()->getWebRoot()
+            . '/controller.php?document&view&patient_id=' . urlencode((string) $pid)
+            . '&doc_id=' . urlencode((string) $id_to_show);
         $episode .= "<tr>
-        <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
+        <td class='right'><span class='font-weight-bold'>" . text($categoryName) . "</span>:&nbsp;</td>
         <td>
-            <a onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " " . attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
+            <a onclick=\"openNewForm(" . attr_js($uploadUrl) . ", " . attr_js(xl('Upload') . ' ' . $categoryName) . ");\" href='#'>
             <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
             </a>
         </td>
         <td>
-            <a onclick=\"return showpnotes('" . $id_to_show . "');\">
+            <a onclick=\"return showpnotes(" . attr_js((string) $id_to_show) . ");\">
                 <img  src='../../forms/" . $form_folder . "/images/upload_multi.png' class='little_image'>
             </a>
         </td>
         <td>";
         //open via OpenEMR Documents with treemenu
         if ($count_here > '0') {
-            $episode .= '<a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . $id_to_show . '\',\'' . xla('Documents') . ': ' . attr($documents['zones'][$category_value][$j]['name']) . '\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
+            $episode .= '<a onclick="openNewForm(' . attr_js($viewUrl) . ', ' . attr_js(xl('Documents') . ': ' . $categoryName) . ');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
         }
 
         $episode .= '</td></tr>';
@@ -4000,9 +4010,7 @@ function start_your_engines($FIELDS)
     $DX = '';
     $sub_term = '';
     $count = 0;
-    if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
-    }
+    $PMSFH = build_PMSFH($pid);
 
     $query = "select * from list_options where list_id ='Eye_Coding_Fields' Order by seq";
     $result = sqlStatement($query);
@@ -4188,7 +4196,6 @@ function start_your_engines($FIELDS)
                                 $hit_PDR[$side] = '1';
                             } elseif (
                                 (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
-                                (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
                                 (stripos((string) $FIELDS[$location], $IRMA)  !== false) ||
                                 (stripos((string) $FIELDS[$location2], $IRMA) !== false) ||
                                 (stripos((string) $FIELDS[$location3], $IRMA) !== false)
@@ -4202,8 +4209,6 @@ function start_your_engines($FIELDS)
                             ) {
                                     $trace = "tr";
                                 if (
-                                    (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
-                                    (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
                                     (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false)
                                 ) {
@@ -4412,7 +4417,7 @@ function coding_carburetor($term, $field)
  *
  *  This function is not called directly but via the wrapper function start_your_engines().
  */
-function coding_engine($term, $code_found, $location, $side = '')
+function coding_engine($term, $code_found, $location, $side = ''): array
 {
     if (strpos((string) $code_found['code'], ":")) {
         [$code_type, $code] = explode(':', (string) $code_found['code']);
@@ -4448,7 +4453,7 @@ function coding_engine($term, $code_found, $location, $side = '')
  *  This is a function to sort an array of dates/times etc
  *  Anything strtotime() can recognize at least.
  */
-function cmp($a, $b)
+function cmp($a, $b): int
 {
     if ($a == $b) {
         return 0;
@@ -4891,7 +4896,16 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                     $hideme = "hideme_gonios nodisplay";// show the first only, hide the rest for now
                                 }
 
-                                $gonios .= "<tr><td class='GFS_td_1 " . $hideme . "'>" . $visit['exam_date'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['ODGONIO'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['OSGONIO'] . "</td></tr>";
+                                $examDate = $visit['exam_date'] ?? null;
+                                $odGonio = $visit['ODGONIO'] ?? null;
+                                $osGonio = $visit['OSGONIO'] ?? null;
+                                $gonios .= "<tr><td class='GFS_td_1 " . $hideme . "'>"
+                                    . text(is_string($examDate) ? $examDate : '')
+                                    . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>"
+                                    . text(is_string($odGonio) ? $odGonio : '')
+                                    . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>"
+                                    . text(is_string($osGonio) ? $osGonio : '')
+                                    . "</td></tr>";
                                 if (!empty($GONIO_chart)) {
                                     $GONIO_chart .= '"1",';
                                 } else {
@@ -6384,7 +6398,7 @@ function in_array_r($needle, $haystack, $strict = false): bool
              * @param $provider_id = who is the patient's provider is only needed if there is no value anywhere else.
              * @return array (ODIOPTARGET AND OSIOPTARGET to be saved in this encounter
              */
-function getIOPTARGETS($pid, $id, $provider_id)
+function getIOPTARGETS($pid, $id, $provider_id): array
 {
     $ODIOPTARGET = '';
     $OSIOPTARGET = '';

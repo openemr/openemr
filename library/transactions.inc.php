@@ -30,7 +30,7 @@ function getTransById($id, $cols = "*")
 /**
  * Transactions for a patient plus their lbt_data fields; empty array when $pid is not int|string.
  */
-function getTransByPid($pid, $cols = "*")
+function getTransByPid($pid, $cols = "*"): array
 {
     if (!is_int($pid) && !is_string($pid)) {
         return [];

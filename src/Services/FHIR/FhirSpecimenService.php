@@ -58,7 +58,7 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),

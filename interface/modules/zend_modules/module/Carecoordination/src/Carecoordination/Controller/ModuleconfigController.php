@@ -55,7 +55,7 @@ class ModuleconfigController extends AbstractActionController
         return $this->inputFilter;
     }
 
-    public function getHookConfig()
+    public function getHookConfig(): array
     {
     //SOECIFY HOOKS DETAILS OF A MODULE IN AN ARRAY, WITH MODULE NAME AS KEY
     //SHOULD SPECIFY THE CONTROLLER AND ITS ACTION IN THE PATH, INCLUDING INDEX ACTION
@@ -70,7 +70,7 @@ class ModuleconfigController extends AbstractActionController
         return $hooks;
     }
 
-    public function getDependedModulesConfig()
+    public function getDependedModulesConfig(): array
     {
         // these modules need to be activated before this module can be installed
         $dependedModules = [
@@ -82,7 +82,7 @@ class ModuleconfigController extends AbstractActionController
         return $dependedModules;
     }
 
-    public function getAclConfig()
+    public function getAclConfig(): array
     {
         $acl = [
         [

@@ -102,14 +102,37 @@ jobs:
     timeout-minutes: 20
     steps:
     # Needed so the "Verify pushed image OCI labels" step below can call
-    # .github/scripts/verify-oci-labels.sh. persist-credentials: false
-    # because publish uses its own DOCKERHUB_TOKEN for imagetools calls;
-    # leaving GITHUB_TOKEN in .git/config would be zero-value credential
-    # surface.
+    # .github/scripts/verify-oci-labels.sh -- and so the preflight step
+    # below can call .github/scripts/assert-inputs-nonempty.sh.
+    # persist-credentials: false because publish uses its own
+    # DOCKERHUB_TOKEN for imagetools calls; leaving GITHUB_TOKEN in
+    # .git/config would be zero-value credential surface.
     - name: Checkout
       uses: actions/checkout@v7
       with:
         persist-credentials: false
+
+    # Preflight: enforce non-empty required inputs before any destructive
+    # step runs. workflow_call's `required: true` only validates the
+    # input is DECLARED at the call site, not that its value is
+    # non-empty -- `-f candidate_tag=""` satisfies `required: true` but
+    # would break the imagetools alias step. Since every step below
+    # performs a destructive publish op (imagetools alias onto every
+    # real tag in expanded_tags + candidate cleanup), fail loudly HERE
+    # if any input is empty, before touching anything. Belt-and-
+    # suspenders complement to the CALLER-MUST-GATE contract in this
+    # workflow's header (see G37 in release-mechanism-gaps.md).
+    - name: Preflight (all required inputs non-empty)
+      env:
+        CANDIDATE_TAG: ${{ inputs.candidate_tag }}
+        EXPANDED_TAGS: ${{ inputs.expanded_tags }}
+        OPENEMR_VERSION_REF: ${{ inputs.openemr_version_ref }}
+        IMAGE_VERSION: ${{ inputs.image_version }}
+        BUILD_DATE: ${{ inputs.build_date }}
+      run: >-
+        .github/scripts/assert-inputs-nonempty.sh
+        "reusable-docker-publish.yml"
+        CANDIDATE_TAG EXPANDED_TAGS OPENEMR_VERSION_REF IMAGE_VERSION BUILD_DATE
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4

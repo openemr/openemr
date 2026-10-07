@@ -21,7 +21,7 @@ class FhirServiceLocator
 {
     /**
      * FhirExportServiceLocator constructor.
-     * @param array $routes
+     * @param array<string, mixed> $routes The route map, keyed by "<METHOD> /path".
      * $type is the FQDN of a class or interface... IE type should resolve to the ::class property of a class or interface
      */
     public function __construct(private readonly array $routes = [])
@@ -33,7 +33,7 @@ class FhirServiceLocator
      * interfaces.  It returns a hashmap of resourceName:string => service:IFhirExportableResourceService.
      * @return IFhirExportableResourceService[]
      */
-    public function findServices($type)
+    public function findServices($type): array
     {
         if (empty($type) || !(class_exists($type) || interface_exists($type))) {
             throw new \InvalidArgumentException('$type must be a valid class or instance');

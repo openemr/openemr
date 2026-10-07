@@ -569,7 +569,7 @@ if (!empty($_POST['form_refresh'])) {
 
     if ($type == 'Procedure') {
          $whr_stmt .= " AND po.date_ordered >= ? AND po.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(po.date_ordered) <= ?";
-             array_push($sqlBindArray, substr((string) $sql_date_from, 0, 10), substr((string) $sql_date_to, 0, 10), date("Y-m-d"));
+             array_push($sqlBindArray, substr($sql_date_from, 0, 10), substr($sql_date_to, 0, 10), date("Y-m-d"));
     }
 
     if ($type == "Service Codes") {

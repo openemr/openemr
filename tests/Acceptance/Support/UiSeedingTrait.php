@@ -1069,6 +1069,27 @@ trait UiSeedingTrait
     }
 
     /**
+     * Assert the persist patient exists WITHOUT falling back to
+     * create-if-missing. Post-condition on success: browser is on the
+     * patient's dashboard and the pid is returned.
+     *
+     * Companion to seedPersistPatientIfMissing for post-upgrade
+     * verification: a persistence test's post-upgrade phase must
+     * prove data from the post-install phase survived, so calling
+     * the seed helper would silently re-create anything the upgrade
+     * dropped and mask the very bug being tested. Use this instead
+     * in post-upgrade methods.
+     */
+    protected function assertPersistPatientExists(string $failureMessage): int
+    {
+        self::assertTrue(
+            $this->persistPatientExists(),
+            $failureMessage,
+        );
+        return $this->currentPatientPidFromPatIframe();
+    }
+
+    /**
      * Search for the persist patient via the shell's anySearchBox.
      * If the finder result appears within a short window, click it
      * (opens the patient's dashboard) and return true. Otherwise
@@ -1392,6 +1413,21 @@ trait UiSeedingTrait
             return;
         }
         $this->uploadPersistDocument($patientPid);
+    }
+
+    /**
+     * Assert the persist document exists in the patient's Medical
+     * Record category WITHOUT falling back to upload-if-missing.
+     * Companion to seedPersistDocumentIfMissing for post-upgrade
+     * verification -- see assertPersistPatientExists for the
+     * rationale.
+     */
+    protected function assertPersistDocumentExists(int $patientPid, string $failureMessage): void
+    {
+        self::assertTrue(
+            $this->persistDocumentExists($patientPid),
+            $failureMessage,
+        );
     }
 
     /**

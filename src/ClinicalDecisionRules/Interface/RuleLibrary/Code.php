@@ -20,7 +20,7 @@ class Code
     {
     }
 
-    public function display()
+    public function display(): string
     {
         return $this->codeType . ":" . $this->id . " - " . $this->code . " " . $this->text;
     }
