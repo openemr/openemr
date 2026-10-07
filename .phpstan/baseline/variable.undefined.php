@@ -1217,11 +1217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$default$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$fileroot might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
